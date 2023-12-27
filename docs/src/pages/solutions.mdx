@@ -1,0 +1,222 @@
+export const description = 'On this page, we’ll dive into the different message endpoints you can use to manage messages programmatically.'
+ 
+# Solutions
+ 
+Solutions represent proposed solutions to tasks
+ 
+## The Solution model
+ 
+The Solution model contains everything needed to verify a solution
+ 
+### Properties
+ 
+<Properties>
+  <Property name="validator" type="address">
+    Validator that provided solution
+  </Property>
+  <Property name="blocktime" type="uint64">
+    Unix timestamp of solution submission.
+  </Property>
+  <Property name="claimed" type="boolean">
+    Has fee and reward been claimed?
+  </Property>
+  <Property name="cid" type="string">
+    IPFS CID for solution response.
+    Unix timestamp of task registration.
+  </Property>
+</Properties>
+ 
+---
+
+## Retrieve solution {{ tag: 'READ', label: 'Engine' }}
+
+<Row>
+  <Col>
+    Look up a solution given a `taskid`.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="CALL" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      provider,
+    )
+    const solution = await engine.solutions(taskId);
+    const { validator, blocktime, claimed, cid } = solution;
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbius.sol";
+
+    contract LookupSolutionCID {
+        IArbius arbius;
+
+        constructor(IArbius _arbius) {
+            arbius = _arbius;
+        }
+
+        function lookupSolutionCID(bytes32 taskid)
+            public
+            view
+            returns (string memory)
+        {
+            IArbius.Solution memory t = arbius.solutions(taskid);
+            return t.cid;
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Submit solution {{ tag: 'WRITE', label: 'Engine' }}
+
+<Row>
+  <Col>
+    Solutions can be submitted in order to gain the task fee. They may also grant [task rewards](/task-rewards) if the model is enabled to receive them.
+
+    Solutions must first be committed to before submitting solution. This must happen in a prior block to the actual submission. This requirement exists so that your submission cannot be frontrun.
+
+    Commitments can be calculated with `keccak256(abi.encode(address, taskid, cid))`.
+
+    Ensure when you are submitting a solution it is correct, if it is not you will be slashed.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="CALL" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const wallet = new ethers.Wallet(
+      process.env.PRIVATE_KEY,
+      provider,
+    );
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      wallet,
+    )
+
+    const taskid = 'task id we are solving'
+    const cid = 'ipfs hash of solution'
+
+    const commitment = await engine.generateCommitment(
+      wallet.address,
+      taskid,
+      cid,
+    );
+    await (await engine.signalCommitment(commitment)).wait();
+
+    const tx = await engine.submitSolution(taskid, cid)
+    const receipt = await tx.wait();
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbius.sol";
+    import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+    contract SubmitSolution {
+        IArbius arbius;
+
+        constructor(IArbius _arbius) {
+            arbius = _arbius;
+        }
+
+        function signalCommitment(bytes32 _commitment)
+            public
+        {
+            arbius.signalCommitment(_commitment);
+        }
+
+        function submitSolution(
+            bytes32 _taskid,
+            string memory _cid
+        ) public
+        {
+            arbius.submitSolution(_taskid, _cid);
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Claim solution {{ tag: 'WRITE', label: 'Engine' }}
+
+<Row>
+  <Col>
+    After `MIN_CLAIM_SOLUTION_TIME` if there have been no contestations you can claim any fees paid for the task, after the models fees have been subtracted. If the model is mineable you will also receive Arbius task reward.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="CALL" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const wallet = new ethers.Wallet(
+      process.env.PRIVATE_KEY,
+      provider,
+    );
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      wallet,
+    )
+
+    const taskid = 'task id to claim'
+    const tx = await engine.claimSolution(taskid);
+    const receipt = await tx.wait();
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "IArbius.sol";
+
+    contract ClaimSolution {
+        IArbius arbius;
+
+        constructor(IArbius _arbius) {
+            arbius = _arbius;
+        }
+
+        function claimSolution(bytes32 _taskid) public {
+            arbius.claimSolution(_taskid);
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>

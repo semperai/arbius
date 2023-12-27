@@ -1,0 +1,242 @@
+export const description = 'On this page, we’ll dive into the different message endpoints you can use to manage messages programmatically.'
+ 
+# Tasks
+ 
+Tasks represent requests for jobs to be performed. Think of them like a transaction mixed with a block, a fee is proposed along with the data required to "mine" it, and miners receive the fees and potentially the task reward which is how the Arbius token comes into existence.
+ 
+## The Task model
+ 
+The Task model contains all the information about the Task, such as its fees, information on how to run it, and whether or not it grants tasks rewards.
+ 
+### Properties
+ 
+<Properties>
+  <Property name="model" type="bytes32">
+    Model id
+  </Property>
+  <Property name="fee" type="uint256">
+    Amount of fee offered for completion
+  </Property>
+  <Property name="owner" type="address">
+    Which address is allowed to rescind the task (after delay)
+  </Property>
+  <Property name="blocktime" type="uint64">
+    Unix timestamp of task registration.
+  </Property>
+  <Property name="version" type="uint8">
+    Version, currently unused and always 0.
+  </Property>
+  <Property name="cid" type="string">
+    IPFS CID for input request.
+  </Property>
+</Properties>
+ 
+---
+
+## Retrieve task {{ tag: 'READ', label: 'Engine' }}
+
+<Row>
+  <Col>
+    Look up a task based on its ID.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="CALL" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      provider,
+    )
+    const task = await engine.tasks(taskId);
+    const { model, fee, owner, blocktime, version, cid } = task;
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbius.sol";
+
+    contract LookupTaskCID {
+        IArbius arbius;
+
+        constructor(IArbius _arbius) {
+            arbius = _arbius;
+        }
+
+        function lookupTaskCID(bytes32 taskid)
+            public
+            view
+            returns (string memory)
+        {
+            IArbius.Task memory t = arbius.tasks(taskid);
+            return t.cid;
+        }
+    }
+    ```
+
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Submit task {{ tag: 'WRITE', label: 'Engine' }}
+
+<Row>
+  <Col>
+    Submit a new task to be completed by others. Watch for `SolutionSubmitted` events to see when someone has provided a solution. Wait for longer to see for any `ContestationSubmitted` events to ensure it is valid. Once the `MIN_CLAIM_SOLUTION_TIME` has passed, you can be relatively certain the tasks solution is valid. For integration into smart contracts, consider a two part process to initiate the task then to later confirm the task has no (or failed) contestation. If a task has a valid contestation you will receive your fees back, so you can try again.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="WRITE" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const wallet = new ethers.Wallet(
+      process.env.PRIVATE_KEY,
+      provider,
+    );
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      wallet,
+    )
+
+    const model = 'model id we are using';
+
+    // ensure this follows model template
+    const input = {
+      prompt: "cat rocket ship"
+    };
+
+    const params = {
+      version: 0,
+      owner: wallet.address,
+      model,
+      fee: ethers.utils.parseEther('0.1'),
+      input: ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(input))),
+    }
+
+    const tx = await engine.submitTask(
+      params.version,
+      params.owner,
+      params.model,
+      params.fee,
+      params.input,
+    )
+    const receipt = await tx.wait();
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbius.sol";
+    import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+    contract SubmitTask {
+        IArbius arbius;
+        IERC20 arbiusToken;
+        bytes32 model;
+        bytes input;
+
+        constructor(
+            IArbius _arbius,
+            IERC20 _arbiusToken,
+            bytes32 _model,
+            bytes memory _input
+        ) {
+            arbius = _arbius;
+            arbiusToken = _arbiusToken;
+            model = _model;
+            input = _input;
+        }
+
+        function submitTask() public {
+            arbiusToken.approve(address(arbius), type(uint256).max);
+            bytes32 taskid = arbius.submitTask(
+                0x0,
+                address(this),
+                model,
+                0.1e18,
+                input
+            );
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Retract task {{ tag: 'WRITE', label: 'Engine' }}
+
+<Row>
+  <Col>
+    Retract a given task. This should only be done if you set too low of a fee and no solver is willing to take it up. You will have to wait `MIN_RETRACTION_WAIT` time to be able to retract.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="WRITE" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const wallet = new ethers.Wallet(
+      process.env.PRIVATE_KEY,
+      provider,
+    );
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      wallet,
+    )
+
+    const taskid = 'task id..';
+
+    const tx = await engine.retractTask(taskid)
+    const receipt = await tx.wait();
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbius.sol";
+
+    contract RetractTask {
+        IArbius arbius;
+
+        constructor(IArbius _arbius) {
+            arbius = _arbius;
+        }
+
+        function retractTask(bytes32 _taskid) public {
+            arbius.retractTask(_taskid);
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>

@@ -1,0 +1,48 @@
+{
+  "__doc__PRIVATE_KEY": "Make sure this is loaded with ETH and you are staked correctly",
+  "PRIVATE_KEY": "0x0000000000000000000000000000000000000000000000000000000000000000",
+
+  "__doc__RPC_URL": "Local is fastest",
+  "RPC_URL": "https://nova.arbitrum.io/rpc",
+
+  "__doc__PINATA_JWT": "Read more here: https://www.pinata.cloud/", 
+  "PINATA_JWT": "",
+
+  "__doc__REPLICATE_API_TOKEN": "Read more here: https://replicate.com/docs/reference/http",
+  "REPLICATE_API_TOKEN": "",
+
+  "__doc__IPFS_CID_URL": "This should contain %C which will be replaced with the IPFS CID",
+  "IPFS_CID_URL": "https://gateway.pinata.cloud/ipfs/%C",
+
+  "__doc__LOGPATH": "Where logs should be stored",
+  "LOGPATH": "log.txt",
+
+  "__doc__DBPATH": "Where database should be stored",
+  "DBPATH": "db2.sqlite",
+
+  "__doc__STAKEBUFFERPERCENT": "How much of a buffer should we attempt to keep ahead of validatorMinimum",
+  "STAKEBUFFERPERCENT": 20,
+
+  "__doc__AUTOMINE": "settings for automatic creation and solving of tasks",
+  "AUTOMINE": {
+    "__doc__enabled": "Should we automine?",
+    "enabled": true,
+
+    "__doc__delay": "How many seconds between each generation?",
+    "delay": 60,
+
+    "__doc__version": "Version of task format to solve, keep at 0",
+    "version": 0,
+
+    "__doc__model": "What model id are we mining?",
+    "model": "0x7cb00aefb0992612b38464630c161fa7f36d727f0a52bcf926e7d8a361af86c7",
+
+    "__doc__fee": "What fee should we add to tasks (should keep at 0)",
+    "fee": "0",
+
+    "__doc__input": "object in model template format, default params can be customized",
+    "input": {
+      "prompt": "running arbius"
+    }
+  }
+}

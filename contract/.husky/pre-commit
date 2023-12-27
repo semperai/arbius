@@ -1,0 +1,7 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Check style
+echo 'Checking style...'
+yarn --silent prettier:check 1>/dev/null
+echo 'Style is good!'

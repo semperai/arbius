@@ -1,0 +1,7 @@
+cbor2==5.4.6
+crytic-compile==0.3.0
+packaging==23.0
+prettytable==3.6.0
+pycryptodome==3.17
+slither-analyzer==0.9.2
+wcwidth==0.2.6

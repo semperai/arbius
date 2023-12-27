@@ -1,0 +1,52 @@
+export const description =
+  'This guide describes the Governance system of the Arbius Protocol.'
+
+# Governance
+
+The Arbius token is used for governance, conferring voting rights over future protocol upgrades and control of the Arbius treasury.
+
+Governance is done on-chain, we utilize IPFS to store the description text reducing our reliance on centralized indexers.
+
+All of the following parameters may be updated using future governance proposals. The launch parameters are intended to be conservative.
+
+## Delegation
+
+Users can delegate their voting rights to another address [on the governance page](https://arbius.org/governance). You can also of course delegate to yourself to participate in voting.
+
+## Voting Delay
+
+Users have `3` days to prepare their Arbius for voting once a proposal has been submitted. No voting may take place during this period.
+
+## Voting Period
+
+Users have `3` days to vote on a proposal. We use [Bravo](https://docs.compound.finance/v2/governance/#governor-bravo) style voting which allows for "For", "Against", and "Abstain" choices.
+
+## Proposal Threshold
+
+We require a minimum of `1000` Arbius (or 0.1% of complete total supply) for creating a proposal.
+
+## Quorum
+
+Arbius requires a 4% quorum of "For" votes to pass a proposal.
+
+## Timelock Queue
+
+Once a proposal passes, there is a `1` day period where people may pull their funds from Arbius if they are unhappy with the results of the vote.
+
+## Proposing
+
+If you have at least the minimum threshold of tokens delegated to you, you may propose new actions.
+
+You will want to edit the `governance:propose` task in `/arbius/contract/task/index.ts` and create a markdown file that describes your proposal.
+
+Then, once everything is ready run:
+
+```bash
+npx hardhat --network nova governance:propose -f DESCRIPTION.md
+```
+
+This task will show you your proposal id. Miners will automatically mirror the proposal description on their IPFS servers. 
+
+## Final thoughts
+
+Governance is best done in the open. Please communicate any proposals and gain community support before proposing any transaction.

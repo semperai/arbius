@@ -1,0 +1,46 @@
+export const description =
+  'This guide describes the tokenomics of the Arbius Protocol.'
+
+# Tokenomics
+
+The Arbius token is used to pay generation fees of machine learning tasks inside the Arbius network.
+
+It also is used for governance, conferring voting rights over future protocol upgrades and control of the Arbius treasury.
+
+New coins are created to reward miners who solve tasks with a Task Reward. This can be thought of similarly to block reward in Bitcoin-like currencies.
+
+## Emission Schedule
+
+There will only ever be 1 million coins. Arbius follows a continuous halving process, where the total potential amount of tokens generated at time t is constantly decreasing. If miners are solving more tasks the amount of new coins generated will shrink, and if they are not solving enough tasks the task reward will grow to attempt to match the emission schedule.
+
+After 1 year approximately half of all Arbius will be minted, after 2 years approximately 75%, and after 7 years approximately 99%. Arbius security is not dependant on task rewards, so this is primarily used for a fair distribution of coins.
+
+## Staking
+
+To become a miner inside Arbius you must stake 0.1% of the total supply of Arbius. This can be withdrawn after a 24 hour period. While Arbius total supply is less than 5000 there is no minimum required for staking.
+
+Miners may be slashed for providing invalid solutions to tasks, the slashed funds is redistributed to other miners. This game theory encourages miners to only provide valid solutions to tasks (as in, reproducible).
+
+## Task reward
+
+New coins are generated to miners when they provide solutions to tasks using models which have the `mineable` attribute enabled. Governance of Arbius determines which models are considered mineable.
+
+<Note>
+  New models by default are not considered mineable, however tasks and solutions can still be created for them permissionlessly - they just won't receive task rewards.
+</Note>
+
+## Treasury
+
+10% of all newly created Arbius is sent to the Arbius treasury, which is controlled by the governance system. This is intended to fund future development of Arbius and associated tooling. This is on a 4 year vesting schedule.
+
+## LP Staking Reward
+
+10% of all newly created Arbius is sent to a contract which distributes the Arbius to liquidity providers. This encourages sufficient liquidity to allow miners to enter and exit the network easily.
+
+## Private Sale
+
+To support the first 6 months of marketing and development, 10% of all Arbius was sold for $300,000. This is on a 2 year vesting schedule.
+
+## Team allocation
+
+The Arbius team retains 10% of all Arbius tokens, on a 4 year vesting schedule. These tokens may be sold to fund future development.

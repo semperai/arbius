@@ -1,0 +1,29 @@
+import { Guides } from '@/components/Guides'
+import { Resources } from '@/components/Resources'
+import { HeroPattern } from '@/components/HeroPattern'
+
+export const description =
+  'Learn everything there is to know about the Arbius Protocol and integrate Arbius into your product.'
+
+export const sections = [
+  { title: 'Guides', id: 'guides' },
+  { title: 'Resources', id: 'resources' },
+]
+
+<HeroPattern />
+
+# Arbius Documentation
+
+Use the Arbius Protocol to generate images, text, audio, and more and seamlessly integrate your product into decentralized applications. {{ className: 'lead' }}
+
+<div className="not-prose mb-16 mt-6 flex gap-3">
+  <Button href="/quickstart" arrow="right" children="Quickstart" />
+</div>
+
+## Getting started {{ anchor: false }}
+
+To get started, you might want to get some Arbius tokens. You can simply [try Arbius](https://arbius.org/generate) with a 0 fee Kandinsky 2 request and it will probably get solved. Once you're ready, head over to the [quickstart](/quickstart) guide which will show you how to start mining and performing other tasks using Arbius.
+
+<Guides />
+
+<Resources />

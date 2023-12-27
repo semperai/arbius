@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.text-shadow {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.proposal-container h1,
+.proposal-container h2,
+.proposal-container h3,
+.proposal-container h4,
+.proposal-container h5,
+.proposal-container h6 {
+  font-weight: bolder;
+}
+
+.proposal-container h1 {
+  font-size: 2.125rem;
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
+}
+
+.proposal-container h2 {
+  font-size: 1.875rem;
+  margin-top: 0.83em;
+  margin-bottom: 0.83em;
+}
+
+.proposal-container h3 {
+  font-size: 1.5rem;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.proposal-container h4 {
+  font-size: 1.25rem;
+  margin-top: 1.33em;
+  margin-bottom: 1.33em;
+}
+
+.proposal-container h5 {
+  font-size: 1.125rem;
+  margin-top: 1.67em;
+  margin-bottom: 1.67em;
+}
+
+.proposal-container h6 {
+  font-size: 1rem;
+  margin-top: 2.33em;
+  margin-bottom: 2.33em;
+}
+
+.proposal-container ul {
+    list-style-type: disc;
+    margin-left: 1rem;
+}
+.proposal-container li {
+    margin-left: 2rem;
+}
+.proposal-container ul ul {
+    list-style-type: circle;
+}
+
+.proposal-container ol {
+    list-style-type: decimal;
+    margin-left: 1rem;
+}
+
+.proposal-container p {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}

@@ -1,0 +1,29 @@
+name: pr-checks
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+jobs:
+  build:
+    name: Check smart contracts build properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - name: Install dependencies
+        run: yarn install
+      - name: Check build
+        env:
+          RINKEBY_PROVIDER_URL: ${{ secrets.RINKEBY_PROVIDER_URL }}
+          RINKEBY_PRIVATE_KEY: ${{ secrets.RINKEBY_PRIVATE_KEY }}
+          MAINNET_PROVIDER_URL: ${{ secrets.MAINNET_PROVIDER_URL }}
+          MAINNET_PRIVATE_KEY: ${{ secrets.MAINNET_PRIVATE_KEY }}
+        run: yarn build
+      - name: Run unit tests
+        env:
+          RINKEBY_PROVIDER_URL: ${{ secrets.RINKEBY_PROVIDER_URL }}
+          RINKEBY_PRIVATE_KEY: ${{ secrets.RINKEBY_PRIVATE_KEY }}
+          MAINNET_PROVIDER_URL: ${{ secrets.MAINNET_PROVIDER_URL }}
+          MAINNET_PRIVATE_KEY: ${{ secrets.MAINNET_PRIVATE_KEY }}
+        run: yarn test

@@ -1,0 +1,50 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IL1CustomGateway",
+  "sourceName": "contracts/L1Token.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_l2Address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxGas",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_gasPriceBid",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxSubmissionCost",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_creditBackAddress",
+          "type": "address"
+        }
+      ],
+      "name": "registerTokenToL2",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

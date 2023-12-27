@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo 'Checking commit message... (https://www.conventionalcommits.org/)'
+yarn --silent commitlint --edit $1
+echo 'Commit message is good!'

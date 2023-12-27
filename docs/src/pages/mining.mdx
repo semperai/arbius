@@ -1,0 +1,119 @@
+export const description =
+  'This guide shows you how to start mining Arbius.'
+
+# Mining
+
+## Requirements
+
+* GPU server (can rent from [lambda labs](https://lambdalabs.com/))
+
+* https://github.com/replicate/cog
+
+
+## Setup
+
+### Full node (optional)
+
+https://developer.arbitrum.io/node-running/how-tos/running-a-full-node
+
+### Cog services
+
+Arbius uses [Cog](https://github.com/replicate/cog) which relies on [nvidia-docker](https://github.com/NVIDIA/nvidia-docker).
+
+
+```bash
+cog predict r8.im/kasumi-1/kandinsky-2@sha256:4e9a10fe1e84e0ac79c7ffabef8f66e1159dd405cd01a38750e128e7d0d52622 -i prompt="hello world"
+docker images # get IMAGE ID
+docker run -d -p 5000:5000 --gpus all [IMAGE ID]
+
+cog predict r8.im/anotherjesse/zeroscope-v2-xl@sha256:dcad8a883c2e99e3bf1d88590ce070bc6dd4e498af14a3f2f6e437f0f1ba7adb -i prompt="hello world"
+docker run -d -p 5001:5000 --gpus all [IMAGE ID]
+```
+
+### Arbius Miner
+
+Copy `MiningConfig.example.json` to `MiningConfig.json` and open it in your editor.
+
+
+#### Development
+
+This will automatically restart the server when any changes are detected in code:
+
+```bash
+nvm use .
+yarn
+yarn start:dev MiningConfig.json
+```
+
+#### Production
+
+```bash
+nvm use .
+yarn
+yarn build
+yarn start
+```
+
+
+## RPC
+
+The miner provides a http api that allows the operator to control operation.
+
+### Queue Jobs
+
+To queue a job use the `api/jobs/queue` route.
+
+```bash
+curl "localhost:8335/api/jobs/queue" \
+-X POST \
+-H 'Content-Type: application/json' \
+--data '{"method":"automine", "priority": 5, "waituntil": 0, "concurrent": false, "data": {}}'
+```
+
+A higher `priority` will increase the priority the job is run. `waituntil` defines the unix timestamp at which to run the task. `concurrent` sets whether or not this job will run concurrent with other jobs (usually it should be set to true, otherwise errors may occur).
+
+#### Methods
+
+##### pinTaskInput
+* `taskid` [string]
+* `input` [object]
+
+##### task
+* `taskid` [string]
+* `txid` [string]
+
+##### pinGovernanceProposal
+* `proposalId` [string]
+* `description` [string]
+
+##### validatorStake
+* `validatorMinimum` [string]
+
+##### automine
+
+##### solve
+* `taskid` [string]
+
+##### claim
+* `taskid` [string]
+
+##### contestationVoteFinish
+* `taskid` [string]
+
+
+### List jobs
+
+```bash
+curl "localhost:8335/api/jobs/list" \
+-X POST \
+-H 'Content-Type: application/json'
+```
+
+### Delete job
+
+```bash
+curl "localhost:8335/api/jobs/delete" \
+-X POST \
+-H 'Content-Type: application/json'
+--data '{"id":37}'
+```
