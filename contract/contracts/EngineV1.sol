@@ -61,6 +61,7 @@ struct Contestation {
     address validator;
     uint64 blocktime;
     uint32 finish_start_index; // used for finish claiming of rewards
+    uint256 slashAmount; // amount to slash
 }
 
 contract EngineV1 is OwnableUpgradeable {
@@ -429,6 +430,7 @@ contract EngineV1 is OwnableUpgradeable {
         SD59x18 c = one.add((d.sub(one).mul(onehundred)).sub(one));
 
         // prevents negative multiplier overflow
+        // TODO: Recompute this factor from overflow
         if (unwrap(c) >= 20e18) {
             return 0;
         }
@@ -750,10 +752,14 @@ contract EngineV1 is OwnableUpgradeable {
             ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
         accruedFees += treasuryFee;
 
-        baseToken.transfer(
-            solutions[taskid_].validator,
-            remainingFee - treasuryFee
-        );
+        // avoid 0 value transfer and emitted event
+        uint256 validatorFee = remainingFee - treasuryFee;
+        if (validatorFee > 0) {
+            baseToken.transfer(
+                solutions[taskid_].validator,
+                remainingFee - treasuryFee
+            );
+        }
 
         uint256 modelRate = models[tasks[taskid_].model].rate;
         if (modelRate > 0) {
@@ -820,10 +826,13 @@ contract EngineV1 is OwnableUpgradeable {
         );
         require(!solutions[taskid_].claimed, "wtf");
 
+        uint256 slashAmount = getSlashAmount();
+
         contestations[taskid_] = Contestation({
             validator: msg.sender,
             blocktime: uint64(block.timestamp),
-            finish_start_index: 0
+            finish_start_index: 0,
+            slashAmount: slashAmount
         });
 
         emit ContestationSubmitted(msg.sender, taskid_);
@@ -838,7 +847,7 @@ contract EngineV1 is OwnableUpgradeable {
         // submit invalid tasks then attempt to withdraw. the amount they have staked is max
         // they can withdraw.
         if (
-            validators[solutions[taskid_].validator].staked >= getSlashAmount()
+            validators[solutions[taskid_].validator].staked >= slashAmount
         ) {
             // the accused validator automatically votes against
             _voteOnContestation(taskid_, false, solutions[taskid_].validator);
@@ -877,7 +886,7 @@ contract EngineV1 is OwnableUpgradeable {
         // we reduce staked amount here, this is refunded if contestation is won
         // if we did not reduce slashAmount now, someone could contest every task
         // before the timer ran out for just losing validatorDeposit eventually
-        validators[addr_].staked -= getSlashAmount();
+        validators[addr_].staked -= contestations[taskid_].slashAmount;
 
         emit ContestationVote(addr_, taskid_, yea_);
     }
@@ -914,11 +923,12 @@ contract EngineV1 is OwnableUpgradeable {
 
         uint32 start_idx = contestations[taskid_].finish_start_index;
         uint32 end_idx = contestations[taskid_].finish_start_index + amnt_;
+        uint256 slashAmount = contestations[taskid_].slashAmount;
 
         // if equal in amount, we side with nays
         // this is for contestation succeeding
         if (yeaAmount > nayAmount) {
-            uint256 totalVal = nayAmount * getSlashAmount();
+            uint256 totalVal = nayAmount * slashAmount;
             uint256 valToOriginator = yeaAmount == 1
                 ? totalVal
                 : totalVal - (totalVal / 2);
@@ -929,7 +939,7 @@ contract EngineV1 is OwnableUpgradeable {
             for (uint256 i = start_idx; i < end_idx; i++) {
                 if (i < yeaAmount) {
                     address a = contestationVoteYeas[taskid_][i];
-                    validators[a].staked += getSlashAmount(); // refund
+                    validators[a].staked += slashAmount; // refund
                     if (i == 0) {
                         baseToken.transfer(a, valToOriginator);
                     } else {
@@ -944,7 +954,7 @@ contract EngineV1 is OwnableUpgradeable {
             }
         } else {
             // this is for contestation failing
-            uint256 totalVal = yeaAmount * getSlashAmount();
+            uint256 totalVal = yeaAmount * slashAmount;
             uint256 valToAccused = nayAmount == 1 ? totalVal : totalVal / 2;
             uint256 valToOtherNays = nayAmount == 1
                 ? 0
@@ -953,7 +963,7 @@ contract EngineV1 is OwnableUpgradeable {
             for (uint256 i = start_idx; i < end_idx; i++) {
                 if (i < nayAmount) {
                     address a = contestationVoteNays[taskid_][i];
-                    validators[a].staked += getSlashAmount(); // refund
+                    validators[a].staked += slashAmount; // refund
                     if (i == 0) {
                         baseToken.transfer(a, valToAccused);
                     } else {

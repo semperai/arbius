@@ -974,10 +974,11 @@ export interface EngineV1 extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number] & {
+      [string, BigNumber, number, BigNumber] & {
         validator: string;
         blocktime: BigNumber;
         finish_start_index: number;
+        slashAmount: BigNumber;
       }
     >;
 
@@ -1315,10 +1316,11 @@ export interface EngineV1 extends BaseContract {
     arg0: BytesLike,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, number] & {
+    [string, BigNumber, number, BigNumber] & {
       validator: string;
       blocktime: BigNumber;
       finish_start_index: number;
+      slashAmount: BigNumber;
     }
   >;
 
@@ -1651,10 +1653,11 @@ export interface EngineV1 extends BaseContract {
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number] & {
+      [string, BigNumber, number, BigNumber] & {
         validator: string;
         blocktime: BigNumber;
         finish_start_index: number;
+        slashAmount: BigNumber;
       }
     >;
 

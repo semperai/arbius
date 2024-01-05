@@ -9,6 +9,9 @@ import "hardhat-contract-sizer";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-etherscan";
 
+import { inspect } from 'util';
+inspect.defaultOptions.depth = 10;
+
 // user created tasks
 import "./tasks/index";
 

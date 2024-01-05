@@ -1,4 +1,4 @@
-import { ethers, upgrades } from "hardhat";
+import { ethers, network, upgrades } from "hardhat";
 import { BigNumber } from 'ethers';
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "./chai-setup";
@@ -35,7 +35,8 @@ describe("Governance Unit Tests", () => {
       "BaseTokenV1"
     );
     baseToken = (await upgrades.deployProxy(BaseToken, [
-      /* no construct params */
+      await deployer.getAddress(),
+      ethers.constants.AddressZero,
     ])) as BaseToken;
     await baseToken.deployed();
     console.log("BaseToken deployed to:", baseToken.address);
@@ -44,9 +45,13 @@ describe("Governance Unit Tests", () => {
     const Timelock = await ethers.getContractFactory(
       "TimelockV1"
     );
-    timelock = (await upgrades.deployProxy(Timelock, [
+
+    timelock = await Timelock.deploy(
+      BigNumber.from(0),
+      [await deployer.getAddress(), await user1.getAddress()],
+      [await deployer.getAddress(), await user1.getAddress()],
       await deployer.getAddress(),
-    ])) as Timelock;
+    ) as Timelock;
     await timelock.deployed();
     console.log("Timelock deployed to:", timelock.address);
 
@@ -55,7 +60,6 @@ describe("Governance Unit Tests", () => {
     );
     engine = (await upgrades.deployProxy(Engine, [
       baseToken.address,
-      timelock.address,
       await lpreward.getAddress(),
     ])) as Engine;
     await engine.deployed();
@@ -72,15 +76,18 @@ describe("Governance Unit Tests", () => {
     const Governor = await ethers.getContractFactory(
       "GovernorV1"
     );
-    governor = (await upgrades.deployProxy(Governor, [
+    governor = await Governor.deploy(
       baseToken.address,
       timelock.address,
-    ])) as Governor;
+     ) as Governor;
     await governor.deployed();
     console.log("Governor deployed to:", engine.address);
 
     await (await timelock.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PROPOSER_ROLE")), governor.address)).wait();
     console.log('Timelock: Governor granted PROPOSER_ROLE');
+
+    await (await timelock.grantRole(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("EXECUTOR_ROLE")), governor.address)).wait();
+    console.log('Timelock: Governor granted EXECUTOR_ROLE');
 
     const timelockMinDelay = 60*60*24*3;
     await (await timelock.schedule(
@@ -120,10 +127,10 @@ describe("Governance Unit Tests", () => {
 
   describe("vote", () => {
     it("successful treasury vote", async () => {
-      await (await baseToken.mint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to user1');
 
-      await (await baseToken.mint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to timelock');
 
       await (await baseToken.connect(user1).delegate(await user1.getAddress())).wait();
@@ -188,11 +195,11 @@ describe("Governance Unit Tests", () => {
       expect(await baseToken.balanceOf(await user1.getAddress())).to.equal(ethers.utils.parseEther('2.0'));
     });
 
-    it("successful setSolutionMineableStatus", async () => {
-      await (await baseToken.mint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
+    it("successful setSolutionMineableRate", async () => {
+      await (await baseToken.bridgeMint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to user1');
 
-      await (await baseToken.mint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to timelock');
 
       await (await baseToken.connect(user1).delegate(await user1.getAddress())).wait();
@@ -202,6 +209,7 @@ describe("Governance Unit Tests", () => {
         addr: await user1.getAddress(), // doesnt matter, just need address
         fee: BigNumber.from("0"),
         cid: TESTCID,
+        rate: ethers.utils.parseEther('0'),
       };
       const modelid = await engine.hashModel(modelParams, await user1.getAddress());
       await (await engine
@@ -210,18 +218,18 @@ describe("Governance Unit Tests", () => {
       ).wait();
       console.log('Model registered');
 
-      const proposalDescription = "Proposal #1: setSolutionMineableStatus model_1";
+      const proposalDescription = "Proposal #1: setSolutionMineableRate model_1";
       const descriptionHash = ethers.utils.id(proposalDescription);
 
-      const setSolutionMineableStatusCalldata = engine.interface.encodeFunctionData('setSolutionMineableStatus', [
+      const setSolutionMineableRateCalldata = engine.interface.encodeFunctionData('setSolutionMineableRate', [
         modelid,
-        true
+        1
       ]);
 
       await (await governor.connect(user1)['propose(address[],uint256[],bytes[],string)'](
         [engine.address],
         [0],
-        [setSolutionMineableStatusCalldata],
+        [setSolutionMineableRateCalldata],
         proposalDescription,
       )).wait();
       console.log('Proposal submitted');
@@ -229,7 +237,7 @@ describe("Governance Unit Tests", () => {
       const proposalId = await governor.hashProposal(
         [engine.address],
         [0],
-        [setSolutionMineableStatusCalldata],
+        [setSolutionMineableRateCalldata],
         descriptionHash,
       );
 
@@ -247,7 +255,7 @@ describe("Governance Unit Tests", () => {
       await (await governor.connect(user1)['queue(address[],uint256[],bytes[],bytes32)'](
         [engine.address],
         [0],
-        [setSolutionMineableStatusCalldata],
+        [setSolutionMineableRateCalldata],
         descriptionHash,
       )).wait();
       console.log('Queue transaction');
@@ -259,26 +267,26 @@ describe("Governance Unit Tests", () => {
       await (await governor.connect(user1)['execute(address[],uint256[],bytes[],bytes32)'](
         [engine.address],
         [0],
-        [setSolutionMineableStatusCalldata],
+        [setSolutionMineableRateCalldata],
         descriptionHash,
       )).wait();
       console.log('Executed transaction');
 
-      expect((await engine.models(modelid)).mineable).to.equal(true);
+      expect((await engine.models(modelid)).rate).to.equal(1);
     });
 
     it("failed treasury vote", async () => {
-      await (await baseToken.mint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to user1');
       await (await baseToken.connect(user1).delegate(await user1.getAddress())).wait();
       console.log('Delegated voting power user1 -> user1');
 
-      await (await baseToken.mint(await user2.getAddress(), ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(await user2.getAddress(), ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to user2');
       await (await baseToken.connect(user2).delegate(await user2.getAddress())).wait();
       console.log('Delegated voting power user2 -> user2');
 
-      await (await baseToken.mint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to timelock');
 
 
@@ -332,10 +340,10 @@ describe("Governance Unit Tests", () => {
     });
 
     it("must wait at least 1 day", async () => {
-      await (await baseToken.mint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to user1');
 
-      await (await baseToken.mint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to timelock');
 
       await (await baseToken.connect(user1).delegate(await user1.getAddress())).wait();
@@ -377,10 +385,10 @@ describe("Governance Unit Tests", () => {
 
 
     it("must wait at least 1 week", async () => {
-      await (await baseToken.mint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(await user1.getAddress(), ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to user1');
 
-      await (await baseToken.mint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
+      await (await baseToken.bridgeMint(timelock.address, ethers.utils.parseEther('1.0'))).wait();
       console.log('Minted 1 token to timelock');
 
       await (await baseToken.connect(user1).delegate(await user1.getAddress())).wait();

@@ -42,7 +42,8 @@ describe("Reward Unit Tests", () => {
       "BaseTokenV1"
     );
     baseToken = (await upgrades.deployProxy(BaseToken, [
-      /* no construct params */
+      await deployer.getAddress(),
+      ethers.constants.AddressZero,
     ])) as BaseToken;
     await baseToken.deployed();
     // console.log("BaseToken deployed to:", baseToken.address);
@@ -53,11 +54,10 @@ describe("Reward Unit Tests", () => {
     engine = (await upgrades.deployProxy(Engine, [
       baseToken.address,
       await treasury.getAddress(),
-      await lpreward.getAddress(),
     ])) as Engine;
     await engine.deployed();
     // console.log("Engine deployed to:", engine.address);
-    
+
     await (await baseToken.connect(deployer).transferOwnership(engine.address)).wait();
   });
 
@@ -90,7 +90,7 @@ describe("Reward Unit Tests", () => {
     return modelid;
   }
 
-  async function bootstrapTaskParams(modelid) {
+  async function bootstrapTaskParams(modelid: string) {
     return {
       version: BigNumber.from("0"),
       owner: await user1.getAddress(),
@@ -102,14 +102,36 @@ describe("Reward Unit Tests", () => {
   }
 
   async function deployBootstrapValidator(): Promise<string> {
-      await (await engine
-        .connect(validator1)
-        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('0'))
-      ).wait();
-      return await validator1.getAddress();
+    // deposit just below the 600k max supply
+    await (await baseToken
+      .connect(deployer)
+      .bridgeMint(engine.address, ethers.utils.parseEther('599999.999999999999999999'))
+    ).wait();
+
+    await (await baseToken
+      .connect(deployer)
+      .bridgeMint(await deployer.getAddress(), ethers.utils.parseEther('2000'))
+    ).wait();
+
+    await (await baseToken
+      .connect(validator1)
+      .approve(engine.address, ethers.constants.MaxUint256)
+    ).wait();
+
+    // 0 is a valid deposit for a validator upon project launch
+    await (await baseToken
+      .connect(deployer)
+      .transfer(await validator1.getAddress(), ethers.utils.parseEther('0'))
+    ).wait();
+
+    await (await engine
+      .connect(validator1)
+      .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('0'))
+    ).wait();
+    return await validator1.getAddress();
   }
 
-  async function deployBootstrapTask(modelid): Promise<string> {
+  async function deployBootstrapTask(modelid: string): Promise<string> {
     const taskParams = await bootstrapTaskParams(modelid);
     const taskidReceipt = await (await engine
       .connect(user1)
@@ -130,27 +152,29 @@ describe("Reward Unit Tests", () => {
   describe("daa", () => {
     it("check targetTs", async () => {
       expect(await engine.targetTs(0))           .to.equal(ethers.BigNumber.from("0"));
-      expect(await engine.targetTs(15768000))    .to.equal(ethers.BigNumber.from("292893218813452475198312"));
-      expect(await engine.targetTs(31536000))    .to.equal(ethers.BigNumber.from("500000000000000000000000"));
-      expect(await engine.targetTs(63072000))    .to.equal(ethers.BigNumber.from("750000000000000000000000"));
-      expect(await engine.targetTs(94608000))    .to.equal(ethers.BigNumber.from("875000000000000000000000"));
-      expect(await engine.targetTs(126144000))   .to.equal(ethers.BigNumber.from("937500000000000000000000"));
-      expect(await engine.targetTs(157680000))   .to.equal(ethers.BigNumber.from("968750000000000000000000"));
-      expect(await engine.targetTs(315360000))   .to.equal(ethers.BigNumber.from("999023437500000000000000"));
-      expect(await engine.targetTs(3153600000))  .to.equal(ethers.BigNumber.from("1000000000000000000000000"));
-      expect(await engine.targetTs(31536000000)) .to.equal(ethers.BigNumber.from("1000000000000000000000000"));
+      expect(await engine.targetTs(15768000))    .to.equal(ethers.BigNumber.from("175735931288071485118987"));
+      expect(await engine.targetTs(31536000))    .to.equal(ethers.BigNumber.from("300000000000000000000000"));
+      expect(await engine.targetTs(63072000))    .to.equal(ethers.BigNumber.from("450000000000000000000000"));
+      expect(await engine.targetTs(94608000))    .to.equal(ethers.BigNumber.from("525000000000000000000000"));
+      expect(await engine.targetTs(126144000))   .to.equal(ethers.BigNumber.from("562500000000000000000000"));
+      expect(await engine.targetTs(157680000))   .to.equal(ethers.BigNumber.from("581250000000000000000000"));
+      expect(await engine.targetTs(315360000))   .to.equal(ethers.BigNumber.from("599414062500000000000000"));
+      expect(await engine.targetTs(3153600000))  .to.equal(ethers.BigNumber.from("600000000000000000000000"));
+      expect(await engine.targetTs(31536000000)) .to.equal(ethers.BigNumber.from("600000000000000000000000"));
     });
 
     it("check diff", async () => {
+      // max supply on chain 600_000
+      // target supply at 1 year (31536000) 300_000
       expect(await engine.diffMul('31536000', ethers.utils.parseEther('100000'))).to.equal(ethers.BigNumber.from("100000000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('450000'))).to.equal(ethers.BigNumber.from("100000000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('490000'))).to.equal(ethers.BigNumber.from("4000000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('495000'))).to.equal(ethers.BigNumber.from("2000000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('500000'))).to.equal(ethers.BigNumber.from("1000000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('505000'))).to.equal(ethers.BigNumber.from("500000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('510000'))).to.equal(ethers.BigNumber.from("250000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('515000'))).to.equal(ethers.BigNumber.from("125000000000000000"));
-      expect(await engine.diffMul('31536000', ethers.utils.parseEther('550000'))).to.equal(ethers.BigNumber.from("976562500000000"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('250000'))).to.equal(ethers.BigNumber.from("100000000000000000000"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('300000'))).to.equal(ethers.BigNumber.from("1000000000000000000"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('305000'))).to.equal(ethers.BigNumber.from("314980262473718305"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('350000'))).to.equal(ethers.BigNumber.from("9612434767874"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('355000'))).to.equal(ethers.BigNumber.from("3027727226196"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('360000'))).to.equal(ethers.BigNumber.from("0"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('400000'))).to.equal(ethers.BigNumber.from("0"));
+      expect(await engine.diffMul('31536000', ethers.utils.parseEther('500000'))).to.equal(ethers.BigNumber.from("0"));
       expect(await engine.diffMul('31536000', ethers.utils.parseEther('600000'))).to.equal(ethers.BigNumber.from("0"));
     });
 
@@ -169,7 +193,7 @@ describe("Reward Unit Tests", () => {
 
       await (await engine
         .connect(deployer) // initial owner
-        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('0.1'))
       ).wait();
 
       const cid = TESTCID;
@@ -193,6 +217,7 @@ describe("Reward Unit Tests", () => {
       await ethers.provider.send("evm_increaseTime", [3600]);
       await ethers.provider.send("evm_mine", []);
 
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseUnits("0", 18));
       await (await engine
         .connect(validator1)
         .claimSolution(taskid)
@@ -200,11 +225,9 @@ describe("Reward Unit Tests", () => {
 
       const validatorBalance = await baseToken.balanceOf(await validator1.getAddress());
       const treasuryBalance = await baseToken.balanceOf(await treasury.getAddress());
-      const lpBalance = await baseToken.balanceOf(await lpreward.getAddress());
 
-      expect(validatorBalance).to.equal(ethers.utils.parseUnits("79.99992", 18));
-      expect(treasuryBalance).to.equal(ethers.utils.parseUnits("9.99999", 18));
-      expect(lpBalance).to.equal(ethers.utils.parseUnits("9.99999", 18));
+      expect(validatorBalance).to.equal(ethers.utils.parseUnits("8.999999999999999999", 18));
+      expect(treasuryBalance).to.equal(ethers.utils.parseUnits("1", 18));
     });
   });
 });

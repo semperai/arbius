@@ -14,7 +14,6 @@ describe("IPFS Unit Tests", () => {
   // let deployer: Signer;
   let deployer:   SignerWithAddress;
   let treasury:   SignerWithAddress;
-  let lpreward:   SignerWithAddress;
 
   let baseToken: BaseToken;
   let engine: Engine;
@@ -22,14 +21,14 @@ describe("IPFS Unit Tests", () => {
   beforeEach("Deploy and initialize", async () => {
     signers = await ethers.getSigners();
     deployer   = signers[0];
-    treasury   = signers[1];
-    lpreward   = signers[2];
+    treasury   = signers[0];
 
     const BaseToken = await ethers.getContractFactory(
       "BaseTokenV1"
     );
     baseToken = (await upgrades.deployProxy(BaseToken, [
-      /* no construct params */
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
     ])) as BaseToken;
     await baseToken.deployed();
 
@@ -39,7 +38,6 @@ describe("IPFS Unit Tests", () => {
     engine = (await upgrades.deployProxy(Engine, [
       baseToken.address,
       await treasury.getAddress(),
-      await lpreward.getAddress(),
     ])) as Engine;
     await engine.deployed();
   });
@@ -65,11 +63,12 @@ describe("IPFS Unit Tests", () => {
       const fee = ethers.utils.parseEther('0');
 
       const expected_cid = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
-
+      const expected_rate = BigNumber.from(0);
       const modelid = await engine.hashModel({
         addr,
         fee,
         cid: expected_cid,
+        rate: expected_rate,
       }, await deployer.getAddress());
 
       await expect(engine
@@ -83,7 +82,7 @@ describe("IPFS Unit Tests", () => {
       expect(model.addr).to.equal(addr);
       expect(model.fee).to.equal(fee);
       expect(model.cid).to.equal(expected_cid);
-
+      expect(model.rate).to.equal(expected_rate);
     });
   });
 });
