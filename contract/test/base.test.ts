@@ -43,7 +43,8 @@ describe("Engine Unit Tests", () => {
       "BaseTokenV1"
     );
     baseToken = (await upgrades.deployProxy(BaseToken, [
-      /* no construct params */
+      await deployer.getAddress(),
+      ethers.constants.AddressZero,
     ])) as BaseToken;
     await baseToken.deployed();
     // console.log("BaseToken deployed to:", baseToken.address);
@@ -54,7 +55,6 @@ describe("Engine Unit Tests", () => {
     engine = (await upgrades.deployProxy(Engine, [
       baseToken.address,
       await treasury.getAddress(),
-      await lpreward.getAddress(),
     ])) as Engine;
     await engine.deployed();
     // console.log("Engine deployed to:", engine.address);
@@ -63,7 +63,7 @@ describe("Engine Unit Tests", () => {
     // NOTE this disables rewards unless waiting a long time
     await (await baseToken
       .connect(deployer)
-      .mint(await deployer.getAddress(), ethers.utils.parseEther('2000'))
+      .bridgeMint(await deployer.getAddress(), ethers.utils.parseEther('2000'))
     ).wait();
 
     await (await baseToken
@@ -100,7 +100,7 @@ describe("Engine Unit Tests", () => {
     return modelid;
   }
 
-  async function bootstrapTaskParams(modelid) {
+  async function bootstrapTaskParams(modelid: string) {
     return {
       version: BigNumber.from("0"),
       owner: await user1.getAddress(),
@@ -112,26 +112,48 @@ describe("Engine Unit Tests", () => {
   }
 
   async function deployBootstrapValidator(): Promise<string> {
+    // deposit just below the 600k max supply
     await (await baseToken
       .connect(deployer)
-      .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+      .bridgeMint(engine.address, ethers.utils.parseEther('599990'))
+    ).wait();
+
+    await (await baseToken
+      .connect(deployer)
+      .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
     ).wait();
 
     await (await engine
       .connect(validator1)
-      .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+      .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
     ).wait();
     return await validator1.getAddress();
   }
 
-  async function deployBootstrapTask(modelid): Promise<string> {
+  async function deployBootstrapEngineSlashingNotReached(): Promise<void> {
+    // deposit just below the 598000 max supply
+    await (await baseToken
+      .connect(deployer)
+      .bridgeMint(engine.address, ethers.utils.parseEther('599000'))
+    ).wait();
+}
+
+  async function deployBootstrapEngineSlashingReached(): Promise<void> {
+      // deposit just below the 598000 max supply
+      await (await baseToken
+        .connect(deployer)
+        .bridgeMint(engine.address, ethers.utils.parseEther('597000'))
+      ).wait();
+  }
+
+  async function deployBootstrapTask(modelid: string): Promise<string> {
     const taskParams = await bootstrapTaskParams(modelid);
     const taskidReceipt = await (await engine
       .connect(user1)
       .submitTask(
         taskParams.version,
         taskParams.owner,
-        taskParams.model, 
+        taskParams.model,
         taskParams.fee,
         taskParams.input,
       )).wait();
@@ -143,7 +165,7 @@ describe("Engine Unit Tests", () => {
 
   describe("initialization", () => {
     it("it should be impossible to initialize contract after deploy", async () => {
-      await expect(baseToken.initialize()).to.be.reverted;
+      await expect(baseToken.initialize(ethers.constants.AddressZero, ethers.constants.AddressZero)).to.be.reverted;
     });
   });
 
@@ -161,38 +183,38 @@ describe("Engine Unit Tests", () => {
     it("become validator", async () => {
       await (await baseToken
         .connect(deployer)
-        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
       ).wait();
 
       await expect(engine
         .connect(validator1)
-        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
       ).to.emit(engine, "ValidatorDeposit")
       .withArgs(
         await validator1.getAddress(),
         await validator1.getAddress(),
-        ethers.utils.parseEther('2.001'),
+        ethers.utils.parseEther('2.4'),
       );
 
       const validator = await engine.validators(await validator1.getAddress());
       expect(validator.addr).to.equal(await validator1.getAddress());
-      expect(validator.staked).to.equal(ethers.utils.parseEther("2.001"));
+      expect(validator.staked).to.equal(ethers.utils.parseEther("2.4"));
     });
 
     it("exit validator", async () => {
       await (await baseToken
         .connect(deployer)
-        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
       ).wait();
 
       await (await engine
         .connect(validator1)
-        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
       ).wait();
 
       await expect(engine
         .connect(validator1)
-        .initiateValidatorWithdraw(ethers.utils.parseEther('2.001'))
+        .initiateValidatorWithdraw(ethers.utils.parseEther('2.4'))
       ).to.emit(engine, "ValidatorWithdrawInitiated");
 
       await ethers.provider.send("evm_increaseTime", [86400]);
@@ -206,7 +228,7 @@ describe("Engine Unit Tests", () => {
         await validator1.getAddress(),
         await validator1.getAddress(),
         ethers.BigNumber.from('1'),
-        ethers.utils.parseEther('2.001'),
+        ethers.utils.parseEther('2.4'),
       );
 
       const validator = await engine.validators(await validator1.getAddress());
@@ -214,7 +236,7 @@ describe("Engine Unit Tests", () => {
 
       expect(await baseToken
         .balanceOf(await validator1.getAddress())
-      ).to.equal(ethers.utils.parseEther("2.001"));
+      ).to.equal(ethers.utils.parseEther("2.4"));
     });
 
     it("cannot solve task while exiting", async () => {
@@ -223,17 +245,17 @@ describe("Engine Unit Tests", () => {
 
       await (await baseToken
         .connect(deployer)
-        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
       ).wait();
 
       await (await engine
         .connect(validator1)
-        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
       ).wait();
 
       await expect(engine
         .connect(validator1)
-        .initiateValidatorWithdraw(ethers.utils.parseEther('2.001'))
+        .initiateValidatorWithdraw(ethers.utils.parseEther('2.4'))
       ).to.emit(engine, "ValidatorWithdrawInitiated");
 
       const cid = TESTCID;
@@ -256,7 +278,7 @@ describe("Engine Unit Tests", () => {
     it("signal support", async () => {
       await (await baseToken
         .connect(deployer)
-        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.001'))
+        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
       ).wait();
 
       const validator = await deployBootstrapValidator();
@@ -503,7 +525,7 @@ describe("Engine Unit Tests", () => {
 
   // test task cannot be claimed before MIN_CLAIM_SOLUTION_TIME
 
-  describe('contestation', () => {
+  describe('contestation before slashing', () => {
     it("cannot contest nonexistent task", async () => {
       await deployBootstrapValidator();
 
@@ -563,6 +585,7 @@ describe("Engine Unit Tests", () => {
     // TODO cannot contest outside of contestation time range
 
     it("contest blocks claim", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -574,11 +597,11 @@ describe("Engine Unit Tests", () => {
       for (const validator of [validator1, validator2]) {
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -616,6 +639,7 @@ describe("Engine Unit Tests", () => {
     });
 
     it("cannot finish contestation before vote period", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -627,11 +651,11 @@ describe("Engine Unit Tests", () => {
       for (const validator of [validator1, validator2]) {
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -667,6 +691,7 @@ describe("Engine Unit Tests", () => {
     });
 
     it("successful contestation with 1 other voter", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -679,11 +704,11 @@ describe("Engine Unit Tests", () => {
       for (const validator of [validator1, validator2, validator3]) {
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -733,6 +758,7 @@ describe("Engine Unit Tests", () => {
     });
 
     it("successful contestation with 1 other voter results in fee refund to submitter", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
 
       const taskParams = await bootstrapTaskParams(modelid);
@@ -773,11 +799,11 @@ describe("Engine Unit Tests", () => {
       for (const validator of [validator1, validator2, validator3]) {
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -824,6 +850,7 @@ describe("Engine Unit Tests", () => {
     });
 
     it("failed contestation due to no other voters", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -837,11 +864,11 @@ describe("Engine Unit Tests", () => {
         // have validators become validators
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -871,8 +898,8 @@ describe("Engine Unit Tests", () => {
 
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
 
       // CONTESTATION_VOTE_PERIOD_TIME
       await ethers.provider.send("evm_increaseTime", [4000]);
@@ -883,13 +910,14 @@ describe("Engine Unit Tests", () => {
         .contestationVoteFinish(taskid, 3)
       ).wait();
 
-      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.2001'));
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
     });
 
     it("failed contestation results in fee going to original solver", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
 
       await (await engine
@@ -930,12 +958,12 @@ describe("Engine Unit Tests", () => {
         // send all validators 10 arbius
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         // have validators become validators
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -973,12 +1001,13 @@ describe("Engine Unit Tests", () => {
       ).wait();
 
       // 1 for winning + 1-10% for task fee
-      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('1.1001'));
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.9'));
 
       expect(await engine.accruedFees()).to.equal(ethers.utils.parseEther('0.1'));
     });
 
     it("failed contestation due to 2 voters", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -992,11 +1021,11 @@ describe("Engine Unit Tests", () => {
         // have validators become validators
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -1033,9 +1062,9 @@ describe("Engine Unit Tests", () => {
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
 
       // CONTESTATION_VOTE_PERIOD_TIME
       await ethers.provider.send("evm_increaseTime", [4000]);
@@ -1046,15 +1075,16 @@ describe("Engine Unit Tests", () => {
         .contestationVoteFinish(taskid, 3)
       ).wait();
 
-      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
     });
 
     it("failed contestation due to 3 voters", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -1068,11 +1098,11 @@ describe("Engine Unit Tests", () => {
         // have validators become validators
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -1114,10 +1144,10 @@ describe("Engine Unit Tests", () => {
       expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
 
       // CONTESTATION_VOTE_PERIOD_TIME
       await ethers.provider.send("evm_increaseTime", [4000]);
@@ -1128,17 +1158,18 @@ describe("Engine Unit Tests", () => {
         .contestationVoteFinish(taskid, 3)
       ).wait();
 
-      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
       expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
     });
 
     it("successful contestation with 1 other voters with params set", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -1152,11 +1183,11 @@ describe("Engine Unit Tests", () => {
         // have validators become validators
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -1196,7 +1227,7 @@ describe("Engine Unit Tests", () => {
         ).to.equal(ethers.utils.parseEther('0'));
         expect((await engine
           .validators(await validator1.getAddress())).staked
-        ).to.equal(ethers.utils.parseEther('1.8009'));
+        ).to.equal(ethers.utils.parseEther('2.4'));
       }
 
       // CONTESTATION_VOTE_PERIOD_TIME
@@ -1209,14 +1240,15 @@ describe("Engine Unit Tests", () => {
       ).wait();
 
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
     });
 
     it("successful contestation with 2 other voters with params set", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -1230,11 +1262,11 @@ describe("Engine Unit Tests", () => {
         // have validators become validators
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -1279,7 +1311,7 @@ describe("Engine Unit Tests", () => {
 
         expect((await engine
           .validators(await validator.getAddress())).staked
-        ).to.equal(ethers.utils.parseEther('1.8009'));
+        ).to.equal(ethers.utils.parseEther('2.4'));
       }
 
       // CONTESTATION_VOTE_PERIOD_TIME
@@ -1292,16 +1324,17 @@ describe("Engine Unit Tests", () => {
       ).wait();
 
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
     });
 
     it("successful contestation with 2 other voters with multiple iterations", async () => {
+      await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -1315,11 +1348,11 @@ describe("Engine Unit Tests", () => {
         // have validators become validators
         await (await baseToken
           .connect(deployer)
-          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
         await (await engine
           .connect(validator)
-          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.001'))
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
         ).wait();
       }
 
@@ -1363,7 +1396,7 @@ describe("Engine Unit Tests", () => {
         ).to.equal(ethers.utils.parseEther('0'));
         expect((await engine
           .validators(await validator1.getAddress())).staked
-        ).to.equal(ethers.utils.parseEther('1.8009'));
+        ).to.equal(ethers.utils.parseEther('2.4'));
       }
 
       // CONTESTATION_VOTE_PERIOD_TIME
@@ -1379,13 +1412,13 @@ describe("Engine Unit Tests", () => {
       ).wait();
 
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.0'));
-      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.0'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
 
       expect((await engine.contestations(taskid)).finish_start_index).to.equal(1);
 
@@ -1396,13 +1429,13 @@ describe("Engine Unit Tests", () => {
       ).wait();
 
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.0'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
 
       expect((await engine.contestations(taskid)).finish_start_index).to.equal(2);
 
@@ -1413,13 +1446,13 @@ describe("Engine Unit Tests", () => {
       ).wait();
 
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
 
       expect((await engine.contestations(taskid)).finish_start_index).to.equal(3);
 
@@ -1430,13 +1463,963 @@ describe("Engine Unit Tests", () => {
       ).wait();
 
       expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
-      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.10005'));
-      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.050025'));
-      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('1.8009'));
-      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
-      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.001'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+
+      expect((await engine.contestations(taskid)).finish_start_index).to.equal(4);
+    });
+  });
+
+  describe('contestation with slahing reached', () => {
+    it("cannot contest nonexistent task", async () => {
+      await deployBootstrapValidator();
+
+      await expect(
+        engine
+        .connect(validator1)
+        .submitContestation(ethers.constants.HashZero)
+      ).to.be.reverted;
+    });
+
+    it("cannot contest task without solution", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await expect(
+        engine
+        .connect(validator1)
+        .submitContestation(taskid)
+      ).to.be.revertedWith('solution does not exist');
+    });
+
+    it("cannot contest as non validator", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      await expect(
+        engine
+        .connect(validator2)
+        .submitContestation(ethers.constants.HashZero)
+      ).to.be.reverted;
+    });
+
+    // TODO cannot contest outside of contestation time range
+
+    it("contest blocks claim", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      for (const validator of [validator1, validator2]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // contest!!!
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // MIN_CLAIM_SOLUTION_TIME
+      await ethers.provider.send("evm_increaseTime", [3600]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(
+        engine
+        .connect(validator1)
+        .claimSolution(taskid)
+      ).to.be.reverted;
+    });
+
+    it("cannot finish contestation before vote period", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      for (const validator of [validator1, validator2]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // contest!!!
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // we do not wait here..
+
+      await expect(
+        engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 2)
+      ).to.be.reverted;
+    });
+
+    it("successful contestation with 1 other voter", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // make 3 validators
+      for (const validator of [validator1, validator2, validator3]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(
+        engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).to.emit(engine, "ContestationVoteFinish")
+      .withArgs(taskid, 0, 3);
+
+      const finish_start_index = (await engine.contestations(taskid)).finish_start_index;
+      expect(finish_start_index).to.equal(3);
+    });
+
+    it("successful contestation with 1 other voter results in fee refund to submitter", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+
+      const taskParams = await bootstrapTaskParams(modelid);
+
+      // have user receive token to pay fee
+      await (await baseToken
+        .connect(deployer)
+        .transfer(await user1.getAddress(), ethers.utils.parseEther('1'))
+      ).wait();
+
+      await (await baseToken
+        .connect(user1)
+        .approve(engine.address, ethers.utils.parseEther('1'))
+      ).wait();
+
+      expect(await baseToken.balanceOf(await user1.getAddress())).to.equal(ethers.utils.parseEther('1'));
+
+      const taskidReceipt = await (await engine
+        .connect(user1)
+        .submitTask(
+          '0',
+          await user1.getAddress(),
+          modelid,
+          ethers.utils.parseEther('1'),
+          TESTCID,
+        )).wait();
+      const taskSubmittedEvent = taskidReceipt.events![0];
+      // @ts-ignore
+      const { id: taskid } = taskSubmittedEvent.args;
+
+      expect(await baseToken.balanceOf(await user1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      for (const validator of [validator1, validator2, validator3]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await user1.getAddress())).to.equal(ethers.utils.parseEther('1'));
+    });
+
+    it("failed contestation due to no other voters", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+
+      for (const validator of [validator1, validator2, validator3]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.29928'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+    });
+
+    it("failed contestation results in fee going to original solver", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+
+      // have user receive token to pay fee
+      await (await baseToken
+        .connect(deployer)
+        .transfer(await user1.getAddress(), ethers.utils.parseEther('1'))
+      ).wait();
+
+      await (await baseToken
+        .connect(user1)
+        .approve(engine.address, ethers.utils.parseEther('1'))
+      ).wait();
+
+      expect(await baseToken.balanceOf(await user1.getAddress())).to.equal(ethers.utils.parseEther('1'));
+
+      const taskidReceipt = await (await engine
+        .connect(user1)
+        .submitTask(
+          '0',
+          await user1.getAddress(),
+          modelid,
+          ethers.utils.parseEther('1'),
+          TESTCID,
+        )).wait();
+      const taskSubmittedEvent = taskidReceipt.events![0];
+      // @ts-ignore
+      const { id: taskid } = taskSubmittedEvent.args;
+
+      expect(await baseToken.balanceOf(await user1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+
+      for (const validator of [validator1, validator2, validator3]) {
+        // send all validators 10 arbius
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        // have validators become validators
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      // 1 for winning + 1-10% for task fee
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('1.19918'));
+
+      expect(await engine.accruedFees()).to.equal(ethers.utils.parseEther('0.1'));
+    });
+
+    it("failed contestation due to 2 voters", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // send all validators 10 arbius
+      for (const validator of [validator1, validator2, validator3]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes no on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, false)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.14964'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.14964'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+    });
+
+    it("failed contestation due to 3 voters", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // send all validators 10 arbius
+      for (const validator of [validator1, validator2, validator3, validator4]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 and validator4 votes no on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, false)
+      ).wait();
+      await (await engine
+        .connect(validator4)
+        .voteOnContestation(taskid, false)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.14952'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+    });
+
+    it("successful contestation with 1 other voters with params set", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // send all validators 10 arbius
+      for (const validator of [validator1, validator2, validator3]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+      for (const validator of [validator1, validator2, validator3]) {
+        expect(await baseToken
+          .balanceOf(await validator.getAddress())
+        ).to.equal(ethers.utils.parseEther('0'));
+        expect((await engine
+          .validators(await validator1.getAddress())).staked
+        ).to.equal(ethers.utils.parseEther('2.10072'));
+      }
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.14964'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.14964'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+    });
+
+    it("successful contestation with 2 other voters with params set", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // send all validators 10 arbius
+      for (const validator of [validator1, validator2, validator3, validator4]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 and validator4 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+      await (await engine
+        .connect(validator4)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+      for (const validator of [validator1, validator2, validator3, validator4]) {
+        expect(await baseToken
+          .balanceOf(await validator.getAddress())
+        ).to.equal(ethers.utils.parseEther('0'));
+
+        expect((await engine
+          .validators(await validator.getAddress())).staked
+        ).to.equal(ethers.utils.parseEther('2.10096'));
+      }
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.14952'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+    });
+
+    it("successful contestation with 2 other voters with multiple iterations", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // send all validators 10 arbius
+      for (const validator of [validator1, validator2, validator3, validator4]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 and validator4 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+      await (await engine
+        .connect(validator4)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+      for (const validator of [validator1, validator2, validator3, validator4]) {
+        expect(await baseToken
+          .balanceOf(await validator1.getAddress())
+        ).to.equal(ethers.utils.parseEther('0'));
+        expect((await engine
+          .validators(await validator1.getAddress())).staked
+        ).to.equal(ethers.utils.parseEther('2.10096'));
+      }
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      expect((await engine.contestations(taskid)).finish_start_index).to.equal(0);
+
+      // first iteration
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 1)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.14952'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+
+      expect((await engine.contestations(taskid)).finish_start_index).to.equal(1);
+
+      // second iteration
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 1)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.14952'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+
+      expect((await engine.contestations(taskid)).finish_start_index).to.equal(2);
+
+      // third iteration
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 1)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.14952'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+
+      expect((await engine.contestations(taskid)).finish_start_index).to.equal(3);
+
+      // fourth iteration (does nothing)
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 1)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.14952'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect(await baseToken.balanceOf(await validator4.getAddress())).to.equal(ethers.utils.parseEther('0.07476'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10096'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator4.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
 
       expect((await engine.contestations(taskid)).finish_start_index).to.equal(4);
     });

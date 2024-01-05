@@ -113,3 +113,6 @@ dist
 
 # Python virtual environment
 venv
+
+artifacts/build-info*
+artifacts/hardhat

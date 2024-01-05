@@ -40,9 +40,9 @@ contract GovernorV1 is
             // 19725, // 3 days, initialVotingPeriod,
             // 1000e18 // minimum 1000 AIUS for initialProposalThreshold
             // TODO change me
-            100,
-            100,
-            10e18
+            6575,
+            6575,
+            1e18
         )
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
