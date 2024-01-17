@@ -13,11 +13,11 @@ import {
 import LogoSquareImg from '@/../public/logo-square-home.png';
 import LogoSquareImgWhite from '@/../public/logo-square-home-white.png';
 
-import FlowerHatGirlImg from '@/../public/home-examples/flower-hat-girl.jpg';
-import LightbulbImg from '@/../public/home-examples/lightbulb.jpg';
-import NeuralNetworkImg from '@/../public/home-examples/neural-network.jpg';
-import RobotManImg from '@/../public/home-examples/robot-man.jpg';
-import UnstoppableImg from '@/../public/home-examples/unstoppable.jpg';
+import Chip1 from '@/../public/home-examples/1.png';
+import Chip2 from '@/../public/home-examples/2.png';
+import Chip3 from '@/../public/home-examples/3.png';
+import Chip4 from '@/../public/home-examples/4.png';
+import Chip5 from '@/../public/home-examples/5.png';
 
 const benefits = [
   'Pay for AI generations',
@@ -118,7 +118,7 @@ export default function HomePage() {
                     <span className={`${colorWordsClasses[4]} hover:text-rose-500 transition`}>learning</span>
                   </h1>
                   <p className="relative mt-6 text-lg leading-8 text-gray-600 sm:max-w-md lg:max-w-none">
-                    Arbius is a decentralized network for machine learning and a token with a fixed supply like bitcoin.
+                    Arbius is a decentralized network for machine learning and a token with a fixed supply like Bitcoin.
                     New coins are generated with GPU power by participating in the network.
                     There is no central authority to create new coins.
                     Arbius is fully open-source.
@@ -152,8 +152,8 @@ export default function HomePage() {
                   <div className="ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-none xl:pt-80">
                     <div className="relative">
                       <Image
-                        src={RobotManImg}
-                        alt="Little robot toy"
+                        src={Chip1}
+                        alt="Chip1"
                         className="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
                       />
                       <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10" />
@@ -162,16 +162,16 @@ export default function HomePage() {
                   <div className="mr-auto w-44 flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36">
                     <div className="relative">
                       <Image
-                        src={LightbulbImg}
-                        alt="Lightbulb"
+                        src={Chip2}
+                        alt="Chip2"
                         className="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
                       />
                       <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10" />
                     </div>
                     <div className="relative">
                       <Image
-                        src={NeuralNetworkImg}
-                        alt="Neural Network Diagram"
+                        src={Chip3}
+                        alt="Chip3"
                         className="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
                       />
                       <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10" />
@@ -180,16 +180,16 @@ export default function HomePage() {
                   <div className="w-44 flex-none space-y-8 pt-32 sm:pt-0">
                     <div className="relative">
                       <Image
-                        src={UnstoppableImg}
-                        alt="Unstoppable Graffiti"
+                        src={Chip4}
+                        alt="Chip4"
                         className="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
                       />
                       <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10" />
                     </div>
                     <div className="relative">
                       <Image
-                        src={FlowerHatGirlImg}
-                        alt="Girl wearing a hat with a flower in it"
+                        src={Chip5}
+                        alt="Chip5"
                         className="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg"
                       />
                       <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10" />
