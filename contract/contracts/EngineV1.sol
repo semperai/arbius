@@ -131,6 +131,8 @@ contract EngineV1 is OwnableUpgradeable {
     mapping(bytes32 => address[]) public contestationVoteYeas;
     mapping(bytes32 => address[]) public contestationVoteNays;
 
+    uint256[48] __gap; // upgradeable gap
+
     event ModelRegistered(bytes32 indexed id);
 
     event ValidatorDeposit(
@@ -206,6 +208,12 @@ contract EngineV1 is OwnableUpgradeable {
         );
         _;
     }
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
 
     /// @notice Initialize contract 
     /// @dev For upgradeable contracts this function necessary
