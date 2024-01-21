@@ -20,7 +20,7 @@ uint256 constant MIN_SUPPLY_FOR_SLASHING = 2_000e18;
 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
 uint256 constant ARBITRUM_GOERLI_CHAINID = 0x66eed;
-// https://github.com/OffchainLabs/arbitrum/blob/master/docs/sol_contract_docs/md_docs/arb-os/arbos/builtin/ArbSys.md
+// https://github.com/OffchainLabs/arbitrum-classic/blob/master/docs/sol_contract_docs/md_docs/arb-os/arbos/builtin/ArbSys.md
 address constant ARBSYS_ADDRESS = address(100);
 
 // each run of model allocated fee to token address
