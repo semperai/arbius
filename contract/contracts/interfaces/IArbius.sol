@@ -45,6 +45,8 @@ interface IArbius {
 
     function baseToken() external view returns (IBaseToken);
 
+    function paused() external view returns (bool);
+
     function treasury() external view returns (address);
 
     function accruedFees() external view returns (uint256);
@@ -170,6 +172,7 @@ interface IArbius {
     );
 
     event TreasuryTransferred(address indexed to);
+    event PausedChanged(bool indexed paused);
     event SolutionMineableRateChange(bytes32 indexed id, uint256 rate);
     event ValidatorMinimumPercentageChanged(uint256 indexed amount);
     event SlashAmountPercentageChanged(uint256 indexed amount);
@@ -184,6 +187,8 @@ interface IArbius {
     function transferOwnership(address to_) external;
 
     function transferTreasury(address to_) external;
+
+    function setPaused(bool paused_) external;
 
     function setSolutionMineableStatus(bytes32 model_, uint256 rate_) external;
 

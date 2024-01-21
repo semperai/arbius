@@ -69,6 +69,8 @@ contract EngineV1 is OwnableUpgradeable {
 
     address public treasury; // where treasury fees/rewards go
 
+    bool public paused; // if contract is paused
+
     uint256 public accruedFees; // fees in baseToken accrued to treasury
 
     bytes32 public prevhash; // previous task hash, used to provide entropy for next task hash
@@ -181,6 +183,7 @@ contract EngineV1 is OwnableUpgradeable {
     );
 
     event TreasuryTransferred(address indexed to);
+    event PausedChanged(bool indexed paused);
     event SolutionMineableRateChange(bytes32 indexed id, uint256 rate);
     event VersionChanged(uint256 version);
     event ValidatorMinimumPercentageChanged(uint256 indexed amount);
@@ -241,6 +244,13 @@ contract EngineV1 is OwnableUpgradeable {
     function transferTreasury(address to_) external onlyOwner {
         treasury = to_;
         emit TreasuryTransferred(to_);
+    }
+
+    /// @notice Pause/unpause contract
+    /// @param paused_ Whether to pause or unpause
+    function setPaused(bool paused_) external onlyOwner {
+        paused = paused_;
+        emit PausedChanged(paused_);
     }
 
     /// @notice Set solution mineable rate
@@ -481,6 +491,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @notice Withdraws fees accrued to treasury
     /// @dev this exists to save on gas, no need for an additional transfer every task
     function withdrawAccruedFees() external {
+        require(! paused, "paused");
         baseToken.transfer(treasury, accruedFees);
         accruedFees = 0;
     }
@@ -495,6 +506,7 @@ contract EngineV1 is OwnableUpgradeable {
         uint256 fee_,
         bytes calldata template_
     ) external returns (bytes32) {
+        require(! paused, "paused");
         require(addr_ != address(0x0), "address must be non-zero");
 
         bytes memory cid = getIPFSCID(template_);
@@ -515,6 +527,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @param validator_ Address of validator
     /// @param amount_ Amount of tokens to deposit
     function validatorDeposit(address validator_, uint256 amount_) external {
+        require(! paused, "paused");
         baseToken.transferFrom(msg.sender, address(this), amount_);
 
         validators[validator_] = Validator({
@@ -532,6 +545,7 @@ contract EngineV1 is OwnableUpgradeable {
     function initiateValidatorWithdraw(
         uint256 amount_
     ) external returns (uint256) {
+        require(! paused, "paused");
         require(
             validators[msg.sender].staked -
                 validatorWithdrawPendingAmount[msg.sender] >=
@@ -560,6 +574,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @notice Cancel a pending withdraw request
     /// @param count_ Counter of withdraw request
     function cancelValidatorWithdraw(uint256 count_) external {
+        require(! paused, "paused");
         PendingValidatorWithdrawRequest
             memory req = pendingValidatorWithdrawRequests[msg.sender][count_];
         require(req.unlockTime > 0, "request not exist");
@@ -574,6 +589,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @param count_ Counter of withdraw request
     /// @param to_ Address to send tokens to
     function validatorWithdraw(uint256 count_, address to_) external {
+        require(! paused, "paused");
         PendingValidatorWithdrawRequest
             memory req = pendingValidatorWithdrawRequests[msg.sender][count_];
 
@@ -607,6 +623,7 @@ contract EngineV1 is OwnableUpgradeable {
         uint256 fee_,
         bytes calldata input_
     ) external returns (bytes32) {
+        require(! paused, "paused");
         require(models[model_].addr != address(0x0), "model does not exist");
         require(fee_ >= models[model_].fee, "lower fee than model fee");
 
@@ -705,6 +722,7 @@ contract EngineV1 is OwnableUpgradeable {
         bytes32 taskid_,
         bytes calldata cid_
     ) external onlyValidator {
+        require(! paused, "paused");
         require(tasks[taskid_].model != bytes32(0x0), "task does not exist");
         require(
             solutions[taskid_].validator == address(0x0),
@@ -783,6 +801,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @dev anyone can claim, reward goes to solution validator not claimer
     /// @param taskid_ Task hash
     function claimSolution(bytes32 taskid_) external {
+        require(! paused, "paused");
         require(
             solutions[taskid_].validator != address(0x0),
             "solution not found"
@@ -809,6 +828,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @notice Contest a submitted solution
     /// @param taskid_ Task hash
     function submitContestation(bytes32 taskid_) external onlyValidator {
+        require(! paused, "paused");
         require(
             solutions[taskid_].validator != address(0x0),
             "solution does not exist"
@@ -898,6 +918,7 @@ contract EngineV1 is OwnableUpgradeable {
         bytes32 taskid_,
         bool yea_
     ) external onlyValidator {
+        require(! paused, "paused");
         _voteOnContestation(taskid_, yea_, msg.sender);
     }
 
@@ -905,6 +926,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @param taskid_ Task hash
     /// @param amnt_ Amount of votes to process
     function contestationVoteFinish(bytes32 taskid_, uint32 amnt_) external {
+        require(! paused, "paused");
         require(
             contestations[taskid_].validator != address(0x0),
             "contestation doesn't exist"
