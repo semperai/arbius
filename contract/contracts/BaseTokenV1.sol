@@ -39,11 +39,8 @@ contract BaseTokenV1 is
         address _l2Gateway,
         address _l1TokenAddress
     ) public initializer {
-        __ERC20_init("Arbius", "DML");
+        __ERC20_init("Arbius", "AIUS");
         __ERC20Permit_init("Arbius");
-        // TODO replace this for prod
-        // __ERC20_init("Test", "TST");
-        // __ERC20Permit_init("Test");
         __ERC20Votes_init();
         __Ownable_init();
 
