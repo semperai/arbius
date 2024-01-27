@@ -174,7 +174,7 @@ describe("Engine Unit Tests", () => {
       expect(await baseToken.name()).to.equal("Arbius");
     });
     it("get symbol", async () => {
-      expect(await baseToken.symbol()).to.equal("DML");
+      expect(await baseToken.symbol()).to.equal("AIUS");
     });
   });
 
