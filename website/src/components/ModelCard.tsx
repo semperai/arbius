@@ -5,7 +5,7 @@ import TokenBalance from '@/components/TokenBalance';
 import ConnectWallet from '@/components/ConnectWallet';
 import IncreaseAllowanceButton from '@/components/IncreaseAllowanceButton';
 import XBasicModelTokenStaking from '@/components/XBasicModelTokenStaking';
-import ModelLPStaking from '@/components/ModelLPStaking';
+// import ModelLPStaking from '@/components/ModelLPStaking';
 
 interface Props {
   name: string;
@@ -98,6 +98,7 @@ export default function ModelCard({
                     </button>
                   </div>
                 </div>
+                {/*
                 <XBasicModelTokenStaking
                   basicModelTokenAddress={contracts.token as `0x${string}`}
                   xBasicModelTokenAddress={contracts.xtoken as `0x${string}`}
@@ -106,6 +107,7 @@ export default function ModelCard({
                   lpAddress={contracts.lp as `0x${string}`}
                   lpStakingAddress={contracts.lpstaking as `0x${string}`}
                 />
+                */}
               </>
             ) }
           </div>

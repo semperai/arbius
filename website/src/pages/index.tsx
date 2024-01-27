@@ -228,13 +228,13 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:mx-0">
               <p className="text-lg font-semibold leading-8 tracking-tight text-indigo-600">
-                Imagine more
+                Bitcoin Inspired Model
               </p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                 Economically Optimized
               </h1>
               <p className="mt-6 text-xl leading-8 text-gray-700">
-                Have computationally hard tasks performed at a market rate by a decentralized network of solvers.
+                Have computationally hard tasks performed at a market rate by a decentralized network of miners.
               </p>
             </div>
             <div className="mx-auto mt-16 pb-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:mt-10 lg:max-w-none lg:grid-cols-12">
@@ -270,19 +270,19 @@ export default function HomePage() {
               </div>
               <div className="max-w-xl text-base leading-7 text-gray-700 lg:col-span-7">
                 <p>
-                  The Arbius network has solvers competing with each other to provide solutions to tasks proposed by users, at the lowest cost. Initially, the task reward provides a way for solvers to earn Arbius, allowing users to pay little or no fees, but over time a market rate will develop matching the underlying compute cost. Solvers are incentivized to optimize their software to generate results for users as fast as possible to increase their profitability.
+                  The Arbius network has solvers competing with each other to provide solutions to tasks proposed by users, at the lowest cost. Initially, the task reward provides a way for solvers to earn Arbius, <strong>allowing users to pay little or no fees</strong>, but over time a market rate will develop matching the underlying compute cost. Solvers are incentivized to optimize their software to generate results for users as fast as possible to increase their profitability.
                 </p>
                 <ul role="list" className="mt-8 max-w-xl space-y-8 text-gray-600">
                   <li className="flex gap-x-3">
                     <LockClosedIcon className="mt-1 h-5 w-5 flex-none text-indigo-600" aria-hidden="true" />
                     <span>
-                      <strong className="font-semibold text-gray-900">Secure generation.</strong> As long as a majority of the solvers are honest, tasks complete accurately within seconds.
+                      <strong className="font-semibold text-gray-900">Secure generation.</strong> As long as a majority of the miners are honest, tasks are confirmed on a decentralized network and are available within seconds.
                     </span>
                   </li>
                   <li className="flex gap-x-3">
                     <ServerIcon className="mt-1 h-5 w-5 flex-none text-indigo-600" aria-hidden="true" />
                     <span>
-                      <strong className="font-semibold text-gray-900">Integration.</strong> Generations provided by Arbius may be used in downstream applications, such as NFTs, marketplaces, gaming, or gambling.
+                      <strong className="font-semibold text-gray-900">Easy Integration.</strong>Easy Integration. Generations done via Arbius may be directly connected to downstream applications such as webapps, NFT marketplaces, chat-bots or gaming.
                     </span>
                   </li>
                   <li className="flex gap-x-3">

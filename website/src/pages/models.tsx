@@ -5,7 +5,7 @@ import ModelCard from '@/components/ModelCard';
 import Config from '@/config.json';
 
 const stats = [
-  { name: 'Registered models', value: '2' },
+  { name: 'Registered models', value: '1' },
   { name: 'Daily active users', value: '1+' },
   { name: 'Generations', value: '300+' },
 ]
@@ -28,7 +28,6 @@ const models = [
     cid: Config.models.anythingv3.params.cid,
     contracts: Config.models.anythingv3.contracts,
   },
-  */
   {
     name: 'Zeroscope V2 XL',
     role: 'Video Generation',
@@ -37,6 +36,7 @@ const models = [
     cid: Config.models.zeroscopev2xl.params.cid,
     contracts: Config.models.zeroscopev2xl.contracts,
   },
+  */
 ]
 
 export default function ModelsPage() {
@@ -95,6 +95,7 @@ export default function ModelsPage() {
                   </button>
                 </Link>
               </div>
+              {/*
               <dl className="mt-16 grid grid-cols-1 gap-8 sm:mt-20 sm:grid-cols-2 lg:grid-cols-4">
                 {stats.map((stat) => (
                   <div key={stat.name} className="flex flex-col-reverse">
@@ -103,6 +104,7 @@ export default function ModelsPage() {
                   </div>
                 ))}
               </dl>
+              */}
             </div>
           </div>
         </div>
