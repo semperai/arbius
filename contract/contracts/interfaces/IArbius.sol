@@ -13,7 +13,8 @@ interface IArbius {
 
     struct Validator {
         uint256 staked; // tokens staked
-        address addr; // TODO is this needed?
+        uint256 since; // when validator was added
+        address addr; // validator address
     }
 
     struct PendingValidatorWithdrawRequest {
@@ -47,6 +48,8 @@ interface IArbius {
 
     function paused() external view returns (bool);
 
+    function pauser() external view returns (address);
+
     function treasury() external view returns (address);
 
     function accruedFees() external view returns (uint256);
@@ -72,6 +75,8 @@ interface IArbius {
     function minRetractionWaitTime() external view returns (uint256);
 
     function minContestationVotePeriodTime() external view returns (uint256);
+
+    function maxContestationValidatorStakeSince() external view returns (uint256);
 
     function exitValidatorMinUnlockTime() external view returns (uint256);
 
@@ -172,6 +177,7 @@ interface IArbius {
     );
 
     event TreasuryTransferred(address indexed to);
+    event PauserTransferred(address indexed to);
     event PausedChanged(bool indexed paused);
     event SolutionMineableRateChange(bytes32 indexed id, uint256 rate);
     event ValidatorMinimumPercentageChanged(uint256 indexed amount);
@@ -187,6 +193,8 @@ interface IArbius {
     function transferOwnership(address to_) external;
 
     function transferTreasury(address to_) external;
+
+    function transferPauser(address to_) external;
 
     function setPaused(bool paused_) external;
 
@@ -209,6 +217,8 @@ interface IArbius {
     function setMinRetractionWaitTime(uint256 amount_) external;
 
     function setMinContestationVotePeriodTime(uint256 amount_) external;
+
+    function setMaxContestationValidatorStakeSince(uint256 amount_) external;
 
     function getSlashAmount() external view returns (uint256);
 
