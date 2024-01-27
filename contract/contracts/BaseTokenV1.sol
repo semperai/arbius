@@ -19,7 +19,6 @@ contract BaseTokenV1 is
     address public override l1Address;
     uint256[48] __gap; // upgradeable gap
 
-
     /// @notice only the l2Gateway can call functions with this modifier
     modifier onlyL2Gateway() {
         require(msg.sender == l2Gateway, "NOT_GATEWAY");

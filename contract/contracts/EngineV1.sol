@@ -212,7 +212,7 @@ contract EngineV1 is OwnableUpgradeable {
 
     /// @notice Modifier to restrict to only not paused
     modifier notPaused() {
-        require(! paused, "paused");
+        require(!paused, "paused");
         _;
     }
 
@@ -232,8 +232,7 @@ contract EngineV1 is OwnableUpgradeable {
         _disableInitializers();
     }
 
-
-    /// @notice Initialize contract 
+    /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
     /// @param baseToken_ Address of base token
     /// @param treasury_ Address of treasury
@@ -368,7 +367,7 @@ contract EngineV1 is OwnableUpgradeable {
 
     /// @notice Set max delay for validator "since" property after which a validator may no longer vote on a contestation
     /// @param amount_ Amount of seconds allowed
-    function setMaxContestationValidatorStakeSince (
+    function setMaxContestationValidatorStakeSince(
         uint256 amount_
     ) external onlyOwner {
         maxContestationValidatorStakeSince = amount_;
@@ -405,7 +404,7 @@ contract EngineV1 is OwnableUpgradeable {
     /// @notice Get IPFS cid
     /// @dev use this for testing
     /// @param content_ Content to get IPFS cid of
-    /// @return 
+    /// @return
     function generateIPFSCID(
         bytes calldata content_
     ) external pure returns (bytes memory) {
@@ -503,8 +502,8 @@ contract EngineV1 is OwnableUpgradeable {
     /// @return Reward
     function reward(uint256 t, uint256 ts) public pure returns (uint256) {
         return
-            (((STARTING_ENGINE_TOKEN_AMOUNT - ts) * BASE_TOKEN_STARTING_REWARD) *
-                diffMul(t, ts)) /
+            (((STARTING_ENGINE_TOKEN_AMOUNT - ts) *
+                BASE_TOKEN_STARTING_REWARD) * diffMul(t, ts)) /
             STARTING_ENGINE_TOKEN_AMOUNT /
             1e18;
     }
@@ -516,14 +515,14 @@ contract EngineV1 is OwnableUpgradeable {
         if (b >= STARTING_ENGINE_TOKEN_AMOUNT) {
             return 0;
         }
-        return STARTING_ENGINE_TOKEN_AMOUNT - baseToken.balanceOf(address(this));
+        return
+            STARTING_ENGINE_TOKEN_AMOUNT - baseToken.balanceOf(address(this));
     }
 
     /// @notice Calculates the reward for current timestamp/supply
     /// @return Reward amount
     function getReward() public view returns (uint256) {
-        return
-            reward(block.timestamp - startBlockTime, getPsuedoTotalSupply());
+        return reward(block.timestamp - startBlockTime, getPsuedoTotalSupply());
     }
 
     /// @notice Generates commitment hash for a given task
@@ -572,11 +571,16 @@ contract EngineV1 is OwnableUpgradeable {
     /// @dev anyone can top up a validators balance
     /// @param validator_ Address of validator
     /// @param amount_ Amount of tokens to deposit
-    function validatorDeposit(address validator_, uint256 amount_) external notPaused {
+    function validatorDeposit(
+        address validator_,
+        uint256 amount_
+    ) external notPaused {
         baseToken.transferFrom(msg.sender, address(this), amount_);
 
         // if new validator, set since to now
-        uint256 since = validators[validator_].since == 0 ? block.timestamp : validators[validator_].since;
+        uint256 since = validators[validator_].since == 0
+            ? block.timestamp
+            : validators[validator_].since;
         if (validators[validator_].staked >= getValidatorMinimum()) {
             since = block.timestamp;
         }
@@ -798,7 +802,7 @@ contract EngineV1 is OwnableUpgradeable {
     /** @dev this is separated out as it is used both in:
      * normal claimSolution
      * and contestationVoteFinish (for failed contestations)
-    */
+     */
     function _claimSolutionFeesAndReward(bytes32 taskid_) internal {
         uint256 modelFee = models[tasks[taskid_].model].fee;
 
@@ -873,7 +877,9 @@ contract EngineV1 is OwnableUpgradeable {
 
     /// @notice Contest a submitted solution
     /// @param taskid_ Task hash
-    function submitContestation(bytes32 taskid_) external notPaused onlyValidator {
+    function submitContestation(
+        bytes32 taskid_
+    ) external notPaused onlyValidator {
         require(
             solutions[taskid_].validator != address(0x0),
             "solution does not exist"
@@ -909,9 +915,7 @@ contract EngineV1 is OwnableUpgradeable {
         // we do not care about validatorWithdrawPendingAmount as it shouldnt matter if they
         // submit invalid tasks then attempt to withdraw. the amount they have staked is max
         // they can withdraw.
-        if (
-            validators[solutions[taskid_].validator].staked >= slashAmount
-        ) {
+        if (validators[solutions[taskid_].validator].staked >= slashAmount) {
             // the accused validator automatically votes against
             _voteOnContestation(taskid_, false, solutions[taskid_].validator);
         }
@@ -922,42 +926,56 @@ contract EngineV1 is OwnableUpgradeable {
     /// @param addr_ Address of validator
     /// @param taskid_ Task hash
     /// @return Whether validator can vote on contestation
-    function validatorCanVote(address addr_, bytes32 taskid_) public view returns (bool) {
+    function validatorCanVote(
+        address addr_,
+        bytes32 taskid_
+    ) public view returns (bool) {
         // contestation doesn't exist
         if (contestations[taskid_].validator == address(0x0)) {
+            require(false, "respond 1");
             return false;
         }
 
         // voting period ended
-        if (block.timestamp < contestations[taskid_].blocktime + minContestationVotePeriodTime) {
+        if (
+            block.timestamp >
+            contestations[taskid_].blocktime + minContestationVotePeriodTime
+        ) {
+            require(false, "respond 2");
             return false;
         }
 
         // already voted
         if (contestationVoted[taskid_][addr_]) {
+            require(false, "respond 3");
             return false;
         }
 
         // if not staked ever, cannot vote
         // this ensures validator has staked
         if (validators[addr_].since == 0) {
+            require(false, "respond 4");
             return false;
         }
 
         // check in case something goes really wrong
         if (validators[addr_].since < maxContestationValidatorStakeSince) {
+            require(false, "respond 5");
             return false;
         }
 
         // if staked after contestation+period, cannot vote
-        if (validators[addr_].since - maxContestationValidatorStakeSince < contestations[taskid_].blocktime) {
+        if (
+            validators[addr_].since - maxContestationValidatorStakeSince >
+            contestations[taskid_].blocktime
+        ) {
+            require(false, "respond 6");
             return false;
         }
 
         // otherwise, validator can vote!
         return true;
     }
-
 
     /// @notice Vote on a contestation (internal)
     /// @dev This exists to enable autovote on contestation submission
@@ -998,7 +1016,10 @@ contract EngineV1 is OwnableUpgradeable {
     /// @notice Finish contestation voting period
     /// @param taskid_ Task hash
     /// @param amnt_ Amount of votes to process
-    function contestationVoteFinish(bytes32 taskid_, uint32 amnt_) external notPaused {
+    function contestationVoteFinish(
+        bytes32 taskid_,
+        uint32 amnt_
+    ) external notPaused {
         require(
             contestations[taskid_].validator != address(0x0),
             "contestation doesn't exist"

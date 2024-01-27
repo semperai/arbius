@@ -76,7 +76,10 @@ interface IArbius {
 
     function minContestationVotePeriodTime() external view returns (uint256);
 
-    function maxContestationValidatorStakeSince() external view returns (uint256);
+    function maxContestationValidatorStakeSince()
+        external
+        view
+        returns (uint256);
 
     function exitValidatorMinUnlockTime() external view returns (uint256);
 
