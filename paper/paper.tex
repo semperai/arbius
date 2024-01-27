@@ -105,25 +105,51 @@ The contestation mechanism, revolving around reproducible off-chain computation,
 
 \section{Tokenomics} \label{tokenomics}
 
-AIUS has 1 million max supply, with a time based target total supply of $1000000(1-{0.5^{y})}$ where y is year. After 1 year, there should be approximately 500k tokens minted, and after 2 years approximately 750k tokens minted. After 7 years approximately 99\% of tokens should be minted.
+AIUS has 1 million max supply with both exponentially decaying inflation driven by mining, as well as various vesting schedules to ensure long term sustainability of the protocol.
 
-\begin{figure}[H]
-\includegraphics[width=8cm]{totalsupply}
-\centering
-\end{figure}
+The distribution is as follows:
+
+\begin{itemize}
+    \item 1\% Initial Liquidity
+    \item 9\% Liquidity Incentives (\approx 4 year vesting)
+    \item 10\% DAO (\approx 4 year vesting)
+    \item 10\% Team (4 year vesting)
+    \item 10\% Private sale (2 year vesting)
+    \item 60\% Mining (\approx 7 year emission schedule)
+\end{itemize}
+
+\subsection{DAO}
+
+10\% of all tokens are sent to the Arbius DAO treasury. These tokens are to be utilized by the DAO for future development and promotion of the protocol. The soft target is to have DAO funds cover at least 4 years of development, with the goal of having the DAO be self-sustaining by the end of the 4 year period.
+
+\subsection{Liquidity Incentives}
+
+Initially 10k AIUS(1\% of total supply) and \$30k of ETH will be used to create a Uniswap pool. The remaining 9\% will be used to incentivize liquidity providers. Users will be able to stake and bond liquidity in order to receive AIUS rewards. The 9\% will be distributed over 4 years, with the first year having the highest rewards. Of the 9\%(90k AIUS), rewards are expected to be deployed between LP Rewards / Bonds as follows:
+
+\begin{itemize}
+    \item Year 1: 20\%/20\% (36k AIUS)
+    \item Year 2: 15\%/15\% (27k AIUS)
+    \item Year 3: 10\%/10\% (18k AIUS)
+    \item Year 4: 5\%/5\% (9k AIUS)
+\end{itemize}
+
+The proportion of rewards between LP Incentivization and Bonding may be adjusted by the DAO or team to maximize liquidity and stability of the token.
+
+
+\subsection{Mining}
+
+Mining is covered with a time based target total supply of $600000(1-{0.5^{y})}$ where y is year. After 1 year, there should be approximately 300k tokens minted, and after 2 years approximately 450k tokens minted. After 7 years approximately 99\% of tokens should be minted.
 
 The real emission rate (recall \ref{taskreward}) will be slightly faster than the target emission rate, due to the variable task reward. However, it is unlikely to be much more than 10\% faster due to the exponential falloff of task rewards. 10\% greater total supply than expected total supply by time results in a 1024-fold reduction of task rewards.
 
-10\% of all newly minted tokens, and 10\% of task fees are sent to the treasury. An additional 10\% of all newly minted tokens will be dripped to liquidity providers to incentivize AIUS/ETH liquidity; governance can adjust this percentage.
 
-
-There are at least 4 ways for participants to earn with the AIUS protocol:
+There are at least 4 ways for participants to earn with the Arbius protocol:
 
 \begin{enumerate}
     \item Register a model and earn usage fees
     \item Solve tasks and earn task rewards and fees
-    \item Stake AIUS and delegate to solver for portion of task rewards
     \item Stake AIUS/ETH LP tokens for portion of newly created AIUS
+    \item Bond AIUS/ETH LP tokens for portion of newly created AIUS
 \end{enumerate}
 
 \section{Governance}
