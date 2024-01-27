@@ -925,15 +925,14 @@ contract EngineV1 is OwnableUpgradeable {
     /// @dev Determines if validator may vote on a contestation
     /// @param addr_ Address of validator
     /// @param taskid_ Task hash
-    /// @return Whether validator can vote on contestation
+    /// @return Whether validator can vote on contestation (0) or error code
     function validatorCanVote(
         address addr_,
         bytes32 taskid_
-    ) public view returns (bool) {
+    ) public view returns (uint256) {
         // contestation doesn't exist
         if (contestations[taskid_].validator == address(0x0)) {
-            require(false, "respond 1");
-            return false;
+            return 0x01;
         }
 
         // voting period ended
@@ -941,27 +940,23 @@ contract EngineV1 is OwnableUpgradeable {
             block.timestamp >
             contestations[taskid_].blocktime + minContestationVotePeriodTime
         ) {
-            require(false, "respond 2");
-            return false;
+            return 0x02;
         }
 
         // already voted
         if (contestationVoted[taskid_][addr_]) {
-            require(false, "respond 3");
-            return false;
+            return 0x03;
         }
 
         // if not staked ever, cannot vote
         // this ensures validator has staked
         if (validators[addr_].since == 0) {
-            require(false, "respond 4");
-            return false;
+            return 0x04;
         }
 
         // check in case something goes really wrong
         if (validators[addr_].since < maxContestationValidatorStakeSince) {
-            require(false, "respond 5");
-            return false;
+            return 0x05;
         }
 
         // if staked after contestation+period, cannot vote
@@ -969,12 +964,11 @@ contract EngineV1 is OwnableUpgradeable {
             validators[addr_].since - maxContestationValidatorStakeSince >
             contestations[taskid_].blocktime
         ) {
-            require(false, "respond 6");
-            return false;
+            return 0x06;
         }
 
         // otherwise, validator can vote!
-        return true;
+        return 0x00;
     }
 
     /// @notice Vote on a contestation (internal)
@@ -1009,7 +1003,7 @@ contract EngineV1 is OwnableUpgradeable {
         bytes32 taskid_,
         bool yea_
     ) external notPaused onlyValidator {
-        require(validatorCanVote(msg.sender, taskid_), "not allowed");
+        require(validatorCanVote(msg.sender, taskid_) == 0x0, "not allowed");
         _voteOnContestation(taskid_, yea_, msg.sender);
     }
 
