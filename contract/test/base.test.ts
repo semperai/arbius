@@ -180,6 +180,22 @@ describe("Engine Unit Tests", () => {
 
 
   describe("validator", () => {
+    it("cannot become validator when paused", async () => {
+      await (await baseToken
+        .connect(deployer)
+        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
+      ).wait();
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(validator1)
+        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
+      ).to.be.reverted;
+    });
+
     it("become validator", async () => {
       await (await baseToken
         .connect(deployer)
@@ -199,6 +215,35 @@ describe("Engine Unit Tests", () => {
       const validator = await engine.validators(await validator1.getAddress());
       expect(validator.addr).to.equal(await validator1.getAddress());
       expect(validator.staked).to.equal(ethers.utils.parseEther("2.4"));
+    });
+
+    it("cannot exit validator when paused", async () => {
+      await (await baseToken
+        .connect(deployer)
+        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
+      ).wait();
+
+      await (await engine
+        .connect(validator1)
+        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
+      ).wait();
+
+      await expect(engine
+        .connect(validator1)
+        .initiateValidatorWithdraw(ethers.utils.parseEther('2.4'))
+      ).to.emit(engine, "ValidatorWithdrawInitiated");
+
+      await ethers.provider.send("evm_increaseTime", [86400]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(validator1)
+        .validatorWithdraw(ethers.BigNumber.from('1'), await validator1.getAddress())
+      ).to.be.reverted;
     });
 
     it("exit validator", async () => {
@@ -302,9 +347,45 @@ describe("Engine Unit Tests", () => {
       ).to.emit(engine, 'SolutionMineableRateChange')
       .withArgs(modelid, rate);
     });
+
+    it("can change model rate when paused", async () => {
+      const modelid = await deployBootstrapModel();
+      const rate = ethers.utils.parseEther('1');
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, rate)
+      ).to.emit(engine, 'SolutionMineableRateChange')
+      .withArgs(modelid, rate);
+    });
   });
 
   describe("model", () => {
+    it("cannot register when paused", async () => {
+      const addr = await user1.getAddress();
+      const fee = ethers.utils.parseEther('0');
+
+      const modelid = await engine.hashModel({
+        addr,
+        fee,
+        rate: ethers.utils.parseEther('0'),
+        cid: TESTCID,
+      }, await user1.getAddress());
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(user1)
+        .registerModel(addr, fee, TESTBUF)
+      ).to.be.reverted;
+    });
+
     it("register model", async () => {
       const addr = await user1.getAddress();
       const fee = ethers.utils.parseEther('0');
@@ -331,6 +412,27 @@ describe("Engine Unit Tests", () => {
   });
 
   describe("task", () => {
+    it("cannot submit task when paused", async () => {
+      const modelid = await deployBootstrapModel();
+      const model = await engine.models(modelid);
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      const taskParams = await bootstrapTaskParams(modelid);
+
+      await expect(engine
+        .connect(user1)
+        .submitTask(
+          taskParams.version,
+          taskParams.owner,
+          taskParams.model,
+          taskParams.fee,
+          taskParams.input,
+        )).to.be.reverted;
+    });
+
     it("submit test bootstrap task", async () => {
       const modelid = await deployBootstrapModel();
       const model = await engine.models(modelid);
@@ -347,6 +449,24 @@ describe("Engine Unit Tests", () => {
       expect(task.cid).to.equal(TESTCID); 
     });
 
+    it("cannot retract test when paused", async () => {
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      // MIN_RETRACTION_WAIT
+      await ethers.provider.send("evm_increaseTime", [10010]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(user1)
+        .retractTask(taskid)
+      ).to.be.reverted;
+    });
+
     it("retract test bootstrap task", async () => {
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
@@ -360,6 +480,29 @@ describe("Engine Unit Tests", () => {
         .retractTask(taskid)
       ).to.emit(engine, 'TaskRetracted')
       .withArgs(taskid);
+    });
+
+    it("cannot submit solution commitment when paused", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(validator1)
+        .signalCommitment(commitment)
+      ).to.be.reverted;
     });
 
     it("submit solution commitment", async () => {
@@ -385,6 +528,33 @@ describe("Engine Unit Tests", () => {
       expect(commitmentLookup.toNumber()).to.be.above(1);
     });
     // TODO check commitment can not be made within same tx as solution
+
+    it("cannot submit solution when paused", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).to.be.reverted;
+    });
 
     it("submit uncontested solution", async () => {
       await deployBootstrapValidator();
@@ -412,6 +582,42 @@ describe("Engine Unit Tests", () => {
       const solution = await engine.solutions(taskid);
       expect(solution.validator).to.equal(await validator1.getAddress());
       expect(solution.cid).to.equal(cid);
+    });
+
+    it("cannot claim solution when paused", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // MIN_CLAIM_SOLUTION_TIME
+      await ethers.provider.send("evm_increaseTime", [3600]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(engine
+        .connect(validator1)
+        .claimSolution(taskid)
+      ).to.be.reverted;
     });
 
     it("claim uncontested solution", async () => {
@@ -526,6 +732,57 @@ describe("Engine Unit Tests", () => {
   // test task cannot be claimed before MIN_CLAIM_SOLUTION_TIME
 
   describe('contestation before slashing', () => {
+    it("cannot contest paused task", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // make 3 validators
+      for (const validator of [validator1, validator2, validator3]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)).wait();
+
+      await expect(
+        engine
+        .connect(validator1)
+        .submitContestation(ethers.constants.HashZero)
+      ).to.be.reverted;
+    });
+
     it("cannot contest nonexistent task", async () => {
       await deployBootstrapValidator();
 
@@ -687,6 +944,74 @@ describe("Engine Unit Tests", () => {
         engine
         .connect(validator1)
         .contestationVoteFinish(taskid, 2)
+      ).to.be.reverted;
+    });
+
+    it("cannot finish contestation when paused", async () => {
+      await deployBootstrapEngineSlashingNotReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // make 3 validators
+      for (const validator of [validator1, validator2, validator3]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(deployer)
+        .setPaused(true)
+      ).wait();
+
+      await expect(
+        engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
       ).to.be.reverted;
     });
 
