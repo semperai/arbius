@@ -21,7 +21,7 @@ describe("Engine Unit Tests", () => {
   let validator4: SignerWithAddress;
   let treasury:   SignerWithAddress;
   let model1:     SignerWithAddress;
-  let lpreward:   SignerWithAddress;
+  let newowner:   SignerWithAddress;
 
   let baseToken: BaseToken;
   let engine: Engine;
@@ -37,7 +37,7 @@ describe("Engine Unit Tests", () => {
     validator4 = signers[6];
     treasury   = signers[7];
     model1     = signers[8];
-    lpreward   = signers[9];
+    newowner   = signers[9];
 
     const BaseToken = await ethers.getContractFactory(
       "BaseTokenV1"
@@ -177,7 +177,6 @@ describe("Engine Unit Tests", () => {
       expect(await baseToken.symbol()).to.equal("AIUS");
     });
   });
-
 
   describe("validator", () => {
     it("cannot become validator when paused", async () => {
@@ -338,7 +337,7 @@ describe("Engine Unit Tests", () => {
   });
 
   describe("admin", () => {
-    it("add mineable model", async () => {
+    it("add mineable model / set rate", async () => {
       const modelid = await deployBootstrapModel();
       const rate = ethers.utils.parseEther('1');
       await expect(engine
@@ -346,6 +345,15 @@ describe("Engine Unit Tests", () => {
         .setSolutionMineableRate(modelid, rate)
       ).to.emit(engine, 'SolutionMineableRateChange')
       .withArgs(modelid, rate);
+    });
+
+    it("non owner cannot set rate", async () => {
+      const modelid = await deployBootstrapModel();
+      const rate = ethers.utils.parseEther('1');
+      await expect(engine
+        .connect(user1) // initial owner
+        .setSolutionMineableRate(modelid, rate)
+      ).to.be.reverted;
     });
 
     it("can change model rate when paused", async () => {
@@ -362,6 +370,253 @@ describe("Engine Unit Tests", () => {
       ).to.emit(engine, 'SolutionMineableRateChange')
       .withArgs(modelid, rate);
     });
+
+    it("transfer owner", async () => {
+      await expect(engine
+        .connect(deployer)
+        .transferOwnership(await newowner.getAddress())
+      ).to.emit(engine, 'OwnershipTransferred')
+      .withArgs(await deployer.getAddress(), await newowner.getAddress());
+
+      expect(await engine.owner()).to.equal(await newowner.getAddress());
+    });
+
+    it("non owner cannot transfer owner", async () => {
+      await expect(engine
+        .connect(user1)
+        .transferOwnership(await newowner.getAddress())
+      ).to.be.reverted;
+    });
+
+    it("transfer pauser", async () => {
+      await expect(engine
+        .connect(deployer)
+        .transferPauser(await newowner.getAddress())
+      ).to.emit(engine, 'PauserTransferred')
+      .withArgs(await newowner.getAddress());
+
+      expect(await engine.pauser()).to.equal(await newowner.getAddress());
+    });
+
+    it("non owner cannot transfer pauser", async () => {
+      await expect(engine
+        .connect(user1)
+        .transferPauser(await newowner.getAddress())
+      ).to.be.reverted;
+    });
+
+    it("pause/unpause", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setPaused(true)
+      ).to.emit(engine, 'PausedChanged')
+      .withArgs(true);
+
+      expect(await engine.paused()).to.equal(true);
+
+      await expect(engine
+        .connect(deployer)
+        .setPaused(false)
+      ).to.emit(engine, 'PausedChanged')
+      .withArgs(false);
+
+      expect(await engine.paused()).to.equal(false);
+    });
+
+    it("non pauser cannot pause", async () => {
+      await expect(engine
+        .connect(user1)
+        .setPaused(true)
+      ).to.be.reverted;
+    });
+
+    it("set version", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setVersion(25)
+      ).to.emit(engine, 'VersionChanged')
+      .withArgs(25);
+
+      expect(await engine.version()).to.equal(25);
+    });
+
+    it("non owner cannot set version", async () => {
+      await expect(engine
+        .connect(user1)
+        .setVersion(25)
+      ).to.be.reverted;
+    });
+
+    it("set validator minimum percentage", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setValidatorMinimumPercentage(100)
+      ).to.emit(engine, 'ValidatorMinimumPercentageChanged')
+      .withArgs(100);
+
+      expect(await engine.validatorMinimumPercentage()).to.equal(100);
+    });
+
+    it("non owner cannot set validator minimum percentage", async () => {
+      await expect(engine
+        .connect(user1)
+        .setValidatorMinimumPercentage(100)
+      ).to.be.reverted;
+    });
+
+    it("set slash amount percentage", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setSlashAmountPercentage(50)
+      ).to.emit(engine, 'SlashAmountPercentageChanged')
+      .withArgs(50);
+
+      expect(await engine.slashAmountPercentage()).to.equal(50);
+    });
+
+    it("non owner cannot set slash amount percentage", async () => {
+      await expect(engine
+        .connect(user1)
+        .setSlashAmountPercentage(50)
+      ).to.be.reverted;
+    });
+
+    it("set solution fee percentage", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setSolutionFeePercentage(50)
+      ).to.emit(engine, 'SolutionFeePercentageChanged')
+      .withArgs(50);
+
+      expect(await engine.solutionFeePercentage()).to.equal(50);
+    });
+
+    it("non owner cannot set solution fee percentage", async () => {
+      await expect(engine
+        .connect(user1)
+        .setSolutionFeePercentage(50)
+      ).to.be.reverted;
+    });
+
+    it("set retraction fee percentage", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setRetractionFeePercentage(50)
+      ).to.emit(engine, 'RetractionFeePercentageChanged')
+      .withArgs(50);
+
+      expect(await engine.retractionFeePercentage()).to.equal(50);
+    });
+
+    it("non owner cannot set retraction fee percentage", async () => {
+      await expect(engine
+        .connect(user1)
+        .setRetractionFeePercentage(50)
+      ).to.be.reverted;
+    });
+
+    it("set treasury reward percentage", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setTreasuryRewardPercentage(50)
+      ).to.emit(engine, 'TreasuryRewardPercentageChanged')
+      .withArgs(50);
+
+      expect(await engine.treasuryRewardPercentage()).to.equal(50);
+    });
+
+    it("non owner cannot set treasury reward percentage", async () => {
+      await expect(engine
+        .connect(user1)
+        .setTreasuryRewardPercentage(50)
+      ).to.be.reverted;
+    });
+
+    it("set min claim solution time", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setMinClaimSolutionTime(50)
+      ).to.emit(engine, 'MinClaimSolutionTimeChanged')
+      .withArgs(50);
+
+      expect(await engine.minClaimSolutionTime()).to.equal(50);
+    });
+
+    it("non owner cannot set min claim solution time", async () => {
+      await expect(engine
+        .connect(user1)
+        .setMinClaimSolutionTime(50)
+      ).to.be.reverted;
+    });
+
+    it("set min retraction wait time", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setMinRetractionWaitTime(50)
+      ).to.emit(engine, 'MinRetractionWaitTimeChanged')
+      .withArgs(50);
+
+      expect(await engine.minRetractionWaitTime()).to.equal(50);
+    });
+
+    it("non owner cannot set min retraction wait time", async () => {
+      await expect(engine
+        .connect(user1)
+        .setMinRetractionWaitTime(50)
+      ).to.be.reverted;
+    });
+
+    it("set min contestation vote period time", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setMinContestationVotePeriodTime(50)
+      ).to.emit(engine, 'MinContestationVotePeriodTimeChanged')
+      .withArgs(50);
+
+      expect(await engine.minContestationVotePeriodTime()).to.equal(50);
+    });
+
+    it("non owner cannot set min contestation vote period time", async () => {
+      await expect(engine
+        .connect(user1)
+        .setMinContestationVotePeriodTime(50)
+      ).to.be.reverted;
+    });
+
+    it("set max contestation validator stake since", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setMaxContestationValidatorStakeSince(50)
+      ).to.emit(engine, 'MaxContestationValidatorStakeSinceChanged')
+      .withArgs(50);
+
+      expect(await engine.maxContestationValidatorStakeSince()).to.equal(50);
+    });
+
+    it("non owner cannot set max contestation validator stake since", async () => {
+      await expect(engine
+        .connect(user1)
+        .setMaxContestationValidatorStakeSince(50)
+      ).to.be.reverted;
+    });
+
+    it("set exit validator min unlock time", async () => {
+      await expect(engine
+        .connect(deployer)
+        .setExitValidatorMinUnlockTime(50)
+      ).to.emit(engine, 'ExitValidatorMinUnlockTimeChanged')
+      .withArgs(50);
+
+      expect(await engine.exitValidatorMinUnlockTime()).to.equal(50);
+    });
+
+    it("non owner cannot set exit validator min unlock time", async () => {
+      await expect(engine
+        .connect(user1)
+        .setExitValidatorMinUnlockTime(50)
+      ).to.be.reverted;
+    });
+
   });
 
   describe("model", () => {
@@ -1800,7 +2055,7 @@ describe("Engine Unit Tests", () => {
     });
   });
 
-  describe('contestation with slahing reached', () => {
+  describe('contestation with slashing reached', () => {
     it("cannot contest nonexistent task", async () => {
       await deployBootstrapValidator();
 
