@@ -294,7 +294,10 @@ interface IArbius {
 
     function submitContestation(bytes32 taskid_) external;
 
-    function validatorCanVote(address addr_, bytes32 taskid_) external view returns (uint256);
+    function validatorCanVote(
+        address addr_,
+        bytes32 taskid_
+    ) external view returns (uint256);
 
     function voteOnContestation(bytes32 taskid_, bool yea_) external;
 
