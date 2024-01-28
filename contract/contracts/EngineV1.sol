@@ -577,17 +577,19 @@ contract EngineV1 is OwnableUpgradeable {
     ) external notPaused {
         baseToken.transferFrom(msg.sender, address(this), amount_);
 
-        // if new validator, set since to now
-        uint256 since = validators[validator_].since == 0
-            ? block.timestamp
-            : validators[validator_].since;
-        if (validators[validator_].staked >= getValidatorMinimum()) {
-            since = block.timestamp;
+        // this will be 0 before MIN_SUPPLY_FOR_VALIDATOR_DEPOSITS
+        uint256 min = getValidatorMinimum();
+
+        // we update if validator is not staked enough and reaches minimum in this deposit
+        if (validators[validator_].staked <= min) {
+            if (validators[validator_].staked + amount_ >= min) {
+                validators[validator_].since = block.timestamp;
+            }
         }
 
         validators[validator_] = Validator({
             addr: validator_,
-            since: since,
+            since: validators[validator_].since,
             staked: validators[validator_].staked + amount_
         });
 
