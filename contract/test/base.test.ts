@@ -1337,6 +1337,71 @@ describe("Engine Unit Tests", () => {
       expect(finish_start_index).to.equal(3);
     });
 
+    it("contestor cannot contest later than maxContestationValidatorStakeSince", async () => {
+      await deployBootstrapEngineSlashingNotReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // make 2 validators (validator3 will be too late)
+      for (const validator of [validator1, validator2]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [120]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await baseToken
+        .connect(deployer)
+        .transfer(await validator3.getAddress(), ethers.utils.parseEther('2.4'))
+      ).wait();
+      await (await engine
+        .connect(validator3)
+        .validatorDeposit(await validator3.getAddress(), ethers.utils.parseEther('2.4'))
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await expect(engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).to.be.reverted;
+    });
+
     it("successful contestation with 1 other voter results in fee refund to submitter", async () => {
       await deployBootstrapEngineSlashingNotReached();
       const modelid = await deployBootstrapModel();
