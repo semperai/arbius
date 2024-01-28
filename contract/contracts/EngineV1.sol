@@ -708,7 +708,7 @@ contract EngineV1 is OwnableUpgradeable {
       is mining... a user should retract to reclaim their fee.
       a delay & a fee is placed on the task fee to reduce abuse.*/
     /// @param taskid_ Task hash
-    function retractTask(bytes32 taskid_) external {
+    function retractTask(bytes32 taskid_) notPaused external {
         require(tasks[taskid_].owner == msg.sender, "not owner");
         require(solutions[taskid_].validator == address(0x0), "has solution");
         require(
@@ -750,7 +750,7 @@ contract EngineV1 is OwnableUpgradeable {
         mempool and publishing in advance
         commitment is keccak256(abi.encode(validator, taskid_, cid_))
         any account may register a commitment on behalf of a validator */
-    function signalCommitment(bytes32 commitment_) external {
+    function signalCommitment(bytes32 commitment_) notPaused external {
         require(commitments[commitment_] == 0, "commitment exists"); // do not allow commitment time to be reset
         commitments[commitment_] = getBlockNumberNow();
         emit SignalCommitment(msg.sender, commitment_);
