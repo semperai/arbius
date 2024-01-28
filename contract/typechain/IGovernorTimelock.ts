@@ -20,12 +20,15 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface IGovernorTimelockInterface extends utils.Interface {
   functions: {
+    "CLOCK_MODE()": FunctionFragment;
     "COUNTING_MODE()": FunctionFragment;
+    "cancel(address[],uint256[],bytes[],bytes32)": FunctionFragment;
     "castVote(uint256,uint8)": FunctionFragment;
     "castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)": FunctionFragment;
     "castVoteWithReason(uint256,uint8,string)": FunctionFragment;
     "castVoteWithReasonAndParams(uint256,uint8,string,bytes)": FunctionFragment;
     "castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)": FunctionFragment;
+    "clock()": FunctionFragment;
     "execute(address[],uint256[],bytes[],bytes32)": FunctionFragment;
     "getVotes(address,uint256)": FunctionFragment;
     "getVotesWithParams(address,uint256,bytes)": FunctionFragment;
@@ -34,6 +37,7 @@ export interface IGovernorTimelockInterface extends utils.Interface {
     "name()": FunctionFragment;
     "proposalDeadline(uint256)": FunctionFragment;
     "proposalEta(uint256)": FunctionFragment;
+    "proposalProposer(uint256)": FunctionFragment;
     "proposalSnapshot(uint256)": FunctionFragment;
     "propose(address[],uint256[],bytes[],string)": FunctionFragment;
     "queue(address[],uint256[],bytes[],bytes32)": FunctionFragment;
@@ -47,8 +51,16 @@ export interface IGovernorTimelockInterface extends utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "CLOCK_MODE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "COUNTING_MODE",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "cancel",
+    values: [string[], BigNumberish[], BytesLike[], BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "castVote",
@@ -78,6 +90,7 @@ export interface IGovernorTimelockInterface extends utils.Interface {
       BytesLike
     ]
   ): string;
+  encodeFunctionData(functionFragment: "clock", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [string[], BigNumberish[], BytesLike[], BytesLike]
@@ -105,6 +118,10 @@ export interface IGovernorTimelockInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "proposalEta",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposalProposer",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -139,10 +156,12 @@ export interface IGovernorTimelockInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(functionFragment: "CLOCK_MODE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "COUNTING_MODE",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "castVote", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "castVoteBySig",
@@ -160,6 +179,7 @@ export interface IGovernorTimelockInterface extends utils.Interface {
     functionFragment: "castVoteWithReasonAndParamsBySig",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "clock", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
   decodeFunctionResult(
@@ -178,6 +198,10 @@ export interface IGovernorTimelockInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "proposalEta",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposalProposer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -247,8 +271,8 @@ export type ProposalCreatedEvent = TypedEvent<
     values: BigNumber[];
     signatures: string[];
     calldatas: string[];
-    startBlock: BigNumber;
-    endBlock: BigNumber;
+    voteStart: BigNumber;
+    voteEnd: BigNumber;
     description: string;
   }
 >;
@@ -325,7 +349,17 @@ export interface IGovernorTimelock extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<[string]>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<[string]>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     castVote(
       proposalId: BigNumberish,
@@ -368,6 +402,8 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<[number]>;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -378,13 +414,13 @@ export interface IGovernorTimelock extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -415,6 +451,11 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -437,7 +478,7 @@ export interface IGovernorTimelock extends BaseContract {
     ): Promise<ContractTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -460,7 +501,17 @@ export interface IGovernorTimelock extends BaseContract {
     votingPeriod(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
+  CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
   COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
+
+  cancel(
+    targets: string[],
+    values: BigNumberish[],
+    calldatas: BytesLike[],
+    descriptionHash: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   castVote(
     proposalId: BigNumberish,
@@ -503,6 +554,8 @@ export interface IGovernorTimelock extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  clock(overrides?: CallOverrides): Promise<number>;
+
   execute(
     targets: string[],
     values: BigNumberish[],
@@ -513,13 +566,13 @@ export interface IGovernorTimelock extends BaseContract {
 
   getVotes(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   getVotesWithParams(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     params: BytesLike,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -550,6 +603,11 @@ export interface IGovernorTimelock extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  proposalProposer(
+    proposalId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   proposalSnapshot(
     proposalId: BigNumberish,
     overrides?: CallOverrides
@@ -572,7 +630,7 @@ export interface IGovernorTimelock extends BaseContract {
   ): Promise<ContractTransaction>;
 
   quorum(
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -592,7 +650,17 @@ export interface IGovernorTimelock extends BaseContract {
   votingPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     castVote(
       proposalId: BigNumberish,
@@ -635,6 +703,8 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<number>;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -645,13 +715,13 @@ export interface IGovernorTimelock extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -682,6 +752,11 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -704,7 +779,7 @@ export interface IGovernorTimelock extends BaseContract {
     ): Promise<BigNumber>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -735,8 +810,8 @@ export interface IGovernorTimelock extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
     ProposalCreated(
@@ -746,8 +821,8 @@ export interface IGovernorTimelock extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
 
@@ -794,7 +869,17 @@ export interface IGovernorTimelock extends BaseContract {
   };
 
   estimateGas: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<BigNumber>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     castVote(
       proposalId: BigNumberish,
@@ -837,6 +922,8 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<BigNumber>;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -847,13 +934,13 @@ export interface IGovernorTimelock extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -884,6 +971,11 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -906,7 +998,7 @@ export interface IGovernorTimelock extends BaseContract {
     ): Promise<BigNumber>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -930,7 +1022,17 @@ export interface IGovernorTimelock extends BaseContract {
   };
 
   populateTransaction: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     castVote(
       proposalId: BigNumberish,
@@ -973,6 +1075,8 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -983,13 +1087,13 @@ export interface IGovernorTimelock extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1020,6 +1124,11 @@ export interface IGovernorTimelock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -1042,7 +1151,7 @@ export interface IGovernorTimelock extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

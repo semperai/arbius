@@ -21,13 +21,17 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export interface GovernorTimelockControlInterface extends utils.Interface {
   functions: {
     "BALLOT_TYPEHASH()": FunctionFragment;
+    "CLOCK_MODE()": FunctionFragment;
     "COUNTING_MODE()": FunctionFragment;
     "EXTENDED_BALLOT_TYPEHASH()": FunctionFragment;
+    "cancel(address[],uint256[],bytes[],bytes32)": FunctionFragment;
     "castVote(uint256,uint8)": FunctionFragment;
     "castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)": FunctionFragment;
     "castVoteWithReason(uint256,uint8,string)": FunctionFragment;
     "castVoteWithReasonAndParams(uint256,uint8,string,bytes)": FunctionFragment;
     "castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)": FunctionFragment;
+    "clock()": FunctionFragment;
+    "eip712Domain()": FunctionFragment;
     "execute(address[],uint256[],bytes[],bytes32)": FunctionFragment;
     "getVotes(address,uint256)": FunctionFragment;
     "getVotesWithParams(address,uint256,bytes)": FunctionFragment;
@@ -39,6 +43,7 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
     "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
     "proposalDeadline(uint256)": FunctionFragment;
     "proposalEta(uint256)": FunctionFragment;
+    "proposalProposer(uint256)": FunctionFragment;
     "proposalSnapshot(uint256)": FunctionFragment;
     "proposalThreshold()": FunctionFragment;
     "propose(address[],uint256[],bytes[],string)": FunctionFragment;
@@ -59,12 +64,20 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "CLOCK_MODE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "COUNTING_MODE",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "EXTENDED_BALLOT_TYPEHASH",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "cancel",
+    values: [string[], BigNumberish[], BytesLike[], BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "castVote",
@@ -93,6 +106,11 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
       BytesLike,
       BytesLike
     ]
+  ): string;
+  encodeFunctionData(functionFragment: "clock", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "eip712Domain",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "execute",
@@ -133,6 +151,10 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "proposalEta",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposalProposer",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -183,6 +205,7 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
     functionFragment: "BALLOT_TYPEHASH",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "CLOCK_MODE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "COUNTING_MODE",
     data: BytesLike
@@ -191,6 +214,7 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
     functionFragment: "EXTENDED_BALLOT_TYPEHASH",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "castVote", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "castVoteBySig",
@@ -206,6 +230,11 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "castVoteWithReasonAndParamsBySig",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "clock", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "eip712Domain",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
@@ -241,6 +270,10 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "proposalProposer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proposalSnapshot",
     data: BytesLike
   ): Result;
@@ -273,6 +306,7 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "EIP712DomainChanged()": EventFragment;
     "ProposalCanceled(uint256)": EventFragment;
     "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": EventFragment;
     "ProposalExecuted(uint256)": EventFragment;
@@ -282,6 +316,7 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
     "VoteCastWithParams(address,uint256,uint8,uint256,string,bytes)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposalCanceled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposalCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposalExecuted"): EventFragment;
@@ -290,6 +325,11 @@ export interface GovernorTimelockControlInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "VoteCast"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VoteCastWithParams"): EventFragment;
 }
+
+export type EIP712DomainChangedEvent = TypedEvent<[], {}>;
+
+export type EIP712DomainChangedEventFilter =
+  TypedEventFilter<EIP712DomainChangedEvent>;
 
 export type ProposalCanceledEvent = TypedEvent<
   [BigNumber],
@@ -318,8 +358,8 @@ export type ProposalCreatedEvent = TypedEvent<
     values: BigNumber[];
     signatures: string[];
     calldatas: string[];
-    startBlock: BigNumber;
-    endBlock: BigNumber;
+    voteStart: BigNumber;
+    voteEnd: BigNumber;
     description: string;
   }
 >;
@@ -405,9 +445,19 @@ export interface GovernorTimelockControl extends BaseContract {
   functions: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<[string]>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<[string]>;
 
     EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     castVote(
       proposalId: BigNumberish,
@@ -450,6 +500,22 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<[number]>;
+
+    eip712Domain(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, BigNumber, string, string, BigNumber[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: BigNumber;
+        verifyingContract: string;
+        salt: string;
+        extensions: BigNumber[];
+      }
+    >;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -460,13 +526,13 @@ export interface GovernorTimelockControl extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -523,6 +589,11 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -547,7 +618,7 @@ export interface GovernorTimelockControl extends BaseContract {
     ): Promise<ContractTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -584,9 +655,19 @@ export interface GovernorTimelockControl extends BaseContract {
 
   BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+  CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
   COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
 
   EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  cancel(
+    targets: string[],
+    values: BigNumberish[],
+    calldatas: BytesLike[],
+    descriptionHash: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   castVote(
     proposalId: BigNumberish,
@@ -629,6 +710,22 @@ export interface GovernorTimelockControl extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  clock(overrides?: CallOverrides): Promise<number>;
+
+  eip712Domain(
+    overrides?: CallOverrides
+  ): Promise<
+    [string, string, string, BigNumber, string, string, BigNumber[]] & {
+      fields: string;
+      name: string;
+      version: string;
+      chainId: BigNumber;
+      verifyingContract: string;
+      salt: string;
+      extensions: BigNumber[];
+    }
+  >;
+
   execute(
     targets: string[],
     values: BigNumberish[],
@@ -639,13 +736,13 @@ export interface GovernorTimelockControl extends BaseContract {
 
   getVotes(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   getVotesWithParams(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     params: BytesLike,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -702,6 +799,11 @@ export interface GovernorTimelockControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  proposalProposer(
+    proposalId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   proposalSnapshot(
     proposalId: BigNumberish,
     overrides?: CallOverrides
@@ -726,7 +828,7 @@ export interface GovernorTimelockControl extends BaseContract {
   ): Promise<ContractTransaction>;
 
   quorum(
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -760,9 +862,19 @@ export interface GovernorTimelockControl extends BaseContract {
   callStatic: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
 
     EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     castVote(
       proposalId: BigNumberish,
@@ -805,6 +917,22 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<number>;
+
+    eip712Domain(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, BigNumber, string, string, BigNumber[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: BigNumber;
+        verifyingContract: string;
+        salt: string;
+        extensions: BigNumber[];
+      }
+    >;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -815,13 +943,13 @@ export interface GovernorTimelockControl extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -878,6 +1006,11 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -902,7 +1035,7 @@ export interface GovernorTimelockControl extends BaseContract {
     ): Promise<BigNumber>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -935,6 +1068,9 @@ export interface GovernorTimelockControl extends BaseContract {
   };
 
   filters: {
+    "EIP712DomainChanged()"(): EIP712DomainChangedEventFilter;
+    EIP712DomainChanged(): EIP712DomainChangedEventFilter;
+
     "ProposalCanceled(uint256)"(proposalId?: null): ProposalCanceledEventFilter;
     ProposalCanceled(proposalId?: null): ProposalCanceledEventFilter;
 
@@ -945,8 +1081,8 @@ export interface GovernorTimelockControl extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
     ProposalCreated(
@@ -956,8 +1092,8 @@ export interface GovernorTimelockControl extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
 
@@ -1015,9 +1151,19 @@ export interface GovernorTimelockControl extends BaseContract {
   estimateGas: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<BigNumber>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<BigNumber>;
 
     EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     castVote(
       proposalId: BigNumberish,
@@ -1060,6 +1206,10 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<BigNumber>;
+
+    eip712Domain(overrides?: CallOverrides): Promise<BigNumber>;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -1070,13 +1220,13 @@ export interface GovernorTimelockControl extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1133,6 +1283,11 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -1157,7 +1312,7 @@ export interface GovernorTimelockControl extends BaseContract {
     ): Promise<BigNumber>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1195,10 +1350,20 @@ export interface GovernorTimelockControl extends BaseContract {
   populateTransaction: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     EXTENDED_BALLOT_TYPEHASH(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    cancel(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     castVote(
@@ -1242,6 +1407,10 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    eip712Domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     execute(
       targets: string[],
       values: BigNumberish[],
@@ -1252,13 +1421,13 @@ export interface GovernorTimelockControl extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1315,6 +1484,11 @@ export interface GovernorTimelockControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -1339,7 +1513,7 @@ export interface GovernorTimelockControl extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

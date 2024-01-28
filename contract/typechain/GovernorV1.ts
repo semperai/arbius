@@ -33,6 +33,7 @@ export type ReceiptStructOutput = [boolean, number, BigNumber] & {
 export interface GovernorV1Interface extends utils.Interface {
   functions: {
     "BALLOT_TYPEHASH()": FunctionFragment;
+    "CLOCK_MODE()": FunctionFragment;
     "COUNTING_MODE()": FunctionFragment;
     "EXTENDED_BALLOT_TYPEHASH()": FunctionFragment;
     "cancel(uint256)": FunctionFragment;
@@ -41,8 +42,10 @@ export interface GovernorV1Interface extends utils.Interface {
     "castVoteWithReason(uint256,uint8,string)": FunctionFragment;
     "castVoteWithReasonAndParams(uint256,uint8,string,bytes)": FunctionFragment;
     "castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)": FunctionFragment;
+    "clock()": FunctionFragment;
     "descriptionCids(uint256)": FunctionFragment;
     "descriptionHashes(uint256)": FunctionFragment;
+    "eip712Domain()": FunctionFragment;
     "execute(address[],uint256[],bytes[],bytes32)": FunctionFragment;
     "getActions(uint256)": FunctionFragment;
     "getReceipt(uint256,address)": FunctionFragment;
@@ -56,6 +59,7 @@ export interface GovernorV1Interface extends utils.Interface {
     "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
     "proposalDeadline(uint256)": FunctionFragment;
     "proposalEta(uint256)": FunctionFragment;
+    "proposalProposer(uint256)": FunctionFragment;
     "proposalSnapshot(uint256)": FunctionFragment;
     "proposalThreshold()": FunctionFragment;
     "proposals(uint256)": FunctionFragment;
@@ -84,6 +88,10 @@ export interface GovernorV1Interface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "BALLOT_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CLOCK_MODE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -126,6 +134,7 @@ export interface GovernorV1Interface extends utils.Interface {
       BytesLike
     ]
   ): string;
+  encodeFunctionData(functionFragment: "clock", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "descriptionCids",
     values: [BigNumberish]
@@ -133,6 +142,10 @@ export interface GovernorV1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "descriptionHashes",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "eip712Domain",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "execute",
@@ -181,6 +194,10 @@ export interface GovernorV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "proposalEta",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposalProposer",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -272,6 +289,7 @@ export interface GovernorV1Interface extends utils.Interface {
     functionFragment: "BALLOT_TYPEHASH",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "CLOCK_MODE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "COUNTING_MODE",
     data: BytesLike
@@ -298,12 +316,17 @@ export interface GovernorV1Interface extends utils.Interface {
     functionFragment: "castVoteWithReasonAndParamsBySig",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "clock", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "descriptionCids",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "descriptionHashes",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "eip712Domain",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
@@ -338,6 +361,10 @@ export interface GovernorV1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "proposalEta",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposalProposer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -411,6 +438,7 @@ export interface GovernorV1Interface extends utils.Interface {
   ): Result;
 
   events: {
+    "EIP712DomainChanged()": EventFragment;
     "ProposalCanceled(uint256)": EventFragment;
     "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": EventFragment;
     "ProposalExecuted(uint256)": EventFragment;
@@ -424,6 +452,7 @@ export interface GovernorV1Interface extends utils.Interface {
     "VotingPeriodSet(uint256,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposalCanceled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposalCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposalExecuted"): EventFragment;
@@ -436,6 +465,11 @@ export interface GovernorV1Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "VotingDelaySet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VotingPeriodSet"): EventFragment;
 }
+
+export type EIP712DomainChangedEvent = TypedEvent<[], {}>;
+
+export type EIP712DomainChangedEventFilter =
+  TypedEventFilter<EIP712DomainChangedEvent>;
 
 export type ProposalCanceledEvent = TypedEvent<
   [BigNumber],
@@ -464,8 +498,8 @@ export type ProposalCreatedEvent = TypedEvent<
     values: BigNumber[];
     signatures: string[];
     calldatas: string[];
-    startBlock: BigNumber;
-    endBlock: BigNumber;
+    voteStart: BigNumber;
+    voteEnd: BigNumber;
     description: string;
   }
 >;
@@ -581,12 +615,22 @@ export interface GovernorV1 extends BaseContract {
   functions: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<[string]>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<[string]>;
 
     EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
-    cancel(
+    "cancel(uint256)"(
       proposalId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -631,6 +675,8 @@ export interface GovernorV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<[number]>;
+
     descriptionCids(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -640,6 +686,20 @@ export interface GovernorV1 extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    eip712Domain(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, BigNumber, string, string, BigNumber[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: BigNumber;
+        verifyingContract: string;
+        salt: string;
+        extensions: BigNumber[];
+      }
+    >;
 
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
@@ -674,13 +734,13 @@ export interface GovernorV1 extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -736,6 +796,11 @@ export interface GovernorV1 extends BaseContract {
       proposalId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     proposalSnapshot(
       proposalId: BigNumberish,
@@ -811,14 +876,14 @@ export interface GovernorV1 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     quorumDenominator(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "quorumNumerator(uint256)"(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -881,12 +946,22 @@ export interface GovernorV1 extends BaseContract {
 
   BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+  CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
   COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
 
   EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-  cancel(
+  "cancel(uint256)"(
     proposalId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "cancel(address[],uint256[],bytes[],bytes32)"(
+    targets: string[],
+    values: BigNumberish[],
+    calldatas: BytesLike[],
+    descriptionHash: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -931,6 +1006,8 @@ export interface GovernorV1 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  clock(overrides?: CallOverrides): Promise<number>;
+
   descriptionCids(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -940,6 +1017,20 @@ export interface GovernorV1 extends BaseContract {
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  eip712Domain(
+    overrides?: CallOverrides
+  ): Promise<
+    [string, string, string, BigNumber, string, string, BigNumber[]] & {
+      fields: string;
+      name: string;
+      version: string;
+      chainId: BigNumber;
+      verifyingContract: string;
+      salt: string;
+      extensions: BigNumber[];
+    }
+  >;
 
   "execute(address[],uint256[],bytes[],bytes32)"(
     targets: string[],
@@ -974,13 +1065,13 @@ export interface GovernorV1 extends BaseContract {
 
   getVotes(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   getVotesWithParams(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     params: BytesLike,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -1036,6 +1127,11 @@ export interface GovernorV1 extends BaseContract {
     proposalId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  proposalProposer(
+    proposalId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   proposalSnapshot(
     proposalId: BigNumberish,
@@ -1111,14 +1207,14 @@ export interface GovernorV1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   quorum(
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   quorumDenominator(overrides?: CallOverrides): Promise<BigNumber>;
 
   "quorumNumerator(uint256)"(
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -1178,11 +1274,24 @@ export interface GovernorV1 extends BaseContract {
   callStatic: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
 
     EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-    cancel(proposalId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    "cancel(uint256)"(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     castVote(
       proposalId: BigNumberish,
@@ -1225,6 +1334,8 @@ export interface GovernorV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<number>;
+
     descriptionCids(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1234,6 +1345,20 @@ export interface GovernorV1 extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    eip712Domain(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, BigNumber, string, string, BigNumber[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: BigNumber;
+        verifyingContract: string;
+        salt: string;
+        extensions: BigNumber[];
+      }
+    >;
 
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
@@ -1268,13 +1393,13 @@ export interface GovernorV1 extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1330,6 +1455,11 @@ export interface GovernorV1 extends BaseContract {
       proposalId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     proposalSnapshot(
       proposalId: BigNumberish,
@@ -1405,14 +1535,14 @@ export interface GovernorV1 extends BaseContract {
     ): Promise<void>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     quorumDenominator(overrides?: CallOverrides): Promise<BigNumber>;
 
     "quorumNumerator(uint256)"(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1471,6 +1601,9 @@ export interface GovernorV1 extends BaseContract {
   };
 
   filters: {
+    "EIP712DomainChanged()"(): EIP712DomainChangedEventFilter;
+    EIP712DomainChanged(): EIP712DomainChangedEventFilter;
+
     "ProposalCanceled(uint256)"(proposalId?: null): ProposalCanceledEventFilter;
     ProposalCanceled(proposalId?: null): ProposalCanceledEventFilter;
 
@@ -1481,8 +1614,8 @@ export interface GovernorV1 extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
     ProposalCreated(
@@ -1492,8 +1625,8 @@ export interface GovernorV1 extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
 
@@ -1587,12 +1720,22 @@ export interface GovernorV1 extends BaseContract {
   estimateGas: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<BigNumber>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<BigNumber>;
 
     EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    cancel(
+    "cancel(uint256)"(
       proposalId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1637,6 +1780,8 @@ export interface GovernorV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<BigNumber>;
+
     descriptionCids(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1646,6 +1791,8 @@ export interface GovernorV1 extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    eip712Domain(overrides?: CallOverrides): Promise<BigNumber>;
 
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
@@ -1673,13 +1820,13 @@ export interface GovernorV1 extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1736,6 +1883,11 @@ export interface GovernorV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -1786,14 +1938,14 @@ export interface GovernorV1 extends BaseContract {
     ): Promise<BigNumber>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     quorumDenominator(overrides?: CallOverrides): Promise<BigNumber>;
 
     "quorumNumerator(uint256)"(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1857,14 +2009,24 @@ export interface GovernorV1 extends BaseContract {
   populateTransaction: {
     BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    CLOCK_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     EXTENDED_BALLOT_TYPEHASH(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    cancel(
+    "cancel(uint256)"(
       proposalId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1909,6 +2071,8 @@ export interface GovernorV1 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     descriptionCids(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1918,6 +2082,8 @@ export interface GovernorV1 extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    eip712Domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
@@ -1945,13 +2111,13 @@ export interface GovernorV1 extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2008,6 +2174,11 @@ export interface GovernorV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -2060,14 +2231,14 @@ export interface GovernorV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     quorumDenominator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "quorumNumerator(uint256)"(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

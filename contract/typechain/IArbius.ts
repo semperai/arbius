@@ -92,10 +92,15 @@ export type SolutionStructOutput = [string, BigNumber, boolean, string] & {
   cid: string;
 };
 
-export type ValidatorStruct = { staked: BigNumberish; addr: string };
+export type ValidatorStruct = {
+  staked: BigNumberish;
+  since: BigNumberish;
+  addr: string;
+};
 
-export type ValidatorStructOutput = [BigNumber, string] & {
+export type ValidatorStructOutput = [BigNumber, BigNumber, string] & {
   staked: BigNumber;
+  since: BigNumber;
   addr: string;
 };
 
@@ -122,10 +127,13 @@ export interface IArbiusInterface extends utils.Interface {
     "hashModel((uint256,address,uint256,bytes),address)": FunctionFragment;
     "hashTask((bytes32,uint256,address,uint64,uint8,bytes),address,bytes32)": FunctionFragment;
     "initiateValidatorWithdraw(uint256)": FunctionFragment;
+    "maxContestationValidatorStakeSince()": FunctionFragment;
     "minClaimSolutionTime()": FunctionFragment;
     "minContestationVotePeriodTime()": FunctionFragment;
     "minRetractionWaitTime()": FunctionFragment;
     "models(bytes32)": FunctionFragment;
+    "paused()": FunctionFragment;
+    "pauser()": FunctionFragment;
     "pendingValidatorWithdrawRequests(address,uint256)": FunctionFragment;
     "pendingValidatorWithdrawRequestsCount(address)": FunctionFragment;
     "prevhash()": FunctionFragment;
@@ -133,9 +141,11 @@ export interface IArbiusInterface extends utils.Interface {
     "retractTask(bytes32)": FunctionFragment;
     "retractionFeePercentage()": FunctionFragment;
     "reward(uint256,uint256)": FunctionFragment;
+    "setMaxContestationValidatorStakeSince(uint256)": FunctionFragment;
     "setMinClaimSolutionTime(uint256)": FunctionFragment;
     "setMinContestationVotePeriodTime(uint256)": FunctionFragment;
     "setMinRetractionWaitTime(uint256)": FunctionFragment;
+    "setPaused(bool)": FunctionFragment;
     "setRetractionFeePercentage(uint256)": FunctionFragment;
     "setSlashAmountPercentage(uint256)": FunctionFragment;
     "setSolutionFeePercentage(uint256)": FunctionFragment;
@@ -155,9 +165,11 @@ export interface IArbiusInterface extends utils.Interface {
     "targetTs(uint256)": FunctionFragment;
     "tasks(bytes32)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
+    "transferPauser(address)": FunctionFragment;
     "transferTreasury(address)": FunctionFragment;
     "treasury()": FunctionFragment;
     "treasuryRewardPercentage()": FunctionFragment;
+    "validatorCanVote(address,bytes32)": FunctionFragment;
     "validatorDeposit(address,uint256)": FunctionFragment;
     "validatorMinimumPercentage()": FunctionFragment;
     "validatorWithdraw(uint256,address)": FunctionFragment;
@@ -247,6 +259,10 @@ export interface IArbiusInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "maxContestationValidatorStakeSince",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "minClaimSolutionTime",
     values?: undefined
   ): string;
@@ -259,6 +275,8 @@ export interface IArbiusInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "models", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
+  encodeFunctionData(functionFragment: "pauser", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pendingValidatorWithdrawRequests",
     values: [string, BigNumberish]
@@ -285,6 +303,10 @@ export interface IArbiusInterface extends utils.Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "setMaxContestationValidatorStakeSince",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setMinClaimSolutionTime",
     values: [BigNumberish]
   ): string;
@@ -296,6 +318,7 @@ export interface IArbiusInterface extends utils.Interface {
     functionFragment: "setMinRetractionWaitTime",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "setPaused", values: [boolean]): string;
   encodeFunctionData(
     functionFragment: "setRetractionFeePercentage",
     values: [BigNumberish]
@@ -370,6 +393,10 @@ export interface IArbiusInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "transferPauser",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferTreasury",
     values: [string]
   ): string;
@@ -377,6 +404,10 @@ export interface IArbiusInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "treasuryRewardPercentage",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "validatorCanVote",
+    values: [string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "validatorDeposit",
@@ -475,6 +506,10 @@ export interface IArbiusInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "maxContestationValidatorStakeSince",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "minClaimSolutionTime",
     data: BytesLike
   ): Result;
@@ -487,6 +522,8 @@ export interface IArbiusInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "models", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pauser", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingValidatorWithdrawRequests",
     data: BytesLike
@@ -510,6 +547,10 @@ export interface IArbiusInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "reward", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setMaxContestationValidatorStakeSince",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setMinClaimSolutionTime",
     data: BytesLike
   ): Result;
@@ -521,6 +562,7 @@ export interface IArbiusInterface extends utils.Interface {
     functionFragment: "setMinRetractionWaitTime",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRetractionFeePercentage",
     data: BytesLike
@@ -583,12 +625,20 @@ export interface IArbiusInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "transferPauser",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "transferTreasury",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "treasury", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "treasuryRewardPercentage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "validatorCanVote",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -627,6 +677,8 @@ export interface IArbiusInterface extends utils.Interface {
     "MinContestationVotePeriodTimeChanged(uint256)": EventFragment;
     "MinRetractionWaitTimeChanged(uint256)": EventFragment;
     "ModelRegistered(bytes32)": EventFragment;
+    "PausedChanged(bool)": EventFragment;
+    "PauserTransferred(address)": EventFragment;
     "RetractionFeePercentageChanged(uint256)": EventFragment;
     "SignalCommitment(address,bytes32)": EventFragment;
     "SignalSupport(address,bytes32,bool)": EventFragment;
@@ -662,6 +714,8 @@ export interface IArbiusInterface extends utils.Interface {
     nameOrSignatureOrTopic: "MinRetractionWaitTimeChanged"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModelRegistered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PausedChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PauserTransferred"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "RetractionFeePercentageChanged"
   ): EventFragment;
@@ -750,6 +804,15 @@ export type MinRetractionWaitTimeChangedEventFilter =
 export type ModelRegisteredEvent = TypedEvent<[string], { id: string }>;
 
 export type ModelRegisteredEventFilter = TypedEventFilter<ModelRegisteredEvent>;
+
+export type PausedChangedEvent = TypedEvent<[boolean], { paused: boolean }>;
+
+export type PausedChangedEventFilter = TypedEventFilter<PausedChangedEvent>;
+
+export type PauserTransferredEvent = TypedEvent<[string], { to: string }>;
+
+export type PauserTransferredEventFilter =
+  TypedEventFilter<PauserTransferredEvent>;
 
 export type RetractionFeePercentageChangedEvent = TypedEvent<
   [BigNumber],
@@ -1001,6 +1064,10 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    maxContestationValidatorStakeSince(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     minClaimSolutionTime(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     minContestationVotePeriodTime(
@@ -1013,6 +1080,10 @@ export interface IArbius extends BaseContract {
       model: BytesLike,
       overrides?: CallOverrides
     ): Promise<[ModelStructOutput]>;
+
+    paused(overrides?: CallOverrides): Promise<[boolean]>;
+
+    pauser(overrides?: CallOverrides): Promise<[string]>;
 
     pendingValidatorWithdrawRequests(
       addr: string,
@@ -1047,6 +1118,11 @@ export interface IArbius extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    setMaxContestationValidatorStakeSince(
+      amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setMinClaimSolutionTime(
       amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1059,6 +1135,11 @@ export interface IArbius extends BaseContract {
 
     setMinRetractionWaitTime(
       amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setPaused(
+      paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1152,6 +1233,11 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    transferPauser(
+      to_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     transferTreasury(
       to_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1160,6 +1246,12 @@ export interface IArbius extends BaseContract {
     treasury(overrides?: CallOverrides): Promise<[string]>;
 
     treasuryRewardPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    validatorCanVote(
+      addr_: string,
+      taskid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     validatorDeposit(
       validator_: string,
@@ -1295,6 +1387,10 @@ export interface IArbius extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  maxContestationValidatorStakeSince(
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   minClaimSolutionTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   minContestationVotePeriodTime(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1305,6 +1401,10 @@ export interface IArbius extends BaseContract {
     model: BytesLike,
     overrides?: CallOverrides
   ): Promise<ModelStructOutput>;
+
+  paused(overrides?: CallOverrides): Promise<boolean>;
+
+  pauser(overrides?: CallOverrides): Promise<string>;
 
   pendingValidatorWithdrawRequests(
     addr: string,
@@ -1339,6 +1439,11 @@ export interface IArbius extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  setMaxContestationValidatorStakeSince(
+    amount_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setMinClaimSolutionTime(
     amount_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1351,6 +1456,11 @@ export interface IArbius extends BaseContract {
 
   setMinRetractionWaitTime(
     amount_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setPaused(
+    paused_: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1444,6 +1554,11 @@ export interface IArbius extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  transferPauser(
+    to_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   transferTreasury(
     to_: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1452,6 +1567,12 @@ export interface IArbius extends BaseContract {
   treasury(overrides?: CallOverrides): Promise<string>;
 
   treasuryRewardPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
+  validatorCanVote(
+    addr_: string,
+    taskid_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   validatorDeposit(
     validator_: string,
@@ -1584,6 +1705,10 @@ export interface IArbius extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    maxContestationValidatorStakeSince(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     minClaimSolutionTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     minContestationVotePeriodTime(
@@ -1596,6 +1721,10 @@ export interface IArbius extends BaseContract {
       model: BytesLike,
       overrides?: CallOverrides
     ): Promise<ModelStructOutput>;
+
+    paused(overrides?: CallOverrides): Promise<boolean>;
+
+    pauser(overrides?: CallOverrides): Promise<string>;
 
     pendingValidatorWithdrawRequests(
       addr: string,
@@ -1627,6 +1756,11 @@ export interface IArbius extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setMaxContestationValidatorStakeSince(
+      amount_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setMinClaimSolutionTime(
       amount_: BigNumberish,
       overrides?: CallOverrides
@@ -1641,6 +1775,8 @@ export interface IArbius extends BaseContract {
       amount_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setPaused(paused_: boolean, overrides?: CallOverrides): Promise<void>;
 
     setRetractionFeePercentage(
       amount_: BigNumberish,
@@ -1729,11 +1865,19 @@ export interface IArbius extends BaseContract {
 
     transferOwnership(to_: string, overrides?: CallOverrides): Promise<void>;
 
+    transferPauser(to_: string, overrides?: CallOverrides): Promise<void>;
+
     transferTreasury(to_: string, overrides?: CallOverrides): Promise<void>;
 
     treasury(overrides?: CallOverrides): Promise<string>;
 
     treasuryRewardPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
+    validatorCanVote(
+      addr_: string,
+      taskid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     validatorDeposit(
       validator_: string,
@@ -1834,6 +1978,14 @@ export interface IArbius extends BaseContract {
       id?: BytesLike | null
     ): ModelRegisteredEventFilter;
     ModelRegistered(id?: BytesLike | null): ModelRegisteredEventFilter;
+
+    "PausedChanged(bool)"(paused?: boolean | null): PausedChangedEventFilter;
+    PausedChanged(paused?: boolean | null): PausedChangedEventFilter;
+
+    "PauserTransferred(address)"(
+      to?: string | null
+    ): PauserTransferredEventFilter;
+    PauserTransferred(to?: string | null): PauserTransferredEventFilter;
 
     "RetractionFeePercentageChanged(uint256)"(
       amount?: BigNumberish | null
@@ -2083,6 +2235,10 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    maxContestationValidatorStakeSince(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     minClaimSolutionTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     minContestationVotePeriodTime(
@@ -2092,6 +2248,10 @@ export interface IArbius extends BaseContract {
     minRetractionWaitTime(overrides?: CallOverrides): Promise<BigNumber>;
 
     models(model: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    paused(overrides?: CallOverrides): Promise<BigNumber>;
+
+    pauser(overrides?: CallOverrides): Promise<BigNumber>;
 
     pendingValidatorWithdrawRequests(
       addr: string,
@@ -2126,6 +2286,11 @@ export interface IArbius extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setMaxContestationValidatorStakeSince(
+      amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setMinClaimSolutionTime(
       amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2138,6 +2303,11 @@ export interface IArbius extends BaseContract {
 
     setMinRetractionWaitTime(
       amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setPaused(
+      paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2225,6 +2395,11 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    transferPauser(
+      to_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     transferTreasury(
       to_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2233,6 +2408,12 @@ export interface IArbius extends BaseContract {
     treasury(overrides?: CallOverrides): Promise<BigNumber>;
 
     treasuryRewardPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
+    validatorCanVote(
+      addr_: string,
+      taskid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     validatorDeposit(
       validator_: string,
@@ -2370,6 +2551,10 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    maxContestationValidatorStakeSince(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     minClaimSolutionTime(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2386,6 +2571,10 @@ export interface IArbius extends BaseContract {
       model: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pauser(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pendingValidatorWithdrawRequests(
       addr: string,
@@ -2422,6 +2611,11 @@ export interface IArbius extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    setMaxContestationValidatorStakeSince(
+      amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setMinClaimSolutionTime(
       amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2434,6 +2628,11 @@ export interface IArbius extends BaseContract {
 
     setMinRetractionWaitTime(
       amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPaused(
+      paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2534,6 +2733,11 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    transferPauser(
+      to_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     transferTreasury(
       to_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2542,6 +2746,12 @@ export interface IArbius extends BaseContract {
     treasury(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     treasuryRewardPercentage(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    validatorCanVote(
+      addr_: string,
+      taskid_: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

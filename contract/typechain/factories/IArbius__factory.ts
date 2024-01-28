@@ -146,6 +146,32 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bool",
+        name: "paused",
+        type: "bool",
+      },
+    ],
+    name: "PausedChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+    ],
+    name: "PauserTransferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "uint256",
         name: "amount",
         type: "uint256",
@@ -938,6 +964,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "maxContestationValidatorStakeSince",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "minClaimSolutionTime",
     outputs: [
       {
@@ -1011,6 +1050,32 @@ const _abi = [
         internalType: "struct IArbius.Model",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "paused",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "pauser",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -1171,6 +1236,19 @@ const _abi = [
         type: "uint256",
       },
     ],
+    name: "setMaxContestationValidatorStakeSince",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount_",
+        type: "uint256",
+      },
+    ],
     name: "setMinClaimSolutionTime",
     outputs: [],
     stateMutability: "nonpayable",
@@ -1198,6 +1276,19 @@ const _abi = [
       },
     ],
     name: "setMinRetractionWaitTime",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "paused_",
+        type: "bool",
+      },
+    ],
+    name: "setPaused",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1570,6 +1661,19 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "transferPauser",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to_",
+        type: "address",
+      },
+    ],
     name: "transferTreasury",
     outputs: [],
     stateMutability: "nonpayable",
@@ -1591,6 +1695,30 @@ const _abi = [
   {
     inputs: [],
     name: "treasuryRewardPercentage",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "addr_",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
+        name: "taskid_",
+        type: "bytes32",
+      },
+    ],
+    name: "validatorCanVote",
     outputs: [
       {
         internalType: "uint256",
@@ -1684,6 +1812,11 @@ const _abi = [
           {
             internalType: "uint256",
             name: "staked",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "since",
             type: "uint256",
           },
           {

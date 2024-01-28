@@ -32,6 +32,7 @@ export type ReceiptStructOutput = [boolean, number, BigNumber] & {
 
 export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
   functions: {
+    "CLOCK_MODE()": FunctionFragment;
     "COUNTING_MODE()": FunctionFragment;
     "cancel(uint256)": FunctionFragment;
     "castVote(uint256,uint8)": FunctionFragment;
@@ -39,6 +40,7 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
     "castVoteWithReason(uint256,uint8,string)": FunctionFragment;
     "castVoteWithReasonAndParams(uint256,uint8,string,bytes)": FunctionFragment;
     "castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)": FunctionFragment;
+    "clock()": FunctionFragment;
     "execute(address[],uint256[],bytes[],bytes32)": FunctionFragment;
     "getActions(uint256)": FunctionFragment;
     "getReceipt(uint256,address)": FunctionFragment;
@@ -48,6 +50,7 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
     "hashProposal(address[],uint256[],bytes[],bytes32)": FunctionFragment;
     "name()": FunctionFragment;
     "proposalDeadline(uint256)": FunctionFragment;
+    "proposalProposer(uint256)": FunctionFragment;
     "proposalSnapshot(uint256)": FunctionFragment;
     "proposals(uint256)": FunctionFragment;
     "propose(address[],uint256[],bytes[],string)": FunctionFragment;
@@ -61,6 +64,10 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
     "votingPeriod()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "CLOCK_MODE",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "COUNTING_MODE",
     values?: undefined
@@ -97,6 +104,7 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
       BytesLike
     ]
   ): string;
+  encodeFunctionData(functionFragment: "clock", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [string[], BigNumberish[], BytesLike[], BytesLike]
@@ -128,6 +136,10 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposalDeadline",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposalProposer",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -166,6 +178,7 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(functionFragment: "CLOCK_MODE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "COUNTING_MODE",
     data: BytesLike
@@ -188,6 +201,7 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
     functionFragment: "castVoteWithReasonAndParamsBySig",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "clock", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getActions", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getReceipt", data: BytesLike): Result;
@@ -204,6 +218,10 @@ export interface IGovernorCompatibilityBravoInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposalDeadline",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposalProposer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -275,8 +293,8 @@ export type ProposalCreatedEvent = TypedEvent<
     values: BigNumber[];
     signatures: string[];
     calldatas: string[];
-    startBlock: BigNumber;
-    endBlock: BigNumber;
+    voteStart: BigNumber;
+    voteEnd: BigNumber;
     description: string;
   }
 >;
@@ -346,10 +364,20 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<[string]>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<[string]>;
 
-    cancel(
+    "cancel(uint256)"(
       proposalId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -394,6 +422,8 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<[number]>;
+
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
       values: BigNumberish[],
@@ -427,13 +457,13 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -458,6 +488,11 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       proposalId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     proposalSnapshot(
       proposalId: BigNumberish,
@@ -516,7 +551,7 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     ): Promise<ContractTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -539,10 +574,20 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     votingPeriod(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
+  CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
   COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
 
-  cancel(
+  "cancel(uint256)"(
     proposalId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  "cancel(address[],uint256[],bytes[],bytes32)"(
+    targets: string[],
+    values: BigNumberish[],
+    calldatas: BytesLike[],
+    descriptionHash: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -587,6 +632,8 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  clock(overrides?: CallOverrides): Promise<number>;
+
   "execute(address[],uint256[],bytes[],bytes32)"(
     targets: string[],
     values: BigNumberish[],
@@ -620,13 +667,13 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
 
   getVotes(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   getVotesWithParams(
     account: string,
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     params: BytesLike,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -651,6 +698,11 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     proposalId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  proposalProposer(
+    proposalId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   proposalSnapshot(
     proposalId: BigNumberish,
@@ -709,7 +761,7 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
   ): Promise<ContractTransaction>;
 
   quorum(
-    blockNumber: BigNumberish,
+    timepoint: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -729,9 +781,22 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
   votingPeriod(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<string>;
 
-    cancel(proposalId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    "cancel(uint256)"(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     castVote(
       proposalId: BigNumberish,
@@ -774,6 +839,8 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<number>;
+
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
       values: BigNumberish[],
@@ -807,13 +874,13 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -838,6 +905,11 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       proposalId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     proposalSnapshot(
       proposalId: BigNumberish,
@@ -893,7 +965,7 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     queue(proposalId: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -924,8 +996,8 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
     ProposalCreated(
@@ -935,8 +1007,8 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       values?: null,
       signatures?: null,
       calldatas?: null,
-      startBlock?: null,
-      endBlock?: null,
+      voteStart?: null,
+      voteEnd?: null,
       description?: null
     ): ProposalCreatedEventFilter;
 
@@ -977,10 +1049,20 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
   };
 
   estimateGas: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<BigNumber>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    cancel(
+    "cancel(uint256)"(
       proposalId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1025,6 +1107,8 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    clock(overrides?: CallOverrides): Promise<BigNumber>;
+
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
       values: BigNumberish[],
@@ -1051,13 +1135,13 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1083,6 +1167,11 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    proposalProposer(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposalSnapshot(
       proposalId: BigNumberish,
       overrides?: CallOverrides
@@ -1116,7 +1205,7 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     ): Promise<BigNumber>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1140,10 +1229,20 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
   };
 
   populateTransaction: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     COUNTING_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    cancel(
+    "cancel(uint256)"(
       proposalId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "cancel(address[],uint256[],bytes[],bytes32)"(
+      targets: string[],
+      values: BigNumberish[],
+      calldatas: BytesLike[],
+      descriptionHash: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1188,6 +1287,8 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    clock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     "execute(address[],uint256[],bytes[],bytes32)"(
       targets: string[],
       values: BigNumberish[],
@@ -1214,13 +1315,13 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
 
     getVotes(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVotesWithParams(
       account: string,
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       params: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1242,6 +1343,11 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposalDeadline(
+      proposalId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    proposalProposer(
       proposalId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1279,7 +1385,7 @@ export interface IGovernorCompatibilityBravo extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     quorum(
-      blockNumber: BigNumberish,
+      timepoint: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
