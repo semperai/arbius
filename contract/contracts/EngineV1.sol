@@ -509,14 +509,14 @@ contract EngineV1 is OwnableUpgradeable {
     }
 
     /// @notice Because we are using a token which is fully minted upfront we must calculate total supply based on the amount remaining in Engine
+    /// @dev We return 0 rather than use require to avoid breaking the contract if bridged assets are sent to this contract before many tokens are mined
     /// @return Total supply of Engine tokens
     function getPsuedoTotalSupply() public view returns (uint256) {
         uint256 b = baseToken.balanceOf(address(this));
         if (b >= STARTING_ENGINE_TOKEN_AMOUNT) {
             return 0;
         }
-        return
-            STARTING_ENGINE_TOKEN_AMOUNT - baseToken.balanceOf(address(this));
+        return STARTING_ENGINE_TOKEN_AMOUNT - b;
     }
 
     /// @notice Calculates the reward for current timestamp/supply
