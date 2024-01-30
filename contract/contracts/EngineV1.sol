@@ -501,6 +501,12 @@ contract EngineV1 is OwnableUpgradeable {
     /// @param ts Total supply
     /// @return Reward
     function reward(uint256 t, uint256 ts) public pure returns (uint256) {
+        // we have a basic reward if for some reason our total supply is 0
+        // this can happen if engine has a balance of 600k or more
+        if (ts == 0) {
+            return BASE_TOKEN_STARTING_REWARD;
+        }
+
         return
             (((STARTING_ENGINE_TOKEN_AMOUNT - ts) *
                 BASE_TOKEN_STARTING_REWARD) * diffMul(t, ts)) /
