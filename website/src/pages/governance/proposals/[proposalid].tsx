@@ -20,7 +20,6 @@ import ProposalLoader from '@/components/loaders/ProposalLoader';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
 import GovernorArtifact from '@/artifacts/GovernorV1.sol/GovernorV1.json';
-import ERC20DividendArtifact from '@/artifacts/ERC20DividendsV1.sol/ERC20DividendsV1.json';
 import TimelockArtifact from '@/artifacts/TimelockV1.sol/TimelockV1.json';
 // import DelegatedValidatorDeployerArtifact from '@/artifacts/DelegatedValidatorDeployerV1.sol/DelegatedValidatorDeployerV1.json';
 import ProxyAdminArtifact from '@openzeppelin/upgrades-core/artifacts/@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol/ProxyAdmin.json';
@@ -284,10 +283,6 @@ export default function ProposalPage() {
         iface = (new ethers.Contract(Config.engineAddress, EngineArtifact.abi)).interface;
         targetString = 'Engine';
         break;
-      case Config.lpStakingRewardAddress:
-        iface = (new ethers.Contract(Config.lpStakingRewardAddress, ERC20DividendArtifact.abi)).interface;
-        targetString = 'LP Staking Reward';
-        break;
       case Config.timelockAddress:
         iface = (new ethers.Contract(Config.timelockAddress, TimelockArtifact.abi)).interface;
         targetString = 'Timelock';
@@ -530,7 +525,7 @@ export default function ProposalPage() {
 
                 <div className="mt-8">
                   <span className="p-2 px-3 rounded-md text-slate-800 border border-gray">
-                    A quorum of {formatBalance(quorumVotes as ethers.BigNumber)} DML is needed
+                    A quorum of {formatBalance(quorumVotes as ethers.BigNumber)} AIUS is needed
                   </span>
                 </div>
     

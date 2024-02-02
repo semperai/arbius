@@ -149,7 +149,7 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
                         token={Config.baseTokenAddress as `0x${string}`}
                       />
                       <div className="text-slate-500 pl-1 text-xs m-auto font-semibold">
-                        DML
+                        AIUS
                       </div>
                       <div className="pl-1">
                         <AddToWallet />
@@ -169,7 +169,7 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
                           token={Config.baseTokenAddress as `0x${string}`}
                         />
                         <div className="text-slate-500 pl-1 text-xs m-auto font-semibold">
-                          DML
+                          AIUS
                         </div>
                         <div className="pl-1">
                           <AddToWallet />

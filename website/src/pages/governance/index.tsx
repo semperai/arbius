@@ -10,7 +10,7 @@ import {
 } from 'wagmi';
 import { ethers } from 'ethers'
 import Layout from '@/components/Layout';
-import GetDMLButton from '@/components/GetDMLButton';
+import GetAIUSButton from '@/components/GetAIUSButton';
 import ConnectWallet from '@/components/ConnectWallet';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 import GovernorArtifact from '@/artifacts/GovernorV1.sol/GovernorV1.json';
@@ -135,12 +135,12 @@ export default function GovernancePage() {
             </div>
             <div className="mt-2 max-w-xl text-sm text-gray-500">
               <p>
-                Delegate voting to yourself or someone else to participate in Arbius governance. Creating proposals requires 1000 DML. Proposals have a 3 day period before voting starts to give people time to prepare delegation. Voting period is 3 days, then a 1 day timelock period after voting is completed. You can view the <a href={`https://nova.arbiscan.io/address/${Config.timelockAddress}`} target="_blank" className="text-cyan-700">treasury here</a>.
+                Delegate voting to yourself or someone else to participate in Arbius governance. Creating proposals requires 1000 AIUS. Proposals have a 3 day period before voting starts to give people time to prepare delegation. Voting period is 3 days, then a 1 day timelock period after voting is completed. You can view the <a href={`https://nova.arbiscan.io/address/${Config.timelockAddress}`} target="_blank" className="text-cyan-700">treasury here</a>.
               </p>
             </div>
             <div className="mt-8 w-full">
               <div className="flex justify-begin space-x-4">
-                <GetDMLButton />
+                <GetAIUSButton />
               </div>
             </div>
 

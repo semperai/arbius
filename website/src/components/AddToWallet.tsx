@@ -21,7 +21,7 @@ export default function AddToWallet() {
       address: Config.baseTokenAddress,
       decimals: 18,
       image: 'https://arbius.org/android-chrome-192x192.png',
-      symbol: 'DML',
+      symbol: 'AIUS',
     });
   }
 

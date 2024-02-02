@@ -4,7 +4,7 @@ import { WalletIcon, ClipboardIcon } from '@heroicons/react/24/outline'
 import TokenBalance from '@/components/TokenBalance';
 import ConnectWallet from '@/components/ConnectWallet';
 import IncreaseAllowanceButton from '@/components/IncreaseAllowanceButton';
-import XBasicModelTokenStaking from '@/components/XBasicModelTokenStaking';
+// import XBasicModelTokenStaking from '@/components/XBasicModelTokenStaking';
 // import ModelLPStaking from '@/components/ModelLPStaking';
 
 interface Props {

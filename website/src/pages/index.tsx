@@ -317,7 +317,7 @@ export default function HomePage() {
                   10% of all newly created Arbius is sent to the Arbius DAO. The DAO is controlled by holders of Arbius tokens and operates entirely on-chain.
                 </p>
                 <p className="mt-2">
-                  An additional 10% of all newly created Arbius is continually provided to those staking DML/ETH LP tokens.
+                  An additional 10% of all newly created Arbius is continually provided to those staking AIUS/ETH LP tokens.
                 </p>
               </div>
             </div>
@@ -344,7 +344,7 @@ export default function HomePage() {
                   </div>
                   <div className="w-full flex-auto">
                     <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">
-                      Buy Arbius (DML)
+                      Buy Arbius (AIUS)
                     </h2>
                     <p className="mt-6 text-lg leading-8 text-gray-700">
                       Arbius is still at an early experimental stage. No expectation of future income is implied. Join our community and see what there is to offer.
@@ -366,7 +366,7 @@ export default function HomePage() {
                         className="text-sm font-semibold leading-6 text-indigo-400"
                         target="_blank"
                       >
-                        Buy on SushiSwap <span aria-hidden="true">&rarr;</span>
+                        Buy on Uniswap <span aria-hidden="true">&rarr;</span>
                       </a>
                     </div>
                   </div>
