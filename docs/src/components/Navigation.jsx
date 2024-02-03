@@ -204,7 +204,7 @@ export const navigation = [
       { title: 'Tasks', href: '/tasks' },
       { title: 'Solutions', href: '/solutions' },
       { title: 'Contestations', href: '/contestations' },
-      { title: 'Whitepaper', href: 'https://arbius.org/paper.pdf' },
+      { title: 'Whitepaper', href: 'https://arbius.ai/paper.pdf' },
     ],
   },
 ]
