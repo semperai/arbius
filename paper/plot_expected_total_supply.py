@@ -50,17 +50,13 @@ for year in range(0, 10):
 
 fig1, ax1 = plt.subplots()
 
-ax1.plot(timestamps, [x[0] for x in values], label='Team', c='r', linewidth=2)
-ax1.plot(timestamps, [x[1] for x in values], label='Private Sale', c='g', linewidth=1)
-ax1.plot(timestamps, [x[2] for x in values], label='DAO', c='b', linewidth=1)
-ax1.plot(timestamps, [x[3] for x in values], label='Initial Liquidity', c='y', linewidth=1)
-ax1.plot(timestamps, [x[4] for x in values], label='Liquidity Incentivization', c='m', linewidth=1)
-ax1.plot(timestamps, [x[5] for x in values], label='Mining', c='c', linewidth=1)
 ax1.plot(timestamps, [x[6] for x in values], label='Total Supply', c='k', linewidth=1)
+ax1.plot(timestamps, [x[5] for x in values], label='Mining', c='c', linewidth=1)
+ax1.plot(timestamps, [x[0]+x[1]+x[2]+x[3]+x[4] for x in values], label='Programs', c='r', linewidth=1)
 
 # Plot the graph
 # plt.plot(timestamps, values)
-ax1.legend(['Team', 'Private Sale', 'DAO', 'Initial Liquidity', 'Liquidity Incentivization', 'Mining', 'Total Supply'])
+ax1.legend(['Total', 'Mining', 'Programs'])
 
 
 # plt.set_xlabel('Year')
