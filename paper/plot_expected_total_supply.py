@@ -75,7 +75,7 @@ plt.ticklabel_format(style='plain', axis='y')
 plt.xlabel('Year')
 plt.ylabel('Total Supply')
 
-plt.title('Expected Total Supply Contribution Over Time')
+# plt.title('Expected Total Supply Contribution Over Time')
 plt.savefig('combined.png')
 
 

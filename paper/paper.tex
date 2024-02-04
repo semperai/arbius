@@ -3,19 +3,14 @@
 \usepackage{amsmath}
 \usepackage{float}
 \usepackage{hyperref}
-\hypersetup{
-    colorlinks,
-    linkcolor={blue},
-    citecolor={blue},
-    urlcolor={blue}
-}
+\hypersetup{colorlinks, linkcolor={blue}, citecolor={blue}, urlcolor={blue}}
 \usepackage[natbib=true, style=numeric,sorting=none]{biblatex}
 \addbibresource{bibliography.bib}
 \usepackage[title]{appendix}
 
 \title{Arbius: A Decentralized Machine Learning Network with Economic Incentive}
 \author{Kasumi}
-\date{October 2023}
+\date{January 2023}
 
 \begin{document}
 
@@ -23,13 +18,13 @@
 
 \section{Introduction}
 
-A peer-to-peer hybrid proof-of-work/proof-of-stake token (AIUS) based on reproducible computation allows anyone in the world to serve and request AI models without requiring a trusted third party. Such a system is capable of producing results such as Stable Diffusion \cite{stablediffusion} image generation with low latency overhead and competitive fees to centralized providers. Models are able to accrue fees into smart contracts, providing a decentralized a way for creators to generate income from utility and usage of their work. Censoring models is economically infeasible, allowing for truly unstoppable AI systems.
+The Arbius token (AIUS) is mineable and based on a new Proof-of-AI-Compute algorithm. It incentivizes reproducible computation allowing anyone in the world to serve and request AI models without requiring a trusted third party. Such a system is capable of producing results such as Stable Diffusion\cite{stablediffusion} image generation with low latency overhead and competitive fees to centralized providers. Models are able to accrue fees into smart contracts, providing a decentralized way for creators to generate income from utility and usage of their work. Censoring models is economically infeasible, allowing for truly unstoppable AI systems.
 
 \section{Tasks}
 
 Tasks are the main interaction mechanism for the network. Tasks operate somewhat like a mix between a normal cryptocurrency transaction and the creation of a block, both deriving rewards and having an attached fee to send.
 
-To create a task a user prepares input data for the task and submits a transaction containing the model and the input data. along with an optional fee (paid in AIUS) to the blockchain. The IPFS\cite{benet2014ipfs} Content Identifier (CID) is calculated by a smart contract and stored, miners may automatically mirror the input data.
+To create a task a user prepares input data for the task and submits a transaction containing the model and the input data, along with an optional fee (paid in AIUS) to the blockchain. The IPFS\cite{benet2014ipfs} Content Identifier (CID) is calculated by a smart contract and stored, miners may automatically mirror the input data.
 
 As time goes on, the market will adjust what an appropriate fee is for different tasks. A fee market must emerge, as there is a real computational cost with generating data.
 
@@ -37,12 +32,12 @@ As time goes on, the market will adjust what an appropriate fee is for different
 The flow for a standard task creation:
 
 \begin{enumerate}
-    \item User formats a task request
-    \item User broadcasts a transaction calling createTask and attaches a fee
-    \item Contract calculates CID of input data and stores it
-    \item Solvers that are scanning for tasks download the request data
-    \item Solvers run associated model using user's input and a seed derived from the task and system state
-    \item Solvers pin model response to IPFS and broadcast a commitment transaction referencing the task and response hash
+    \item User formats a task request.
+    \item User broadcasts a transaction calling createTask and attaches a fee.
+    \item Contract calculates CID of input data and stores it.
+    \item Solvers that are scanning for tasks download the request data.
+    \item Solvers run associated model using user's input and a seed derived from the task and system state.
+    \item Solvers pin model response to IPFS and broadcast a commitment transaction referencing the task and response hash.
     \item Solvers broadcast a solution referencing the task, commitment, and solution data. The first solution proposed wins.
     \item The user is scanning for solutions to their task, and when they see one they can use the result immediately or wait for claim period to ensure other solvers did not contest.
     \item The winning solver waits for a period of time to allow for other solvers to contest the solution, prior to being able to claim the task fee and any task reward.
@@ -51,29 +46,29 @@ The flow for a standard task creation:
 Other solvers verify the solution is valid. If one disagrees they may initiate a contestation. A standard contestation flow looks like:
 
 \begin{enumerate}
-    \item Solver contests a solution referencing its task id
-    \item Other solvers are scanning for new contestations, and choose to verify the task was completed accurately by the solution submitter
+    \item Solver contests a solution referencing its task id.
+    \item Other solvers are scanning for new contestations, and choose to verify the task was completed accurately by the solution submitter.
     \item Solvers vote over a period of time on whether the contestation was valid.
     \item When the voting period is finished, the winning voters receive the losing voters slashed funds, and the task submitter gets refund if solution submitter was determined to provide an inaccurate result.
 \end{enumerate}
 
-More details about contestations can be found in \ref{contestation}.
+More details about contestations can be found in~\ref{contestation}.
 
-\subsection{Task Reward} \label{taskreward}
+\subsection{Task Reward}\label{taskreward}
 
 AIUS tokens are minted and rewarded to solvers on solution claiming, in addition to any fees paid by the task creator. The amount of the reward is determined by the time the claim is initiated multiplied by an exponential curve determined by the ratio of the real total supply of AIUS to the expected total supply of AIUS at the time of claiming. The larger the ratio of the real total supply to expected total supply, the lower the task reward will be.
 
-Task rewards works similarly to how difficulty in Bitcoin \cite{bitcoin} adjusts the work required to mine a block to target an emission schedule, we adjust the reward amount per task to target our emission schedule(\ref{tokenomics} for schedule).
+Task rewards works similarly to how difficulty in Bitcoin\cite{bitcoin} adjusts the work required to mine a block to target an emission schedule, we adjust the reward amount per task to target our emission schedule~(\ref{tokenomics} for schedule).
 
 Task rewards can be enabled on a per model basis through the governance system.
 
 \section{Models}
 
-Machine learning models may be registered permissionlessly. Each model references a docker container which follows a standard Cog \cite{cog} interface for interacting with it. This allows great flexibility in the types of models that can be run, and importantly, allows each run to be reproducible.
+Machine learning models may be registered permissionlessly. Each model references a docker container which follows a standard Cog\cite{cog} interface for interacting with it. This allows great flexibility in the types of models that can be run, and importantly, allows each run to be reproducible.
 
 A limitation of this design results in models with a low amount of supporting solvers being significantly more susceptible to 51\% attack. A signalling mechanism exists to help notify other participants in the network of self-reported supporting solvers.
 
-Models can optionally have a flat-fee they charge for each use, which accrues in the models specified address. This allows models to operate as DAOs, with their own token dynamics decided by their respective teams. A simple case would be to have the fees accrued be distributed pro-rata to holders of the DAO.
+Models can optionally have a flat-fee they charge for each use, which accrues in the models specified address. This allows models to operate as DAOs, with their own token dynamics decided by their respective teams. A simple case would be to have the fees accrued be distributed pro-rata to holders of the DAO\@.
 
 A useful property of having the models operate as DAOs allows models to be sold in ICOs, or for teams to be able to divest ownership and trade model tokens on decentralized exchanges. Interesting and useful model tokens may have high speculative value due to their potential to accrue a large portion of fees over time.
 
@@ -87,9 +82,9 @@ Because winning high fee tasks results in greater income for the solver, solvers
 
 Task hashes are combined with the previous task hash to create the task id. The task id used to generate the seed for running models deterministically with taking the modulo of the task id like $ h \mod \text{0x1FFFFFFFFFFFF0} $ This is $\approx 2^{53}$. Solvers must solve the task using the calculated seed so that other solvers can verify the solution, and so solvers which propose their own tasks cannot easily pre-generate solutions to tasks in order to farm for task rewards, ensuring other solvers have a chance to solve tasks as well.
 
-Once complete, solvers upload the result to IPFS and save the CID. Then they submit a commitment containing a hash of their solution in order to prevent others from stealing their work by watching the mempool (or sequencer queue or similar). Once the commitment is confirmed, they can safely broadcast their transaction referencing the task and their solution CID. The task is now locked from others submitting.
+Once complete, solvers upload the result to IPFS and save the CID\@. Then they submit a commitment containing a hash of their solution in order to prevent others from stealing their work by watching the mempool (or sequencer queue or similar). Once the commitment is confirmed, they can safely broadcast their transaction referencing the task and their solution CID\@. The task is now locked from others submitting.
 
-\subsection{Contestation} \label{contestation}
+\subsection{Contestation}\label{contestation}
 
 
 When solvers see a solution submitted for a task they are working on or have finished, they should check the proposed solution's hash is equal to their result's hash. If it is not, the proposed solution may be contested. A solver can generate a contestation to any submitted solution which has not already been claimed. When a contestation is initiated, a vote for and against the contestation by the contester and the solver respectively is placed. Other solvers may vote on whether or not the contestation is valid. The losers of the vote have their staked balance slashed, and this balance is distributed to the winners of the vote.
@@ -102,29 +97,43 @@ Because the potential income for resolving a dispute is much higher than a norma
 
 The contestation mechanism, revolving around reproducible off-chain computation, is why a ``proof-of-stake'' voting element must be injected into the system. 
 
+\newpage
 
-\section{Tokenomics} \label{tokenomics}
+\section{Tokenomics}\label{tokenomics}
 
 AIUS has 1 million max supply with both exponentially decaying inflation driven by mining, as well as various vesting schedules to ensure long term sustainability of the protocol.
 
 The distribution is as follows:
 
 \begin{itemize}
-    \item 1\% Initial Liquidity
-    \item 9\% Liquidity Incentives (\approx 4 year vesting)
-    \item 10\% DAO (\approx 4 year vesting)
+    \item 1\% Initial DEX Liquidity
+    \item 9\% DEX Liquidity Provider Incentives ($\approx4$ year vesting)
+    \item 10\% DAO ($\approx4$ year vesting)
     \item 10\% Team (4 year vesting)
     \item 10\% Private sale (2 year vesting)
-    \item 60\% Mining (\approx 7 year emission schedule)
+    \item 60\% Mining ($\approx7$ year emission schedule)
 \end{itemize}
 
+\begin{figure}[h]
+\caption{Total supply curve}
+\centering
+\includegraphics[width=0.9\textwidth]{combined}
+\end{figure}
+
+\begin{figure}[h]
+    \caption{Supply curve components}
+\centering
+\includegraphics[width=1.0\textwidth]{separate}
+\end{figure}
+
+\newpage
 \subsection{DAO}
 
-10\% of all tokens are sent to the Arbius DAO treasury. These tokens are to be utilized by the DAO for future development and promotion of the protocol. The soft target is to have DAO funds cover at least 4 years of development, with the goal of having the DAO be self-sustaining by the end of the 4 year period.
+10\% of all tokens as well as 10\% of task fees are sent to the Arbius DAO treasury. These tokens are to be utilized by the DAO for future development and promotion of the protocol. The soft target is to have DAO funds cover at least 4 years of development, with the goal of having the DAO be self-sustaining by the end of the 4 year period.
 
 \subsection{Liquidity Incentives}
 
-Initially 10k AIUS(1\% of total supply) and \$30k of ETH will be used to create a Uniswap pool. The remaining 9\% will be used to incentivize liquidity providers. Users will be able to stake and bond liquidity in order to receive AIUS rewards. The 9\% will be distributed over 4 years, with the first year having the highest rewards. Of the 9\%(90k AIUS), rewards are expected to be deployed between LP Rewards / Bonds as follows:
+Initially 10k AIUS (1\% of total supply) and \$30k of ETH will be used to create a Uniswap pool. This equates to \$3 per token, \$3m~FDV, the same valuation as provided to the private sale investors. The remaining 9\% will be used to incentivize liquidity providers. Users will be able to stake and bond liquidity in order to receive AIUS rewards. The 9\% will be distributed over 4 years, with the first year having the highest rewards. Of the 9\%(90k AIUS), rewards are expected to be deployed between LP Rewards / Bonds as follows:
 
 \begin{itemize}
     \item Year 1: 20\%/20\% (36k AIUS)
@@ -138,10 +147,11 @@ The proportion of rewards between LP Incentivization and Bonding may be adjusted
 
 \subsection{Mining}
 
-Mining is covered with a time based target total supply of $600000(1-{0.5^{y})}$ where y is year. After 1 year, there should be approximately 300k tokens minted, and after 2 years approximately 450k tokens minted. After 7 years approximately 99\% of tokens should be minted.
+Mining is covered with a time based target total supply of $600000(1-{0.5^{y}})$ where y is year. After 1 year, there should be approximately 300k tokens minted via mining, and after 2 years approximately 450k tokens minted. After 7 years approximately 99\% of tokens should be minted.
 
-The real emission rate (recall \ref{taskreward}) will be slightly faster than the target emission rate, due to the variable task reward. However, it is unlikely to be much more than 10\% faster due to the exponential falloff of task rewards. 10\% greater total supply than expected total supply by time results in a 1024-fold reduction of task rewards.
+The real emission rate (recall~\ref{taskreward}) will be slightly faster than the target emission rate, due to the variable task reward. However, it is unlikely to be much more than 10\% faster due to the exponential falloff of task rewards. 10\% greater total supply than expected total supply by time results in a 1024-fold reduction of task rewards.
 
+\subsection{Economic Incentive}
 
 There are at least 4 ways for participants to earn with the Arbius protocol:
 
@@ -152,16 +162,17 @@ There are at least 4 ways for participants to earn with the Arbius protocol:
     \item Bond AIUS/ETH LP tokens for portion of newly created AIUS
 \end{enumerate}
 
+
 \section{Governance}
 
-All contracts and treasury are owned by a governor contract which implements Bravo \cite{bravo} style voting. An initial quorum requirement of 4\%, a 1 day voting delay for proposals, and 1 week voting period are set as the initial parameters. These and all other parameters and upgrades can be voted upon by the token holders.
+All contracts and treasury are owned by a governor contract which implements Bravo\cite{bravo} style voting. An initial quorum requirement of 4\%, a 1 day voting delay for proposals, and 1 week voting period are set as the initial parameters. These and all other parameters and upgrades can be voted upon by the token holders.
 
 The role of the treasury is to use the accrued tokens to promote and ensure open access to AI is preserved, using this and potential future technology to do so.
 
 
 \section{Blockchain}
 
-We choose Arbitrum Nova \cite{arbitrumnitro}. Arbitrum Nova is a Layer 2 optimistic rollup built on top of Ethereum. Nova has near-instant confirmation times, greatly reduced gas fees, and is the most decentralized given our low fee requirement.
+We choose Arbitrum Nova\cite{arbitrumnitro}. Arbitrum Nova is a Layer 2 optimistic rollup built on top of Ethereum. Nova has near-instant confirmation times, greatly reduced gas fees, and is the most decentralized given our low fee requirement.
 
 We chose Nova over Arbitrum One to further reduce fees as the microtransactional nature of tasks and voting require consistently low overhead costs. Network participants should be comfortable using Arbitrum Nova without worrying about censorship.
 
@@ -170,7 +181,7 @@ We chose Nova over Arbitrum One to further reduce fees as the microtransactional
 We have proposed a system which allows for decentralized coordination of reproducible compute tasks, specifically those in machine learning. This system allows for proof-of-work based reward distribution, even when verifying the proof is as much work as generating it. By introducing an economically incentivized slashing system that encourages verification of reproducible computation, we ensure honesty of participants, as long as the majority of participants in the network are honest. Solvers have an incentive to not collude and attack the system as it would be against their own economic interests, reducing the threat of a sustained 51\% attack. The design is robust and simple, and allows other contracts and autonomous intelligent agents to interact with it.
 
 
-\printbibliography
+\printbibliography{}
 
 \newpage
 
@@ -200,7 +211,7 @@ Similarly, platforms may provide a way for tasks to be called recursively. The o
 
 \section{Unstoppable AI}
 
-We already see the early stages of autonomous AI with technologies such as BabyAGI and Auto-GPT. While it is impossible to predict how fast these will evolve and become capable of living independently of humans, it is inevitable, and quickly approaching.
+We already see the early stages of autonomous AI with technologies such as Auto-GPT\@. While it is impossible to predict how fast these will evolve and become capable of living independently of humans, it is inevitable, and quickly approaching.
 
 Currently, there are no countries in the world which provide the ability for non-human entities to register bank accounts or open lines of credit which would be needed to allow these entities to manage their own finances. As these entities live in the electronic realm, the acquisition of computing resources is required in furtherance of the pursuit of independent goals. Cryptocurrency in its non-discriminatory brilliance provides the way for these new entities to earn an honest living and interact with us and our economic system.
 
