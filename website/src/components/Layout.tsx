@@ -29,7 +29,7 @@ const navigation = [
   // { name: 'Bond', href: 'https://app.bondprotocol.finance/#/market/42161/111', external: true, },
   { name: 'Models', href: '/models', external: false, },
   { name: 'Explorer', href: '/explorer', external: false, },
-  { name: 'Governance', href: 'https://www.tally.xyz/gov/arbitrum', external: true, },
+  // { name: 'Governance', href: 'https://www.tally.xyz/gov/arbitrum', external: true, },
   { name: 'Docs', href: 'https://docs.arbius.ai', external: true, },
 ]
 
