@@ -1,9 +1,12 @@
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { ThemeProvider } from "next-themes"
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
+import * as gtag from "@/gtag";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || ''
 
@@ -63,6 +66,20 @@ const ethereumClient = new EthereumClient(wagmiClient, chains)
 
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleRouteChange = (url: URL) => {
+      if (process.env.NODE_ENV === 'production') {
+        gtag.pageview(url);
+      }
+    };
+    router.events.on("routeChangeComplete", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, [router.events]);
+
   return (
     <>
       <ThemeProvider
