@@ -296,7 +296,7 @@ export default function HomePage() {
                 </p>
 
                 <h2 className="mt-16 text-2xl font-bold tracking-tight text-gray-900">
-                  Economic rules
+                  Economic Rules
                 </h2>
                 <p className="mt-6">
                   The Arbius token has a max supply of 1 million tokens. Arbius is minted through task rewards following a continuous halving process, where the first year 50% is designed to be minted, 75% second year, 87.5% the third year, and so on.
@@ -317,7 +317,15 @@ export default function HomePage() {
                   10% of all newly created Arbius is sent to the Arbius DAO. The DAO is controlled by holders of Arbius tokens and operates entirely on-chain.
                 </p>
                 <p className="mt-2">
-                  An additional 10% of all newly created Arbius is continually provided to those staking AIUS/ETH LP tokens.
+                  <strong>Program Allocations:</strong>
+                  <ul className="pl-2 list-inside list-disc">
+                    <li>1% Initial DEX Liquidity</li>
+                    <li>9% DEX Liquidity Provider Incentives (over 4 years)</li>
+                    <li>10% DAO</li>
+                    <li>10% Team (4 year vesting)</li>
+                    <li>10% Private Sale (2 year vesting)</li>
+                    <li>60% Mining</li>
+                  </ul>
                 </p>
               </div>
             </div>
