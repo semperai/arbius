@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Head from 'next/head'
 import { Router, useRouter } from 'next/router'
 import type { AppProps } from "next/app"
@@ -6,6 +7,7 @@ import { MDXProvider } from '@mdx-js/react'
 import { Layout } from '@/components/Layout'
 import * as mdxComponents from '@/components/mdx'
 import { useMobileNavigationStore } from '@/components/MobileNavigation'
+import * as gtag from '@/lib/gtag'
 
 import '@/styles/globals.css'
 import 'focus-visible'
@@ -26,6 +28,18 @@ export default function App({
   description: string;
 }>) {
   let router = useRouter()
+
+  useEffect(() => {
+    const handleRouteChange = (url: URL) => {
+      if (process.env.NODE_ENV === 'production') {
+        gtag.pageview(url);
+      }
+    };
+    router.events.on("routeChangeComplete", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, [router.events]);
 
   return (
     <>
