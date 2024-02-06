@@ -13,6 +13,10 @@ interface IConfig {
     provider_url: string;
     private_key: string;
   };
+  sepolia: {
+    provider_url: string;
+    private_key: string;
+  };
   arbgoerli: {
     provider_url: string;
     private_key: string;
@@ -52,6 +56,10 @@ export const envconfig: IConfig = {
   goerli: {
     provider_url: getEnv("GOERLI_PROVIDER_URL", ""),
     private_key:  getEnv("GOERLI_PRIVATE_KEY", ""),
+  },
+  sepolia: {
+    provider_url: getEnv("SEPOLIA_PROVIDER_URL", ""),
+    private_key:  getEnv("SEPOLIA_PRIVATE_KEY", ""),
   },
   arbgoerli: {
     provider_url: getEnv("ARBGOERLI_PROVIDER_URL", ""),
