@@ -45,7 +45,7 @@ contract L1Token is Ownable, ICustomToken, ERC20 {
         address _customGatewayAddress,
         address _routerAddress,
         uint256 _initialSupply
-    ) ERC20("L1CustomToken", "LCT") {
+    ) ERC20("Arbius", "AIUS") {
         customGatewayAddress = _customGatewayAddress;
         routerAddress = _routerAddress;
         _mint(msg.sender, _initialSupply * 10 ** decimals());
