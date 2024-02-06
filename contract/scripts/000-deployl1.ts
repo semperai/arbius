@@ -19,6 +19,9 @@ async function main() {
   console.log("Account balance:", (await l1Wallet.getBalance()).toString());
 
   console.log('Deploying the L1Token to L1:');
+  console.log('L1 Gateway:', l1Gateway);
+  console.log('L1 Router:', l1Router);
+  console.log('Initial Supply:', 1000000);
   
   const L1Token = await ethers.getContractFactory('L1Token', l1Wallet);
   const l1Token = await L1Token.deploy(

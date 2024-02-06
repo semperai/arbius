@@ -4,10 +4,10 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@openzeppelin/hardhat-upgrades";
+import "@nomicfoundation/hardhat-verify";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
-import "@nomiclabs/hardhat-etherscan";
 
 import { inspect } from 'util';
 inspect.defaultOptions.depth = 10;
@@ -34,6 +34,10 @@ const config: HardhatUserConfig = {
       url: envconfig.goerli.provider_url,
       accounts: [`0x${envconfig.goerli.private_key}`],
     },
+    sepolia: {
+      url: envconfig.sepolia.provider_url,
+      accounts: [`0x${envconfig.sepolia.private_key}`],
+    },
     arbgoerli: {
       url: envconfig.arbgoerli.provider_url,
       accounts: [`0x${envconfig.arbgoerli.private_key}`],
@@ -48,11 +52,12 @@ const config: HardhatUserConfig = {
     target: "ethers-v5",
   },
   contractSizer: {},
-  /*
   etherscan: {
     apiKey: envconfig.etherscan.api_key,
   },
-  */
+  sourcify: {
+    enabled: true,
+  },
 };
 
 export default config;
