@@ -1,8 +1,8 @@
 # Arbius
 
-Peer-to-peer decentralizd machine learning - https://arbius.org
+Peer-to-peer decentralizd machine learning - https://arbius.ai
 
-Read paper - https://arbius.org/paper.pdf
+Read paper - https://arbius.ai/paper.pdf
 
 Arbius is a decentralized network for machine learning and a token with limited inflation. New coins are generated with GPU power by participating in the network. There is no central authority to create new coins. Holders vote on-chain for protocol upgrades. Models operate as DAOS with custom rules for distribution and rewards, providing a way for model creators to earn income. Arbius runs on the [Arbitrum Nova](https://nova.arbitrum.io/) blockchain, and uses [IPFS](https://ipfs.tech/) for data storage.
 
@@ -14,15 +14,15 @@ Arbius is a monorepo:
 
 - **/templates** model schema files used for mining and graphical interfaces
 
-- **/website** frontend interface you see on arbius.org
+- **/website** frontend interface you see on arbius.ai
 
-- **/docs** frontend you see on docs.arbius.org
+- **/docs** frontend you see on docs.arbius.ai
 
 - **/paper** source for building pdf
 
 ## Documentation
 
-View the full documentation at https://docs.arbius.org/
+View the full documentation at https://docs.arbius.ai/
 
 ## License
 
