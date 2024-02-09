@@ -18,10 +18,10 @@
   optionalDependencies:
     sol2uml "2.2.0"
 
-"@arbitrum/sdk@^3.1.12":
-  version "3.1.12"
-  resolved "https://registry.yarnpkg.com/@arbitrum/sdk/-/sdk-3.1.12.tgz#4d2a9ab0eb107b1666fec405685d48945f351ee8"
-  integrity sha512-BVgZSELjuDr3k1NzBcnR+ixQAJi/fs6R9yqqKu+/708bMcCslvAwbm9DTAs0RC/8EtQXV2OxU3dqCsWWOkMgMQ==
+"@arbitrum/sdk@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@arbitrum/sdk/-/sdk-3.2.0.tgz#9cc2d2d1df929c7a1702f366a444d1439d17dc08"
+  integrity sha512-Y8NyL1EgWE8SGRFFxtqYIedQzKe7pMS9P9j0iDQ3eL1xvOf0t0WKb8vcta0cP2TcAOOpRZ3TWKPVfpBtwMsXCg==
   dependencies:
     "@ethersproject/address" "^5.0.8"
     "@ethersproject/bignumber" "^5.1.1"

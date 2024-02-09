@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@arbitrum/nitro-contracts": "^1.0.2",
-    "@arbitrum/sdk": "^3.1.12",
+    "@arbitrum/sdk": "^3.2.0",
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.4",
