@@ -19,14 +19,18 @@ async function main() {
   console.log("Deploying contracts with the account:", l2Wallet.address);
   console.log("Account balance:", (await l2Wallet.getBalance()).toString());
 
+  console.log('Deploying the L2Token to L2:');
+  console.log('L2 Gateway:', l2Gateway);
+  console.log('L1 Token Address:', Config.l1TokenAddress);
 
-  console.log('Deploying the test L2Token to L2:');
+
+  console.log('Deploying the L2Token to L2:');
   const L2Token = await ethers.getContractFactory('BaseTokenV1');
   const l2Token = await upgrades.deployProxy(L2Token, [
     l2Gateway,
     Config.l1TokenAddress,
   ]);
-  console.log(l2Token);
+  // console.log(l2Token);
 
   await l2Token.deployed();
   console.log(`L2Token is deployed to L2 at ${l2Token.address}`);
