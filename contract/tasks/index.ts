@@ -203,6 +203,25 @@ task("admin:setSolutionMineableStatus", "Allow a model to receive rewards for ta
   console.log(`${model} mineable status set to ${enabled}`);
 });
 
+task("engine:isPaused", "Check if engine is paused")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+  const paused = await engine.paused();
+  console.log(`Engine is paused: ${paused}`);
+});
+
+task("engine:pause", "Pause engine")
+.addParam("pause", "Pause/Unpause")
+.setAction(async ({ pause }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+  const tx = await engine.setPaused(pause);
+  await tx.wait();
+  const paused = await engine.paused();
+  console.log(`Engine is now ${paused ? 'paused' : 'unpaused'}`);
+});
+
 task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
