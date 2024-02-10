@@ -34,7 +34,6 @@ import {
   getModelById,
   checkModelFilter,
   hydrateInput,
-  isSolutionRewardClaimable,
 } from './models';
 
 import { pinFileToIPFS, pinFilesToIPFS } from './ipfs';
@@ -847,7 +846,7 @@ const EnabledModels = [
       },
     ],
     getfiles: async (m: Model, taskid: string, input: any) => {
-      const url = 'http://192.9.239.212:8000/predictions';
+      const url = c.ml.cog[Config.models.kandinsky2.id].url;
       const res = await axios.post(url, { input });
 
       if (! res) {
@@ -958,6 +957,27 @@ export async function main() {
   log.debug("Clearing old automatically added retry jobs");
   dbClearJobsByMethod('validatorStake');
   dbClearJobsByMethod('automine');
+
+  {
+    log.debug("Bootup check");
+    const m = getModelById(EnabledModels, Config.models.kandinsky2.id);
+    if (m === null) {
+      log.error(`Model (${Config.models.kandinsky2.id}) not found in config`);
+      return;
+    }
+    const input = {prompt: "arbius test cat", seed: 1337};
+    const taskid = 'startup-test-taskid';
+    const cid = await m.getcid(c, m, taskid, input);
+    const expected = '0x12201bdab4164320cc8621282982c55eb76e14427aa5793278b37b6108f63fb5d577';
+    if (cid === expected) {
+      log.info(`Model (${Config.models.kandinsky2.id}) CID (${cid}) matches expected CID (${expected})`);
+    } else {
+      log.error(`Model (${Config.models.kandinsky2.id}) CID (${cid}) does not match expected CID (${expected})`);
+      log.info(`If you are running a100 this is a bug, please report with system details at https://github.com/semperai/arbius`);
+      log.info(`Join our telegram https://t.me/arbius_ai`);
+      return;
+    }
+  }
 
   await dbQueueJob({
     method: 'validatorStake',

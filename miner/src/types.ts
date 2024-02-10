@@ -33,6 +33,9 @@ export interface MiningConfig {
   ml: {
     strategy: "cog"|"replicate";
     cog: {
+      [key: string]: {
+        url: string;
+      }
     };
     replicate: {
       api_token: string;
