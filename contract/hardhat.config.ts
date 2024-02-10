@@ -42,6 +42,10 @@ const config: HardhatUserConfig = {
       url: envconfig.arbgoerli.provider_url,
       accounts: [`0x${envconfig.arbgoerli.private_key}`],
     },
+    arbsepolia: {
+      url: envconfig.arbsepolia.provider_url,
+      accounts: [`0x${envconfig.arbsepolia.private_key}`],
+    },
     nova: {
       url: envconfig.nova.provider_url,
       accounts: [`0x${envconfig.nova.private_key}`],
@@ -54,6 +58,16 @@ const config: HardhatUserConfig = {
   contractSizer: {},
   etherscan: {
     apiKey: envconfig.etherscan.api_key,
+    customChains: [
+      {
+        network: "arbitrumNova",
+        chainId: 42170,
+        urls: {
+          apiURL: "https://api-nova.arbiscan.io/api",
+          browserURL: "https://nova.arbiscan.io"
+        }
+      }
+    ],
   },
   sourcify: {
     enabled: true,
