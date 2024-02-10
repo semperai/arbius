@@ -216,7 +216,7 @@ task("engine:pause", "Pause engine")
 .setAction(async ({ pause }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
   const engine = await Engine.attach(Config.engineAddress);
-  const tx = await engine.setPaused(pause);
+  const tx = await engine.setPaused(pause === 'true');
   await tx.wait();
   const paused = await engine.paused();
   console.log(`Engine is now ${paused ? 'paused' : 'unpaused'}`);
