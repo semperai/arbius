@@ -2,8 +2,8 @@ import { BigNumber } from 'ethers';
 import { base58 } from '@scure/base';
 import Config from './config.json';
 
-import AnythingV3Template from "./templates/anythingv3.json"
-import ZeroscopeTemplate from "./templates/zeroscopev2xl.json"
+// import AnythingV3Template from "./templates/anythingv3.json"
+// import ZeroscopeTemplate from "./templates/zeroscopev2xl.json"
 import Kandinsky2Template from "./templates/kandinsky2.json"
 
 import { expretry } from './utils';
@@ -64,6 +64,7 @@ export const AnythingV3Model: Model = {
 };
 */
 
+/*
 export const ZeroscopeModel: Model = {
   id:       Config.models.zeroscopev2xl.id,
   mineable: Config.models.zeroscopev2xl.mineable,
@@ -72,6 +73,7 @@ export const ZeroscopeModel: Model = {
   getfiles: default__getfiles,
   getcid:   default__getcid,
 };
+*/
 
 export const Kandinsky2Model: Model = {
   id:       Config.models.kandinsky2.id,

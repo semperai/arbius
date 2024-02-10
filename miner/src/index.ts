@@ -29,7 +29,7 @@ import {
 
 import {
   // AnythingV3Model,
-  ZeroscopeModel,
+  // ZeroscopeModel,
   Kandinsky2Model,
   getModelById,
   checkModelFilter,
@@ -71,7 +71,7 @@ import {
   wallet,
   arbius,
   token,
-  governor,
+  // governor,
   solver,
   getBlockNumber,
   depositForValidator,
@@ -333,6 +333,7 @@ async function eventHandlerContestationVote(
   });
 }
 
+/*
 async function eventHandlerGovernanceProposalCreated(
   proposalId: string,
   evt: ethers.Event,
@@ -374,6 +375,7 @@ async function processPinGovernanceProposal(
 
   log.debug(`Governance proposal ${proposalId} pinned with ${cid}`);
 }
+*/
 
 async function processPinTaskInput(
   taskid: string,
@@ -397,7 +399,7 @@ async function processValidatorStake() {
   }
 
   const staked = await getValidatorStaked();
-  log.debug(`BCHK DML Staked: ${ethers.utils.formatEther(staked)}`);
+  log.debug(`BCHK AIUS Staked: ${ethers.utils.formatEther(staked)}`);
 
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
   log.debug(`BCHK Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
@@ -804,6 +806,7 @@ const EnabledModels = [
     },
   },
   */
+  /*
   {
     ...ZeroscopeModel,
     filters: [
@@ -836,6 +839,7 @@ const EnabledModels = [
       return [path];
     },
   },
+  */
   {
     ...Kandinsky2Model,
     filters: [
@@ -889,11 +893,13 @@ export async function processJobs(jobs: DBJob[]) {
       case 'claim':
         return () => processClaim(decoded.taskid);
         break;
+      /*
       case 'pinGovernanceProposal':
         return () => processPinGovernanceProposal(
           decoded.proposalId,
           decoded.description,
         );
+      */
       case 'pinTaskInput':
         return () => processPinTaskInput(
           decoded.taskid,
@@ -1016,6 +1022,7 @@ export async function main() {
     evt:       ethers.Event,
   ) => eventHandlerContestationVote(validator, taskid, yea, evt));
 
+  /*
   governor.on('ProposalCreated', (
     proposalId:  string,
     proposer:    string,
@@ -1028,6 +1035,7 @@ export async function main() {
     description: string,
     evt:         ethers.Event,
   ) => eventHandlerGovernanceProposalCreated(proposalId, evt));
+  */
 
   // job processor / main loop
   while (true) {
