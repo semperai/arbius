@@ -152,13 +152,11 @@ export function hydrateInput(
   function e(errmsg: string) {
     return {
       input,
-      taskRewardClaimable: false,
       err: true,
       errmsg,
     };
   }
 
-  let taskRewardClaimable = true;
   for (const row of template.input) {
     const col = preprocessedInput[row.variable];
 
@@ -170,12 +168,6 @@ export function hydrateInput(
     }
 
     if (typeof col !== 'undefined') {
-      // no optional params allowed to be taskRewardClaimable
-      if (! row.required && col !== row['default']) {
-        console.log('falsereason', row.required, col, col['default']);
-        taskRewardClaimable = false;
-      }
-
       // check type matches
       switch(row.type) {
         case 'string':
@@ -222,25 +214,7 @@ export function hydrateInput(
 
   return {
     input,
-    taskRewardClaimable,
     err: false,
     errmsg: '',
   };
-}
-
-export function isSolutionRewardClaimable(
-  m: Model,
-  input: any,
-): boolean {
-  if (! m.mineable) {
-    return false;
-  }
-
-  for (const row of m.template.input) {
-    if (! row.required && input[row.variable] !== row.default) {
-      return false;
-    }
-  }
-
-  return true;
 }

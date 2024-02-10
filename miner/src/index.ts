@@ -602,8 +602,6 @@ async function processSolve(taskid: string) {
   }
   log.info(`CID ${cid} generated`);
 
-  const claimTaskReward = isSolutionRewardClaimable(m, input);
-
   const commitment = generateCommitment(
     wallet.address,
     taskid,
@@ -626,7 +624,7 @@ async function processSolve(taskid: string) {
   // if this fails otherwise, it could be because another submitted solution
   await expretry(async () => {
     try {
-      log.debug(`Submitting solution ${taskid} ${cid} ${claimTaskReward}`);
+      log.debug(`Submitting solution ${taskid} ${cid}`);
       const tx = await solver.submitSolution(taskid, cid, {
         gasLimit: 300_000,
       });

@@ -198,7 +198,6 @@ export interface StoreContestationVoteProps {
 
 export interface InputHydrationResult {
   input: any|null;
-  taskRewardClaimable: boolean;
   err: boolean;
   errmsg: string;
 }
