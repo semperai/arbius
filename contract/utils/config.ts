@@ -21,6 +21,10 @@ interface IConfig {
     provider_url: string;
     private_key: string;
   };
+  arbsepolia: {
+    provider_url: string;
+    private_key: string;
+  };
   nova: {
     provider_url: string;
     private_key: string;
@@ -64,6 +68,10 @@ export const envconfig: IConfig = {
   arbgoerli: {
     provider_url: getEnv("ARBGOERLI_PROVIDER_URL", ""),
     private_key:  getEnv("ARBGOERLI_PRIVATE_KEY", ""),
+  },
+  arbsepolia: {
+    provider_url: getEnv("ARBSEPOLIA_PROVIDER_URL", ""),
+    private_key:  getEnv("ARBSEPOLIA_PRIVATE_KEY", ""),
   },
   nova: {
     provider_url: getEnv("NOVA_PROVIDER_URL", ""),
