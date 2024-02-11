@@ -1,48 +1,57 @@
 {
-  "__doc__PRIVATE_KEY": "Make sure this is loaded with ETH and you are staked correctly",
-  "PRIVATE_KEY": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "log_path": "log.txt",
+  "db_path": "db.sqlite",
+  "stake_buffer_percent": 20,
+  "stake_buffer_topup_percent": 1,
+  "evilmode": false,
 
-  "__doc__RPC_URL": "Local is fastest",
-  "RPC_URL": "https://nova.arbitrum.io/rpc",
+  "blockchain": {
+    "//": "set with your miners private key, and rpc you want to connect to",
+    "private_key": "CHANGEME",
+    "rpc_url": "CHANGEME"
+  },
 
-  "__doc__PINATA_JWT": "Read more here: https://www.pinata.cloud/", 
-  "PINATA_JWT": "",
+  "rpc": {
+    "//": "expose a JSON-RPC server to control miner",
+    "host": "localhost",
+    "port": 8335
+  },
 
-  "__doc__REPLICATE_API_TOKEN": "Read more here: https://replicate.com/docs/reference/http",
-  "REPLICATE_API_TOKEN": "",
-
-  "__doc__IPFS_CID_URL": "This should contain %C which will be replaced with the IPFS CID",
-  "IPFS_CID_URL": "https://gateway.pinata.cloud/ipfs/%C",
-
-  "__doc__LOGPATH": "Where logs should be stored",
-  "LOGPATH": "log.txt",
-
-  "__doc__DBPATH": "Where database should be stored",
-  "DBPATH": "db2.sqlite",
-
-  "__doc__STAKEBUFFERPERCENT": "How much of a buffer should we attempt to keep ahead of validatorMinimum",
-  "STAKEBUFFERPERCENT": 20,
-
-  "__doc__AUTOMINE": "settings for automatic creation and solving of tasks",
-  "AUTOMINE": {
-    "__doc__enabled": "Should we automine?",
-    "enabled": true,
-
-    "__doc__delay": "How many seconds between each generation?",
+  "automine": {
+    "//": "set to true to enable automining",
+    "enabled": false,
     "delay": 60,
-
-    "__doc__version": "Version of task format to solve, keep at 0",
     "version": 0,
-
-    "__doc__model": "What model id are we mining?",
-    "model": "0x7cb00aefb0992612b38464630c161fa7f36d727f0a52bcf926e7d8a361af86c7",
-
-    "__doc__fee": "What fee should we add to tasks (should keep at 0)",
+    "model": "CHANGEME",
     "fee": "0",
-
-    "__doc__input": "object in model template format, default params can be customized",
     "input": {
-      "prompt": "running arbius"
+      "prompt": "CHANGEME to a unique prompt",
+      "negative_prompt": "noisy, washed out, ugly, distorted, broken"
+    }
+  },
+
+  "ml": {
+    "//": "use cog strategy to run with local server",
+    "strategy": "cog",
+    "replicate": {
+      "api_token": null
+    },
+    "cog": {
+      "//": "set this key to the model id",
+      "0x4b4361ec84746a3e1b680555d4d762f7df1f7f2bc3d1f112e112a117f783a92d": {
+        "url": "CHANGEME"
+      }
+    }
+  },
+
+  "ipfs": {
+    "//": "use either 'pinata' or 'http_client' strategy",
+    "strategy": "pinata",
+    "pinata": {
+      "jwt": "CHANGEME"
+    },
+    "http_client": {
+      "url": "http://127.0.0.1:5001"
     }
   }
 }
