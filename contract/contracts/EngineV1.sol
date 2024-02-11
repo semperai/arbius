@@ -20,6 +20,7 @@ uint256 constant MIN_SUPPLY_FOR_SLASHING = 2_000e18;
 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
 uint256 constant ARBITRUM_GOERLI_CHAINID = 0x66eed;
+uint256 constant ARBITRUM_SEPOLIA_CHAINID = 0x66eee;
 // https://github.com/OffchainLabs/arbitrum-classic/blob/master/docs/sol_contract_docs/md_docs/arb-os/arbos/builtin/ArbSys.md
 address constant ARBSYS_ADDRESS = address(100);
 
@@ -742,7 +743,7 @@ contract EngineV1 is OwnableUpgradeable {
             id := chainid()
         }
 
-        if (id == ARBITRUM_NOVA_CHAINID || id == ARBITRUM_GOERLI_CHAINID) {
+        if (id == ARBITRUM_NOVA_CHAINID || id == ARBITRUM_GOERLI_CHAINID || id === ARBITRUM_SEPOLIA_CHAINID) {
             return ArbSys(ARBSYS_ADDRESS).arbBlockNumber();
         }
 
