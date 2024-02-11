@@ -21,7 +21,6 @@ lib-cov
 #hardhat build items
 typechain
 cache
-artifacts
 
 # Coverage directory used by tools like istanbul
 coverage
