@@ -958,11 +958,21 @@ export async function main() {
   dbClearJobsByMethod('validatorStake');
   dbClearJobsByMethod('automine');
 
+  log.debug("Bootup check");
   {
-    log.debug("Bootup check");
+    const minerVersion = BigNumber.from('0');
+    const arbiusVersion = await arbius.version();
+    if (arbiusVersion.eq(minerVersion)) {
+      log.info(`Arbius version (${arbiusVersion}) matches miner version (${minerVersion})`);
+    } else {
+      log.error(`version mismatch, have miner version ${minerVersion.toString()} and arbius is ${arbiusVersion.toString()} - upgrade your miner`);
+      process.exit(1);
+    }
+  }
+  {
     const m = getModelById(EnabledModels, Config.models.kandinsky2.id);
     if (m === null) {
-      log.error(`Model (${Config.models.kandinsky2.id}) not found in config`);
+      process.exit(1);
       return;
     }
     const input = {prompt: "arbius test cat", seed: 1337};
@@ -975,7 +985,7 @@ export async function main() {
       log.error(`Model (${Config.models.kandinsky2.id}) CID (${cid}) does not match expected CID (${expected})`);
       log.info(`If you are running a100 this is a bug, please report with system details at https://github.com/semperai/arbius`);
       log.info(`Join our telegram https://t.me/arbius_ai`);
-      return;
+      process.exit(1);
     }
   }
 
@@ -998,15 +1008,6 @@ export async function main() {
     });
   }
 
-  /*
-  // TODO uncomment for new deploy
-  const minerVersion = BigNumber.from('0');
-  const arbiusVersion = await arbius.version();
-  if (! arbiusVersion.eq(minerVersion)) {
-    log.error(`version mismatch, have miner version ${minerVersion.toString()} and arbius is ${arbiusVersion.toString()} - upgrade your miner`);
-    process.exit(1);
-  }
-  */
 
   arbius.on('TaskSubmitted', (
     taskid:  string,
