@@ -610,7 +610,7 @@ async function processSolve(taskid: string) {
 
   try {
     const tx = await arbius.signalCommitment(commitment, {
-      gasLimit: 150_000,
+      gasLimit: 250_000,
     });
     // const receipt = await tx.wait(); // we dont wait here to be faster
     log.info(`Commitment signalled in ${tx.hash}`);
@@ -625,7 +625,7 @@ async function processSolve(taskid: string) {
     try {
       log.debug(`Submitting solution ${taskid} ${cid}`);
       const tx = await solver.submitSolution(taskid, cid, {
-        gasLimit: 300_000,
+        gasLimit: 500_000,
       });
       const receipt = await tx.wait();
       log.info(`Solution submitted in ${receipt.transactionHash}`);
