@@ -33,7 +33,6 @@ interface Solution {
   validator: string;
   blocktime: ethers.BigNumber;
   claimed: boolean;
-  claimTaskReward: boolean;
   cid: string;
 }
 
@@ -46,7 +45,7 @@ interface Contestation {
 interface Model {
   fee: ethers.BigNumber;
   addr: string;
-  mineable: boolean;
+  rate: ethers.BigNumber;
   cid: string;
 }
 
@@ -262,14 +261,6 @@ export default function TaskPage() {
                   </tr>
                   <tr>
                     <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      <strong>claimTaskReward</strong>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {(solutionData as Solution)?.claimTaskReward ? 'true' : 'false'}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                       <strong>cid</strong>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
@@ -353,10 +344,10 @@ export default function TaskPage() {
                   </tr>
                   <tr>
                     <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      <strong>mineable</strong>
+                      <strong>rate</strong>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {(modelData as Model)?.mineable ? 'true' : 'false'}
+                      {ethers.utils.formatEther((modelData as Model)?.rate || '0')}x
                     </td>
                   </tr>
                   <tr>
