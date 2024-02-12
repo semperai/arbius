@@ -718,17 +718,13 @@ async function voteOnContestation(taskid: string, yea: boolean) {
 }
 
 async function processClaim(taskid: string) {
-  const {
-    validator,
-    claimed,
-  } = await expretry(async () => await arbius.solutions(taskid));
-
-  if (claimed) {
-    log.warn(`Solution (${taskid}) already claimed`);
-    return;
-  }
-
   const receipt = await expretry(async () => {
+    const { claimed } = await expretry(async () => await arbius.solutions(taskid));
+    if (claimed) {
+      log.warn(`Solution (${taskid}) already claimed`);
+      return null;
+    }
+
     const tx = await arbius.claimSolution(taskid, {
       gasLimit: 300_000,
     });
@@ -1009,7 +1005,6 @@ export async function main() {
       },
     });
   }
-
 
   arbius.on('VersionChanged', async(
     version: ethers.BigNumber,
