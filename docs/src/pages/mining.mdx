@@ -1,63 +1,196 @@
-export const description =
-  'This guide shows you how to start mining Arbius.'
+# Mining Kandinsky-2 on Arbius
 
-# Mining
+This guide will walk you through the process of mining Kandinsky-2 on the Arbius network.
 
-## Requirements
+<Note>The Arbius mining software only supports a single GPU at this time.</Note>
 
-* GPU server (can rent from [lambda labs](https://lambdalabs.com/))
+## Get A100 GPU
 
-* https://github.com/replicate/cog
+We recommend Lambda Labs and Jarvis Labs cloud hosting for this model, both have been tested to function properly . For this guide we will use Jarvis Labs which is the simplest to set up.
 
+<Note>Some providers have a configuration which introduces differences in compute, this will be detected on boot of miner with a hash check and will cause miner to not be able to validate tasks. If you are locally hosting your A100, you will need to ensure it is set up properly.</Note>
 
-## Setup
+https://cloud.jarvislabs.ai
 
-### Full node (optional)
+* From cloud.jarvislabs.ai launch a Cog container
 
-https://developer.arbitrum.io/node-running/how-tos/running-a-full-node
+* GPU: `1 x A100`
 
-### Cog services
+* Docker Image: `r8.im/kasumi-1/kandinsky-2@sha256:373fa540ae197fc89f0679ed835bc4524152956d4f3027580244e10b09d6d3a5`
 
-Arbius uses [Cog](https://github.com/replicate/cog) which relies on [nvidia-docker](https://github.com/NVIDIA/nvidia-docker).
+* Storage: `60GB`
 
+* Instance Name: `kandinsky-2`
+
+* Click `Launch`
+
+This will take approximately 10 minutes to boot, until then the API link will not work. You can check that it has booted by clicking the API link for the instance, when the docs page shows up that means it has booted.
+
+## Setup Mining Software and Dependencies
+
+You may run the mining software on a local machine or on a cloud instance. Especially if using a cloud instance, ensure that you properly secure the machine.
+
+### Install NVM
+
+NVM is a version manager for Node.js, which is required to run the mining software.
 
 ```bash
-cog predict r8.im/kasumi-1/kandinsky-2@sha256:4e9a10fe1e84e0ac79c7ffabef8f66e1159dd405cd01a38750e128e7d0d52622 -i prompt="hello world"
-docker images # get IMAGE ID
-docker run -d -p 5000:5000 --gpus all [IMAGE ID]
-
-cog predict r8.im/anotherjesse/zeroscope-v2-xl@sha256:dcad8a883c2e99e3bf1d88590ce070bc6dd4e498af14a3f2f6e437f0f1ba7adb -i prompt="hello world"
-docker run -d -p 5001:5000 --gpus all [IMAGE ID]
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 ```
 
-### Arbius Miner
+### Install IPFS (InterPlanetary File System)
 
-Copy `MiningConfig.example.json` to `MiningConfig.json` and open it in your editor.
+IPFS is a distributed file system that will be used to share generated content.
 
+Follow this guide to ensure you have IPFS installed:
 
-#### Development
+https://docs.ipfs.tech/install/command-line/
 
-This will automatically restart the server when any changes are detected in code:
+Make sure you are running IPFS as a daemon:
 
 ```bash
-nvm use .
+ipfs daemon
+```
+
+<Note>As an alternative, you can use pinata if you do not want to host your own IPFS node.</Note>
+
+
+### Install Arbius Reference Miner
+
+The Arbius reference miner is a simple mining software that will be used to mine Kandinsky-2 on the Arbius network. It is designed to be easy to use and debug. We recommend reading the code to understand how it works, and to contribute improvements upstream.
+
+```bash
+git clone https://github.com/semperai/arbius.git
+cd arbius/miner
+nvm use
+# if you don't have yarn installed already
+npm install -g yarn
+yarn # install dependencies
+```
+
+### Setup RPC Endpoint
+
+You will need to provide an RPC endpoint for the Arbius network. You can run your own node, or use a public node. We recommend running your own node for security and performance reasons, however it is not necessary. For testing setup, you can use a public node.
+
+https://docs.arbitrum.io/node-running/node-providers
+
+Note: you will need to run your node on Arbitrum Nova network.
+
+
+### Generate Wallet for Miner
+
+Arbius has a built in wallet generator, you can also use MetaMask or other tools to generate a new private key. We strongly recommend using a new private key for each miner.
+
+```bash
+cd arbius/contracts
+nvm use
 yarn
+npx hardhat gen-wallet
+```
+
+### Configure Mining Software
+
+Within the `arbius/miner` directory, copy the example configuration file to a new file called `MiningConfig.json`.
+
+```bash
+cp  MiningConfig.example.json MiningConfig.json
+```
+
+#### Blockchain Configuration
+
+Edit `MiningConfig.json` to include your miners private key and the RPC endpoint.
+
+```json
+{
+  "blockchain": {
+    "private_key": "0x...",
+    "rpc_url": "https://..."
+  }
+}
+```
+
+#### Automine Configuration
+
+Arbius reference miner has an automine feature that will automatically generate new tasks. These tasks are available for anyone to solve, and you will be rewarded for solving them. You can enable automine by setting the `automine` flag to `true` in `MiningConfig.json`. If automine is disabled, your miner will only mine tasks that it notices on the network.
+
+```json
+{
+  "automine": {
+    "enabled": true
+  }
+}
+```
+
+You will want to set the correct `model` and a unique `prompt` for tasks.
+
+
+#### ML Configuration
+
+Here is where you'll configure to connect to a running Cog container. Grab the prediction url from the api link of the Cog container you launched earlier. It will look something like: `https://xxxxxxxxxxxxx.notebooksd.jarvislabs.net/predictions`. Make sure you do not share this url with anyone, as it can be used to access your Cog container.
+
+```json
+{
+  "ml": {
+    "strategy": "cog",
+    "cog": {
+      "MODELID": {
+        "url": "https://..."
+      }
+    }
+  }
+}
+```
+
+#### IPFS Configuration
+
+Here is where you'll configure to connect to a running IPFS node. If you are using pinata, you will need to use the pinata API url (see example cofig). You will want to use `http_client` strategy, to connect to your own IPFS, or `pinata` to connect to.. pinata.
+
+```json
+{
+  "ipfs": {
+    "strategy": "http_client",
+    "http_client": {
+      "url": "http://localhost:5001"
+    }
+  }
+}
+```
+
+### Load Up Miner Wallet
+
+You will need to load your miner wallet with some funds to pay for gas. You can do this by sending some funds to the address associated with your private key.
+
+#### Arbitrum Nova
+
+You can bridge funds from Ethereum to Arbitrum Nova using the Arbitrum bridge. You will need to use the Arbitrum bridge to send funds to your miner wallet.
+
+https://bridge.arbitrum.io/?destinationChain=arbitrum-nova&sourceChain=ethereum
+
+#### Arbius Token
+
+Arbius(AIUS) token needs to be staked to mine. For the first day, no AIUS token is required to begin mining. After the first day, you will need to stake AIUS token to mine. You can obtain AIUS token from Uniswap. The miner will automatically stake AIUS token when it is required.
+
+<Note>You will want to regularly bridge earned AIUS token back to Ethereum as it takes approximately 1 week to bridge. You also do not want to store too much AIUS in your miner wallet, as it is a security risk - if you are repeatedly slashed, you will lose the AIUS in your miner wallet.</Note>
+
+## Test Mining Software 
+
+Once your miner has sufficient funds and has been configured you can start it by running:
+
+```bash
 yarn start:dev MiningConfig.json
 ```
 
-#### Production
+Your miner will perform a bootup sanity check by checking version as well as a test generation of the Kandinsky-2 model. If everything is good, it will start mining.
 
-```bash
-nvm use .
-yarn
-yarn build
-yarn start
-```
+## Troubleshooting
 
+If you encounter issues, please investigate the logs to determine the cause of the issue. If you are unable to resolve the issue, please reach out to the Arbius community for support.
 
-## RPC
+If the miner seems stuck or is not mining, you can try restarting it. If this does not resolve the issue, try copying the db.sqlite file to a new location (for backup) and restarting the miner. This will allow the miner to start fresh.
 
-The miner provides a http api that allows the operator to control operation.
+## RPC Operation (advanced)
+
+The miner provides a http api that allows the operator to control operation. This should never be exposed to the internet.
 
 ### Queue Jobs
 
@@ -81,10 +214,6 @@ A higher `priority` will increase the priority the job is run. `waituntil` defin
 ##### task
 * `taskid` [string]
 * `txid` [string]
-
-##### pinGovernanceProposal
-* `proposalId` [string]
-* `description` [string]
 
 ##### validatorStake
 * `validatorMinimum` [string]
