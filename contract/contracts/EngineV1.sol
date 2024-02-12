@@ -743,7 +743,7 @@ contract EngineV1 is OwnableUpgradeable {
             id := chainid()
         }
 
-        if (id == ARBITRUM_NOVA_CHAINID || id == ARBITRUM_GOERLI_CHAINID || id === ARBITRUM_SEPOLIA_CHAINID) {
+        if (id == ARBITRUM_NOVA_CHAINID || id == ARBITRUM_GOERLI_CHAINID || id == ARBITRUM_SEPOLIA_CHAINID) {
             return ArbSys(ARBSYS_ADDRESS).arbBlockNumber();
         }
 
