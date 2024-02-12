@@ -931,7 +931,7 @@ export async function processJobs(jobs: DBJob[]) {
     await dbDeleteJob(job.id);
   }
 
-  log.debug(jobs)
+  // log.debug(jobs)
 
   // first process all concurrent jobs
   for (const job of jobs) {
