@@ -948,6 +948,17 @@ export async function processJobs(jobs: DBJob[]) {
   }
 }
 
+async function versionCheck() {
+  const minerVersion = BigNumber.from('0');
+  const arbiusVersion = await arbius.version();
+  if (arbiusVersion.lte(minerVersion)) {
+    log.info(`Arbius version (${arbiusVersion}) fits miner version (${minerVersion})`);
+  } else {
+    log.error(`version mismatch, have miner version ${minerVersion.toString()} and arbius is ${arbiusVersion.toString()} - upgrade your miner`);
+    process.exit(1);
+  }
+}
+
 export async function main() {
   // need extra for ethers
   log.debug("Setting max file listeners to 100 for ethers");
@@ -959,16 +970,7 @@ export async function main() {
   dbClearJobsByMethod('automine');
 
   log.debug("Bootup check");
-  {
-    const minerVersion = BigNumber.from('0');
-    const arbiusVersion = await arbius.version();
-    if (arbiusVersion.eq(minerVersion)) {
-      log.info(`Arbius version (${arbiusVersion}) matches miner version (${minerVersion})`);
-    } else {
-      log.error(`version mismatch, have miner version ${minerVersion.toString()} and arbius is ${arbiusVersion.toString()} - upgrade your miner`);
-      process.exit(1);
-    }
-  }
+  await versionCheck();
   {
     const m = getModelById(EnabledModels, Config.models.kandinsky2.id);
     if (m === null) {
@@ -1008,6 +1010,14 @@ export async function main() {
     });
   }
 
+
+  arbius.on('VersionChanged', async(
+    version: ethers.BigNumber,
+    evt:     ethers.Event,
+  ) => {
+    log.debug('Event.VersionChanged', version.toString());
+    await versionCheck();
+  });
 
   arbius.on('TaskSubmitted', (
     taskid:  string,
