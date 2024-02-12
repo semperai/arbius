@@ -420,6 +420,7 @@ export default function ExplorerPage() {
     <Layout title="Explorer">
       <main>
         <div className="px-4 py-5 sm:p-6">
+          {/*
           <div className="mx-auto max-w-7xl">
             <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
               Network Stats
@@ -438,6 +439,7 @@ export default function ExplorerPage() {
               <TaskReward />
             </div>
           </div>
+          */}
         </div>
 
         <div className="px-4 py-5 sm:p-6 bg-slate-50 border border-slate-200 rounded-lg">
