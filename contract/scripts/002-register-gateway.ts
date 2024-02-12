@@ -68,6 +68,7 @@ async function main() {
   console.log(
     'Your custom token is now registered on our custom gateway 🥳  Go ahead and make the deposit!',
   );
+  process.exit(0);
 }
 
 main();
