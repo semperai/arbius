@@ -12,6 +12,8 @@ Arbius is a monorepo:
 
 - **/contract** smart contracts and cli interface
 
+- **/miner** reference mining software
+
 - **/templates** model schema files used for mining and graphical interfaces
 
 - **/website** frontend interface you see on arbius.ai

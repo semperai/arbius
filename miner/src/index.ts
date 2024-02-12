@@ -474,6 +474,9 @@ async function processAutomine() {
       c.automine.model,
       BigNumber.from(c.automine.fee),
       ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(c.automine.input))),
+      {
+        gasLimit: 2_500_000,
+      }
     );
 
     const receipt = await tx.wait();
@@ -610,7 +613,7 @@ async function processSolve(taskid: string) {
 
   try {
     const tx = await arbius.signalCommitment(commitment, {
-      gasLimit: 250_000,
+      gasLimit: 450_000,
     });
     // const receipt = await tx.wait(); // we dont wait here to be faster
     log.info(`Commitment signalled in ${tx.hash}`);
