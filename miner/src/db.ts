@@ -128,7 +128,7 @@ async function dbGetJob(jobid: number): Promise<DBJob|null> {
   });
 }
 
-export async function dbGetJobs(limit: number = 10): Promise<DBJob[]> {
+export async function dbGetJobs(limit: number = 10000): Promise<DBJob[]> {
   return new Promise((resolve, reject) => {
     return db.all(`
       SELECT * FROM jobs
