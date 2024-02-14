@@ -369,15 +369,13 @@ export default function HomePage() {
                       ))}
                     </ul>
                     <div className="mt-10 flex">
-                      {/* 
                       <a
-                        href={`https://app.sushi.com/swap?inputCurrency=ETH&outputCurrency=${Config.baseTokenAddress}&chainId=42170`}
+                        href={`https://app.uniswap.org/swap?outputCurrency=0xe3dbc4f88eaa632ddf9708732e2832eeaa6688ab`}
                         className="text-sm font-semibold leading-6 text-indigo-400"
                         target="_blank"
                       >
                         Buy on Uniswap <span aria-hidden="true">&rarr;</span>
                       </a>
-                      */}
                     </div>
                   </div>
                 </div>
