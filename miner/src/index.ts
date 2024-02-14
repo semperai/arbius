@@ -1049,6 +1049,9 @@ export async function main() {
     evt:       ethers.Event,
   ) => eventHandlerContestationVote(validator, taskid, yea, evt));
 
+  arbius.on('ContestationVoteFinish', (
+  ) => { console.log('not implemented'); });
+
   /*
   governor.on('ProposalCreated', (
     proposalId:  string,
