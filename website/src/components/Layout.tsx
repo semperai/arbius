@@ -103,11 +103,6 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
       </Head>
       <NetworkSwitch />
       <div className="min-h-full z-50">
-        <div className="bg-red-600 text-center border-b-2 border-red-700 shadow-sm">
-          <strong className="text-white px-2">
-            Arbius is currently in testing and will be redeployed. Do not invest real money.
-          </strong>
-        </div>
         <Disclosure as="nav" className="border-b border-gray-200 bg-white dark:bg-[#16141d]">
           {({ open }) => (
             <>
