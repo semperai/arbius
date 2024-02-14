@@ -901,6 +901,12 @@ export async function processJobs(jobs: DBJob[]) {
           decoded.taskid,
           decoded.input,
         );
+      case 'contestationVoteFinish':
+       return () => {
+         console.log('not implemented yet');
+       };
+       break;
+
       default:
         log.error(`Job (${job.id}) method (${job.method}) has no implementation`);
         process.exit(1);
@@ -1048,9 +1054,6 @@ export async function main() {
     yea:       boolean,
     evt:       ethers.Event,
   ) => eventHandlerContestationVote(validator, taskid, yea, evt));
-
-  arbius.on('ContestationVoteFinish', (
-  ) => { console.log('not implemented'); });
 
   /*
   governor.on('ProposalCreated', (
