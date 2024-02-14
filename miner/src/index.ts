@@ -389,6 +389,11 @@ async function processPinTaskInput(
   log.debug(`Task input ${taskid} pinned with ${cid}`);
 }
 
+async function processContestationVoteFinish(
+) {
+  console.log('not implemented yet');
+}
+
 async function processValidatorStake() {
   const etherBalance = await arbius.provider.getBalance(wallet.address);
   log.debug(`BCHK Ether balance: ${ethers.utils.formatEther(etherBalance)}`);
@@ -901,10 +906,9 @@ export async function processJobs(jobs: DBJob[]) {
           decoded.taskid,
           decoded.input,
         );
+        break;
       case 'contestationVoteFinish':
-       return () => {
-         console.log('not implemented yet');
-       };
+       return () => processContestationVoteFinish();
        break;
 
       default:
