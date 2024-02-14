@@ -1,18 +1,18 @@
 {
-  "l1TokenAddress": "0x22BDA69Bd816067A2Acbfe598B6Aa017881eaD06",
-  "baseTokenAddress": "0xD003279ae23d2F75D67aCdFF4bf6e32165F1878E",
-  "engineAddress": "0x4a0917B4d813eb7DC986b05f4696D1C160Ff5219",
-  "proxyAdminAddress": "0x9D8D418ac9FCcDcD82D16BcDB36B8C0A41eEa952",
+  "l1TokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
+  "baseTokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
+  "engineAddress": "0x399511EDEB7ca4A8328E801b1B3D0fe232aBc996",
+  "proxyAdminAddress": "0xf70a86d51Bd88885054ea031344447d75bb4b432",
   "models": {
     "kandinsky2": {
-      "id": "0xc8fc0fdebb282ae38a144c58e414f069234dfccfde2b2c01b67e1676afbb8536",
+      "id": "0x82ae0d19f32b6912204160f8d744de08265b7775d07c23b4171c94c8e2892c62",
       "mineable": true,
       "contracts": {},
       "params": {
         "addr": "0x0000000000000000000000000000000000000001",
         "fee": "0",
         "rate": "1000000000000000000",
-        "cid": "0x122034c8a20ca5552610cbbdf11deb69837eaf2f290cc093486c13544786c5b4edeb"
+        "cid": "0x1220511fdf0e88fa9adba98a7693cca89b5d9f3181da4815b0f0500aa4315b38d17d"
       }
     }
   }

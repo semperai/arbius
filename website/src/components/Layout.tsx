@@ -25,7 +25,7 @@ import Config from '@/config.json';
 
 const navigation = [
   { name: 'Generate', href: '/generate', external: false, },
-  { name: 'Staking', href: 'https://app.gysr.io/pool/0x6c1ffdecc6520571d2c41087726611938a9ae99f?network=ethereum', external: true, },
+  // { name: 'Staking', href: 'https://app.gysr.io/pool/0x6c1ffdecc6520571d2c41087726611938a9ae99f?network=ethereum', external: true, },
   // { name: 'Bond', href: 'https://app.bondprotocol.finance/#/market/42161/111', external: true, },
   { name: 'Models', href: '/models', external: false, },
   { name: 'Explorer', href: '/explorer', external: false, },
