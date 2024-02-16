@@ -5,17 +5,15 @@ import {
 import Config from '@/config.json';
 import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
 
-import { ethers } from 'ethers'
-
 export default function ActiveValidatorsCount() {
   const [validators] = useState<Set<string>>(new Set<string>());
   const [validatorCount, setValidatorCount] = useState(0);
   useContractEvent({
     address: Config.engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
-    eventName: 'TaskSubmitted',
+    eventName: 'SolutionSubmitted',
     listener: (...args: any[]) => {
-      const sender = args[3];
+      const sender = args[0];
       if (sender) {
         validators.add(sender);
         setValidatorCount(validators.size);
