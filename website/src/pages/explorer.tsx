@@ -22,6 +22,7 @@ import TaskReward from '@/components/TaskReward';
 
 import { jsonTheme } from '@/constants';
 import ValidatorMinimum from '@/components/ValidatorMinimum';
+import ActiveValidatorsCount from '@/components/ActiveValidatorsCount';
 
 interface Event {
   key: string;
@@ -441,6 +442,10 @@ export default function ExplorerPage() {
 
             <div className="mt-5">
               <TaskReward />
+            </div>
+
+            <div className="mt-5">
+              <ActiveValidatorsCount />
             </div>
           </div>
         </div>
