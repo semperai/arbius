@@ -44,7 +44,7 @@ export default function TaskReward() {
   return (
     <p>
       <strong>Current Task Reward: </strong>
-      {taskRewardStr}
+      {taskRewardStr} AIUS
     </p>
   );
 }
