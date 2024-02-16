@@ -25,7 +25,7 @@ export default function ValidatorMinimum() {
     if (validatorMinimumRaw) {
       setValidatorMinimum(validatorMinimumRaw as ethers.BigNumber);
     }
-  }, [validatorMinimum]);
+  }, [validatorMinimumRaw]);
 
   let validatorMinimumStr = '';
   if (validatorMinimum) {
