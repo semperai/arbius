@@ -35,7 +35,7 @@ export default function ValidatorMinimum() {
   return (
     <div>
       <p>
-        <strong>Current Minumum Required Validator Stake: </strong>
+        <strong>Current Minimum Required Validator Stake: </strong>
         {validatorMinimumStr} AIUS
       </p>
     </div>
