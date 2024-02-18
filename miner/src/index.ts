@@ -827,10 +827,11 @@ async function contestSolution(taskid: string) {
 }
 
 async function voteOnContestation(taskid: string, yea: boolean) {
-  const contestationVoted = await expretry(async () => await arbius.contestationVoted(taskid, wallet.address));
+  const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(wallet.address, taskid));
+  const canVote = canVoteStatus === 0x0; // success code
 
-  if (contestationVoted) {
-    log.info(`We already voted on contestation ${taskid}`);
+  if (! canVote) {
+    log.debug(`[voteOnContestation] Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
     return;
   }
 
