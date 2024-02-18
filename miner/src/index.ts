@@ -785,6 +785,15 @@ async function processSolve(taskid: string) {
 async function contestSolution(taskid: string) {
   try {
     log.info(`Attempt to contest ${taskid} solution`);
+
+    const { owner } = await expretry(async () => await arbius.tasks(taskid));
+    log.debug(`contestSolution ${taskid} from ${owner}`);
+    if (owner === wallet.address) {
+      log.error(`Attempting to contest own solution ${taskid}  --- lets not do this`);
+      log.error(`Please report this to the developers`);
+      return;
+    }
+
     const tx = await solver.submitContestation(taskid);
     const receipt = await tx.wait();
     log.info(`Submitted contestation for ${taskid} in ${receipt.transactionHash}`);
