@@ -390,6 +390,7 @@ async function processPinTaskInput(
 }
 
 async function processContestationVoteFinish(
+  taskid: string,
 ) {
   console.log('not implemented yet');
 }
@@ -908,7 +909,7 @@ export async function processJobs(jobs: DBJob[]) {
         );
         break;
       case 'contestationVoteFinish':
-       return () => processContestationVoteFinish();
+       return () => processContestationVoteFinish(decoded.taskid);
        break;
 
       default:
