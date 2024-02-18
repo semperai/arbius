@@ -21,6 +21,8 @@ import ExpectedTotalSupply from '@/components/ExpectedTotalSupply';
 import TaskReward from '@/components/TaskReward';
 
 import { jsonTheme } from '@/constants';
+import ValidatorMinimum from '@/components/ValidatorMinimum';
+import ActiveValidatorsCount from '@/components/ActiveValidatorsCount';
 
 interface Event {
   key: string;
@@ -420,26 +422,32 @@ export default function ExplorerPage() {
     <Layout title="Explorer">
       <main>
         <div className="px-4 py-5 sm:p-6">
-          {/*
           <div className="mx-auto max-w-7xl">
             <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
               Network Stats
             </h1>
           </div>
           <div className="text-slate-800">
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <TotalSupply />
             </div>
 
             <div className="mt-5">
               <ExpectedTotalSupply />
+            </div> */}
+
+            <div className="mt-5">
+              <ValidatorMinimum />
             </div>
 
             <div className="mt-5">
               <TaskReward />
             </div>
+
+            <div className="mt-5">
+              <ActiveValidatorsCount />
+            </div>
           </div>
-          */}
         </div>
 
         <div className="px-4 py-5 sm:p-6 bg-slate-50 border border-slate-200 rounded-lg">
