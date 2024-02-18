@@ -33,6 +33,17 @@ task("decode-tx", "Extract input from a submitTask transaction")
   console.log(input);
 });
 
+task("mint", "Mint tokens")
+.addParam("to", "address")
+.addParam("amount", "amount")
+.setAction(async ({ to, amount }, hre) => {
+    const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
+    const baseToken = await BaseToken.attach(Config.baseTokenAddress);
+    const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
+    await tx.wait();
+    console.log(`minted ${amount} tokens to ${to}`);
+});
+
 task("mine", "mine blocks locally")
 .addParam("blocks", "how many")
 .setAction(async ({ blocks }, hre) => {

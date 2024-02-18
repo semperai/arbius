@@ -27,8 +27,8 @@ async function main() {
   console.log('Deploying the L2Token to L2:');
   const L2Token = await ethers.getContractFactory('BaseTokenV1');
   const l2Token = await upgrades.deployProxy(L2Token, [
-    l2Gateway,
-    Config.l1TokenAddress,
+    deployer.address,
+    deployer.address,
   ]);
   // console.log(l2Token);
 
