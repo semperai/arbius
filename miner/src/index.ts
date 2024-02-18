@@ -261,7 +261,7 @@ async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) 
 
       console.log(`Owner of the solution ${owner}`);
       // change this number dynamically as we get more data on slashing the contract miner
-      if (Math.random() < 100) {
+      if (Math.random() < 0.05) {
         const lookup = (await expretry(async () => await lookupAndInsertTask(taskid))) as LookupResult;
         if (!lookup) {
           throw new Error("could not look up task -> eventHandlerSolutionSubmitted");
