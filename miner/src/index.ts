@@ -313,6 +313,7 @@ async function eventHandlerContestationSubmitted(
   taskid: string,
   evt: ethers.Event,
 ) {
+  log.error("eventHandlerContestationSubmitted", validator, taskid);
   return new Promise(async (resolve, reject) => {
 
     const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(validator, taskid));
@@ -392,7 +393,7 @@ async function eventHandlerContestationVote(
   yea: boolean,
   evt: ethers.Event,
 ) {
-  log.debug('Event.ContestationVote', taskid);
+  log.error('Event.ContestationVote', validator, taskid, yea);
 
   return new Promise(async (resolve, reject) => {
     {
@@ -473,6 +474,8 @@ async function processPinTaskInput(
 async function processContestationVoteFinish(
   taskid: string,
 ) {
+  log.error('processContestationVoteFinish', taskid);
+
   let total = 0;
 
   // TODO update when we have more than 10000 miners
@@ -837,8 +840,16 @@ async function voteOnContestation(taskid: string, yea: boolean) {
 async function processClaim(taskid: string) {
   const receipt = await expretry(async () => {
     const { claimed } = await expretry(async () => await arbius.solutions(taskid));
+    log.debug("processClaim [claimed]", claimed);
     if (claimed) {
       log.warn(`Solution (${taskid}) already claimed`);
+      return null;
+    }
+
+    const { validator: contestationValidator } = await expretry(async () => await arbius.contestations(taskid));
+    log.debug("processClaim [contestationValidator]", contestationValidator);
+    if (contestationValidator !== ethers.constants.AddressZero) {
+      log.error(`Contestation found for solution ${taskid}, cannot claim`);
       return null;
     }
 
