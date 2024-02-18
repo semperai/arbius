@@ -402,10 +402,24 @@ async function processPinTaskInput(
 async function processContestationVoteFinish(
   taskid: string,
 ) {
-  const yeas = await expretry(async () => arbius.contestationVoteYeas(taskid));
-  const nays = await expretry(async () => arbius.contestationVoteNays(taskid));
+  let total = 0;
 
-  const total = yeas.length + nays.length;
+  // TODO update when we have more than 10000 miners
+  for (let idx=0; idx<10000; idx++) {
+    const a = await expretry(async () => await arbius.contestationVoteYeas(taskid, idx), 3, 1.25);
+    if (a === ethers.constants.AddressZero) {
+      break;
+    }
+    ++total;
+  }
+
+  for (let idx=0; idx<10000; idx++) {
+    const a = await expretry(async () => await arbius.contestationVoteNays(taskid, idx), 3, 1.25);
+    if (a === ethers.constants.AddressZero) {
+      break;
+    }
+    ++total;
+  }
 
   const finishStartIndex = await expretry(async () => await arbius.contestations(taskid)).then((x) => x.finish_start_index);
 
