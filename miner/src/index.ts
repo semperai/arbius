@@ -392,7 +392,22 @@ async function processPinTaskInput(
 async function processContestationVoteFinish(
   taskid: string,
 ) {
-  console.log('not implemented yet');
+  const yeas = await expretry(async () => arbius.contestationVoteYeas(taskid));
+  const nays = await expretry(async () => arbius.contestationVoteNays(taskid));
+
+  const total = yeas.length + nays.length;
+
+  const finishStartIndex = await expretry(async () => await arbius.contestations(taskid)).then((x) => x.finish_start_index);
+
+  if (finishStartIndex >= total) {
+    log.debug(`ContestationVoteFinish ${taskid} already finished`);
+    return;
+  }
+
+  // how many to process at time
+  const amnt = 16;
+  await expretry(async () => arbius.contestationVoteFinish(taskid, amnt), 3, 1.25);
+  log.debug(`ContestationVoteFinish ${taskid} finished`);
 }
 
 async function processValidatorStake() {
