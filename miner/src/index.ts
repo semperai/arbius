@@ -295,6 +295,7 @@ async function eventHandlerContestationSubmitted(
     }
 
     // TODO if we havent mined task yet, do so
+    // TODO TODO TODO add logic from triage
 
     await dbStoreContestation({
       taskid,
