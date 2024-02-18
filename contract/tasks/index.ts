@@ -222,6 +222,25 @@ task("engine:pause", "Pause engine")
   console.log(`Engine is now ${paused ? 'paused' : 'unpaused'}`);
 });
 
+task("engine:setVersion", "Set engine version for miner check")
+.addParam("n", "Version Number")
+.setAction(async ({ n }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+  const tx = await engine.setVersion(n);
+  await tx.wait();
+  const versionNow = await engine.version();
+  console.log(`Engine is now version ${versionNow}`);
+});
+
+task("engine:version", "Set engine version for miner check")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+  const versionNow = await engine.version();
+  console.log(`Engine is now version ${versionNow}`);
+});
+
 task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
