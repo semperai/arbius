@@ -77,6 +77,20 @@ import {
   getValidatorStaked,
 } from './blockchain';
 
+// type interfaces;
+interface LookupResult {
+  model: string;
+  cid: string;
+}
+
+interface TaskInput {
+  data: string;
+}
+
+interface SolutionDetails {
+  cid: string;
+}
+
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
 async function lookupAndInsertTask(taskid: string): Promise<Task> {
@@ -234,86 +248,155 @@ async function eventHandlerTaskRetracted(taskid: string, evt: ethers.Event) {
 }
 
 async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) {
-  log.debug('Event.SolutionSubmitted', taskid);
+  try {
+    return new Promise(async (resolve, reject) => {
+      const existing = await dbGetSolution(taskid);
 
-  return new Promise(async (resolve, reject) => {
-    const existing = await dbGetSolution(taskid);
-    if (existing) {
-      log.debug(`Solution (${taskid}) already in db`);
+      if (existing) {
+        log.debug(`Solution (${taskid}) already in db`);
+        return resolve(true);
+      }
+
+      const { owner } = await expretry(async () => await arbius.tasks(taskid));
+
+      console.log(`Owner of the solution ${owner}`);
+      // change this number dynamically as we get more data on slashing the contract miner
+      if (Math.random() < 100) {
+        const lookup = (await expretry(async () => await lookupAndInsertTask(taskid))) as LookupResult;
+        if (!lookup) {
+          throw new Error("could not look up task -> eventHandlerSolutionSubmitted");
+        }
+        const { model, cid: inputCid } = lookup;
+
+        const m = getModelById(EnabledModels, model);
+        if (m === null) {
+          log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerSolutionSubmitted`);
+          return;
+        }
+
+        const taskInput = (await dbGetTaskInput(taskid, inputCid)) as TaskInput | null;
+        if (taskInput === null) {
+          log.warn(`Task (${taskid}) input not found in db -> eventHandlerSolutionSubmitted`);
+          return;
+        }
+
+        const input = JSON.parse(taskInput.data);
+
+        const cid = await m.getcid(c, m, taskid, input);
+
+        const solution = (await expretry(async () => await arbius.solutions(taskid))) as SolutionDetails;
+
+        if (solution.cid === cid) {
+          // since this CID is valid, no need to contest it
+          log.info(`Solution CID matches our local CID for ${taskid}  -> eventHandlerSolutionSubmitted`);
+          return;
+        }
+
+        log.info(`Solution found with cid ${solution.cid} does not match ours ${cid}  -> eventHandlerSolutionSubmitted`);
+        await contestSolution(taskid);
+      }
+
+      log.debug(`Solution (${taskid}) already in db  -> eventHandlerSolutionSubmitted`);
       return resolve(true);
-    }
 
-    const {
-      validator,
-      blocktime,
-      claimed,
-      cid,
-    } = await expretry(async () => await arbius.solutions(taskid));
+      const { validator, blocktime, claimed, cid } = await expretry(async () => await arbius.solutions(taskid));
 
-    const invalidTask = await dbGetInvalidTask(taskid);
-    if (invalidTask != null) {
-      await contestSolution(taskid);
-    }
+      const invalidTask = await dbGetInvalidTask(taskid);
+      if (invalidTask != null) {
+        await contestSolution(taskid);
+      }
 
-    await dbStoreSolution({
-      taskid,
-      validator,
-      blocktime,
-      claimed,
-      cid,
+      await dbStoreSolution({
+        taskid,
+        validator,
+        blocktime,
+        claimed,
+        cid,
+      });
     });
-  });
-}
+  } catch (e) {
+    log.error("An error occurred in eventHandlerSolutionSubmitted  -> eventHandlerSolutionSubmitted", e);
+    throw e;
+  }
+} 
 
 async function eventHandlerContestationSubmitted(
   validator: string,
   taskid: string,
   evt: ethers.Event,
 ) {
-  log.debug('Event.ContestationSubmitted', taskid);
-
   return new Promise(async (resolve, reject) => {
-    const existing = await dbGetContestation(taskid);
-    if (existing) {
-      log.debug(`Contestation ${taskid} already in db`);
-      return resolve(true);
-    }
-
-    const {
-      validator, // TODO validator is being overwritten here (does it matter?)
-      blocktime,
-      finish_start_index,
-    } = await expretry(async () => await arbius.contestations(taskid));
 
     const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(validator, taskid));
     const canVote = canVoteStatus === 0x0; // success code
 
-    log.debug("Event.ContestationSubmitted canVote status", canVote);
-
-    if (canVote) {
-      const invalidTask = await dbGetInvalidTask(taskid);
-      if (invalidTask != null) {
-        await voteOnContestation(taskid, true);
-      } else {
-        const task = await lookupAndInsertTask(taskid);
-        // TODO solve task if we havent already
-        // and then vote on contestation
-        
-
-        // voteOnContestation(taskid, cid !== solution.cid);
-      }
+    if (! canVote) {
+      log.debug(`Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
+      return;
     }
 
+    const existing = await dbGetContestation(taskid);
 
+    if (existing) {
+      log.debug(`Contestation ${taskid} already in db -> eventHandlerContestationSubmitted`);
+      return resolve(true);
+    }
 
+    // Fetch contestation details (original line had a naming conflict)
+    const contestationDetails = await expretry(async () => await arbius.contestations(taskid));
+
+    const lookup = await expretry(async () => await lookupAndInsertTask(taskid));
+    if (!lookup) {
+      log.error("could not look up task -> eventHandlerContestationSubmitted");
+      return reject(new Error("Could not look up task -> eventHandlerContestationSubmitted"));
+    }
+    const { model, cid: inputCid } = lookup;
+
+    const m = getModelById(EnabledModels, model);
+
+    if (m === null) {
+      log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerContestationSubmitted`);
+      return;
+    }
+
+    const taskInput = await dbGetTaskInput(taskid, inputCid);
+
+    if (!taskInput) {
+      log.warn(`Task (${taskid}) input not found in db -> eventHandlerContestationSubmitted`);
+      return;
+    }
+    const input = JSON.parse(taskInput.data);
+    const expectedCid = await m.getcid(c, m, taskid, input);
+
+    // Fetch contested solution details
+    const solution = await expretry(async () => await arbius.solutions(taskid));
+
+    // Compare CIDs and decide on voting
+    if (solution.cid !== expectedCid) {
+      await voteOnContestation(taskid, true); // Assuming true votes for the contestation
+      log.info(`Contested CID does not match expected CID for ${taskid}. Voting in favor.  -> eventHandlerContestationSubmitted`);
+      await voteOnContestation(taskid, true);
+    } else {
+      // we may not want to vote to save gas idk?????
+      log.info(`Contested CID matches expected CID for ${taskid}. No action taken.  -> eventHandlerContestationSubmitted`);
+      await voteOnContestation(taskid, false);
+    }
+
+    // Store contestation details in db
     await dbStoreContestation({
       taskid,
-      validator,
-      blocktime,
-      finish_start_index,
+      validator: contestationDetails.validator,
+      blocktime: contestationDetails.blocktime,
+      finish_start_index: contestationDetails.finish_start_index,
     });
+
+    resolve(true);
+  }).catch((e) => {
+    log.error("An error occurred -> eventHandlerContestationSubmitted ", e);
+    throw e;
   });
 }
+
 
 async function eventHandlerContestationVote(
   validator: string,
@@ -608,9 +691,10 @@ async function processSolve(taskid: string) {
   const {
     validator: solutionValidator,
     blocktime: solutionBlocktime,
-    claimed:   solutionClaimed,
-    cid:       solutionCid,
+    claimed: solutionClaimed,
+    cid: solutionCid
   } = await expretry(async () => await arbius.solutions(taskid));
+  const { owner } = await expretry(async () => await arbius.tasks(taskid));
 
   if (solutionValidator !== ethers.constants.AddressZero) {
     log.debug(`Task (${taskid}) already has solution`);
@@ -619,13 +703,10 @@ async function processSolve(taskid: string) {
   }
 
   const lookup = await expretry(async () => await lookupAndInsertTask(taskid));
-  if (! lookup) {
-    throw new Error('could not look up task');
+  if (!lookup) {
+    throw new Error("could not look up task");
   }
-  const {
-    model,
-    cid: inputCid,
-  } = lookup;
+  const { model, cid: inputCid } = lookup;
 
   const m = getModelById(EnabledModels, model);
   if (m === null) {
@@ -643,18 +724,13 @@ async function processSolve(taskid: string) {
   const input = JSON.parse(taskInput.data);
 
   const cid = await m.getcid(c, m, taskid, input);
-  if (! cid) {
+  if (!cid) {
     log.error(`Task (${taskid}) CID could not be generated`);
     return;
   }
   log.info(`CID ${cid} generated`);
 
-  const commitment = generateCommitment(
-    wallet.address,
-    taskid,
-    cid,
-  );
-
+  const commitment = generateCommitment(wallet.address, taskid, cid);
 
   try {
     const tx = await arbius.signalCommitment(commitment, {
@@ -669,46 +745,50 @@ async function processSolve(taskid: string) {
 
   // we will retry in case we didnt wait long enough for commitment
   // if this fails otherwise, it could be because another submitted solution
-  await expretry(async () => {
-    try {
-      log.debug(`Submitting solution ${taskid} ${cid}`);
-      const tx = await solver.submitSolution(taskid, cid, {
-        gasLimit: 500_000,
-      });
-      const receipt = await tx.wait();
-      log.info(`Solution submitted in ${receipt.transactionHash}`);
+  await expretry(
+    async () => {
+      try {
+        log.debug(`Submitting solution ${taskid} ${cid}`);
+        const tx = await solver.submitSolution(taskid, cid, {
+          gasLimit: 500_000,
+        });
+        const receipt = await tx.wait();
+        log.info(`Solution submitted in ${receipt.transactionHash}`);
 
-      await dbQueueJob({
-        method: 'claim',
-        priority: 50,
-        waituntil: now()+2000+120, // 1 min buffer to avoid time drift claim issues
-        concurrent: false,
-        data: {
-          taskid,
-        },
-      });
-    } catch (e) {
-      log.debug(JSON.stringify(e));
-      const {
-        validator: existingSolutionValidator,
-        blocktime: existingSolutionBlocktime,
-        claimed:   existingSolutionClaimed,
-        cid:       existingSolutionCid,
-      } = await expretry(async () => await arbius.solutions(taskid));
+        await dbQueueJob({
+          method: "claim",
+          priority: 50,
+          waituntil: now() + 2000 + 120, // 1 min buffer to avoid time drift claim issues
+          concurrent: false,
+          data: {
+            taskid,
+          },
+        });
+      } catch (e) {
+        log.debug(JSON.stringify(e));
+        const {
+          validator: existingSolutionValidator,
+          blocktime: existingSolutionBlocktime,
+          claimed: existingSolutionClaimed,
+          cid: existingSolutionCid,
+        } = await expretry(async () => await arbius.solutions(taskid));
 
-      if (existingSolutionValidator === ethers.constants.AddressZero) {
-        throw new Error(`An unknown error occurred when tried to submit solution for ${taskid} with cid ${cid} -- ${JSON.stringify(e)}`);
+        if (existingSolutionValidator === ethers.constants.AddressZero) {
+          throw new Error(`An unknown error occurred when tried to submit solution for ${taskid} with cid ${cid} -- ${JSON.stringify(e)}`);
+        }
+
+        if (existingSolutionCid === cid) {
+          log.info(`Solution found for ${taskid} matches our cid ${cid}`);
+          return;
+        }
+
+        log.info(`Solution found with cid ${existingSolutionCid} does not match ours ${cid}`);
+        await contestSolution(taskid);
       }
-
-      if (existingSolutionCid === cid) {
-        log.info(`Solution found for ${taskid} matches our cid ${cid}`);
-        return;
-      }
-
-      log.info(`Solution found with cid ${existingSolutionCid} does not match ours ${cid}`);
-      await contestSolution(taskid);
-    }
-  }, 3, 1.25);
+    },
+    3,
+    1.25
+  );
 }
 
 async function contestSolution(taskid: string) {
@@ -1017,6 +1097,8 @@ export async function main() {
   log.debug("Clearing old automatically added retry jobs");
   dbClearJobsByMethod('validatorStake');
   dbClearJobsByMethod('automine');
+  dbClearJobsByMethod("task");
+  dbClearJobsByMethod("solve");
 
   log.debug("Bootup check");
   await versionCheck();
