@@ -254,7 +254,7 @@ async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) 
 
       if (existing) {
         log.debug(`Solution (${taskid}) already in db`);
-        return resolve(true);
+        // return resolve(true);
       }
 
       const { owner } = await expretry(async () => await arbius.tasks(taskid));
