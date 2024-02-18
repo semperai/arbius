@@ -481,7 +481,7 @@ async function processContestationVoteFinish(
   // TODO update when we have more than 10000 miners
   for (let idx=0; idx<10000; idx++) {
     const a = await expretry(async () => await arbius.contestationVoteYeas(taskid, idx), 3, 1.25);
-    if (a === ethers.constants.AddressZero) {
+    if (a === "0x0000000000000000000000000000000000000000") {
       break;
     }
     ++total;
@@ -489,7 +489,7 @@ async function processContestationVoteFinish(
 
   for (let idx=0; idx<10000; idx++) {
     const a = await expretry(async () => await arbius.contestationVoteNays(taskid, idx), 3, 1.25);
-    if (a === ethers.constants.AddressZero) {
+    if (a === "0x0000000000000000000000000000000000000000") {
       break;
     }
     ++total;
@@ -687,7 +687,7 @@ async function processSolve(taskid: string) {
   } = await expretry(async () => await arbius.solutions(taskid));
   const { owner } = await expretry(async () => await arbius.tasks(taskid));
 
-  if (solutionValidator !== ethers.constants.AddressZero) {
+  if (solutionValidator !== "0x0000000000000000000000000000000000000000") {
     log.debug(`Task (${taskid}) already has solution`);
     // TODO we may want to not do this right now for checking cid for solutions? maybe?
     return; // TODO some % of the time we should attempt any way
@@ -764,7 +764,7 @@ async function processSolve(taskid: string) {
           cid: existingSolutionCid,
         } = await expretry(async () => await arbius.solutions(taskid));
 
-        if (existingSolutionValidator === ethers.constants.AddressZero) {
+        if (existingSolutionValidator === "0x0000000000000000000000000000000000000000") {
           throw new Error(`An unknown error occurred when tried to submit solution for ${taskid} with cid ${cid} -- ${JSON.stringify(e)}`);
         }
 
@@ -806,7 +806,7 @@ async function contestSolution(taskid: string) {
     } = await expretry(async () => await arbius.contestations(taskid));
 
     // someone else contested first
-    if (existingContestationValidator === ethers.constants.AddressZero) {
+    if (existingContestationValidator === "0x0000000000000000000000000000000000000000") {
       log.error(`An unknown error occurred when we tried to contest ${taskid}`);
       return;
     }
@@ -848,7 +848,7 @@ async function processClaim(taskid: string) {
 
     const { validator: contestationValidator } = await expretry(async () => await arbius.contestations(taskid));
     log.debug("processClaim [contestationValidator]", contestationValidator);
-    if (contestationValidator !== ethers.constants.AddressZero) {
+    if (contestationValidator !== "0x0000000000000000000000000000000000000000") {
       log.error(`Contestation found for solution ${taskid}, cannot claim`);
       return null;
     }
