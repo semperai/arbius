@@ -285,17 +285,26 @@ async function eventHandlerContestationSubmitted(
       finish_start_index,
     } = await expretry(async () => await arbius.contestations(taskid));
 
-    // TODO if we are the validator, then we should skip checking the task
-    //
-    // TODO check if we have already voted, if so skip
+    const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(validator, taskid));
+    const canVote = canVoteStatus === 0x0; // success code
 
-    const invalidTask = await dbGetInvalidTask(taskid);
-    if (invalidTask != null) {
-      await voteOnContestation(taskid, true);
+    log.debug("Event.ContestationSubmitted canVote status", canVote);
+
+    if (canVote) {
+      const invalidTask = await dbGetInvalidTask(taskid);
+      if (invalidTask != null) {
+        await voteOnContestation(taskid, true);
+      } else {
+        const task = await lookupAndInsertTask(taskid);
+        // TODO solve task if we havent already
+        // and then vote on contestation
+        
+
+        // voteOnContestation(taskid, cid !== solution.cid);
+      }
     }
 
-    // TODO if we havent mined task yet, do so
-    // TODO TODO TODO add logic from triage
+
 
     await dbStoreContestation({
       taskid,
