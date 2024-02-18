@@ -16,15 +16,14 @@ async function start(configPath: string) {
     console.error(`unable to parse ${configPath}`);
     process.exit(1);
   }
-  
+
+  initializeLogger(c.log_path);
   if (c.evilmode) {
     for (let i=0; i<20; ++i) {
       log.warn('YOU HAVE EVIL MODE ENABLED, YOU WILL BE SLASHED');
       log.warn('KILL YOUR MINER IMMEDIATELY IF NOT ON TESTNET');
     }
   }
-  
-  initializeLogger(c.log_path);
 
   try {
     const rev = child_process.execSync('git rev-parse HEAD').toString().trim();

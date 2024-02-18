@@ -981,7 +981,12 @@ export async function main() {
 
   log.debug("Bootup check");
   await versionCheck();
-  {
+  if (c.evilmode) {
+    for (let i=0; i<20; ++i) {
+      log.warn('YOU HAVE EVIL MODE ENABLED, YOU WILL BE SLASHED');
+      log.warn('KILL YOUR MINER IMMEDIATELY IF NOT ON TESTNET');
+    }
+  } else {
     const m = getModelById(EnabledModels, Config.models.kandinsky2.id);
     if (m === null) {
       process.exit(1);
