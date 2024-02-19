@@ -94,6 +94,7 @@ interface SolutionDetails {
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
 const mathpercent = 100;
+const minerVersion = BigNumber.from('1');
 
 async function lookupAndInsertTask(taskid: string): Promise<Task> {
   return new Promise(async (resolve, reject) => {
@@ -1102,7 +1103,6 @@ export async function processJobs(jobs: DBJob[]) {
 }
 
 async function versionCheck() {
-  const minerVersion = BigNumber.from('0');
   const arbiusVersion = await arbius.version();
   if (arbiusVersion.lte(minerVersion)) {
     log.info(`Arbius version (${arbiusVersion}) fits miner version (${minerVersion})`);
