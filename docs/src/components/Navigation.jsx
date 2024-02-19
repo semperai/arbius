@@ -197,13 +197,19 @@ export const navigation = [
     ],
   },
   {
-    title: 'Resources',
+    title: 'Contract',
     links: [
       { title: 'Models', href: '/models' },
       { title: 'Validators', href: '/validators' },
       { title: 'Tasks', href: '/tasks' },
       { title: 'Solutions', href: '/solutions' },
       { title: 'Contestations', href: '/contestations' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { title: 'Team', href: '/team' },
       { title: 'Security', href: '/security' },
       { title: 'Contracts', href: '/ca' },
       { title: 'Whitepaper', href: 'https://arbius.ai/paper.pdf' },
