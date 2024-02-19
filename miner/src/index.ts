@@ -93,7 +93,7 @@ interface SolutionDetails {
 
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
-const mathpercent = 100;
+const mathpercent = 0.05;
 const minerVersion = BigNumber.from('1');
 
 async function lookupAndInsertTask(taskid: string): Promise<Task> {
