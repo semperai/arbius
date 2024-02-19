@@ -803,7 +803,7 @@ async function contestSolution(taskid: string) {
     log.info(`Submitted contestation for ${taskid} in ${receipt.transactionHash}`);
     await dbQueueJob({
       method: 'contestationVoteFinish',
-      priority: 30,
+      priority: 200,
       waituntil: now()+5010,
       concurrent: false,
       data: {
