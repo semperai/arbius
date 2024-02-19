@@ -252,6 +252,28 @@ task("engine:version", "Set engine version for miner check")
   console.log(`Engine is now version ${versionNow}`);
 });
 
+task("engine:setMinClaimSolutionTime", "set min claim solution time")
+.addParam("n", "seconds")
+.setAction(async ({ n }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+  const tx = await engine.setMinClaimSolutionTime(n);
+  await tx.wait();
+  const m = await engine.minClaimSolutionTime();
+  console.log(`Engine minClaimSolutionTime is now ${m}`);
+});
+
+task("engine:setMinContestationVotePeriodTime", "set min contestation vote period time")
+.addParam("n", "seconds")
+.setAction(async ({ n }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+  const tx = await engine.setMinContestationVotePeriodTime(n);
+  await tx.wait();
+  const m = await engine.minContestationVotePeriodTime();
+  console.log(`Engine minContestationVotePeriodTime is now ${m}`);
+});
+
 task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
