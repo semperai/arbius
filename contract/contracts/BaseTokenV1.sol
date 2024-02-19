@@ -38,8 +38,8 @@ contract BaseTokenV1 is
         address _l2Gateway,
         address _l1TokenAddress
     ) public initializer {
-        __ERC20_init("TEST", "TEST");
-        __ERC20Permit_init("TEST");
+        __ERC20_init("Arbius", "AIUS");
+        __ERC20Permit_init("Arbius");
         __ERC20Votes_init();
         __Ownable_init();
 

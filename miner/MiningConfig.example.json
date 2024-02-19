@@ -22,7 +22,7 @@
     "enabled": false,
     "delay": 60,
     "version": 0,
-    "model": "0x3ac907e782b35cf2096eadcbd5d347fb7705db98526adcd2232ea560abbbef90",
+    "model": "0x82ae0d19f32b6912204160f8d744de08265b7775d07c23b4171c94c8e2892c62",
     "fee": "0",
     "input": {
       "prompt": "CHANGEME to a unique prompt",
@@ -38,7 +38,7 @@
     },
     "cog": {
       "//": "set this key to the model id",
-      "0x3ac907e782b35cf2096eadcbd5d347fb7705db98526adcd2232ea560abbbef90": {
+      "0x82ae0d19f32b6912204160f8d744de08265b7775d07c23b4171c94c8e2892c62": {
         "url": "CHANGEME"
       }
     }
