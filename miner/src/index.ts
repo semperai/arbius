@@ -317,7 +317,7 @@ async function eventHandlerContestationSubmitted(
   return new Promise(async (resolve, reject) => {
 
     const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(validator, taskid));
-    const canVote = canVoteStatus === 0x0; // success code
+    const canVote = canVoteStatus == 0x0; // success code
 
     if (! canVote) {
       log.debug(`Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
@@ -480,22 +480,26 @@ async function processContestationVoteFinish(
 
   // TODO update when we have more than 10000 miners
   for (let idx=0; idx<10000; idx++) {
-    const a = await expretry(async () => await arbius.contestationVoteYeas(taskid, idx), 3, 1.25);
-    if (a == "0x0000000000000000000000000000000000000000") {
+    const a = await expretry(async () => await arbius.contestationVoteYeas(taskid, idx), 1, 0);
+    log.debug('yeas', 'a', a, 'idx', idx);
+    if (!a || a == "0x0000000000000000000000000000000000000000") {
       break;
     }
     ++total;
   }
 
   for (let idx=0; idx<10000; idx++) {
-    const a = await expretry(async () => await arbius.contestationVoteNays(taskid, idx), 3, 1.25);
-    if (a == "0x0000000000000000000000000000000000000000") {
+    const a = await expretry(async () => await arbius.contestationVoteNays(taskid, idx), 1, 0);
+    log.debug('nays', 'a', a, 'idx', idx);
+    if (!a || a == "0x0000000000000000000000000000000000000000") {
       break;
     }
     ++total;
   }
+  log.debug('total', total);
 
   const finishStartIndex = await expretry(async () => await arbius.contestations(taskid)).then((x) => x.finish_start_index);
+  log.debug('finishStartIndex', finishStartIndex);
 
   if (finishStartIndex >= total) {
     log.debug(`ContestationVoteFinish ${taskid} already finished`);
@@ -828,7 +832,7 @@ async function contestSolution(taskid: string) {
 
 async function voteOnContestation(taskid: string, yea: boolean) {
   const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(wallet.address, taskid));
-  const canVote = canVoteStatus === 0x0; // success code
+  const canVote = canVoteStatus == 0x0; // success code
 
   if (! canVote) {
     log.debug(`[voteOnContestation] Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
