@@ -863,6 +863,17 @@ async function processClaim(taskid: string) {
     log.debug("processClaim [contestationValidator]", contestationValidator);
     if (contestationValidator != "0x0000000000000000000000000000000000000000") {
       log.error(`Contestation found for solution ${taskid}, cannot claim`);
+
+      await dbQueueJob({
+        method: 'contestationVoteFinish',
+        priority: 200,
+        waituntil: now()+240+20,
+        concurrent: false,
+        data: {
+          taskid,
+        },
+      });
+
       return null;
     }
 
