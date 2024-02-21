@@ -916,7 +916,7 @@ async function processClaim(taskid: string) {
       await dbQueueJob({
         method: 'contestationVoteFinish',
         priority: 200,
-        waituntil: now()+240+20,
+        waituntil: now()+5010,
         concurrent: false,
         data: {
           taskid,
