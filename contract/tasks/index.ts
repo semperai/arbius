@@ -17,6 +17,40 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+
+const bulkSubmitterAddress = '0x4f87C8fe7f4b719b45229d8EC87aDe8c5e9d0137';
+
+task("bulk:task", "")
+.setAction(async ({ }, hre) => {
+  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
+  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
+  const tx = await bulkSubmitter.bulkTask();
+  const receipt = await tx.wait();
+  console.log(receipt);
+});
+
+task("bulk:deposit", "")
+.addParam("amount", "amount")
+.setAction(async ({ amount }, hre) => {
+  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
+  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
+  const tx = await bulkSubmitter.deposit(hre.ethers.utils.parseEther(amount));
+  const receipt = await tx.wait();
+  console.log(receipt);
+});
+
+task("bulk:solution", "")
+.setAction(async ({ amount }, hre) => {
+  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
+  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
+  const tx = await bulkSubmitter.bulkSolution([
+    // taskids
+  ]);
+  const receipt = await tx.wait();
+  console.log(receipt);
+});
+
+
 task("decode-tx", "Extract input from a submitTask transaction")
 .addParam("txid", "transaction hash")
 .setAction(async ({ txid }, hre) => {
@@ -31,6 +65,17 @@ task("decode-tx", "Extract input from a submitTask transaction")
 
   const input = Buffer.from(parsed.args.input_.substring(2), 'hex').toString();
   console.log(input);
+});
+
+task("mint", "Mint tokens")
+.addParam("to", "address")
+.addParam("amount", "amount")
+.setAction(async ({ to, amount }, hre) => {
+    const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
+    const baseToken = await BaseToken.attach(Config.baseTokenAddress);
+    const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
+    await tx.wait();
+    console.log(`minted ${amount} tokens to ${to}`);
 });
 
 task("mine", "mine blocks locally")

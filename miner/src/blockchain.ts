@@ -4,7 +4,7 @@ import { c } from './mc';
 import Config from './config.json';
 import { expretry } from './utils';
 
-import EngineArtifact from './artifacts/contracts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from './artifacts/contracts/EngineV2.sol/EngineV2.json';
 import BaseTokenArtifact from './artifacts/contracts/BaseTokenV1.sol/BaseTokenV1.json';
 // import GovernorArtifact from './artifacts/contracts/GovernorV1.sol/GovernorV1.json';
 // import DelegatedValidator from './artifacts/contracts/DelegatedValidatorV1.sol/DelegatedValidatorV1.json';

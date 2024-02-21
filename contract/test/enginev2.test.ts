@@ -4,7 +4,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "./chai-setup";
 import { Signer } from "ethers";
 import { BaseTokenV1 as BaseToken } from "../typechain/BaseTokenV1";
-import { EngineV2 as Engine } from "../typechain/EngineV1";
+import { EngineV2 } from "../typechain/EngineV2";
 
 const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
 const TESTBUF = '0x746573740a';
@@ -24,7 +24,7 @@ describe("EngineV2 Unit Tests", () => {
   let newowner:   SignerWithAddress;
 
   let baseToken: BaseToken;
-  let engine: Engine;
+  let engine: EngineV2;
 
   beforeEach("Deploy and initialize", async () => {
     signers = await ethers.getSigners();
@@ -49,17 +49,17 @@ describe("EngineV2 Unit Tests", () => {
     await baseToken.deployed();
     // console.log("BaseToken deployed to:", baseToken.address);
 
-    const Engine = await ethers.getContractFactory(
+    const EngineV2 = await ethers.getContractFactory(
       "EngineV2"
     );
-    engine = (await upgrades.deployProxy(Engine, [
+    engine = (await upgrades.deployProxy(EngineV2, [
       baseToken.address,
       await treasury.getAddress(),
-    ])) as Engine;
+    ])) as EngineV2;
     await engine.deployed();
     // console.log("Engine deployed to:", engine.address);
     
-    engine = await upgrades.upgradeProxy(engine.address, Engine);
+    engine = await upgrades.upgradeProxy(engine.address, EngineV2) as EngineV2;
     // console.log("Engine upgraded");
 
     await (await engine
@@ -155,10 +155,10 @@ describe("EngineV2 Unit Tests", () => {
       ).wait();
   }
 
-  async function deployBootstrapTask(modelid: string): Promise<string> {
+  async function deployBootstrapTask(modelid: string, submitter?: SignerWithAddress): Promise<string> {
     const taskParams = await bootstrapTaskParams(modelid);
     const taskidReceipt = await (await engine
-      .connect(user1)
+      .connect(submitter ?? user1)
       .submitTask(
         taskParams.version,
         taskParams.owner,
@@ -245,6 +245,9 @@ describe("EngineV2 Unit Tests", () => {
 
       const cid = TESTCID;
 
+      const reward = await engine.getReward();
+      const { staked: stakedBefore } = await engine.validators(await validator1.getAddress());
+
       const commitment = await engine.generateCommitment(
         await validator1.getAddress(),
         taskid,
@@ -260,6 +263,10 @@ describe("EngineV2 Unit Tests", () => {
         .submitSolution(taskid, cid)
       ).wait();
 
+      const { staked: stakedAfter } = await engine.validators(await validator1.getAddress());
+
+      expect(stakedBefore.sub(stakedAfter)).to.equal(ethers.utils.parseEther('0.001'));
+
       // MIN_CLAIM_SOLUTION_TIME
       await ethers.provider.send("evm_increaseTime", [3600]);
       await ethers.provider.send("evm_mine", []);
@@ -269,6 +276,372 @@ describe("EngineV2 Unit Tests", () => {
         .claimSolution(taskid)
       ).to.emit(engine, 'SolutionClaimed')
       .withArgs(await validator1.getAddress(), taskid);
+
+      const { staked: stakedFinal } = await engine.validators(await validator1.getAddress());
+
+      expect(stakedFinal.sub(stakedBefore)).to.equal(reward);
+    });
+
+    it("failed contestation due to no other voters", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      for (const validator of [validator2, validator3]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4').sub(ethers.utils.parseEther('0.001')));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+    });
+
+    it("successful contestation with 1 other voter", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      // make 3 validators
+      for (const validator of [validator2, validator3]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(
+        engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).to.emit(engine, "ContestationVoteFinish")
+      .withArgs(taskid, 0, 3);
+
+      const finish_start_index = (await engine.contestations(taskid)).finish_start_index;
+      expect(finish_start_index).to.equal(3);
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4').sub(ethers.utils.parseEther('0.001')));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4').add(ethers.utils.parseEther('0.001')));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+    });
+
+    it("successful contestation with 1 other voter, contested validator can not submit other solutions until cooldown", async () => {
+      await deployBootstrapValidator();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      // make 3 validators
+      for (const validator of [validator2, validator3]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(
+        engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).to.emit(engine, "ContestationVoteFinish")
+      .withArgs(taskid, 0, 3);
+
+      const finish_start_index = (await engine.contestations(taskid)).finish_start_index;
+      expect(finish_start_index).to.equal(3);
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4').sub(ethers.utils.parseEther('0.001')));
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4').add(ethers.utils.parseEther('0.001')));
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4'));
+
+      expect((await engine.lastContestationLossTime(await validator1.getAddress())).toNumber()).to.be.greaterThan(0);
+      expect(engine.connect(validator1).claimSolution(taskid)).to.be.revertedWith('claimSolution cooldown after lost contestation');
+
+      // validator1 submits another task and solution
+      const taskid2 = await deployBootstrapTask(modelid, validator1);
+      const commitment2 = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid2,
+        cid
+      );
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment2)).wait();
+
+      await expect(engine
+        .connect(validator1)
+        .submitSolution(taskid2, cid)
+      ).to.be.revertedWith('submitSolution cooldown after lost contestation');
+
+      // wait the cooldown time
+      await ethers.provider.send("evm_increaseTime", [40000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(engine
+        .connect(validator1)
+        .submitSolution(taskid2, cid)
+      ).not.to.be.revertedWith('submitSolution cooldown after lost contestation');
+    });
+
+    it("failed contestation due to no other voters, slashing reached", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      for (const validator of [validator1, validator2, validator3]) {
+        // have validators become validators
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0'));
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072').sub(ethers.utils.parseEther('0.001'))); // paid the contestation stake and solutionsStake
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072')); // paid the contestation stake
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await (await engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).wait();
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0.29928')); // contestation reward
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0')); // balance unchanged
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4')); // stake effectively unchanged
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072')); // stake reduced by contestation amount
+    });
+
+    it("successful contestation with 1 other voter, slashing reached2", async () => {
+      await deployBootstrapEngineSlashingReached();
+      const modelid = await deployBootstrapModel();
+      const taskid = await deployBootstrapTask(modelid);
+
+      await (await engine
+        .connect(deployer) // initial owner
+        .setSolutionMineableRate(modelid, ethers.utils.parseEther('1'))
+      ).wait();
+
+      // make 3 validators
+      for (const validator of [validator1, validator2, validator3]) {
+        await (await baseToken
+          .connect(deployer)
+          .transfer(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+        await (await engine
+          .connect(validator)
+          .validatorDeposit(await validator.getAddress(), ethers.utils.parseEther('2.4'))
+        ).wait();
+      }
+
+      const cid = TESTCID;
+      const commitment = await engine.generateCommitment(
+        await validator1.getAddress(),
+        taskid,
+        cid
+      );
+
+      // validator1 submits solution
+      await (await engine
+        .connect(validator1)
+        .signalCommitment(commitment)).wait();
+
+      await (await engine
+        .connect(validator1)
+        .submitSolution(taskid, cid)
+      ).wait();
+
+      // validator2 submits contestation
+      await (await engine
+        .connect(validator2)
+        .submitContestation(taskid)
+      ).wait();
+
+      // validator3 votes yes on contestation
+      await (await engine
+        .connect(validator3)
+        .voteOnContestation(taskid, true)
+      ).wait();
+
+
+      // CONTESTATION_VOTE_PERIOD_TIME
+      await ethers.provider.send("evm_increaseTime", [4000]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(
+        engine
+        .connect(validator1)
+        .contestationVoteFinish(taskid, 3)
+      ).to.emit(engine, "ContestationVoteFinish")
+      .withArgs(taskid, 0, 3);
+
+      const finish_start_index = (await engine.contestations(taskid)).finish_start_index;
+      expect(finish_start_index).to.equal(3);
+
+      expect(await baseToken.balanceOf(await validator1.getAddress())).to.equal(ethers.utils.parseEther('0')); // balance unchanged
+      expect(await baseToken.balanceOf(await validator2.getAddress())).to.equal(ethers.utils.parseEther('0.14964')); // contestation reward
+      expect(await baseToken.balanceOf(await validator3.getAddress())).to.equal(ethers.utils.parseEther('0.14964')); // contestation reward
+      expect((await engine.validators(await validator1.getAddress())).staked).to.equal(ethers.utils.parseEther('2.10072').sub(ethers.utils.parseEther('0.001'))); // contestation penalty and solution stake
+      expect((await engine.validators(await validator2.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4').add(ethers.utils.parseEther('0.001'))); // staked contestation reward from solution stake
+      expect((await engine.validators(await validator3.getAddress())).staked).to.equal(ethers.utils.parseEther('2.4')); // stake unchanged
     });
   });
 

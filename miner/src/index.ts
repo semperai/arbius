@@ -94,7 +94,7 @@ interface SolutionDetails {
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
 const mathpercent = 0.05;
-const minerVersion = BigNumber.from('1');
+const minerVersion = BigNumber.from('2');
 
 async function lookupAndInsertTask(taskid: string): Promise<Task> {
   return new Promise(async (resolve, reject) => {
@@ -205,11 +205,21 @@ async function lookupAndInsertTaskInput(
   return input;
 }
 
+let alreadySeenTaskTx = new Set<string>();
 async function eventHandlerTaskSubmitted(
   taskid: string,
   evt: ethers.Event,
 ) {
   log.debug('Event.TaskSubmitted', taskid);
+  // log.debug(evt);
+
+  if (alreadySeenTaskTx.has(evt.transactionHash)) {
+    log.error("alreadySeenTaskTx", evt.transactionHash);
+    log.error("taskid", taskid);
+    return;
+  } else {
+    alreadySeenTaskTx.add(evt.transactionHash);
+  }
 
   const task = await lookupAndInsertTask(taskid);
   const txid = evt.transactionHash;
@@ -250,7 +260,17 @@ async function eventHandlerTaskRetracted(taskid: string, evt: ethers.Event) {
   });
 }
 
+let alreadySeenSolutionTx = new Set<string>();
 async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) {
+  // log.debug(evt);
+  if (alreadySeenSolutionTx.has(evt.transactionHash)) {
+    log.error("alreadySeenSolutionTx", evt.transactionHash);
+    log.error("taskid", taskid);
+    return;
+  } else {
+    alreadySeenSolutionTx.add(evt.transactionHash);
+  }
+
   try {
     const existing = await dbGetSolution(taskid);
     if (existing) {
@@ -315,6 +335,17 @@ async function eventHandlerContestationSubmitted(
   evt: ethers.Event,
 ) {
   log.error("eventHandlerContestationSubmitted", validator, taskid);
+
+  await dbQueueJob({
+    method: 'contestationVoteFinish',
+    priority: 200,
+    waituntil: now()+5010,
+    concurrent: false,
+    data: {
+      taskid,
+    },
+  });
+
   return new Promise(async (resolve, reject) => {
 
     const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(validator, taskid));
@@ -479,7 +510,9 @@ async function processContestationVoteFinish(
 
   let total = 0;
 
+  // TODO redo this messy logic to not be so slow
   // TODO update when we have more than 10000 miners
+  /*
   for (let idx=0; idx<10000; idx++) {
     const a = await expretry(async () => await arbius.contestationVoteYeas(taskid, idx), 1, 0);
     log.debug('yeas', 'a', a, 'idx', idx);
@@ -506,6 +539,7 @@ async function processContestationVoteFinish(
     log.debug(`ContestationVoteFinish ${taskid} already finished`);
     return;
   }
+  */
 
   // how many to process at time
   const amnt = 16;
@@ -527,11 +561,11 @@ async function processValidatorStake() {
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
   log.debug(`BCHK Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
 
-  // schedule checking every 10 mins
+  // schedule checking every 2 mins
   await dbQueueJob({
     method: 'validatorStake',
     priority: 100,
-    waituntil: now()+600,
+    waituntil: now()+120,
     concurrent: false,
     data: {
       validatorMinimum,
@@ -791,6 +825,13 @@ async function contestSolution(taskid: string) {
   try {
     log.info(`Attempt to contest ${taskid} solution`);
 
+    const validatorStake = await getValidatorStaked();
+    const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
+    if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
+      log.info("Validator stake is less than 110% of minimum, not contesting");
+      return;
+    }
+
     const { owner } = await expretry(async () => await arbius.tasks(taskid));
     log.debug(`contestSolution ${taskid} from ${owner}`);
     if (owner === wallet.address) {
@@ -837,6 +878,13 @@ async function voteOnContestation(taskid: string, yea: boolean) {
 
   if (! canVote) {
     log.debug(`[voteOnContestation] Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
+    return;
+  }
+
+  const validatorStake = await getValidatorStaked();
+  const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
+  if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
+    log.info("Validator stake is less than 110% of minimum, not voting");
     return;
   }
 

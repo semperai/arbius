@@ -138,8 +138,9 @@ contract EngineV2 is OwnableUpgradeable {
 
     mapping(bytes32 => uint256) public solutionsStake; // v2
     uint256 public solutionsStakeAmount; // v2
+    mapping(address => uint256) public lastContestationLossTime; // v2
 
-    uint256[46] __gap; // upgradeable gap
+    uint256[45] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
 
@@ -208,6 +209,7 @@ contract EngineV2 is OwnableUpgradeable {
     event MaxContestationValidatorStakeSinceChanged(uint256 indexed amount);
     event ExitValidatorMinUnlockTimeChanged(uint256 indexed amount);
     event SolutionStakeAmountChanged(uint256 indexed amount); // v2
+    event StartBlockTimeChanged(uint64 indexed startBlockTime); // v2
 
     /// @notice Modifier to restrict to only pauser
     modifier onlyPauser() {
@@ -392,6 +394,14 @@ contract EngineV2 is OwnableUpgradeable {
     function setSolutionStakeAmount(uint256 amount_) external onlyOwner {
         solutionsStakeAmount = amount_;
         emit SolutionStakeAmountChanged(amount_);
+    }
+
+    /// @notice Set start block time
+    /// @dev introduced in v2
+    /// @param startBlockTime_ Start block time
+    function setStartBlockTime(uint64 startBlockTime_) external onlyOwner {
+        startBlockTime = startBlockTime_;
+        emit StartBlockTimeChanged(startBlockTime_);
     }
 
     /// @notice Get slash amount
@@ -820,6 +830,15 @@ contract EngineV2 is OwnableUpgradeable {
             claimed: false
         });
 
+        // v2 (solutions must have been submitted after last successful contestation));
+        require(
+            block.timestamp >
+                lastContestationLossTime[solutions[taskid_].validator] +
+                    minClaimSolutionTime +
+                    minContestationVotePeriodTime,
+            "submitSolution cooldown after lost contestation"
+        );
+
         // v2
         solutionsStake[taskid_] = solutionsStakeAmount;
         validators[msg.sender].staked -= solutionsStakeAmount;
@@ -878,7 +897,7 @@ contract EngineV2 is OwnableUpgradeable {
         }
 
         // return solution staked amount to validator
-        validators[solutions[taskid_].validator].staked -= solutionsStake[
+        validators[solutions[taskid_].validator].staked += solutionsStake[
             taskid_
         ]; // v2
     }
@@ -887,6 +906,11 @@ contract EngineV2 is OwnableUpgradeable {
     /// @dev anyone can claim, reward goes to solution validator not claimer
     /// @param taskid_ Task hash
     function claimSolution(bytes32 taskid_) external notPaused {
+        // v2 (check if staked amount of validator is enough to claim)
+        require(validators[solutions[taskid_].validator].staked -
+                validatorWithdrawPendingAmount[solutions[taskid_].validator] >=
+                getValidatorMinimum(),
+            "validator min staked too low");
         require(
             solutions[taskid_].validator != address(0x0),
             "solution not found"
@@ -901,7 +925,17 @@ contract EngineV2 is OwnableUpgradeable {
                 block.timestamp - minClaimSolutionTime,
             "not enough delay"
         );
+        // v2 (solutions must have been submitted after last successful contestation)
+        require(
+            solutions[taskid_].blocktime >
+                lastContestationLossTime[solutions[taskid_].validator] +
+                    minClaimSolutionTime +
+                    minContestationVotePeriodTime,
+            "claimSolution cooldown after lost contestation"
+        );
+
         require(solutions[taskid_].claimed == false, "already claimed");
+
         solutions[taskid_].claimed = true;
 
         // put here so that this is first event
@@ -1099,6 +1133,8 @@ contract EngineV2 is OwnableUpgradeable {
                 // give solution staked amount to originator of contestation
                 validators[contestationVoteYeas[taskid_][0]]
                     .staked += solutionsStake[taskid_]; // v2
+
+                lastContestationLossTime[solutions[taskid_].validator] = block.timestamp;
             }
         } else {
             // this is for contestation failing
