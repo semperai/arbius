@@ -7,6 +7,7 @@ import { initializeML } from './ml';
 import { initializeBlockchain, wallet } from './blockchain';
 import { initializeRPC } from './rpc';
 import { main } from './index';
+import { checkIpfs } from './ipfs';
 
 async function start(configPath: string) {
   try {
@@ -19,7 +20,7 @@ async function start(configPath: string) {
 
   initializeLogger(c.log_path);
   if (c.evilmode) {
-    for (let i=0; i<20; ++i) {
+    for (let i = 0; i < 20; ++i) {
       log.warn('YOU HAVE EVIL MODE ENABLED, YOU WILL BE SLASHED');
       log.warn('KILL YOUR MINER IMMEDIATELY IF NOT ON TESTNET');
     }
@@ -33,18 +34,21 @@ async function start(configPath: string) {
   }
 
   log.debug(`Logging to ${c.log_path}`);
-  
+
   await initializeDatabase(c);
   log.debug(`Database loaded from ${c.db_path}`);
 
   await initializeML(c);
   log.debug(`ML initialized`);
-  
+
   await initializeBlockchain();
   log.debug(`Loaded wallet (${wallet.address})`);
 
   await initializeRPC();
   log.debug(`RPC initialized`);
+
+  await checkIpfs(c);
+  log.debug(`ipfs check passed`);
 
   await main();
   process.exit(0);
