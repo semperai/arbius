@@ -1062,7 +1062,7 @@ const EnabledModels = [
       const buf = Buffer.from(data, 'base64');
 
       const path = 'out-1.png';
-      fs.writeFileSync(`${__dirname}/../cache/${path}`, buf);
+      fs.writeFileSync(`${__dirname}/../${c.cache_path}/${path}`, buf);
 
       return [path];
     },

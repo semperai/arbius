@@ -3,6 +3,7 @@ import { BigNumber } from 'ethers';
 export interface MiningConfig {
   log_path: string|null;
   db_path: string;
+  cache_path: string;
   stake_buffer_percent: number;
   stake_buffer_topup_percent: number;
   evilmode: boolean;

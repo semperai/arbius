@@ -31,7 +31,7 @@ export async function pinFilesToIPFS(c: MiningConfig, taskid: string, paths: str
       initializeIpfsClient(c);
       const data = paths.map((path) => ({
         path,
-        content: fs.readFileSync(`${__dirname}/../cache/${path}`),
+        content: fs.readFileSync(`${__dirname}/../${c.cache_path}/${path}`),
       }));
 
       const options = {
@@ -52,7 +52,7 @@ export async function pinFilesToIPFS(c: MiningConfig, taskid: string, paths: str
       const formData = new FormData();
 
       for (let path of paths) {
-        formData.append('file', fs.createReadStream(`${__dirname}/../cache/${path}`), {
+        formData.append('file', fs.createReadStream(`${__dirname}/../${c.cache_path}/${path}`), {
           filepath: `${taskid}/${path}`,
         });
       }

@@ -1,6 +1,7 @@
 {
   "log_path": "log.txt",
   "db_path": "db.sqlite",
+  "cache_path": "cache",
   "stake_buffer_percent": 20,
   "stake_buffer_topup_percent": 1,
   "evilmode": false,
