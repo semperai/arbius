@@ -36,11 +36,11 @@ Community members have also managed to run the model on other cloud gpus such as
 ### RunPod
 You need to create a new GPU Pod with the Docker image.
 1. Create a new A100 GPU Pod and click deploy.
-2. Customize Deployment
-  i. Set the Docker Image to `r8.im/kasumi-1/kandinsky-2@sha256:373fa540ae197fc89f0679ed835bc4524152956d4f3027580244e10b09d6d3a5`
-  ii. Set the Storage to `60GB`
-  iii. Expose HTTP port `5000` if you wish to run the miner script on a different server.
-  iv. Set Overrides
+2. Customize Deployment.
+  1. Set the Docker Image to `r8.im/kasumi-1/kandinsky-2@sha256:373fa540ae197fc89f0679ed835bc4524152956d4f3027580244e10b09d6d3a5`.
+  2. Set the Storage to `60GB`.
+  3. Expose HTTP port `5000` if you wish to run the miner script on a different server.
+  4. Set Overrides.
 3. Click Continue and then Deploy.
 4. Go to pods page and wait for the pod to be ready and for the model to be downloaded then connect to the server either using the web terminal or ssh using the provided credentials.
 5. Setup mining software using the instructions found below.
@@ -49,15 +49,15 @@ You need to create a new GPU Pod with the Docker image.
 
 <Note>At the time of writing, the Vast GUI is broken and doesn't allow pasting the Docker image correctly and so you must use the GUI.</Note>
 
-1. Download Vast CLI from [here](https://cloud.vast.ai/cli/)
+1. Download Vast CLI from [here](https://cloud.vast.ai/cli/).
 2. Find a suitable instance using the GUI or the website and note it's id (found in the bottom left as `Type #<id>`).
 3. Run the following command after installing the Vast CLI, replacing `<instance-id>` with the number noted down earlier:
 
-<Note>Dependig on how you installed the Vast CLI you may need to replace `/.vast` with `vastai`.</Note>
+```bash
+./vast create instance <instance-id> --image r8.im/kasumi-1/kandinsky-2@sha256:373fa540ae197fc89f0679ed835bc4524152956d4f3027580244e10b09d6d3a5 --env '-p 5000:5000 -p 22:22' --onstart-cmd 'python -m cog.server.http' --jupyter-dir /src --ssh --direct --disk 100
+```
 
-> ```bash
-> ./vast create instance <instance-id> --image r8.im/kasumi-1/kandinsky-2@sha256:373fa540ae197fc89f0679ed835bc4524152956d4f3027580244e10b09d6d3a5 --env '-p 5000:5000 -p 22:22' --onstart-cmd 'python -m cog.server.http' --jupyter-dir /src --ssh --direct --disk 100
-> ```
+<Note>Dependig on how you installed the Vast CLI you may need to replace `/.vast` with `vastai`.</Note>
 
 5. Setup mining software using the instructions found below.
 </details>
