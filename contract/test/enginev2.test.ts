@@ -4,13 +4,14 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "./chai-setup";
 import { Signer } from "ethers";
 import { BaseTokenV1 as BaseToken } from "../typechain/BaseTokenV1";
-import { EngineV1 } from "../typechain/V2_EngineV1";
-import { EngineV2 } from "../typechain/V2_EngineV2";
+import { EngineV1 } from "../typechain/EngineV1";
+import { V2_EngineV1 } from "../typechain/V2_EngineV1";
+import { V2_EngineV2 } from "../typechain/V2_EngineV2";
 
 const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
 const TESTBUF = '0x746573740a';
 
-describe("EngineV2 Unit Tests", () => {
+describe("V2_EngineV2 Migrate Test", () => {
   let signers: SignerWithAddress[];
   // let deployer: Signer;
   let deployer:   SignerWithAddress;
@@ -25,7 +26,8 @@ describe("EngineV2 Unit Tests", () => {
   let newowner:   SignerWithAddress;
 
   let baseToken: BaseToken;
-  let engine: EngineV2;
+  let oldengine: EngineV1;
+  let engine: V2_EngineV1;
 
   beforeEach("Deploy and initialize", async () => {
     signers = await ethers.getSigners();
@@ -50,20 +52,127 @@ describe("EngineV2 Unit Tests", () => {
     await baseToken.deployed();
     // console.log("BaseToken deployed to:", baseToken.address);
 
-    const EngineV1 = await ethers.getContractFactory(
+    const V2_EngineV1 = await ethers.getContractFactory(
       "V2_EngineV1"
     );
-    const EngineV2 = await ethers.getContractFactory(
-      "V2_EngineV2"
+    engine = (await upgrades.deployProxy(V2_EngineV1, [
+      baseToken.address,
+      await treasury.getAddress(),
+    ])) as V2_EngineV1;
+
+    const EngineV1 = await ethers.getContractFactory(
+      "EngineV1"
     );
-    engine = (await upgrades.deployProxy(EngineV1, [
+    oldengine = (await upgrades.deployProxy(EngineV1, [
       baseToken.address,
       await treasury.getAddress(),
     ])) as EngineV1;
     await engine.deployed();
     // console.log("Engine deployed to:", engine.address);
     
-    engine = await upgrades.upgradeProxy(engine.address, EngineV2) as EngineV2;
+    // for testing transfer from here
+    // NOTE this disables rewards unless waiting a long time
+    await (await baseToken
+      .connect(deployer)
+      .bridgeMint(await deployer.getAddress(), ethers.utils.parseEther('2000'))
+    ).wait();
+
+    await (await baseToken
+      .connect(deployer)
+      .transferOwnership(oldengine.address)
+    ).wait();
+
+    for (const validator of [validator1, validator2, validator3, validator4]) {
+      await (await baseToken
+        .connect(validator)
+        .approve(oldengine.address, ethers.constants.MaxUint256)
+      ).wait();
+    }
+  });
+
+  describe("migrate", () => {
+    it("import validators", async () => {
+      await (await baseToken
+        .connect(deployer)
+        .bridgeMint(oldengine.address, ethers.utils.parseEther('599990'))
+      ).wait();
+
+      await (await baseToken
+        .connect(deployer)
+        .transfer(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
+      ).wait();
+
+      await (await oldengine
+        .connect(validator1)
+        .validatorDeposit(await validator1.getAddress(), ethers.utils.parseEther('2.4'))
+      ).wait();
+
+      await (await engine.migrateValidator(oldengine.address, await validator1.getAddress())).wait();
+
+      const val = await engine.validators(await validator1.getAddress());
+
+      expect(val.staked).to.equal(ethers.utils.parseEther('2.4'));
+      // since is dynamic on time of test
+      expect(val.addr).to.equal(await validator1.getAddress());
+    });
+  });
+});
+
+
+describe("EngineV2 Unit Tests", () => {
+  let signers: SignerWithAddress[];
+  // let deployer: Signer;
+  let deployer:   SignerWithAddress;
+  let user1:      SignerWithAddress;
+  let user2:      SignerWithAddress;
+  let validator1: SignerWithAddress;
+  let validator2: SignerWithAddress;
+  let validator3: SignerWithAddress;
+  let validator4: SignerWithAddress;
+  let treasury:   SignerWithAddress;
+  let model1:     SignerWithAddress;
+  let newowner:   SignerWithAddress;
+
+  let baseToken: BaseToken;
+  let engine: V2_EngineV2;
+
+  beforeEach("Deploy and initialize", async () => {
+    signers = await ethers.getSigners();
+    deployer   = signers[0];
+    user1      = signers[1];
+    user2      = signers[2];
+    validator1 = signers[3];
+    validator2 = signers[4];
+    validator3 = signers[5];
+    validator4 = signers[6];
+    treasury   = signers[7];
+    model1     = signers[8];
+    newowner   = signers[9];
+
+    const BaseToken = await ethers.getContractFactory(
+      "BaseTokenV1"
+    );
+    baseToken = (await upgrades.deployProxy(BaseToken, [
+      await deployer.getAddress(),
+      ethers.constants.AddressZero,
+    ])) as BaseToken;
+    await baseToken.deployed();
+    // console.log("BaseToken deployed to:", baseToken.address);
+
+    const V2_EngineV1 = await ethers.getContractFactory(
+      "V2_EngineV1"
+    );
+    const V2_EngineV2 = await ethers.getContractFactory(
+      "V2_EngineV2"
+    );
+    engine = (await upgrades.deployProxy(V2_EngineV1, [
+      baseToken.address,
+      await treasury.getAddress(),
+    ])) as V2_EngineV1;
+    await engine.deployed();
+    // console.log("Engine deployed to:", engine.address);
+    
+    engine = await upgrades.upgradeProxy(engine.address, V2_EngineV2) as V2_EngineV2;
     // console.log("Engine upgraded");
 
     await (await engine
@@ -178,9 +287,9 @@ describe("EngineV2 Unit Tests", () => {
 
   describe("upgrade", () => {
     it("can validate upgrade", async () => {
-      const EngineV1 = await ethers.getContractFactory('V2_EngineV1');
-      const EngineV2 = await ethers.getContractFactory('V2_EngineV2');
-      await upgrades.validateUpgrade(EngineV1, EngineV2);
+      const V2_EngineV1 = await ethers.getContractFactory('V2_EngineV1');
+      const V2_EngineV2 = await ethers.getContractFactory('V2_EngineV2');
+      await upgrades.validateUpgrade(V2_EngineV1, V2_EngineV2);
     });
 
   });
