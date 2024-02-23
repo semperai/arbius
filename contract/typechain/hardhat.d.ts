@@ -201,10 +201,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EngineV1__factory>;
     getContractFactory(
-      name: "EngineV2",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.EngineV2__factory>;
-    getContractFactory(
       name: "BulkSubmitter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BulkSubmitter__factory>;
@@ -369,9 +365,21 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.L1Token__factory>;
     getContractFactory(
+      name: "OneToOneConvert",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OneToOneConvert__factory>;
+    getContractFactory(
       name: "TimelockV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TimelockV1__factory>;
+    getContractFactory(
+      name: "V2EngineV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2EngineV1__factory>;
+    getContractFactory(
+      name: "V2EngineV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2EngineV2__factory>;
 
     getContractAt(
       name: "ArbSys",
@@ -609,11 +617,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.EngineV1>;
     getContractAt(
-      name: "EngineV2",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.EngineV2>;
-    getContractAt(
       name: "BulkSubmitter",
       address: string,
       signer?: ethers.Signer
@@ -819,10 +822,25 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.L1Token>;
     getContractAt(
+      name: "OneToOneConvert",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OneToOneConvert>;
+    getContractAt(
       name: "TimelockV1",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TimelockV1>;
+    getContractAt(
+      name: "V2EngineV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2EngineV1>;
+    getContractAt(
+      name: "V2EngineV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2EngineV2>;
 
     // default types
     getContractFactory(
