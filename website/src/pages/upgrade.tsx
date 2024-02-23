@@ -137,7 +137,7 @@ export default function UpgradePage() {
                 Upgrade AIUS
               </h2>
               <p className="mt-6 text-lg leading-8 text-gray-300">
-                Arbius tokens have been upgraded. Deposit your v1 tokens and you will receive new AIUS in exchange, 1:1. You will also become eligible for an upcoming airdrop.
+                Arbius tokens have been upgraded. Deposit your v1 tokens and you will receive new AIUS in exchange, 1:1. Convert before March 10, 12:00 A.M. (UTC) to be eligible for an upcoming airdrop.
               </p>
             </div>
             <div className="mx-auto mt-10 max-w-2xl lg:mx-0 lg:max-w-none">
