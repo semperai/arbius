@@ -4,7 +4,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const DEFAULT_CHAIN = parseInt(process.env.NEXT_PUBLIC_CHAINID || '31337');
-const ETH_CHAIN = 1;
+const ETH_CHAIN = parseInt(process.env.NEXT_PUBLIC_ETH_CHAINID || '1');
 
 type Props = {
   enableEth?: boolean;
