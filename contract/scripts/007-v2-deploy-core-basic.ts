@@ -30,9 +30,11 @@ async function main() {
   for (let validator of V1Validators) {
     await (await engine
       .connect(deployer)
-      .migrateValidator(Config.engineAddress, validator)
+      .migrateValidator(v1EngineAddress, validator)
     ).wait();
-    console.log('migrated', validator);
+
+    const lookup = await engine.validators(validator);
+    console.log('migrated', validator, lookup);
   }
 
 
