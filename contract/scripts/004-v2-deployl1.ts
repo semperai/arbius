@@ -26,6 +26,9 @@ async function main() {
   
   const L1Token = await ethers.getContractFactory('L1Token', l1Wallet);
   const l1Token = await L1Token.deploy(
+    // uncomment these for testing deploy
+    // deployer.address,
+    // deployer.address,
     l1Gateway,
     l1Router,
     1_000_000,
