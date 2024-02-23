@@ -198,6 +198,28 @@ task("model:register", "Register new model")
   }, null, 2));
 });
 
+task("validator:lookup", "Query validator")
+.addParam("address", "Address")
+.setAction(async ({ address }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+
+  const validator = await engine.validators(address);
+  console.log(validator);
+
+});
+
+task("v2:validator:lookup", "Query validator")
+.addParam("address", "Address")
+.setAction(async ({ address }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const validator = await engine.validators(address);
+  console.log(validator);
+
+});
+
 task("validator:stake", "Become a validator")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
