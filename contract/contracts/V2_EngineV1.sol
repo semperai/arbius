@@ -66,7 +66,7 @@ struct Contestation {
     uint256 slashAmount; // amount to slash
 }
 
-contract EngineV1 is OwnableUpgradeable {
+contract V2_EngineV1 is OwnableUpgradeable {
     IBaseToken public baseToken;
 
     address public treasury; // where treasury fees/rewards go
@@ -259,10 +259,14 @@ contract EngineV1 is OwnableUpgradeable {
         exitValidatorMinUnlockTime = 86400; // 1 day
     }
 
-    function migrateValidator(address validator_) external onlyOwner {
-        EngineV1 e = EngineV1(address(0x399511EDEB7ca4A8328E801b1B3D0fe232aBc996));
+    /// @notice Migrate validator
+    /// @dev This is used to migrate validators from EngineV1 to V2_EngineV1
+    /// @param engine_ Address of engine
+    /// @param validator_ Address of validator
+    function migrateValidator(address engine_, address validator_) external onlyOwner {
+        V2_EngineV1 old = V2_EngineV1(engine_);
 
-        (uint256 staked, uint256 since, address addr) = e.validators(validator_);
+        (uint256 staked, uint256 since, address addr) = old.validators(validator_);
         validators[validator_] = Validator({
             staked: staked,
             since:  since,
@@ -270,7 +274,7 @@ contract EngineV1 is OwnableUpgradeable {
         });
 
 
-        pendingValidatorWithdrawRequestsCount[validator_] = e
+        pendingValidatorWithdrawRequestsCount[validator_] = old
             .pendingValidatorWithdrawRequestsCount(validator_);
 
         for (
@@ -278,7 +282,7 @@ contract EngineV1 is OwnableUpgradeable {
             i < pendingValidatorWithdrawRequestsCount[validator_];
             i++
         ) {
-            (uint256 unlockTime, uint256 amount) = e
+            (uint256 unlockTime, uint256 amount) = old
                 .pendingValidatorWithdrawRequests(validator_, i);
 
             pendingValidatorWithdrawRequests[validator_][i] = PendingValidatorWithdrawRequest({
@@ -287,7 +291,7 @@ contract EngineV1 is OwnableUpgradeable {
             });
         }
 
-        validatorWithdrawPendingAmount[validator_] = e
+        validatorWithdrawPendingAmount[validator_] = old
             .validatorWithdrawPendingAmount(validator_);
     }
 

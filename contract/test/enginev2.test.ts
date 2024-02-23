@@ -4,7 +4,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "./chai-setup";
 import { Signer } from "ethers";
 import { BaseTokenV1 as BaseToken } from "../typechain/BaseTokenV1";
-import { EngineV2 } from "../typechain/EngineV2";
+import { EngineV1 } from "../typechain/V2_EngineV1";
+import { EngineV2 } from "../typechain/V2_EngineV2";
 
 const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
 const TESTBUF = '0x746573740a';
@@ -49,13 +50,16 @@ describe("EngineV2 Unit Tests", () => {
     await baseToken.deployed();
     // console.log("BaseToken deployed to:", baseToken.address);
 
-    const EngineV2 = await ethers.getContractFactory(
-      "EngineV2"
+    const EngineV1 = await ethers.getContractFactory(
+      "V2_EngineV1"
     );
-    engine = (await upgrades.deployProxy(EngineV2, [
+    const EngineV2 = await ethers.getContractFactory(
+      "V2_EngineV2"
+    );
+    engine = (await upgrades.deployProxy(EngineV1, [
       baseToken.address,
       await treasury.getAddress(),
-    ])) as EngineV2;
+    ])) as EngineV1;
     await engine.deployed();
     // console.log("Engine deployed to:", engine.address);
     
@@ -174,8 +178,8 @@ describe("EngineV2 Unit Tests", () => {
 
   describe("upgrade", () => {
     it("can validate upgrade", async () => {
-      const EngineV1 = await ethers.getContractFactory('EngineV1');
-      const EngineV2 = await ethers.getContractFactory('EngineV2');
+      const EngineV1 = await ethers.getContractFactory('V2_EngineV1');
+      const EngineV2 = await ethers.getContractFactory('V2_EngineV2');
       await upgrades.validateUpgrade(EngineV1, EngineV2);
     });
 
