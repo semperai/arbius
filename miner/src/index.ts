@@ -549,17 +549,17 @@ async function processContestationVoteFinish(
 
 async function processValidatorStake() {
   const etherBalance = await arbius.provider.getBalance(wallet.address);
-  log.debug(`BCHK Ether balance: ${ethers.utils.formatEther(etherBalance)}`);
+  log.debug(`BALCHECK Ether balance: ${ethers.utils.formatEther(etherBalance)}`);
 
   if (etherBalance.lt(ethers.utils.parseEther("0.01"))) {
-    log.warn(`BCHK Low Ether balance`);
+    log.warn(`BALCHECK Low Ether balance`);
   }
 
   const staked = await getValidatorStaked();
-  log.debug(`BCHK AIUS Staked: ${ethers.utils.formatEther(staked)}`);
+  log.debug(`BALCHECK AIUS Staked: ${ethers.utils.formatEther(staked)}`);
 
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
-  log.debug(`BCHK Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
+  log.debug(`BALCHECK Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
 
   // schedule checking every 2 mins
   await dbQueueJob({
@@ -577,7 +577,7 @@ async function processValidatorStake() {
     .div(100 - c.stake_buffer_topup_percent);
 
   if (staked.gte(minWithTopupBuffer)) {
-    log.debug(`BCHK Have sufficient stake`);
+    log.debug(`BALCHECK Have sufficient stake`);
     return;
   }
 
@@ -586,11 +586,11 @@ async function processValidatorStake() {
     .div(100 - c.stake_buffer_percent);
 
   const depositAmount = minWithBuffer.sub(staked);
-  log.debug(`BCHK Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
+  log.debug(`BALCHECK Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
 
   const balance = await expretry(async () => await token.balanceOf(wallet.address));
   if (balance.lt(depositAmount)) {
-    log.error(`BCHK Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
+    log.error(`BALCHECK Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
     throw new Error('unable to stake required balance');
   }
 
@@ -598,30 +598,30 @@ async function processValidatorStake() {
     wallet.address,
     solver.address, // could be engine or delegated validator
   ));
-  log.debug(`BCHK Allowance Amount ${ethers.utils.formatEther(allowance)}`);
+  log.debug(`BALCHECK Allowance Amount ${ethers.utils.formatEther(allowance)}`);
 
   if (allowance.lt(balance)) {
     const allowanceAmount = ethers.constants.MaxUint256.sub(allowance);
 
-    log.debug(`BCHK Increasing allowance`);
+    log.debug(`BALCHECK Increasing allowance`);
     await expretry(async () => {
       const tx = await expretry(async () => await token.approve(
         solver.address,
         allowanceAmount,
       ));
       const receipt = await tx.wait();
-      log.info(`BCHK Allowance increased in ${receipt.transactionHash}`);
+      log.info(`BALCHECK Allowance increased in ${receipt.transactionHash}`);
     });
   }
 
-  log.debug(`BCHK Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
+  log.debug(`BALCHECK Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
   await expretry(async () => {
     const receipt = await depositForValidator(depositAmount);
-    log.info(`BCHK Deposited in ${receipt.transactionHash}`);
+    log.info(`BALCHECK Deposited in ${receipt.transactionHash}`);
   });
 
   const postDepositStaked = await getValidatorStaked();
-  log.debug(`BCHK Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
+  log.debug(`BALCHECK Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
 }
 
 async function processAutomine() {
