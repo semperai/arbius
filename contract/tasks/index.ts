@@ -78,6 +78,17 @@ task("mint", "Mint tokens")
     console.log(`minted ${amount} tokens to ${to}`);
 });
 
+task("mint:v2", "Mint tokens")
+.addParam("to", "address")
+.addParam("amount", "amount")
+.setAction(async ({ to, amount }, hre) => {
+    const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
+    const baseToken = await BaseToken.attach(Config.v2_baseTokenAddress);
+    const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
+    await tx.wait();
+    console.log(`minted ${amount} tokens to ${to}`);
+});
+
 task("mine", "mine blocks locally")
 .addParam("blocks", "how many")
 .setAction(async ({ blocks }, hre) => {
