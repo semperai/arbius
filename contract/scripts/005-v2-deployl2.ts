@@ -41,7 +41,7 @@ async function main() {
   /**
    * deploy converter
    */
-  const OneToOne = await ethers.getContractFactory('OneToOne', l2Wallet);
+  const OneToOne = await ethers.getContractFactory('OneToOneConvert', l2Wallet);
   const oneToOne = await OneToOne.deploy(
     Config.baseTokenAddress,
     l2Token.address,
