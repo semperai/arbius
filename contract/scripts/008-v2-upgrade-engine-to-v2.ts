@@ -11,8 +11,8 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const EngineV2 = await ethers.getContractFactory("EngineV2");
-  const engine = await upgrades.upgradeProxy(Config.engineAddress, EngineV2);
+  const EngineV2 = await ethers.getContractFactory("V2_EngineV2");
+  const engine = await upgrades.upgradeProxy(Config.v2_engineAddress, EngineV2);
   console.log("Engine upgraded");
 
   const startTime = 1707876523 + (24*60*60*2);

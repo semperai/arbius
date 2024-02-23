@@ -27,22 +27,37 @@ async function main() {
   console.log('Deploying the L2Token to L2:');
   const L2Token = await ethers.getContractFactory('BaseTokenV1');
   const l2Token = await upgrades.deployProxy(L2Token, [
-    // uncomment these for testing deploy
-    // deployer.address,
-    // deployer.address,
     l2Gateway,
-    Config.l1TokenAddress,
+    Config.v2_l1TokenAddress,
   ]);
   // console.log(l2Token);
 
   await l2Token.deployed();
   console.log(`L2Token is deployed to L2 at ${l2Token.address}`);
 
+  /**
+   * deploy converter
+   */
+  const OneToOne = await ethers.getContractFactory('OneToOne', l2Wallet);
+  const oneToOne = await OneToOne.deploy(
+    Config.baseTokenAddress,
+    l2Token.address,
+  );
+
+  await oneToOne.deployed();
+  console.log(`OneToOne is deployed to L1 at ${oneToOne.address}`);
+
   // SAVE CONFIG
   const configPath = __dirname + '/config.json';
   fs.writeFileSync(configPath, JSON.stringify({
     l1TokenAddress: Config.l1TokenAddress,
-    baseTokenAddress: l2Token.address,
+    baseTokenAddress: Config.baseTokenAddress,
+    engineAddress: Config.engineAddress,
+
+    v2_l1TokenAddress: Config.v2_l1TokenAddress,
+    v2_baseTokenAddress: l2Token.address,
+    l1OneToOneAddress: Config.l1OneToOneAddress,
+    l2OneToOneAddress: oneToOne.address,
   }, null, 2));
   console.log('Saved config to', configPath);
   process.exit(0)
