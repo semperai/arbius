@@ -21,7 +21,7 @@ contract OneToOneConvert {
     /// @param _amount The amount of token A to swap
     function swap(uint256 _amount) external {
         // burn token a
-        tokenA.transferFrom(msg.sender, address(0x0), _amount);
+        tokenA.transferFrom(msg.sender, address(0x1), _amount);
         // send token b to user
         tokenB.transfer(msg.sender, _amount);
 
