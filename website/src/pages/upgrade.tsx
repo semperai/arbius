@@ -1,3 +1,11 @@
+import {
+  useAccount,
+  useContractRead,
+  usePrepareContractWrite,
+  useContractWrite,
+  useNetwork,
+  useWaitForTransaction,
+} from 'wagmi';
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers'
 
@@ -7,23 +15,86 @@ import Layout from '@/components/Layout';
 import TokenBalance from '@/components/TokenBalance';
 import IncreaseAllowanceButton from '@/components/IncreaseAllowanceButton';
 import Config from '@/config.json';
+import OneToOneConvertArtifact from '@/artifacts/OneToOneConvert.sol/OneToOneConvert.json';
+
+const DEFAULT_CHAIN = parseInt(process.env.NEXT_PUBLIC_CHAINID || '31337');
+const ETH_CHAIN = parseInt(process.env.NEXT_PUBLIC_ETH_CHAINID || '1');
 
 export default function UpgradePage() {
-  const [tokenBalance, setTokenBalance] = useState(ethers.BigNumber.from(0));
+  const { chain, chains } = useNetwork();
+
+  const [upgradeButtonDisabled, setUpgradeButtonDisabled] = useState(false);
+  const [v1TokenAddress, setV1TokenAddress] = useState('');
+  const [v2TokenAddress, setV2TokenAddress] = useState('');
+  const [oneToOneAddress, setOneToOneAddress] = useState('');
+
+  useEffect(() => {
+    if (chain) {
+      if (chain.id == ETH_CHAIN) {
+        setV1TokenAddress(Config.l1TokenAddress);
+        setV2TokenAddress(Config.v2_l1TokenAddress);
+        setOneToOneAddress(Config.l1OneToOneAddress);
+      }
+      if (chain.id == DEFAULT_CHAIN) {
+        setV1TokenAddress(Config.baseTokenAddress);
+        setV2TokenAddress(Config.v2_baseTokenAddress);
+        setOneToOneAddress(Config.l2OneToOneAddress);
+      }
+    }
+  }, [chain]);
+
+  const [tokenABalance, setTokenABalance] = useState(ethers.BigNumber.from(0));
+  const [tokenBBalance, setTokenBBalance] = useState(ethers.BigNumber.from(0));
   const [needsAllowance, setNeedsAllowance] = useState(false);
 
+  console.log('chain', chain);
+
+  const { config: convertConfig } = usePrepareContractWrite({
+    address: oneToOneAddress as `0x${string}`,
+    abi: OneToOneConvertArtifact.abi,
+    functionName: 'swap',
+    args: [
+      tokenABalance,
+    ],
+    enabled: oneToOneAddress && tokenABalance.gt(0),
+  });
+
+  const {
+    data: convertData,
+    isLoading: convertIsLoading,
+    isSuccess: convertIsSuccess,
+    write: convertWrite,
+  } = useContractWrite(convertConfig);
+
+  const {
+    data: convertTxData,
+    isError:   convertTxIsError,
+    isLoading: convertTxIsLoading,
+  } = useWaitForTransaction({
+    hash: convertData?.hash,
+  });
+
+
+  function clickUpgrade() {
+    async function f() {
+      setUpgradeButtonDisabled(true);
+      convertWrite?.();
+    }
+
+    f();
+  }
 
   return (
     <Layout title="Upgrade" enableEth={true} full>
       <TokenBalance
         show={false}
-        update={setTokenBalance}
-        token={Config.baseTokenAddress as `0x${string}`}
+        update={setTokenABalance}
+        token={v1TokenAddress as `0x${string}`}
       />
       <TokenBalance
         show={false}
-        update={setTokenBalance}
-        token={Config.baseTokenAddress as `0x${string}`}
+        update={setTokenBBalance}
+        token={v2TokenAddress as `0x${string}`}
       />
 
       <main>
@@ -75,7 +146,7 @@ export default function UpgradePage() {
                 <div className="relative mt-2 rounded-md shadow-sm">
                   <input
                     type="text"
-                    value={tokenBalance.toString()}
+                    value={ethers.utils.formatUnits(tokenABalance, 18)}
                     autoComplete="off"
                     readOnly={true}
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-0 sm:max-w-xs sm:text-sm sm:leading-6 bg-white dark:bg-[#26242d]"
@@ -88,15 +159,27 @@ export default function UpgradePage() {
                 </div>
 
 
-
                 <IncreaseAllowanceButton
                   updateNeedsAllowance={setNeedsAllowance}
-                  token={Config.baseTokenAddress as `0x${string}`}
-                  to={Config.engineAddress as `0x${string}`}
+                  token={v1TokenAddress as `0x${string}`}
+                  to={oneToOneAddress as `0x${string}`}
                   />
-                {! needsAllowance && (
-                  <button className="outline py-1 px-4 bg-black bg-opacity-50 hover:bg-opacity-60 transition">
+
+                {chain && ! needsAllowance && tokenABalance.gt(0) && (
+                  <button
+                    className="outline py-1 px-4 bg-black bg-opacity-50 hover:bg-opacity-60 transition"
+                    disabled={upgradeButtonDisabled}
+                    onClick={clickUpgrade}
+                  >
                     Upgrade <span aria-hidden="true">→</span>
+                  </button>
+                )}
+                {chain && tokenABalance.eq(0) && (
+                  <button
+                    className="outline py-1 px-4 bg-black bg-opacity-50 hover:bg-opacity-60 transition"
+                    disabled={true}
+                  >
+                    No AIUS V1
                   </button>
                 )}
               </div>
@@ -104,7 +187,7 @@ export default function UpgradePage() {
                 <div className="relative mt-2 rounded-md shadow-sm">
                   <input
                     type="text"
-                    value={tokenBalance.toString()}
+                    value={ethers.utils.formatUnits(tokenBBalance, 18)}
                     autoComplete="off"
                     readOnly={true}
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-0 sm:max-w-xs sm:text-sm sm:leading-6 bg-white dark:bg-[#26242d]"
