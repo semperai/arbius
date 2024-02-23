@@ -239,7 +239,7 @@ task("validator:deploy-delegation", "Create delegated validator")
 // TODO setting delegate for delegatedValidator
 // TODO submit solutions and vote etc
 
-task("admin:transferOwnership", "Transfer admin ownership of Engine")
+task("engine:transferOwnership", "Transfer admin ownership of Engine")
 .addParam("address", "To who?")
 .setAction(async ({ address }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
@@ -248,7 +248,7 @@ task("admin:transferOwnership", "Transfer admin ownership of Engine")
   await tx.wait();
 });
 
-task("admin:setSolutionMineableStatus", "Allow a model to receive rewards for tasks completed")
+task("engine:setSolutionMineableStatus", "Allow a model to receive rewards for tasks completed")
 .addParam("model", "Model id")
 .addParam("enabled", "Enable/Disable")
 .setAction(async ({ model, enabled }, hre) => {
