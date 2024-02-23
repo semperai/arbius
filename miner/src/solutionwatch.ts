@@ -2,82 +2,16 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 import { initializeLogger, log } from './log';
 import { c, initializeMiningConfig } from './mc';
-import { initializeDatabase } from './db';
-import { initializeML } from './ml';
-import { initializeRPC } from './rpc';
-import { Readable } from 'stream';
-import { ethers, Contract, Wallet, BigNumber } from 'ethers';
-import { base64 } from '@scure/base';
-import axios from 'axios';
-import * as http_client from 'ipfs-http-client';
+import { ethers, BigNumber } from 'ethers';
 import Config from './config.json';
-import {
-  dbGetJobs,
-  dbGetTask,
-  dbGetTaskInput,
-  dbGetInvalidTask,
-  dbGetSolution,
-  dbGetContestation,
-  dbGetContestationVotes,
-  dbStoreTask,
-  dbStoreInvalidTask,
-  dbStoreTaskInput,
-  dbStoreSolution,
-  dbStoreContestation,
-  dbStoreContestationVote,
-  dbStoreFailedJob,
-  dbQueueJob,
-  dbDeleteJob,
-  dbClearJobsByMethod,
-  dbUpdateTaskSetRetracted,
-} from './db';
 
-import {
-  // AnythingV3Model,
-  // ZeroscopeModel,
-  Kandinsky2Model,
-  getModelById,
-  checkModelFilter,
-  hydrateInput,
-} from './models';
+import { sleep } from './utils';
 
-import { pinFileToIPFS, pinFilesToIPFS } from './ipfs';
-
-import {
-  sleep,
-  now,
-  taskid2Seed,
-  expretry,
-  generateCommitment,
-} from './utils';
-
-import {
-  MiningConfig,
-  Task,
-  Solution,
-  Job,
-  Model,
-  QueueJobProps,
-  DBTask,
-  DBInvalidTask,
-  DBSolution,
-  DBContestation,
-  DBContestationVote,
-  DBTaskInput,
-  DBJob,
-} from './types';
-
-import { replicate } from './ml';
+import { MiningConfig } from './types';
 
 import {
   wallet,
   arbius,
-  token,
-  // governor,
-  solver,
-  getBlockNumber,
-  depositForValidator,
-  getValidatorStaked,
   initializeBlockchain,
 } from './blockchain';
 
