@@ -30,6 +30,7 @@ const navigation = [
   { name: 'Models', href: '/models', external: false, },
   { name: 'Explorer', href: '/explorer', external: false, },
   // { name: 'Governance', href: 'https://www.tally.xyz/gov/arbitrum', external: true, },
+  { name: 'Upgrade', href: '/upgrade', external: false, },
   { name: 'Docs', href: 'https://docs.arbius.ai', external: true, },
 ]
 
@@ -79,9 +80,10 @@ function classNames(...classes: string[]) {
 interface Props {
   title: string;
   full?: boolean;
+  enableEth?: boolean;
 }
 
-export default function Layout({ children, title, full }: PropsWithChildren<Props>) {
+export default function Layout({ children, title, full, enableEth, }: PropsWithChildren<Props>) {
   const { asPath } = useRouter();
 
   const [walletConnected, setWalletConnected] = useState(false);
@@ -101,7 +103,7 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
       </Head>
-      <NetworkSwitch />
+      <NetworkSwitch enableEth={true} />
       <div className="min-h-full z-50">
         <Disclosure as="nav" className="border-b border-gray-200 bg-white dark:bg-[#16141d]">
           {({ open }) => (

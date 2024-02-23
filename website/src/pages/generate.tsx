@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNetwork, useAccount } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { ethers } from 'ethers'
 
 import Config from '@/config.json';

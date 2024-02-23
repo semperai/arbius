@@ -4,11 +4,19 @@ import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const DEFAULT_CHAIN = parseInt(process.env.NEXT_PUBLIC_CHAINID || '31337');
+const ETH_CHAIN = 1;
 
-export default function SwitchNetwork() {
+type Props = {
+  enableEth?: boolean;
+};
+
+export default function SwitchNetwork({ enableEth }: Props) {
   const { chain, chains } = useNetwork();
   const { switchNetwork } = useSwitchNetwork({
     chainId: DEFAULT_CHAIN,
+  });
+  const { switchNetwork: switchNetworkEth } = useSwitchNetwork({
+    chainId: ETH_CHAIN,
   });
   const [open, setOpen] = useState(false);
 
@@ -17,9 +25,20 @@ export default function SwitchNetwork() {
     setOpen(false);
   }
 
+  function clickSwitchEth() {
+    switchNetworkEth?.();
+    setOpen(false);
+  }
+
   useEffect(() => {
-    if (chain && chain.id !== DEFAULT_CHAIN) {
-      setOpen(true);
+    if (chain) {
+      if (enableEth && chain.id !== ETH_CHAIN && chain.id !== DEFAULT_CHAIN) {
+        setOpen(true);
+      } else if (!enableEth && chain.id !== DEFAULT_CHAIN) {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
     } else {
       setOpen(false);
     }
@@ -71,32 +90,74 @@ export default function SwitchNetwork() {
                       Switch Network
                     </Dialog.Title>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        You are currently connected to an unsupported network.
-                        Arbius runs Arbitrum Nova.
-                        Would you like to switch networks now?
-                      </p>
+                      {enableEth ? (
+                        <p className="text-sm text-gray-500">
+                          You are currently connected to an unsupported network.
+                          Arbius upgrade supports Arbitrum Nova and Ethereum.
+                          Would you like to switch networks now?
+                        </p>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          You are currently connected to an unsupported network.
+                          Arbius runs Arbitrum Nova.
+                          Would you like to switch networks now?
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                  {switchNetwork ? (
-                    <button
-                      type="button"
-                      className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
-                      onClick={clickSwitch}
-                    >
-                      Switch
-                    </button>
+                  {enableEth ? (
+                    <>
+                      {switchNetwork ? (
+                        <>
+                          <button
+                            type="button"
+                            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
+                            onClick={clickSwitch}
+                          >
+                            Switch To Nova
+                          </button>
+                          <button
+                            type="button"
+                            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
+                            onClick={clickSwitchEth}
+                          >
+                            Switch To Ethereum
+                          </button>
+                        </>
+                      ) : (
+                        <a href="https://chainlist.org/chain/42170" target="_blank">
+                          <button
+                            type="button"
+                            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
+                          >
+                            Add Network
+                          </button>
+                        </a>
+                      )}
+                    </>
                   ) : (
-                    <a href="https://chainlist.org/chain/42170" target="_blank">
-                      <button
-                        type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
-                      >
-                        Add Network
-                      </button>
-                    </a>
+                    <>
+                      {switchNetwork ? (
+                        <button
+                          type="button"
+                          className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
+                          onClick={clickSwitch}
+                        >
+                          Switch
+                        </button>
+                      ) : (
+                        <a href="https://chainlist.org/chain/42170" target="_blank">
+                          <button
+                            type="button"
+                            className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto"
+                          >
+                            Add Network
+                          </button>
+                        </a>
+                      )}
+                    </>
                   )}
                   <button
                     type="button"
