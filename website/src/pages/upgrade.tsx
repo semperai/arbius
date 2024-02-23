@@ -5,10 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Layout from '@/components/Layout';
 import TokenBalance from '@/components/TokenBalance';
+import IncreaseAllowanceButton from '@/components/IncreaseAllowanceButton';
 import Config from '@/config.json';
 
 export default function UpgradePage() {
   const [tokenBalance, setTokenBalance] = useState(ethers.BigNumber.from(0));
+  const [needsAllowance, setNeedsAllowance] = useState(false);
 
 
   return (
@@ -69,11 +71,51 @@ export default function UpgradePage() {
             </div>
             <div className="mx-auto mt-10 max-w-2xl lg:mx-0 lg:max-w-none">
               <div className="grid grid-cols-1 gap-x-8 gap-y-6 text-base font-semibold leading-7 text-white sm:grid-cols-2 md:flex lg:gap-x-10">
-                <Link href="https://docs.arbius.ai/register-model">
-                  <button className="outline p-2 px-4">
-                    Register Model <span aria-hidden="true">→</span>
+
+                <div className="relative mt-2 rounded-md shadow-sm">
+                  <input
+                    type="text"
+                    value={tokenBalance.toString()}
+                    autoComplete="off"
+                    readOnly={true}
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-0 sm:max-w-xs sm:text-sm sm:leading-6 bg-white dark:bg-[#26242d]"
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-gray-500 sm:text-sm" id="price-currency">
+                      AIUS V1
+                    </span>
+                  </div>
+                </div>
+
+
+
+                <IncreaseAllowanceButton
+                  updateNeedsAllowance={setNeedsAllowance}
+                  token={Config.baseTokenAddress as `0x${string}`}
+                  to={Config.engineAddress as `0x${string}`}
+                  />
+                {! needsAllowance && (
+                  <button className="outline py-1 px-4 bg-black bg-opacity-50 hover:bg-opacity-60 transition">
+                    Upgrade <span aria-hidden="true">→</span>
                   </button>
-                </Link>
+                )}
+              </div>
+              <div className="grid grid-cols-1 gap-x-8 gap-y-6 my-2 text-base font-semibold leading-7 text-white sm:grid-cols-2 md:flex lg:gap-x-10">
+                <div className="relative mt-2 rounded-md shadow-sm">
+                  <input
+                    type="text"
+                    value={tokenBalance.toString()}
+                    autoComplete="off"
+                    readOnly={true}
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-0 sm:max-w-xs sm:text-sm sm:leading-6 bg-white dark:bg-[#26242d]"
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-gray-500 sm:text-sm" id="price-currency">
+                      AIUS V2
+                    </span>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
