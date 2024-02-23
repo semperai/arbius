@@ -907,10 +907,12 @@ contract EngineV2 is OwnableUpgradeable {
     /// @param taskid_ Task hash
     function claimSolution(bytes32 taskid_) external notPaused {
         // v2 (check if staked amount of validator is enough to claim)
-        require(validators[solutions[taskid_].validator].staked -
+        require(
+            validators[solutions[taskid_].validator].staked -
                 validatorWithdrawPendingAmount[solutions[taskid_].validator] >=
                 getValidatorMinimum(),
-            "validator min staked too low");
+            "validator min staked too low"
+        );
         require(
             solutions[taskid_].validator != address(0x0),
             "solution not found"
@@ -1134,7 +1136,8 @@ contract EngineV2 is OwnableUpgradeable {
                 validators[contestationVoteYeas[taskid_][0]]
                     .staked += solutionsStake[taskid_]; // v2
 
-                lastContestationLossTime[solutions[taskid_].validator] = block.timestamp;
+                lastContestationLossTime[solutions[taskid_].validator] = block
+                    .timestamp;
             }
         } else {
             // this is for contestation failing
