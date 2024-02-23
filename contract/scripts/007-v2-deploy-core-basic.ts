@@ -2,6 +2,7 @@ import { ethers, upgrades } from "hardhat";
 import { EngineV1 as Engine } from '../typechain/EngineV1';
 import * as fs from 'fs'
 import Config from './config.json';
+import V1Validators from './v1_validators.json';
 
 
 async function main() {
@@ -11,7 +12,7 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  console.log('BaseToken address', Config.baseTokenAddress);
+  console.log('V2 BaseToken address', Config.v2_baseTokenAddress);
   console.log('Treasury address', deployer.address);
 
   const Engine = await ethers.getContractFactory(
@@ -24,14 +25,30 @@ async function main() {
   await engine.deployed();
   console.log("Engine deployed to:", engine.address);
 
+  // const v1EngineAddress = Config.engineAddress;
+  const v1EngineAddress = '0x399511EDEB7ca4A8328E801b1B3D0fe232aBc996';
+  for (let validator of V1Validators) {
+    await (await engine
+      .connect(deployer)
+      .migrateValidator(Config.engineAddress, validator)
+    ).wait();
+    console.log('migrated', validator);
+  }
+
+
   console.log('Deploying free mineable model: kandinsky2');
   const {
     modelId: kandinsky2ModelId,
     params: kandinsky2Params,
   } = await deployFreeMineableModel(engine as Engine, '0x'+fs.readFileSync(`${__dirname}/../../templates/kandinsky2.json`, 'hex'), '1');
 
+  await (await engine
+    .connect(deployer)
+    .setPaused(true)
+  ).wait();
+  console.log('Engine now paused');
 
-  const proxyAdminAddress = await upgrades.erc1967.getAdminAddress(Config.baseTokenAddress);
+  const proxyAdminAddress = await upgrades.erc1967.getAdminAddress(Config.v2_baseTokenAddress);
 
   // SAVE CONFIG
   const configPath = __dirname + '/config.json';
