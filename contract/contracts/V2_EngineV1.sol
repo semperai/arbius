@@ -273,26 +273,8 @@ contract V2_EngineV1 is OwnableUpgradeable {
             addr:   addr
         });
 
-
-        pendingValidatorWithdrawRequestsCount[validator_] = old
-            .pendingValidatorWithdrawRequestsCount(validator_);
-
-        for (
-            uint256 i = 0;
-            i < pendingValidatorWithdrawRequestsCount[validator_];
-            i++
-        ) {
-            (uint256 unlockTime, uint256 amount) = old
-                .pendingValidatorWithdrawRequests(validator_, i);
-
-            pendingValidatorWithdrawRequests[validator_][i] = PendingValidatorWithdrawRequest({
-                unlockTime: unlockTime,
-                amount: amount
-            });
-        }
-
-        validatorWithdrawPendingAmount[validator_] = old
-            .validatorWithdrawPendingAmount(validator_);
+        // we will ignore pending withdrawals to simplify migration
+        // they do not contrinbute to staked balance
     }
 
     /// @notice Transfer ownership
