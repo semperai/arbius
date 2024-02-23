@@ -15,14 +15,15 @@ async function main() {
   const engine = await upgrades.upgradeProxy(Config.v2_engineAddress, EngineV2);
   console.log("Engine upgraded");
 
-  const startTime = 1707876523 + (24*60*60*2);
+  // 600_000 * (0.5^(5.95/365)) give close to expected supply
+  const startTime = ((+new Date() / 1000)|0) - (24*60*60*5.95);
   console.log('new start time', new Date(startTime * 1000).toString());
 
   await (await engine
     .connect(deployer)
     .setStartBlockTime(startTime)
   ).wait();
-  console.log('Start block time pushed forward 2 days');
+  console.log('Start block time set to 5.95 days ago');
 
   await (await engine
     .connect(deployer)
