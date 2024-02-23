@@ -267,11 +267,30 @@ task("engine:isPaused", "Check if engine is paused")
   console.log(`Engine is paused: ${paused}`);
 });
 
+task("v2:engine:isPaused", "Check if engine is paused")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const paused = await engine.paused();
+  console.log(`Engine is paused: ${paused}`);
+});
+
 task("engine:pause", "Pause engine")
 .addParam("pause", "Pause/Unpause")
 .setAction(async ({ pause }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
   const engine = await Engine.attach(Config.engineAddress);
+  const tx = await engine.setPaused(pause === 'true');
+  await tx.wait();
+  const paused = await engine.paused();
+  console.log(`Engine is now ${paused ? 'paused' : 'unpaused'}`);
+});
+
+task("v2:engine:pause", "Pause engine")
+.addParam("pause", "Pause/Unpause")
+.setAction(async ({ pause }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
   const tx = await engine.setPaused(pause === 'true');
   await tx.wait();
   const paused = await engine.paused();
