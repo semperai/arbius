@@ -78,7 +78,7 @@ task("mint", "Mint tokens")
     console.log(`minted ${amount} tokens to ${to}`);
 });
 
-task("mint:v2", "Mint tokens")
+task("v2:mint", "Mint tokens")
 .addParam("to", "address")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
