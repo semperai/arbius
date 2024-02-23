@@ -1,11 +1,14 @@
 {
   "l1TokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
-  "baseTokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
-  "engineAddress": "0x399511EDEB7ca4A8328E801b1B3D0fe232aBc996",
-  "proxyAdminAddress": "0xf70a86d51Bd88885054ea031344447d75bb4b432",
+  "baseTokenAddress": "0x0d62c542dF8b6d81831aB540cA2Ff0d4Bcd30875",
+  "engineAddress": "0xEf94989A2d6b6d6735Ed1d872361e5210030fe47",
+  "v2_baseTokenAddress": "0xDb3e7beCF9B74fd9b900B52F98d6aF61B4e928c6",
+  "l2OneToOneAddress": "0xE019de7Ad6B3A2A75C090636df80012FD929CB3c",
+  "v2_engineAddress": "0xB7F8531732654992bc266702037b5ED9170cdb7A",
+  "proxyAdminAddress": "0xd4A038470CB72ABfdf8F1d091E95F9412C24CBD1",
   "models": {
     "kandinsky2": {
-      "id": "0x82ae0d19f32b6912204160f8d744de08265b7775d07c23b4171c94c8e2892c62",
+      "id": "0x3ac907e782b35cf2096eadcbd5d347fb7705db98526adcd2232ea560abbbef90",
       "mineable": true,
       "contracts": {},
       "params": {
