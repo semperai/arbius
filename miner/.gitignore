@@ -1,5 +1,5 @@
-# configs
-*.json
+MiningConfig.*.json
+!MiningConfig.example.json
 
 # Logs
 logs
