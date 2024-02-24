@@ -104,7 +104,7 @@ export default function Layout({ children, title, full, enableEth, }: PropsWithC
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
       </Head>
-      <NetworkSwitch enableEth={true} />
+      <NetworkSwitch enableEth={enableEth} />
       <div className="min-h-full z-50">
         <Disclosure as="nav" className="border-b border-gray-200 bg-white dark:bg-[#16141d]">
           {({ open }) => (
