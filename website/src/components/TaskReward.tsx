@@ -3,7 +3,7 @@ import {
   useContractRead,
 } from 'wagmi';
 import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from '@/artifacts/V2_EngineV1.sol/V2_EngineV1.json';
 import { formatBalance } from '@/utils';
 
 import { ethers } from 'ethers'
@@ -17,7 +17,7 @@ export default function TaskReward() {
     isLoading: taskRewardIsLoading,
     refetch: taskRewardRefetch,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'getReward',
     args: [],

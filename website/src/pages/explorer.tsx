@@ -61,7 +61,7 @@ export default function ExplorerPage() {
       console.log('blockNumber', blockNumber);
 
       const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
-      const contract = new ethers.Contract(Config.engineAddress, EngineArtifact.abi, provider);
+      const contract = new ethers.Contract(Config.v2_engineAddress, EngineArtifact.abi, provider);
 
       const blocktime = 1;
       let hevents: Event[] = [];
@@ -164,7 +164,7 @@ export default function ExplorerPage() {
   /*
   // TODO re-write to use ethers and be more optimized
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'ModelRegistered',
     listener(id) {
@@ -182,7 +182,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'SolutionMineableStatusChange',
     listener(id, enabled) {
@@ -201,7 +201,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'ValidatorDeposit',
     listener(addr, validator, amount) {
@@ -221,7 +221,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'ValidatorWithdrawInitiated',
     listener(addr, count, unlockTime, amount) {
@@ -242,7 +242,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'ValidatorWithdrawCancelled',
     listener(addr, count) {
@@ -261,7 +261,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'ValidatorWithdraw',
     listener(addr, to, count, amount) {
@@ -282,7 +282,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'TaskSubmitted',
     listener(id, model, fee, sender) {
@@ -303,7 +303,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'TaskRetracted',
     listener(id) {
@@ -321,7 +321,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'SolutionSubmitted',
     listener(addr, taskid) {
@@ -340,7 +340,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'SolutionClaimed',
     listener(addr, taskid) {
@@ -359,7 +359,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'ContestationSubmitted',
     listener(addr, taskid) {
@@ -378,7 +378,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'ContestationVote',
     listener(addr, taskid, yea) {
@@ -398,7 +398,7 @@ export default function ExplorerPage() {
   })
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'SignalSupport',
     listener(addr, modelid, supported) {

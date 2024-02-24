@@ -16,7 +16,7 @@ import {
 import { ethers } from 'ethers'
 
 import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from '@/artifacts/EngineV2.sol/EngineV2.json';
 
 import {
   ChevronLeftIcon,
@@ -81,7 +81,7 @@ export default function HistoryPage() {
   const [logTasks, setLogTasks] = useState<LogTask[]>([]);
   const [history, setHistory] = useState<History[]>([]);
 
-  const iface = (new ethers.Contract(Config.engineAddress, EngineArtifact.abi)).interface;
+  const iface = (new ethers.Contract(Config.v2_engineAddress, EngineArtifact.abi)).interface;
   console.log(iface);
 
   const perPage = 12;
@@ -167,7 +167,7 @@ export default function HistoryPage() {
       // TODO this is limited to 5000 images now
       // arbiscan only allows 5 requests per second per ip
       for (let page=1; page<6; ++page) {
-        const url = `https://api-nova.arbiscan.io/api?module=logs&action=getLogs&fromBlock=8512985&address=${Config.engineAddress}&topic0=${ethers.utils.id('TaskSubmitted(bytes32,bytes32,uint256,address)')}&topic0_3_opr=and&topic3=${ethers.utils.hexZeroPad(address as string, 32)}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_APIKEY!}&offset=1000&page=${page}`;
+        const url = `https://api-nova.arbiscan.io/api?module=logs&action=getLogs&fromBlock=8512985&address=${Config.v2_engineAddress}&topic0=${ethers.utils.id('TaskSubmitted(bytes32,bytes32,uint256,address)')}&topic0_3_opr=and&topic3=${ethers.utils.hexZeroPad(address as string, 32)}&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_APIKEY!}&offset=1000&page=${page}`;
         const res = await fetch(url);
         const j = await res.json();
         console.log(j);
@@ -200,7 +200,7 @@ export default function HistoryPage() {
   }, [address]);
 
   const taskLookupConfig = {
-    address: Config.engineAddress,
+    address: Config.v2_engineAddress,
     abi: EngineArtifact.abi,
     functionName: 'tasks',
   };
@@ -217,7 +217,7 @@ export default function HistoryPage() {
     // @ts-ignore
     contracts: ((logTasks.length > 0) ? iota : []).map((i) => {
       return {
-        address: Config.engineAddress,
+        address: Config.v2_engineAddress,
         abi: EngineArtifact.abi,
         functionName: 'tasks',
         args: [
@@ -234,7 +234,7 @@ export default function HistoryPage() {
     // @ts-ignore
     contracts: ((logTasks.length > 0) ? iota : []).map((i) => {
       return {
-        address: Config.engineAddress,
+        address: Config.v2_engineAddress,
         abi: EngineArtifact.abi,
         functionName: 'solutions',
         args: [

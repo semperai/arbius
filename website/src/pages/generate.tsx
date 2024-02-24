@@ -192,7 +192,7 @@ export default function GeneratePage() {
                       <IncreaseAllowanceButton
                         updateNeedsAllowance={setNeedsAllowance}
                         token={Config.v2_baseTokenAddress as `0x${string}`}
-                        to={Config.engineAddress as `0x${string}`}
+                        to={Config.v2_engineAddress as `0x${string}`}
                         />
                       {! needsAllowance && (
                         <RequestButton

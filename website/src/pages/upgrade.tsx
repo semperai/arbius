@@ -56,7 +56,7 @@ export default function UpgradePage() {
     args: [
       tokenABalance,
     ],
-    enabled: oneToOneAddress !== '' && tokenABalance.gt(0),
+    enabled: ! needsAllowance && oneToOneAddress !== '' && tokenABalance.gt(0),
   });
 
   const {

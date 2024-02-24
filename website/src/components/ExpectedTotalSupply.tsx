@@ -3,7 +3,7 @@ import {
   useContractRead,
 } from 'wagmi';
 import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 import { formatBalance } from '@/utils';
 
@@ -18,7 +18,7 @@ export default function ExpectedTotalSupply() {
     isError: startBlockTimeIsError,
     isLoading: startBlockTimeIsLoading,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'startBlockTime',
     args: [],
@@ -29,7 +29,7 @@ export default function ExpectedTotalSupply() {
     isError: targetTsIsError,
     isLoading: targetTsIsLoading,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'targetTs',
     args: [

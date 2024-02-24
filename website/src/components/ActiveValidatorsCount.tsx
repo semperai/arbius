@@ -3,13 +3,13 @@ import {
   useContractEvent,
 } from 'wagmi';
 import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from '@/artifacts/V2_EngineV1.sol/V2_EngineV1.json';
 
 export default function ActiveValidatorsCount() {
   const [validators] = useState<Set<string>>(new Set<string>());
   const [validatorCount, setValidatorCount] = useState(0);
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'SolutionSubmitted',
     listener: (...args: any[]) => {

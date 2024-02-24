@@ -14,7 +14,7 @@ import Layout from '@/components/Layout';
 import RenderSolution from '@/components/RenderSolution';
 import Config from '@/config.json';
 import { cidify } from '@/utils';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
 
 import Kandinsky2Template from '@/templates/kandinsky2.json';
 import { Template } from '@/types/Template';
@@ -64,7 +64,7 @@ export default function TaskPage() {
     isError: taskIsError,
     isLoading: taskIsLoading,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'tasks',
     args: [
@@ -77,7 +77,7 @@ export default function TaskPage() {
     isError: solutionIsError,
     isLoading: solutionIsLoading,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'solutions',
     args: [
@@ -90,7 +90,7 @@ export default function TaskPage() {
     isError: contestationIsError,
     isLoading: contestationIsLoading,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'contestations',
     args: [
@@ -103,7 +103,7 @@ export default function TaskPage() {
     isError: modelIsError,
     isLoading: modelIsLoading,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'models',
     args: [
