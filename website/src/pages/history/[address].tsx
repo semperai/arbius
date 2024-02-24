@@ -16,7 +16,7 @@ import {
 import { ethers } from 'ethers'
 
 import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV2.sol/EngineV2.json';
+import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
 
 import {
   ChevronLeftIcon,
