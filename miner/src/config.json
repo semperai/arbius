@@ -1,14 +1,16 @@
 {
   "l1TokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
-  "baseTokenAddress": "0x0d62c542dF8b6d81831aB540cA2Ff0d4Bcd30875",
-  "engineAddress": "0xEf94989A2d6b6d6735Ed1d872361e5210030fe47",
-  "v2_baseTokenAddress": "0xDb3e7beCF9B74fd9b900B52F98d6aF61B4e928c6",
-  "l2OneToOneAddress": "0xE019de7Ad6B3A2A75C090636df80012FD929CB3c",
-  "v2_engineAddress": "0x82f59D45FaD33A45f5f93a73AEe87381aD5f2874",
-  "proxyAdminAddress": "0xd4A038470CB72ABfdf8F1d091E95F9412C24CBD1",
+  "baseTokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
+  "engineAddress": "0x399511EDEB7ca4A8328E801b1B3D0fe232aBc996",
+  "v2_l1TokenAddress": "0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852",
+  "v2_baseTokenAddress": "0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852",
+  "l1OneToOneAddress": "0x5080a6A0F0b0E21A895841456e5Ed77d26332262",
+  "l2OneToOneAddress": "0x5080a6A0F0b0E21A895841456e5Ed77d26332262",
+  "v2_engineAddress": "0x3BF6050327Fa280Ee1B5F3e8Fd5EA2EfE8A6472a",
+  "proxyAdminAddress": "0xF392fEA506efB6ED445253594DC81a0CB7cD3562",
   "models": {
     "kandinsky2": {
-      "id": "0x3ac907e782b35cf2096eadcbd5d347fb7705db98526adcd2232ea560abbbef90",
+      "id": "0x98617a8cd4a11db63100ad44bea4e5e296aecfd78b2ef06aee3e364c7307f212",
       "mineable": true,
       "contracts": {},
       "params": {
