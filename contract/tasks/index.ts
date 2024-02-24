@@ -78,6 +78,17 @@ task("mint", "Mint tokens")
     console.log(`minted ${amount} tokens to ${to}`);
 });
 
+task("v2:mint", "Mint tokens")
+.addParam("to", "address")
+.addParam("amount", "amount")
+.setAction(async ({ to, amount }, hre) => {
+    const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
+    const baseToken = await BaseToken.attach(Config.v2_baseTokenAddress);
+    const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
+    await tx.wait();
+    console.log(`minted ${amount} tokens to ${to}`);
+});
+
 task("mine", "mine blocks locally")
 .addParam("blocks", "how many")
 .setAction(async ({ blocks }, hre) => {
@@ -187,6 +198,28 @@ task("model:register", "Register new model")
   }, null, 2));
 });
 
+task("validator:lookup", "Query validator")
+.addParam("address", "Address")
+.setAction(async ({ address }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.engineAddress);
+
+  const validator = await engine.validators(address);
+  console.log(validator);
+
+});
+
+task("v2:validator:lookup", "Query validator")
+.addParam("address", "Address")
+.setAction(async ({ address }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const validator = await engine.validators(address);
+  console.log(validator);
+
+});
+
 task("validator:stake", "Become a validator")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
@@ -228,7 +261,7 @@ task("validator:deploy-delegation", "Create delegated validator")
 // TODO setting delegate for delegatedValidator
 // TODO submit solutions and vote etc
 
-task("admin:transferOwnership", "Transfer admin ownership of Engine")
+task("engine:transferOwnership", "Transfer admin ownership of Engine")
 .addParam("address", "To who?")
 .setAction(async ({ address }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
@@ -237,7 +270,7 @@ task("admin:transferOwnership", "Transfer admin ownership of Engine")
   await tx.wait();
 });
 
-task("admin:setSolutionMineableStatus", "Allow a model to receive rewards for tasks completed")
+task("engine:setSolutionMineableStatus", "Allow a model to receive rewards for tasks completed")
 .addParam("model", "Model id")
 .addParam("enabled", "Enable/Disable")
 .setAction(async ({ model, enabled }, hre) => {
@@ -256,11 +289,30 @@ task("engine:isPaused", "Check if engine is paused")
   console.log(`Engine is paused: ${paused}`);
 });
 
+task("v2:engine:isPaused", "Check if engine is paused")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const paused = await engine.paused();
+  console.log(`Engine is paused: ${paused}`);
+});
+
 task("engine:pause", "Pause engine")
 .addParam("pause", "Pause/Unpause")
 .setAction(async ({ pause }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
   const engine = await Engine.attach(Config.engineAddress);
+  const tx = await engine.setPaused(pause === 'true');
+  await tx.wait();
+  const paused = await engine.paused();
+  console.log(`Engine is now ${paused ? 'paused' : 'unpaused'}`);
+});
+
+task("v2:engine:pause", "Pause engine")
+.addParam("pause", "Pause/Unpause")
+.setAction(async ({ pause }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
   const tx = await engine.setPaused(pause === 'true');
   await tx.wait();
   const paused = await engine.paused();

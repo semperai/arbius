@@ -10,7 +10,7 @@ import {
 } from 'wagmi'
 import { ethers } from 'ethers'
 import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
 import { JSONTree } from 'react-json-tree';
 import { base58 } from '@scure/base';
 
@@ -32,7 +32,7 @@ interface Props {
 export default function TaskLoader({ input, fee, modelid, version, template }: Props) {
   const { address } = useAccount()
   const provider = useProvider();
-  const engine = new ethers.Contract(Config.engineAddress, EngineArtifact.abi, provider);
+  const engine = new ethers.Contract(Config.v2_engineAddress, EngineArtifact.abi, provider);
 
   const [watchTaskid, setWatchTaskid] = useState();
   const [cid, setCid] = useState<string>();
@@ -41,7 +41,7 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
   const [receipt, setReceipt] = useState<ethers.providers.TransactionReceipt>();
 
   const { config: submitTaskConfig } = usePrepareContractWrite({
-    address: cid ? undefined : Config.engineAddress as `0x${string}`,
+    address: cid ? undefined : Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'submitTask',
     args: [
@@ -79,7 +79,7 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
 
   /*
   const { config: retractTaskConfig } = usePrepareContractWrite({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'retractTask',
     args: [
@@ -107,7 +107,7 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
   */
 
   useContractEvent({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'SolutionSubmitted',
     listener(sender, taskid) {

@@ -4,7 +4,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "./chai-setup";
 import { Signer } from "ethers";
 import { BaseTokenV1 as BaseToken } from "../typechain/BaseTokenV1";
-import { EngineV2 } from "../typechain/EngineV2";
+import { EngineV2 } from "../typechain/V2_EngineV2";
 import { BulkSubmitter } from "../typechain/BulkSubmitter";
 
 const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
@@ -52,7 +52,7 @@ describe("EngineV2 Unit Tests", () => {
     // console.log("BaseToken deployed to:", baseToken.address);
 
     const EngineV2 = await ethers.getContractFactory(
-      "EngineV2"
+      "V2_EngineV2"
     );
     engine = (await upgrades.deployProxy(EngineV2, [
       baseToken.address,

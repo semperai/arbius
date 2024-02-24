@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { ThemeProvider } from "next-themes"
-import { configureChains, createClient, WagmiConfig } from 'wagmi'
+import { configureChains, createClient, WagmiConfig, mainnet } from 'wagmi'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import * as gtag from "@/gtag";
@@ -53,7 +53,7 @@ const arbitrumNova = {
   }
 }
 
-const chains = [arbitrumNova]
+const chains = [arbitrumNova, mainnet]
 
 const { provider } = configureChains(chains, [w3mProvider({ projectId })])
 const wagmiClient = createClient({

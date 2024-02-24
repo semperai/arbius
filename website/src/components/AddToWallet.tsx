@@ -18,7 +18,7 @@ export default function AddToWallet() {
     }
 
     activeConnector!.watchAsset!({
-      address: Config.baseTokenAddress,
+      address: Config.v2_baseTokenAddress,
       decimals: 18,
       image: 'https://arbius.org/android-chrome-192x192.png',
       symbol: 'AIUS',

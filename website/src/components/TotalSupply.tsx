@@ -17,7 +17,7 @@ export default function TotalSupply() {
     isLoading: totalSupplyIsLoading,
     refetch: totalSupplyRefetch,
   } = useContractRead({
-    address: Config.baseTokenAddress as `0x${string}`,
+    address: Config.v2_baseTokenAddress as `0x${string}`,
     abi: BaseTokenArtifact.abi,
     functionName: 'totalSupply',
     args: [],

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNetwork, useAccount } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { ethers } from 'ethers'
 
 import Config from '@/config.json';
@@ -167,7 +167,7 @@ export default function GeneratePage() {
               <TokenBalance
                 show={false}
                 update={setTokenBalance}
-                token={Config.baseTokenAddress as `0x${string}`}
+                token={Config.v2_baseTokenAddress as `0x${string}`}
               />
             </div>
 
@@ -191,8 +191,8 @@ export default function GeneratePage() {
                     <div className="">
                       <IncreaseAllowanceButton
                         updateNeedsAllowance={setNeedsAllowance}
-                        token={Config.baseTokenAddress as `0x${string}`}
-                        to={Config.engineAddress as `0x${string}`}
+                        token={Config.v2_baseTokenAddress as `0x${string}`}
+                        to={Config.v2_engineAddress as `0x${string}`}
                         />
                       {! needsAllowance && (
                         <RequestButton

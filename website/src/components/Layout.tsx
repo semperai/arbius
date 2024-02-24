@@ -25,11 +25,12 @@ import Config from '@/config.json';
 
 const navigation = [
   { name: 'Generate', href: '/generate', external: false, },
-  { name: 'Staking', href: 'https://app.gysr.io/pool/0x3606ab434a3762b9e22010bbfa13ad948be6c2ba?network=ethereum', external: true, },
+  { name: 'Staking', href: 'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum', external: true, },
   // { name: 'Bond', href: 'https://app.bondprotocol.finance/#/market/42161/111', external: true, },
   { name: 'Models', href: '/models', external: false, },
   { name: 'Explorer', href: '/explorer', external: false, },
   // { name: 'Governance', href: 'https://www.tally.xyz/gov/arbitrum', external: true, },
+  { name: 'Upgrade', href: '/upgrade', external: false, },
   { name: 'Docs', href: 'https://docs.arbius.ai', external: true, },
 ]
 
@@ -70,6 +71,20 @@ const social = [
       </svg>
     ),
   },
+  {
+    name: 'Discord',
+    href: 'https://discord.gg/eXxXMRCMzZ',
+    icon: (props: SVGProps<SVGSVGElement>) => (
+
+      <svg
+        fill="currentColor"
+        viewBox="0 0 127.14 96.36"
+        className="m-[1px] w-[22px] h-[22px] text-gray-400 fill-current"
+      >
+        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+      </svg>
+    ),
+  },
 ]
 
 function classNames(...classes: string[]) {
@@ -79,13 +94,15 @@ function classNames(...classes: string[]) {
 interface Props {
   title: string;
   full?: boolean;
+  enableEth?: boolean;
 }
 
-export default function Layout({ children, title, full }: PropsWithChildren<Props>) {
+export default function Layout({ children, title, full, enableEth, }: PropsWithChildren<Props>) {
   const { asPath } = useRouter();
 
   const [walletConnected, setWalletConnected] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(ethers.BigNumber.from(0));
+  const [v2TokenBalance, setV2TokenBalance] = useState(ethers.BigNumber.from(0));
 
   return (
     <>
@@ -101,7 +118,7 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
       </Head>
-      <NetworkSwitch />
+      <NetworkSwitch enableEth={enableEth} />
       <div className="min-h-full z-50">
         <Disclosure as="nav" className="border-b border-gray-200 bg-white dark:bg-[#16141d]">
           {({ open }) => (
@@ -114,22 +131,26 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
                     </div>
                     <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
                       {navigation.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          className={classNames(
-                            asPath === item.href
-                              ? 'border-indigo-500 text-gray-900'
-                              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                            'inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium'
+                        <>
+                          {(item.name !== 'Upgrade' || tokenBalance.gt(0)) && (
+                            <Link
+                              key={item.name}
+                              href={item.href}
+                              className={classNames(
+                                asPath === item.href
+                                  ? 'border-indigo-500 text-gray-900'
+                                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                                'inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium'
+                              )}
+                              aria-current={asPath === item.href ? 'page' : undefined}
+                              target={item.external ? '_blank' : '_self'}
+                            >
+                              {item.name} { item.external && (
+                                <ArrowTopRightOnSquareIcon className="inline h-4 w-4 align-top ml-1 -translate-y-0.5" aria-hidden="true" />
+                              )}
+                            </Link>
                           )}
-                          aria-current={asPath === item.href ? 'page' : undefined}
-                          target={item.external ? '_blank' : '_self'}
-                        >
-                          {item.name} { item.external && (
-                            <ArrowTopRightOnSquareIcon className="inline h-4 w-4 align-top ml-1 -translate-y-0.5" aria-hidden="true" />
-                          )}
-                        </Link>
+                        </>
                       ))}
                     </div>
                   </div>
@@ -137,15 +158,22 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
                     <div className="hidden sm:mr-6 sm:flex sm:items-center">
                       <DarkModeToggle />
                     </div>
-                    <div className={(walletConnected ? '' : 'hidden ') + "bg-slate-50 px-3 pt-2 pb-1 shadow text-xs text-slate-800 text-mono flex flex-rows rounded-md"}>
-                      <TokenBalance
-                        show={walletConnected}
-                        update={setTokenBalance}
-                        token={Config.baseTokenAddress as `0x${string}`}
-                      />
-                      <div className="text-slate-500 pl-1 text-xs m-auto font-semibold">
-                        AIUS
-                      </div>
+                    <div className={(walletConnected ? '' : 'hidden ') + "bg-slate-50 px-3 pt-2 pb-1 shadow text-xs text-slate-800 text-mono flex flex-rows rounded-md " + (tokenBalance.eq(0) ? '' : 'animate-pulse')}>
+                      <Link href="/upgrade" className="flex flex-rows">
+                        <TokenBalance
+                          show={false}
+                          update={setTokenBalance}
+                          token={Config.baseTokenAddress as `0x${string}`}
+                        />
+                        <TokenBalance
+                          show={walletConnected}
+                          update={setV2TokenBalance}
+                          token={Config.v2_baseTokenAddress as `0x${string}`}
+                        />
+                        <div className="text-slate-500 pl-1 text-xs m-auto font-semibold">
+                          AIUS
+                        </div>
+                      </Link>
                       <div className="pl-1">
                         <AddToWallet />
                       </div>
@@ -157,15 +185,22 @@ export default function Layout({ children, title, full }: PropsWithChildren<Prop
                   <div className="-mr-2 flex items-center sm:hidden">
 
                     <div className="flex items-center px-4">
-                      <div className={(walletConnected ? '' : 'hidden ') + "bg-slate-50 px-3 pt-2 pb-1 shadow text-xs text-slate-800 text-mono flex flex-rows rounded-md m3-4"}>
-                        <TokenBalance
-                          show={walletConnected}
-                          update={setTokenBalance}
-                          token={Config.baseTokenAddress as `0x${string}`}
-                        />
-                        <div className="text-slate-500 pl-1 text-xs m-auto font-semibold">
-                          AIUS
-                        </div>
+                      <div className={(walletConnected ? '' : 'hidden ') + "bg-slate-50 px-3 pt-2 pb-1 shadow text-xs text-slate-800 text-mono flex flex-rows rounded-md m3-4 " + (tokenBalance.eq(0) ? '' : 'animate-pulse')}>
+                        <Link href="/upgrade" className="flex flex-rows">
+                          <TokenBalance
+                            show={false}
+                            update={setTokenBalance}
+                            token={Config.baseTokenAddress as `0x${string}`}
+                          />
+                          <TokenBalance
+                            show={walletConnected}
+                            update={setV2TokenBalance}
+                            token={Config.v2_baseTokenAddress as `0x${string}`}
+                          />
+                          <div className="text-slate-500 pl-1 text-xs m-auto font-semibold">
+                            AIUS
+                          </div>
+                        </Link>
                         <div className="pl-1">
                           <AddToWallet />
                         </div>

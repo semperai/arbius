@@ -42,7 +42,11 @@ contract BulkSubmitter {
                 0.1e18,
                 input
             );
-            bytes32 commitment = arbius.generateCommitment(address(this), taskid, solutionCid);
+            bytes32 commitment = arbius.generateCommitment(
+                address(this),
+                taskid,
+                solutionCid
+            );
             arbius.signalCommitment(commitment);
 
             emit TaskSubmitted(taskid);

@@ -3,7 +3,7 @@ import {
   useContractRead,
 } from 'wagmi';
 import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import EngineArtifact from '@/artifacts/V2_EngineV1.sol/V2_EngineV1.json';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 import { formatBalance } from '@/utils';
 
@@ -15,7 +15,7 @@ export default function ValidatorMinimum() {
   const {
     data: validatorMinimumRaw,
   } = useContractRead({
-    address: Config.engineAddress as `0x${string}`,
+    address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'getValidatorMinimum',
     args: [],
