@@ -370,7 +370,7 @@ export default function HomePage() {
                     </ul>
                     <div className="mt-10 flex">
                       <a
-                        href={`https://app.uniswap.org/swap?outputCurrency=0xe3dbc4f88eaa632ddf9708732e2832eeaa6688ab`}
+                        href={`https://app.uniswap.org/swap?outputCurrency=0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852`}
                         className="text-sm font-semibold leading-6 text-indigo-400"
                         target="_blank"
                       >
