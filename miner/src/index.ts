@@ -279,7 +279,7 @@ async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) 
     }
 
     const { owner } = await expretry(async () => await arbius.tasks(taskid));
-    console.log(`Owner of the solution ${owner}`);
+    log.debug(`Owner of the solution ${owner}`);
 
     // triggeres to check the transaction for valid CID
     if (Math.random() < mathpercent) {
