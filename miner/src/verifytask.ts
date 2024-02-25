@@ -211,4 +211,5 @@ if (process.argv.length < 4) {
   process.exit(1);
 }
 
+// TODO pull task data from ipfs so we only have to pass taskid
 start(process.argv[2], process.argv[3], process.argv[4]);
