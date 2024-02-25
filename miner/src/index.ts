@@ -93,7 +93,8 @@ interface SolutionDetails {
 
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
-const mathpercent = 0.05;
+const contestationVoteFinishRunPercent = 0.1;
+const solutionSubmittedRunPercent = 0.05;
 const minerVersion = BigNumber.from('2');
 
 async function lookupAndInsertTask(taskid: string): Promise<Task> {
@@ -263,6 +264,11 @@ async function eventHandlerTaskRetracted(taskid: string, evt: ethers.Event) {
 let alreadySeenSolutionTx = new Set<string>();
 async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) {
   // log.debug(evt);
+  log.debug('Event.SolutionSubmitted', taskid);
+  if (Math.random() > solutionSubmittedRunPercent) {
+    log.debug(`SolutionSubmitted ${taskid} skipped`);
+    return;
+  }
   if (alreadySeenSolutionTx.has(evt.transactionHash)) {
     log.error("alreadySeenSolutionTx", evt.transactionHash);
     log.error("taskid", taskid);
@@ -282,45 +288,43 @@ async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) 
     log.debug(`Owner of the solution ${owner}`);
 
     // triggeres to check the transaction for valid CID
-    if (Math.random() < mathpercent) {
-      const lookup = (await expretry(() => lookupAndInsertTask(taskid))) as LookupResult;
-      if (!lookup) {
-        throw new Error("could not look up task -> eventHandlerSolutionSubmitted");
-      }
-      const { model, cid: inputCid } = lookup;
+    const lookup = (await expretry(() => lookupAndInsertTask(taskid))) as LookupResult;
+    if (!lookup) {
+      throw new Error("could not look up task -> eventHandlerSolutionSubmitted");
+    }
+    const { model, cid: inputCid } = lookup;
 
-      const m = getModelById(EnabledModels, model);
-      if (!m) {
-        log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerSolutionSubmitted`);
-        return false;
-      }
-
-      const taskInput = (await dbGetTaskInput(taskid, inputCid)) as TaskInput | null;
-      if (!taskInput) {
-        log.warn(`Task (${taskid}) input not found in db -> eventHandlerSolutionSubmitted`);
-        return false;
-      }
-
-      const input = JSON.parse(taskInput.data);
-      const cid = await m.getcid(c, m, taskid, input);
-
-      const solution = (await expretry(() => arbius.solutions(taskid))) as SolutionDetails;
-      if (solution.cid !== cid) {
-        log.info(`Solution found with cid ${solution.cid} does not match ours ${cid} -> eventHandlerSolutionSubmitted`);
-        await contestSolution(taskid);
-      } else {
-        log.info(`Solution CID matches our local CID for ${taskid} -> eventHandlerSolutionSubmitted`);
-      }
+    const m = getModelById(EnabledModels, model);
+    if (!m) {
+      log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerSolutionSubmitted`);
+      return false;
     }
 
-    const { validator, blocktime, claimed, cid } = await expretry(async () => await arbius.solutions(taskid));
+    const taskInput = (await dbGetTaskInput(taskid, inputCid)) as TaskInput | null;
+    if (!taskInput) {
+      log.warn(`Task (${taskid}) input not found in db -> eventHandlerSolutionSubmitted`);
+      return false;
+    }
+
+    const input = JSON.parse(taskInput.data);
+    const cid = await m.getcid(c, m, taskid, input);
+
+    const solution = (await expretry(() => arbius.solutions(taskid))) as SolutionDetails;
+    if (solution.cid !== cid) {
+      log.info(`Solution found with cid ${solution.cid} does not match ours ${cid} -> eventHandlerSolutionSubmitted`);
+      await contestSolution(taskid);
+    } else {
+      log.info(`Solution CID matches our local CID for ${taskid} -> eventHandlerSolutionSubmitted`);
+    }
+
+    const { validator, blocktime, claimed, cid: solutionCid } = await expretry(async () => await arbius.solutions(taskid));
 
     const invalidTask = await dbGetInvalidTask(taskid);
     if (invalidTask != null) {
       await contestSolution(taskid);
     }
 
-    await dbStoreSolution({ taskid, validator, blocktime, claimed, cid });
+    await dbStoreSolution({ taskid, validator, blocktime, claimed, cid: solutionCid });
     return true;
   } catch (e) {
     log.error("An error occurred in eventHandlerSolutionSubmitted", e);
@@ -507,6 +511,10 @@ async function processContestationVoteFinish(
   taskid: string,
 ) {
   log.error('processContestationVoteFinish', taskid);
+  if (Math.random() > contestationVoteFinishRunPercent) {
+    log.debug(`ContestationVoteFinish ${taskid} skipped`);
+    return;
+  }
 
   let total = 0;
 
