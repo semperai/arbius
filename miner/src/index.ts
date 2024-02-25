@@ -513,7 +513,7 @@ async function processValidatorStake() {
   // schedule checking every 2 mins
   await dbQueueJob({
     method: 'validatorStake',
-    priority: 100,
+    priority: 1000,
     waituntil: now()+120,
     concurrent: false,
     data: {
