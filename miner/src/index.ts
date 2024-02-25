@@ -235,7 +235,7 @@ async function eventHandlerTaskSubmitted(
       txid,
     },
   });
-  console.log(queued);
+  // console.log(queued);
 }
 
 async function eventHandlerTaskRetracted(taskid: string, evt: ethers.Event) {
