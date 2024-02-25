@@ -3,8 +3,10 @@ import { Logger, ILogObj } from "tslog";
 
 let log: Logger<ILogObj>;
 
-export function initializeLogger(log_path: string|null) {
-  log = new Logger();
+export function initializeLogger(log_path: string|null, minLevel: number = 0) {
+  log = new Logger({
+    minLevel,
+  });
 
   if (log_path != null) {
     log.attachTransport((lobj) => {
