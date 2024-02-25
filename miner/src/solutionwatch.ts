@@ -62,8 +62,8 @@ async function main() {
     log.debug(`Short Solutions: ${shortSolutions}`);
     log.debug(`Solutions per second: ${shortSolutions / bufferTime}`);
     log.debug(`Total validators solutions in last minute: ${sorted.length}`);
-    log.debug('Top 10 validators by solutions in last minute:');
-    for (let o of sorted.slice(0, 10)) {
+    log.debug('Top 30 validators by solutions in last minute:');
+    for (let o of sorted.slice(0, 30)) {
       log.debug(o[0], o[1].length);
     }
 
