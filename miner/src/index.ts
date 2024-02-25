@@ -350,76 +350,17 @@ async function eventHandlerContestationSubmitted(
     },
   });
 
-  return new Promise(async (resolve, reject) => {
-
-    const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(validator, taskid));
-    const canVote = canVoteStatus == 0x0; // success code
-
-    if (! canVote) {
-      log.debug(`Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
-      return;
-    }
-
-    const existing = await dbGetContestation(taskid);
-
-    if (existing) {
-      log.debug(`Contestation ${taskid} already in db -> eventHandlerContestationSubmitted`);
-      return resolve(true);
-    }
-
-    // Fetch contestation details (original line had a naming conflict)
-    const contestationDetails = await expretry(async () => await arbius.contestations(taskid));
-
-    const lookup = await expretry(async () => await lookupAndInsertTask(taskid));
-    if (!lookup) {
-      log.error("could not look up task -> eventHandlerContestationSubmitted");
-      return reject(new Error("Could not look up task -> eventHandlerContestationSubmitted"));
-    }
-    const { model, cid: inputCid } = lookup;
-
-    const m = getModelById(EnabledModels, model);
-
-    if (m === null) {
-      log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerContestationSubmitted`);
-      return;
-    }
-
-    const taskInput = await dbGetTaskInput(taskid, inputCid);
-
-    if (!taskInput) {
-      log.warn(`Task (${taskid}) input not found in db -> eventHandlerContestationSubmitted`);
-      return;
-    }
-    const input = JSON.parse(taskInput.data);
-    const expectedCid = await m.getcid(c, m, taskid, input);
-
-    // Fetch contested solution details
-    const solution = await expretry(async () => await arbius.solutions(taskid));
-
-    // Compare CIDs and decide on voting
-    if (solution.cid !== expectedCid) {
-      await voteOnContestation(taskid, true); // Assuming true votes for the contestation
-      log.info(`Contested CID does not match expected CID for ${taskid}. Voting in favor.  -> eventHandlerContestationSubmitted`);
-      await voteOnContestation(taskid, true);
-    } else {
-      // we may not want to vote to save gas idk?????
-      log.info(`Contested CID matches expected CID for ${taskid}. No action taken.  -> eventHandlerContestationSubmitted`);
-      await voteOnContestation(taskid, false);
-    }
-
-    // Store contestation details in db
-    await dbStoreContestation({
+  await dbQueueJob({
+    method: 'contestation',
+    priority: 100,
+    waituntil: 0,
+    concurrent: false,
+    data: {
+      validator,
       taskid,
-      validator: contestationDetails.validator,
-      blocktime: contestationDetails.blocktime,
-      finish_start_index: contestationDetails.finish_start_index,
-    });
-
-    resolve(true);
-  }).catch((e) => {
-    log.error("An error occurred -> eventHandlerContestationSubmitted ", e);
-    throw e;
+    },
   });
+
 }
 
 
@@ -829,6 +770,71 @@ async function processSolve(taskid: string) {
   );
 }
 
+async function processContestation(validator: string, taskid: string) {
+  log.error("processContestation", validator, taskid);
+  const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(wallet.address, taskid));
+  const canVote = canVoteStatus == 0x0; // success code
+
+  if (! canVote) {
+    log.error(`Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
+    return;
+  }
+
+  const existing = await dbGetContestation(taskid);
+
+  if (! existing) {
+    // Fetch contestation details (original line had a naming conflict)
+    const contestationDetails = await expretry(async () => await arbius.contestations(taskid));
+
+    const lookup = await expretry(async () => await lookupAndInsertTask(taskid));
+    if (!lookup) {
+      log.error("could not look up task -> eventHandlerContestationSubmitted");
+      return;
+    }
+    const { model, cid: inputCid } = lookup;
+
+    const m = getModelById(EnabledModels, model);
+
+    if (m === null) {
+      log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerContestationSubmitted`);
+      return;
+    }
+
+    const taskInput = await dbGetTaskInput(taskid, inputCid);
+
+    if (!taskInput) {
+      log.error(`Task (${taskid}) input not found in db -> eventHandlerContestationSubmitted`);
+      return;
+    }
+    const input = JSON.parse(taskInput.data);
+    const expectedCid = await m.getcid(c, m, taskid, input);
+    log.error(`input: ${taskInput.data}`);
+    log.error(`Expected CID: ${expectedCid}`);
+
+    // Fetch contested solution details
+    const solution = await expretry(async () => await arbius.solutions(taskid));
+
+    // Compare CIDs and decide on voting
+    if (solution.cid !== expectedCid) {
+      await voteOnContestation(taskid, true); // Assuming true votes for the contestation
+      log.info(`Contested CID does not match expected CID for ${taskid}. Voting in favor.  -> eventHandlerContestationSubmitted`);
+      await voteOnContestation(taskid, true);
+    } else {
+      // we may not want to vote to save gas idk?????
+      log.info(`Contested CID matches expected CID for ${taskid}. No action taken.  -> eventHandlerContestationSubmitted`);
+      await voteOnContestation(taskid, false);
+    }
+
+    // Store contestation details in db
+    await dbStoreContestation({
+      taskid,
+      validator: contestationDetails.validator,
+      blocktime: contestationDetails.blocktime,
+      finish_start_index: contestationDetails.finish_start_index,
+    });
+  }
+}
+
 async function contestSolution(taskid: string) {
   try {
     log.info(`Attempt to contest ${taskid} solution`);
@@ -1108,9 +1114,12 @@ export async function processJobs(jobs: DBJob[]) {
           decoded.input,
         );
         break;
+      case 'contestation':
+        return () => processContestation(decoded.validator, decoded.taskid);
+        break;
       case 'contestationVoteFinish':
-       return () => processContestationVoteFinish(decoded.taskid);
-       break;
+        return () => processContestationVoteFinish(decoded.taskid);
+        break;
 
       default:
         log.error(`Job (${job.id}) method (${job.method}) has no implementation`);
