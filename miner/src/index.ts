@@ -1243,7 +1243,7 @@ export async function main() {
 
   await dbQueueJob({
     method: 'validatorStake',
-    priority: 30,
+    priority: 1000,
     waituntil: 0,
     concurrent: false,
     data: {},
