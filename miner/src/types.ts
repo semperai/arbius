@@ -52,6 +52,13 @@ export interface MiningConfig {
       jwt: string;
     };
   }
+
+  prob: {
+    contestation_vote_finish: number;
+    solution_submitted: number;
+    solve: number;
+    task_retracted: number;
+  }
 }
 
 export interface Task {

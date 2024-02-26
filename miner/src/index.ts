@@ -93,11 +93,6 @@ interface SolutionDetails {
 
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
-const contestationVoteFinishRunPercent = 0.1;
-const solutionSubmittedRunPercent = 0.05;
-const solveRunPercent = 0.05;
-const taskRetractedRunPercent = 1.00;
-
 const minerVersion = BigNumber.from('2');
 
 async function lookupAndInsertTask(taskid: string): Promise<Task> {
@@ -244,7 +239,7 @@ async function eventHandlerTaskSubmitted(
 
 async function eventHandlerTaskRetracted(taskid: string, evt: ethers.Event) {
   log.debug('Event.TaskRetracted', taskid);
-  if (Math.random() < taskRetractedRunPercent) {
+  if (Math.random() < c.prob.task_retracted) {
     log.debug(`TaskRetracted ${taskid} skipped`);
     return;
   }
@@ -273,7 +268,7 @@ let alreadySeenSolutionTx = new Set<string>();
 async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) {
   // log.debug(evt);
   log.debug('Event.SolutionSubmitted', taskid);
-  if (Math.random() < solutionSubmittedRunPercent) {
+  if (Math.random() < c.prob.solution_submitted) {
     log.debug(`SolutionSubmitted ${taskid} skipped`);
     return;
   }
@@ -417,7 +412,7 @@ async function processContestationVoteFinish(
   taskid: string,
 ) {
   log.error('processContestationVoteFinish', taskid);
-  if (Math.random() < contestationVoteFinishRunPercent) {
+  if (Math.random() < c.prob.contestation_vote_finish) {
     log.debug(`ContestationVoteFinish ${taskid} skipped`);
     return;
   }
@@ -619,7 +614,7 @@ async function processTask(
 
   log.debug(`Task (${taskid}) input ${JSON.stringify(input, null, 2)}`);
 
-  if (Math.random() < solveRunPercent) {
+  if (Math.random() < c.prob.solve) {
     await dbQueueJob({
       method: 'solve',
       priority: 20,
