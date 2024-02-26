@@ -54,6 +54,7 @@ export interface MiningConfig {
   }
 
   prob: {
+    task: number;
     contestation_vote_finish: number;
     solution_submitted: number;
     solve: number;
@@ -145,6 +146,11 @@ export interface DBContestationVote {
   taskid: string;
   validator: string;
   yea: boolean;
+}
+
+export interface DBTaskTxid {
+  taskid: string;
+  txid: string;
 }
 
 export interface DBTaskInput {

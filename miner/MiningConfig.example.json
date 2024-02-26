@@ -58,6 +58,7 @@
 
   "prob": {
     "//": "values between 0 and 1 for the probability of each event to run",
+    "task": 0.1,
     "contestation_vote_finish": 0.1,
     "solution_submitted": 0.05,
     "solve": 0.05,

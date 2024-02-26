@@ -9,12 +9,14 @@ import { log } from './log';
 import {
   dbGetJobs,
   dbGetTask,
+  dbGetTaskTxid,
   dbGetTaskInput,
   dbGetInvalidTask,
   dbGetSolution,
   dbGetContestation,
   dbGetContestationVotes,
   dbStoreTask,
+  dbStoreTaskTxid,
   dbStoreInvalidTask,
   dbStoreTaskInput,
   dbStoreSolution,
@@ -147,9 +149,16 @@ async function lookupAndInsertTask(taskid: string): Promise<Task> {
 async function lookupAndInsertTaskInput(
   taskid: string,
   cid: string,
-  txid: string,
+  txid: string|null,
   modelTemplate: any,
 ) {
+  if (txid === null) {
+    txid = await dbGetTaskTxid(taskid);
+  }
+  if (txid === null) {
+    log.warn(`Task (${taskid}) has no txid`);
+    return;
+  }
   let input: any;
 
   const cachedInput = await dbGetTaskInput(taskid, cid);
@@ -164,7 +173,7 @@ async function lookupAndInsertTaskInput(
   let preprocessed_str = null;
   let preprocessed_obj = null;
 
-  const tx = await expretry(async () => await arbius.provider.getTransaction(txid));
+  const tx = await expretry(async () => await arbius.provider.getTransaction(txid!));
   if (! tx) {
     throw new Error('unable to retrieve tx');
   }
@@ -211,6 +220,13 @@ async function eventHandlerTaskSubmitted(
 ) {
   log.debug('Event.TaskSubmitted', taskid);
 
+  // this is needed in contestations so we can look up the input
+  dbStoreTaskTxid(taskid, evt.transactionHash);
+
+  if (c.prob.task < Math.random()) {
+    log.debug(`Task ${taskid} skipped`);
+    return;
+  }
   // log.debug(evt);
 
   if (alreadySeenTaskTx.has(evt.transactionHash)) {
@@ -817,6 +833,9 @@ async function processContestation(validator: string, taskid: string) {
       log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerContestationSubmitted`);
       return;
     }
+
+    // in case we havent already looked up/stored the input
+    await lookupAndInsertTaskInput(taskid, inputCid, null, m);
 
     const taskInput = await dbGetTaskInput(taskid, inputCid);
 

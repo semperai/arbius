@@ -11,6 +11,7 @@ import {
   StoreContestationVoteProps,
   Job,
   DBTask,
+  DBTaskTxid,
   DBTaskInput,
   DBInvalidTask,
   DBSolution,
@@ -33,6 +34,7 @@ export async function initializeDatabase(c: MiningConfig): Promise<any> {
     `sql/contestation_votes.sql`,
     `sql/jobs.sql`,
     `sql/failed_jobs.sql`,
+    `sql/task_txids.sql`,
   ].map((path) => `${__dirname}/${path}`);
 
   async function loadSqlFile(src: string) {
@@ -94,6 +96,20 @@ export async function dbGetContestationVotes(taskid: string): Promise<DBContesta
   });
 }
 
+export async function dbGetTaskTxid(
+  taskid: string,
+): Promise<string|null> {
+  const query = `SELECT * FROM task_txids WHERE taskid=?`
+  return new Promise((resolve, reject) => {
+    return db.get(query, [taskid], (err, row) => {
+      if (row) {
+        const txid = (row as DBTaskTxid).txid;
+        resolve(txid);
+      }
+      else resolve(null);
+    });
+  });
+}
 export async function dbGetTaskInput(
   taskid: string,
   cid: string,
@@ -287,6 +303,24 @@ export async function dbClearJobsByMethod(method: string): Promise<void> {
       dbDeleteJob(job.id);
     }
   }
+}
+
+export async function dbStoreTaskTxid(
+  taskid: string,
+  txid: string,
+): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    db.run(`
+      INSERT INTO task_txids (taskid, txid)
+      VALUES (?, ?)
+    `, [
+      taskid,
+      txid,
+    ], (err: Error | null) => {
+      if (err) reject(err);
+      else     resolve(true);
+    });
+  });
 }
 
 export async function dbStoreTaskInput(
