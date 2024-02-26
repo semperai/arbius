@@ -104,7 +104,7 @@ export async function pinFilesToIPFS(
       for (let path of paths) {
         formData.append(
           'file',
-          fs.createReadStream(`${__dirname}/../cache/${c.cache_path}/${path}`),
+          fs.createReadStream(`${__dirname}/../${c.cache_path}/${path}`),
           {
             filepath: `${taskid}/${path}`,
           }
