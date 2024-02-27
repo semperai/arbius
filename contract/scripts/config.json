@@ -19,6 +19,16 @@
         "rate": "1000000000000000000",
         "cid": "0x1220511fdf0e88fa9adba98a7693cca89b5d9f3181da4815b0f0500aa4315b38d17d"
       }
-    }
-  }
+    },
+    "stable_video_diffusion": {
+      "id": "0xd614c361527396406f9149f72ac4c70d1cc9e0561a609730b2e5423abf82f83a",
+      "mineable": false,
+      "contracts": {},
+      "params": {
+        "addr": "0xab25fd559664f50554a740dd28b729b6c8d6383f",
+        "fee": "0",
+        "cid": "0x1220cde4146a1076d46604b2d1f967ea1a9afb8e586eed2f287a087eed2cb7e636cf"
+      }
+
+}
 }

@@ -171,8 +171,8 @@ task("model:register", "Register new model")
     process.exit(1);
   }
 
-  const Engine = await hre.ethers.getContractFactory("EngineV1");
-  const engine = await Engine.attach(Config.engineAddress);
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
   const tx = await engine.registerModel(address, fee, tdata);
   const receipt = await tx.wait();
 
