@@ -10,6 +10,7 @@ import StringEnumInput from '@/components/inputs/StringEnumInput';
 import IntEnumInput from '@/components/inputs/IntEnumInput';
 
 import { Template, TemplateInput } from '@/types/Template';
+import FileInput from "@/components/inputs/FileInput";
 
 interface Props {
   template: Template;
@@ -78,6 +79,13 @@ export default function InputTemplateRenderer({ template, inputData, setInputDat
               value={value(row) as string}
               setValue={setValue(row)}
               choices={row.choices as string[]}
+            />
+          ) }
+          { row.type === 'file' && (
+            <FileInput
+              variable={row.variable}
+              value={value(row) as string}
+              setValue={setValue(row)}
             />
           ) }
         </div>

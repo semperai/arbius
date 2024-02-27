@@ -1,6 +1,6 @@
 export interface TemplateInput {
   variable: string;
-  type: "string"|"string_enum"|"int"|"int_enum"|"decimal";
+  type: "string"|"string_enum"|"int"|"int_enum"|"decimal"|"file";
   required: boolean;
   min?: number;
   max?: number;
