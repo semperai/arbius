@@ -21,12 +21,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const ethConverterBalance = await ethContract.balanceOf(Config.l1OneToOneAddress);
   const novaConverterBalance = await novaContract.balanceOf(Config.l2OneToOneAddress);
   const daoBalance = await novaContract.balanceOf("0x1298f8a91b046d7fcbd5454cd3331ba6f4fea168");
+  const gysrBalance = await ethContract.balanceOf("0xA8f103eEcfb619358C35F98c9372B31c64d3f4A1");
 
   const unlocked = ethers.utils.parseEther('1000000')
     .sub(engineBalance)
     .sub(ethConverterBalance)
     .sub(novaConverterBalance)
-    .sub(daoBalance);
+    .sub(daoBalance)
+    .sub(gysrBalance);
 
   try {
     res.status(200).send(ethers.utils.formatEther(unlocked))
