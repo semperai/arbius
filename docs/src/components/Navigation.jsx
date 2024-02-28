@@ -209,6 +209,7 @@ export const navigation = [
   {
     title: 'Resources',
     links: [
+      { title: 'Roadmap', href: '/roadmap' },
       { title: 'Team', href: '/team' },
       { title: 'Security', href: '/security' },
       { title: 'Contracts', href: '/ca' },
