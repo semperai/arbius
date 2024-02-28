@@ -10,6 +10,8 @@
     "build": "yarn clean && tsc && copyfiles -u 1 src/**/*.sql build/",
     "start": "node build/start.js",
     "start:dev": "npx nodemon",
+    "scan:unclaimed": "npx ts-node ./src/cache_unclaimed_tasks.ts",
+    "bulk:claim": "npx ts-node ./src/claim_unclaimed_tasks.ts",
     "watch:solution": "npx ts-node ./src/solutionwatch.ts",
     "watch:validator": "npx ts-node ./src/validatorwatch.ts",
     "verify:task": "npx ts-node ./src/verifytask.ts",
