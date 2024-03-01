@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { Database } from 'sqlite3';
 import { MiningConfig } from './types';
 import { log } from './log';
-import { taskid2Seed } from './utils';
+import { now, taskid2Seed } from './utils';
 import {
   QueueJobProps,
   StoreTaskProps,
@@ -280,6 +280,31 @@ export async function dbQueueJob({
       });
     });
   });
+}
+
+export async function dbGarbageCollect(): Promise<void> {
+  let before = now() - 60;
+
+  let methods = [
+    'task',
+    'pinTaskInput',
+    'solution',
+  ];
+
+  for (let method of methods) {
+    await new Promise((resolve, reject) => {
+      db.run(`
+        DELETE FROM jobs
+        WHERE method = ? AND waituntil < ?
+      `, [
+        method,
+        before,
+      ], (err: Error | null) => {
+        if (err) reject(err);
+        else     resolve(null);
+      });
+    });
+  }
 }
 
 export async function dbDeleteJob(jobid: number): Promise<void> {

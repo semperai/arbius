@@ -7,6 +7,7 @@ export interface MiningConfig {
   stake_buffer_percent: number;
   stake_buffer_topup_percent: number;
   evilmode: boolean;
+  read_only: boolean;
 
   blockchain: {
     private_key: string;
@@ -56,8 +57,8 @@ export interface MiningConfig {
   prob: {
     task: number;
     contestation_vote_finish: number;
+    contestation_submitted: number;
     solution_submitted: number;
-    solve: number;
     task_retracted: number;
   }
 }

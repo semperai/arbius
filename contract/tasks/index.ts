@@ -3,6 +3,7 @@ import ProxyAdminArtifact from '@openzeppelin/upgrades-core/artifacts/@openzeppe
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { task } from "hardhat/config";
 import Config from '../scripts/config.json';
+import LocalConfig from '../scripts/config.local.json';
 
 async function getMinerAddress(hre: HardhatRuntimeEnvironment) {
   const accounts = await hre.ethers.getSigners();
@@ -67,42 +68,31 @@ task("decode-tx", "Extract input from a submitTask transaction")
   console.log(input);
 });
 
-task("mint", "Mint tokens")
+task("local:mint", "Mint tokens")
 .addParam("to", "address")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
     const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-    const baseToken = await BaseToken.attach(Config.baseTokenAddress);
+    const baseToken = await BaseToken.attach(LocalConfig.v2_baseTokenAddress);
     const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
 });
 
-task("v2:mint", "Mint tokens")
-.addParam("to", "address")
-.addParam("amount", "amount")
-.setAction(async ({ to, amount }, hre) => {
-    const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-    const baseToken = await BaseToken.attach(Config.v2_baseTokenAddress);
-    const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
-    await tx.wait();
-    console.log(`minted ${amount} tokens to ${to}`);
-});
-
-task("mine", "mine blocks locally")
+task("local:mine", "mine blocks locally")
 .addParam("blocks", "how many")
 .setAction(async ({ blocks }, hre) => {
   await hre.network.provider.send("hardhat_mine", [`0x${parseInt(blocks).toString(16)}`]);
 });
 
-task("timetravel", "go into the future")
+task("local:timetravel", "go into the future")
 .addParam("seconds", "how many")
 .setAction(async ({ seconds }, hre) => {
   await hre.network.provider.send("evm_increaseTime", [`0x${parseInt(seconds).toString(16)}`]);
   await hre.network.provider.send("evm_mine");
 });
 
-task("gen-wallet", "Creates a new wallet", async (taskArgs, hre) => {
+task("local:gen-wallet", "Creates a new wallet", async (taskArgs, hre) => {
   const wallet = hre.ethers.Wallet.createRandom();
   console.log('address', wallet.address);
   console.log('mnemonic', wallet.mnemonic.phrase);
@@ -367,6 +357,15 @@ task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
   const tx = await engine.withdrawAccruedFees();
   await tx.wait();
   console.log('Fees withdrawn');
+});
+
+task("engine:utils:staked", "Check staked amount")
+.addParam("address", "Address")
+.setAction(async ({ address }, hre) => {
+  const Utils = await hre.ethers.getContractFactory("EngineUtilsV1");
+  const utils = await Utils.attach(Config.engineUtilsAddress);
+  const staked = await utils.staked(address);
+  console.log(`Staked: ${hre.ethers.utils.formatEther(staked)}`);
 });
 
 task("governance:delegate", "Delegate your tokens")
