@@ -39,7 +39,7 @@ import {
   hydrateInput,
 } from './models';
 
-import { pinFileToIPFS, pinFilesToIPFS } from './ipfs';
+import { pinFileToIPFS } from './ipfs';
 
 import {
   sleep,
