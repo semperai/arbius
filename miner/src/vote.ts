@@ -54,7 +54,7 @@ async function main(taskidWatch: string, vote: boolean = true) {
   log.info(`Contestation exists for ${taskidWatch} by ${existingContestation.validator}`);
 
   const canVote = await arbius.validatorCanVote(wallet.address, taskidWatch);
-  if (canVote !== 0x0) {
+  if (canVote.toString() != '0') {
     log.warn(`Validator cannot vote on ${taskidWatch} code ${canVote}`);
     process.exit(1);
     return;
