@@ -17,6 +17,7 @@
     "watch:validator": "npx ts-node ./src/validatorwatch.ts",
     "verify:task": "npx ts-node ./src/verifytask.ts",
     "watch:vote": "npx ts-node ./src/votewatch.ts",
+    "vote": "npx ts-node ./src/vote.ts",
     "test": "mocha -r ts-node/register",
     "pinata:gc": "npx ts-node scripts/pinata_unpin_old_files.ts"
   },
