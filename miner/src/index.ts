@@ -1195,16 +1195,17 @@ export async function processJobs(jobs: DBJob[]) {
     }
   }
 
+  // returns if job processed
   async function loop(
     job: DBJob,
     concurrent: boolean,
-  ) {
+  ): Promise<boolean> {
     if (job.concurrent != concurrent) {
-      return;
+      return false;
     }
 
     if (job.waituntil > now()) {
-      return;
+      return false;
     }
 
     log.debug(`Job (${job.id}) [${job.method}] processing`);
@@ -1220,6 +1221,7 @@ export async function processJobs(jobs: DBJob[]) {
 
     log.debug(`Job (${job.id}) [${job.method}] processed`);
     await dbDeleteJob(job.id);
+    return true;
   }
 
   // log.debug(jobs)
@@ -1231,7 +1233,11 @@ export async function processJobs(jobs: DBJob[]) {
 
   // process all non-concurrent
   for (const job of jobs) {
-    await loop(job, false);
+    const processed = await loop(job, false);
+    // only process one non-concurrent job at a time
+    if (processed) {
+      return;
+    }
   }
 }
 
