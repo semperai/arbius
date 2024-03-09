@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { initializeLogger, log } from './log';
 import { Readable } from 'stream';
 import { ethers, Contract, Wallet, BigNumber } from 'ethers';
-import { base64 } from '@scure/base';
+import { base58, base64 } from '@scure/base';
 import axios from 'axios';
 import Config from './config.json';
 import { initializeMiningConfig } from './mc';
@@ -89,7 +89,21 @@ const EnabledModels = [
 ];
 
 
-async function verifyTask(taskid: string, taskInputData: string) {
+async function verifyTask(taskid: string) {
+  const {
+    cid: inputCidBytes,
+  } = await expretry(async () => await arbius.tasks(taskid));
+
+  const inputCid = base58.encode(Uint8Array.from(Buffer.from(inputCidBytes.slice(2), 'hex')));
+  const res = await expretry(async () => await axios.get(`https://ipfs.io/ipfs/${inputCid}`));
+  if (res!.status !== 200) {
+    log.error(`Task (${taskid}) input CID could not be retrieved (${res!.status})`);
+    return;
+  }
+
+  const taskInputData = res!.data;
+  console.log(taskInputData);
+
   const {
     validator: solutionValidator,
     blocktime: solutionBlocktime,
@@ -142,7 +156,7 @@ async function verifyTask(taskid: string, taskInputData: string) {
     owner: taskOwner,
   });
 
-  const preprocessed_obj = JSON.parse(taskInputData);
+  const preprocessed_obj = taskInputData;
 
   const hydrated = hydrateInput(preprocessed_obj, modelTemplate);
   if (hydrated.err) {
@@ -170,13 +184,12 @@ async function verifyTask(taskid: string, taskInputData: string) {
   }
 }
 
-export async function main(taskid: string, taskInputData: string) {
+export async function main(taskid: string) {
   // need extra for ethers
   log.debug("Setting max file listeners to 100 for ethers");
   process.setMaxListeners(100);
 
-  await verifyTask(taskid, taskInputData);
-
+  await verifyTask(taskid);
 }
 
 async function start(configPath: string, taskid: string, taskInputData: string) {
@@ -202,7 +215,7 @@ async function start(configPath: string, taskid: string, taskInputData: string) 
   await initializeBlockchain();
   log.debug(`Loaded wallet (${wallet.address})`);
 
-  await main(taskid, taskInputData);
+  await main(taskid);
   process.exit(0);
 }
 
