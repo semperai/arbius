@@ -11,6 +11,7 @@
     "start": "node build/start.js",
     "start:dev": "npx nodemon",
     "watch:solution": "npx nodemon --exec \"npx ts-node ./src/solutionwatch.ts\"",
+    "watch:asshole": "npx nodemon --exec \"npx ts-node ./src/assholewatch.ts MiningConfig.json\"",
     "watch:validator": "npx nodemon --exec \"npx ts-node ./src/validatorwatch.ts\"",
     "test": "mocha -r ts-node/register",
     "pinata:gc": "npx ts-node scripts/pinata_unpin_old_files.ts"
