@@ -7,7 +7,7 @@ import { expretry } from './utils';
 import EngineArtifact from './artifacts/contracts/V2_EngineV2.sol/V2_EngineV2.json';
 import BaseTokenArtifact from './artifacts/contracts/BaseTokenV1.sol/BaseTokenV1.json';
 // import GovernorArtifact from './artifacts/contracts/GovernorV1.sol/GovernorV1.json';
-// import DelegatedValidator from './artifacts/contracts/DelegatedValidatorV1.sol/DelegatedValidatorV1.json';
+import DelegatedValidator from './artifacts/contracts/DelegatedMinerV1.sol/DelegatedMinerV1.json';
 import ArbSysArtifact from './artifacts/@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol/ArbSys.json';
 
 const ARBSYS_ADDR = '0x0000000000000000000000000000000000000064';
@@ -31,7 +31,7 @@ export async function initializeBlockchain() {
   if (! c.blockchain.use_delegated_validator) {
     solver = new Contract(Config.v2_engineAddress,    EngineArtifact.abi,    wallet);
   } else {
-    // solver = new Contract(c.blockchain.delegated_validator_address, DelegatedValidator.abi, wallet);
+    solver = new Contract(c.blockchain.delegated_validator_address, DelegatedValidator.abi, wallet);
   }
 }
 
@@ -43,12 +43,11 @@ export async function getBlockNumber() {
 
 export async function getValidatorStaked(): Promise<BigNumber> {
   const staked = await expretry(async () => {
-    /*
+
     if (c.blockchain.use_delegated_validator) {
       const s = (await arbius.validators(c.blockchain.delegated_validator_address)).staked;
       return s;
     }
-    */
 
     const s = (await arbius.validators(wallet.address)).staked;
     return s;
@@ -56,11 +55,12 @@ export async function getValidatorStaked(): Promise<BigNumber> {
   return staked;
 }
 
-// TODO for delegated mode use deposit method
 export async function depositForValidator(depositAmount: BigNumber) {
-  // if (c.blockchain.strategy === 'delegated') {
-  //   const tx = await solver.deposit(depositAmount);
-  // }
+  if (c.blockchain.use_delegated_validator) {
+    const tx = await solver.deposit(depositAmount);
+    const receipt = await tx.wait();
+    return receipt;
+  }
   const tx = await solver.validatorDeposit(wallet.address, depositAmount);
   const receipt = await tx.wait();
   return receipt;
