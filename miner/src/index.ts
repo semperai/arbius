@@ -378,8 +378,11 @@ async function eventHandlerTaskRetracted(taskid: string, evt: ethers.Event) {
   });
 }
 
+let alreadySeenSolution = new Set<string>();
 let alreadySeenSolutionTx = new Set<string>();
 async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) {
+  alreadySeenSolution.add(taskid);
+
   // log.debug(evt);
   if (Math.random() < (1-c.prob.solution_submitted)) {
     // log.debug(`SolutionSubmitted ${taskid} skipped`);
@@ -524,7 +527,7 @@ async function processPinTaskInput(
     `task-${taskid}.json`,
   ));
 
-  log.debug(`Task input ${taskid} pinned with ${cid}`);
+  log.debug(`[processPinTaskInput] Task input ${taskid} pinned with ${cid}`);
 }
 
 let alreadyFinishedContestationVote = new Set<string>();
@@ -535,35 +538,35 @@ async function processContestationVoteFinish(
     return;
   }
   if (Math.random() < (1-c.prob.contestation_vote_finish)) {
-    log.debug(`ContestationVoteFinish ${taskid} skipped`);
+    log.debug(`[processContestationVoteFinish] ContestationVoteFinish ${taskid} skipped`);
     return;
   }
   alreadyFinishedContestationVote.add(taskid);
-  log.debug('processContestationVoteFinish', taskid);
+  log.debug(`[processContestationVoteFinish] ${taskid}`);
 
   // how many to process at time
   const amnt = 16;
   await expretry(async () => arbius.contestationVoteFinish(taskid, amnt), 3, 1.25);
-  log.debug(`ContestationVoteFinish ${taskid} finished`);
+  log.debug(`[processContestationVoteFinish] ${taskid} finished`);
 }
 
 async function processValidatorStake() {
   if (c.read_only) {
-    log.info(`Read only mode, not checking stake`);
+    log.info(`[processValidatorStake] Read only mode, not checking stake`);
     return;
   }
   const etherBalance = await arbius.provider.getBalance(wallet.address);
-  log.debug(`[balcheck] Ether balance: ${ethers.utils.formatEther(etherBalance)}`);
+  log.debug(`[processValidatorStake] Ether balance: ${ethers.utils.formatEther(etherBalance)}`);
 
   if (etherBalance.lt(ethers.utils.parseEther("0.01"))) {
-    log.warn(`[balcheck] Low Ether balance`);
+    log.warn(`[processValidatorStake] Low Ether balance`);
   }
 
   const staked = await getValidatorStaked();
-  log.debug(`[balcheck] AIUS Staked: ${ethers.utils.formatEther(staked)}`);
+  log.debug(`[processValidatorStake] AIUS Staked: ${ethers.utils.formatEther(staked)}`);
 
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
-  log.debug(`[balcheck] Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
+  log.debug(`[processValidatorStake] Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
 
   // schedule checking every 2 mins
   await dbQueueJob({
@@ -581,7 +584,7 @@ async function processValidatorStake() {
     .div(100 - c.stake_buffer_topup_percent);
 
   if (staked.gte(minWithTopupBuffer)) {
-    log.debug(`[balcheck] Have sufficient stake`);
+    log.debug(`[processValidatorStake] Have sufficient stake`);
     return;
   }
 
@@ -590,48 +593,48 @@ async function processValidatorStake() {
     .div(100 - c.stake_buffer_percent);
 
   const depositAmount = minWithBuffer.sub(staked);
-  log.debug(`[balcheck] Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
+  log.debug(`[processValidatorStake] Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
 
   const balance = await expretry(async () => await token.balanceOf(wallet.address));
   if (balance.lt(depositAmount)) {
-    log.error(`[balcheck] Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
-    throw new Error('unable to stake required balance');
+    log.error(`[processValidatorStake] Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
+    throw new Error('[processValidatorStake[ unable to stake required balance');
   }
 
   const allowance = await expretry(async () => await token.allowance(
     wallet.address,
     solver.address, // could be engine or delegated validator
   ));
-  log.debug(`[balcheck] Allowance Amount ${ethers.utils.formatEther(allowance)}`);
+  log.debug(`[processValidatorStake] Allowance Amount ${ethers.utils.formatEther(allowance)}`);
 
   if (allowance.lt(balance)) {
     const allowanceAmount = ethers.constants.MaxUint256.sub(allowance);
 
-    log.debug(`[balcheck] Increasing allowance`);
+    log.debug(`[processValidatorStake] Increasing allowance`);
     await expretry(async () => {
       const tx = await expretry(async () => await token.approve(
         solver.address,
         allowanceAmount,
       ));
       const receipt = await tx.wait();
-      log.info(`[balcheck] Allowance increased in ${receipt.transactionHash}`);
+      log.info(`[processValidatorStake] Allowance increased in ${receipt.transactionHash}`);
     });
   }
 
-  log.debug(`[balcheck] Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
+  log.debug(`[processValidatorStake] Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
   await expretry(async () => {
     const receipt = await depositForValidator(depositAmount);
-    log.info(`[balcheck] Deposited in ${receipt.transactionHash}`);
+    log.info(`[processValidatorStake] Deposited in ${receipt.transactionHash}`);
   });
 
   const postDepositStaked = await getValidatorStaked();
-  log.debug(`[balcheck] Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
+  log.debug(`[processValidatorStake] Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
 }
 
 async function processAutomine() {
   try {
     if (c.read_only) {
-      log.info(`Read only mode, not automining`);
+      log.info(`[processAutomine] Read only mode, not automining`);
       return;
     } else {
       const tx = await solver.submitTask(
@@ -646,10 +649,10 @@ async function processAutomine() {
       );
 
       const receipt = await tx.wait();
-      log.info(`Automine submitTask ${receipt.transactionHash}`);
+      log.info(`[processAutomine] submitTask ${receipt.transactionHash}`);
     }
   } catch (e) {
-    log.error(`Automine submitTask failed ${JSON.stringify(e)}`);
+    log.error(`[processAutomine] submitTask failed ${JSON.stringify(e)}`);
   }
 
   if (c.automine.enabled) {
@@ -669,7 +672,7 @@ async function processTask(
   txid: string,
 ) {
   try {
-    log.info(`Processing task ${taskid}`);
+    log.info(`[processTask] Processing task ${taskid}`);
     const {
       model,
       fee,
@@ -681,7 +684,7 @@ async function processTask(
 
     // we are version 0
     if (version !== 0) {
-      log.debug(`Task (${taskid}) has version other than 0`);
+      log.debug(`[processTask] Task (${taskid}) has version other than 0`);
       // ensure any task mined with non-0 is contested
       // this is looked up when new solutions are seen
       await dbStoreInvalidTask(taskid);
@@ -701,73 +704,101 @@ async function processTask(
     });
 
     if (! modelEnabled) {
-      log.debug(`Task (${taskid}) is using non-enabled Model (${model})`);
+      log.debug(`[processTask] Task (${taskid}) is using non-enabled Model (${model})`);
       return;
     }
 
     if (! filterPassed) {
-      log.debug(`Task (${taskid}) does not pass filter`);
+      log.debug(`[processTask] Task (${taskid}) does not pass filter`);
       return;
     }
 
     // this will be populated
     let input = await lookupAndInsertTaskInput(taskid, inputCid, txid, modelTemplate);
     if (! input) {
-      log.debug(`Task (${taskid}) input not found`);
+      log.debug(`[processTask] Task (${taskid}) input not found`);
       return;
     }
 
-    log.debug(`Task (${taskid}) input ${JSON.stringify(input, null, 2)}`);
+    log.debug(`[processTask] Task (${taskid}) input ${JSON.stringify(input, null, 2)}`);
 
     const m = getModelById(EnabledModels, model);
     if (m === null) {
-      log.error(`Task (${taskid}) could not find model (${model})`);
+      log.error(`[processTask] Task (${taskid}) could not find model (${model})`);
       return;
     }
 
     const solutionCid = await m.getcid(c, m, taskid, input);
-    log.info(`Task (${taskid}) CID (${solutionCid}) generated`);
+    log.info(`[processTask] Task (${taskid}) CID (${solutionCid}) generated`);
 
     if (! solutionCid) {
-      log.error(`Task (${taskid}) CID could not be generated`);
+      log.error(`[processTask] Task (${taskid}) CID could not be generated`);
       return;
     }
-    log.info(`Task (${taskid}) CID (${solutionCid}) generated`);
+    log.info(`[processTask] Task (${taskid}) CID (${solutionCid}) generated`);
 
+    // returns true if there is an existing solution
+    // checks to contest if the solution is not same as ours
+    // if return true - return
+    async function checkForExistingSolution() {
+      if (alreadySeenSolution.has(taskid)) {
+        const {
+          validator: existingSolutionValidator,
+          blocktime: existingSolutionBlocktime,
+          claimed: existingSolutionClaimed,
+          cid: existingSolutionCid,
+        } = await expretry(async () => await arbius.solutions(taskid));
+
+        if (existingSolutionCid === solutionCid) {
+          log.info(`[processTask] Solution found for ${taskid} matches our cid ${solutionCid}, skipping commit and submit solution`);
+          return true;
+        }
+
+        log.info(`[processTask] Solution found with cid ${existingSolutionCid} does not match ours ${solutionCid}`);
+        await contestSolution(taskid);
+        return true;
+      }
+
+      return false;
+    }
+
+    if (await checkForExistingSolution()) return;
     const commitment = generateCommitment(wallet.address, taskid, solutionCid);
 
     try {
       if (c.read_only) {
-        log.info(`Read only mode, not signalling commitment for ${taskid}`);
+        log.info(`[processTask] Read only mode, not signalling commitment for ${taskid}`);
       } else {
         const tx = await arbius.signalCommitment(commitment, {
           gasLimit: 450_000,
         });
         // const receipt = await tx.wait(); // we dont wait here to be faster
-        log.info(`Commitment signalled in ${tx.hash}`);
+        log.info(`[processTask] Commitment signalled in ${tx.hash}`);
       }
     } catch (e) {
-      log.error(`Commitment submission failed ${JSON.stringify(e)}`);
+      log.error(`[processTask] Commitment submission failed ${JSON.stringify(e)}`);
       return;
     }
 
     // wait a bit to hope commitment is mined
     await sleep(300 + (Math.random() * 200));
 
+
     // we will retry in case we didnt wait long enough for commitment
     // if this fails otherwise, it could be because another submitted solution
+    if (await checkForExistingSolution()) return;
     await expretry(
       async () => {
         try {
-          log.debug(`Submitting solution ${taskid} ${solutionCid}`);
+          log.debug(`[processTask] Submitting solution ${taskid} ${solutionCid}`);
           if (c.read_only) {
-            log.info(`Read only mode, not submitting solution for ${taskid}`);
+            log.info(`[processTask] Read only mode, not submitting solution for ${taskid}`);
           } else {
             const tx = await solver.submitSolution(taskid, solutionCid, {
               gasLimit: 500_000,
             });
             const receipt = await tx.wait();
-            log.info(`Solution submitted in ${receipt.transactionHash}`);
+            log.info(`[processTask] Solution submitted in ${receipt.transactionHash}`);
           }
 
           await dbQueueJob({
@@ -780,25 +811,8 @@ async function processTask(
             },
           });
         } catch (e) {
-          log.debug(JSON.stringify(e));
-          const {
-            validator: existingSolutionValidator,
-            blocktime: existingSolutionBlocktime,
-            claimed: existingSolutionClaimed,
-            cid: existingSolutionCid,
-          } = await expretry(async () => await arbius.solutions(taskid));
-
-          if (existingSolutionValidator == "0x0000000000000000000000000000000000000000") {
-            throw new Error(`An unknown error occurred when tried to submit solution for ${taskid} with cid ${solutionCid} -- ${JSON.stringify(e)}`);
-          }
-
-          if (existingSolutionCid === solutionCid) {
-            log.info(`Solution found for ${taskid} matches our cid ${solutionCid}`);
-            return;
-          }
-
-          log.info(`Solution found with cid ${existingSolutionCid} does not match ours ${solutionCid}`);
-          await contestSolution(taskid);
+          if (await checkForExistingSolution()) return;
+          log.error(`[processTask] Solution submission failed ${JSON.stringify(e)}`);
         }
       },
       2,
@@ -814,23 +828,23 @@ async function processSolution(taskid: string) {
   try {
     const existing = await dbGetSolution(taskid);
     if (existing) {
-      log.debug(`Solution (${taskid}) already in db`);
+      log.debug(`[processSolution] Solution (${taskid}) already in db`);
       return;
     }
 
     const { owner } = await expretry(async () => await arbius.tasks(taskid));
-    log.debug(`Owner of the solution ${owner}`);
+    log.debug(`[processSolution] Owner of the solution ${owner}`);
 
     // triggeres to check the transaction for valid CID
     const lookup = (await expretry(() => lookupAndInsertTask(taskid))) as LookupResult;
     if (!lookup) {
-      throw new Error("could not look up task -> eventHandlerSolutionSubmitted");
+      throw new Error("[processSolution] could not look up task");
     }
     const { model, cid: inputCid } = lookup;
 
     const m = getModelById(EnabledModels, model);
     if (!m) {
-      log.error(`Task (${taskid}) could not find model (${model}) -> eventHandlerSolutionSubmitted`);
+      log.error(`[processSolution] Task (${taskid}) could not find model (${model})`);
       return;
     }
 
@@ -839,7 +853,7 @@ async function processSolution(taskid: string) {
 
     const taskInput = (await dbGetTaskInput(taskid, inputCid)) as TaskInput | null;
     if (!taskInput) {
-      log.warn(`Task (${taskid}) input not found in db -> eventHandlerSolutionSubmitted`);
+      log.warn(`[processSolution] Task (${taskid}) input not found in db`);
       return;
     }
 
@@ -848,10 +862,10 @@ async function processSolution(taskid: string) {
 
     const solution = (await expretry(() => arbius.solutions(taskid))) as SolutionDetails;
     if (solution.cid !== cid) {
-      log.info(`Solution found with cid ${solution.cid} does not match ours ${cid} -> eventHandlerSolutionSubmitted`);
+      log.info(`[processSolution] Solution found with cid ${solution.cid} does not match ours ${cid}`);
       await contestSolution(taskid);
     } else {
-      log.info(`Solution CID matches our local CID for ${taskid} -> eventHandlerSolutionSubmitted`);
+      log.info(`[processSolution] Solution CID matches our local CID for ${taskid}`);
     }
 
     const { validator, blocktime, claimed, cid: solutionCid } = await expretry(async () => await arbius.solutions(taskid));
@@ -877,19 +891,19 @@ async function processContestation(validator: string, taskid: string) {
     }
     alreadySeenContestationTask.add(taskid);
 
-    log.error("processContestation", validator, taskid);
+    log.error("[processContestation]", validator, taskid);
     const canVoteStatus = await expretry(async () => await arbius.validatorCanVote(wallet.address, taskid));
     const canVote = canVoteStatus == 0x0; // success code
 
     if (! canVote) {
-      log.error(`Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
+      log.error(`[processContestation] Contestation ${taskid} cannot vote (code ${canVoteStatus})`);
       return;
     }
 
     const existing = await dbGetContestation(taskid);
 
     if (existing) {
-      log.debug(`Contestation ${taskid} already in db`);
+      log.debug(`[processContestation] Contestation ${taskid} already in db`);
       return;
     }
 
@@ -898,13 +912,12 @@ async function processContestation(validator: string, taskid: string) {
 
     const lookup = await expretry(async () => await lookupAndInsertTask(taskid));
     if (!lookup) {
-      log.error("could not look up task -> eventHandlerContestationSubmitted");
+      log.error("[processContestation] could not look up task");
       return;
     }
     const { model, cid: inputCid } = lookup;
 
     const m = getModelById(EnabledModels, model);
-
     if (m === null) {
       log.error(`[processContestation] Task (${taskid}) could not find model (${model})`);
       return;
@@ -915,7 +928,7 @@ async function processContestation(validator: string, taskid: string) {
 
     const invalidTask = await dbGetInvalidTask(taskid);
     if (invalidTask != null) {
-      log.info(`Contested task ${taskid} has invalid input. Voting in favor.`);
+      log.info(`[processContestation] Contested task ${taskid} has invalid input. Voting in favor.`);
       await voteOnContestation(taskid, true);
     } else {
       const taskInput = await dbGetTaskInput(taskid, inputCid);
@@ -926,8 +939,8 @@ async function processContestation(validator: string, taskid: string) {
       }
       const input = JSON.parse(taskInput.data);
       const expectedCid = await m.getcid(c, m, taskid, input);
-      log.error(`input: ${taskInput.data}`);
-      log.error(`Expected CID: ${expectedCid}`);
+      log.error(`[processContestation] input: ${taskInput.data}`);
+      log.error(`[processContestation] Expected CID: ${expectedCid}`);
 
       // Fetch contested solution details
       const solution = await expretry(async () => await arbius.solutions(taskid));
@@ -957,21 +970,21 @@ async function processContestation(validator: string, taskid: string) {
 
 async function contestSolution(taskid: string) {
   try {
-    log.info(`Attempt to contest ${taskid} solution`);
+    log.info(`[contestSolution] Attempt to contest ${taskid} solution`);
 
     const validatorStake = await getValidatorStaked();
     const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
     if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
-      log.info("Validator stake is less than 110% of minimum, not contesting");
+      log.info("[contestSolution] Validator stake is less than 110% of minimum, not contesting");
       return;
     }
 
     const { validator } = await expretry(async () => await arbius.solutions(taskid));
-    log.debug(`contestSolution ${taskid} from ${validator}`);
+    log.debug(`[contestSolution] contestSolution ${taskid} from ${validator}`);
 
     if (validator === wallet.address) {
-      log.error(`Attempting to contest own solution ${taskid}  --- lets not do this`);
-      log.error(`Please report this to the developers`);
+      log.error(`[contestSolution] Attempting to contest own solution ${taskid}  --- lets not do this`);
+      log.error(`[contestSolution] Please report this to the developers`);
       return;
     }
 
@@ -980,7 +993,7 @@ async function contestSolution(taskid: string) {
     } else {
       const tx = await solver.submitContestation(taskid);
       const receipt = await tx.wait();
-      log.info(`Submitted contestation for ${taskid} in ${receipt.transactionHash}`);
+      log.info(`[contestSolution] Submitted contestation for ${taskid} in ${receipt.transactionHash}`);
       alreadySeenContestationTask.add(taskid);
       alreadySeenContestationVote.add(taskid);
     }
@@ -1003,11 +1016,11 @@ async function contestSolution(taskid: string) {
 
     // someone else contested first
     if (existingContestationValidator == "0x0000000000000000000000000000000000000000") {
-      log.error(`An unknown error occurred when we tried to contest ${taskid}`);
+      log.error(`[contestSolution] An unknown error occurred when we tried to contest ${taskid}`);
       return;
     }
 
-    log.info(`Contestation for ${taskid} was already created by ${existingContestationValidator}`);
+    log.info(`[contestSolution] Contestation for ${taskid} was already created by ${existingContestationValidator}`);
     // if we are contesting it, then we agree it is invalid
     await voteOnContestation(taskid, true);
   }
@@ -1030,22 +1043,22 @@ async function voteOnContestation(taskid: string, yea: boolean) {
   const validatorStake = await getValidatorStaked();
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
   if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
-    log.info("Validator stake is less than 110% of minimum, not voting");
+    log.info("[voteOnContestation] Validator stake is less than 110% of minimum, not voting");
     return;
   }
 
   try {
     if (c.read_only) {
-      log.info(`Read only mode, not voting ${yea ? 'YES' : 'NO'} on contestation ${taskid}`);
+      log.info(`[voteOnContestation] Read only mode, not voting ${yea ? 'YES' : 'NO'} on contestation ${taskid}`);
     } else {
-      log.info(`Attempt to vote ${yea ? 'YES' : 'NO'} on ${taskid} contestation`);
+      log.info(`[voteOnContestation] Attempt to vote ${yea ? 'YES' : 'NO'} on ${taskid} contestation`);
       const tx = await solver.voteOnContestation(taskid, yea);
       const receipt = await tx.wait();
-      log.info(`Contestation vote ${yea ? 'YES' : 'NO'} submitted on ${taskid} in ${receipt.transactionHash}`);
+      log.info(`[voteOnContestation] Contestation vote ${yea ? 'YES' : 'NO'} submitted on ${taskid} in ${receipt.transactionHash}`);
     }
   } catch (e) {
     log.debug(JSON.stringify(e));
-    log.error(`Failed voting on contestation ${taskid}`);
+    log.error(`[voteOnContestation] Failed voting on contestation ${taskid}`);
   }
 }
 
@@ -1053,16 +1066,16 @@ async function processClaim(taskid: string) {
   try {
     const receipt = await expretry(async () => {
       const { claimed } = await expretry(async () => await arbius.solutions(taskid));
-      log.debug("processClaim [claimed]", claimed);
+      log.debug("[processClaim] claimed", claimed);
       if (claimed) {
-        log.warn(`Solution (${taskid}) already claimed`);
+        log.warn(`[processClaim] Solution (${taskid}) already claimed`);
         return null;
       }
 
       const { validator: contestationValidator } = await expretry(async () => await arbius.contestations(taskid));
-      log.debug("processClaim [contestationValidator]", contestationValidator);
+      log.debug("[processClaim] contestationValidator", contestationValidator);
       if (contestationValidator != "0x0000000000000000000000000000000000000000") {
-        log.error(`Contestation found for solution ${taskid}, cannot claim`);
+        log.error(`[processClaim] Contestation found for solution ${taskid}, cannot claim`);
 
         await dbQueueJob({
           method: 'contestationVoteFinish',
@@ -1078,24 +1091,24 @@ async function processClaim(taskid: string) {
       }
 
       if (c.read_only) {
-        log.info(`Read only mode, not claiming ${taskid}`);
+        log.info(`[processClaim] Read only mode, not claiming ${taskid}`);
         return null;
       } else {
         const tx = await arbius.claimSolution(taskid, {
           gasLimit: 300_000,
         });
         const receipt = await tx.wait()
-        log.info(`Claim ${taskid} in ${receipt.transactionHash}`);
+        log.info(`[processClaim] Claim ${taskid} in ${receipt.transactionHash}`);
         return receipt;
       }
     }, 2, 1.25);
 
     if (receipt == null) {
-      log.error(`Failed claiming (${taskid})`);
+      log.error(`[processClaim] Failed claiming (${taskid})`);
       return;
     }
 
-    log.debug(`Solution (${taskid}) claimed`);
+    log.debug(`[processClaim] Solution (${taskid}) claimed`);
   } catch (e) {
     log.error("[processClaim] failure", e);
     throw e;
@@ -1104,9 +1117,9 @@ async function processClaim(taskid: string) {
 
 async function processGarbageCollect() {
   let timer = +new Date();
-  log.debug(`GarbageCollect running`);
+  log.debug(`[processGarbageCollect] running`);
   await dbGarbageCollect();
-  log.debug(`GarbageCollect finished in ${+new Date() - timer}ms`);
+  log.debug(`[processGarbageCollect] finished in ${+new Date() - timer}ms`);
 
   dbQueueJob({
     method: 'garbageCollect',
