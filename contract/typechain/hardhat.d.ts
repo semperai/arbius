@@ -373,6 +373,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OneToOneConvert__factory>;
     getContractFactory(
+      name: "TestnetToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TestnetToken__factory>;
+    getContractFactory(
       name: "TimelockV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TimelockV1__factory>;
@@ -835,6 +839,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OneToOneConvert>;
+    getContractAt(
+      name: "TestnetToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestnetToken>;
     getContractAt(
       name: "TimelockV1",
       address: string,

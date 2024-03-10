@@ -91,6 +91,7 @@ export type { IL1CustomGateway } from "./IL1CustomGateway";
 export type { IL2GatewayRouter } from "./IL2GatewayRouter";
 export type { L1Token } from "./L1Token";
 export type { OneToOneConvert } from "./OneToOneConvert";
+export type { TestnetToken } from "./TestnetToken";
 export type { TimelockV1 } from "./TimelockV1";
 export type { V2EngineV1 } from "./V2EngineV1";
 export type { V2EngineV2 } from "./V2EngineV2";
@@ -185,6 +186,7 @@ export { IL1CustomGateway__factory } from "./factories/IL1CustomGateway__factory
 export { IL2GatewayRouter__factory } from "./factories/IL2GatewayRouter__factory";
 export { L1Token__factory } from "./factories/L1Token__factory";
 export { OneToOneConvert__factory } from "./factories/OneToOneConvert__factory";
+export { TestnetToken__factory } from "./factories/TestnetToken__factory";
 export { TimelockV1__factory } from "./factories/TimelockV1__factory";
 export { V2EngineV1__factory } from "./factories/V2EngineV1__factory";
 export { V2EngineV2__factory } from "./factories/V2EngineV2__factory";
