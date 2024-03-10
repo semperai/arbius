@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { Database } from 'sqlite3';
 import { MiningConfig } from './types';
 import { log } from './log';
-import { taskid2Seed } from './utils';
+import { now, taskid2Seed } from './utils';
 import {
   QueueJobProps,
   StoreTaskProps,
@@ -11,6 +11,7 @@ import {
   StoreContestationVoteProps,
   Job,
   DBTask,
+  DBTaskTxid,
   DBTaskInput,
   DBInvalidTask,
   DBSolution,
@@ -33,6 +34,7 @@ export async function initializeDatabase(c: MiningConfig): Promise<any> {
     `sql/contestation_votes.sql`,
     `sql/jobs.sql`,
     `sql/failed_jobs.sql`,
+    `sql/task_txids.sql`,
   ].map((path) => `${__dirname}/${path}`);
 
   async function loadSqlFile(src: string) {
@@ -94,6 +96,20 @@ export async function dbGetContestationVotes(taskid: string): Promise<DBContesta
   });
 }
 
+export async function dbGetTaskTxid(
+  taskid: string,
+): Promise<string|null> {
+  const query = `SELECT * FROM task_txids WHERE taskid=?`
+  return new Promise((resolve, reject) => {
+    return db.get(query, [taskid], (err, row) => {
+      if (row) {
+        const txid = (row as DBTaskTxid).txid;
+        resolve(txid);
+      }
+      else resolve(null);
+    });
+  });
+}
 export async function dbGetTaskInput(
   taskid: string,
   cid: string,
@@ -266,6 +282,31 @@ export async function dbQueueJob({
   });
 }
 
+export async function dbGarbageCollect(): Promise<void> {
+  let before = now() - 60;
+
+  let methods = [
+    'task',
+    'pinTaskInput',
+    'solution',
+  ];
+
+  for (let method of methods) {
+    await new Promise((resolve, reject) => {
+      db.run(`
+        DELETE FROM jobs
+        WHERE method = ? AND waituntil < ?
+      `, [
+        method,
+        before,
+      ], (err: Error | null) => {
+        if (err) reject(err);
+        else     resolve(null);
+      });
+    });
+  }
+}
+
 export async function dbDeleteJob(jobid: number): Promise<void> {
   return new Promise((resolve, reject) => {
     db.run(`
@@ -287,6 +328,24 @@ export async function dbClearJobsByMethod(method: string): Promise<void> {
       dbDeleteJob(job.id);
     }
   }
+}
+
+export async function dbStoreTaskTxid(
+  taskid: string,
+  txid: string,
+): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    db.run(`
+      INSERT INTO task_txids (taskid, txid)
+      VALUES (?, ?)
+    `, [
+      taskid,
+      txid,
+    ], (err: Error | null) => {
+      if (err) reject(err);
+      else     resolve(true);
+    });
+  });
 }
 
 export async function dbStoreTaskInput(

@@ -8,6 +8,7 @@
   "l2OneToOneAddress": "0x5080a6A0F0b0E21A895841456e5Ed77d26332262",
   "v2_engineAddress": "0x3BF6050327Fa280Ee1B5F3e8Fd5EA2EfE8A6472a",
   "proxyAdminAddress": "0xF392fEA506efB6ED445253594DC81a0CB7cD3562",
+  "engineUtilsAddress": "0x4E08B0c63539BfCfE23ee23Bd304bBb8f9D6dCd0",
   "models": {
     "kandinsky2": {
       "id": "0x98617a8cd4a11db63100ad44bea4e5e296aecfd78b2ef06aee3e364c7307f212",

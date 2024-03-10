@@ -1,6 +1,6 @@
 # Arbius
 
-Peer-to-peer decentralizd machine learning - https://arbius.ai
+Peer-to-peer decentralized machine learning - https://arbius.ai
 
 Read paper - https://arbius.ai/paper.pdf
 

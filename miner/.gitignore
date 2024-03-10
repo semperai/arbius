@@ -1,6 +1,9 @@
 MiningConfig.*.json
 !MiningConfig.example.json
 
+contestations.json
+contestationVotes.json
+
 # Logs
 logs
 *.log

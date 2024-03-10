@@ -54,14 +54,16 @@ async function main() {
   setInterval(async () => {
     // iterate over shortSolutionMap
     let sorted = Array.from(shortSolutionMap.entries()).sort((a, b) => {
-        return a[1].length - b[1].length;
+        return b[1].length - a[1].length;
     });
 
     log.debug('=====');
     log.debug(`Total Solutions: ${totalSolutions}`);
     log.debug(`Short Solutions: ${shortSolutions}`);
     log.debug(`Solutions per second: ${shortSolutions / bufferTime}`);
-    for (let o of sorted) {
+    log.debug(`Total validators solutions in last minute: ${sorted.length}`);
+    log.debug('Top 30 validators by solutions in last minute:');
+    for (let o of sorted.slice(0, 30)) {
       log.debug(o[0], o[1].length);
     }
 

@@ -3,9 +3,11 @@ import { BigNumber } from 'ethers';
 export interface MiningConfig {
   log_path: string|null;
   db_path: string;
+  cache_path: string;
   stake_buffer_percent: number;
   stake_buffer_topup_percent: number;
   evilmode: boolean;
+  read_only: boolean;
 
   blockchain: {
     private_key: string;
@@ -50,6 +52,14 @@ export interface MiningConfig {
     pinata: {
       jwt: string;
     };
+  }
+
+  prob: {
+    task: number;
+    contestation_vote_finish: number;
+    contestation_submitted: number;
+    solution_submitted: number;
+    task_retracted: number;
   }
 }
 
@@ -137,6 +147,11 @@ export interface DBContestationVote {
   taskid: string;
   validator: string;
   yea: boolean;
+}
+
+export interface DBTaskTxid {
+  taskid: string;
+  txid: string;
 }
 
 export interface DBTaskInput {

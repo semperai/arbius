@@ -1,9 +1,12 @@
 {
   "log_path": "log.txt",
   "db_path": "db.sqlite",
+  "cache_path": "cache",
   "stake_buffer_percent": 20,
   "stake_buffer_topup_percent": 1,
   "evilmode": false,
+  "//": "do not make transactions, only read from the blockchain",
+  "read_only": false,
 
   "blockchain": {
     "//": "set with your miners private key, and rpc you want to connect to",
@@ -53,5 +56,14 @@
     "http_client": {
       "url": "http://127.0.0.1:5001"
     }
+  },
+
+  "prob": {
+    "//": "values between 0 and 1 for the probability of each event to run",
+    "task": 0.05,
+    "contestation_vote_finish": 0.1,
+    "contestation_submitted": 1.0,
+    "solution_submitted": 0.05,
+    "task_retracted": 1.0
   }
 }
