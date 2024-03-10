@@ -204,6 +204,24 @@ Here is where you'll configure to connect to a running IPFS node. If you are usi
 }
 ```
 
+#### Probability Configuration
+
+The `prob` configuration is used to set the probability of the miner to perform certain actions. Setting this to `0` will disable the action, and setting it to `1` will ensure the action is performed every time. To participate only in contestations, you can set every value to `0` except for `contestation_submitted`. To only validate others solutions, you can set every value to `0` except for `solution_submitted` (this will still cause you to contest invalid solutions). To
+only attempt to mine solutions and not validate others tasks, you can turn `task` to `1` or some smaller number if that is too much for your miner.
+
+
+```json
+{
+  "prob": {
+    "task": 0.05,
+    "contestation_vote_finish": 0.2,
+    "contestation_submitted": 1.0,
+    "solution_submitted": 0.01,
+    "task_retracted": 1.0
+  }
+}
+```
+
 ### Load Up Miner Wallet
 
 You will need to load your miner wallet with some funds to pay for gas. You can do this by sending some funds to the address associated with your private key.
