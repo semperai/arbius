@@ -15,9 +15,9 @@ export function initializeMiningConfig(data: MiningConfig) {
   if (c.prob === undefined) {
     c.prob = {
       task: 0.01,
-      contestation_vote_finish: 0.1,
+      contestation_vote_finish: 0.2,
       contestation_submitted: 1.0,
-      solution_submitted: 0.05,
+      solution_submitted: 0.01,
       task_retracted: 1,
     };
   }
