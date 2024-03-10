@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers';
 import { base58 } from '@scure/base';
+import { log } from './log';
 import Config from './config.json';
 
 // import AnythingV3Template from "./templates/anythingv3.json"
@@ -46,6 +47,7 @@ const default__getcid = async (
   }
   // TODO calculate cid and pin async
   const cid58 = await expretry(async () => await pinFilesToIPFS(c, taskid, paths));
+  log.debug(`Pinned files to ipfs: ${cid58}`);
   if (! cid58) {
     throw new Error('cannot pin files to retrieve cid');
   }
