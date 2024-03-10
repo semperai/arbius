@@ -142,6 +142,16 @@ Within the `arbius/miner` directory, copy the example configuration file to a ne
 cp  MiningConfig.example.json MiningConfig.json
 ```
 
+#### Read-only Configuration
+
+Edit `MiningConfig.json` to include the `readonly` flag. This will prevent the miner from submitting solutions to the network. This is useful for testing the miner on a live network without performing any sort of transactions. You may want to use this while testing various `prob` configurations.
+
+```json
+{
+  "readonly": true
+}
+```
+
 #### Blockchain Configuration
 
 Edit `MiningConfig.json` to include your miners private key and the RPC endpoint.
