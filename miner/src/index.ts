@@ -628,7 +628,7 @@ async function processAutomine() {
   try {
     const tx = await solver.submitTask(
       c.automine.version,
-      wallet.address,
+      c.blockchain.use_delegated_validator ? c.blockchain.delegated_validator_address : wallet.address,
       c.automine.model,
       BigNumber.from(c.automine.fee),
       ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(c.automine.input))),
@@ -760,10 +760,10 @@ async function processSolve(taskid: string) {
   }
   log.info(`CID ${cid} generated`);
 
-  const commitment = generateCommitment(wallet.address, taskid, cid);
+  const commitment = generateCommitment(c.blockchain.use_delegated_validator ? c.blockchain.delegated_validator_address : wallet.address, taskid, cid);
 
   try {
-    const tx = await arbius.signalCommitment(commitment, {
+    const tx = await (c.blockchain.use_delegated_validator ? solver : arbius).signalCommitment(commitment, {
       gasLimit: 450_000,
     });
     // const receipt = await tx.wait(); // we dont wait here to be faster
