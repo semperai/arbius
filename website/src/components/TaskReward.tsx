@@ -38,7 +38,7 @@ export default function TaskReward() {
 
   let taskRewardStr = '';
   if (taskReward) {
-    taskRewardStr = formatBalance(taskReward);
+    taskRewardStr = formatBalance(taskReward, 1e4);
   }
 
   return (
