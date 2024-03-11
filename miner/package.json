@@ -12,6 +12,7 @@
     "start:dev": "npx nodemon",
     "scan:unclaimed": "npx ts-node ./src/cache_unclaimed_tasks.ts",
     "scan:contestations": "npx ts-node ./src/cache_contested_tasks.ts",
+    "scan:validators": "npx ts-node ./src/cache_validators.ts",
     "bulk:claim": "npx ts-node ./src/claim_unclaimed_tasks.ts",
     "watch:solution": "npx ts-node ./src/solutionwatch.ts",
     "watch:validator": "npx ts-node ./src/validatorwatch.ts",

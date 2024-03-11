@@ -3,6 +3,7 @@ MiningConfig.*.json
 
 contestations.json
 contestationVotes.json
+validators.json
 
 # Logs
 logs
