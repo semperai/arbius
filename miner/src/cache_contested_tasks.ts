@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { initializeLogger, log } from "./log";
 import { initializeMiningConfig, c } from "./mc";
 import { initializeBlockchain, wallet, arbius } from "./blockchain";
+import { expretry } from "./utils";
 
 const maxBlocks = 10_000;
 
@@ -28,7 +29,7 @@ const getLogs = async (startBlock: number, endBlock: number) => {
   while (toBlock <= endBlock) {
     log.debug(`Processing block [${fromBlock.toString()} to ${toBlock.toString()}]`);
 
-    const events = await arbius.provider.getLogs({
+    const events = await expretry(async () => await arbius.provider.getLogs({
       address: arbius.address,
       topics: [
         [
@@ -38,9 +39,9 @@ const getLogs = async (startBlock: number, endBlock: number) => {
       ],
       fromBlock,
       toBlock,
-    });
+    }));
 
-    events.map((event) => {
+    events!.map((event: ethers.providers.Log) => {
       const parsedLog = arbius.interface.parseLog(event);
       switch (parsedLog.name) {
         case "ContestationSubmitted":
