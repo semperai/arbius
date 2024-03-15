@@ -1,0 +1,20 @@
+manifestVersion: subsquid.io/v0.1
+name: arbius-core
+version: 1
+description: A squid that indexes Arbius
+build: 
+deploy:
+  addons:
+    postgres: 
+    rpc:
+      - arbitrum-nova:http
+
+  processor:
+    - name: nova-processor
+      cmd:
+        - sqd
+        - process:prod:nova
+  api:
+    cmd:
+      - sqd
+      - serve:prod
