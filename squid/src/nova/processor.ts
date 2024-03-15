@@ -39,10 +39,10 @@ export const processor = new EvmBatchProcessor()
     .addLog({
         address: [NOVA_ENGINE_ADDRESS],
         topic0: [
-            arbiusabi.events.TaskSubmitted.topic,
-            arbiusabi.events.TaskRetracted.topic,
-            arbiusabi.events.SolutionSubmitted.topic,
-            arbiusabi.events.SolutionClaimed.topic,
+            // arbiusabi.events.TaskSubmitted.topic,
+            // arbiusabi.events.TaskRetracted.topic,
+            // arbiusabi.events.SolutionSubmitted.topic,
+            // arbiusabi.events.SolutionClaimed.topic,
             arbiusabi.events.ContestationSubmitted.topic,
             arbiusabi.events.ContestationVote.topic,
             arbiusabi.events.ContestationVoteFinish.topic,
