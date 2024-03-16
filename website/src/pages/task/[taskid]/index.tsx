@@ -40,6 +40,7 @@ interface Contestation {
   validator: string;
   blocktime: ethers.BigNumber;
   finish_start_index: number;
+  slashAmount: ethers.BigNumber;
 }
 
 interface Model {
@@ -309,6 +310,14 @@ export default function TaskPage() {
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {(contestationData as Contestation)?.finish_start_index}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      <strong>slashAmount</strong>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {ethers.utils.formatEther((contestationData as Contestation)?.slashAmount || '0')}
                     </td>
                   </tr>
                 </tbody>
