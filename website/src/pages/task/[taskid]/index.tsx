@@ -12,7 +12,7 @@ import { useQuery, gql } from '@apollo/client';
 import Layout from '@/components/Layout';
 import RenderSolution from '@/components/RenderSolution';
 import Config from '@/config.json';
-import { cidify } from '@/utils';
+import { cidify, renderBlocktime } from '@/utils';
 import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
 
 import Kandinsky2Template from '@/templates/kandinsky2.json';
@@ -140,14 +140,6 @@ export default function TaskPage() {
     setTemplate(template);
   }, [taskData]);
 
-
-  function renderBlocktime(blocktime: ethers.BigNumber|null) {
-    if (! blocktime) {
-      return '';
-    }
-    const d = new Date(blocktime.toNumber() * 1000);
-    return `${blocktime.toString()} - ${d.toLocaleTimeString()} ${d.toLocaleDateString()}`;
-  }
 
   return (
     <Layout title="Task">

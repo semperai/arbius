@@ -38,3 +38,14 @@ export function formatBalance(b: ethers.BigNumber, m: number = 1e14): string {
 export function sleep(ms: number) {
   return new Promise((res, rej) => setTimeout(res, ms));
 }
+
+export function renderBlocktime(blocktime: ethers.BigNumber|null) {
+  if (! blocktime) {
+    return '';
+  }
+  if (blocktime.eq(0)) {
+    return '';
+  }
+  const d = new Date(blocktime.toNumber() * 1000);
+  return `${blocktime.toString()} - ${d.toLocaleTimeString()} ${d.toLocaleDateString()}`;
+}
