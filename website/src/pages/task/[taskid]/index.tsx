@@ -8,6 +8,8 @@ import {
   useContractEvent,
 } from 'wagmi'
 import { ethers } from 'ethers'
+import { useQuery, gql } from '@apollo/client';
+
 
 
 import Layout from '@/components/Layout';
@@ -50,6 +52,18 @@ interface Model {
   cid: string;
 }
 
+const GET_CONTESTATION_VOTES = gql`
+  query GetContestationVotes($id: String!) {
+    contestationVotes(where: { taskID_eq: $id, network_eq: "nova"}) {
+      id
+      address
+      yea
+      timestamp
+      txHash
+    }
+  }
+`;
+
 export default function TaskPage() {
   const { address } = useAccount()
 
@@ -59,6 +73,14 @@ export default function TaskPage() {
 
   const router = useRouter()
   const { taskid } = router.query
+
+  const {
+    loading: contestationVotesLoading,
+    error:   contestationVotesError,
+    data:    contestationVotesData,
+  } = useQuery(GET_CONTESTATION_VOTES, {
+    variables: { id: taskid },
+  });
 
   const {
     data: taskData,
@@ -318,6 +340,29 @@ export default function TaskPage() {
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {ethers.utils.formatEther((contestationData as Contestation)?.slashAmount || '0')}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      <strong>votes</strong>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {contestationVotesLoading && 'Loading...'}                    {contestationVotesError && `Error! ${contestationVotesError.message}`}
+                      {contestationVotesData && contestationVotesData?.contestationVotes.length === 0 && 'No votes found.'}
+                      {contestationVotesData && contestationVotesData?.contestationVotes.length > 0 && contestationVotesData?.contestationVotes.filter((vote: any) => vote.yea).length} yea, {contestationVotesData && contestationVotesData?.contestationVotes.filter((vote: any) => !vote.yea).length} nay
+
+                      {contestationVotesData && contestationVotesData?.contestationVotes.map((vote: any) => (
+                        <div key={vote.id} className="whitespace-nowrap py-1 text-sm text-cyan-600">
+                          <a
+                            target="_blank"
+                            href={`https://nova.arbiscan.io/tx/${vote.txHash}`}
+                          >
+                            {vote.yea ? '👍' : '👎'} - {vote.address}
+                            <br />
+                            <small>{vote.timestamp}</small>
+                          </a>
+                        </div>
+                      ))}
                     </td>
                   </tr>
                 </tbody>

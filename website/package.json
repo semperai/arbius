@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.9.7",
     "@headlessui/react": "^1.7.13",
     "@heroicons/react": "^2.0.16",
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
@@ -24,6 +25,7 @@
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.3",
     "ethers": "^5",
+    "graphql": "^16.8.1",
     "next": "13.2.3",
     "next-themes": "^0.2.1",
     "nightwind": "^1.1.13",

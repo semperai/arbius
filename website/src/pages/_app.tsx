@@ -7,6 +7,12 @@ import { configureChains, createClient, WagmiConfig, mainnet } from 'wagmi'
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import * as gtag from "@/gtag";
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+
+const apolloClient = new ApolloClient({
+  uri: 'https://squid.subsquid.io/arbius-core/v/v1/graphql',
+  cache: new InMemoryCache(),
+});
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || ''
 
@@ -88,7 +94,9 @@ export default function App({ Component, pageProps }: AppProps) {
         defaultTheme="system" // default "light"
       >
         <WagmiConfig client={wagmiClient}>
-          <Component {...pageProps} />
+          <ApolloProvider client={apolloClient}>
+            <Component {...pageProps} />
+          </ApolloProvider>
         </WagmiConfig>
       </ThemeProvider>
   
