@@ -213,6 +213,7 @@ export const navigation = [
       { title: 'Team', href: '/team' },
       { title: 'Security', href: '/security' },
       { title: 'Contracts', href: '/ca' },
+      { title: 'Subsquids', href: '/subsquids' },
       { title: 'Whitepaper', href: 'https://arbius.ai/paper.pdf' },
       { title: 'Brand Guidelines', href: '/Arbius-Brand-Guidelines.pdf' },
       { title: 'Logo', href: '/arbius-logo.zip' },

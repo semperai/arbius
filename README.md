@@ -22,6 +22,8 @@ Arbius is a monorepo:
 
 - **/paper** source for building pdf
 
+- **/subsquids** indexers using https://subsquid.io
+
 ## Documentation
 
 View the full documentation at https://docs.arbius.ai/
