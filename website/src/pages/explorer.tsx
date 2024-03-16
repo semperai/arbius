@@ -483,8 +483,8 @@ export default function ExplorerPage() {
               </button>
             </Link>
           </div>
-
         </div>
+
         <div className="sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <div className="mx-auto max-w-7xl">
