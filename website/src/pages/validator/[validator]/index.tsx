@@ -12,7 +12,7 @@ import { useQuery, gql } from '@apollo/client';
 
 import Layout from '@/components/Layout';
 import Config from '@/config.json';
-import { cidify } from '@/utils';
+import { cidify, renderBlocktime } from '@/utils';
 import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
 
 interface Validator {
@@ -64,6 +64,19 @@ export default function ValidatorPage() {
     ],
   });
 
+  const {
+    data: lastContestationLossTimeData,
+    isError: lastContestationLossTimeIsError,
+    isLoading: lastContestationLossTimeIsLoading,
+  } = useContractRead({
+    address: Config.v2_engineAddress as `0x${string}`,
+    abi: EngineArtifact.abi,
+    functionName: 'lastContestationLossTime',
+    args: [
+      validator,
+    ],
+  });
+
 
   return (
     <Layout title="Validator">
@@ -107,7 +120,15 @@ export default function ValidatorPage() {
                       <strong>since</strong>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {((validatorData as Validator)?.since || "0").toString()}
+                      {renderBlocktime((validatorData as Validator)?.since)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      <strong>last contestation loss time</strong>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {renderBlocktime(lastContestationLossTimeData as ethers.BigNumber || null)}
                     </td>
                   </tr>
                 </tbody>
