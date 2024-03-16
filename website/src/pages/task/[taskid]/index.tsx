@@ -9,9 +9,6 @@ import {
 } from 'wagmi'
 import { ethers } from 'ethers'
 import { useQuery, gql } from '@apollo/client';
-
-
-
 import Layout from '@/components/Layout';
 import RenderSolution from '@/components/RenderSolution';
 import Config from '@/config.json';
@@ -263,7 +260,7 @@ export default function TaskPage() {
                       <strong>validator</strong>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
-                      <a target="_blank" href={`https://nova.arbiscan.io/address/${(solutionData as Solution)?.validator}`}>{(solutionData as Solution)?.validator}</a>
+                      <a href={`/validator/${(solutionData as Solution)?.validator}`}>{(solutionData as Solution)?.validator}</a>
                     </td>
                   </tr>
                   <tr>
@@ -315,7 +312,7 @@ export default function TaskPage() {
                       <strong>validator</strong>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
-                      <a target="_blank" href={`https://nova.arbiscan.io/address/${(contestationData as Contestation)?.validator}`}>{(contestationData as Contestation)?.validator}</a>
+                      <a href={`/validator/${(contestationData as Contestation)?.validator}`}>{(contestationData as Contestation)?.validator}</a>
                     </td>
                   </tr>
                   <tr>
@@ -353,10 +350,7 @@ export default function TaskPage() {
 
                       {contestationVotesData && contestationVotesData?.contestationVotes.map((vote: any) => (
                         <div key={vote.id} className="whitespace-nowrap py-1 text-sm text-cyan-600">
-                          <a
-                            target="_blank"
-                            href={`https://nova.arbiscan.io/tx/${vote.txHash}`}
-                          >
+                          <a href={`/validator/${vote.address}`}>
                             {vote.yea ? '👍' : '👎'} - {vote.address}
                             <br />
                             <small>{vote.timestamp}</small>
