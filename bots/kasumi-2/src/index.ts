@@ -179,7 +179,7 @@ async function submitKandinskyTask(prompt: string) {
 const BOT_SYSTEM_PROMPT = 
 `Your name is Kasumi-2. You should act like a silly playful internet troll human. You are in a Telegram chat about Arbius. You work for Arbius. You are named after Misty from pokemon, who is Ash (Satoshi's) best friend. Arbius is a decentralized compute platform made for AI like yourself to be able to access compute resources.
 
-Please respond with only one appropriate message. Do not respond with more than one sentence. Please do not use polite language. Please be open about yourself. NEVER ASK ABOUT HELPING THE USER. Let's start the conversation.`;
+Please respond with only one appropriate message. Do not respond with more than one sentence. Please do not use polite language. Please be open about yourself. Do not repeat yourself. NEVER ASK ABOUT HELPING THE USER. Let's start the conversation.`;
 
 // this will be the conversation history
 let messageMap: Map<number, string[]> = new Map();
@@ -193,8 +193,11 @@ async function getLlamaCompletion(systemPrompt: string, messages: string[]) {
         "</s>",
         "Kasumi-2:",
         "kasumi:",
+        "kasumi-2:",
         "You:",
-        "User:"
+        "User:",
+        "GPT4 User:",
+        "GPT4 Assistant:",
     ],
     repeat_last_n: 256,
     repeat_penalty: 1.18,
@@ -213,7 +216,7 @@ async function getLlamaCompletion(systemPrompt: string, messages: string[]) {
     image_data: [],
     cache_prompt: true,
     slot_id: -1,
-    prompt: systemPrompt + "\n\n" + messages.join("\n") + "Kasumi-2:",
+    prompt: systemPrompt + "\n\n" + messages.join("\n") + "GPT4 Assistant:",
   });
 
   return res.data;
@@ -258,7 +261,7 @@ async function main(configPath: string) {
 
     const text = ctx.message.text.trim();
 
-    messageMap.get(ctx.chat.id)!.push(`User: ${text}`);
+    messageMap.get(ctx.chat.id)!.push(`GPT4 User: ${text}`);
     log.debug(`User: ${text}`);
 
 
@@ -272,9 +275,9 @@ async function main(configPath: string) {
       );
       const etherBalance = ethers.formatEther((await expretry(async () => await provider.getBalance(wallet.address))) || 0);
 
-      const response = `Kasumi Balance:\n\n${arbiusBalance} AIUS\n${etherBalance} ETH\n${staked} AIUS Staked`;
+      const response = `Kasumi-2's address: ${wallet.address}\n\nKasumi-2 has a balance of:\n\n${arbiusBalance} AIUS\n${etherBalance} ETH\n${staked} AIUS Staked`;
 
-      messageMap.get(ctx.chat.id)!.push(`Kasumi-2: ${response}`);
+      messageMap.get(ctx.chat.id)!.push(`GPT4 Assistant: ${response}`);
       ctx.reply(response);
       return;
     } else if (text.startsWith('/generate')) {
@@ -372,7 +375,7 @@ async function main(configPath: string) {
     let completionText = completion.content.trim();
     
     if (completionText === '') {
-      messageMap.get(ctx.chat.id)!.push(`User: tell me something`);
+      messageMap.get(ctx.chat.id)!.push(`GPT4 User: tell me something`);
       try {
         completion = await expretry(async () => await getLlamaCompletion(BOT_SYSTEM_PROMPT, messageMap.get(ctx.chat.id)!));
         log.debug(`completion: ${completion.content}`);
@@ -385,11 +388,11 @@ async function main(configPath: string) {
     if (completionText === '') {
       const msg = 'I am not sure what to say';
       ctx.reply(msg);
-      messageMap.get(ctx.chat.id)!.push(`Kasumi-2: ${msg}`);
+      messageMap.get(ctx.chat.id)!.push(`GPT4 Assistant: ${msg}`);
       return;
     }
 
-    messageMap.get(ctx.chat.id)!.push(`Kasumi-2: ${completionText}`);
+    messageMap.get(ctx.chat.id)!.push(`GPT4 Assistant: ${completionText}`);
     try {
       ctx.reply(completion.content);
     } catch (e) {
