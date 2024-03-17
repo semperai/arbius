@@ -24,7 +24,7 @@ interface Validator {
 
 const GET_CONTESTATION_VOTES = gql`
   query GetContestationVotes($address: String!) {
-    contestationVotes(where: { address_eq: $address, network_eq: "nova"}) {
+    contestationVotes(orderBy: timestamp_DESC, where: { address_eq: $address, network_eq: "nova"}) {
       id
       taskID
       yea
