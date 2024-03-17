@@ -95,7 +95,7 @@ async function verifyTask(taskid: string) {
   } = await expretry(async () => await arbius.tasks(taskid));
 
   const inputCid = base58.encode(Uint8Array.from(Buffer.from(inputCidBytes.slice(2), 'hex')));
-  const res = await expretry(async () => await axios.get(`https://ipfs.io/ipfs/${inputCid}`));
+  const res = await expretry(async () => await axios.get(`https://ipfs.arbius.org/ipfs/${inputCid}`));
   if (res!.status !== 200) {
     log.error(`Task (${taskid}) input CID could not be retrieved (${res!.status})`);
     return;
