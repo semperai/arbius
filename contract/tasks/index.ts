@@ -19,34 +19,39 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 
-const bulkSubmitterAddress = '0x4f87C8fe7f4b719b45229d8EC87aDe8c5e9d0137';
 
-task("bulk:task", "")
-.setAction(async ({ }, hre) => {
-  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
-  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
-  const tx = await bulkSubmitter.bulkTask();
-  const receipt = await tx.wait();
-  console.log(receipt);
-});
+task("bulk:submit", "Helper to submit multiple tasks at once")
+.addOptionalParam("v", "Version of task", "0")
+.addParam("owner", "Owner of task")
+.addParam("model", "Model id")
+.addOptionalParam("fee", "Fee", "0")
+.addParam("input", "Input")
+.addOptionalParam("n", "Number of tasks", "10")
+.addOptionalParam("gas", "Gas limit per task", "250000")
+.setAction(async ({
+  v,
+  owner,
+  model,
+  fee,
+  input,
+  n,
+  gas,
+}, hre) => {
+  // TODO move this to config
+  const bulkSubmitterAddress = '0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc';
 
-task("bulk:deposit", "")
-.addParam("amount", "amount")
-.setAction(async ({ amount }, hre) => {
-  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
-  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
-  const tx = await bulkSubmitter.deposit(hre.ethers.utils.parseEther(amount));
-  const receipt = await tx.wait();
-  console.log(receipt);
-});
+  const BulkSubmitTask = await hre.ethers.getContractFactory("BulkSubmitTask");
+  const bulkSubmitTask = await BulkSubmitTask.attach(bulkSubmitterAddress);
 
-task("bulk:solution", "")
-.setAction(async ({ amount }, hre) => {
-  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
-  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
-  const tx = await bulkSubmitter.bulkSolution([
-    // taskids
-  ]);
+  const tx = await bulkSubmitTask.submitTaskBulk(
+    v,
+    owner,
+    model,
+    fee,
+    hre.ethers.utils.hexlify(hre.ethers.utils.toUtf8Bytes(input)),
+    n,
+    gas,
+  );
   const receipt = await tx.wait();
   console.log(receipt);
 });

@@ -49,6 +49,7 @@ export type { DoubleEndedQueue } from "./DoubleEndedQueue";
 export type { BaseTokenV1 } from "./BaseTokenV1";
 export type { EngineUtilsV1 } from "./EngineUtilsV1";
 export type { EngineV1 } from "./EngineV1";
+export type { BulkSubmitTask } from "./BulkSubmitTask";
 export type { BulkSubmitter } from "./BulkSubmitter";
 export type { ClaimSolution } from "./ClaimSolution";
 export type { FinishContestationVote } from "./FinishContestationVote";
@@ -144,6 +145,7 @@ export { DoubleEndedQueue__factory } from "./factories/DoubleEndedQueue__factory
 export { BaseTokenV1__factory } from "./factories/BaseTokenV1__factory";
 export { EngineUtilsV1__factory } from "./factories/EngineUtilsV1__factory";
 export { EngineV1__factory } from "./factories/EngineV1__factory";
+export { BulkSubmitTask__factory } from "./factories/BulkSubmitTask__factory";
 export { BulkSubmitter__factory } from "./factories/BulkSubmitter__factory";
 export { ClaimSolution__factory } from "./factories/ClaimSolution__factory";
 export { FinishContestationVote__factory } from "./factories/FinishContestationVote__factory";

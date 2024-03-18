@@ -1,7 +1,7 @@
 import { ethers, upgrades } from "hardhat";
 import { EngineV1 as Engine } from '../typechain/EngineV1';
 import * as fs from 'fs'
-import Config from './config.json';
+import Config from './config.local.json';
 
 
 async function main() {
@@ -11,18 +11,15 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const BulkSubmitter = await ethers.getContractFactory(
-    "BulkSubmitter"
+  const BulkSubmitTask = await ethers.getContractFactory(
+    "BulkSubmitTask"
   );
-  const bulkSubmitter = await BulkSubmitter.deploy(
-    Config.engineAddress,
-    Config.baseTokenAddress,
-    Config.models.kandinsky2.id,
-    ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify({prompt: "nothing"}))),
-    '0x0000000000000000000000000000000000496e20476f64205765205472757374',
+  const bulkSubmitTask = await BulkSubmitTask.deploy(
+    Config.v2_engineAddress,
+    Config.v2_baseTokenAddress,
   );
-  await bulkSubmitter.deployed();
-  console.log("BulkSubmitter deployed to:", bulkSubmitter.address);
+  await bulkSubmitTask.deployed();
+  console.log("BulkSubmitTask deployed to:", bulkSubmitTask.address);
   process.exit(0)
 }
 

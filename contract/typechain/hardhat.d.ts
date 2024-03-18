@@ -205,6 +205,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EngineV1__factory>;
     getContractFactory(
+      name: "BulkSubmitTask",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BulkSubmitTask__factory>;
+    getContractFactory(
       name: "BulkSubmitter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BulkSubmitter__factory>;
@@ -629,6 +633,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.EngineV1>;
+    getContractAt(
+      name: "BulkSubmitTask",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BulkSubmitTask>;
     getContractAt(
       name: "BulkSubmitter",
       address: string,
