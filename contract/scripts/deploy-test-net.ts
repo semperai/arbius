@@ -3,7 +3,6 @@ import { getL2Network } from '@arbitrum/sdk';
 import { EngineV1 } from '../typechain/EngineV1';
 import { V2EngineV2 as EngineV2 } from '../typechain/V2EngineV2';
 import * as fs from 'fs'
-import Config from './config.json';
 import 'dotenv/config';
 
 
