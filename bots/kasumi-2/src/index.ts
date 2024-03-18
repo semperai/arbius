@@ -185,6 +185,12 @@ Please respond with only one appropriate message. Do not respond with more than 
 let messageMap: Map<number, string[]> = new Map();
 
 async function getLlamaCompletion(systemPrompt: string, messages: string[]) {
+  let messagesStr = messages.join("\n");
+  if (messagesStr.length > 1024) {
+    messagesStr = messagesStr.slice(-1024);
+    messagesStr = messagesStr.slice(messagesStr.indexOf("\n"));
+  }
+
   const res = await axios.post(`https://llama.heyamica.com/completion`, {
     stream: false,
     n_predict: 2000,
