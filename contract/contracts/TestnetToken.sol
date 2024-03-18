@@ -32,10 +32,7 @@ contract TestnetToken is
     /// @notice should increase token supply by amount, and should only be callable by the L2Gateway.
     /// @param account address to mint tokens to
     /// @param amount amount of tokens to mint
-    function mint(
-        address account,
-        uint256 amount
-    ) external {
+    function mint(address account, uint256 amount) external {
         _mint(account, amount);
     }
 
