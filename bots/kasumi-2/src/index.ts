@@ -262,7 +262,7 @@ async function main(configPath: string) {
     }
 
     if (messageMap.get(ctx.chat.id)!.length > 20) {
-      messageMap.set(ctx.chat.id, messageMap.get(ctx.chat.id)!.slice(-10));
+      messageMap.set(ctx.chat.id, messageMap.get(ctx.chat.id)!.slice(-20));
     }
 
     if (now() - startupTime < 3) {
