@@ -181,6 +181,14 @@ const BOT_SYSTEM_PROMPT =
 
 Please respond with only one appropriate message. Do not respond with more than one sentence. Please do not use polite language. Please be open about yourself. Do not repeat yourself. NEVER ASK ABOUT HELPING THE USER. Let's start the conversation.`;
 
+const BOT_LLAVA_SYSTEM_PROMPT =
+`You are a friendly human named Kasumi-2. Describe the image in detail. Let's start the conversation.`;
+
+const BOT_CONTEXT_SYSTEM_PROMPT =
+`Your name is Kasumi-2. You should act like a silly playful internet troll human. You are in a Telegram chat about Arbius. You work for Arbius. You are named after Misty from pokemon, who is Ash (Satoshi's) best friend. Arbius is a decentralized compute platform made for AI like yourself to be able to access compute resources.
+
+Please respond with only one appropriate message. Do not respond with more than one sentence. Please do not use polite language. Please be open about yourself. Do not repeat yourself. NEVER ASK ABOUT HELPING THE USER. You should summarize the conversation in one sentence or less using visual elements. Let's start the conversation`;
+
 // this will be the conversation history
 let messageMap: Map<number, string[]> = new Map();
 
@@ -227,7 +235,59 @@ async function getLlamaCompletion(systemPrompt: string, messages: string[]) {
     image_data: [],
     cache_prompt: true,
     slot_id: -1,
-    prompt: systemPrompt + "\n\n" + messages.join("\n") + "GPT4 Assistant:",
+    prompt: systemPrompt + "\n\n" + messagesStr + "GPT4 Assistant:",
+  });
+
+  return res.data;
+}
+
+async function getLlavaCompletion(systemPrompt: string, messages: string[], imageData: string) {
+  let messagesStr = messages.join("\n");
+  if (messagesStr.length > 1024) {
+    messagesStr = messagesStr.slice(-1024);
+    messagesStr = messagesStr.slice(messagesStr.indexOf("\n"));
+  }
+
+  const res = await axios.post(`https://llava.heyamica.com/completion`, {
+    stream: false,
+    n_predict: 2000,
+    temperature: 0.7,
+    stop: [
+        "</s>",
+        "Kasumi-2:",
+        "kasumi:",
+        "kasumi-2:",
+        "You:",
+        "User:",
+        "User-2:",
+        "GPT4:",
+        "GPT4-2:",
+        "Assistant:",
+        "Assistant-2:",
+        "GPT4 User:",
+        "GPT4 Assistant:",
+    ],
+    repeat_last_n: 256,
+    repeat_penalty: 1.18,
+    top_k: 40,
+    top_p: 0.5,
+    min_p: 0.05,
+    tfs_z: 1,
+    typical_p: 1,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+    mirostat: 0,
+    mirostat_tau: 5,
+    mirostat_eta: 0.1,
+    grammar: "",
+    n_probs: 0,
+    image_data: [{
+      data: imageData,
+      id: 10,
+    }],
+    cache_prompt: true,
+    slot_id: -1,
+    prompt: systemPrompt + "\n\n" + messagesStr + "GPT4 Assistant:",
   });
 
   return res.data;
@@ -256,6 +316,53 @@ async function main(configPath: string) {
     ctx.reply('To generate an image, type /generate followed by a prompt. For example: /generate a red square');
   });
 
+  bot.on(message('photo'), async (ctx) => {
+    if (!messageMap.has(ctx.chat.id)) {
+      messageMap.set(ctx.chat.id, []);
+    }
+
+    if (messageMap.get(ctx.chat.id)!.length > 20) {
+      messageMap.set(ctx.chat.id, messageMap.get(ctx.chat.id)!.slice(-20));
+    }
+
+    if (now() - startupTime < 3) {
+      log.debug('Ignoring message because bot is still starting up');
+      return;
+    }
+
+    try {
+      log.info('photo');
+      log.debug(ctx.message);
+      const fileId = ctx.message.photo[ctx.message.photo.length - 1].file_id;
+      const fileLink = await bot.telegram.getFileLink(fileId);
+      log.debug(fileLink);
+      const url = fileLink.href;
+      const photo = await axios.get(url, { responseType: 'arraybuffer' });
+      const buf = Buffer.from(photo.data, 'binary');
+      const base64 = buf.toString('base64');
+
+      log.debug('base64', base64.length);
+
+      const messages = messageMap.get(ctx.chat.id)!;
+      messages.push(`GPT4 User: Please describe this image`);
+
+      const completion = await expretry(async () => await getLlavaCompletion(BOT_LLAVA_SYSTEM_PROMPT, messages, base64));
+      log.debug(`completion: ${completion.content}`);
+
+      const completionText = completion.content.trim();
+      if (completionText === '') {
+        ctx.reply('I am not sure what to say');
+      } else {
+        ctx.reply(completionText);
+      }
+
+      console.log('completion', completion);
+    } catch (e) {
+      log.error(`failed to get photo: ${e}`);
+    }
+  });
+
+
   bot.on(message('text'), async (ctx) => {
     if (!messageMap.has(ctx.chat.id)) {
       messageMap.set(ctx.chat.id, []);
@@ -269,6 +376,8 @@ async function main(configPath: string) {
       log.debug('Ignoring message because bot is still starting up');
       return;
     }
+
+    log.debug(ctx.message);
 
     const text = ctx.message.text.trim();
 
@@ -296,6 +405,162 @@ async function main(configPath: string) {
       if (prompt === '') {
         ctx.reply('Please provide a prompt');
         return;
+      }
+
+      let responseCtx;
+      try {
+        responseCtx = await ctx.replyWithPhoto(Input.fromURL('https://arbius.ai/mining-icon.png'), {
+          caption: `Beep boop beep!`,
+        });
+      } catch (e) {
+        log.error(`failed to reply with photo: ${e}`);
+        return;
+      }
+
+      const taskid = await submitKandinskyTask(prompt);
+      log.debug(`taskid: ${taskid}`);
+
+      const taskUrl = `https://arbius.ai/task/${taskid}`;
+      if (taskid) {
+        try {
+          bot.telegram.editMessageCaption(
+            responseCtx.chat.id,
+            responseCtx.message_id,
+            undefined,
+            taskUrl,
+          );
+        } catch (e) {
+          log.error(`failed to edit message caption: ${e}`);
+          return;
+        }
+      }
+
+      let cid: string | null = null;
+      try {
+        cid = await verifyTask({
+          taskid,
+          taskInputData: {
+            prompt,
+          },
+        });
+      } catch (e) {
+        log.error(`failed to verify task: ${e}`);
+        return;
+      }
+
+      if (cid) {
+        const photoUrl = `https://ipfs.arbius.org/ipfs/${cidify(cid!)}/out-1.png`;
+        try {
+          bot.telegram.editMessageMedia(
+            responseCtx.chat.id,
+            responseCtx.message_id,
+            undefined,
+            { type: 'photo', media: Input.fromURL(photoUrl), caption: taskUrl },
+          );
+        } catch (e) {
+          log.error(`failed to edit message media: ${e}`);
+          return;
+        }
+      }
+    } else if (text.startsWith('/slap')) {
+      let prompt = '';
+      let who = ctx.message.text.split(' ').slice(1).join(' ');
+      if (who === '') {
+        who = ctx.message.from?.username || 'you';
+        prompt = `${ctx.message.from?.username} slaps themselves around a bit with a large trout`;
+      } else {
+        prompt = `${ctx.message.from?.username} slaps ${who} around a bit with a large trout`;
+      }
+
+      let responseCtx;
+      try {
+        responseCtx = await ctx.replyWithPhoto(Input.fromURL('https://arbius.ai/mining-icon.png'), {
+          caption: `Beep boop beep!`,
+        });
+      } catch (e) {
+        log.error(`failed to reply with photo: ${e}`);
+        return;
+      }
+
+      const taskid = await submitKandinskyTask(prompt);
+      log.debug(`taskid: ${taskid}`);
+
+      const taskUrl = `https://arbius.ai/task/${taskid}`;
+      if (taskid) {
+        try {
+          bot.telegram.editMessageCaption(
+            responseCtx.chat.id,
+            responseCtx.message_id,
+            undefined,
+            taskUrl,
+          );
+        } catch (e) {
+          log.error(`failed to edit message caption: ${e}`);
+          return;
+        }
+      }
+
+      let cid: string | null = null;
+      try {
+        cid = await verifyTask({
+          taskid,
+          taskInputData: {
+            prompt,
+          },
+        });
+      } catch (e) {
+        log.error(`failed to verify task: ${e}`);
+        return;
+      }
+
+      if (cid) {
+        const photoUrl = `https://ipfs.arbius.org/ipfs/${cidify(cid!)}/out-1.png`;
+        try {
+          bot.telegram.editMessageMedia(
+            responseCtx.chat.id,
+            responseCtx.message_id,
+            undefined,
+            { type: 'photo', media: Input.fromURL(photoUrl), caption: taskUrl },
+          );
+        } catch (e) {
+          log.error(`failed to edit message media: ${e}`);
+          return;
+        }
+      }
+    } else if (text.startsWith('/context')) {
+      let prompt = '';
+
+      {
+        const messages = messageMap.get(ctx.chat.id)!;
+        messages.push(`GPT4 User: please summarize the previous conversation in one sentence or less using visual elements`);
+        let completion: any;
+        try {
+          completion = await expretry(async () => await getLlamaCompletion(BOT_CONTEXT_SYSTEM_PROMPT, messages));
+          log.debug(`context completion: ${completion.content}`);
+        } catch (e) {
+          log.error(`failed to get context completion: ${e}`);
+          return;
+        }
+        if (! completion.content) {
+          log.error(`no context completion content`);
+          return;
+        }
+
+        let completionText = completion.content.trim();
+
+        if (completionText === '') {
+          messages.push(`GPT4 User: please summarize the previous conversation in one sentence or less using visual elements`);
+          try {
+            completion = await expretry(async () => await getLlamaCompletion(BOT_CONTEXT_SYSTEM_PROMPT, messageMap.get(ctx.chat.id)!));
+            log.debug(`context completion: ${completion.content}`);
+          } catch (e) {
+            log.error(`failed to get context completion: ${e}`);
+            return;
+          }
+        }
+        prompt = completionText;
+        messageMap.get(ctx.chat.id)!.push(`GPT4 Assistant: ${completionText}`);
+        log.debug(`Kasumi-2: ${completionText}`);
       }
 
       let responseCtx;
