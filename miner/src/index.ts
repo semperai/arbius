@@ -1248,10 +1248,8 @@ export async function processJobs(jobs: DBJob[]) {
         return () => processSolution(decoded.taskid);
       case 'claim':
         return () => processClaim(decoded.taskid);
-        break;
       case 'garbageCollect':
         return () => processGarbageCollect();
-        break;
       /*
       case 'pinGovernanceProposal':
         return () => processPinGovernanceProposal(
@@ -1264,16 +1262,16 @@ export async function processJobs(jobs: DBJob[]) {
           decoded.taskid,
           decoded.input,
         );
-        break;
       case 'contestation':
         return () => processContestation(decoded.validator, decoded.taskid);
-        break;
       case 'contestationVoteFinish':
         return () => processContestationVoteFinish(decoded.taskid);
-        break;
+
+      case 'solve':
+        return async () => { log.debug(`[processJobs] Job ${job.method} no longer`); }
 
       default:
-        log.error(`Job (${job.id}) method (${job.method}) has no implementation`);
+        log.error(`[processJobs] Job (${job.id}) method (${job.method}) has no implementation`);
         process.exit(1);
     }
   }
