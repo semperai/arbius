@@ -201,7 +201,7 @@ async function getLlamaCompletion(systemPrompt: string, messages: string[]) {
 
   const res = await axios.post(`https://llama.heyamica.com/completion`, {
     stream: false,
-    n_predict: 2000,
+    n_predict: 400,
     temperature: 0.7,
     stop: [
         "</s>",
@@ -250,7 +250,7 @@ async function getLlavaCompletion(systemPrompt: string, messages: string[], imag
 
   const res = await axios.post(`https://llava.heyamica.com/completion`, {
     stream: false,
-    n_predict: 2000,
+    n_predict: 400,
     temperature: 0.7,
     stop: [
         "</s>",
