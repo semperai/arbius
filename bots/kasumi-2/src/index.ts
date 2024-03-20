@@ -317,6 +317,8 @@ async function main(configPath: string) {
   });
 
   bot.on(message('photo'), async (ctx) => {
+    return; // TODO remove this line to enable photo processing
+
     if (!messageMap.has(ctx.chat.id)) {
       messageMap.set(ctx.chat.id, []);
     }
