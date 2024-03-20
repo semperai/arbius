@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { Readable } from 'stream';
 import { ethers, Contract, Wallet, BigNumber } from 'ethers';
-import { base64 } from '@scure/base';
+import { base58, base64 } from '@scure/base';
 import axios from 'axios';
 import * as http_client from 'ipfs-http-client';
 import Config from './config.json';
@@ -328,8 +328,8 @@ async function eventHandlerTaskSubmitted(
   // log.debug(evt);
 
   if (alreadySeenTaskTx.has(evt.transactionHash)) {
-    log.error("alreadySeenTaskTx", evt.transactionHash);
-    log.error("taskid", taskid);
+    log.debug("alreadySeenTaskTx", evt.transactionHash);
+    log.debug("taskid", taskid);
     return;
   } else {
     alreadySeenTaskTx.add(evt.transactionHash);
@@ -391,8 +391,8 @@ async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) 
   log.debug('Event.SolutionSubmitted', taskid);
 
   if (alreadySeenSolutionTx.has(evt.transactionHash)) {
-    log.error("alreadySeenSolutionTx", evt.transactionHash);
-    log.error("taskid", taskid);
+    log.debug("alreadySeenSolutionTx", evt.transactionHash);
+    log.debug("taskid", taskid);
     return;
   } else {
     alreadySeenSolutionTx.add(evt.transactionHash);
@@ -637,12 +637,36 @@ async function processAutomine() {
       log.info(`[processAutomine] Read only mode, not automining`);
       return;
     } else {
+      const modelid = c.automine.model;
+      const fee = BigNumber.from(c.automine.fee);
+      const owner = wallet.address;
+      const version = c.automine.version;
+      const input = c.automine.input;
+      const stringifiedInput = JSON.stringify(input);
+
+      const m = getModelById(EnabledModels, modelid);
+      if (m === null) {
+        log.error(`[processAutomine] Task could not find model (${modelid})`);
+        process.exit(1);
+      }
+
+      const hydrated = hydrateInput(input, m.template);
+      if (hydrated.err) {
+        log.warn(`[processAutomine] hydration error ${hydrated.errmsg}`);
+        process.exit(1);
+        return;
+      }
+
       const tx = await solver.submitTask(
-        c.automine.version,
-        wallet.address,
-        c.automine.model,
-        BigNumber.from(c.automine.fee),
-        ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(c.automine.input))),
+        version,
+        owner,
+        modelid,
+        fee,
+        ethers.utils.hexlify(
+          ethers.utils.toUtf8Bytes(
+            stringifiedInput
+          )
+        ),
         {
           gasLimit: 2_500_000,
         }
@@ -650,9 +674,57 @@ async function processAutomine() {
 
       const receipt = await tx.wait();
       log.info(`[processAutomine] submitTask ${receipt.transactionHash}`);
+      alreadySeenTaskTx.add(receipt.transactionHash);
+
+      const taskid = receipt.events[0].args.id;
+      hydrated.input.seed = taskid2Seed(taskid);
+
+      const solutionCid = await m.getcid(c, m, taskid, hydrated.input);
+      log.info(`[processAutomine] Task (${taskid}) CID (${solutionCid}) generated`);
+
+      if (! solutionCid) {
+        log.error(`[processAutomine] Task (${taskid}) CID could not be generated`);
+        return;
+      }
+
+      if (await checkForExistingSolution(taskid, solutionCid)) return;
+      console.log('commitment', wallet.address, taskid, solutionCid);
+      const commitment = generateCommitment(wallet.address, taskid, solutionCid);
+      {
+        const tx = await arbius.signalCommitment(commitment, {
+          gasLimit: 450_000,
+        });
+        // const receipt = await tx.wait(); // we dont wait here to be faster
+        log.info(`[processAutomine] Commitment signalled in ${tx.hash}`);
+      }
+
+      if (await checkForExistingSolution(taskid, solutionCid)) return;
+      log.debug(`[processAutomine] Submitting solution ${taskid} ${solutionCid}`);
+      try {
+        console.log('submitting solution', taskid, solutionCid);
+        const tx = await solver.submitSolution(taskid, solutionCid, {
+          gasLimit: 500_000,
+        });
+        const receipt = await tx.wait();
+        log.info(`[processAutomine] Solution submitted in ${receipt.transactionHash}`);
+        alreadySeenSolutionTx.add(receipt.transactionHash);
+
+        await dbQueueJob({
+          method: "claim",
+          priority: 50,
+          waituntil: now() + 2000 + 120, // 2 min buffer to avoid time drift claim issues
+          concurrent: false,
+          data: {
+            taskid,
+          },
+        });
+      } catch (e) {
+        log.info(`[processAutomine] Solution submission failed ${JSON.stringify(e)}`);
+        if (await checkForExistingSolution(taskid, solutionCid)) return;
+      }
     }
   } catch (e) {
-    log.error(`[processAutomine] submitTask failed ${JSON.stringify(e)}`);
+    log.error(`[processAutomine] failed to mine ${JSON.stringify(e)}`);
   }
 
   if (c.automine.enabled) {
@@ -665,6 +737,31 @@ async function processAutomine() {
       },
     });
   }
+}
+
+// returns true if there is an existing solution
+// checks to contest if the solution is not same as ours
+// if return true - return
+async function checkForExistingSolution(taskid: string, solutionCid: string) {
+  if (alreadySeenSolution.has(taskid)) {
+    const {
+      validator: existingSolutionValidator,
+      blocktime: existingSolutionBlocktime,
+      claimed: existingSolutionClaimed,
+      cid: existingSolutionCid,
+    } = await expretry(async () => await arbius.solutions(taskid));
+
+    if (existingSolutionCid === solutionCid) {
+      log.info(`[checkForExistingSolution] Solution found for ${taskid} matches our cid ${solutionCid}, skipping commit and submit solution`);
+      return true;
+    }
+
+    log.info(`[checkForExistingSolution] Solution found with cid ${existingSolutionCid} does not match ours ${solutionCid}`);
+    await contestSolution(taskid);
+    return true;
+  }
+
+  return false;
 }
 
 async function processTask(
@@ -729,40 +826,13 @@ async function processTask(
     }
 
     const solutionCid = await m.getcid(c, m, taskid, input);
-    log.info(`[processTask] Task (${taskid}) CID (${solutionCid}) generated`);
-
     if (! solutionCid) {
       log.error(`[processTask] Task (${taskid}) CID could not be generated`);
       return;
     }
     log.info(`[processTask] Task (${taskid}) CID (${solutionCid}) generated`);
 
-    // returns true if there is an existing solution
-    // checks to contest if the solution is not same as ours
-    // if return true - return
-    async function checkForExistingSolution() {
-      if (alreadySeenSolution.has(taskid)) {
-        const {
-          validator: existingSolutionValidator,
-          blocktime: existingSolutionBlocktime,
-          claimed: existingSolutionClaimed,
-          cid: existingSolutionCid,
-        } = await expretry(async () => await arbius.solutions(taskid));
-
-        if (existingSolutionCid === solutionCid) {
-          log.info(`[processTask] Solution found for ${taskid} matches our cid ${solutionCid}, skipping commit and submit solution`);
-          return true;
-        }
-
-        log.info(`[processTask] Solution found with cid ${existingSolutionCid} does not match ours ${solutionCid}`);
-        await contestSolution(taskid);
-        return true;
-      }
-
-      return false;
-    }
-
-    if (await checkForExistingSolution()) return;
+    if (await checkForExistingSolution(taskid, solutionCid)) return;
     const commitment = generateCommitment(wallet.address, taskid, solutionCid);
 
     try {
@@ -786,7 +856,7 @@ async function processTask(
 
     // we will retry in case we didnt wait long enough for commitment
     // if this fails otherwise, it could be because another submitted solution
-    if (await checkForExistingSolution()) return;
+    if (await checkForExistingSolution(taskid, solutionCid)) return;
     await expretry(
       async () => {
         try {
@@ -811,7 +881,7 @@ async function processTask(
             },
           });
         } catch (e) {
-          if (await checkForExistingSolution()) return;
+          if (await checkForExistingSolution(taskid, solutionCid)) return;
           log.error(`[processTask] Solution submission failed ${JSON.stringify(e)}`);
         }
       },
@@ -1320,6 +1390,17 @@ export async function main() {
   });
 
   if (c.automine.enabled) {
+    await dbQueueJob({
+      method: 'pinTaskInput',
+      priority: 10,
+      waituntil: now(),
+      concurrent: false,
+      data: {
+        input: JSON.stringify(c.automine.input),
+        taskid: 'automine',
+      },
+    });
+
     await dbQueueJob({
       method: 'automine',
       priority: 5,
