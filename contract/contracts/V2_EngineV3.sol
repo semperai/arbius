@@ -656,19 +656,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
         emit SignalCommitment(msg.sender, commitment_);
     }
 
-    /// @notice Signal support for a model
-    /// @param model_ Model hash
-    /// @param support_ Support or not
-    /** @dev  purely convenience for indexers
-        let others know you support a new model */
-    function signalSupport(
-        bytes32 model_,
-        bool support_
-    ) external onlyValidator {
-        require(models[model_].addr != address(0x0), "model does not exist");
-        emit SignalSupport(msg.sender, model_, support_);
-    }
-
     /// @notice Submit a solution
     /// @param taskid_ Task hash
     /// @param cid_ IPFS cid of solution
