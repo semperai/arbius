@@ -141,8 +141,10 @@ contract V2_EngineV3 is OwnableUpgradeable {
     mapping(address => uint256) public lastContestationLossTime; // v2
 
     uint256 public totalHeld; // v3
+    uint256 public solutionRateLimit; // v3
+    mapping(address => uint256) public lastSolutionSubmission; // v3
 
-    uint256[44] __gap; // upgradeable gap
+    uint256[42] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
 
@@ -230,6 +232,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         minClaimSolutionTime = 3600; // 60 minutes
         minContestationVotePeriodTime = 360; // 6 minutes
         exitValidatorMinUnlockTime = 259200; // 3 days
+        solutionRateLimit = 5; // 5 seconds required between solution submissions
     }
 
     /// @notice Transfer ownership
@@ -707,6 +710,15 @@ contract V2_EngineV3 is OwnableUpgradeable {
         solutionsStake[taskid_] = solutionsStakeAmount;
         validators[msg.sender].staked -= solutionsStakeAmount;
         // end v2
+
+        // v3
+        require(
+            block.timestamp - lastSolutionSubmission[msg.sender] >=
+                solutionRateLimit,
+            "solution rate limit"
+        );
+        lastSolutionSubmission[msg.sender] = block.timestamp;
+        // end v3
 
         emit SolutionSubmitted(msg.sender, taskid_);
     }
