@@ -140,7 +140,9 @@ contract V2_EngineV3 is OwnableUpgradeable {
     uint256 public solutionsStakeAmount; // v2
     mapping(address => uint256) public lastContestationLossTime; // v2
 
-    uint256[45] __gap; // upgradeable gap
+    uint256 public totalHeld; // v3
+
+    uint256[44] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
 
@@ -541,7 +543,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @dev We return 0 rather than use require to avoid breaking the contract if bridged assets are sent to this contract before many tokens are mined
     /// @return Total supply of Engine tokens
     function getPsuedoTotalSupply() public view returns (uint256) {
-        uint256 b = baseToken.balanceOf(address(this));
+        uint256 b = baseToken.balanceOf(address(this)) - totalHeld;
         if (b >= STARTING_ENGINE_TOKEN_AMOUNT) {
             return 0;
         }
@@ -568,6 +570,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @dev this exists to save on gas, no need for an additional transfer every task
     function withdrawAccruedFees() external notPaused {
         baseToken.transfer(treasury, accruedFees);
+        totalHeld -= accruedFees; // v3
         accruedFees = 0;
     }
 
@@ -605,6 +608,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         uint256 amount_
     ) external notPaused {
         baseToken.transferFrom(msg.sender, address(this), amount_);
+        totalHeld += amount_; // v3
 
         // this will be 0 before MIN_SUPPLY_FOR_VALIDATOR_DEPOSITS
         uint256 min = getValidatorMinimum();
@@ -686,6 +690,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
 
         baseToken.transfer(to_, req.amount);
         validators[msg.sender].staked -= req.amount;
+        totalHeld -= req.amount; // v3
         validatorWithdrawPendingAmount[msg.sender] -= req.amount;
 
         delete pendingValidatorWithdrawRequests[msg.sender][count_];
@@ -725,6 +730,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         emit TaskSubmitted(id, model_, fee_, msg.sender);
 
         baseToken.transferFrom(msg.sender, address(this), fee_);
+        totalHeld += fee_; // v3
         tasks[id] = task;
 
         prevhash = id;
@@ -862,6 +868,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         }
         if (modelFee > 0) {
             baseToken.transfer(models[tasks[taskid_].model].addr, modelFee);
+            totalHeld -= modelFee; // v3
         }
 
         uint256 remainingFee = tasks[taskid_].fee - modelFee;
@@ -869,6 +876,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         uint256 treasuryFee = remainingFee -
             ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
         accruedFees += treasuryFee;
+        totalHeld -= treasuryFee; // v3
 
         // avoid 0 value transfer and emitted event
         uint256 validatorFee = remainingFee - treasuryFee;
@@ -877,6 +885,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
                 solutions[taskid_].validator,
                 remainingFee - treasuryFee
             );
+            totalHeld -= remainingFee - treasuryFee; // v3
         }
 
         uint256 modelRate = models[tasks[taskid_].model].rate;
@@ -1122,8 +1131,10 @@ contract V2_EngineV3 is OwnableUpgradeable {
                     validators[a].staked += slashAmount; // refund
                     if (i == 0) {
                         baseToken.transfer(a, valToOriginator);
+                        totalHeld -= valToOriginator; // v3
                     } else {
                         baseToken.transfer(a, valToOtherYeas);
+                        totalHeld -= valToOtherYeas; // v3
                     }
                 }
             }
@@ -1153,8 +1164,10 @@ contract V2_EngineV3 is OwnableUpgradeable {
                     validators[a].staked += slashAmount; // refund
                     if (i == 0) {
                         baseToken.transfer(a, valToAccused);
+                        totalHeld -= valToAccused; // v3
                     } else {
                         baseToken.transfer(a, valToOtherNays);
+                        totalHeld -= valToOtherNays; // v3
                     }
                 }
             }
