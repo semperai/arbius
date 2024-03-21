@@ -66,7 +66,7 @@ struct Contestation {
     uint256 slashAmount; // amount to slash
 }
 
-contract V2_EngineV2 is OwnableUpgradeable {
+contract V2_EngineV3 is OwnableUpgradeable {
     IBaseToken public baseToken;
 
     address public treasury; // where treasury fees/rewards go
