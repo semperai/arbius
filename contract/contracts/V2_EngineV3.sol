@@ -174,7 +174,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
         uint256 fee,
         address indexed sender
     );
-    event TaskRetracted(bytes32 indexed id);
     event SignalCommitment(address indexed addr, bytes32 indexed commitment);
     event SolutionSubmitted(address indexed addr, bytes32 indexed task);
     event SolutionClaimed(address indexed addr, bytes32 indexed task);
@@ -736,31 +735,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
         prevhash = id;
 
         return id;
-    }
-
-    /// @notice Retract a task
-    /** @dev if a task was created with too low of fee or using a model nobody
-      is mining... a user should retract to reclaim their fee.
-      a delay & a fee is placed on the task fee to reduce abuse.*/
-    /// @param taskid_ Task hash
-    function retractTask(bytes32 taskid_) external notPaused {
-        require(tasks[taskid_].owner == msg.sender, "not owner");
-        require(solutions[taskid_].validator == address(0x0), "has solution");
-        require(
-            (block.timestamp) - tasks[taskid_].blocktime >
-                minRetractionWaitTime,
-            "did not wait long enough"
-        );
-
-        uint256 amountMinusFee = (tasks[taskid_].fee *
-            (1e18 - retractionFeePercentage)) / 1e18;
-        uint256 fee = tasks[taskid_].fee - amountMinusFee;
-        baseToken.transfer(msg.sender, amountMinusFee);
-        accruedFees += fee;
-
-        delete tasks[taskid_];
-
-        emit TaskRetracted(taskid_);
     }
 
     /// @notice Get block number (on both arbitrum and l1)
