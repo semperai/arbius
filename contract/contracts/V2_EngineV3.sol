@@ -226,28 +226,10 @@ contract V2_EngineV3 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    /// @param baseToken_ Address of base token
-    /// @param treasury_ Address of treasury
-    function initialize(
-        IBaseToken baseToken_,
-        address treasury_
-    ) public initializer {
-        __Ownable_init();
-        baseToken = baseToken_;
-        treasury = treasury_;
-        pauser = msg.sender;
-        startBlockTime = uint64(block.timestamp);
-
-        validatorMinimumPercentage = 0.0008 ether; // 0.08% of total supply
-        slashAmountPercentage = 0.0001 ether; // 0.01% of total supply
-        solutionFeePercentage = 0.1 ether; // 10%
-        retractionFeePercentage = 0.1 ether; // 10%
-        treasuryRewardPercentage = 0.1 ether; // 10%
-        minClaimSolutionTime = 2000; // seconds
-        minRetractionWaitTime = 10000; // seconds
-        minContestationVotePeriodTime = 4000; // seconds
-        maxContestationValidatorStakeSince = 120; // seconds
-        exitValidatorMinUnlockTime = 86400; // 1 day
+    function initialize() public initializer {
+        minClaimSolutionTime = 3600; // 60 minutes
+        minContestationVotePeriodTime = 360; // 6 minutes
+        exitValidatorMinUnlockTime = 259200; // 3 days
     }
 
     /// @notice Transfer ownership
