@@ -188,28 +188,12 @@ contract V2_EngineV3 is OwnableUpgradeable {
         uint32 indexed start_idx,
         uint32 end_idx
     );
-    event SignalSupport(
-        address indexed addr,
-        bytes32 indexed model,
-        bool supported
-    );
 
     event TreasuryTransferred(address indexed to);
     event PauserTransferred(address indexed to);
     event PausedChanged(bool indexed paused);
     event SolutionMineableRateChange(bytes32 indexed id, uint256 rate);
     event VersionChanged(uint256 version);
-    event ValidatorMinimumPercentageChanged(uint256 indexed amount);
-    event SlashAmountPercentageChanged(uint256 indexed amount);
-    event SolutionFeePercentageChanged(uint256 indexed amount);
-    event RetractionFeePercentageChanged(uint256 indexed amount);
-    event TreasuryRewardPercentageChanged(uint256 indexed amount);
-    event MinClaimSolutionTimeChanged(uint256 indexed amount);
-    event MinRetractionWaitTimeChanged(uint256 indexed amount);
-    event MinContestationVotePeriodTimeChanged(uint256 indexed amount);
-    event MaxContestationValidatorStakeSinceChanged(uint256 indexed amount);
-    event ExitValidatorMinUnlockTimeChanged(uint256 indexed amount);
-    event SolutionStakeAmountChanged(uint256 indexed amount); // v2
     event StartBlockTimeChanged(uint64 indexed startBlockTime); // v2
 
     /// @notice Modifier to restrict to only pauser
@@ -313,88 +297,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
     function setVersion(uint256 version_) external onlyOwner {
         version = version_;
         emit VersionChanged(version_);
-    }
-
-    /// @notice Set validator minimum percentage
-    /// @param amount_ Amount of validator minimum percentage
-    function setValidatorMinimumPercentage(uint256 amount_) external onlyOwner {
-        validatorMinimumPercentage = amount_;
-        emit ValidatorMinimumPercentageChanged(amount_);
-    }
-
-    /// @notice Set slash amount percentage
-    /// @param amount_ Amount of slash amount percentage
-    function setSlashAmountPercentage(uint256 amount_) external onlyOwner {
-        slashAmountPercentage = amount_;
-        emit SlashAmountPercentageChanged(amount_);
-    }
-
-    /// @notice Set solution fee percentage
-    /// @param amount_ Amount of solution fee percentage
-    function setSolutionFeePercentage(uint256 amount_) external onlyOwner {
-        solutionFeePercentage = amount_;
-        emit SolutionFeePercentageChanged(amount_);
-    }
-
-    /// @notice Set retraction fee percentage
-    /// @param amount_ Amount of retraction fee percentage
-    function setRetractionFeePercentage(uint256 amount_) external onlyOwner {
-        retractionFeePercentage = amount_;
-        emit RetractionFeePercentageChanged(amount_);
-    }
-
-    /// @notice Set treasury reward percentage
-    /// @param amount_ Amount of treasury reward percentage
-    function setTreasuryRewardPercentage(uint256 amount_) external onlyOwner {
-        treasuryRewardPercentage = amount_;
-        emit TreasuryRewardPercentageChanged(amount_);
-    }
-
-    /// @notice Set min claim solution time
-    /// @param amount_ Amount of min claim solution time
-    function setMinClaimSolutionTime(uint256 amount_) external onlyOwner {
-        minClaimSolutionTime = amount_;
-        emit MinClaimSolutionTimeChanged(amount_);
-    }
-
-    /// @notice Set min retraction wait time
-    /// @param amount_ Amount of min retraction wait time
-    function setMinRetractionWaitTime(uint256 amount_) external onlyOwner {
-        minRetractionWaitTime = amount_;
-        emit MinRetractionWaitTimeChanged(amount_);
-    }
-
-    /// @notice Set min contestation vote period time
-    /// @param amount_ Amount of min contestation vote period time
-    function setMinContestationVotePeriodTime(
-        uint256 amount_
-    ) external onlyOwner {
-        minContestationVotePeriodTime = amount_;
-        emit MinContestationVotePeriodTimeChanged(amount_);
-    }
-
-    /// @notice Set max delay for validator "since" property after which a validator may no longer vote on a contestation
-    /// @param amount_ Amount of seconds allowed
-    function setMaxContestationValidatorStakeSince(
-        uint256 amount_
-    ) external onlyOwner {
-        maxContestationValidatorStakeSince = amount_;
-        emit MaxContestationValidatorStakeSinceChanged(amount_);
-    }
-
-    /// @notice Set exit validator min unlock time
-    /// @param amount_ Amount of exit validator min unlock time
-    function setExitValidatorMinUnlockTime(uint256 amount_) external onlyOwner {
-        exitValidatorMinUnlockTime = amount_;
-        emit ExitValidatorMinUnlockTimeChanged(amount_);
-    }
-
-    /// @notice Set solution stake amount
-    /// @dev introduced in v2
-    /// @param amount_ Amount required to stake for submitting solution
-    function setSolutionStakeAmount(uint256 amount_) external onlyOwner {
-        solutionsStakeAmount = amount_;
-        emit SolutionStakeAmountChanged(amount_);
     }
 
     /// @notice Set start block time
