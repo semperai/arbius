@@ -37,33 +37,7 @@ export async function initializeBlockchain() {
 
 // TODO check if we are on nova network, if so use this, otherwise block.number
 export async function getBlockNumber() {
-  const abn = await expretry(async () => await arbsys.arbBlockNumber());
-  return abn;
-}
-
-export async function getValidatorStaked(): Promise<BigNumber> {
-  const staked = await expretry(async () => {
-    /*
-    if (c.blockchain.use_delegated_validator) {
-      const s = (await arbius.validators(c.blockchain.delegated_validator_address)).staked;
-      return s;
-    }
-    */
-
-    const s = (await arbius.validators(wallet.address)).staked;
-    return s;
-  });
-  return staked;
-}
-
-// TODO for delegated mode use deposit method
-export async function depositForValidator(depositAmount: BigNumber) {
-  // if (c.blockchain.strategy === 'delegated') {
-  //   const tx = await solver.deposit(depositAmount);
-  // }
-  const tx = await solver.validatorDeposit(wallet.address, depositAmount);
-  const receipt = await tx.wait();
-  return receipt;
+  return await expretry(async () => await arbsys.arbBlockNumber());
 }
 
 export {

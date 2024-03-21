@@ -6,6 +6,8 @@ import axios from 'axios';
 import * as http_client from 'ipfs-http-client';
 import Config from './config.json';
 import { log } from './log';
+import EngineArtifact from './artifacts/contracts/V2_EngineV2.sol/V2_EngineV2.json';
+import BaseTokenArtifact from './artifacts/contracts/BaseTokenV1.sol/BaseTokenV1.json';
 import {
   dbGarbageCollect,
   dbGetJobs,
@@ -75,9 +77,6 @@ import {
   token,
   // governor,
   solver,
-  getBlockNumber,
-  depositForValidator,
-  getValidatorStaked,
 } from './blockchain';
 
 // type interfaces;
@@ -555,18 +554,61 @@ async function processValidatorStake() {
     log.info(`[processValidatorStake] Read only mode, not checking stake`);
     return;
   }
-  const etherBalance = await arbius.provider.getBalance(wallet.address);
-  log.debug(`[processValidatorStake] Ether balance: ${ethers.utils.formatEther(etherBalance)}`);
-
-  if (etherBalance.lt(ethers.utils.parseEther("0.01"))) {
-    log.warn(`[processValidatorStake] Low Ether balance`);
-  }
-
-  const staked = await getValidatorStaked();
-  log.debug(`[processValidatorStake] AIUS Staked: ${ethers.utils.formatEther(staked)}`);
 
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
   log.debug(`[processValidatorStake] Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
+
+  const minWithBuffer = validatorMinimum
+    .mul(100)
+    .div(100 - c.stake_buffer_percent);
+
+  const minWithTopupBuffer = validatorMinimum
+    .mul(100)
+    .div(100 - c.stake_buffer_topup_percent);
+
+  const provider = new ethers.providers.JsonRpcProvider(c.blockchain.rpc_url!);
+  const keys = [c.blockchain.private_key, ...c.additional_voting_keys];
+
+  for (const key of keys) {
+    const wallet = new Wallet(key, provider);
+    const arbius = new Contract(Config.v2_engineAddress, EngineArtifact.abi,    wallet);
+    const token  = new Contract(Config.v2_baseTokenAddress, BaseTokenArtifact.abi, wallet);
+
+    const etherBalance = await expretry(async () => await arbius.provider.getBalance(wallet.address));
+    log.debug(`[processValidatorStake] ${wallet.address} Ether balance: ${ethers.utils.formatEther(etherBalance!)}`);
+
+    if (etherBalance!.lt(ethers.utils.parseEther("0.01"))) {
+      log.warn(`[processValidatorStake] ${wallet.address} Low Ether balance`);
+    }
+
+    const staked = await expretry(async () => (await arbius.validators(wallet.address)).staked);
+    log.debug(`[processValidatorStake] ${wallet.address} AIUS Staked: ${ethers.utils.formatEther(staked)}`);
+
+    if (staked.gte(minWithTopupBuffer)) {
+      log.debug(`[processValidatorStake] ${wallet.address} Have sufficient stake`);
+      continue;
+    }
+
+    const depositAmount = minWithBuffer.sub(staked);
+    log.debug(`[processValidatorStake] ${wallet.address} Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
+
+
+    const balance = await expretry(async () => await token.balanceOf(wallet.address));
+    if (balance.lt(depositAmount)) {
+      log.error(`[processValidatorStake] Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
+      throw new Error('[processValidatorStake[ unable to stake required balance');
+    }
+
+    log.debug(`[processValidatorStake] ${wallet.address} Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
+    await expretry(async () => {
+      const tx = await solver.validatorDeposit(wallet.address, depositAmount);
+      const receipt = await tx.wait();
+      log.info(`[processValidatorStake] ${wallet.address} Deposited in ${receipt.transactionHash}`);
+    });
+
+    const postDepositStaked = await expretry(async () => (await arbius.validators(wallet.address)).staked);
+    log.debug(`[processValidatorStake] Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
+  }
 
   // schedule checking every 2 mins
   await dbQueueJob({
@@ -578,57 +620,6 @@ async function processValidatorStake() {
       validatorMinimum,
     },
   });
-
-  const minWithTopupBuffer = validatorMinimum
-    .mul(100)
-    .div(100 - c.stake_buffer_topup_percent);
-
-  if (staked.gte(minWithTopupBuffer)) {
-    log.debug(`[processValidatorStake] Have sufficient stake`);
-    return;
-  }
-
-  const minWithBuffer = validatorMinimum
-    .mul(100)
-    .div(100 - c.stake_buffer_percent);
-
-  const depositAmount = minWithBuffer.sub(staked);
-  log.debug(`[processValidatorStake] Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
-
-  const balance = await expretry(async () => await token.balanceOf(wallet.address));
-  if (balance.lt(depositAmount)) {
-    log.error(`[processValidatorStake] Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
-    throw new Error('[processValidatorStake[ unable to stake required balance');
-  }
-
-  const allowance = await expretry(async () => await token.allowance(
-    wallet.address,
-    solver.address, // could be engine or delegated validator
-  ));
-  log.debug(`[processValidatorStake] Allowance Amount ${ethers.utils.formatEther(allowance)}`);
-
-  if (allowance.lt(balance)) {
-    const allowanceAmount = ethers.constants.MaxUint256.sub(allowance);
-
-    log.debug(`[processValidatorStake] Increasing allowance`);
-    await expretry(async () => {
-      const tx = await expretry(async () => await token.approve(
-        solver.address,
-        allowanceAmount,
-      ));
-      const receipt = await tx.wait();
-      log.info(`[processValidatorStake] Allowance increased in ${receipt.transactionHash}`);
-    });
-  }
-
-  log.debug(`[processValidatorStake] Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
-  await expretry(async () => {
-    const receipt = await depositForValidator(depositAmount);
-    log.info(`[processValidatorStake] Deposited in ${receipt.transactionHash}`);
-  });
-
-  const postDepositStaked = await getValidatorStaked();
-  log.debug(`[processValidatorStake] Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
 }
 
 async function processAutomine() {
@@ -1042,7 +1033,7 @@ async function contestSolution(taskid: string) {
   try {
     log.info(`[contestSolution] Attempt to contest ${taskid} solution`);
 
-    const validatorStake = await getValidatorStaked();
+    const validatorStake = await expretry(async () => (await arbius.validators(wallet.address)).staked);
     const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
     if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
       log.info("[contestSolution] Validator stake is less than 110% of minimum, not contesting");
@@ -1110,7 +1101,7 @@ async function voteOnContestation(taskid: string, yea: boolean) {
     return;
   }
 
-  const validatorStake = await getValidatorStaked();
+  const validatorStake = await expretry(async () => (await arbius.validators(wallet.address)).staked);
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
   if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
     log.info("[voteOnContestation] Validator stake is less than 110% of minimum, not voting");
@@ -1370,6 +1361,41 @@ export async function main() {
       process.exit(1);
     }
   }
+
+  log.info("Checking allowance");
+  {
+    const provider = new ethers.providers.JsonRpcProvider(c.blockchain.rpc_url!);
+    const minimumAllowance = ethers.constants.MaxUint256.div(100).mul(99);
+
+    const keys = [c.blockchain.private_key, ...c.additional_voting_keys];
+    for (const key of keys) {
+      const wallet = new Wallet(key, provider);
+      const token  = new Contract(Config.v2_baseTokenAddress, BaseTokenArtifact.abi, wallet);
+
+      const allowance = await expretry(async () => await token.allowance(
+        wallet.address,
+        solver.address, // could be engine or delegated validator
+      ));
+      log.debug(`[checkAllowance] ${wallet.address} Allowance Amount ${ethers.utils.formatEther(allowance)}`);
+
+      if (allowance.lt(minimumAllowance)) {
+        const allowanceAmount = ethers.constants.MaxUint256;
+
+        log.debug(`[checkAllowance] ${wallet.address} Increasing allowance`);
+        await expretry(async () => {
+          const tx = await expretry(async () => await token.approve(
+            solver.address,
+            allowanceAmount,
+          ));
+          const receipt = await tx.wait();
+          log.info(`[checkAllowance] ${wallet.address} Allowance increased in ${receipt.transactionHash}`);
+        });
+      } else {
+        log.debug(`[checkAllowance] ${wallet.address} Allowance is sufficient`);
+      }
+    }
+  }
+
 
   await dbQueueJob({
     method: 'validatorStake',

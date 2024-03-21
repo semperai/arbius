@@ -21,6 +21,10 @@ export function initializeMiningConfig(data: MiningConfig) {
       task_retracted: 1,
     };
   }
+
+  if (c.additional_voting_keys === undefined) {
+    c.additional_voting_keys = [];
+  }
 }
 
 export { c }

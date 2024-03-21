@@ -65,5 +65,8 @@
     "contestation_submitted": 1.0,
     "solution_submitted": 0.01,
     "task_retracted": 1.0
-  }
+  },
+
+  "//": "add additional voting keys to the miner",
+  "additional_voting_keys": []
 }
