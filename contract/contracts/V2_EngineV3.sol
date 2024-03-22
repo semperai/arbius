@@ -138,6 +138,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
     uint256 public solutionRateLimit; // v3
     mapping(address => uint256) public lastSolutionSubmission; // v3
     uint256 public taskOwnerRewardPercentage; // v3
+    uint256 public contestationVoteExtensionTime; // v3
 
     uint256[41] __gap; // upgradeable gap
 
@@ -229,6 +230,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         exitValidatorMinUnlockTime = 259200; // 3 days
         solutionRateLimit = 5; // 5 seconds required between solution submissions
         taskOwnerRewardPercentage = 0.1 ether; // 10%
+        contestationVoteExtensionTime = 10; // 10 seconds
     }
 
     /// @notice Transfer ownership
@@ -854,6 +856,18 @@ contract V2_EngineV3 is OwnableUpgradeable {
         }
     }
 
+    /// @notice Check if contestation voting period ended
+    /// @dev This can be used to determine if contestation can be finished
+    /// @param taskid_ Task hash
+    /// @return Whether contestation voting period ended
+    function votingPeriodEnded(bytes32 taskid_) public view returns (bool) {
+        return block.timestamp >
+            contestations[taskid_].blocktime +
+            minContestationVotePeriodTime +
+            // v3
+            ((contestationVoteYeas[taskid_].length + contestationVoteNays[taskid_].length) * contestationVoteExtensionTime);
+    }
+
     /// @notice Check if validator can vote on a contestation
     /// @dev Determines if validator may vote on a contestation
     /// @param addr_ Address of validator
@@ -869,10 +883,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         }
 
         // voting period ended
-        if (
-            block.timestamp >
-            contestations[taskid_].blocktime + minContestationVotePeriodTime
-        ) {
+        if (votingPeriodEnded(taskid_)) {
             return 0x02;
         }
 
@@ -951,12 +962,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
             contestations[taskid_].validator != address(0x0),
             "contestation doesn't exist"
         );
-        require(
-            block.timestamp >=
-                contestations[taskid_].blocktime +
-                    minContestationVotePeriodTime,
-            "voting period not ended"
-        );
+        require(votingPeriodEnded(taskid_), "voting period not ended");
         // we need at least 1 iteration for special handling of 0 index
         require(amnt_ > 0, "amnt too small");
 
