@@ -9,14 +9,8 @@ import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
 
-uint256 constant MAX_SUPPLY_BASE_TOKEN = 1_000_000e18;
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
-// once total supply hits this,
-// validators must be depositing validatorMinimumPercentage*totalSupply
-uint256 constant MIN_SUPPLY_FOR_VALIDATOR_DEPOSITS = 1_000e18;
-// once total supply hits this, slashing enabled
-uint256 constant MIN_SUPPLY_FOR_SLASHING = 2_000e18;
 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
 uint256 constant ARBITRUM_GOERLI_CHAINID = 0x66eed;
@@ -298,9 +292,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @return Slash amount
     function getSlashAmount() public view returns (uint256) {
         uint256 ts = getPsuedoTotalSupply();
-        if (ts < MIN_SUPPLY_FOR_SLASHING) {
-            return 0;
-        }
         return ts - ((ts * (1e18 - slashAmountPercentage)) / 1e18);
     }
 
@@ -308,9 +299,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @return Validator minimum staked
     function getValidatorMinimum() public view returns (uint256) {
         uint256 ts = getPsuedoTotalSupply();
-        if (ts < MIN_SUPPLY_FOR_VALIDATOR_DEPOSITS) {
-            return 0;
-        }
         return ts - ((ts * (1e18 - validatorMinimumPercentage)) / 1e18);
     }
 
