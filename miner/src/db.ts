@@ -1,5 +1,6 @@
-import * as fs from 'fs';
-import { Database } from 'sqlite3';
+import {
+    Level
+} from "level"
 import { MiningConfig } from './types';
 import { log } from './log';
 import { now, taskid2Seed } from './utils';
@@ -19,267 +20,294 @@ import {
   DBContestation,
   DBContestationVote,
 } from './types';
+import * as fs from "fs";
 
-let db: Database;
 
-export async function initializeDatabase(c: MiningConfig): Promise<any> {
-  db = new Database(c.db_path);
+let db: Level;
 
-  const paths = [
-    `sql/models.sql`,
-    `sql/tasks.sql`,
-    `sql/task_inputs.sql`,
-    `sql/solutions.sql`,
-    `sql/contestations.sql`,
-    `sql/contestation_votes.sql`,
-    `sql/jobs.sql`,
-    `sql/failed_jobs.sql`,
-    `sql/task_txids.sql`,
-  ].map((path) => `${__dirname}/${path}`);
-
-  async function loadSqlFile(src: string) {
-    return new Promise((resolve, reject) => {
-      db.exec(fs.readFileSync(src).toString(), (err: Error|null) => {
-        if (err) {
-          log.error(`Loading SQL file: ${src} failed: ${JSON.stringify(err)}`);
-          return reject(err);
-        }
-
-        resolve(true);
-      });
-    });
+export async function initializeDatabase(c: MiningConfig) {
+    db = new Level(c.db_path);
+    log.debug("LevelDB initialized successfuly!");
   }
   
-  return Promise.all(paths.map((path) => loadSqlFile(path)));
-}
+  export async function dbGetTask(taskid: string): Promise<DBTask> {
+    const response = await db.get("TASKS_"+taskid);
+    return JSON.parse(Buffer.from(response, 'base64').toString());
+  }
 
-// gets a task, solution, or contestation
-async function dbGetHelperForGenericTasklike<T extends DBTask|DBSolution|DBContestation|DBInvalidTask>(
-  taskid: string,
-  query: string
-): Promise<T|null> {
-  return new Promise((resolve, reject) => {
-    return db.get(query, [taskid], (err, row) => {
-      if (row) resolve(row as T);
-      else resolve(null);
-    });
-  });
-}
-
-export async function dbGetTask(taskid: string): Promise<DBTask|null> {
-  return await dbGetHelperForGenericTasklike(taskid,
-    `SELECT * FROM tasks WHERE id=?`);
-}
-
-export async function dbGetSolution(taskid: string): Promise<DBSolution|null> {
-  return await dbGetHelperForGenericTasklike(taskid,
-    `SELECT * FROM solutions WHERE taskid=?`);
-}
+  export async function dbGetSolution(taskid: string): Promise<DBSolution|null> {
+    const response = await db.get("SOLUTIONS_"+taskid);
+    return JSON.parse(Buffer.from(response, 'base64').toString());
+  }
 
 export async function dbGetContestation(taskid: string): Promise<DBContestation|null> {
-  return await dbGetHelperForGenericTasklike(taskid,
-    `SELECT * FROM contestations WHERE taskid=?`);
+    const response = await db.get("CONTESTATION_"+taskid);
+    return JSON.parse(Buffer.from(response, 'base64').toString());
 }
-
 export async function dbGetInvalidTask(taskid: string): Promise<DBInvalidTask|null> {
-  return await dbGetHelperForGenericTasklike(taskid,
-    `SELECT * FROM invalid_tasks WHERE taskid=?`);
+    const response = await db.get("INVALID_"+taskid);
+    return JSON.parse(Buffer.from(response, 'base64').toString());
 }
 
 export async function dbGetContestationVotes(taskid: string): Promise<DBContestationVote[]> {
-  const query = `SELECT * FROM contestation_votes WHERE taskid=?`;
-  return new Promise((resolve, reject) => {
-    return db.all(query, [taskid], (err, rows) => {
-      if (rows) resolve(rows as DBContestationVote[]);
-      else reject(err);
-    });
-  });
+    const response = await db.get("CONTESTATION_VOTES_"+taskid);
+    return JSON.parse(Buffer.from(response, 'base64').toString());
 }
-
 export async function dbGetTaskTxid(
-  taskid: string,
-): Promise<string|null> {
-  const query = `SELECT * FROM task_txids WHERE taskid=?`
-  return new Promise((resolve, reject) => {
-    return db.get(query, [taskid], (err, row) => {
-      if (row) {
-        const txid = (row as DBTaskTxid).txid;
-        resolve(txid);
-      }
-      else resolve(null);
-    });
-  });
+    taskid: string,
+  ): Promise<string|null> {
+    try {
+      const response = await db.get("TASK_TXID_"+taskid);
+      return Buffer.from(response, 'base64').toString();
+    } catch (e) {
+      return null;
+    }
 }
 export async function dbGetTaskInput(
-  taskid: string,
-  cid: string,
-): Promise<DBTaskInput|null> {
-  const query = `SELECT * FROM task_inputs WHERE taskid=? AND cid=?`;
-  return new Promise((resolve, reject) => {
-    return db.get(query, [taskid, cid], (err, row) => {
-      if (row) {
-        const input = row as DBTaskInput;
-
-        const data = JSON.parse(input.data);
-        data.seed = taskid2Seed(taskid);
-
-        input.data = JSON.stringify(data);
-
-        resolve(input);
-      }
-      else resolve(null);
-    });
-  });
+    taskid: string,
+    cid: string,
+  ): Promise<DBTaskInput|null> {
+    try {
+      const response = await db.get("TASK_INPUT_"+taskid+"_"+cid);
+      return JSON.parse(Buffer.from(response, 'base64').toString());
+    } catch (e) {
+      return null;
+    }
 }
-
 async function dbGetJob(jobid: number): Promise<DBJob|null> {
-  return new Promise((resolve, reject) => {
-    return db.get(
-      `SELECT * FROM jobs WHERE id=?`,
-      [jobid],
-      (err, row) => {
-      if (row) resolve(row as DBJob);
-      else resolve(null);
-    });
-  });
+    try {
+      const response = await db.get("JOB_"+jobid);
+      return JSON.parse(Buffer.from(response, 'base64').toString());
+    } catch (e) {
+      return null;
+    }
 }
 
-export async function dbGetJobs(limit: number = 10000): Promise<DBJob[]> {
-  return new Promise((resolve, reject) => {
-    return db.all(`
-      SELECT * FROM jobs
-      ORDER BY priority DESC
-      LIMIT ?
-    `, [
-      limit,
-    ], (err, rows) => {
-      if (rows) resolve(rows as DBJob[]);
-      else reject(err);
-    });
-  });
-}
+
 
 export async function dbStoreTask({
-  taskid,
-  modelid,
-  fee,
-  owner,
-  blocktime,
-  version,
-  cid,
-}: StoreTaskProps): Promise<DBTask|null> {
-  return new Promise((resolve, reject) => {
-    db.run(`
-      INSERT OR IGNORE INTO tasks (id, modelid, fee, address, blocktime, version, cid)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [
-      taskid,
-      modelid,
-      fee.toString(),
-      owner,
-      blocktime.toString(),
-      version,
-      cid
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve({
+    taskid,
+    modelid,
+    fee,
+    owner,
+    blocktime,
+    version,
+    cid,
+  }: StoreTaskProps): Promise<DBTask|null> {
+
+    try {
+      await db.put("TASKS_"+taskid, Buffer.from(JSON.stringify({
         id: taskid,
         modelid,
-        fee: fee.toString(),
+        fee,
         address: owner,
-        blocktime: blocktime.toString(),
+        blocktime,
         version,
         cid,
         retracted: false,
-      });
-    });
-  });
-}
-
-export async function dbStoreInvalidTask(
-  taskid: string,
-): Promise<DBInvalidTask|null> {
-  const existing = await dbGetInvalidTask(taskid);
-  if (existing != null) {
-    log.warn(`dbStoreInvalidTask: Invalid task ${taskid} already exists`);
-    return {
-      taskid,
+      })).toString('base64'));
+      return await dbGetTask(taskid);
+    } catch (e) {
+      return null;
     }
-  }
-
-  return new Promise((resolve, reject) => {
-    db.run(`
-      INSERT INTO invalid_tasks (taskid)
-      VALUES (?)
-    `, [
-      taskid,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve({
+}
+export async function dbStoreInvalidTask(
+    taskid: string,
+  ): Promise<DBInvalidTask|null> {
+    const existing = await dbGetInvalidTask(taskid);
+    if (existing != null) {
+      log.warn(`dbStoreInvalidTask: Invalid task ${taskid} already exists`);
+      return {
         taskid,
-      });
-    });
-  });
+      }
+    }
+    try {
+      await db.put("INVALID_"+taskid, Buffer.from(JSON.stringify({
+        taskid,
+      })).toString('base64'));
+      
+      return await dbGetInvalidTask(taskid);
+    } catch (e) {
+      return null;
+    }
 }
 
 export async function dbStoreFailedJob(
-  job: DBJob,
-): Promise<boolean|null> {
-  return new Promise((resolve, reject) => {
-    db.run(`
-      INSERT INTO failed_jobs (method, data)
-      VALUES (?, ?)
-    `, [
-      job.method,
-      job.data,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve(true);
-    });
-  });
+    job: DBJob,
+  ): Promise<boolean|null> {
+    try {
+      await db.put("FAILEDJOB_"+job.id, Buffer.from(JSON.stringify(job)).toString('base64'));
+      return true;
+    } catch (e) {
+      return null;
+    }
 }
-
 export async function dbUpdateTaskSetRetracted(taskid: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    db.run(`UPDATE tasks SET retracted=true WHERE id = ?`, [
-      taskid,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve(true);
-    });
-  });
+    const task = await dbGetTask(taskid);
+    if (task == null) {
+      log.error(`dbUpdateTaskSetRetracted: Task ${taskid} not found`);
+      return false;
+    }
+    try {
+      await db.put("TASKS_"+taskid, Buffer.from(JSON.stringify({
+        ...task,
+        retracted: true,
+      })).toString('base64'));
+      console.log("retracted task", taskid)
+      return true;
+    } catch (e) {
+      return false;
+    }
 }
-
 export async function dbQueueJob({
-  method,
-  priority,
-  waituntil,
-  concurrent,
-  data,
-}: QueueJobProps): Promise<Job> {
-  log.info(`QueueJob ${method} ${priority} ${waituntil} ${concurrent ? 'concurrent' : 'blocking'}`);
-
-  return new Promise((resolve, reject) => {
-    db.run(`
-      INSERT INTO jobs (priority, waituntil, concurrent, method, data)
-      VALUES (?, ?, ?, ?, ?)
-    `, [
-      priority,
-      waituntil,
-      concurrent,
-      method,
-      JSON.stringify(data),
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve({
+    method,
+    priority,
+    waituntil,
+    concurrent,
+    data,
+  }: QueueJobProps): Promise<Job> {
+    const jobid = now();
+    console.log("Store new job",data)
+      await db.put("JOB_"+jobid, Buffer.from(JSON.stringify({
+        id: jobid,
         method,
         priority,
         waituntil,
         concurrent,
         data,
-      });
-    });
-  });
+      })).toString('base64'));
+      console.log("queued job", jobid, method, priority, waituntil, concurrent, data)
+      return {
+        method,
+        priority,
+        waituntil,
+        concurrent,
+        data: Object.keys(data).length == 0 ?  null: data,
+      }
+   
+}
+
+export async function dbDeleteJob(jobid: number): Promise<void> {
+    await db.del("JOB_"+jobid);
+}
+export async function dbClearJobsByMethod(method: string): Promise<void> {
+  console.log(method, "clear")
+  let length = db.iterator().count;
+  if (length == 0) {
+    return;
+  }
+    for await (let [key,value] of  db.iterator({gte: "JOB_", lte: "JOB~"})) {
+      console.log(key,value)
+        const job = JSON.parse(Buffer.from(value, 'base64').toString());
+        if (job.method == method) {
+            await db.del(key);
+        }
+    }
+
+}
+
+export async function dbStoreTaskTxid(
+    taskid: string,
+    txid: string,
+  ): Promise<boolean> {
+    try {
+      await db.put("TASK_TXID_"+taskid, Buffer.from(txid).toString('base64'));
+      return true;
+    } catch (e) {
+      return false;
+    }
+}
+
+export async function dbStoreTaskInput(
+    taskid: string,
+    cid: string,
+    input: any
+  ): Promise<boolean> {
+    try {
+      await db.put("TASK_INPUT_"+taskid+"_"+cid, Buffer.from(JSON.stringify({
+        taskid,
+        cid,
+        data: input,
+      })).toString('base64'));
+      return true;
+    } catch (e) {
+      return false;
+    }
+}
+
+export async function dbStoreSolution({
+    taskid,
+    validator,
+    blocktime,
+    claimed,
+    cid,
+  }: StoreSolutionProps): Promise<boolean> {
+    try {
+      await db.put("SOLUTIONS_"+taskid, Buffer.from(JSON.stringify({
+        taskid,
+        validator,
+        blocktime,
+        claimed,
+        cid,
+      })).toString('base64'));
+      return true;
+    } catch (e) {
+      return false;
+    }
+}
+export async function dbStoreContestation({
+    taskid,
+    validator,
+    blocktime,
+    finish_start_index,
+  }: StoreContestationProps): Promise<boolean> {
+
+    try {
+      await db.put("CONTESTATION_"+taskid, Buffer.from(JSON.stringify({
+        taskid,
+        validator,
+        blocktime,
+        finish_start_index,
+      })).toString('base64'));
+      return true;
+    } catch (e) {
+      return false;
+    }
+}
+export async function dbStoreContestationVote({
+    taskid,
+    validator,
+    yea,
+  }: StoreContestationVoteProps): Promise<boolean> {
+ 
+    try {
+      await db.put("CONTESTATION_VOTES_"+taskid, Buffer.from(JSON.stringify(
+        {
+          taskid,
+          validator,
+          yea,
+        }
+      )).toString('base64'));
+      return true;
+    } catch (e) {
+      return false;
+    }
+}
+
+
+export async function dbGetJobs(limit: number = 10000): Promise<DBJob[]> {
+    const jobs: DBJob[] = [];
+    let count = 0;
+    for await (let [key,value] of  db.iterator({gte: "JOB_", lte: "JOB~"})) {
+    
+        if (count >= limit) {
+            break;
+        }
+        jobs.push(JSON.parse(Buffer.from(value, 'base64').toString()));
+        count++
+   
+    }
+    return jobs;
 }
 
 export async function dbGarbageCollect(): Promise<void> {
@@ -292,146 +320,12 @@ export async function dbGarbageCollect(): Promise<void> {
   ];
 
   for (let method of methods) {
-    await new Promise((resolve, reject) => {
-      db.run(`
-        DELETE FROM jobs
-        WHERE method = ? AND waituntil < ?
-      `, [
-        method,
-        before,
-      ], (err: Error | null) => {
-        if (err) reject(err);
-        else     resolve(null);
-      });
-    });
+    for await (let [key,value] of  db.iterator({gte: "JOB_", lte: "JOB~"})) {
+      const job = JSON.parse(Buffer.from(value, 'base64').toString());
+      if (job.method == method && job.waituntil < before) {
+          await db.del(key);
+      }
+  }
   }
 }
-
-export async function dbDeleteJob(jobid: number): Promise<void> {
-  return new Promise((resolve, reject) => {
-    db.run(`
-      DELETE FROM jobs
-      WHERE id=?
-    `, [
-      jobid,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve();
-    });
-  });
-}
-
-export async function dbClearJobsByMethod(method: string): Promise<void> {
-  const jobs = await dbGetJobs();
-  for (const job of jobs) {
-    if (job.method === method) {
-      dbDeleteJob(job.id);
-    }
-  }
-}
-
-export async function dbStoreTaskTxid(
-  taskid: string,
-  txid: string,
-): Promise<boolean> {
-  return new Promise(async (resolve, reject) => {
-    db.run(`
-      INSERT INTO task_txids (taskid, txid)
-      VALUES (?, ?)
-    `, [
-      taskid,
-      txid,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve(true);
-    });
-  });
-}
-
-export async function dbStoreTaskInput(
-  taskid: string,
-  cid: string,
-  input: any
-): Promise<boolean> {
-  return new Promise(async (resolve, reject) => {
-    db.run(
-      `INSERT INTO task_inputs (taskid, cid, data)
-       VALUES (?, ?, ?)
-    `, [
-      taskid,
-      cid,
-      JSON.stringify(input),
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve(true);
-    });
-  });
-}
-
-export async function dbStoreSolution({
-  taskid,
-  validator,
-  blocktime,
-  claimed,
-  cid,
-}: StoreSolutionProps): Promise<boolean> {
-  return new Promise(async (resolve, reject) => {
-    db.run(
-      `INSERT INTO solutions (taskid, validator, blocktime, claimed,  cid)
-       VALUES (?, ?, ?, ?, ?)
-    `, [
-      taskid,
-      validator,
-      blocktime.toString(),
-      claimed,
-      cid,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve(true);
-    });
-  });
-}
-
-export async function dbStoreContestation({
-  taskid,
-  validator,
-  blocktime,
-  finish_start_index,
-}: StoreContestationProps): Promise<boolean> {
-  return new Promise(async (resolve, reject) => {
-    db.run(
-      `INSERT INTO contestations (taskid, validator, blocktime, finish_start_index)
-       VALUES (?, ?, ?, ?)
-    `, [
-      taskid,
-      validator,
-      blocktime.toString(),
-      finish_start_index,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve(true);
-    });
-  });
-}
-
-export async function dbStoreContestationVote({
-  taskid,
-  validator,
-  yea,
-}: StoreContestationVoteProps): Promise<boolean> {
-  return new Promise(async (resolve, reject) => {
-    db.run(
-      `INSERT INTO contestation_votes (taskid, validator, yea)
-       VALUES (?, ?, ?)
-    `, [
-      taskid,
-      validator,
-      yea,
-    ], (err: Error | null) => {
-      if (err) reject(err);
-      else     resolve(true);
-    });
-  });
-}
-
-export { db };
+export {db}

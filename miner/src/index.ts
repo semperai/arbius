@@ -171,6 +171,7 @@ const EnabledModels = [
     ],
     getfiles: async (m: Model, taskid: string, input: any) => {
       const url = c.ml.cog[Config.models.kandinsky2.id].url;
+      console.log(url,"url")
       const res = await axios.post(url, { input });
 
       if (! res) {
@@ -1150,7 +1151,13 @@ async function mlStrategyReplicate(
 
 export async function processJobs(jobs: DBJob[]) {
   function assembleFn(job: DBJob): () => Promise<void> {
-    const decoded = JSON.parse(job.data);
+
+    let decoded = {taskid: '', txid: '', validator:"",input:""}
+    try {
+     decoded = JSON.parse(job.data);
+    }catch(err){
+
+    }
     switch (job.method) {
       case 'automine':
         return () => processAutomine();
@@ -1271,14 +1278,18 @@ export async function main() {
       log.warn('KILL YOUR MINER IMMEDIATELY IF NOT ON TESTNET');
     }
   } else {
+  
     const m = getModelById(EnabledModels, Config.models.kandinsky2.id);
     if (m === null) {
       process.exit(1);
       return;
     }
+    
     const input = {prompt: "arbius test cat", seed: 1337};
     const taskid = 'startup-test-taskid';
+  
     const cid = await m.getcid(c, m, taskid, input);
+  
     const expected = '0x12201bdab4164320cc8621282982c55eb76e14427aa5793278b37b6108f63fb5d577';
     if (cid === expected) {
       log.info(`Model (${Config.models.kandinsky2.id}) CID (${cid}) matches expected CID (${expected})`);
@@ -1289,6 +1300,7 @@ export async function main() {
       process.exit(1);
     }
   }
+
 
   await dbQueueJob({
     method: 'validatorStake',
