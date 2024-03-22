@@ -727,7 +727,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
         }
         if (modelFee > 0) {
             baseToken.transfer(models[tasks[taskid_].model].addr, modelFee);
-            totalHeld -= modelFee; // v3
         }
 
         uint256 remainingFee = tasks[taskid_].fee - modelFee;
@@ -735,7 +734,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
         uint256 treasuryFee = remainingFee -
             ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
         accruedFees += treasuryFee;
-        totalHeld -= treasuryFee; // v3
 
         // avoid 0 value transfer and emitted event
         uint256 validatorFee = remainingFee - treasuryFee;
@@ -744,7 +742,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
                 solutions[taskid_].validator,
                 remainingFee - treasuryFee
             );
-            totalHeld -= remainingFee - treasuryFee; // v3
         }
 
         uint256 modelRate = models[tasks[taskid_].model].rate;
@@ -774,6 +771,9 @@ contract V2_EngineV3 is OwnableUpgradeable {
         validators[solutions[taskid_].validator].staked += solutionsStake[
             taskid_
         ]; // v2
+
+        // we do not include treasuryFee in totalHeld reduction as not transferred here
+        totalHeld -= tasks[taskid_].fee - treasuryFee; // v3
     }
 
     /// @notice Claim solution
