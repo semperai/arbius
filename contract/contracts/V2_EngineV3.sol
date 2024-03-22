@@ -576,44 +576,84 @@ contract V2_EngineV3 is OwnableUpgradeable {
         emit ValidatorWithdraw(msg.sender, to_, count_, req.amount);
     }
 
-    /// @notice Submit a task
+    /// @notice Add a task
     /// @param version_ Version of task
     /// @param owner_ Address of task owner
     /// @param model_ Model hash
     /// @param fee_ Fee for task
-    /// @param input_ Input data for task
-    /// @return Task hash
-    function submitTask(
+    /// @param cid_ IPFS cid of task
+    function addTask(
         uint8 version_,
         address owner_,
         bytes32 model_,
         uint256 fee_,
-        bytes calldata input_
-    ) external notPaused returns (bytes32) {
-        require(models[model_].addr != address(0x0), "model does not exist");
-        require(fee_ >= models[model_].fee, "lower fee than model fee");
-
-        bytes memory cid = getIPFSCID(input_);
-
+        bytes memory cid_
+    ) internal {
         Task memory task = Task({
             version: version_,
             owner: owner_,
             model: model_,
             blocktime: uint64(block.timestamp),
             fee: fee_,
-            cid: cid
+            cid: cid_
         });
         bytes32 id = hashTask(task, msg.sender, prevhash);
-
+        tasks[id] = task;
         emit TaskSubmitted(id, model_, fee_, msg.sender);
+        prevhash = id;
+    }
+
+    /// @notice Submit a task
+    /// @param version_ Version of task
+    /// @param owner_ Address of task owner
+    /// @param model_ Model hash
+    /// @param fee_ Fee for task
+    /// @param input_ Input data for task
+    function submitTask(
+        uint8 version_,
+        address owner_,
+        bytes32 model_,
+        uint256 fee_,
+        bytes calldata input_
+    ) external notPaused {
+        require(models[model_].addr != address(0x0), "model does not exist");
+        require(fee_ >= models[model_].fee, "lower fee than model fee");
 
         baseToken.transferFrom(msg.sender, address(this), fee_);
         totalHeld += fee_; // v3
-        tasks[id] = task;
 
-        prevhash = id;
+        bytes memory cid = getIPFSCID(input_);
 
-        return id;
+        addTask(version_, owner_, model_, fee_, cid);
+    }
+
+    /// @notice Bulk submit tasks
+    /// @dev Added in v3
+    /// @param version_ Version of task
+    /// @param owner_ Address of task owner
+    /// @param model_ Model hash
+    /// @param fee_ Fee for task
+    /// @param input_ Input data for task
+    /// @param n_ Number of tasks to submit
+    function bulkSubmitTask(
+        uint8 version_,
+        address owner_,
+        bytes32 model_,
+        uint256 fee_,
+        bytes calldata input_,
+        uint256 n_
+    ) external notPaused {
+        require(models[model_].addr != address(0x0), "model does not exist");
+        require(fee_ >= models[model_].fee, "lower fee than model fee");
+
+        baseToken.transferFrom(msg.sender, address(this), fee_*n_);
+        totalHeld += fee_*n_;
+
+        bytes memory cid = getIPFSCID(input_);
+
+        for (uint256 i = 0; i < n_; ++i) {
+            addTask(version_, owner_, model_, fee_, cid);
+        }
     }
 
     /// @notice Get block number (on both arbitrum and l1)
