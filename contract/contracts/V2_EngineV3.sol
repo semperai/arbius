@@ -143,8 +143,9 @@ contract V2_EngineV3 is OwnableUpgradeable {
     uint256 public totalHeld; // v3
     uint256 public solutionRateLimit; // v3
     mapping(address => uint256) public lastSolutionSubmission; // v3
+    uint256 public taskOwnerRewardPercentage; // v3
 
-    uint256[42] __gap; // upgradeable gap
+    uint256[41] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
 
@@ -233,6 +234,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         minContestationVotePeriodTime = 360; // 6 minutes
         exitValidatorMinUnlockTime = 259200; // 3 days
         solutionRateLimit = 5; // 5 seconds required between solution submissions
+        taskOwnerRewardPercentage = 0.1 ether; // 10%
     }
 
     /// @notice Transfer ownership
@@ -754,11 +756,17 @@ contract V2_EngineV3 is OwnableUpgradeable {
                     (total * (1e18 - treasuryRewardPercentage)) /
                     1e18;
 
+                // v3
+                uint256 taskOwnerReward = total -
+                    (total * (1e18 - taskOwnerRewardPercentage)) /
+                    1e18;
+
                 baseToken.transfer(
                     solutions[taskid_].validator,
-                    total - treasuryReward
+                    total - treasuryReward - taskOwnerReward // v3
                 );
                 baseToken.transfer(treasury, treasuryReward);
+                baseToken.transfer(tasks[taskid_].owner, taskOwnerReward); // v3
             }
         }
 
