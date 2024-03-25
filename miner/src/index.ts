@@ -732,10 +732,6 @@ async function processTask(
       return;
     }
 
-    // wait a bit to hope commitment is mined
-    await sleep(300 + (Math.random() * 200));
-
-
     // we will retry in case we didnt wait long enough for commitment
     // if this fails otherwise, it could be because another submitted solution
     if (await checkForExistingSolution(taskid, solutionCid)) return;
