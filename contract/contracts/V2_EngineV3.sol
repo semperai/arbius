@@ -228,7 +228,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         minClaimSolutionTime = 3600; // 60 minutes
         minContestationVotePeriodTime = 360; // 6 minutes
         exitValidatorMinUnlockTime = 259200; // 3 days
-        solutionRateLimit = 5; // 5 seconds required between solution submissions
+        solutionRateLimit = 1 ether; // 1 second required between solution submissions
         taskOwnerRewardPercentage = 0.1 ether; // 10%
         contestationVoteExtensionTime = 10; // 10 seconds
     }
@@ -689,12 +689,13 @@ contract V2_EngineV3 is OwnableUpgradeable {
     }
 
     /// @notice Submit a solution
+    /// @dev this implements the core logic for submitting a solution. make sure to call _submitSolutionCommon before this
     /// @param taskid_ Task hash
     /// @param cid_ IPFS cid of solution
-    function submitSolution(
+    function _submitSolution(
         bytes32 taskid_,
         bytes calldata cid_
-    ) external notPaused onlyValidator {
+    ) internal {
         require(tasks[taskid_].model != bytes32(0x0), "task does not exist");
         require(
             solutions[taskid_].validator == address(0x0),
@@ -716,30 +717,74 @@ contract V2_EngineV3 is OwnableUpgradeable {
             claimed: false
         });
 
+        solutionsStake[taskid_] = solutionsStakeAmount;
+
+        emit SolutionSubmitted(msg.sender, taskid_);
+    }
+
+    /// @notice Perform common actions&checks for submitting a solution
+    /// @dev this is used by both submitSolution and bulkSubmitSolution
+    /// @param n_ Number of solutions to submit
+    function _submitSolutionCommon(uint256 n_) internal {
         // v2 (solutions must have been submitted after last successful contestation));
         require(
             block.timestamp >
-                lastContestationLossTime[solutions[taskid_].validator] +
+                lastContestationLossTime[msg.sender] +
                     minClaimSolutionTime +
                     minContestationVotePeriodTime,
             "submitSolution cooldown after lost contestation"
         );
 
         // v2
-        solutionsStake[taskid_] = solutionsStakeAmount;
-        validators[msg.sender].staked -= solutionsStakeAmount;
-        // end v2
+        validators[msg.sender].staked -= solutionsStakeAmount * n_;
 
         // v3
         require(
             block.timestamp - lastSolutionSubmission[msg.sender] >=
-                solutionRateLimit,
+                solutionRateLimit * n_ / 1e18,
             "solution rate limit"
         );
         lastSolutionSubmission[msg.sender] = block.timestamp;
         // end v3
 
-        emit SolutionSubmitted(msg.sender, taskid_);
+        // move onlyValidator check here to avoid duplicate work for bulkSubmitSolution
+        require(
+            validators[msg.sender].staked -
+                validatorWithdrawPendingAmount[msg.sender] >=
+                getValidatorMinimum(),
+            "min staked too low"
+        );
+    }
+
+
+    /// @notice Submit a solution
+    /// @dev this is not onlyValidator as that is checked in _submitSolution
+    /// @param taskid_ Task hash
+    /// @param cid_ IPFS cid of solution
+    function submitSolution(
+        bytes32 taskid_,
+        bytes calldata cid_
+    ) external notPaused {
+        _submitSolutionCommon(1);
+        _submitSolution(taskid_, cid_);
+    }
+
+    /// @notice Bulk submit solutions
+    /// @dev Added in v3
+    /// @param taskids_ Task hashes
+    /// @param cids_ IPFS cids of solutions
+    function bulkSubmitSolution(
+        bytes32[] calldata taskids_,
+        bytes[] calldata cids_
+    ) external notPaused {
+        // tasks will fail if they do not exist / cids are not valid
+        // require(taskids_.length == cids_.length, "length mismatch");
+
+        _submitSolutionCommon(taskids_.length);
+
+        for (uint256 i = 0; i < taskids_.length; ++i) {
+            _submitSolution(taskids_[i], cids_[i]);
+        }
     }
 
     /// @notice Claim solution fee and reward (if available)
