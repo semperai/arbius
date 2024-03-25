@@ -571,9 +571,9 @@ async function processAutomine() {
       }
 
       if (await checkForExistingSolution(taskid, solutionCid)) return;
-      console.log('commitment', wallet.address, taskid, solutionCid);
       const commitment = generateCommitment(wallet.address, taskid, solutionCid);
       {
+        log.info(`[processAutomine] Submitting commitment`);
         const tx = await arbius.signalCommitment(commitment, {
           gasLimit: 450_000,
         });
@@ -584,7 +584,6 @@ async function processAutomine() {
       if (await checkForExistingSolution(taskid, solutionCid)) return;
       log.debug(`[processAutomine] Submitting solution ${taskid} ${solutionCid}`);
       try {
-        console.log('submitting solution', taskid, solutionCid);
         const tx = await solver.submitSolution(taskid, solutionCid, {
           gasLimit: 500_000,
         });
