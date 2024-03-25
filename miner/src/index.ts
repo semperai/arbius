@@ -33,8 +33,6 @@ import {
 } from './db';
 
 import {
-  // AnythingV3Model,
-  // ZeroscopeModel,
   Kandinsky2Model,
   getModelById,
   checkModelFilter,
@@ -98,68 +96,6 @@ ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 const minerVersion = BigNumber.from('2');
 
 const EnabledModels = [
-  /*
-  {
-    ...AnythingV3Model,
-    filters: [
-      {
-        minfee: ethers.utils.parseEther('0'),
-        mintime: 0,
-      },
-    ],
-    getfiles: async (m: Model, taskid: string, input: any) => {
-      return await mlStrategyReplicate(m, taskid, input, async (output) => {
-        const url = output![0];
-        const res = await expretry(async () => await axios.get(url, {
-          responseType: 'arraybuffer'
-        }));
-
-        if (! res) {
-          throw new Error('unable to getfiles');
-        }
-
-        const path = 'out-1.png';
-        fs.writeFileSync(`${__dirname}/../cache/${path}`, res.data);
-
-        return [path];
-      });
-    },
-  },
-  */
-  /*
-  {
-    ...ZeroscopeModel,
-    filters: [
-      {
-        minfee: ethers.utils.parseEther('0'),
-        mintime: 0,
-      },
-    ],
-    getfiles: async (m: Model, taskid: string, input: any) => {
-      const url = 'http://192.9.239.212:8001/predictions';
-      const res = await axios.post(url, { timeout: 120_000, input });
-
-      if (! res) {
-        throw new Error('unable to getfiles');
-      }
-
-      if (res.data.output.length != 1) {
-        throw new Error('unable to getfiles -- data.output length not 1');
-      }
-
-      // slice off
-      // data:image/png;base64,
-      const b64data = res.data.output[0];
-      const data = b64data.replace(/^data:\w+\/\w+;base64,/, "");
-      const buf = Buffer.from(data, 'base64');
-
-      const path = 'out-1.mp4';
-      fs.writeFileSync(`${__dirname}/../cache/${path}`, buf);
-
-      return [path];
-    },
-  },
-  */
   {
     ...Kandinsky2Model,
     filters: [
@@ -471,50 +407,6 @@ async function eventHandlerContestationVote(
     });
   });
 }
-
-/*
-async function eventHandlerGovernanceProposalCreated(
-  proposalId: string,
-  evt: ethers.Event,
-) {
-  log.debug('Event.ProposalCreated', proposalId);
-  const txid = evt.transactionHash;
-
-  const tx = await expretry(async () => await governor.provider.getTransaction(txid));
-  if (! tx) {
-    throw new Error('unable to retrieve tx');
-  }
-  const parsed = governor.interface.parseTransaction(tx);
-  log.debug('parsed', parsed);
-
-  const description = parsed.args[3];
-  log.debug('description', description);
-
-  await dbQueueJob({
-    method: 'pinGovernanceProposal',
-    priority: 100,
-    waituntil: 0,
-    concurrent: true,
-    data: {
-      proposalId,
-      description,
-    },
-  });
-}
-
-async function processPinGovernanceProposal(
-  proposalId: string,
-  description: string,
-) {
-  const cid = await expretry(async () => await pinFileToIPFS(
-    c,
-    Buffer.from(description, 'utf-8'),
-    `proposal-${proposalId}.md`,
-  ));
-
-  log.debug(`Governance proposal ${proposalId} pinned with ${cid}`);
-}
-*/
 
 async function processPinTaskInput(
   taskid: string,
@@ -1241,13 +1133,6 @@ export async function processJobs(jobs: DBJob[]) {
         return () => processClaim(decoded.taskid);
       case 'garbageCollect':
         return () => processGarbageCollect();
-      /*
-      case 'pinGovernanceProposal':
-        return () => processPinGovernanceProposal(
-          decoded.proposalId,
-          decoded.description,
-        );
-      */
       case 'pinTaskInput':
         return () => processPinTaskInput(
           decoded.taskid,
@@ -1474,21 +1359,6 @@ export async function main() {
     yea:       boolean,
     evt:       ethers.Event,
   ) => eventHandlerContestationVote(validator, taskid, yea, evt));
-
-  /*
-  governor.on('ProposalCreated', (
-    proposalId:  string,
-    proposer:    string,
-    targets:     string,
-    values:      string,
-    signatures:  string,
-    calldatas:   string,
-    voteStart:   BigNumber,
-    voteEnd:     BigNumber,
-    description: string,
-    evt:         ethers.Event,
-  ) => eventHandlerGovernanceProposalCreated(proposalId, evt));
-  */
 
   // job processor / main loop
   while (true) {
