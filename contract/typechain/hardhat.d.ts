@@ -205,13 +205,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EngineV1__factory>;
     getContractFactory(
+      name: "BulkClaimSolution",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BulkClaimSolution__factory>;
+    getContractFactory(
       name: "BulkSubmitTask",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BulkSubmitTask__factory>;
-    getContractFactory(
-      name: "BulkSubmitter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.BulkSubmitter__factory>;
     getContractFactory(
       name: "ClaimSolution",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -220,6 +220,10 @@ declare module "hardhat/types/runtime" {
       name: "FinishContestationVote",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FinishContestationVote__factory>;
+    getContractFactory(
+      name: "IsMiner",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IsMiner__factory>;
     getContractFactory(
       name: "LookupContestationValidator",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -634,15 +638,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.EngineV1>;
     getContractAt(
+      name: "BulkClaimSolution",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BulkClaimSolution>;
+    getContractAt(
       name: "BulkSubmitTask",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.BulkSubmitTask>;
-    getContractAt(
-      name: "BulkSubmitter",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.BulkSubmitter>;
     getContractAt(
       name: "ClaimSolution",
       address: string,
@@ -653,6 +657,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.FinishContestationVote>;
+    getContractAt(
+      name: "IsMiner",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IsMiner>;
     getContractAt(
       name: "LookupContestationValidator",
       address: string,
