@@ -1086,6 +1086,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
             if (contestations[taskid_].finish_start_index == 0) {
                 // refund fees paid back to user
                 baseToken.transfer(tasks[taskid_].owner, tasks[taskid_].fee);
+                totalHeld -= tasks[taskid_].fee; // v3
 
                 // give solution staked amount to originator of contestation
                 validators[contestationVoteYeas[taskid_][0]]
