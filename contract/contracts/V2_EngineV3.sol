@@ -140,7 +140,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
     uint256 public taskOwnerRewardPercentage; // v3
     uint256 public contestationVoteExtensionTime; // v3
 
-    uint256[41] __gap; // upgradeable gap
+    uint256[40] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
 
