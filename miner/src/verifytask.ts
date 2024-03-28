@@ -46,8 +46,6 @@ import {
   // governor,
   solver,
   getBlockNumber,
-  depositForValidator,
-  getValidatorStaked,
 } from './blockchain';
 
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
