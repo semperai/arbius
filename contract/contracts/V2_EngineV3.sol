@@ -206,14 +206,18 @@ contract V2_EngineV3 is OwnableUpgradeable {
         _;
     }
 
+    /// @notice Check if address is a validator
+    /// @param addr Address to check
+    /// @return Whether address is a validator
+    function _onlyValidator(address addr) internal view returns (bool) {
+        return validators[addr].staked -
+                validatorWithdrawPendingAmount[addr] >=
+                getValidatorMinimum();
+    }
+
     /// @notice Modifier to restrict to only validators
     modifier onlyValidator() {
-        require(
-            validators[msg.sender].staked -
-                validatorWithdrawPendingAmount[msg.sender] >=
-                getValidatorMinimum(),
-            "min staked too low"
-        );
+        require(_onlyValidator(msg.sender), "min staked too low");
         _;
     }
 
@@ -748,12 +752,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         // end v3
 
         // move onlyValidator check here to avoid duplicate work for bulkSubmitSolution
-        require(
-            validators[msg.sender].staked -
-                validatorWithdrawPendingAmount[msg.sender] >=
-                getValidatorMinimum(),
-            "min staked too low"
-        );
+        require(_onlyValidator(msg.sender), "min staked too low");
     }
 
 
