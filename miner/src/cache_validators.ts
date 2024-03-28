@@ -69,7 +69,7 @@ const getLogs = async (startBlock: number, endBlock: number) => {
     validators.push({ validator, balance });
   }
 
-  return { deposits, validators };
+  return { validators };
 };
 
 async function main(configPath: string, startBlock?: string, endBlock?: string) {
@@ -91,14 +91,10 @@ async function main(configPath: string, startBlock?: string, endBlock?: string) 
   if (! endBlock) {
     endBlock = ""+(await wallet.provider.getBlockNumber());
   }
-  const {
-    deposits,
-    validators,
-  }= await getLogs(Number(startBlock), Number(endBlock));
+  const { validators } = await getLogs(Number(startBlock), Number(endBlock));
 
-  log.debug(`${deposits.length} deposits found}`);
   log.debug(`${validators.length} validators found}`);
-  writeFileSync("validators.json", JSON.stringify(deposits, null, 2));
+  writeFileSync("validators.json", JSON.stringify(validators, null, 2));
 }
 
 if (process.argv.length < 3) {
