@@ -396,6 +396,10 @@ declare module "hardhat/types/runtime" {
       name: "V2EngineV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.V2EngineV2__factory>;
+    getContractFactory(
+      name: "V2EngineV3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2EngineV3__factory>;
 
     getContractAt(
       name: "ArbSys",
@@ -877,6 +881,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.V2EngineV2>;
+    getContractAt(
+      name: "V2EngineV3",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2EngineV3>;
 
     // default types
     getContractFactory(

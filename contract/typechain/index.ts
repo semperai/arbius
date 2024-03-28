@@ -97,6 +97,7 @@ export type { TestnetToken } from "./TestnetToken";
 export type { TimelockV1 } from "./TimelockV1";
 export type { V2EngineV1 } from "./V2EngineV1";
 export type { V2EngineV2 } from "./V2EngineV2";
+export type { V2EngineV3 } from "./V2EngineV3";
 
 export { ArbSys__factory } from "./factories/ArbSys__factory";
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
@@ -194,3 +195,4 @@ export { TestnetToken__factory } from "./factories/TestnetToken__factory";
 export { TimelockV1__factory } from "./factories/TimelockV1__factory";
 export { V2EngineV1__factory } from "./factories/V2EngineV1__factory";
 export { V2EngineV2__factory } from "./factories/V2EngineV2__factory";
+export { V2EngineV3__factory } from "./factories/V2EngineV3__factory";
