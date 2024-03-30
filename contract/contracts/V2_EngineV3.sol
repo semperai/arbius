@@ -228,7 +228,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public initializer {
+    function initialize() public reinitializer(3) {
         minClaimSolutionTime = 3600; // 60 minutes
         minContestationVotePeriodTime = 360; // 6 minutes
         exitValidatorMinUnlockTime = 259200; // 3 days
@@ -623,12 +623,12 @@ contract V2_EngineV3 is OwnableUpgradeable {
         require(models[model_].addr != address(0x0), "model does not exist");
         require(fee_ >= models[model_].fee, "lower fee than model fee");
 
-        baseToken.transferFrom(msg.sender, address(this), fee_);
-        totalHeld += fee_; // v3
-
         bytes memory cid = getIPFSCID(input_);
 
         addTask(version_, owner_, model_, fee_, cid);
+
+        baseToken.transferFrom(msg.sender, address(this), fee_);
+        totalHeld += fee_; // v3
     }
 
     /// @notice Bulk submit tasks
@@ -650,14 +650,14 @@ contract V2_EngineV3 is OwnableUpgradeable {
         require(models[model_].addr != address(0x0), "model does not exist");
         require(fee_ >= models[model_].fee, "lower fee than model fee");
 
-        baseToken.transferFrom(msg.sender, address(this), fee_*n_);
-        totalHeld += fee_*n_;
-
         bytes memory cid = getIPFSCID(input_);
 
         for (uint256 i = 0; i < n_; ++i) {
             addTask(version_, owner_, model_, fee_, cid);
         }
+
+        baseToken.transferFrom(msg.sender, address(this), fee_*n_);
+        totalHeld += fee_*n_; // v3
     }
 
     /// @notice Get block number (on both arbitrum and l1)
@@ -743,8 +743,10 @@ contract V2_EngineV3 is OwnableUpgradeable {
         validators[msg.sender].staked -= solutionsStakeAmount * n_;
 
         // v3
+        // pat: strict greater than comparison to rate limit solution submissions
+        // in sequential blocks having the same timestamp
         require(
-            block.timestamp - lastSolutionSubmission[msg.sender] >=
+            block.timestamp - lastSolutionSubmission[msg.sender] >
                 solutionRateLimit * n_ / 1e18,
             "solution rate limit"
         );

@@ -60,7 +60,6 @@ export type { LookupSolutionCID } from "./LookupSolutionCID";
 export type { LookupTaskCID } from "./LookupTaskCID";
 export type { LookupValidatorStakedBalance } from "./LookupValidatorStakedBalance";
 export type { RegisterModel } from "./RegisterModel";
-export type { RetractTask } from "./RetractTask";
 export type { SubmitContestation } from "./SubmitContestation";
 export type { SubmitSolution } from "./SubmitSolution";
 export type { SubmitTask } from "./SubmitTask";
@@ -158,7 +157,6 @@ export { LookupSolutionCID__factory } from "./factories/LookupSolutionCID__facto
 export { LookupTaskCID__factory } from "./factories/LookupTaskCID__factory";
 export { LookupValidatorStakedBalance__factory } from "./factories/LookupValidatorStakedBalance__factory";
 export { RegisterModel__factory } from "./factories/RegisterModel__factory";
-export { RetractTask__factory } from "./factories/RetractTask__factory";
 export { SubmitContestation__factory } from "./factories/SubmitContestation__factory";
 export { SubmitSolution__factory } from "./factories/SubmitSolution__factory";
 export { SubmitTask__factory } from "./factories/SubmitTask__factory";

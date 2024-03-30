@@ -249,10 +249,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RegisterModel__factory>;
     getContractFactory(
-      name: "RetractTask",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RetractTask__factory>;
-    getContractFactory(
       name: "SubmitContestation",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SubmitContestation__factory>;
@@ -696,11 +692,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.RegisterModel>;
-    getContractAt(
-      name: "RetractTask",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.RetractTask>;
     getContractAt(
       name: "SubmitContestation",
       address: string,

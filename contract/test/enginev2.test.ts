@@ -5,8 +5,8 @@ import { expect } from "./chai-setup";
 import { Signer } from "ethers";
 import { BaseTokenV1 as BaseToken } from "../typechain/BaseTokenV1";
 import { EngineV1 } from "../typechain/EngineV1";
-import { V2_EngineV1 } from "../typechain/V2_EngineV1";
-import { V2_EngineV2 } from "../typechain/V2_EngineV2";
+import { V2EngineV1 } from "../typechain/V2EngineV1";
+import { V2EngineV2 } from "../typechain/V2EngineV2";
 
 const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
 const TESTBUF = '0x746573740a';
@@ -27,7 +27,7 @@ describe("V2_EngineV2 Migrate Test", () => {
 
   let baseToken: BaseToken;
   let oldengine: EngineV1;
-  let engine: V2_EngineV1;
+  let engine: V2EngineV1;
 
   beforeEach("Deploy and initialize", async () => {
     signers = await ethers.getSigners();
@@ -52,13 +52,13 @@ describe("V2_EngineV2 Migrate Test", () => {
     await baseToken.deployed();
     // console.log("BaseToken deployed to:", baseToken.address);
 
-    const V2_EngineV1 = await ethers.getContractFactory(
+    const V2EngineV1 = await ethers.getContractFactory(
       "V2_EngineV1"
     );
-    engine = (await upgrades.deployProxy(V2_EngineV1, [
+    engine = (await upgrades.deployProxy(V2EngineV1, [
       baseToken.address,
       await treasury.getAddress(),
-    ])) as V2_EngineV1;
+    ])) as V2EngineV1;
 
     const EngineV1 = await ethers.getContractFactory(
       "EngineV1"
@@ -134,7 +134,7 @@ describe("EngineV2 Unit Tests", () => {
   let newowner:   SignerWithAddress;
 
   let baseToken: BaseToken;
-  let engine: V2_EngineV2;
+  let engine: V2EngineV2;
 
   beforeEach("Deploy and initialize", async () => {
     signers = await ethers.getSigners();
@@ -159,20 +159,20 @@ describe("EngineV2 Unit Tests", () => {
     await baseToken.deployed();
     // console.log("BaseToken deployed to:", baseToken.address);
 
-    const V2_EngineV1 = await ethers.getContractFactory(
+    const V2EngineV1 = await ethers.getContractFactory(
       "V2_EngineV1"
     );
     const V2_EngineV2 = await ethers.getContractFactory(
       "V2_EngineV2"
     );
-    engine = (await upgrades.deployProxy(V2_EngineV1, [
+    engine = (await upgrades.deployProxy(V2EngineV1, [
       baseToken.address,
       await treasury.getAddress(),
-    ])) as V2_EngineV1;
+    ])) as V2EngineV1 as any;
     await engine.deployed();
     // console.log("Engine deployed to:", engine.address);
     
-    engine = await upgrades.upgradeProxy(engine.address, V2_EngineV2) as V2_EngineV2;
+    engine = await upgrades.upgradeProxy(engine.address, V2_EngineV2) as V2EngineV2;
     // console.log("Engine upgraded");
 
     await (await engine
