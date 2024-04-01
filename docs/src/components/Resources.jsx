@@ -66,7 +66,7 @@ const resources = [
     },
   },
   {
-    href: '/contestation',
+    href: '/contestations',
     name: 'Contestations',
     description:
       'Learn about contesting solutions and slashing.',
