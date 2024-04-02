@@ -310,7 +310,7 @@ describe("EngineV3 Unit Tests", () => {
     it("changes totalHeld upon validator deposit and withdraw", async () => {
       expect(await engine.totalHeld()).to.equal(0);
       expect(await baseToken.balanceOf(engine.address)).to.equal(0);
-      expect(await engine.getPsuedoTotalSupply()).to.equal(ethers.utils.parseEther('600000'));
+      expect(await engine.getPsuedoTotalSupply()).to.equal(ethers.utils.parseEther('300000'));
       await deployBootstrapValidator();
       expect(await engine.totalHeld()).to.equal(ethers.utils.parseEther('2.4'));
       expect(await baseToken.balanceOf(engine.address)).to.equal(ethers.utils.parseEther('599992.4'));
@@ -788,11 +788,11 @@ describe("EngineV3 Unit Tests", () => {
       .withArgs(await validator1.getAddress(), taskid);
 
       // validator reward
-      expect(await baseToken.balanceOf(validator1.address)).to.equal(ethers.utils.parseEther('80.088665333333333332'));
+      expect(await baseToken.balanceOf(validator1.address)).to.equal(ethers.utils.parseEther('40.088665333333333332'));
       // task fee
       expect(await baseToken.balanceOf(user1.address)).to.equal(ethers.utils.parseEther('0.01'));
       // model fee
-      expect(await baseToken.balanceOf(user2.address)).to.equal(ethers.utils.parseEther('9.999833166666666667'));
+      expect(await baseToken.balanceOf(user2.address)).to.equal(ethers.utils.parseEther('4.999833166666666667'));
     });
 
     it("successful contestation distributes task fees and rewards", async () => {

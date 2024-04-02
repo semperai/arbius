@@ -8,6 +8,7 @@ import {SD59x18, sd, unwrap} from "@prb/math/src/SD59x18.sol";
 import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
+import "hardhat/console.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant RESERVED_ENGINE_TOKEN_AMOUNT = 300_000e18;
@@ -427,10 +428,17 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @dev We return 0 rather than use require to avoid breaking the contract if bridged assets are sent to this contract before many tokens are mined
     /// @return Total supply of Engine tokens
     function getPsuedoTotalSupply() public view returns (uint256) {
-        uint256 b = baseToken.balanceOf(address(this)) - totalHeld;
+        uint256 balance = baseToken.balanceOf(address(this));
+        if (balance == 0) {
+            return EMISSION_ENGINE_TOKEN_AMOUNT;
+        }
+
+        // hard assumption the balance will be over 300k
+        uint256 b = balance - totalHeld - RESERVED_ENGINE_TOKEN_AMOUNT;
         if (b >= EMISSION_ENGINE_TOKEN_AMOUNT) {
             return 0;
         }
+
         return EMISSION_ENGINE_TOKEN_AMOUNT - b;
     }
 
