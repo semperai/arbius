@@ -10,6 +10,8 @@ import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
+uint256 constant RESERVED_ENGINE_TOKEN_AMOUNT = 300_000e18;
+uint256 constant EMISSION_ENGINE_TOKEN_AMOUNT = STARTING_ENGINE_TOKEN_AMOUNT - RESERVED_ENGINE_TOKEN_AMOUNT;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
@@ -351,12 +353,12 @@ contract V2_EngineV3 is OwnableUpgradeable {
         // ms * (1 - 1 / 2 ** (t/(60*60*24*365)))
         // target is max
         if (t > 3153600000) {
-            return STARTING_ENGINE_TOKEN_AMOUNT;
+            return EMISSION_ENGINE_TOKEN_AMOUNT;
         }
         uint256 e = unwrap(ud(t).div(ud(60 * 60 * 24 * 365)).exp2());
         return
-            STARTING_ENGINE_TOKEN_AMOUNT -
-            ((STARTING_ENGINE_TOKEN_AMOUNT * 1e18 * 1e18) / e / 1e18);
+            EMISSION_ENGINE_TOKEN_AMOUNT -
+            ((EMISSION_ENGINE_TOKEN_AMOUNT * 1e18 * 1e18) / e / 1e18);
     }
 
     /// @notice Difficulty multiplier
@@ -415,9 +417,9 @@ contract V2_EngineV3 is OwnableUpgradeable {
         }
 
         return
-            (((STARTING_ENGINE_TOKEN_AMOUNT - ts) *
+            (((EMISSION_ENGINE_TOKEN_AMOUNT - ts) *
                 BASE_TOKEN_STARTING_REWARD) * diffMul(t, ts)) /
-            STARTING_ENGINE_TOKEN_AMOUNT /
+            EMISSION_ENGINE_TOKEN_AMOUNT / 2 /
             1e18;
     }
 
@@ -426,10 +428,10 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @return Total supply of Engine tokens
     function getPsuedoTotalSupply() public view returns (uint256) {
         uint256 b = baseToken.balanceOf(address(this)) - totalHeld;
-        if (b >= STARTING_ENGINE_TOKEN_AMOUNT) {
+        if (b >= EMISSION_ENGINE_TOKEN_AMOUNT) {
             return 0;
         }
-        return STARTING_ENGINE_TOKEN_AMOUNT - b;
+        return EMISSION_ENGINE_TOKEN_AMOUNT - b;
     }
 
     /// @notice Calculates the reward for current timestamp/supply

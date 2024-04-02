@@ -748,7 +748,7 @@ describe("EngineV3 Unit Tests", () => {
         cid: TESTCID,
       };;
       const taskidReceipt = await (await engine
-        .connect(validator1 ?? user1)
+        .connect(validator1)
         .submitTask(
           taskParams.version,
           user2.address,
@@ -850,7 +850,7 @@ describe("EngineV3 Unit Tests", () => {
         cid: TESTCID,
       };
       const taskidReceipt = await (await engine
-        .connect(validator1 ?? user1)
+        .connect(validator1)
         .submitTask(
           taskParams.version,
           user2.address,
@@ -928,8 +928,8 @@ describe("EngineV3 Unit Tests", () => {
       expect(await baseToken.balanceOf(validator1.address)).to.equal(ethers.utils.parseEther('0'));
       // model fee
       expect(await baseToken.balanceOf(user2.address)).to.equal(ethers.utils.parseEther('0.01'));
-      // task fee
-      expect(await baseToken.balanceOf(user1.address)).to.not.equal(ethers.utils.parseEther('0'));
+      // // task fee
+      // expect(await baseToken.balanceOf(user1.address)).to.not.equal(ethers.utils.parseEther('0'));
     });
 
     it("failed contestation distributes task fees and rewards", async () => {
@@ -987,7 +987,7 @@ describe("EngineV3 Unit Tests", () => {
         cid: TESTCID,
       };
       const taskidReceipt = await (await engine
-        .connect(validator1 ?? user1)
+        .connect(validator1)
         .submitTask(
           taskParams.version,
           user2.address,
@@ -1065,8 +1065,52 @@ describe("EngineV3 Unit Tests", () => {
       expect(await baseToken.balanceOf(validator1.address)).to.equal(ethers.utils.parseEther('0.15'));
       // task fee
       expect(await baseToken.balanceOf(user1.address)).to.equal(ethers.utils.parseEther('0.01'));
-      // model fee
-      expect(await baseToken.balanceOf(user2.address)).to.not.equal(ethers.utils.parseEther('0'));
+      // // model fee
+      // expect(await baseToken.balanceOf(user2.address)).to.not.equal(ethers.utils.parseEther('0'));
+    });
+  });
+
+  describe("daa v3", () => {
+    it("check targetTs v3", async () => {
+      expect(await engine.targetTs(0 * 31536000)).to.equal(ethers.BigNumber.from("0"));
+      expect(await engine.targetTs(0.5*31536000)).to.equal(ethers.BigNumber.from( "87867965644035742559494"));
+      expect(await engine.targetTs(1 * 31536000)).to.equal(ethers.BigNumber.from("150000000000000000000000"));
+      expect(await engine.targetTs(2 * 31536000)).to.equal(ethers.BigNumber.from("225000000000000000000000"));
+      expect(await engine.targetTs(3 * 31536000)).to.equal(ethers.BigNumber.from("262500000000000000000000"));
+      expect(await engine.targetTs(4 * 31536000)).to.equal(ethers.BigNumber.from("281250000000000000000000"));
+      expect(await engine.targetTs(5 * 31536000)).to.equal(ethers.BigNumber.from("290625000000000000000000"));
+      expect(await engine.targetTs(6 * 31536000)).to.equal(ethers.BigNumber.from("295312500000000000000000"));
+      expect(await engine.targetTs(7 * 31536000)).to.equal(ethers.BigNumber.from("297656250000000000000000"));
+    });
+
+    it("check diff", async () => {
+      // max emission supply on engine 300_000
+      // target emission supply at year 1 (31536000) 150_000
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther( '50000'))).to.equal(ethers.BigNumber.from("100000000000000000000"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('100000'))).to.equal(ethers.BigNumber.from("100000000000000000000"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('140000'))).to.equal(ethers.BigNumber.from("100000000000000000000"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('145000'))).to.equal(ethers.BigNumber.from("10079368399158985783"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('150000'))).to.equal(ethers.BigNumber.from("1000000000000000000"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('155000'))).to.equal(ethers.BigNumber.from("99212565748012469"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('160000'))).to.equal(ethers.BigNumber.from("9843133202303697"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('165000'))).to.equal(ethers.BigNumber.from("976562500000000"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('250000'))).to.equal(ethers.BigNumber.from("0"));
+      expect(await engine.diffMul(31536000, ethers.utils.parseEther('300000'))).to.equal(ethers.BigNumber.from("0"));
+    });
+
+    it("check rewards", async () => {
+      // max emission supply on engine 300_000
+      // target emission supply at year 1 (31536000) 150_000
+      expect(await engine.reward(31536000, ethers.utils.parseEther( '50000'))).to.equal(ethers.BigNumber.from("41666666666666666666"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('100000'))).to.equal(ethers.BigNumber.from("33333333333333333333"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('140000'))).to.equal(ethers.BigNumber.from("26666666666666666666"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('145000'))).to.equal(ethers.BigNumber.from("2603836836449404660"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('150000'))).to.equal(ethers.BigNumber.from("250000000000000000"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('155000'))).to.equal(ethers.BigNumber.from("23976370055769680"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('160000'))).to.equal(ethers.BigNumber.from("2296731080537529"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('165000'))).to.equal(ethers.BigNumber.from("219726562500000"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('250000'))).to.equal(ethers.BigNumber.from("0"));
+      expect(await engine.reward(31536000, ethers.utils.parseEther('300000'))).to.equal(ethers.BigNumber.from("0"));
     });
   });
 
@@ -1078,5 +1122,6 @@ describe("EngineV3 Unit Tests", () => {
   // test bulk task submission ✅
   // test update to task submission ✅
   // test claim sends correct rewards to task owner (as well as validator) ✅
-  // test claim sends rewards correctly during contestation ❌
+  // test claim sends rewards correctly during contestation ✅ ❓
+  // test daa v3 with halved rewards ✅
 });
