@@ -299,10 +299,10 @@ export default function HomePage() {
                   Economic Rules
                 </h2>
                 <p className="mt-6">
-                  The Arbius token has a max supply of 1 million tokens. Arbius is minted through task rewards following a continuous halving process, where the first year 50% is designed to be minted, 75% second year, 87.5% the third year, and so on.
+                  The Arbius token has a max supply of 1 million tokens. Arbius is mined through task solution rewards following a continuous halving process. After 7 years, approximately 99% of all emissions will be released.
                 </p>
                 <p className="mt-2">
-                  Task rewards follow an adjustment algorithm where the reward changes based on the ratio of total supply to expected total supply. The more collective GPU power is being used to mine Arbius, the more the reward is reduced, targeting the above emission schedule.
+                  Task solution rewards follow an adjustment algorithm where the reward changes based on the ratio of total supply to expected total supply. The more collective GPU power that is being used to mine Arbius, the more the reward is reduced, targeting the above emission schedule.
                 </p>
                 <p className="mt-2">
                   These rules are enforced by the smart contract. While they will not change for Arbius, other tokens using Arbius&apos;s technology may change them to suit their needs.
@@ -314,14 +314,14 @@ export default function HomePage() {
                   Models may set a fee required to be able to invoke them. This fee is subtracted from the task fee, and is distributed to the model contract. Model contracts may be tokens which perform economic activity with the collected fees, or a multisig or other contract.
                 </p>
                 <p className="mt-2">
-                  10% of all newly created Arbius is sent to the Arbius DAO. The DAO is controlled by holders of Arbius tokens and operates entirely on-chain.
+                  10% of all newly created Arbius is sent to Arbius DAO's treasury. The treasury is controlled by holders of veAIUS and operates entirely on-chain.
                 </p>
                 <p className="mt-2">
                   <strong>Program Allocations:</strong>
                   <ul className="pl-2 list-inside list-disc">
                     <li>1% Initial DEX Liquidity</li>
                     <li>9% DEX Liquidity Provider Incentives (over 4 years)</li>
-                    <li>10% DAO</li>
+                    <li>10% DAO Treasury</li>
                     <li>10% Team (4 year vesting)</li>
                     <li>10% Private Sale (2 year vesting)</li>
                     <li>60% Mining</li>
