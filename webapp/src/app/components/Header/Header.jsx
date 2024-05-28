@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 export default function Header(){
     return (
-        <div className="font-Sequel-Sans-Medium-Head bg-[white]">
+        <div className="bg-[white]">
             <div className="flex justify-between h-[80px] w-[90%] m-auto">
                 <div className="flex items-center">
                     <Image className="h-[40px] w-[auto]" src={ArbiusLogo} alt="Arbius Logo" />

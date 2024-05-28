@@ -5,7 +5,7 @@ import Image from 'next/image';
 export default function MachineLearningSection(){
     return (
         <div className="bg-[url('./assets/images/peer_background.png')] bg-cover">
-            <div className="w-[75%] m-[auto] p-[100px_0]">
+            <div className="w-section-width m-[auto] p-[100px_0]">
                 <div className="w-[50%]">
                     <div className="text-[12px] text-blue-text">Welcome to arbius network!</div>
                     <div className="text-[50px] font-medium">Peer-to-peer machine learning.</div>
