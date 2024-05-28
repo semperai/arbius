@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Sequel-Sans-Black";
+    src: url('../app/assets/fonts/Sequel-Sans-Black.ttf');
+  }
