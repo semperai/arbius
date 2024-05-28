@@ -1,8 +1,8 @@
-import HomePage from '@/app/pages/Home/Home'
+import Homepage from "@/app/components/Homepage/Homepage";
 export default function Home() {
   return (
     <main>
-      <HomePage/>
+      <Homepage/>
     </main>
   );
 }

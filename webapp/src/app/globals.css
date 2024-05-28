@@ -2,12 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-    font-family: "Sequel-Sans-Black";
-    src: url('../app/assets/fonts/Sequel-Sans-Black.ttf');
+@font-face{
+    font-family: "Sequel-Sans-Light-Body";
+    src: url('../app/assets/fonts/Sequel-Sans-Light-Body.ttf');
 }
-
-
+@font-face {
+    font-family: "Sequel-Sans-Medium-Head";
+    src: url('../app/assets/fonts/Sequel-Sans-Medium-Head.ttf');
+}
+*{
+    margin: 0;
+    padding: 0;
+}
 
 /* Header styles */
 .background-gradient{

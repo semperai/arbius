@@ -22,8 +22,12 @@ module.exports = {
       'footer-text':'#979797'
      },
      fontFamily: {
-        "Sequel-Sans-Black":["Sequel-Sans-Black"]
+        "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
+        "Sequel-Sans-Medium-Head":["Sequel-Sans-Medium-Head"]
     },
+    backgroundImage: theme => ({
+      'democratic-gradient':"linear-gradient(142.65deg, rgba(146, 189, 255, 0.02) -27.23%, rgba(81, 54, 255, 0.1) 31.69%, rgba(255, 255, 255, 0.159364) 60.92%, rgba(212, 179, 255, 0.2) 101.25%)"
+   }),
     screens: {
       '2xl': '1800px',
       // => @media (max-width: 1535px) { ... }
@@ -45,10 +49,13 @@ module.exports = {
       'center-width':'1170px'
     },
     width:{
-      'section-width':"70%"
+      'section-width':"80%"
     },
     backgroundColor:{
-      'white-background':"#ffffff"
+      'white-background':"#ffffff",
+      'tick-bacground':'#DFECFF',
+      "black":"#000000",
+      'purple-background':"#4A28FF"
     }
   },
   plugins: [],
