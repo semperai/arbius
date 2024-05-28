@@ -5,4 +5,55 @@
 @font-face {
     font-family: "Sequel-Sans-Black";
     src: url('../app/assets/fonts/Sequel-Sans-Black.ttf');
-  }
+}
+
+
+
+/* Header styles */
+.background-gradient{
+    background: linear-gradient(180deg, #4A28FF 16.5%, #9ED6FF 100%);
+}
+.image-white{
+    filter: brightness(0) invert(1);
+}
+@layer components {
+    .link-block > div{
+        @apply cursor-pointer;
+    }
+    .link-block .link-with-image .link{
+        @apply flex items-center;
+    }
+    .link-block .link-with-image .ext-link{
+        @apply h-[10px] w-[auto] ml-[3px];
+    }
+    .link-with-image .staking{
+        @apply gap-[10px] absolute ml-[-50%];
+    }
+    .link-with-image .staking-block{
+        @apply flex flex-col justify-around items-start bg-[white] w-[170px] h-[250px] p-[20px_10px] hover-bg-image drop-shadow-xl;
+    }
+    .link-with-image .staking-block div:nth-child(2){
+        @apply font-medium text-[black] text-[16px];
+    }
+    .link-with-image .staking-block div:nth-child(3){
+        @apply text-[11px];
+    }
+    .hover-bg-image:hover {
+        @apply background-gradient text-[white]; /* Apply the custom background image class on hover */
+    }
+    .hover-bg-image:hover div:nth-child(2){
+        @apply text-[white];
+    }
+    .hover-bg-image:hover img{
+        @apply image-white;
+    }
+}
+/* Header styles */
+
+/* Partners styles */
+@layer components {
+    .ArbiusPartners div img{
+        @apply h-[30px] w-[auto];
+    }
+}
+/* Partners styles */
