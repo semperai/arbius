@@ -84,6 +84,17 @@ task("local:mint", "Mint tokens")
     console.log(`minted ${amount} tokens to ${to}`);
 });
 
+task("test:mint", "Mint tokens")
+.addParam("to", "address")
+.addParam("amount", "amount")
+.setAction(async ({ to, amount }, hre) => {
+    const TestnetToken = await hre.ethers.getContractFactory("TestnetToken");
+    const testnetToken = await TestnetToken.attach(Config.v2_baseTokenAddress);
+    const tx = await testnetToken.mint(to, hre.ethers.utils.parseEther(amount));
+    await tx.wait();
+    console.log(`minted ${amount} tokens to ${to}`);
+});
+
 task("local:mine", "mine blocks locally")
 .addParam("blocks", "how many")
 .setAction(async ({ blocks }, hre) => {
@@ -325,12 +336,105 @@ task("engine:setVersion", "Set engine version for miner check")
   console.log(`Engine is now version ${versionNow}`);
 });
 
-task("engine:version", "Set engine version for miner check")
+task("v2:engine:setVersion", "Set engine version for miner check")
+.addParam("n", "Version Number")
+.setAction(async ({ n }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const tx = await engine.setVersion(n);
+  await tx.wait();
+  const versionNow = await engine.version();
+  console.log(`Engine is now version ${versionNow}`);
+});
+
+task("engine:version", "Get engine version for miner check")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
   const engine = await Engine.attach(Config.engineAddress);
   const versionNow = await engine.version();
   console.log(`Engine is now version ${versionNow}`);
+});
+
+task("v2:engine:version", "Get engine version for miner check")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const versionNow = await engine.version();
+  console.log(`Engine is now version ${versionNow}`);
+});
+
+task("v2:engine:reward", "Check reward calculation")
+.addParam("t", "Time")
+.addParam("ts", "Total supply")
+.setAction(async ({ t, ts }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const reward = await engine.reward(t, hre.ethers.utils.parseEther(ts));
+  console.log(hre.ethers.utils.formatEther(reward));
+});
+
+task("v2:engine:getPsuedoTotalSupply", "Call getPsuedoTotalSupply")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const ts = await engine.getPsuedoTotalSupply();
+  console.log(hre.ethers.utils.formatEther(ts));
+});
+
+task("v2:engine:targetTs", "Call targetTs")
+.addOptionalParam("t", "Time")
+.setAction(async ({ t }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  if (typeof t === 'undefined') {
+    const startBlockTime = await engine.startBlockTime();
+    const now = Math.floor(Date.now() / 1000);
+    t = now - startBlockTime.toNumber();
+  }
+
+  const ts = await engine.targetTs(t);
+  console.log(hre.ethers.utils.formatEther(ts));
+});
+
+task("v2:engine:getReward", "Call getReward")
+.setAction(async ({ t }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const r = await engine.getReward();
+  console.log(hre.ethers.utils.formatEther(r));
+});
+
+task("v2:engine:setStartBlockTime", "Set startBlockTime")
+.addParam("t", "Time")
+.setAction(async ({ t }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const tx = await engine.setStartBlockTime(t);
+  await tx.wait();
+  const startBlockTime = await engine.startBlockTime();
+  console.log(`Engine is now startBlockTime ${startBlockTime}`);
+});
+
+task("v2:engine:minClaimSolutionTime", "Get minClaimSolutionTime")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV3");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const m = await engine.minClaimSolutionTime();
+  console.log(`Engine minClaimSolutionTime is ${m}`);
+});
+
+task("v2:engine:initialize", "")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV3");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const tx = await engine.initialize();
+  await tx.wait();
+  console.log(`Engine initialized`);
 });
 
 task("engine:setMinClaimSolutionTime", "set min claim solution time")
