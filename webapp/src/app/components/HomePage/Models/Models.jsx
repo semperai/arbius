@@ -30,13 +30,13 @@ export default function Models(){
         }
     }
     return(
-        <div className="bg-models-gradient bg-cover">
+        <div className="bg-models-gradient bg-cover font-Sequel-Sans-Medium-Head">
             <div className="w-section-width m-[auto] p-[100px_0] max-w-center-width flex justify-between items-center">
                 <div className="w-[50%]">
                     <div className="text-[12px] Gradient-transparent-text bg-button-gradient-txt">Our Models!</div>
-                    <div className="text-header font-medium">Defi for AI</div>
+                    <div className="text-header font-medium text-black-text mb-6">Defi for AI</div>
                     <div>
-                        <div className="text-para font-extralight">Model creators are now first-class citizens. Set your fees (or choose not to) for using your models and enable investments in them as tokenized assets. Model generations are handled by a global, decentralized network of solvers competing to deliver results swiftly.</div>
+                        <div className="text-para text-subtext-three font-Sequel-Sans-Light-Body text-subtext-two">Model creators are now first-class citizens. Set your fees (or choose not to) for using your models and enable investments in them as tokenized assets. Model generations are handled by a global, decentralized network of solvers competing to deliver results swiftly.</div>
                     </div>
                     <div className="mt-[30px]">
                         <div className="all-models flex model-items w-full justify-between">
@@ -51,8 +51,8 @@ export default function Models(){
                         </div>
                         <div className="mt-[30px]">
                             <div className="text-[28px] font-medium Gradient-transparent-text bg-background-gradient-txt">{selectedModel}</div>
-                            <div className="mt-[10px] mb-[20px] w-[60%] font-extralight">{AllModels[selectedModel].text}</div>
-                            <div><button className="hover:bg-background-gradient transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button></div>
+                            <div className="mt-[10px] mb-[20px] w-[60%] text-subtext-two font-Sequel-Sans-Light-Body">{AllModels[selectedModel].text}</div>
+                            <div><button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button></div>
                         </div>
                     </div>
                 </div>

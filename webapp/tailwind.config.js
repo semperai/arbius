@@ -11,7 +11,7 @@ module.exports = {
     },
     fontSize:{
       'header':"55px",
-      "para":"20px"
+      "para":"16px"
     },
     colors:{
       'black-text':"#333333",
@@ -40,7 +40,7 @@ module.exports = {
       'background-gradient': "linear-gradient(90deg, #4A28FF 16.5%, #9ED6FF 100%)",
       'background-gradient-txt': "linear-gradient(90deg, #4A28FF 0.5%, #9ED6FF 50%)",
       'button-gradient': "linear-gradient(96.52deg, #9162F7 -25.28%, #FB567E 94%)",
-      'button-gradient-txt': "linear-gradient(96.52deg, #9162F7 0.28%, #FB567E 44%)"
+      'button-gradient-txt': "linear-gradient(96.52deg, #9162F7 0.28%, #FB567E 44%)",
       "gradient-text":"linear-gradient(91.52deg, #4A28FF 0%, #92BDFF 115.35%)",
       "buy-hover":"linear-gradient(95.28deg, #4A28FF 17.25%, #92BDFF 123.27%)"
    }),

@@ -31,7 +31,7 @@
         @apply cursor-pointer;
     }
     .link-block .link-with-image .link{
-        @apply flex items-center;
+        @apply flex items-center font-Sequel-Sans-Light-Body text-subtext-three;
     }
     .link-block .link-with-image .ext-link{
         @apply h-[10px] w-[auto] ml-[3px];
@@ -43,15 +43,18 @@
         @apply flex flex-col justify-around items-start bg-[white] w-[170px] h-[250px] p-[20px_10px] hover-bg-image drop-shadow-xl;
     }
     .link-with-image .staking-block div:nth-child(2){
-        @apply font-medium text-[black] text-[16px];
+        @apply font-medium text-[black] text-[16px] font-Sequel-Sans-Medium-Head;
     }
     .link-with-image .staking-block div:nth-child(3){
-        @apply text-[11px];
+        @apply text-[11px] font-Geist-SemiBold text-footer-text;
     }
     .hover-bg-image:hover {
-        @apply background-gradient text-[white]; /* Apply the custom background image class on hover */
+        @apply background-gradient; /* Apply the custom background image class on hover */
     }
     .hover-bg-image:hover div:nth-child(2){
+        @apply text-[white];
+    }
+    .hover-bg-image:hover div:nth-child(3){
         @apply text-[white];
     }
     .hover-bg-image:hover img{
@@ -81,7 +84,7 @@
         @apply p-[10px_0px] text-center border-b border-[#111111] flex-grow;
     }
     .all-models > div{
-        @apply text-[#c2c2c2] cursor-pointer text-[14px] flex-1 pb-[20px];
+        @apply text-[#c2c2c2] cursor-pointer text-[14px] flex-1 pb-[20px] text-subtext-two;
     }
     .all-models > .selected{
         @apply text-blue-text border-b-[2px] gradient-border;

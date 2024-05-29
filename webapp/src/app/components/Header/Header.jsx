@@ -27,8 +27,8 @@ export default function Header(){
                                 </div>
                                 <div className="staking-block">
                                     <Image className="h-[20px] w-[auto]" src={arbius} alt="" />
-                                    <div className="font-medium text-[black]">ve-AIUS</div>
-                                    <div className="text-[11px]">Lock AIUS, earn rewards over time.</div>
+                                    <div>ve-AIUS</div>
+                                    <div>Lock AIUS, earn rewards over time.</div>
                                 </div>
                             </div>
                         </div>
@@ -38,18 +38,18 @@ export default function Header(){
                             <div className="staking translate-x-[-40%] translate-y-[30px] hidden group-hover:flex">
                                 <div className="staking-block">
                                     <Image className="h-[20px] w-[auto]" src={kandinsky} alt="" />
-                                    <div className="font-medium text-[black]">Kandinsky 2</div>
-                                    <div className="text-[11px]">Stake AIUS and ETH, earn AIUS rewards.</div>
+                                    <div>Kandinsky 2</div>
+                                    <div>Stake AIUS and ETH, earn AIUS rewards.</div>
                                 </div>
                                 <div className="staking-block">
                                     <Image className="h-[20px] w-[auto]" src={kandinsky} alt="" />
-                                    <div className="font-medium text-[black]">Kasumi</div>
-                                    <div className="text-[11px]">Lock AIUS, earn rewards over time.</div>
+                                    <div>Kasumi</div>
+                                    <div>Lock AIUS, earn rewards over time.</div>
                                 </div>
                                 <div className="staking-block">
                                     <Image className="h-[20px] w-[auto]" src={kandinsky} alt="" />
-                                    <div className="font-medium text-[black]">Amica</div>
-                                    <div className="text-[11px]">Lock AIUS, earn rewards over time.</div>
+                                    <div>Amica</div>
+                                    <div>Lock AIUS, earn rewards over time.</div>
                                 </div>
                             </div>
                         </div>
@@ -60,7 +60,7 @@ export default function Header(){
                     </div>
                     <div className="ml-[30px]">
                         <div>
-                            <button className="hover:bg-background-gradient transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>
+                            <button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>
                         </div>
                     </div>
                 </div>
