@@ -17,7 +17,7 @@ async function main() {
   // const mirrorEngine = await ethers.getContractAt('V2EngineV2', Config.v2_engineAddress);
   // const mirrorL2Token = await ethers.getContractAt('BaseTokenV1', Config.v2_l1TokenAddress);
   // const mirrorEngineBalance = await mirrorL2Token.balanceOf(mirrorEngine.address);
-  const mirrorEngineBalance = ethers.utils.parseEther('578000');
+  const mirrorEngineBalance = ethers.utils.parseEther('479655');
   // const solutionStakeAmount = await mirrorEngine.solutionsStakeAmount();
   const solutionStakeAmount = ethers.utils.parseEther('0.001');
   // const startTime = await mirrorEngine.startBlockTime();
