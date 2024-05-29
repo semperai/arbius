@@ -238,6 +238,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         solutionRateLimit = 1 ether; // 1 second required between solution submissions
         taskOwnerRewardPercentage = 0.1 ether; // 10%
         contestationVoteExtensionTime = 10; // 10 seconds
+        totalHeld = 3333; // TODO update this during upgrade
     }
 
     /// @notice Transfer ownership
