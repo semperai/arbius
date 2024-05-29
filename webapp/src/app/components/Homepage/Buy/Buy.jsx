@@ -3,6 +3,7 @@ import white_logo from '@/app/assets/images/white_logo.png'
 import arrow from '@/app/assets/images/arrow.png'
 import tick from '@/app/assets/images/tick.png'
 import Image from "next/image"
+import Link from "next/link"
 export default function Buy(){
     const info = [
         "Pay for AI generations",
@@ -18,11 +19,11 @@ export default function Buy(){
                 <div className="flex items-center justify-between">
                     <div className="w-[70%]">
                         <div>
-                            <h2 className="font-Sequel-Sans-Medium-Head text-[55px] text-black-text mb-6">Buy Arbius (AIUS)</h2>
+                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text mb-6">Buy Arbius (AIUS)</h2>
                         </div>
                         <div>
                             <div className="mb-6">
-                                <p className="text-subtext-three font-Sequel-Sans-Light-Body text-[20px]">Arbius is still at an early experimental stage. No expectation of future income is implied. Join our community and see what there is to offer.</p>
+                                <p className="text-subtext-three font-Sequel-Sans-Light-Body text-para">Arbius is still at an early experimental stage. No expectation of future income is implied. Join our community and see what there is to offer.</p>
                             </div>
                             <div className="flex items-center flex-wrap gap-4">
                                 {
@@ -40,10 +41,12 @@ export default function Buy(){
                             </div>
                         </div>
                         <div className="mt-12">
-                            <button type="button" className="bg-black py-2 px-10 rounded-full flex items-center  gap-3">
-                                 <p className="text-original-white font-Sequel-Sans-Medium-Head mb-1">Buy on Uniswap</p>
-                                <Image src={arrow} width={18}  alt="right arrow"/>
-                            </button>
+                            <Link href="https://app.uniswap.org/swap" target="_blank">
+                                <button type="button" className="bg-black hover:bg-buy-hover py-2 px-10 rounded-full flex items-center  gap-3">
+                                    <p className="text-original-white font-Sequel-Sans-Medium-Head mb-1">Buy on Uniswap</p>
+                                    <Image src={arrow} width={18}  alt="right arrow"/>
+                                </button>
+                            </Link>
                         </div>
                     </div>
                     <div  className="w-[25%]">

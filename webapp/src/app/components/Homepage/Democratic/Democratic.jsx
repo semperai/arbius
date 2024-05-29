@@ -3,6 +3,7 @@ import privacy from '@/app/assets/images/privacy.png'
 import ai from '@/app/assets/images/ai.png'
 import code from '@/app/assets/images/code.png'
 import Image from "next/image"
+
 export default function Democratic(){
     const cardsData=[
         {
@@ -33,8 +34,8 @@ export default function Democratic(){
                 <div>
                     <div>
                         <div>
-                            <h2 className="font-Sequel-Sans-Medium-Head text-[55px] text-black-text mb-6">We make AI democratic.</h2>
-                            <p className="text-subtext-three font-Sequel-Sans-Light-Body text-[20px]">Arbius is controlled by its users, not monopolized by large corporations and governments. The design of Arbius makes it difficult or impossible to censor usage, allowing for anyone in the world to interact with AI models permissionlessly.</p>
+                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text mb-6">We make AI democratic.</h2>
+                            <p className="text-subtext-three font-Sequel-Sans-Light-Body text-para">Arbius is controlled by its users, not monopolized by large corporations and governments. The design of Arbius makes it difficult or impossible to censor usage, allowing for anyone in the world to interact with AI models permissionlessly.</p>
                         </div>
                     </div>
                     <div>

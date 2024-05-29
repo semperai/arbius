@@ -10,17 +10,15 @@
     font-family: "Sequel-Sans-Medium-Head";
     src: url('../app/assets/fonts/Sequel-Sans-Medium-Head.ttf');
 }
+@font-face {
+    font-family: "Geist-SemiBold";
+    src: url('../app/assets/fonts/Geist-SemiBold.ttf');
+  }
 *{
     margin: 0;
     padding: 0;
 }
 
-.Gradient-transparent-text{
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-fill-color: transparent;
-    -webkit-background-clip: text;
-}
 /* Header styles */
 .background-gradient{
     background: linear-gradient(180deg, #4A28FF 16.5%, #9ED6FF 100%);
@@ -70,6 +68,7 @@
 }
 /* Partners styles */
 
+
 /* Models styles */
 .gradient-border {
     border-image: linear-gradient(90deg, #4A28FF 16.5%, #9ED6FF 100%) 1;
@@ -89,3 +88,62 @@
     }
 }
 /* Models styles */
+
+.CollaboratorsMarquee{
+    background-color: var(--home-page-background);
+    --gap: 20px;
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    gap: var(--gap);
+    /* padding-bottom: 130px; */
+    max-width: var(--max-width-container);
+    width: 100%;
+    margin: auto;
+  }
+  .MarqueeContainer {
+    /*white-space: nowrap;
+    box-sizing: border-box;
+    animation: marquee 30s linear infinite;
+    display: flex;
+    width: 100%;
+    scroll-snap-type: repeat;
+    scroll-behavior: linear;
+    justify-content: space-between;*/
+    animation: marquee 30s linear infinite;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    min-width: 100%;
+    /* gap: var(--gap); */
+  }
+  
+  .MarqueeContainer .ImageItem img{
+    height: 40px;
+    filter: var(--collaborators-logo-filter);
+  }
+  
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  .Item{
+    width: 250px;
+  }
+  .MarqueeContainer .ImageItem img{
+    height: auto;
+    width: 100%;
+    object-fit: cover;
+    /* filter: var(--collaborators-logo-filter); */
+  }
+  .Gradient-transparent-text{
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+   -webkit-background-clip: text;
+  }
