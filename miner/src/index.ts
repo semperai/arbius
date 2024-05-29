@@ -93,7 +93,7 @@ interface SolutionDetails {
 
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
-const minerVersion = BigNumber.from('2');
+const minerVersion = BigNumber.from('3');
 
 const EnabledModels = [
   {
@@ -594,7 +594,7 @@ async function processAutomine() {
         await dbQueueJob({
           method: "claim",
           priority: 50,
-          waituntil: now() + 2000 + 120, // 2 min buffer to avoid time drift claim issues
+          waituntil: now() + 3600 + 120, // 2 min buffer to avoid time drift claim issues
           concurrent: false,
           data: {
             taskid,
