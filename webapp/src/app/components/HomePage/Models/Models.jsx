@@ -42,7 +42,7 @@ export default function Models(){
                         <div className="all-models flex model-items w-full justify-between">
                             {
                                 Object.keys(AllModels).map(function(item, index){
-                                    return <div className={selectedModel === item ? "selected" : "non-selected"} onClick={()=>setSelectedModel(item)}>{item}</div>
+                                    return <div className={selectedModel === item ? "selected" : "non-selected"} onClick={()=>setSelectedModel(item)} key={index}>{item}</div>
                                 })
                             }
                             {/*<div>AI Generations</div>
