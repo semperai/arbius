@@ -25,8 +25,17 @@ module.exports = {
         "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
         "Sequel-Sans-Medium-Head":["Sequel-Sans-Medium-Head"]
     },
+     fontSize:{
+      'header':"55px",
+      "para":"20px"
+    },
     backgroundImage: theme => ({
-      'democratic-gradient':"linear-gradient(142.65deg, rgba(146, 189, 255, 0.02) -27.23%, rgba(81, 54, 255, 0.1) 31.69%, rgba(255, 255, 255, 0.159364) 60.92%, rgba(212, 179, 255, 0.2) 101.25%)"
+      'democratic-gradient':"linear-gradient(142.65deg, rgba(146, 189, 255, 0.02) -27.23%, rgba(81, 54, 255, 0.1) 31.69%, rgba(255, 255, 255, 0.159364) 60.92%, rgba(212, 179, 255, 0.2) 101.25%)",
+      'models-gradient': "linear-gradient(101.66deg, rgba(146, 189, 255, 0.02) -6.48%, rgba(81, 54, 255, 0.1) 45.24%, rgba(212, 179, 255, 0.2) 106.31%)",
+      'background-gradient': "linear-gradient(90deg, #4A28FF 16.5%, #9ED6FF 100%)",
+      'background-gradient-txt': "linear-gradient(90deg, #4A28FF 0.5%, #9ED6FF 50%)",
+      'button-gradient': "linear-gradient(96.52deg, #9162F7 -25.28%, #FB567E 94%)",
+      'button-gradient-txt': "linear-gradient(96.52deg, #9162F7 0.28%, #FB567E 44%)"
    }),
     screens: {
       '2xl': '1800px',

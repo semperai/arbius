@@ -7,7 +7,7 @@ export default function MachineLearningSection(){
         <div className="bg-[url('./assets/images/peer_background.png')] bg-cover">
             <div className="w-section-width m-[auto] p-[100px_0] max-w-center-width">
                 <div className="w-[50%]">
-                    <div className="text-[12px] text-blue-text">Welcome to arbius network!</div>
+                    <div className="text-[12px] Gradient-transparent-text bg-background-gradient-txt">Welcome to arbius network!</div>
                     <div className="text-header font-medium">Peer-to-peer machine learning.</div>
                     <div>
                         <div className="text-para font-extralight">Arbius is a decentralized network for machine learning and a token with a fixed supply like Bitcoin. New coins are generated with GPU power by participating in the network. There is no central authority to create new coins. Arbius is fully open-source. Holders vote on-chain for protocol upgrades. Models operate as DAOS with custom rules for distribution and rewards, providing a way for model creators to earn income.</div>
