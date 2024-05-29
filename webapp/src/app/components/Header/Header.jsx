@@ -60,7 +60,7 @@ export default function Header(){
                     </div>
                     <div className="ml-[30px]">
                         <div>
-                            <button className="bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>
+                            <button className="hover:bg-background-gradient transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>
                         </div>
                     </div>
                 </div>

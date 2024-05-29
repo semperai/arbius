@@ -63,3 +63,17 @@
     }
 }
 /* Partners styles */
+
+/* Models styles */
+@layer components{
+    .model-items > div{
+        @apply p-[10px_0px] text-center border-b border-[#111111] flex-grow;
+    }
+    .all-models > div{
+        @apply text-[#c2c2c2] cursor-pointer text-[14px] flex-1 pb-[20px];
+    }
+    .all-models > .selected{
+        @apply text-blue-text border-b-[2px] border-blue-text;
+    }
+}
+/* Models styles */
