@@ -1,9 +1,11 @@
+"use client"
 import React from "react"
 import community_box from '@/app/assets/images/community_box.png'
 import arbius_data from '@/app/assets/images/arbius_data.png'
 import arrow from '@/app/assets/images/arrow.png'
 import Image from "next/image"
 import Link from "next/link"
+import { Fade} from "react-awesome-reveal";
 export default function Community(){
     const platforms = [
         {
@@ -34,43 +36,61 @@ export default function Community(){
                 <div>
                     <div>
                         <div className="mb-6">
-                            <p className="font-Sequel-Sans-Medium-Head text-header text-black-text ">dApps & Community</p>
-                            <p className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4">Initiatives. <span><Image className="mt-1" src={community_box} width={40} alt="box"/></span></p>
+                            
+                            <p className="font-Sequel-Sans-Medium-Head text-header text-black-text ">
+                                <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
+                                   dApps & Community
+                                </Fade>
+                            </p>
+                            <p className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4">
+                               <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+                                  Initiatives.
+                                </Fade> 
+                            <span>
+                             <Fade direction="up" triggerOnce={true}>
+                                <Image className="mt-1" src={community_box} width={40} alt="box"/>
+                            </Fade>
+                            </span>
+                            </p>
                         </div>
-                        <div className="mb-12">
-                            <p className="text-subtext-three font-Sequel-Sans-Light-Body text-para">Discover diverse dApps and community initiatives on the Arbius Network, each supported by our DAO and enhancing our blockchain ecosystem with innovative and collaborative services.</p>
-                        </div>
+                        <Fade direction="up" triggerOnce={true}>
+                            <div className="mb-12">
+                                <p className="text-subtext-three font-Sequel-Sans-Light-Body text-para">Discover diverse dApps and community initiatives on the Arbius Network, each supported by our DAO and enhancing our blockchain ecosystem with innovative and collaborative services.</p>
+                            </div>
+                        </Fade>
                     </div>
-                    <div>
-                        <div className="flex items-center justify-between">
-                            {
-                                platforms.map((platform)=>{
-                                    return (
-                                        <div className={`${platform.background} ${platform.hover_background} group bg-no-repeat bg-cover rounded-3xl p-6 w-[45%] h-[250px]`} key={platform.id}>
-                                            <div>
-                                                {
-                                                    platform?.nameType==="Image"?
-                                                    <Image src={platform?.nameImage} alt={platform?.name} width={150}/>
-                                                    :<h3 className="text-card-heading font-Sequel-Sans-Medium-Head text-[25px]">{platform?.name}</h3>
-                                                }
+                    <Fade direction="up" triggerOnce={true}>
+                        <div>
+                            <div className="flex items-center justify-between">
+                                {
+                                    platforms.map((platform)=>{
+                                        return (
+                                            <div className={`${platform.background}  bg-no-repeat bg-cover rounded-3xl p-6 w-[45%] h-[250px]`} key={platform.id}>
+                                                <div>
+                                                    {
+                                                        platform?.nameType==="Image"?
+                                                        <Image src={platform?.nameImage} alt={platform?.name} width={150}/>
+                                                        :<h3 className="text-card-heading font-Sequel-Sans-Medium-Head text-[25px]">{platform?.name}</h3>
+                                                    }
+                                                </div>
+                                                <div>
+                                                    <p className="text-card-heading font-Sequel-Sans-Light-Body text-[16px] mt-6">{platform.content}</p>
+                                                </div>
+                                                <div className="mt-6">
+                                                <Link href={platform.link} target="_blank">   
+                                                    <button type="button" className="bg-black py-2 hover:bg-buy-hover px-10 rounded-full flex items-center  gap-3">
+                                                        <p className="text-original-white font-Sequel-Sans-Medium-Head mb-1">{platform.buttonText}</p>
+                                                        <Image src={arrow} width={18}  alt="right arrow"/>
+                                                    </button>
+                                                </Link>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-card-heading font-Sequel-Sans-Light-Body text-[16px] mt-6">{platform.content}</p>
-                                            </div>
-                                            <div className="mt-6">
-                                             <Link href={platform.link} target="_blank">   
-                                                <button type="button" className="bg-black py-2 group-hover:bg-buy-hover px-10 rounded-full flex items-center  gap-3">
-                                                    <p className="text-original-white font-Sequel-Sans-Medium-Head mb-1">{platform.buttonText}</p>
-                                                    <Image src={arrow} width={18}  alt="right arrow"/>
-                                                </button>
-                                            </Link>
-                                            </div>
-                                        </div>
-                                    )
-                                })
-                            }
+                                        )
+                                    })
+                                }
+                            </div>
                         </div>
-                    </div>
+                    </Fade>
                 </div>
             </div>
         </div>

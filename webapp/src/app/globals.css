@@ -14,6 +14,10 @@
     font-family: "Geist-SemiBold";
     src: url('../app/assets/fonts/Geist-SemiBold.ttf');
   }
+  @font-face {
+    font-family: "Geist-Regular";
+    src: url('../app/assets/fonts/Geist-Regular.ttf');
+  }
 *{
     margin: 0;
     padding: 0;

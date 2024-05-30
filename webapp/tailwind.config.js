@@ -29,11 +29,12 @@ module.exports = {
         "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
         "Sequel-Sans-Medium-Head":["Sequel-Sans-Medium-Head"],
         "Geist-SemiBold":["Geist-SemiBold"],
+        "Geist-Regular":["Geist-Regular"]
     },
-     fontSize:{
-      'header':"55px",
-      "para":"20px"
-    },
+    //  fontSize:{
+    //   'header':"55px",
+    //   "para":"20px"
+    // },
     backgroundImage: theme => ({
       'democratic-gradient':"linear-gradient(142.65deg, rgba(146, 189, 255, 0.02) -27.23%, rgba(81, 54, 255, 0.1) 31.69%, rgba(255, 255, 255, 0.159364) 60.92%, rgba(212, 179, 255, 0.2) 101.25%)",
       'models-gradient': "linear-gradient(101.66deg, rgba(146, 189, 255, 0.02) -6.48%, rgba(81, 54, 255, 0.1) 45.24%, rgba(212, 179, 255, 0.2) 106.31%)",

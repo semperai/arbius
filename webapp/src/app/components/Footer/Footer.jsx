@@ -1,3 +1,4 @@
+"use client"
 import React from "react"
 import github from '@/app/assets/images/github.png'
 import discord from '@/app/assets/images/discord.png'
@@ -5,6 +6,7 @@ import telegram from '@/app/assets/images/telegram.png'
 import twitter from '@/app/assets/images/twitter.png'
 import Image from "next/image"
 import Link from "next/link"
+import { Fade } from "react-awesome-reveal"
 export default function Footer(){
     const footerLinks = [
         {
@@ -67,6 +69,7 @@ export default function Footer(){
     return(
         <div className="bg-white-background py-20">
             <div className="w-section-width mx-auto max-w-center-width">
+            <Fade direction="up" triggerOnce={true}>
                 <div className="w-[80%] mx-auto">
                     <div className="flex items-center justify-between">
                         {
@@ -74,7 +77,7 @@ export default function Footer(){
                                 return (
                                     <Link href={link.link} target="_blank" key={link.id}>
                                         <div  className="cursor-pointer">
-                                            <p className="text-footer-text font-Geist-SemiBold text-[18px]">{link.name}</p>
+                                            <p className="text-footer-text font-Geist-Regular font-medium text-[18px]">{link.name}</p>
                                         </div>
                                     </Link>
                                 )
@@ -97,6 +100,7 @@ export default function Footer(){
                         </div>
                     </div>
                 </div>
+              </Fade>  
             </div>
         </div>
     )
