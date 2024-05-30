@@ -35,7 +35,7 @@ export default function Models(){
                 <div className="w-[50%]">
                     <div className="text-[12px] Gradient-transparent-text bg-button-gradient-txt">Our Models!</div>
                     <div className="text-header font-medium text-black-text mb-6">
-                       <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+                        <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                           Defi for AI
                         </Fade>
                     </div>
