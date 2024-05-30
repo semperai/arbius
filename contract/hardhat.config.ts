@@ -15,6 +15,9 @@ inspect.defaultOptions.depth = 10;
 // user created tasks
 import "./tasks/index";
 
+// foundry
+import "@nomicfoundation/hardhat-foundry";
+
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.19",
@@ -26,7 +29,7 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    mainnet: {
+/*     mainnet: {
       url: envconfig.mainnet.provider_url,
       accounts: [`0x${envconfig.mainnet.private_key}`],
     },
@@ -49,7 +52,7 @@ const config: HardhatUserConfig = {
     nova: {
       url: envconfig.nova.provider_url,
       accounts: [`0x${envconfig.nova.private_key}`],
-    },
+    }, */
   },
   typechain: {
     outDir: "typechain",
