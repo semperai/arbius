@@ -60,7 +60,11 @@ export default function Header(){
                     </div>
                     <div className="ml-[30px]">
                         <div>
-                            <button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>
+                            {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
+                            <button type="button" className=" relative group bg-black py-2 px-10 rounded-full flex items-center gap-3">
+                                <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">Connect</div>
+                            </button>
                         </div>
                     </div>
                 </div>

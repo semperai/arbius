@@ -23,13 +23,15 @@ module.exports = {
       'purple-text':'#4A28FF',
       'subtext-three':'#777777',
       'card-heading':"#454545",
-      'footer-text':'#979797'
+      'footer-text':'#979797',
+      'grey-text': '#c2c2c2'
      },
      fontFamily: {
         "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
         "Sequel-Sans-Medium-Head":["Sequel-Sans-Medium-Head"],
         "Geist-SemiBold":["Geist-SemiBold"],
-        "Geist-Regular":["Geist-Regular"]
+        "Geist-Regular":["Geist-Regular"],
+        "At-Hauss": ["AtHaussAero-Light"]
     },
     //  fontSize:{
     //   'header':"55px",

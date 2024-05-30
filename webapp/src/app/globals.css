@@ -13,11 +13,15 @@
 @font-face {
     font-family: "Geist-SemiBold";
     src: url('../app/assets/fonts/Geist-SemiBold.ttf');
-  }
-  @font-face {
+}
+@font-face {
     font-family: "Geist-Regular";
     src: url('../app/assets/fonts/Geist-Regular.ttf');
-  }
+}
+@font-face {
+    font-family: "AtHaussAero-Light";
+    src: url('../app/assets/fonts/AtHaussAero-Light.ttf');
+}
 *{
     margin: 0;
     padding: 0;
@@ -85,10 +89,10 @@
 }
 @layer components{
     .model-items > div{
-        @apply p-[10px_0px] text-center border-b border-[#111111] flex-grow;
+        @apply p-[10px_0px] text-center border-b border-[#E1E1E7] flex-grow;
     }
     .all-models > div{
-        @apply text-[#c2c2c2] cursor-pointer text-[14px] flex-1 pb-[20px] text-subtext-two;
+        @apply cursor-pointer text-[14px] flex-1 pb-[20px] text-subtext-two font-At-Hauss;
     }
     .all-models > .selected{
         @apply text-blue-text border-b-[2px] gradient-border;
