@@ -84,14 +84,14 @@ export default function Footer(){
                             })
                         }
                     </div>
-                    <div className="w-[40%] mx-auto mt-10">
+                    <div className="w-[30%] mx-auto mt-10">
                         <div className="flex items-center justify-between">
                         {
                             socialIcons.map((social)=>{
                                 return(
                                     <Link href={social.link} target="_blank" key={social.id}>
                                         <div  className="cursor-pointer">
-                                            <Image src={social.image} alt={social.alt} width={25}/>
+                                            <Image src={social.image} alt={social.alt} width={30}/>
                                         </div>
                                     </Link>
                                 )

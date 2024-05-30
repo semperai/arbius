@@ -31,7 +31,7 @@ export default function Community(){
         }
     ]
     return (
-        <div className="bg-white-background py-24">
+        <div className="bg-white-background py-24  bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
             <div className="w-section-width mx-auto max-w-center-width">
                 <div>
                     <div>
@@ -77,10 +77,11 @@ export default function Community(){
                                                     <p className="text-card-heading font-Sequel-Sans-Light-Body text-[16px] mt-6">{platform.content}</p>
                                                 </div>
                                                 <div className="mt-6">
-                                                <Link href={platform.link} target="_blank">   
-                                                    <button type="button" className="bg-black py-2 hover:bg-buy-hover px-10 rounded-full flex items-center  gap-3">
-                                                        <p className="text-original-white font-Sequel-Sans-Medium-Head mb-1">{platform.buttonText}</p>
-                                                        <Image src={arrow} width={18}  alt="right arrow"/>
+                                                <Link href={platform.link} target="_blank" className="inline-block">   
+                                                    <button type="button" className="relative group bg-black py-2  px-10 rounded-full flex items-center  gap-3">
+                                                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                        <p className="relative z-10 text-original-white font-Sequel-Sans-Medium-Head mb-1">{platform.buttonText}</p>
+                                                        <Image src={arrow} width={18} className="relative z-10"  alt="right arrow"/>
                                                     </button>
                                                 </Link>
                                                 </div>

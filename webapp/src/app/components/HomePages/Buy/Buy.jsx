@@ -16,7 +16,7 @@ export default function Buy(){
         "Promote free and open AI"
     ]
     return(
-        <div className="bg-white-background py-24">
+        <div className="bg-white-background py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
             <div className="w-section-width mx-auto max-w-center-width">
                 <div className="flex items-center justify-between">
                     <div className="w-[70%]">
@@ -55,10 +55,11 @@ export default function Buy(){
                         </div>
                         <Fade direction="up" triggerOnce={true}>
                             <div className="mt-12">
-                                <Link href="https://app.uniswap.org/swap" target="_blank">
-                                    <button type="button" className="bg-black hover:bg-buy-hover py-2 px-10 rounded-full flex items-center  gap-3">
-                                        <p className="text-original-white font-Sequel-Sans-Medium-Head mb-1">Buy on Uniswap</p>
-                                        <Image src={arrow} width={18}  alt="right arrow"/>
+                                <Link href="https://app.uniswap.org/swap" className="inline-block" target="_blank">
+                                  <button type="button" className=" relative group bg-black  py-2 px-10 rounded-full flex items-center  gap-3">
+                                      <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        <p className="text-original-white font-Sequel-Sans-Medium-Head mb-1 relative z-10">Buy on Uniswap</p>
+                                        <Image src={arrow} width={18} className=" relative z-10"  alt="right arrow"/>
                                     </button>
                                 </Link>
                             </div>
@@ -67,7 +68,7 @@ export default function Buy(){
                     <Fade direction="up" triggerOnce={true}>
                         <div  className="w-[25%]">
                             <div className="w-[220px] h-[220px] bg-purple-background rounded-[50%] flex items-center justify-center">
-                                <Image src={white_logo} width={120} alt="arbius white"/>
+                                <Image src={white_logo} width={150} alt="arbius white"/>
                             </div>
                         </div>
                     </Fade>
