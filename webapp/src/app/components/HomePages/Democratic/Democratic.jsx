@@ -36,8 +36,8 @@ export default function Democratic(){
                     <div>
                         <div>
                             <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text mb-6">
-                               <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
-                                 We make AI democratic.
+                                <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
+                                    We make AI democratic.
                                 </Fade>
                             </h2>
                             <Fade direction="up" triggerOnce={true}>
@@ -52,7 +52,6 @@ export default function Democratic(){
                                     cardsData.map((card)=>{
                                         return (
                                             <div className={`w-[30%] h-[320px] ${card.background} bg-no-repeat bg-cover rounded-3xl p-6`} key={card.id}>
-
                                                 <div className="mb-10">
                                                     <Image src={card.icon} alt={card.title} width={20}/>
                                                 </div>

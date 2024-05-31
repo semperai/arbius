@@ -23,8 +23,8 @@ export default function Buy(){
                         <div>
                            {/* <AttentionSeeker damping={0.5}> */}
                             <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text mb-6">
-                               <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                                Buy Arbius (AIUS)
+                                <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+                                    Buy Arbius (AIUS)
                                 </Fade>
                             </h2>
                                 
