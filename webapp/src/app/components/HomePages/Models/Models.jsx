@@ -132,7 +132,7 @@ export default function Models() {
             </div>
           </div>
         </Fade>
-
+        {/* Mobile View starts here */}
         <div className="block md:hidden mt-8">
           {Object.keys(AllModels).map((item, key) => {
             return (
@@ -148,7 +148,6 @@ export default function Models() {
                           className="h-[196px] w-[full] object-cover rounded-[20px]"
                           src={AllModels[item].image}
                           objectFit="cover"
-                          
                           alt=""
                           onMouseOver={() => toggleBackground(true)}
                           onMouseOut={() => toggleBackground(false)}
@@ -167,7 +166,7 @@ export default function Models() {
                     </div>
                   </div>
                 </Fade>
-                
+                <Fade direction="up" triggerOnce={true}>
                   <div className="mt-[10px]">
                     <div className="text-[28px] font-medium Gradient-transparent-text bg-background-gradient-txt">
                       {item}
@@ -194,7 +193,7 @@ export default function Models() {
                       </button>
                     </div>
                   </div>
-              
+                </Fade>
               </div>
             );
           })}
