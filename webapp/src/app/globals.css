@@ -71,7 +71,7 @@
         @apply flex items-center text-original-black lg:text-subtext-three;
     }
     .link-block .link-with-image .ext-link{
-        @apply h-[10px] w-[auto] ml-[3px];
+        @apply w-[20px] h-[auto] lg:h-[10px] lg:w-[auto] ml-[3px];
     }
     .link-with-image .staking{
         @apply gap-[10px] absolute ml-[-50%];
@@ -98,7 +98,7 @@
         @apply image-white;
     }
     .fixed-element{
-        @apply fixed header-gradient h-[100%] w-[100%] top-[80px] left-[0px] z-[999];
+        @apply fixed header-gradient h-[100%] top-[80px] right-[0px] z-[999] transition-all duration-300 overflow-hidden lg:overflow-visible;
     }
     .no-fixed-element{
         @apply relative bg-[unset] no-bg h-[auto] w-[auto] top-[unset] left-[unset] z-[0];
@@ -117,7 +117,13 @@
         .links-parent > div{
             @apply w-[100%];
         }
-        .links-parent{
+        .item{
+            @apply pl-[5%];
+        }
+        .link-block .link-with-image .link{
+            @apply pl-[5%];
+        }
+        .link-with-image .staking-block{
             @apply pl-[5%];
         }
     }

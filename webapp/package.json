@@ -11,6 +11,7 @@
   "dependencies": {
     "next": "14.2.3",
     "react": "^18",
+    "react-animate-height": "^3.2.3",
     "react-awesome-reveal": "^4.2.11",
     "react-dom": "^18"
   },

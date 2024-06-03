@@ -80,7 +80,8 @@ module.exports = {
       'white-background':"#ffffff",
       'tick-bacground':'#DFECFF',
       "black":"#000000",
-      'purple-background':"#4A28FF"
+      'purple-background':"#4A28FF",
+      'hamburger-background': "#333333",
     }
   },
   plugins: [],
