@@ -11,6 +11,7 @@ module.exports = {
     },
     fontSize:{
       'header':"55px",
+      'header-md':"40px",
       "para":"16px"
     },
     colors:{
@@ -68,7 +69,8 @@ module.exports = {
       'center-width':'1170px'
     },
     width:{
-      'section-width':"80%"
+      'section-width':"80%",
+      'mobile-section-width':"90%"
     },
     backgroundColor:{
       'white-background':"#ffffff",

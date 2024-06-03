@@ -6,19 +6,27 @@ import { Fade } from "react-awesome-reveal";
 export default function MachineLearningSection(){
     return (
         <div className="bg-[url('./assets/images/peer_background.png')] bg-cover font-Sequel-Sans-Medium-Head">
-            <div className="w-section-width m-[auto] p-[100px_0] max-w-center-width">
-                <div className="w-[50%]">
+            <div className=" w-mobile-section-width  md:w-section-width m-[auto] p-[100px_0] max-w-center-width">
+                <div className="w-full md:w-[50%]">
                     <Fade direction="up" triggerOnce={true}>
                         <div className="text-[12px] Gradient-transparent-text bg-background-gradient-txt">
                            Welcome to arbius network!
                         </div>
                     </Fade>
-                    <div className="text-header text-black-text mb-6">
+                    <div className="hidden md:block text-header text-black-text mb-6">
                         <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                             Peer-to-peer machine
                         </Fade>
                         <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                         learning.
+                            learning.
+                        </Fade>
+                    </div>
+                    <div className="block md:hidden text-header-md text-black-text mb-6">
+                        <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+                            Peer-to-peer 
+                        </Fade>
+                        <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+                            machine learning.
                         </Fade>
                     </div>
                     <div>
@@ -29,17 +37,17 @@ export default function MachineLearningSection(){
                             <div className="flex items-center mt-[30px] gap-[20px]">
                                 <div>
                                     {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button>*/}
-                                    <button type="button" className=" relative group bg-black py-2 px-10 rounded-full flex items-center gap-3">
+                                    <button type="button" className="  relative group bg-black py-2 px-5 md:px-10 rounded-full flex items-center gap-3">
                                         <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                        <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">Try now</div>
+                                        <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white  text-[13px] md:text-[100%]">Try now</div>
                                         <Image src={right_arrow} width={18} className="relative z-10" alt="right arrow" />
                                     </button>
                                 </div>
                                 <div>
                                     {/*<button className="hover:bg-button-gradient hover:text-[white] hover:border-[transparent] border-[1px] p-[8px_25px] rounded-[20px]">Read Whitepaper</button>*/}
-                                    <button type="button" className="hover:text-[white] hover:border-[transparent] text-original-black border-[1px] relative group bg-transparent py-2 px-10 rounded-full flex items-center gap-3">
+                                    <button type="button" className=" hover:text-[white] hover:border-[transparent] text-original-black border-[1px] relative group bg-transparent py-2 px-5 md:px-10 rounded-full flex items-center gap-3">
                                         <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-button-gradient opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                        <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10">Read Whitepaper</div>
+                                        <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-[13px] md:text-[100%]">Read Whitepaper</div>
                                     </button>
                                 </div>
                             </div>

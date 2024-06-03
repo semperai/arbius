@@ -36,12 +36,12 @@ export default function Community(){
                 <div>
                     <div>
                         <div className="mb-6">
-                            <p className="font-Sequel-Sans-Medium-Head text-header text-black-text ">
+                            <div className="font-Sequel-Sans-Medium-Head text-header text-black-text ">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
                                    dApps & Community
                                 </Fade>
-                            </p>
-                            <p className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4">
+                            </div>
+                            <div className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                                   Initiatives.
                                 </Fade> 
@@ -50,7 +50,7 @@ export default function Community(){
                                     <Image className="mt-1" src={community_box} width={40} alt="box"/>
                                 </Fade>
                             </span>
-                            </p>
+                            </div>
                         </div>
                         <Fade direction="up" triggerOnce={true}>
                             <div className="mb-12">
