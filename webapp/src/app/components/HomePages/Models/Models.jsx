@@ -34,8 +34,8 @@ export default function Models() {
   };
   return (
     <div className="bg-models-gradient bg-cover font-Sequel-Sans-Medium-Head">
-      <div className="w-mobile-section-width  md:w-section-width m-[auto] p-[100px_0] max-w-center-width flex  flex-col md:flex-row justify-between items-center">
-        <div className="w-full md:w-[50%]">
+      <div className="w-mobile-section-width  lg:w-section-width m-[auto] p-[100px_0] max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
+        <div className="w-full lg:w-[50%]">
           <div className="text-[12px] Gradient-transparent-text bg-button-gradient-txt">
             Our Models!
           </div>
@@ -55,7 +55,7 @@ export default function Models() {
               </div>
             </div>
           </Fade>
-          <Fade direction="up" triggerOnce={true} className="hidden md:block">
+          <Fade direction="up" triggerOnce={true} className="hidden lg:block">
             <div className="mt-[30px]">
               <div className="all-models flex model-items w-full justify-between">
                 {Object.keys(AllModels).map(function (item, index) {
@@ -104,7 +104,7 @@ export default function Models() {
             </div>
           </Fade>
         </div>
-        <Fade direction="up" triggerOnce={true} className="hidden md:block">
+        <Fade direction="up" triggerOnce={true} className="hidden lg:block">
           <div className="">
             <div
               id="image-parent"
@@ -133,10 +133,10 @@ export default function Models() {
           </div>
         </Fade>
         {/* Mobile View starts here */}
-        <div className="block md:hidden mt-8">
+        <div className="block lg:hidden mt-8">
           {Object.keys(AllModels).map((item, key) => {
             return (
-              <div key={key} className="mb-8">
+              <div key={key} className="mb-12">
                 <Fade direction="up" triggerOnce={true}>
                   <div className="">
                     <div

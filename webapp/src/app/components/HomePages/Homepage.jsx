@@ -14,7 +14,7 @@ export default function Homepage(){
             <MachineLearningSection />
             <Partners />
             <Models />
-            <Buy/>
+            <Buy/> 
             <Democratic/>
             <Community/>
             <Quote/>
