@@ -7,9 +7,9 @@ import { Fade} from "react-awesome-reveal";
 export default function Quote(){
     return (
         <div className="bg-white-background py-24">
-            <div className="w-section-width mx-auto max-w-center-width">
+            <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <Fade direction="up" triggerOnce={true}>
-                    <div className="w-[90%] mx-auto" >
+                    <div className="md:w-[90%] w-[98%] mx-auto" >
                         <div>
                             <Image src={quote} alt="quote" width={30}/>
                         </div>

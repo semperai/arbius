@@ -5,6 +5,7 @@ import ai from '@/app/assets/images/ai.png'
 import code from '@/app/assets/images/code.png'
 import Image from "next/image"
 import { Fade} from "react-awesome-reveal";
+import Carousel from "./Carousel"
 export default function Democratic(){
     const cardsData=[
         {
@@ -31,11 +32,11 @@ export default function Democratic(){
     ]
     return(
         <div className="bg-democratic-gradient py-24">
-            <div className="w-section-width mx-auto max-w-center-width">
+            <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div>
                     <div>
                         <div>
-                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text mb-6">
+                            <h2 className="font-Sequel-Sans-Medium-Head lg:text-header text-mobile-header text-black-text mb-6 fade-container">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
                                     We make AI democratic.
                                 </Fade>
@@ -47,11 +48,11 @@ export default function Democratic(){
                     </div>
                     <Fade direction="up" triggerOnce={true}>
                         <div>
-                            <div className="mt-24 flex items-center justify-between">
+                            <div className="mt-24 lg:flex hidden items-center justify-between">
                                 {
                                     cardsData.map((card)=>{
                                         return (
-                                            <div className={`w-[30%] h-[320px] ${card.background} bg-no-repeat bg-cover rounded-3xl p-6`} key={card.id}>
+                                            <div className={`w-[30%] xl:h-[320px] h-[400px] ${card.background} bg-no-repeat bg-cover rounded-3xl p-6`} key={card.id}>
                                                 <div className="mb-10">
                                                     <Image src={card.icon} alt={card.title} width={20}/>
                                                 </div>
@@ -68,6 +69,9 @@ export default function Democratic(){
                             </div>
                         </div>
                     </Fade>
+                    <div className="lg:hidden block">
+                        <Carousel cardsData={cardsData}/>
+                    </div>
                 </div>
             </div>
         </div>

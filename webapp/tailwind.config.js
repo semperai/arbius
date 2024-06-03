@@ -7,12 +7,12 @@ module.exports = {
   ],
   theme: {
     extend: {
-    
     },
     fontSize:{
       'header':"55px",
       'header-md':"40px",
-      "para":"16px"
+      "para":"16px",
+      'mobile-header':"45px"
     },
     colors:{
       'black-text':"#333333",
@@ -25,7 +25,8 @@ module.exports = {
       'subtext-three':'#777777',
       'card-heading':"#454545",
       'footer-text':'#979797',
-      'grey-text': '#c2c2c2'
+      'grey-text': '#c2c2c2',
+      'copyright-text':'#393939'
      },
      fontFamily: {
         "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
@@ -59,6 +60,8 @@ module.exports = {
       // => @media (max-width: 1023px) { ... }
 
       'md': '767px',
+      
+      'lm':"400px",
       // => @media (max-width: 767px) { ... }
 
       'sm': '0px',
@@ -68,6 +71,7 @@ module.exports = {
       //for containing the elements at larger devices
       'center-width':'1170px'
     },
+   
     width:{
       'section-width':"80%",
       'mobile-section-width':"90%"

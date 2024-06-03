@@ -32,16 +32,16 @@ export default function Community(){
     ]
     return (
         <div className="bg-white-background py-24  bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
-            <div className="w-section-width mx-auto max-w-center-width">
+            <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div>
                     <div>
                         <div className="mb-6">
-                            <div className="font-Sequel-Sans-Medium-Head text-header text-black-text ">
+                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text fade-container ">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
                                    dApps & Community
                                 </Fade>
-                            </div>
-                            <div className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4">
+                            </h2>
+                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4 fade-container">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                                   Initiatives.
                                 </Fade> 
@@ -50,7 +50,7 @@ export default function Community(){
                                     <Image className="mt-1" src={community_box} width={40} alt="box"/>
                                 </Fade>
                             </span>
-                            </div>
+                            </h2>
                         </div>
                         <Fade direction="up" triggerOnce={true}>
                             <div className="mb-12">
@@ -60,11 +60,11 @@ export default function Community(){
                     </div>
                     <Fade direction="up" triggerOnce={true}>
                         <div>
-                            <div className="flex items-center justify-between">
+                            <div className="flex md:flex-row flex-col md:gap-0 gap-4 items-center justify-between">
                                 {
                                     platforms.map((platform)=>{
                                         return (
-                                            <div className={`${platform.background}  bg-no-repeat bg-cover rounded-3xl p-6 w-[45%] h-[250px]`} key={platform.id}>
+                                            <div className={`${platform.background}  bg-no-repeat bg-cover rounded-3xl p-6 md:w-[45%] md:h-[250px] w-[95%] h-auto`} key={platform.id}>
                                                 <div>
                                                     {
                                                         platform?.nameType==="Image"?

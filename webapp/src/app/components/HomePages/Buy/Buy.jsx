@@ -17,18 +17,15 @@ export default function Buy(){
     ]
     return(
         <div className="bg-white-background py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
-            <div className="w-section-width mx-auto max-w-center-width">
-                <div className="flex items-center justify-between">
-                    <div className="w-[70%]">
+            <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
+                <div className="flex items-center lg:flex-row flex-col justify-between">
+                    <div className="lg:w-[70%] w-[100%]">
                         <div>
-                           {/* <AttentionSeeker damping={0.5}> */}
-                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text mb-6">
+                            <h2 className="font-Sequel-Sans-Medium-Head lg:text-header text-mobile-header text-black-text mb-6 fade-container">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                                     Buy Arbius (AIUS)
                                 </Fade>
                             </h2>
-                                
-                            {/* </AttentionSeeker> */}
                         </div>
                         <div>
                             <Fade direction="up" triggerOnce={true}>
@@ -41,7 +38,7 @@ export default function Buy(){
                                     {
                                         info.map((singleInfo)=>{
                                             return (
-                                                <div className="flex items-center gap-2 w-[40%]" key={singleInfo} >
+                                                <div className="flex items-center gap-2 md:w-[40%] w-[100%]" key={singleInfo} >
                                                 <div className="w-[18px] mt-[1px] h-[18px] bg-tick-bacground rounded-full flex items-center justify-center"> 
                                                     <Image src={tick} alt="check mark" width={8}/>
                                                     </div>  
@@ -66,7 +63,7 @@ export default function Buy(){
                         </Fade>
                     </div>
                     <Fade direction="up" triggerOnce={true}>
-                        <div  className="w-[25%]">
+                        <div  className="w-[25%] lg:block hidden">
                             <div className="w-[220px] h-[220px] bg-purple-background rounded-[50%] flex items-center justify-center">
                                 <Image src={white_logo} width={150} alt="arbius white"/>
                             </div>

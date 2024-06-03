@@ -26,6 +26,20 @@
     margin: 0;
     padding: 0;
 }
+.fade-container>div{
+    white-space:pre!important;
+}
+.marquee-shadow{
+    box-shadow:  0px 0px 14px rgba(178, 94, 210, 0.3);
+}
+.footer-icons-shadow{
+    filter: drop-shadow(0px 0px 8.5px rgba(18, 0, 115, 0.2));
+}
+@media(max-width:1023px) {
+    .fade-container>div{
+        white-space: normal!important;
+    }
+}
 
 /* Header styles */
 .background-gradient{
