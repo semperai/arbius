@@ -7,26 +7,28 @@ import Image from "next/image";
 import right_arrow from "../../../assets/images/right_arrow.png";
 import arbius_logo_round from "../../../assets/images/arbius_logo_round.png";
 import { Fade } from "react-awesome-reveal";
+import Link from "next/link";
 export default function Models() {
   const [selectedModel, setSelectedModel] = useState("Amica");
   const AllModels = {
     "Generative AI": {
       text: "Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.",
       image: generativeAI,
-      background:"bg-ai-gradient"
+      background: "bg-ai-gradient",
     },
-    "Amica": {
+    Amica: {
       text: "Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.",
       image: amica,
-      background:"bg-ai-gradient"
+      background: "bg-ai-gradient",
+      link: "https://amica.arbius.ai/",
     },
-    "Marketplace": {
+    Marketplace: {
       text: "Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here. Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.",
       image: marketplace,
-      background:"bg-ai-gradient"
+      background: "bg-ai-gradient",
     },
   };
-  const [background,setBackground]=useState(AllModels.Amica.background)
+  const [background, setBackground] = useState(AllModels.Amica.background);
   const toggleBackground = (add) => {
     if (add) {
       document
@@ -38,11 +40,11 @@ export default function Models() {
         .classList.remove("model-image-gradient");
     }
   };
-  const renderModel=(item)=>{
-    console.log(AllModels[item].background)
+  const renderModel = (item) => {
+    console.log(AllModels[item].background);
     setSelectedModel(item);
-    setBackground(AllModels[item].background)
-  }
+    setBackground(AllModels[item].background);
+  };
   return (
     <div className={`${background} bg-cover font-Sequel-Sans-Medium-Head`}>
       <div className="w-mobile-section-width  lg:w-section-width m-[auto] p-[100px_0] max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
@@ -75,7 +77,9 @@ export default function Models() {
                       className={
                         selectedModel === item ? "selected" : "non-selected"
                       }
-                      onClick={() => {renderModel(item)}}
+                      onClick={() => {
+                        renderModel(item);
+                      }}
                       key={index}
                     >
                       {item}
@@ -90,26 +94,31 @@ export default function Models() {
                 <div className="text-[28px] font-medium Gradient-transparent-text bg-background-gradient-txt">
                   {selectedModel}
                 </div>
-                <div className="mt-[10px] mb-[20px] w-[60%] text-subtext-two font-Sequel-Sans-Light-Body">
+                <div className="mt-[10px]  w-[60%] text-subtext-two font-Sequel-Sans-Light-Body lg:h-[180px]">
                   {AllModels[selectedModel].text}
-                </div>
-                <div>
-                  {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button> OLD ONE */}
-                  <button
-                    type="button"
-                    className=" relative group bg-black py-2 px-8 rounded-full flex items-center gap-3"
-                  >
-                    <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
-                      Try now
-                    </div>
-                    <Image
-                      src={right_arrow}
-                      width={18}
-                      className="relative z-10"
-                      alt="right arrow"
-                    />
-                  </button>
+
+                  <div>
+                    {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button> OLD ONE */}
+                    {AllModels[selectedModel].link && (
+                      <Link href={"https://amica.arbius.ai/"} target="_blank">
+                        <button
+                          type="button"
+                          className=" relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px]"
+                        >
+                          <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                          <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
+                            Try now
+                          </div>
+                          <Image
+                            src={right_arrow}
+                            width={18}
+                            className="relative z-10"
+                            alt="right arrow"
+                          />
+                        </button>
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,7 +172,6 @@ export default function Models() {
                           onMouseOver={() => toggleBackground(true)}
                           onMouseOut={() => toggleBackground(false)}
                         />
-                        
                       </div>
                     </div>
                   </div>
@@ -177,22 +185,26 @@ export default function Models() {
                       {AllModels[item].text}
                     </div>
                     <div>
+                      {AllModels[item].link && (
+                        <Link href={"https://amica.arbius.ai/"} target="_blank">
+                          <button
+                            type="button"
+                            className=" relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-5"
+                          >
+                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
+                              Try now
+                            </div>
+                            <Image
+                              src={right_arrow}
+                              width={18}
+                              className="relative z-10"
+                              alt="right arrow"
+                            />
+                          </button>
+                        </Link>
+                      )}
                       {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button> OLD ONE */}
-                      <button
-                        type="button"
-                        className=" relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-5"
-                      >
-                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
-                          Try now
-                        </div>
-                        <Image
-                          src={right_arrow}
-                          width={18}
-                          className="relative z-10"
-                          alt="right arrow"
-                        />
-                      </button>
                     </div>
                   </div>
                 </Fade>
