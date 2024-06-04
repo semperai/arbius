@@ -79,7 +79,7 @@ export default function Footer(){
         //   });
     }
     return(
-        <div className="bg-white-background py-20">
+        <div className="bg-white-background lg:py-20 py-10">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
             <Fade direction="up" triggerOnce={true}>
                 <div className=" lg:block hidden">
@@ -109,7 +109,7 @@ export default function Footer(){
                                     return(
                                         <Link href={link.link} target="_blank" key={link.id}>
                                             <div>
-                                                <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[14px] mb-4">{link.name}</p>
+                                                <p className="text-[#393939] hover:text-purple-text font-Sequel-Sans-Light-Body text-[14px] mb-4">{link.name}</p>
                                             </div>
                                         </Link>
                                     )
@@ -122,7 +122,7 @@ export default function Footer(){
                                     return(
                                         <Link href={link.link} target="_blank" key={link.id}>
                                             <div>
-                                                <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[14px] mb-4">{link.name}</p>
+                                                <p className="text-[#393939]  hover:text-purple-text font-Sequel-Sans-Light-Body text-[14px] mb-4">{link.name}</p>
                                             </div>
                                         </Link>
                                     )
@@ -130,8 +130,8 @@ export default function Footer(){
                             }
                         </div>
                         <div>
-                            <div className="flex items-center gap-4 cursor-pointer" onClick={scrollTop}>
-                               <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[14px]">Back to top</p>
+                            <div className="flex items-center gap-4 cursor-pointer group" onClick={scrollTop}>
+                               <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[14px] group-hover:text-purple-text">Back to top</p>
                                <Image src={small_arrow} className="rotate-[-90deg]" alt="arrow" width={8}/>
                             </div>
                         </div>

@@ -42,7 +42,7 @@ export default function Democratic(){
                                 </Fade>
                             </h2>
                             <Fade direction="up" triggerOnce={true}>
-                                <p className="text-subtext-three font-Sequel-Sans-Light-Body text-para">Arbius is controlled by its users, not monopolized by large corporations and governments. The design of Arbius makes it difficult or impossible to censor usage, allowing for anyone in the world to interact with AI models permissionlessly.</p>
+                                <p className="text-subtext-three font-Sequel-Sans-Light-Body text-para lg:w-[70%] w-[100%]">Arbius is controlled by its users, not monopolized by large corporations and governments. The design of Arbius makes it difficult or impossible to censor usage, allowing for anyone in the world to interact with AI models permissionlessly.</p>
                             </Fade>
                         </div>
                     </div>
@@ -52,7 +52,7 @@ export default function Democratic(){
                                 {
                                     cardsData.map((card)=>{
                                         return (
-                                            <div className={`w-[30%] xl:h-[320px] h-[400px] ${card.background} bg-no-repeat bg-cover rounded-3xl p-6`} key={card.id}>
+                                            <div className={`w-[30%] xl:h-[320px] h-[400px] transform transition-all duration-500 hover:-translate-y-1 cursor-pointer ${card.background} bg-no-repeat bg-cover rounded-3xl p-6`} key={card.id}>
                                                 <div className="mb-10">
                                                     <Image src={card.icon} alt={card.title} width={20}/>
                                                 </div>
