@@ -39,6 +39,9 @@
     .fade-container>div{
         white-space: normal!important;
     }
+    .MarqueeContainer{
+         gap: var(--gap);
+    }
 }
 
 /* Header styles */

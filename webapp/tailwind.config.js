@@ -26,7 +26,7 @@ module.exports = {
       'card-heading':"#454545",
       'footer-text':'#979797',
       'grey-text': '#c2c2c2',
-      'copyright-text':'#393939'
+      'copyright-text':'#39393980'
      },
      fontFamily: {
         "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],

@@ -125,13 +125,13 @@ export default function Footer(){
                             </div>
                         </div>
                         <div>
-                            <div className="flex lm:flex-col flex-row lm:gap-0 gap-4 lm:mt-0 mt-4">
+                            <div className="flex lm:flex-col flex-row lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
                                 {
                                     footerLinks.map((link)=>{
                                         return(
                                             <Link href={link.link} target="_blank" key={link.id}>
                                                 <div>
-                                                    <p className="text-footer-text font-Geist-Regular font-medium text-[18px]">{link.name}</p>
+                                                    <p className="text-footer-text font-Geist-Regular text-right font-medium text-[18px]">{link.name}</p>
                                                 </div>
                                             </Link>
                                         )

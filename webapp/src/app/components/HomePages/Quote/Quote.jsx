@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Fade} from "react-awesome-reveal";
 export default function Quote(){
     return (
-        <div className="bg-white-background py-24">
+        <div className="bg-white-background lg:pt-24 lg:pb-24 pt-10 pb-20">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <Fade direction="up" triggerOnce={true}>
                     <div className="md:w-[90%] w-[98%] mx-auto" >
