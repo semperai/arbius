@@ -34,7 +34,7 @@ export default function Header(){
                     <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[30px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
                         <div className="item">Generate</div>
                         <div className="link-with-image relative group w-[auto]">
-                            <div className="link" onClick={()=>setStakingOpen(!stakingOpen)}>Staking
+                            <div className="link hover:!text-purple-text" onClick={()=>setStakingOpen(!stakingOpen)}>Staking
                                 <Image className="ext-link hidden lg:block" src={external_link} alt="" />
                                 <Image className={`${stakingOpen ? 'rotate-[180deg]' : ''} transition mobile-height ext-link block lg:hidden`} src={down_arrow} alt="" />
                             </div>
@@ -55,7 +55,7 @@ export default function Header(){
                             </AnimateHeight>
                         </div>
                         <div className="relative group link-with-image">
-                            <div className="link" onClick={()=>setModelsOpen(!modelsOpen)}>Models<Image className={`${modelsOpen ? 'rotate-[180deg]' : ''} transition mobile-height inline ext-link block lg:hidden`} src={down_arrow} alt="" /></div>
+                            <div className="link hover:!text-purple-text" onClick={()=>setModelsOpen(!modelsOpen)}>Models<Image className={`${modelsOpen ? 'rotate-[180deg]' : ''} transition mobile-height inline ext-link block lg:hidden`} src={down_arrow} alt="" /></div>
                             <div className="p-[15px_30px] bg-[black] absolute opacity-0 ml-[-5px]"></div>
                             <AnimateHeight height={ modelsOpen ? "auto" : 0 }>
                                 <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[30px] lg:hidden lg:group-hover:flex">
@@ -77,17 +77,25 @@ export default function Header(){
                                 </div>
                             </AnimateHeight>
                         </div>
-                        <div className="item">Explorer</div>
+                        <div className="item hover:text-purple-text">Explorer</div>
                         <div className="link-with-image">
-                            <div className="link">Docs<Image className="ext-link" src={external_link} alt="" /></div>
+                            <div className="link hover:!text-purple-text">Docs<Image className="ext-link" src={external_link} alt="" /></div>
                         </div>
-                        <div className="item lg:hidden">Media</div>
+                        <div className="item lg:hidden hover:!text-purple-text">Media</div>
                     </div>
+<<<<<<< HEAD
                     <div className="relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[30px] lg:mb-[0]">
                         <div>
                             {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
                             <button type="button" className="m-[auto] relative group bg-black p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3">
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+=======
+                    <div className="hidden lg:block absolute bottom-[100px] left-[50%] translate-x-[-50%]  lg:translate-x-0 lg:relative lg:left-[unset] lg:bottom-[unset] lg:ml-[30px]">
+                        <div>
+                            {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
+                            <button type="button" className="relative group bg-black p-[10px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3">
+                                <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+>>>>>>> ab09f6d (UPD:fixed issues)
                                 <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">Connect</div>
                             </button>
                         </div>
