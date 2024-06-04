@@ -80,7 +80,7 @@
         @apply gap-[10px] absolute ml-[-50%];
     }
     .link-with-image .staking-block{
-        @apply flex flex-col justify-around items-start bg-[white] w-[170px] h-[250px] p-[20px_10px] hover-bg-image drop-shadow-xl;
+        @apply flex flex-col justify-around items-start bg-[white] w-[170px] h-[250px] p-[20px_10px] lg:hover-bg-image drop-shadow-xl;
     }
     .link-with-image .staking-block div:nth-child(2){
         @apply font-medium text-[black] text-[16px] font-Sequel-Sans-Medium-Head;

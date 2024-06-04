@@ -10,7 +10,7 @@ export default function MachineLearningSection(){
                 <div className="w-[100%] xl:w-[50%]">
                     <Fade direction="up" triggerOnce={true}>
                         <div className="text-[12px] Gradient-transparent-text bg-background-gradient-txt">
-                           Welcome to arbius network!
+                           Welcome to arbius!
                         </div>
                     </Fade>
                     <div className="fade-container lg:text-header text-mobile-header text-black-text">

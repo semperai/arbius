@@ -43,7 +43,7 @@ export default function Community(){
                             </h2>
                             <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4 fade-container">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                                  Initiatives.
+                                  Initiatives
                                 </Fade> 
                             <span>
                                 <Fade direction="up" triggerOnce={true}>
