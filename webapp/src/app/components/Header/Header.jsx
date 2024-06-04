@@ -25,12 +25,12 @@ export default function Header(){
     },[])
 
     return (
-        <div className="bg-[white] relative z-[9999]">
+        <div className={`${headerOpen ? 'w-[100%] fixed' : 'relative'} bg-[white] z-[9999]`}>
             <div className="flex justify-between h-[80px] w-[90%] m-auto max-w-center-width">
                 <div className="flex items-center">
                     <Image className="h-[40px] w-[auto]" src={ArbiusLogo} alt="Arbius Logo" />
                 </div>
-                <div className={`${headerOpen ? 'w-[100%]' : 'w-[0%]'} lg:flex lg:items-center lg:no-fixed-element fixed-element`}>
+                <div className={`${headerOpen ? 'w-[100%]' : 'w-[0%]'} overflow-auto flex flex-col lg:flex-row lg:items-center lg:no-fixed-element fixed-element`}>
                     <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[30px] link-block lg:m-[auto] lg:text-[14px] lg:text-[gray]">
                         <div className="item">Generate</div>
                         <div className="link-with-image relative group w-[auto]">
@@ -83,10 +83,10 @@ export default function Header(){
                         </div>
                         <div className="item lg:hidden">Media</div>
                     </div>
-                    <div className="absolute bottom-[100px] left-[50%] translate-x-[-50%]  lg:translate-x-0 lg:relative lg:left-[unset] lg:bottom-[unset] lg:ml-[30px]">
+                    <div className="relative mb-[100px] lg:ml-[30px] lg:mb-[0]">
                         <div>
                             {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
-                            <button type="button" className="relative group bg-black p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3">
+                            <button type="button" className="m-[auto] relative group bg-black p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3">
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                 <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">Connect</div>
                             </button>
