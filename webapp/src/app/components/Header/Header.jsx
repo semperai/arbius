@@ -33,7 +33,7 @@ export default function Header(){
                             </div>
                             <div className="p-[15px_30px] bg-[black] absolute opacity-0"></div>
                             <AnimateHeight height={ stakingOpen ? "auto" : 0}>
-                                <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[30px] lg:hidden lg:group-hover:flex">
+                                <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[30px] lg:hidden lg:group-hover:flex ">
                                     <div className="staking-block">
                                         <Image className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]" src={gysr} alt="" />
                                         <div>GYSR</div>

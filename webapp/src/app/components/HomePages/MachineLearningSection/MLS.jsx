@@ -13,12 +13,17 @@ export default function MachineLearningSection(){
                            Welcome to arbius network!
                         </div>
                     </Fade>
-                    <div className="fade-container text-header text-black-text mb-6">
+                    <div className="fade-container lg:text-header text-mobile-header text-black-text">
                         <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                            Peer-to-peer machine learning
+                            Peer-to-peer machine 
                         </Fade>
-             
+                        
                     </div>
+                    <div className="fade-container lg:text-header text-mobile-header text-black-text mb-6">
+                        <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+                            learning 
+                        </Fade>
+                     </div>
                   
                     <div>
                         <Fade direction="up" triggerOnce={true}>
