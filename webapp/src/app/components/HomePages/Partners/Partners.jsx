@@ -11,12 +11,12 @@ import Image from "next/image";
 export default function Partners() {
   return (
     <div className="relative">
-      <div className="text-center text-[20px]  text-grey-text pt-[20px]">
+      <div className="text-center text-[16px] text-grey-text absolute top-[6px] left-[50%] translate-x-[-50%]">
         trusted by
       </div>
 
       <div className="CollaboratorsMarquee">
-        <div className="ArbiusPartners flex items-center justify-around pt-[20px] pb-[40px] MarqueeContainer">
+        <div className="ArbiusPartners flex items-center justify-around pt-[40px] pb-[40px] MarqueeContainer">
           <div className="px-8">
             <Image src={arbitrum} alt="" />
           </div>
@@ -40,7 +40,7 @@ export default function Partners() {
           </div>
         </div>
         <div
-          className="ArbiusPartners flex items-center justify-around pt-[20px] pb-[40px] MarqueeContainer"
+          className="ArbiusPartners flex items-center justify-around pt-[40px] pb-[40px] MarqueeContainer"
           aria-hidden="true"
         >
           <div className="px-8">
