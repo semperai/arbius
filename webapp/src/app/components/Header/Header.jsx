@@ -30,7 +30,7 @@ export default function Header(){
                 <div className="flex items-center">
                     <Image className="h-[40px] w-[auto]" src={ArbiusLogo} alt="Arbius Logo" />
                 </div>
-                <div className={`${headerOpen ? 'w-[100%]' : 'w-[0%]'} overflow-auto flex flex-col lg:flex-row lg:items-center lg:no-fixed-element fixed-element`}>
+                <div className={`${headerOpen ? 'w-[100%]' : 'w-[0%]'} overflow-auto lg:overflow-hidden flex flex-col lg:flex-row lg:items-center lg:no-fixed-element fixed-element`}>
                     <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[30px] link-block lg:m-[auto] lg:text-[14px] lg:text-[gray]">
                         <div className="item">Generate</div>
                         <div className="link-with-image relative group w-[auto]">
