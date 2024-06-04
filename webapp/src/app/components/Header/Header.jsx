@@ -43,10 +43,9 @@ export default function Header() {
           } lg:flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible `}
         >
           <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[30px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
-            <Link href={"https://arbius.ai/generate"} target="_blank">
-              <div className="item hover:text-purple-text">Generate</div>
-            </Link>
-
+         
+              <div className="item hover:!text-purple-text">Generate</div>
+       
             <div className="link-with-image relative group w-[auto]">
               <div
                 className="link hover:!text-purple-text"
@@ -155,19 +154,23 @@ export default function Header() {
                 </div>
               </AnimateHeight>
             </div>
-
+            <div className="link-with-image">
             <Link href={"https://arbius.ai/explorer"} target="_blank">
               <div className="item hover:text-purple-text">Explorer</div>
             </Link>
+            </div>
+            
 
-            <Link href={"https://docs.arbius.ai/"} target="_blank">
+           
               <div className="link-with-image">
+              <Link href={"https://docs.arbius.ai/"} target="_blank">
                 <div className="link hover:!text-purple-text">
                   Docs
                   <Image className="ext-link" src={external_link} alt="" />
                 </div>
+                </Link>
               </div>
-            </Link>
+           
 
             <div className="item lg:hidden hover:!text-purple-text">Media</div>
           </div>

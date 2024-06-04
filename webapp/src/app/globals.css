@@ -101,7 +101,7 @@
         @apply image-white;
     }
     .fixed-element{
-        @apply fixed header-gradient h-[100%] top-[80px] right-[0px] z-[999] transition-all duration-300 overflow-hidden lg:overflow-visible;
+        @apply fixed header-gradient h-[100%] top-[64px] right-[0px] z-[999] transition-all duration-300 overflow-hidden lg:overflow-visible;
     }
     .no-fixed-element{
         @apply relative bg-[unset] no-bg h-[auto] w-[auto] top-[unset] left-[unset] z-[0];
