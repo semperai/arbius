@@ -109,6 +109,9 @@
     .link-with-image .ext-link.mobile-height{
         @apply h-[15px];
     }
+    .links-parent a{
+        @apply w-[100%];
+    }
 
     @media(max-width: 1024px){
         .link-with-image .staking-block{

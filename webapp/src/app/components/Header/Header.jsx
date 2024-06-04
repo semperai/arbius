@@ -68,7 +68,7 @@ export default function Header() {
               </div>
               <div className="p-[15px_30px] bg-[black] absolute opacity-0"></div>
               <AnimateHeight height={stakingOpen ? "auto" : 0}>
-                <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[30px] lg:hidden lg:group-hover:flex ">
+                <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex ">
                   <Link
                     href={
                       "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
@@ -118,7 +118,7 @@ export default function Header() {
               </div>
               <div className="p-[15px_30px] bg-[black] absolute opacity-0 ml-[-5px]"></div>
               <AnimateHeight height={modelsOpen ? "auto" : 0}>
-                <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[30px] lg:hidden lg:group-hover:flex">
+                <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex">
                   <Link href={"https://arbius.ai/generate"} target="_blank">
                     <div className="staking-block">
                       <Image
@@ -171,7 +171,7 @@ export default function Header() {
 
             <div className="item lg:hidden hover:!text-purple-text">Media</div>
           </div>
-          <div className="relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[30px] lg:mb-[0]">
+          <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[30px] lg:mb-[0]">
             <div>
               {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
               <button
