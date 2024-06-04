@@ -11,9 +11,9 @@ import Image from "next/image";
 export default function Partners() {
   return (
     <div className="relative">
-      <div className="text-center text-[16px] text-grey-text absolute top-[6px] left-[50%] translate-x-[-50%]">
+      {/* <div className="text-center text-[16px] text-grey-text absolute top-[6px] left-[50%] translate-x-[-50%]">
         trusted by
-      </div>
+      </div> */}
 
       <div className="CollaboratorsMarquee">
         <div className="ArbiusPartners flex items-center justify-around pt-[40px] pb-[40px] MarqueeContainer">
