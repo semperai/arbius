@@ -64,7 +64,7 @@ module.exports = {
     },
     maxWidth:{
       //for containing the elements at larger devices
-      'center-width':'1170px'
+      'center-width':'2000px'
     },
    
     width:{

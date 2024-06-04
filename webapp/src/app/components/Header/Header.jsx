@@ -1,5 +1,5 @@
 "use client"
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import ArbiusLogo from "../../assets/images/arbius_logo.png";
 import external_link from "../../assets/images/external_link.png";
 import down_arrow from "../../assets/images/down_arrow.png";
@@ -17,9 +17,16 @@ export default function Header(){
     const [stakingOpen, setStakingOpen] = useState(true);
     const [modelsOpen, setModelsOpen] = useState(true);
 
+    useEffect(() => {
+        if(window.innerWidth < 1024){
+            setStakingOpen(false);
+            setModelsOpen(false);
+        }
+    },[])
+
     return (
         <div className="bg-[white] relative z-[9999]">
-            <div className="flex justify-between h-[80px] w-[90%] m-auto">
+            <div className="flex justify-between h-[80px] w-[90%] m-auto max-w-center-width">
                 <div className="flex items-center">
                     <Image className="h-[40px] w-[auto]" src={ArbiusLogo} alt="Arbius Logo" />
                 </div>
