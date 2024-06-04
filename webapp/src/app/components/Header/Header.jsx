@@ -18,7 +18,7 @@ export default function Header(){
     const [modelsOpen, setModelsOpen] = useState(true);
 
     return (
-        <div className="bg-[white] hidden">
+        <div className="bg-[white]">
             <div className="flex justify-between h-[80px] w-[90%] m-auto">
                 <div className="flex items-center">
                     <Image className="h-[40px] w-[auto]" src={ArbiusLogo} alt="Arbius Logo" />
