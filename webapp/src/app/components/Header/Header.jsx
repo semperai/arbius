@@ -83,19 +83,11 @@ export default function Header(){
                         </div>
                         <div className="item lg:hidden hover:!text-purple-text">Media</div>
                     </div>
-<<<<<<< HEAD
                     <div className="relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[30px] lg:mb-[0]">
                         <div>
                             {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
                             <button type="button" className="m-[auto] relative group bg-black p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3">
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-=======
-                    <div className="hidden lg:block absolute bottom-[100px] left-[50%] translate-x-[-50%]  lg:translate-x-0 lg:relative lg:left-[unset] lg:bottom-[unset] lg:ml-[30px]">
-                        <div>
-                            {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
-                            <button type="button" className="relative group bg-black p-[10px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3">
-                                <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
->>>>>>> ab09f6d (UPD:fixed issues)
                                 <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">Connect</div>
                             </button>
                         </div>
