@@ -7,28 +7,19 @@ export default function MachineLearningSection(){
     return (
         <div className="bg-[url('./assets/images/peer_background.png')] bg-cover font-Sequel-Sans-Medium-Head">
             <div className=" w-mobile-section-width  lg:w-section-width m-[auto] p-[100px_0] max-w-center-width">
-                <div className="w-[100%] lg:w-[50%]">
+                <div className="w-[100%] xl:w-[50%]">
                     <Fade direction="up" triggerOnce={true}>
                         <div className="text-[12px] Gradient-transparent-text bg-background-gradient-txt">
                            Welcome to arbius network!
                         </div>
                     </Fade>
-                    <div className="hidden lg:block text-header text-black-text mb-6">
+                    <div className="fade-container text-header text-black-text mb-6">
                         <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                            Peer-to-peer machine
+                            Peer-to-peer machine learning
                         </Fade>
-                        <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                            learning.
-                        </Fade>
+             
                     </div>
-                    <div className="block lg:hidden text-header-lg text-black-text mb-6">
-                        <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                            Peer-to-peer 
-                        </Fade>
-                        <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-                            machine learning.
-                        </Fade>
-                    </div>
+                  
                     <div>
                         <Fade direction="up" triggerOnce={true}>
                             <div className="text-para font-Sequel-Sans-Light-Body text-subtext-one">Arbius is a decentralized network for machine learning and a token with a fixed supply like Bitcoin. New coins are generated with GPU power by participating in the network. There is no central authority to create new coins. Arbius is fully open-source. Holders vote on-chain for protocol upgrades. Models operate as DAOS with custom rules for distribution and rewards, providing a way for model creators to earn income.</div>
