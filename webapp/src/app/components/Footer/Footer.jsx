@@ -171,7 +171,7 @@ export default function Footer(){
                                         return(
                                             <Link href={link.link} target="_blank" key={link.id}>
                                                 <div>
-                                                    <p className="text-footer-text font-Geist-Regular text-right font-medium text-[18px]">{link.name}</p>
+                                                    <p className="text-[#393939] font-Sequel-Sans-Light-Body text-right font-medium text-[18px]">{link.name}</p>
                                                 </div>
                                             </Link>
                                         )
