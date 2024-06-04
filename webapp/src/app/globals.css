@@ -190,7 +190,7 @@
     justify-content: space-around;
     align-items: center;
     min-width: 100%;
-    /* gap: var(--gap); */
+    gap: var(--gap);
   }
   
   .MarqueeContainer .ImageItem img{

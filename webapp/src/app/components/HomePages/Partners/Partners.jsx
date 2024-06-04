@@ -4,19 +4,19 @@ import poloniex from "../../../assets/images/poloniex.png";
 import coinex from "../../../assets/images/coinex.png";
 import labs from "../../../assets/images/labs.png";
 import exabits from "../../../assets/images/exabits.png";
-import gysr from "../../../assets/images/gysr.png";
+import gysr from "../../../assets/images/nosana.png";
 import arbitrum from "../../../assets/images/arbitrum.png";
 import Image from "next/image";
 
 export default function Partners() {
   return (
     <div className="relative">
-      <div className="absolute text-[20px] top-[24px] right-4 text-grey-text">
+      <div className="text-center text-[20px]  text-grey-text pt-[20px]">
         trusted by
       </div>
 
       <div className="CollaboratorsMarquee">
-        <div className="ArbiusPartners flex items-center justify-around p-[80px_0] MarqueeContainer">
+        <div className="ArbiusPartners flex items-center justify-around pt-[20px] pb-[40px] MarqueeContainer">
           <div className="px-8">
             <Image src={arbitrum} alt="" />
           </div>
@@ -40,7 +40,7 @@ export default function Partners() {
           </div>
         </div>
         <div
-          className="ArbiusPartners flex items-center justify-around p-[80px_0] MarqueeContainer"
+          className="ArbiusPartners flex items-center justify-around pt-[20px] pb-[40px] MarqueeContainer"
           aria-hidden="true"
         >
           <div className="px-8">

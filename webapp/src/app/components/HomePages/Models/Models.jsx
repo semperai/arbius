@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import amica from "../../../assets/images/amica.png";
-import generativeAI from "../../../assets/images/ai_generation.webp";
-import marketplace from "../../../assets/images/marketplace.webp";
+import generativeAI from "../../../assets/images/ai_generation.png";
+import marketplace from "../../../assets/images/marketplace.png";
 import Image from "next/image";
 import right_arrow from "../../../assets/images/right_arrow.png";
 import arbius_logo_round from "../../../assets/images/arbius_logo_round.png";
@@ -12,17 +12,21 @@ export default function Models() {
   const AllModels = {
     "Generative AI": {
       text: "Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.",
-      image: amica,
+      image: generativeAI,
+      background:"bg-amica-gradient"
     },
     "Amica": {
       text: "Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.",
       image: amica,
+      background:"bg-ai-gradient"
     },
     "Marketplace": {
       text: "Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here. Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.",
-      image: amica,
+      image: marketplace,
+      background:"bg-marketplace-gradient"
     },
   };
+  const [background,setBackground]=useState(AllModels.Amica.background)
   const toggleBackground = (add) => {
     if (add) {
       document
@@ -34,8 +38,13 @@ export default function Models() {
         .classList.remove("model-image-gradient");
     }
   };
+  const renderModel=(item)=>{
+    console.log(AllModels[item].background)
+    setSelectedModel(item);
+    setBackground(AllModels[item].background)
+  }
   return (
-    <div className="bg-models-gradient bg-cover font-Sequel-Sans-Medium-Head">
+    <div className={`${background} bg-cover font-Sequel-Sans-Medium-Head`}>
       <div className="w-mobile-section-width  lg:w-section-width m-[auto] p-[100px_0] max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
         <div className="w-full lg:w-[50%]">
           <div className="text-[12px] Gradient-transparent-text bg-button-gradient-txt">
@@ -66,7 +75,7 @@ export default function Models() {
                       className={
                         selectedModel === item ? "selected" : "non-selected"
                       }
-                      onClick={() => setSelectedModel(item)}
+                      onClick={() => {renderModel(item)}}
                       key={index}
                     >
                       {item}
