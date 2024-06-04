@@ -139,6 +139,9 @@
     .ArbiusPartners div img{
         @apply h-[30px] w-[auto];
     }
+    .ArbiusPartners div img.arbitrum{
+        @apply h-[35px];
+    }
 }
 /* Partners styles */
 

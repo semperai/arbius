@@ -18,7 +18,7 @@ export default function Partners() {
       <div className="CollaboratorsMarquee">
         <div className="ArbiusPartners flex items-center justify-around pt-[40px] pb-[40px] MarqueeContainer PartnersMarqueeContainer">
           <div className="px-8">
-            <Image src={arbitrum} alt="" />
+            <Image className="arbitrum" src={arbitrum} alt="" />
           </div>
           <div className="px-8">
             <Image src={labs} alt="" />
@@ -44,7 +44,7 @@ export default function Partners() {
           aria-hidden="true"
         >
           <div className="px-8">
-            <Image src={arbitrum} alt="" />
+            <Image className="arbitrum" src={arbitrum} alt="" />
           </div>
           <div className="px-8">
             <Image src={labs} alt="" />

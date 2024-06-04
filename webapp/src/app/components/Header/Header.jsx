@@ -40,12 +40,13 @@ export default function Header() {
         <div
           className={`${
             headerOpen ? "w-[100%]" : "w-[0%]"
-          } lg:flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible `}
+          } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row`}
         >
           <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[30px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
-         
-              <div className="item hover:!text-purple-text">Generate</div>
-       
+            <Link href={"https://arbius.ai/generate"} target="_blank">
+              <div className="item hover:text-purple-text">Generate</div>
+            </Link>
+
             <div className="link-with-image relative group w-[auto]">
               <div
                 className="link hover:!text-purple-text"
@@ -154,23 +155,19 @@ export default function Header() {
                 </div>
               </AnimateHeight>
             </div>
-            <div className="link-with-image">
+
             <Link href={"https://arbius.ai/explorer"} target="_blank">
               <div className="item hover:text-purple-text">Explorer</div>
             </Link>
-            </div>
-            
 
-           
+            <Link href={"https://docs.arbius.ai/"} target="_blank">
               <div className="link-with-image">
-              <Link href={"https://docs.arbius.ai/"} target="_blank">
                 <div className="link hover:!text-purple-text">
                   Docs
                   <Image className="ext-link" src={external_link} alt="" />
                 </div>
-                </Link>
               </div>
-           
+            </Link>
 
             <div className="item lg:hidden hover:!text-purple-text">Media</div>
           </div>
@@ -182,7 +179,7 @@ export default function Header() {
                 className="m-[auto] relative group bg-black p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3"
               >
                 <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
+                <div className="font-Sequel-Sans-Medium-Head relative z-10 text-original-white">
                   Connect
                 </div>
               </button>
