@@ -8,6 +8,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Fade } from "react-awesome-reveal"
 import arbius_logo from '@/app/assets/images/arbius_logo.png'
+import small_arrow from '@/app/assets/images/small_arrow.png'
 export default function Footer(){
     const footerLinks = [
         {
@@ -16,9 +17,19 @@ export default function Footer(){
             link:"https://arbius.ai/generate"
         },
         {
+            id:"5",
+            name:"Upgrade",
+            link:"https://arbius.ai/upgrade"
+        },
+        {
             id:"2",
             name:"Staking",
             link:"https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
+        },
+        {
+            id:"6",
+            name:"Docs",
+            link:"https://docs.arbius.ai/"
         },
         {
             id:"3",
@@ -30,16 +41,8 @@ export default function Footer(){
             name:"Explorer",
             link:"https://arbius.ai/explorer"
         },
-        {
-            id:"5",
-            name:"Upgrade",
-            link:"https://arbius.ai/upgrade"
-        },
-        {
-            id:"6",
-            name:"Docs",
-            link:"https://docs.arbius.ai/"
-        }
+      
+       
     ]
     const socialIcons = [
         {
@@ -67,39 +70,76 @@ export default function Footer(){
             alt:"Discord"
         }
     ]
+    const scrollTop=()=>{
+        // document.querySelector("#scrollToTopButton").addEventListener("click", function() {
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
+        //   });
+    }
     return(
         <div className="bg-white-background py-20">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
             <Fade direction="up" triggerOnce={true}>
-                <div className="w-[80%] lg:block hidden mx-auto">
-                    <div className="flex items-center justify-between">
-                        {
-                            footerLinks.map((link)=>{
-                                return (
-                                    <Link href={link.link} target="_blank" key={link.id}>
-                                        <div  className="cursor-pointer">
-                                            <p className="text-footer-text font-Geist-Regular font-medium text-[18px]">{link.name}</p>
-                                        </div>
-                                    </Link>
-                                )
-                            })
-                        }
-                    </div>
-                    <div className="w-[30%] mx-auto mt-10">
-                        <div className="flex items-center justify-between">
-                        {
-                            socialIcons.map((social)=>{
-                                return(
-                                    <Link href={social.link} target="_blank" key={social.id}>
-                                        <div  className="cursor-pointer">
-                                            <Image src={social.image} alt={social.alt} width={30}/>
-                                        </div>
-                                    </Link>
-                                )
-                            })
-                        }
+                <div className=" lg:block hidden">
+                    <div className="flex justify-between mb-10">
+                        <div>
+                            <div>
+                                <Image src={arbius_logo} className="h-[40px] w-[auto]" alt="arbius"/>
+                            </div>
+                            <div className="flex items-center gap-4 mt-6">
+                                {
+                                    socialIcons.map((social)=>{
+                                        return (
+                                            <Link href={social.link} target="_blank" key={social.id}>  
+                                                <div className="bg-white-background footer-icons-shadow w-[50px] h-[50px] rounded-xl flex items-center justify-center">
+                                                    <Image src={social.image} alt={social.alt} width={20}/>
+                                                </div>
+                                            </Link>
+                                         )
+                                    })
+                                }
+                            </div>
+                           
+                        </div>
+                        <div>
+                            {
+                                footerLinks.slice(0,3).map((link)=>{
+                                    return(
+                                        <Link href={link.link} target="_blank" key={link.id}>
+                                            <div>
+                                                <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[18px] mb-4">{link.name}</p>
+                                            </div>
+                                        </Link>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div>
+                            {
+                                footerLinks.slice(-3).map((link)=>{
+                                    return(
+                                        <Link href={link.link} target="_blank" key={link.id}>
+                                            <div>
+                                                <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[18px] mb-4">{link.name}</p>
+                                            </div>
+                                        </Link>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-4 cursor-pointer" onClick={scrollTop}>
+                               <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[18px]">Back to top</p>
+                               <Image src={small_arrow} className="rotate-[-90deg]" alt="arrow" width={8}/>
+                            </div>
                         </div>
                     </div>
+                            <div className="bg-[#F4F4F4] h-[1.5px] w-[100%]"></div>
+                            <div className="mt-10">
+                                <p className="text-copyright-text text-[18px] font-Sequel-Sans-Light-Body">&copy; Arbius 2024</p>
+                            </div>
                 </div>
                 <div className="lg:hidden block">
                     <div className="flex lm:flex-row flex-col justify-between w-[100%] ">
