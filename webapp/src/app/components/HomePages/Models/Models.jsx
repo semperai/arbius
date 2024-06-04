@@ -13,7 +13,7 @@ export default function Models() {
     "Generative AI": {
       text: "Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.",
       image: generativeAI,
-      background:"bg-amica-gradient"
+      background:"bg-ai-gradient"
     },
     "Amica": {
       text: "Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.",
@@ -23,7 +23,7 @@ export default function Models() {
     "Marketplace": {
       text: "Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here. Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.",
       image: marketplace,
-      background:"bg-marketplace-gradient"
+      background:"bg-ai-gradient"
     },
   };
   const [background,setBackground]=useState(AllModels.Amica.background)
