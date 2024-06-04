@@ -6,8 +6,8 @@ import { Fade } from "react-awesome-reveal";
 export default function MachineLearningSection(){
     return (
         <div className="bg-[url('./assets/images/peer_background.png')] bg-cover font-Sequel-Sans-Medium-Head">
-            <div className=" w-mobile-section-width  lg:w-section-width m-[auto] p-[100px_0] max-w-center-width">
-                <div className="w-[100%] xl:w-[50%]">
+            <div className=" w-mobile-section-width  lg:w-section-width m-[auto] p-[70px_0] max-w-center-width">
+                <div className="w-[100%] xl:w-[65%]">
                     <Fade direction="up" triggerOnce={true}>
                         <div className="text-[12px] Gradient-transparent-text bg-background-gradient-txt">
                            Welcome to arbius!

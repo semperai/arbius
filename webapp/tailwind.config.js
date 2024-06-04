@@ -9,7 +9,7 @@ module.exports = {
     extend: {
     },
     fontSize:{
-      'header':"55px",
+      'header':"50px",
       'header-md':"40px",
       "para":"16px",
       'mobile-header':"45px"
