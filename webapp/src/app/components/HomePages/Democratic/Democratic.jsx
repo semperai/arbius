@@ -37,7 +37,7 @@ export default function Democratic(){
                     <div>
                         <div>
                             <h2 className="font-Sequel-Sans-Medium-Head lg:text-header text-mobile-header text-black-text mb-6 fade-container">
-                                <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
+                                <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}> 
                                     We make AI democratic
                                 </Fade>
                             </h2>

@@ -37,7 +37,7 @@ export default function Community(){
                     <div>
                         <div className="mb-6">
                             <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text fade-container ">
-                                <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}> 
+                                <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}> 
                                    dApps & Community
                                 </Fade>
                             </h2>
@@ -64,7 +64,7 @@ export default function Community(){
                                 {
                                     platforms.map((platform)=>{
                                         return (
-                                            <div className={`${platform.background} group  bg-no-repeat bg-cover rounded-3xl p-6 md:w-[45%] md:h-[250px] w-[95%] h-auto`} key={platform.id}>
+                                            <div className={`${platform.background}   bg-no-repeat bg-cover rounded-3xl p-6 md:w-[45%] md:h-[250px] w-[95%] h-auto`} key={platform.id}>
                                                 <div>
                                                     {
                                                         platform?.nameType==="Image"?
@@ -77,7 +77,7 @@ export default function Community(){
                                                 </div>
                                                 <div className="mt-6">
                                                 <Link href={platform.link} target="_blank" className="inline-block">   
-                                                    <button type="button" className="relative group-hover:group bg-black py-2  px-8 rounded-full flex items-center  gap-3">
+                                                    <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3">
                                                         <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                                         <p className="relative z-10 text-original-white font-Sequel-Sans-Medium-Head mb-1">{platform.buttonText}</p>
                                                         <Image src={arrow} width={18} className="relative z-10"  alt="right arrow"/>

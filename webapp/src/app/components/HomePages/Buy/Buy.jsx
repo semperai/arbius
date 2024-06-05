@@ -22,7 +22,7 @@ export default function Buy(){
                     <div className="lg:w-[70%] w-[100%]">
                         <div>
                             <h2 className="font-Sequel-Sans-Medium-Head lg:text-header text-mobile-header text-black-text mb-6 fade-container">
-                                <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+                                <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
                                     Buy Arbius (AIUS)
                                 </Fade>
                             </h2>

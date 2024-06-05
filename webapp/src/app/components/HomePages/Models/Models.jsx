@@ -11,8 +11,8 @@ import Link from "next/link";
 export default function Models() {
   const [selectedModel, setSelectedModel] = useState("Amica");
   const [stopEffect,setStopEffect]=useState(false);
-  const [index,setActiveIndex]=useState(0)
-
+  const [index,setActiveIndex]=useState(1)
+  const [modelFadeIn, setModelFadeIn] = useState(true); 
   const AllModels = {
     "Generative AI": {
       text: "Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.",
@@ -61,11 +61,23 @@ export default function Models() {
         if (!stopEffect) {
           setActiveIndex(currentIndex);
           setSelectedModel(AllModelNames[currentIndex]);
+          setModelFadeIn(true)
+
         }
       }, 20000); // Change the interval duration to 30 seconds (30000 milliseconds)
     
       return () => clearInterval(interval);
   }, [index, stopEffect]);
+  useEffect(() => {
+    console.log(modelFadeIn)
+    if (modelFadeIn&&!stopEffect) {
+      const timer = setTimeout(() => {
+        setModelFadeIn(false); 
+      }, 19500);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [modelFadeIn]);
 
   return (
     <div className={`${background} bg-cover font-Sequel-Sans-Medium-Head`}>
@@ -75,7 +87,7 @@ export default function Models() {
             Our Models!
           </div>
           <div className="lg:text-header text-mobile-header font-medium text-black-text mb-6">
-            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Defi for AI
             </Fade>
           </div>
@@ -96,8 +108,8 @@ export default function Models() {
                 {Object.keys(AllModels).map(function (item, index) {
                   return (
                     <div
-                      className={
-                        selectedModel === item ? "selected" : "non-selected"
+                      className={`
+                        ${selectedModel === item ? "selected" : "non-selected"} hover:text-purple-text`
                       }
                       onClick={() => {
                         renderModel(item);
@@ -112,11 +124,12 @@ export default function Models() {
                                 <div className="selected">Amica</div>
                                 <div>Marketplace</div>*/}
               </div>
+              <Fade direction="top">
               <div className="mt-[30px]">
-                <div className="text-[28px] font-medium Gradient-transparent-text bg-background-gradient-txt">
+                <div className={`text-[28px] font-medium Gradient-transparent-text bg-background-gradient-txt  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}>
                   {selectedModel}
                 </div>
-                <div className="mt-[10px]  w-[60%] text-subtext-two font-Sequel-Sans-Light-Body lg:h-[180px]">
+                <div className={`mt-[10px]  w-[60%] text-subtext-two font-Sequel-Sans-Light-Body lg:h-[180px]  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}>
                   {AllModels[selectedModel].text}
 
                   <div>
@@ -125,7 +138,7 @@ export default function Models() {
                       <Link href={"https://amica.arbius.ai/"} target="_blank">
                         <button
                           type="button"
-                          className=" relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px]"
+                          className={` relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
                         >
                           <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                           <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
@@ -143,6 +156,7 @@ export default function Models() {
                   </div>
                 </div>
               </div>
+              </Fade>
             </div>
           </Fade>
         </div>
@@ -150,7 +164,7 @@ export default function Models() {
           <div className="">
             <div
               id="image-parent"
-              className="relative border-[transparent] w-[320px] h-[430px] flex justify-center items-center rounded-[50px]"
+              className={`relative border-[transparent] w-[320px] h-[430px] flex justify-center items-center rounded-[50px]  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
             >
               <div className="relative">
                 <Image

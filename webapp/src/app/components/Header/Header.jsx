@@ -127,7 +127,7 @@ export default function Header() {
                         alt=""
                       />
                       <div>Kandinsky 2</div>
-                      <div>Stake AIUS and ETH, earn AIUS rewards.</div>
+                      <div>Image Generation</div>
                     </div>
                   </Link>
                   <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
@@ -138,7 +138,7 @@ export default function Header() {
                         alt=""
                       />
                       <div>Kasumi</div>
-                      <div>Lock AIUS, earn rewards over time.</div>
+                      <div>Telegram Integrated Mining Agent & Image Generator</div>
                     </div>
                   </Link>
                   <Link target="_blank" href={"https://amica.arbius.ai/"}>
@@ -149,7 +149,7 @@ export default function Header() {
                         alt=""
                       />
                       <div>Amica</div>
-                      <div>Lock AIUS, earn rewards over time.</div>
+                      <div>AI persona</div>
                     </div>
                   </Link>
                 </div>

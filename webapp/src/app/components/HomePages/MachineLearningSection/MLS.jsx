@@ -16,7 +16,7 @@ export default function MachineLearningSection() {
           </Fade>
 
           <div className="hidden lg:block fade-container lg:text-header text-mobile-header text-black-text">
-            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Peer-to-peer machine
             </Fade>
           </div>
