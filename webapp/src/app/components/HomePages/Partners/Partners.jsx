@@ -62,8 +62,8 @@ export default function Partners() {
           aria-hidden="true"
         >
           {
-            Object.keys(partnersData).map(function(partner, indedx){
-              return <div className="px-8">
+            Object.keys(partnersData).map(function(partner, index){
+              return <div className="px-8" key={index}>
                       <a href={partnersData[partner].url}><Image className={partner} src={partnersData[partner].image} alt="" /></a>
                     </div>
             })
