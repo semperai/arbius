@@ -17,7 +17,7 @@ export default function Partners() {
     },
     "labs": {
       "image": labs,
-      "url": ""
+      "url": "https://alignmentlab.ai/"
     },
     "nosana": {
       "image": nosana,
