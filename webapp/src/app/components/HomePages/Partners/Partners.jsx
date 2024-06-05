@@ -50,8 +50,8 @@ export default function Partners() {
       <div className="CollaboratorsMarquee">
         <div className="ArbiusPartners flex items-center justify-around pt-[40px] pb-[40px] MarqueeContainer PartnersMarqueeContainer">
           {
-            Object.keys(partnersData).map(function(partner, indedx){
-              return <div className="px-8">
+            Object.keys(partnersData).map(function(partner, index){
+              return <div className="px-8" key={index}>
                       <a href={partnersData[partner].url}><Image className={partner} src={partnersData[partner].image} alt="" /></a>
                     </div>
             })
