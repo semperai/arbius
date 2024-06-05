@@ -140,7 +140,7 @@
 /* Partners styles */
 @layer components {
     .ArbiusPartners div img{
-        @apply h-[30px] w-[auto];
+        @apply h-[30px] w-[auto] cursor-pointer;
     }
     .ArbiusPartners div img.arbitrum{
         @apply h-[35px];
@@ -198,9 +198,12 @@
     min-width: 100%;
     gap: var(--gap);
   }
-
   .PartnersMarqueeContainer{
     animation: marquee 55s linear infinite;
+    animation-play-state: running;
+  }
+  .CollaboratorsMarquee:hover .PartnersMarqueeContainer{
+    animation-play-state: paused;
   }
   
   .MarqueeContainer .ImageItem img{

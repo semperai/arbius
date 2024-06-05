@@ -42,7 +42,7 @@ export default function Header() {
             headerOpen ? "w-[100%]" : "w-[0%]"
           } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row`}
         >
-          <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[30px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
+          <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
             <Link href={"https://arbius.ai/generate"} target="_blank">
               <div className="item hover:text-purple-text">Generate</div>
             </Link>
@@ -171,7 +171,7 @@ export default function Header() {
 
             <div className="item lg:hidden hover:!text-purple-text">Media</div>
           </div>
-          <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[30px] lg:mb-[0]">
+          <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[36px] lg:mb-[0]">
             <div>
               {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
               <button
@@ -179,7 +179,7 @@ export default function Header() {
                 className="m-[auto] relative group bg-black p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3"
               >
                 <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="font-Sequel-Sans-Medium-Head relative z-10 text-original-white">
+                <div className="font-Sequel-Sans-Medium-Head relative mt-[-1.5px] z-10 text-original-white">
                   Connect
                 </div>
               </button>
