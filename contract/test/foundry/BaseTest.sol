@@ -7,12 +7,15 @@ import "forge-std/console2.sol";
 import "./utils/MockERC20.sol";
 import "contracts/VotingEscrow.sol";
 import "contracts/VeNFTRender.sol";
+import "contracts/VeStaking.sol";
 
 contract BaseTest is Test {
     MockERC20 public AIUS;
 
     // time 
+    uint256 public constant DAY = 24 * 3600;
     uint256 public constant WEEK = 7 * 24 * 3600;
+    uint256 public constant MONTH = 30 * 24 * 3600;
     uint256 public constant YEAR = 365 * 24 * 3600;
 
     // test addresses
