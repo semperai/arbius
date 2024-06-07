@@ -154,6 +154,19 @@
     .ArbiusPartners div img.arbitrum{
         @apply h-[35px];
     }
+    .ArbiusPartners div img.weboasis{
+        @apply h-[40px] mt-[3px];
+    }
+    .ArbiusPartners div img.exabits{
+        @apply h-[23px];
+    }
+    .ArbiusPartners div img.coinex{
+        @apply h-[28px];
+    }
+    .ArbiusPartners div img.nosana{
+        @apply h-[25px];
+    }
+
 }
 /* Partners styles */
 
