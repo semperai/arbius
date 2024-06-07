@@ -44,6 +44,9 @@
 .footer-icons-shadow{
     filter: drop-shadow(0px 0px 8.5px rgba(18, 0, 115, 0.2));
 }
+.footer-icons-shadow:hover img{
+    filter: brightness(0) invert(1);
+}
 @media(max-width:1023px) {
     .fade-container>div{
         white-space: normal!important;
@@ -193,13 +196,11 @@
 .model-container {
     transition: opacity 500ms ease-in-out;
     opacity: 0;
-   
-  }
-  
-  .model-container.fade-in {
+}  
+.model-container.fade-in {
     opacity: 1;
     animation:fade-in 500ms ease-in-out forwards
-  }
+}
 .CollaboratorsMarquee{
     background-color: var(--home-page-background);
     --gap: 20px;
@@ -211,8 +212,8 @@
     max-width: var(--max-width-container);
     width: 100%;
     margin: auto;
-  }
-  .MarqueeContainer {
+}
+.MarqueeContainer {
     /*white-space: nowrap;
     box-sizing: border-box;
     animation: marquee 30s linear infinite;
@@ -228,45 +229,45 @@
     align-items: center;
     min-width: 100%;
     gap: var(--gap);
-  }
-  .PartnersMarqueeContainer{
+}
+.PartnersMarqueeContainer{
     animation: marquee 55s linear infinite;
     animation-play-state: running;
-  }
-  .CollaboratorsMarquee:hover .PartnersMarqueeContainer{
+}
+.CollaboratorsMarquee:hover .PartnersMarqueeContainer{
     animation-play-state: paused;
-  }
+}
   
-  .MarqueeContainer .ImageItem img{
+.MarqueeContainer .ImageItem img{
     height: 40px;
     filter: var(--collaborators-logo-filter);
-  }
+}
   
-  @keyframes marquee {
+@keyframes marquee {
     from {
       transform: translateX(0);
     }
     to {
       transform: translateX(calc(-100% - var(--gap)));
     }
-  }
-  .Item{
+}
+.Item{
     width: 250px;
-  }
-  .MarqueeContainer .ImageItem img{
+}
+.MarqueeContainer .ImageItem img{
     height: auto;
     width: 100%;
     object-fit: cover;
     /* filter: var(--collaborators-logo-filter); */
-  }
-  .Gradient-transparent-text{
+}
+.Gradient-transparent-text{
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-fill-color: transparent;
    -webkit-background-clip: text;
-  }
+}
 
 
-  .gradient-header-bg{
-   background:  linear-gradient(180deg, #FBFBFB 70.03%, #4A28FF 330.54%);
-  }
+.gradient-header-bg{
+    background:  linear-gradient(180deg, #FBFBFB 70.03%, #4A28FF 330.54%);
+}

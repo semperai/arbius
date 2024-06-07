@@ -154,7 +154,7 @@ export default function Footer(){
                                         return (
                                             <Link href={social.link} target="_blank" key={social.id}>  
                                                 <div className="bg-white-background  relative group footer-icons-shadow w-[50px] h-[50px] rounded-xl flex items-center justify-center">
-                                                <div class="absolute w-[100%] h-[100%] left-0 z-[-10]  rounded-xl bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                    <div class="absolute w-[100%] h-[100%] left-0 z-[-10]  rounded-xl bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                                     <Image src={social.image} alt={social.alt} width={20}/>
                                                 </div>
                                             </Link>
