@@ -20,12 +20,12 @@ export default function MachineLearningSection() {
               Peer-to-peer machine
             </Fade>
           </div>
-          <div className="hidden lg:block fade-container lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mt-[-15px] mb-4">
+          <div className="hidden lg:block fade-container lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mt-[-15px] mb-6">
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
               learning
             </Fade>
           </div>
-          <div className="lg:hidden fade-container text-mobile-header text-black-text leading-[50px] lg:leading-none">
+          <div className="lg:hidden fade-container text-mobile-header text-black-text leading-[50px] lg:leading-none mb-6">
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
               Peer-to-peer machine learning
             </Fade>
@@ -51,10 +51,10 @@ export default function MachineLearningSection() {
 
                     <button
                       type="button"
-                      className="  relative group bg-black py-2 px-5 lg:px-8 rounded-full flex items-center gap-3"
+                      className="relative group bg-black py-2 px-8 rounded-full flex items-center gap-3"
                     >
-                      <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <div className="font-Sequel-Sans-Medium-Head relative z-10 text-original-white  text-[13px] lg:text-[100%]">
+                      <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="font-Sequel-Sans-Medium-Head relative z-10 text-original-white lg:text-[100%]">
                         Try now
                       </div>
                       <Image
@@ -71,10 +71,10 @@ export default function MachineLearningSection() {
                     {/*<button className="hover:bg-button-gradient hover:text-[white] hover:border-[transparent] border-[1px] p-[8px_25px] rounded-[20px]">Read Whitepaper</button>*/}
                     <button
                       type="button"
-                      className=" hover:text-[white] hover:border-[transparent] text-original-black border-[1px] relative group bg-transparent py-2 px-5 lg:px-8 rounded-full flex items-center gap-3"
+                      className=" hover:text-[white] hover:border-[transparent] text-original-black border-[1px] relative group bg-transparent py-2 px-8 rounded-full flex items-center gap-3"
                     >
-                      <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-button-gradient opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <div className="font-Sequel-Sans-Medium-Head relative z-10 text-[13px] lg:text-[100%]">
+                      <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-button-gradient opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="font-Sequel-Sans-Medium-Head relative z-10 lg:text-[100%]">
                         Read Whitepaper
                       </div>
                     </button>
