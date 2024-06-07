@@ -11,6 +11,7 @@ import Link from "next/link";
 export default function Models() {
   const [selectedModel, setSelectedModel] = useState("Amica");
   const [stopEffect,setStopEffect]=useState(false);
+  const [opacity,setOpacity]=useState(true);
   const [index,setActiveIndex]=useState(1)
   const [modelFadeIn, setModelFadeIn] = useState(true); 
   const AllModels = {
@@ -44,8 +45,15 @@ export default function Models() {
     }
   };
   const renderModel = (item) => {
-    setStopEffect(true);
-    setSelectedModel(item);
+    setStopEffect(false);
+    setModelFadeIn(false);
+    setOpacity(false);
+    setTimeout(() => {
+      setModelFadeIn(true);
+      setOpacity(true);
+      setStopEffect(true);
+      setSelectedModel(item);
+    },500)
     setBackground(AllModels[item].background);
   };
 
@@ -126,10 +134,10 @@ export default function Models() {
               </div>
               <Fade direction="top">
               <div className="mt-[30px]">
-                <div className={`text-[28px] font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}>
+                <div className={`text-[28px] font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
                   {selectedModel}
                 </div>
-                <div className={`mt-[10px]  w-[60%] text-subtext-two font-Sequel-Sans-Light-Body lg:h-[180px]  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}>
+                <div className={`mt-[10px]  w-[60%] text-subtext-two font-Sequel-Sans-Light-Body lg:h-[180px]  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
                   {AllModels[selectedModel].text}
 
                   <div>
