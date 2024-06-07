@@ -31,20 +31,20 @@ export default function Community(){
         }
     ]
     return (
-        <div className="bg-white-background py-24  bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
+        <div className="bg-white-background py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div>
                     <div>
                         <div className="mb-6">
-                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text fade-container lg:leading-none leading-[60px] ">
+                            <h2 className="font-Sequel-Sans-Medium-Head lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text fade-container lg:leading-none leading-[60px] ">
                                 <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}> 
                                    dApps & Community
                                 </Fade>
                             </h2>
-                            <h2 className="font-Sequel-Sans-Medium-Head text-header text-black-text flex items-center gap-4 fade-container lg:mt-2 lg:leading-none leading-[60px]">
+                            <h2 className="font-Sequel-Sans-Medium-Head lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text flex items-center gap-4 fade-container lg:mt-2 lg:leading-none leading-[60px]">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                                   Initiatives
-                                </Fade> 
+                                </Fade>
                             <span>
                                 <Fade direction="up" triggerOnce={true}>
                                     <Image className="mt-1" src={community_box} width={40} alt="box"/>

@@ -86,7 +86,7 @@ export default function Models() {
           <div className="text-[12px] Gradient-transparent-text bg-button-gradient-txt">
             Our Models!
           </div>
-          <div className="lg:text-header text-mobile-header font-medium text-black-text mb-6">
+          <div className="lg:text-header 2xl:text-header-2xl text-mobile-header font-medium text-black-text mb-6">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Defi for AI
             </Fade>

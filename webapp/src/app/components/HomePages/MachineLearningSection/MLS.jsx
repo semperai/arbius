@@ -6,7 +6,7 @@ import { Fade } from "react-awesome-reveal";
 import Link from "next/link";
 export default function MachineLearningSection() {
   return (
-    <div className="bg-[url('./assets/images/peer_background.png')] bg-cover font-Sequel-Sans-Medium-Head lg:h-[73vh] lg:flex lg:items-center">
+    <div className="bg-[url('./assets/images/peer_background.jpg')] bg-cover font-Sequel-Sans-Medium-Head lg:h-[75vh] lg:flex lg:items-center">
       <div className="p-[70px_0] lg:p-0 w-mobile-section-width lg:w-section-width m-[auto] max-w-center-width">
         <div className="w-[100%] xl:w-[65%]">
           <Fade direction="up" triggerOnce={true}>
@@ -15,12 +15,12 @@ export default function MachineLearningSection() {
             </div>
           </Fade>
 
-          <div className="hidden lg:block fade-container lg:text-header text-mobile-header text-black-text">
+          <div className="hidden lg:block fade-container lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Peer-to-peer machine
             </Fade>
           </div>
-          <div className="hidden lg:block fade-container lg:text-header text-mobile-header text-black-text mt-[-15px] mb-4">
+          <div className="hidden lg:block fade-container lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mt-[-15px] mb-4">
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
               learning
             </Fade>

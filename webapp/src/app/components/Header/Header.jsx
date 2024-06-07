@@ -54,7 +54,7 @@ export default function Header() {
               >
                 Staking
                 <Image
-                  className="ext-link hidden lg:block"
+                  className="ext-link hidden lg:block max-w-[unset]"
                   src={external_link}
                   alt=""
                 />
@@ -171,14 +171,14 @@ export default function Header() {
 
             <div className="item lg:hidden hover:!text-purple-text">Media</div>
           </div>
-          <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[36px] lg:mb-[0]">
+          <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[40px] lg:mb-[0]">
             <div>
               {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
               <button
                 type="button"
-                className="m-[auto] relative group bg-black p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3"
+                className="m-[auto] relative group bg-black p-[7px_50px] lm:p-[7px_150px] lg:py-2 lg:px-10 rounded-full flex items-center gap-3"
               >
-                <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[10px_50px] lm:p-[10px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute w-[100%] h-[100%] left-0 z-0 p-[7px_50px] lm:p-[7px_150px] lg:py-2 lg:px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="font-Sequel-Sans-Medium-Head relative mt-[-1.5px] z-10 text-original-white">
                   Connect
                 </div>
