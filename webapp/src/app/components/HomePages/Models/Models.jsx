@@ -72,7 +72,7 @@ export default function Models() {
     console.log(modelFadeIn)
     if (modelFadeIn&&!stopEffect) {
       const timer = setTimeout(() => {
-        setModelFadeIn(false); 
+        setModelFadeIn(false);
       }, 19500);
   
       return () => clearTimeout(timer);
@@ -80,8 +80,8 @@ export default function Models() {
   }, [modelFadeIn]);
 
   return (
-    <div className={`${background} bg-cover font-Sequel-Sans-Medium-Head`}>
-      <div className="w-mobile-section-width  lg:w-section-width m-[auto] p-[100px_0] max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
+    <div className={`bg-democratic-gradient lg:${background} bg-cover font-Sequel-Sans-Medium-Head`}>
+      <div className="w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
         <div className="w-full lg:w-[50%]">
           <div className="text-[12px] Gradient-transparent-text bg-button-gradient-txt">
             Our Models!
@@ -126,7 +126,7 @@ export default function Models() {
               </div>
               <Fade direction="top">
               <div className="mt-[30px]">
-                <div className={`text-[28px] font-medium Gradient-transparent-text bg-background-gradient-txt  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}>
+                <div className={`text-[28px] font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}>
                   {selectedModel}
                 </div>
                 <div className={`mt-[10px]  w-[60%] text-subtext-two font-Sequel-Sans-Light-Body lg:h-[180px]  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}>
@@ -168,7 +168,7 @@ export default function Models() {
             >
               <div className="relative">
                 <Image
-                  className="h-[400px] w-[auto]"
+                  className="h-[500px] w-[auto]"
                   src={AllModels[selectedModel].image}
                   alt=""
                   onMouseOver={() => toggleBackground(true)}
@@ -214,7 +214,7 @@ export default function Models() {
                 </Fade>
                 <Fade direction="up" triggerOnce={true}>
                   <div className="mt-[10px]">
-                    <div className="text-[28px] font-medium Gradient-transparent-text bg-background-gradient-txt">
+                    <div className="text-[28px] font-medium /*Gradient-transparent-text bg-background-gradient-txt*/ text-blue-text">
                       {item}
                     </div>
                     <div className=" mb-[10px] w-full text-subtext-two font-Sequel-Sans-Light-Body">
