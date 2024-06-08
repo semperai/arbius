@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./interfaces/IVeStaking.sol";
@@ -11,7 +10,7 @@ import "./Pausable.sol";
 /// @title VeStaking
 /// @notice Staking contract to distribute rewards to veToken holders
 /// @dev Based on SNX StakingRewards https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract VeStaking is IVeStaking, ReentrancyGuard, Pausable {
+contract VeStaking is IVeStaking, Pausable {
     /* ========== STATE VARIABLES ========== */
 
     IERC20 public rewardsToken;
@@ -82,25 +81,23 @@ contract VeStaking is IVeStaking, ReentrancyGuard, Pausable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    // todo: probably safe to remove nonReentrant, only VotingEscrow will be allowed to call stake and withdraw
-
-    function stake(uint256 amount) external nonReentrant notPaused updateReward(msg.sender) {
+    function stake(uint256 amount) external notPaused updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
-        _totalSupply -= amount;
+        _totalSupply += amount;
         _balances[msg.sender] += amount;
         stakingToken.transferFrom(msg.sender, address(this), amount);
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) public nonReentrant updateReward(msg.sender) {
+    function withdraw(uint256 amount) public updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply -= amount;
-        _balances[msg.sender] += amount;
+        _balances[msg.sender] -= amount;
         stakingToken.transfer(msg.sender, amount);
         emit Withdrawn(msg.sender, amount);
     }
 
-    function getReward() public nonReentrant updateReward(msg.sender) {
+    function getReward() public updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
