@@ -148,7 +148,7 @@ export default function Models() {
                           type="button"
                           className={` relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
                         >
-                          <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                          <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                           <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
                             Try now
                           </div>
@@ -235,7 +235,7 @@ export default function Models() {
                             type="button"
                             className=" relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-5"
                           >
-                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="font-Sequel-Sans-Medium-Head mb-1 relative z-10 text-original-white">
                               Try now
                             </div>

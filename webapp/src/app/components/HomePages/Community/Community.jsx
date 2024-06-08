@@ -78,7 +78,7 @@ export default function Community(){
                                                 <div className="mt-6">
                                                 <Link href={platform.link} target="_blank" className="inline-block">   
                                                     <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3">
-                                                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                                         <p className="relative z-10 text-original-white font-Sequel-Sans-Medium-Head mb-1">{platform.buttonText}</p>
                                                         <Image src={arrow} width={18} className="relative z-10"  alt="right arrow"/>
                                                     </button>
