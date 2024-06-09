@@ -4,8 +4,9 @@ pragma solidity ^0.8.19;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./interfaces/IVeStaking.sol";
-import "./Pausable.sol";
+import {IVeStaking} from "./interfaces/IVeStaking.sol";
+import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
+import {Pausable} from "./Pausable.sol";
 
 /// @title VeStaking
 /// @notice Staking contract to distribute rewards to veToken holders
@@ -14,7 +15,8 @@ contract VeStaking is IVeStaking, Pausable {
     /* ========== STATE VARIABLES ========== */
 
     IERC20 public rewardsToken;
-    IERC20 public stakingToken; 
+    IVotingEscrow public votingEscrow;
+
     address public rewardsDistribution; // engine
 
     uint256 public periodFinish = 0;
@@ -26,38 +28,28 @@ contract VeStaking is IVeStaking, Pausable {
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
-    uint256 private _totalSupply;
-    mapping(address => uint256) private _balances;
-
     /* ========== CONSTRUCTOR ========== */
 
     constructor(
         address _rewardsDistribution,
         address _rewardsToken,
-        address _stakingToken
+        address _votingEscrow
     ) Ownable() {
+        rewardsDistribution = _rewardsDistribution;
+
         rewardsToken = IERC20(_rewardsToken);
 
-        // Todo: StakingToken substitute with veToken from veNFT, e.g. balanceOf
-        stakingToken = IERC20(_stakingToken);
-        rewardsDistribution = _rewardsDistribution;
+        votingEscrow = IVotingEscrow(_votingEscrow);
     }
 
     /* ========== VIEWS ========== */
-
-    function totalSupply() external view returns (uint256) {
-        return _totalSupply;
-    }
-
-    function balanceOf(address account) external view returns (uint256) {
-        return _balances[account];
-    }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
         return block.timestamp < periodFinish ? block.timestamp : periodFinish;
     }
 
     function rewardPerToken() public view returns (uint256) {
+        uint256 _totalSupply = votingEscrow.totalSupply();
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
         }
@@ -67,9 +59,20 @@ contract VeStaking is IVeStaking, Pausable {
     }
 
     function earned(address account) public view returns (uint256) {
+        // number of veNFTs owned by `account`
+        uint256 _veNFTBalance = votingEscrow.balanceOf(account);
+        
+        // iterate over veNFTs owned by `account`
+        // and call votingEscrow.tokenOfOwnerByIndex to get the sum of veAIUS balance
+        uint256 _veAIUSBalance;
+        for (uint256 i = 0; i < _veNFTBalance; i++) {
+            uint256 _veTokenId = votingEscrow.tokenOfOwnerByIndex(account, i);
+            _veAIUSBalance += votingEscrow.balanceOfNFT(_veTokenId);
+        }
+
         return (
             (
-                _balances[account]
+                _veAIUSBalance
                     * (rewardPerToken() - userRewardPerTokenPaid[account])
             ) / 1e18
         ) + rewards[account];
@@ -81,19 +84,15 @@ contract VeStaking is IVeStaking, Pausable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    function stake(uint256 amount) external notPaused updateReward(msg.sender) {
+    function stake(uint256 amount) external notPaused onlyVotingEscrow updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
-        _totalSupply += amount;
-        _balances[msg.sender] += amount;
-        stakingToken.transferFrom(msg.sender, address(this), amount);
+
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) public updateReward(msg.sender) {
+    function withdraw(uint256 amount) public onlyVotingEscrow updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
-        _totalSupply -= amount;
-        _balances[msg.sender] -= amount;
-        stakingToken.transfer(msg.sender, amount);
+
         emit Withdrawn(msg.sender, amount);
     }
 
@@ -104,12 +103,6 @@ contract VeStaking is IVeStaking, Pausable {
             rewardsToken.transfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
-    }
-
-    // todo: prob remove this
-    function exit() external {
-        withdraw(_balances[msg.sender]);
-        getReward();
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
@@ -137,7 +130,6 @@ contract VeStaking is IVeStaking, Pausable {
 
     // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
     function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
-        require(tokenAddress != address(stakingToken), "Cannot withdraw the staking token");
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
         emit Recovered(tokenAddress, tokenAmount);
     }
@@ -156,6 +148,11 @@ contract VeStaking is IVeStaking, Pausable {
     }
 
     /* ========== MODIFIERS ========== */
+
+    modifier onlyVotingEscrow() {
+        require(msg.sender == address(votingEscrow), "Caller is not VotingEscrow contract");
+        _;
+    }
 
     modifier onlyRewardsDistribution() {
         require(msg.sender == rewardsDistribution, "Caller is not RewardsDistribution contract");

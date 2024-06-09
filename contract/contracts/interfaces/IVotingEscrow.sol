@@ -30,6 +30,8 @@ interface IVotingEscrow {
     function deposit_for(uint tokenId, uint value) external;
     function create_lock_for(uint, uint, address) external returns (uint);
 
+    function balanceOf(address) external view returns (uint256);
+    function tokenOfOwnerByIndex(address, uint256) external view returns (uint256);
     function balanceOfNFT(uint) external view returns (uint);
     function totalSupply() external view returns (uint);
 }
