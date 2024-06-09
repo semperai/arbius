@@ -17,8 +17,6 @@ contract VeStaking is IVeStaking, Ownable {
     IERC20 public rewardsToken;
     IVotingEscrow public votingEscrow;
 
-    address public rewardsDistribution; // engine
-
     uint256 public periodFinish = 0;
     uint256 public rewardRate = 0;
     uint256 public rewardsDuration = 7 days; // todo: maybe bind this to epoch 
@@ -31,12 +29,9 @@ contract VeStaking is IVeStaking, Ownable {
     /* ========== CONSTRUCTOR ========== */
 
     constructor(
-        address _rewardsDistribution,
         address _rewardsToken,
         address _votingEscrow
     ) Ownable() {
-        rewardsDistribution = _rewardsDistribution;
-
         rewardsToken = IERC20(_rewardsToken);
 
         votingEscrow = IVotingEscrow(_votingEscrow);
@@ -84,6 +79,31 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
+    function notifyRewardAmount(uint256 reward) external updateReward(address(0)) {
+        if (block.timestamp >= periodFinish) {
+            rewardRate = reward / rewardsDuration;
+        } else {
+            uint256 remaining = periodFinish - block.timestamp;
+            uint256 leftover = remaining * rewardRate;
+            rewardRate = (reward + leftover) / rewardsDuration;
+        }
+
+        lastUpdateTime = block.timestamp;
+        periodFinish = block.timestamp + rewardsDuration;
+
+        // transfer reward in
+        rewardsToken.safeTransferFrom(msg.sender, address(this), reward);
+
+        // Ensure the provided reward amount is not more than the balance in the contract.
+        // This keeps the reward rate in the right range, preventing overflows due to
+        // very high values of rewardRate in the earned and rewardsPerToken functions;
+        // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
+        uint256 balance = rewardsToken.balanceOf(address(this));
+        require(rewardRate <= (balance / rewardsDuration), "Provided reward too high");
+
+        emit RewardAdded(reward);
+    }
+
     function stake(uint256 amount) external onlyVotingEscrow updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
 
@@ -107,30 +127,6 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    function notifyRewardAmount(uint256 reward) external onlyRewardsDistribution updateReward(address(0)) {
-        // transfer reward in
-        rewardsToken.safeTransferFrom( msg.sender, address(this), reward);
-
-        if (block.timestamp >= periodFinish) {
-            rewardRate = reward / rewardsDuration;
-        } else {
-            uint256 remaining = periodFinish - block.timestamp;
-            uint256 leftover = remaining * rewardRate;
-            rewardRate = (reward + leftover) / rewardsDuration;
-        }
-
-        // Ensure the provided reward amount is not more than the balance in the contract.
-        // This keeps the reward rate in the right range, preventing overflows due to
-        // very high values of rewardRate in the earned and rewardsPerToken functions;
-        // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
-        uint256 balance = rewardsToken.balanceOf(address(this));
-        require(rewardRate <= (balance / rewardsDuration), "Provided reward too high");
-
-        lastUpdateTime = block.timestamp;
-        periodFinish = block.timestamp + rewardsDuration;
-        emit RewardAdded(reward);
-    }
-
     // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
     function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
@@ -146,19 +142,10 @@ contract VeStaking is IVeStaking, Ownable {
         emit RewardsDurationUpdated(rewardsDuration);
     }
 
-    function setRewardsDistribution(address _rewardsDistribution) external onlyOwner {
-        rewardsDistribution = _rewardsDistribution;
-    }
-
     /* ========== MODIFIERS ========== */
 
     modifier onlyVotingEscrow() {
         require(msg.sender == address(votingEscrow), "Caller is not VotingEscrow contract");
-        _;
-    }
-
-    modifier onlyRewardsDistribution() {
-        require(msg.sender == rewardsDistribution, "Caller is not RewardsDistribution contract");
         _;
     }
 
