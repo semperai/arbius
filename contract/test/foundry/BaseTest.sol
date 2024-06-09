@@ -13,16 +13,16 @@ contract BaseTest is Test {
     MockERC20 public AIUS;
 
     // time 
-    uint256 public constant DAY = 24 * 3600;
-    uint256 public constant WEEK = 7 * 24 * 3600;
-    uint256 public constant MONTH = 30 * 24 * 3600;
-    uint256 public constant YEAR = 365 * 24 * 3600;
+    uint256 public constant MONTH = 30 days;
+    uint256 public constant YEAR = 12 * MONTH;
 
     // test addresses
     address L2Gateway = makeAddr("L2Gateway");
     address L1TokenAddress = makeAddr("L1TokenAddress");
     address alice = makeAddr("alice");
     address bob = makeAddr("bob");
+    address charlie = makeAddr("charlie");
+    address dave = makeAddr("dave");
 
     function deployAius() public {
         // deploy and initialize AIUS
