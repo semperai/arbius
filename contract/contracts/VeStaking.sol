@@ -3,15 +3,13 @@ pragma solidity ^0.8.19;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-
 import {IVeStaking} from "./interfaces/IVeStaking.sol";
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
-import {Pausable} from "./Pausable.sol";
 
 /// @title VeStaking
 /// @notice Staking contract to distribute rewards to veToken holders
 /// @dev Based on SNX StakingRewards https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract VeStaking is IVeStaking, Pausable {
+contract VeStaking is IVeStaking, Ownable {
     /* ========== STATE VARIABLES ========== */
 
     IERC20 public rewardsToken;
@@ -84,7 +82,7 @@ contract VeStaking is IVeStaking, Pausable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    function stake(uint256 amount) external notPaused onlyVotingEscrow updateReward(msg.sender) {
+    function stake(uint256 amount) external onlyVotingEscrow updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
 
         emit Staked(msg.sender, amount);
