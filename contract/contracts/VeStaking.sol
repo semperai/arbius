@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IVeStaking} from "./interfaces/IVeStaking.sol";
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
@@ -10,6 +10,8 @@ import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 /// @notice Staking contract to distribute rewards to veToken holders
 /// @dev Based on SNX StakingRewards https://docs.synthetix.io/contracts/source/contracts/stakingrewards
 contract VeStaking is IVeStaking, Ownable {
+    using SafeERC20 for IERC20;
+
     /* ========== STATE VARIABLES ========== */
 
     IERC20 public rewardsToken;
@@ -98,7 +100,7 @@ contract VeStaking is IVeStaking, Ownable {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
-            rewardsToken.transfer(msg.sender, reward);
+            rewardsToken.safeTransfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
     }
@@ -106,6 +108,9 @@ contract VeStaking is IVeStaking, Ownable {
     /* ========== RESTRICTED FUNCTIONS ========== */
 
     function notifyRewardAmount(uint256 reward) external onlyRewardsDistribution updateReward(address(0)) {
+        // transfer reward in
+        rewardsToken.safeTransferFrom( msg.sender, address(this), reward);
+
         if (block.timestamp >= periodFinish) {
             rewardRate = reward / rewardsDuration;
         } else {
