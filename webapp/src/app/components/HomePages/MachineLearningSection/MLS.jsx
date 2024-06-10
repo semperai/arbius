@@ -6,7 +6,7 @@ import { Fade } from "react-awesome-reveal";
 import Link from "next/link";
 export default function MachineLearningSection() {
   return (
-    <div className="bg-[url('./assets/images/peer_background.jpg')] bg-cover font-Sequel-Sans-Medium-Head lg:h-[75vh] lg:flex lg:items-center">
+    <div className="bg-[url('./assets/images/peer_background.jpg')] bg-cover font-Sequel-Sans-Medium-Head lg:h-[75vh] lg:flex lg:items-center mt-[72px]">
       <div className="py-24 lg:p-0 w-mobile-section-width lg:w-section-width m-[auto] max-w-center-width">
         <div className="w-[100%] xl:w-[65%]">
           <Fade direction="up" triggerOnce={true}>

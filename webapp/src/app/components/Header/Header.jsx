@@ -44,7 +44,7 @@ export default function Header() {
 
   return (
     <div
-      className={`bg-[white] z-[9999] fixed w-[100%] transition-all duration-300`}
+      className={`bg-[white] z-[9999] fixed top-0 w-[100%] transition-all duration-300`}
       id="headerId"
     >
       <div className="flex justify-between py-4 w-[90%] m-auto max-w-center-width">

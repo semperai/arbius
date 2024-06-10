@@ -179,8 +179,6 @@ export default function Models() {
                   className="h-[500px] w-[auto]"
                   src={AllModels[selectedModel].image}
                   alt=""
-                  priority
-                  placeholder="blur"
                   onMouseOver={() => toggleBackground(true)}
                   onMouseOut={() => toggleBackground(false)}
                 />

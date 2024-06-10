@@ -52,7 +52,7 @@ export default function Democratic(){
                                 {
                                     cardsData.map((card)=>{
                                         return (
-                                            <div className={`w-[30%] xl:h-[320px] h-[400px] transform transition-all duration-500 hover:-translate-y-1 cursor-pointer ${card.background} bg-no-repeat bg-cover rounded-3xl p-6`} key={card.id}>
+                                            <div className={`w-[30%] xl:h-[320px] h-[400px] transform transition-all duration-500 hover:-translate-y-1 ${card.background} bg-no-repeat bg-cover rounded-3xl p-6`} key={card.id}>
                                                 <div className="mb-10">
                                                     <Image src={card.icon} alt={card.title} width={20}/>
                                                 </div>
