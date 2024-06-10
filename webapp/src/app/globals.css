@@ -271,3 +271,6 @@
 .gradient-header-bg{
     background:  linear-gradient(180deg, #FBFBFB 70.03%, #4A28FF 330.54%);
 }
+.stake-box-shadow{
+    box-shadow: -4px 0px 50px rgba(74, 40, 255, 0.1);
+}
