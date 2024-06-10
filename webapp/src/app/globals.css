@@ -192,6 +192,22 @@
         @apply text-blue-text border-b-[2px] gradient-border;
     }
 }
+
+@layer components{
+    .stake-items > div{
+        @apply p-[10px_0px] text-center  flex-grow;
+    }
+    .all-stake > div{
+        @apply cursor-pointer text-[17px] flex-1 pb-[20px] text-subtext-two font-At-Hauss;
+    }
+    .all-stake > .selected{
+        @apply text-blue-text border-b-[2px] gradient-border;
+    }
+}
+
+.stake-card{
+  box-shadow: -4px 0px 50px rgba(74, 40, 255, 0.1);
+}
 /* Models styles */
 .model-container {
     transition: opacity 500ms ease-in-out;
