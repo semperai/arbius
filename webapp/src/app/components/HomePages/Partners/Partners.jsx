@@ -52,7 +52,7 @@ export default function Partners() {
           {
             Object.keys(partnersData).map(function(partner, index){
               return <div className="px-8" key={index}>
-                      <a href={partnersData[partner].url}><Image className={partner} src={partnersData[partner].image} alt="" /></a>
+                      <a href={partnersData[partner].url}><Image className={partner} src={partnersData[partner].image} priority={true} alt="" /></a>
                     </div>
             })
           }
@@ -64,7 +64,7 @@ export default function Partners() {
           {
             Object.keys(partnersData).map(function(partner, index){
               return <div className="px-8" key={index}>
-                      <a href={partnersData[partner].url}><Image className={partner} src={partnersData[partner].image} alt="" /></a>
+                      <a href={partnersData[partner].url}><Image className={partner} src={partnersData[partner].image} priority={true} alt="" /></a>
                     </div>
             })
           }
