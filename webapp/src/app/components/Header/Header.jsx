@@ -15,6 +15,7 @@ export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [stakingOpen, setStakingOpen] = useState(true);
   const [modelsOpen, setModelsOpen] = useState(true);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
 
   useEffect(() => {
     if (window.innerWidth < 1024) {
@@ -23,11 +24,28 @@ export default function Header() {
     }
   }, []);
 
+  useEffect(() => {
+    function handleScroll() {
+        var header = document.getElementById('headerId');
+        console.log(header, "YO")
+        let st = window.pageYOffset || document.documentElement.scrollTop;
+        if (st > lastScrollTop) {
+            header.style.opacity = 0
+        } else {
+            // setOpacity(1);  // scrolling up, show header
+            header.style.opacity = 1;
+        }
+        setLastScrollTop(st <= 0 ? 0 : st);
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollTop]);
+
   return (
     <div
-      className={`${
-        headerOpen ? "w-[100%] fixed" : "relative"
-      } bg-[white] z-[9999]`}
+      className={`bg-[white] z-[9999] fixed w-[100%] transition-all duration-300`}
+      id="headerId"
     >
       <div className="flex justify-between py-4 w-[90%] m-auto max-w-center-width">
         <div className="flex items-center">

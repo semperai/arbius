@@ -19,7 +19,7 @@ export default function Buy(){
         <div className="bg-white-background py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div className="flex items-center lg:flex-row flex-col justify-between">
-                    <div className="lg:w-[70%] w-[100%]">
+                    <div className="lg:w-[70%] 2xl:w-[50%] w-[100%]">
                         <div>
                             <h2 className="font-Sequel-Sans-Medium-Head lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mb-6 fade-container">
                                 <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
@@ -62,9 +62,9 @@ export default function Buy(){
                             </div>
                         </Fade>
                     </div>
-                    <Fade direction="up" triggerOnce={true}>
-                        <div  className="w-[25%] lg:block hidden">
-                            <div className="w-[220px] h-[220px] bg-purple-background rounded-[50%] flex items-center justify-center">
+                    <Fade direction="up" triggerOnce={true} className="2xl:w-[50%]">
+                        <div  className="lg:block hidden">
+                            <div className="ml-[auto] 2xl:m-[auto] w-[220px] h-[220px] bg-purple-background rounded-[50%] flex items-center justify-center">
                                 <Image src={white_logo} width={150} alt="arbius white"/>
                             </div>
                         </div>
