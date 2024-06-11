@@ -93,7 +93,11 @@ export default function Header() {
                     }
                     target="_blank"
                   >
-                    <div className="staking-block">
+                 
+                    <div className="staking-block relative">
+                        <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                        </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
                         src={gysr}
@@ -107,13 +111,16 @@ export default function Header() {
                     href={"https://swap.cow.fi/#/1/swap/WETH/AIUS"}
                     target="_blank"
                   >
-                    <div className="staking-block">
+                    <div className="staking-block relative">
+                     <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                        </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
                         src={arbius}
                         alt=""
                       />
-                      <div>ve-AIUS</div>
+                      <div>veAIUS</div>
                       <div>Lock AIUS, earn rewards over time.</div>
                     </div>
                   </Link>

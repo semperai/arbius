@@ -165,7 +165,7 @@ export default function Models() {
           </Fade>
         </div>
         <Fade direction="up" triggerOnce={true} className="hidden lg:block lg:w-[50%]">
-          <div className="">
+          <div className="2xl:ml-[20%]">
             <div
               id="image-parent"
               className={`relative border-[transparent] w-[320px] h-[430px] flex justify-center items-center rounded-[50px] ml-[auto] 2xl:m-[auto]   model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}

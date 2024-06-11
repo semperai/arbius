@@ -63,7 +63,7 @@ export default function Buy(){
                         </Fade>
                     </div>
                     <Fade direction="up" triggerOnce={true} className="2xl:w-[50%]">
-                        <div  className="lg:block hidden">
+                        <div  className="lg:block hidden 2xl:ml-[20%]">
                             <div className="ml-[auto] 2xl:m-[auto] w-[220px] h-[220px] bg-purple-background rounded-[50%] flex items-center justify-center">
                                 <Image src={white_logo} width={150} alt="arbius white"/>
                             </div>

@@ -92,21 +92,24 @@
         @apply gap-[10px] absolute ml-[-50%];
     }
     .link-with-image .staking-block{
-        @apply flex flex-col gap-[50px] items-start lg:bg-[white] w-[170px] h-[250px] p-[20px_10px] lg:hover-bg-image drop-shadow-xl;
-    }
-    .link-with-image .staking-block div:nth-child(2){
-        @apply font-medium text-[black] text-[16px] font-Sequel-Sans-Medium-Head;
+        @apply flex flex-col gap-[50px] items-start lg:bg-[white] w-[170px] h-[250px] p-[30px_10px] lg:hover-bg-image drop-shadow-xl box-border;
     }
     .link-with-image .staking-block div:nth-child(3){
+        @apply font-medium text-[black] text-[16px] font-Sequel-Sans-Medium-Head;
+    }
+    .link-with-image .staking-block div:nth-child(4){
         @apply text-[11px] font-Geist-SemiBold text-footer-text;
+    }
+    .hover-bg-image:hover div:nth-child(1){
+        opacity: 1;
     }
     .hover-bg-image:hover {
         @apply background-gradient; /* Apply the custom background image class on hover */
     }
-    .hover-bg-image:hover div:nth-child(2){
+    .hover-bg-image:hover div:nth-child(3){
         @apply text-[white];
     }
-    .hover-bg-image:hover div:nth-child(3){
+    .hover-bg-image:hover div:nth-child(4){
         @apply text-[white];
     }
     .hover-bg-image:hover img{
@@ -129,7 +132,7 @@
         .link-with-image .staking-block{
             @apply w-[100%] flex-row h-[auto] drop-shadow-none justify-start items-center gap-[10px];
         }
-        .link-with-image .staking-block div:nth-child(3){
+        .link-with-image .staking-block div:nth-child(4){
             @apply hidden;
         }
         .links-parent > div{
