@@ -101,7 +101,7 @@
         @apply text-[11px] font-Geist-SemiBold text-footer-text;
     }
     .hover-bg-image:hover div:nth-child(1){
-        opacity: 1;
+        background-image: none;
     }
     .hover-bg-image:hover {
         @apply background-gradient; /* Apply the custom background image class on hover */

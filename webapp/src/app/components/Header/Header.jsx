@@ -112,7 +112,7 @@ export default function Header() {
                     target="_blank"
                   >
                     <div className="staking-block relative">
-                     <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                        <div className="absolute top-2  lg:block hidden p-2 right-2 bg-background-gradient  rounded-2xl">
                           <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
                         </div>
                       <Image
@@ -146,6 +146,9 @@ export default function Header() {
                 <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex">
                   <Link href={"https://arbius.ai/generate"} target="_blank">
                     <div className="staking-block">
+                      <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                        </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
                         src={kandinsky}
@@ -157,17 +160,23 @@ export default function Header() {
                   </Link>
                   <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
                     <div className="staking-block">
+                       <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                        </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]]"
                         src={kasumi_l}
                         alt=""
                       />
-                      <div>Kasumi</div>
+                      <div>Kasumi 2</div>
                       <div>Telegram Integrated Mining Agent & Image Generator</div>
                     </div>
                   </Link>
                   <Link target="_blank" href={"https://amica.arbius.ai/"}>
                     <div className="staking-block">
+                       <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                        </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
                         src={amica_l}
