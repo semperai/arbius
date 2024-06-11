@@ -22,7 +22,7 @@ export default function Showcase(){
                             return (
                                 <div className="Item relative" key={index}>
                                     <div className="ImageItem"> 
-                                        <Image src={image} className="rounded-xl" loading="eager"/>
+                                        <Image src={image} className="rounded-xl" priority/>
                                     </div>
                                     <div className="w-[40px] h-[40px]  rounded-[50%] flex items-center justify-center absolute bottom-3 right-3">
                                         <Image src={white_logo} width={30} alt="arbius white" priority/>
@@ -38,7 +38,7 @@ export default function Showcase(){
                             return (
                                 <div className="Item relative" key={index}>
                                     <div className="ImageItem"> 
-                                        <Image src={image} className="rounded-xl" loading="eager"/>
+                                        <Image src={image} className="rounded-xl" priority/>
                                     </div>
                                     <div className="w-[40px] h-[40px rounded-[50%] flex items-center justify-center absolute bottom-3 right-3">
                                         <Image src={white_logo}  width={30} alt="arbius white"/>
