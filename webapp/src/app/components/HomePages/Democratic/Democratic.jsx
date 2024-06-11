@@ -12,14 +12,14 @@ export default function Democratic(){
             id:"1",
             icon:privacy,
             title:"Secure generation",
-            content:"As long as a majority of the miners are honest, tasks are confirmed on a decentralized network and are available within seconds.",
+            content:"Contestation ensures miner honesty, tasks are confirmed on a decentralized network and are available within seconds.",
             background:"bg-[url('./assets/images/secure_background.png')]"
         },
         {
             id:"2",
             icon:code,
             title:"Easy Integration",
-            content:"Easy Integration. Generations done via Arbius may be directly connected to downstream applications such as webapps, NFT marketplaces, chat-bots or gaming.",
+            content:"Generations done via Arbius may be directly connected to downstream applications such as webapps, marketplaces, AI agents, chat-bots or used for gaming.",
             background:"bg-[url('./assets/images/integration_background.png')]"
         },
         {

@@ -100,7 +100,7 @@ export default function Header() {
                         alt=""
                       />
                       <div>GYSR</div>
-                      <div>Stake AIUS and ETH, earn AIUS rewards.</div>
+                      <div>Provide liquidity, earn AIUS rewards.</div>
                     </div>
                   </Link>
                   <Link

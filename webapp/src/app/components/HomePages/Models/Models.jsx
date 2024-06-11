@@ -21,7 +21,7 @@ export default function Models() {
       background: "bg-ai-gradient",
     },
     "Amica": {
-      text: "Amica is an open source chatbot interface that provides emotion, text to speech, and speech to text capabilities.",
+      text: "Amica is an open source AI persona chatbot interface that provides emotion, bi-directional text to speech, audial interpretation, and visual recognition based interactions.",
       image: amica,
       background: "bg-ai-gradient",
       link: "https://amica.arbius.ai/",
@@ -102,11 +102,7 @@ export default function Models() {
           <Fade direction="up" triggerOnce={true}>
             <div>
               <div className="text-para text-subtext-three font-Sequel-Sans-Light-Body text-subtext-two">
-                Model creators are now first-class citizens. Set your fees (or
-                choose not to) for using your models and enable investments in
-                them as tokenized assets. Model generations are handled by a
-                global, decentralized network of solvers competing to deliver
-                results swiftly.
+              OSS (open source software) models such as Llama 3 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from AI.
               </div>
             </div>
           </Fade>
@@ -134,7 +130,7 @@ export default function Models() {
               </div>
               <Fade direction="top">
               <div className="mt-[30px]">
-                <div className={`text-[28px] font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
+                <div className={`text-[28px]  font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
                   {selectedModel}
                 </div>
                 <div className={`mt-[10px]  w-[80%] text-subtext-two font-Sequel-Sans-Light-Body lg:h-[180px]  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
@@ -172,7 +168,7 @@ export default function Models() {
           <div className="">
             <div
               id="image-parent"
-              className={`relative border-[transparent] w-[320px] h-[430px] flex justify-center items-center rounded-[50px] ml-[auto] 2xl:m-[auto] model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
+              className={`relative border-[transparent] w-[320px] h-[430px] flex justify-center items-center rounded-[50px] ml-[auto] 2xl:m-[auto]   model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
             >
               <div className="relative">
                 <Image
@@ -222,7 +218,7 @@ export default function Models() {
                 </Fade>
                 <Fade direction="up" triggerOnce={true}>
                   <div className="mt-[10px]">
-                    <div className="text-[28px] font-medium /*Gradient-transparent-text bg-background-gradient-txt*/ text-blue-text">
+                    <div className="text-[28px] lg:mb-0 mb-4 lg:mt-0 mt-4 font-medium /*Gradient-transparent-text bg-background-gradient-txt*/ text-blue-text">
                       {item}
                     </div>
                     <div className=" mb-[10px] w-full text-subtext-two font-Sequel-Sans-Light-Body">

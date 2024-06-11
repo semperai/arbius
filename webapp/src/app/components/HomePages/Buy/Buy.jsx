@@ -10,9 +10,9 @@ export default function Buy(){
     const info = [
         "Pay for AI generations",
         "Participate in governance",
-        "Accrue fees via delegation",
-        "Stake LP for residual income",
-        "Earn by validating network",
+        "Accrue fees via staking",
+        "Provide LP for rewards",
+        "Earn via proof of useful work",
         "Promote free and open AI"
     ]
     return(

@@ -12,7 +12,7 @@ export default function Community(){
             id:"1",
             name:"",
             nameType:"Image",
-            content:"Arbius Data is a Block Explorer and Analytics Platform for the Arbius’s network.",
+            content:"Arbius Data is a Block Explorer and Analytics Platform for Arbius’ network.",
             buttonText:"Visit Arbiusdata",
             link:"https://arbiusdata.io/",
             nameImage:arbius_data,
@@ -23,7 +23,7 @@ export default function Community(){
             id:"2",
             name:"AIUS Swap Market",
             nameType:"",
-            content:"This marketplace enables miners to deposit ETH or any ERC-20 token as a reward for AIUS depositors.",
+            content:"Exchange AIUS in a decentralized way here.",
             buttonText:"Visit Swap Market",
             link:"https://app.uniswap.org/swap",
             background:"bg-[url('./assets/images/swap_market_background.png')]",
@@ -31,8 +31,8 @@ export default function Community(){
         }
     ]
     return (
-        <div className="bg-white-background py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
-            <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
+        <div className=" py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
+            <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width bg-white-background py-10 box-border">
                 <div>
                     <div>
                         <div className="mb-6">
@@ -60,7 +60,7 @@ export default function Community(){
                     </div>
                     <Fade direction="up" triggerOnce={true}>
                         <div>
-                            <div className="flex md:flex-row flex-col md:gap-0 gap-4 items-center justify-between">
+                            <div className="flex md:flex-row flex-col md:gap-0 gap-2 2xl:gap-[12%] items-center 2xl:justify-start justify-between">
                                 {
                                     platforms.map((platform)=>{
                                         return (
