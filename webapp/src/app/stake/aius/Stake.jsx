@@ -1,11 +1,13 @@
 "use client"
-import React from "react"
+import React,{useState} from "react"
 import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png'
 import Image from "next/image"
+import ReactSlider from 'react-slider'
 export default function Stake(){
+    const [sliderValue,setSliderValue]=useState(0)
     return(
         <div>
-            <div className="bg-white-background h-[395px] stake-box-shadow rounded-2xl p-8 box-border">
+            <div className="bg-white-background h-[480px] stake-box-shadow rounded-2xl px-8 pt-10 pb-8 box-border">
                 <div>
                     <div className="flex justify-between items-center mb-4">
                         <p className="text-stake font-Sequel-Sans-Medium-Head text-[18px]">Amount to lock</p>
@@ -26,9 +28,33 @@ export default function Stake(){
                     </div>
                 </div>
                 <div>
-                    <p className="mt-6 mb-4 text-[22px] font-Sequel-Sans-Medium-Head  text-stake">Locking for 5 months for 0.0 AIUS voting power.</p>
-                    <div className="mb-6">
-                            <p>Slider</p>
+                    <p className="mt-8 mb-8 text-[22px] font-Sequel-Sans-Medium-Head  text-stake">Locking for {sliderValue} months for 0.0 AIUS voting power.</p>
+                    <div className="mb-10">
+                        <div className="mb-8">
+                            <ReactSlider
+                                min={0}
+                                max={240}
+                                step={1}
+                                onAfterChange={(value, index) =>
+                                    {
+                                        setSliderValue(value)
+                                    }
+                                }
+                                className="horizontal-slider text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
+                                thumbClassName="example-thumb w-[25px] h-[25px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
+                                // trackClassName="bg-[#000000] h-[2px] w-[100%]"
+                                renderThumb={(props, state) => <div {...props}></div>}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[#808080] font-Sequel-Sans-Light-Body">
+                          <p>0</p>  
+                          <p>4</p>
+                          <p>8</p>
+                          <p>12</p>
+                          <p>16</p>
+                          <p>20</p>
+                          <p>24</p>
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center justify-between">
@@ -46,4 +72,4 @@ export default function Stake(){
     )
 }
 
-/* Rectangle 30652 */
+

@@ -62,7 +62,8 @@ module.exports = {
       "ai-gradient":"linear-gradient(37.19deg, rgba(146, 189, 255, 0.02) 19.15%, rgba(81, 54, 255, 0.1) 66.39%, rgba(253, 79, 89, 0.2) 122.15%)",
       "marketplace-gradient":"linear-gradient(162.01deg, rgba(146, 189, 255, 0.02) 9.35%, rgba(81, 54, 255, 0.1) 62.99%, rgba(255, 55, 235, 0.2) 126.32%)",
       "aius-stake":"linear-gradient(101.66deg, rgba(146, 189, 255, 0.02) -6.48%, rgba(81, 54, 255, 0.1) 45.24%, rgba(212, 179, 255, 0.2) 106.31%)",
-      'apr':' linear-gradient(77.91deg, #4A28FF 55.47%, #E8E8E8 185.26%)'
+      'apr':' linear-gradient(77.91deg, #4A28FF 55.47%, #E8E8E8 185.26%)',
+      'thumb':'linear-gradient(153.62deg, #4332FF 16.58%, #AD4EDA 146.02%, #A750DF 155.02%)'
    }),
     screens: {
       '2xl': '1800px',
