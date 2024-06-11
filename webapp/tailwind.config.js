@@ -7,13 +7,18 @@ module.exports = {
   ],
   theme: {
     extend: {
+      filter: {
+        'invert': 'invert(1)',
+      },
     },
     fontSize:{
       "header-2xl": "70px",
+      'header-xl':'60px',
       'header':"50px",
       'header-md':"40px",
       "para":"16px",
-      'mobile-header':"45px"
+      'mobile-header':"45px",
+      'large-description':'20px'
     },
     colors:{
       'black-text':"#333333",
@@ -41,6 +46,7 @@ module.exports = {
     //   "para":"20px"
     // },
     backgroundImage: theme => ({
+      'media-gradient': 'linear-gradient(110.02deg, rgba(146, 189, 255, 0.02) 16.98%, rgba(81, 54, 255, 0.1) 60.14%, rgba(253, 253, 255, 0.3) 111.08%)',
       'democratic-gradient':"linear-gradient(142.65deg, rgba(146, 189, 255, 0.02) -27.23%, rgba(81, 54, 255, 0.1) 31.69%, rgba(255, 255, 255, 0.159364) 60.92%, rgba(212, 179, 255, 0.2) 101.25%)",
       'models-gradient': "linear-gradient(101.66deg, rgba(146, 189, 255, 0.02) -6.48%, rgba(81, 54, 255, 0.1) 45.24%, rgba(212, 179, 255, 0.2) 106.31%)",
       'background-gradient': "linear-gradient(90deg, #4A28FF 16.5%, #9ED6FF 100%)",
