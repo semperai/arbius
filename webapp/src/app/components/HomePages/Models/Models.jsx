@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import amica from "../../../assets/images/amica.png";
-import generativeAI from "../../../assets/images/ai_generation.png";
-import marketplace from "../../../assets/images/marketplace.png";
+import amica from "../../../assets/images/amica.jpg";
+import generativeAI from "../../../assets/images/ai_generation.jpg";
+import marketplace from "../../../assets/images/marketplace.jpg";
 import Image from "next/image";
 import right_arrow from "../../../assets/images/right_arrow.png";
 import arbius_logo_round from "../../../assets/images/arbius_logo_round.png";
