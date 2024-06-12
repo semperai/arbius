@@ -88,7 +88,7 @@ export default function ArbiusMedia() {
               <div id="image-parent" className="relative bg-models-gradient border-transparent w-[350px] h-[260px] flex justify-center items-center rounded-[30px] ">
                   <VideoThumbnail thumbnailSrc={post.image} altText="kokok"  url={post.url}/>
               </div>
-              <div className="py-2">
+              <div className="p-2">
                 <h2 className=" text-large-description lato-bold text-gray-800">{post.title}</h2>
                 <p className=" text-subtext-one mt-2 lato-Regular">{post.date}</p>
               </div>
