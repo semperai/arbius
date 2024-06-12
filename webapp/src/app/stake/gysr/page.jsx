@@ -11,43 +11,44 @@ import ActivityTable from "@/app/components/Stake/GYSR/ActivityTable";
 import Stake from "@/app/components/Stake/GYSR/Stake";
 import Stats from "@/app/components/Stake/GYSR/Stats";
 
+const headerCardData = [
+
+    {
+        heading: 673,
+        subheading: "UNI-V2",
+        para: "Stacked",
+        logo: unilogo
+    },
+    {
+        heading: "13.5K",
+        subheading: "AIUS",
+        para: "Remaining",
+        logo: arbiuslogorounded
+    },
+    {
+        heading: "204.29%",
+        subheading: "",
+        para: "APR",
+        logo: gysrlogorounded,
+    }
+
+]
+
+const tabs = [
+    "Stake", "Stats", "Activity"
+]
+const mobiletabs = [
+    "Stats", "Activity"
+]
 export default function GYSR() {
 
-    const headerCardData = [
-
-        {
-            heading: 673,
-            subheading: "UNI-V2",
-            para: "Stacked",
-            logo: unilogo
-        },
-        {
-            heading: "13.5K",
-            subheading: "AIUS",
-            para: "Remaining",
-            logo: arbiuslogorounded
-        },
-        {
-            heading: "204.29%",
-            subheading: "",
-            para: "APR",
-            logo: gysrlogorounded,
-        }
-
-    ]
-
-    const tabs = [
-        "Stake", "Stats", "Activity"
-    ]
-    const mobiletabs = [
-        "Stats", "Activity"
-    ]
+    
 
 
     const [selectedtab, setSelectedTab] = useState("Stake")
     const [mobileSelectedtab, setMobileSelectedTab] = useState("Stats")
 
-    console.log(selectedtab);
+
 
     return (
         <div className="">
@@ -130,16 +131,11 @@ export default function GYSR() {
                                         setMobileSelectedTab(item)
                                         setSelectedTab(item)
                                     }}>
-
                                         <p className="relative z-10  font-Sequel-Sans-Medium-Head mb-1 ">{item}</p>
-
                                     </button>
                                 </div>
                             )
                         })}
-
-
-
                     </div>
 
                 </div>
@@ -155,14 +151,6 @@ export default function GYSR() {
                         <ActivityTable />
                     </div>
                 )}
-
-
-
-
-
-
-
-
             </div>
 
 
