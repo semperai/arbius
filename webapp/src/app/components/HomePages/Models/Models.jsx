@@ -4,7 +4,7 @@ import amica from "../../../assets/images/amica.jpg";
 import generativeAI from "../../../assets/images/ai_generation.jpg";
 import marketplace from "../../../assets/images/marketplace.jpg";
 import Image from "next/image";
-import right_arrow from "../../../assets/images/right_arrow.png";
+import right_arrow from "../../../assets/images/arrow.png";
 import arbius_logo_round from "../../../assets/images/arbius_logo_round.png";
 import { Fade } from "react-awesome-reveal";
 import Link from "next/link";
@@ -123,9 +123,6 @@ export default function Models() {
                     </div>
                   );
                 })}
-                {/*<div>AI Generations</div>
-                                <div className="selected">Amica</div>
-                                <div>Marketplace</div>*/}
               </div>
               <Fade direction="top">
               <div className="mt-[30px]">
@@ -136,7 +133,6 @@ export default function Models() {
                   {AllModels[selectedModel].text}
 
                   <div>
-                    {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button> OLD ONE */}
                     {AllModels[selectedModel].link && (
                       <Link href={"https://amica.arbius.ai/"} target="_blank">
                         <button
@@ -144,7 +140,7 @@ export default function Models() {
                           className={` relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
                         >
                           <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                          <div className="lato-bold mb-1 relative z-10 text-original-white">
+                          <div className="lato-bold  relative z-10 text-original-white">
                             Try now
                           </div>
                           <Image
@@ -232,7 +228,7 @@ export default function Models() {
                             className=" relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-5"
                           >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold mb-1 relative z-10 text-original-white">
+                            <div className="lato-bold  relative z-10 text-original-white">
                               Try now
                             </div>
                             <Image
@@ -244,7 +240,6 @@ export default function Models() {
                           </button>
                         </Link>
                       )}
-                      {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] text-[white] flex items-center gap-[5px] justify-center p-[8px_25px] rounded-[20px]">Try now <Image className="h-[20px] w-[auto]" src={right_arrow} alt="" /></button> OLD ONE */}
                     </div>
                   </div>
                 </Fade>

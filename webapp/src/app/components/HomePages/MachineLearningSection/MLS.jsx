@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import right_arrow from "../../../assets/images/right_arrow.png";
+import right_arrow from "../../../assets/images/arrow.png";
 import Image from "next/image";
 import { Fade } from "react-awesome-reveal";
 import Link from "next/link";
@@ -52,7 +52,7 @@ export default function MachineLearningSection() {
                       className="relative group bg-black py-2 px-5 lg:px-8 rounded-full flex items-center gap-3"
                     >
                       <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <div className="lato-regular mb-1 relative z-10 text-original-white lg:text-[100%]">
+                      <div className="lato-regular  relative z-10 text-original-white lg:text-[100%]">
                         Try now
                       </div>
                       <Image
