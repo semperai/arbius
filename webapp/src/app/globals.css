@@ -217,6 +217,14 @@
     opacity: 1;
     animation:fade-in 500ms ease-in-out forwards
 }
+
+.table-gysr{
+    box-shadow: -4px 0px 50px rgba(74, 40, 255, 0.1);
+    border-radius: 25px;
+}
+.table-icon{
+    filter: invert(1) brightness(0);
+}
 .CollaboratorsMarquee{
     background-color: var(--home-page-background);
     --gap: 20px;
