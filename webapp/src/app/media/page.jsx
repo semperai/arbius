@@ -2,30 +2,61 @@
 import React from 'react';
 import Image from 'next/image';
 import { Fade } from 'react-awesome-reveal';
-import step1 from '../assets/images/audit_completed.png'
+
 import arrow from '../assets/images/right_arrow.png'
-import step2 from '../assets/images/aius_staking.png'
-import step3 from '../assets/images/upgrade_tokenomics.png'
-const posts = [
+import step1 from '../assets/images/staking_upgrade.jpg'
+import step2 from '../assets/images/armica_upgrade.jpg'
+import step3 from '../assets/images/tokenomics_upgrade.jpg'
+import step4 from '../assets/images/kasumi_upgrade.jpg'
+import step5 from '../assets/images/partnership_update.jpg'
+import videoeg1 from '../assets/images/staking.mp4'
+import videoeg2 from '../assets/images/Amica Update.mp4'
+import videoeg3 from '../assets/images/Tokenomics Upgrade.mp4'
+import videoeg4 from '../assets/images/Kasumi_Upgrade.mp4'
+import videoeg5 from '../assets/images/Partnership_Upgrade.mp4'
+import VideoThumbnail from '../components/VideoComponent/videoThumbnail';
+const posts =[
   {
-    title: "Upgrade for Tokenomics",
-    description: "Upgrade for Tokenomics Upgrade.",
-    date: "June 5, 2024",
-    image: step1
+    "title": "Introducing AIUS Staking",
+    "description": "$AIUS staking is being worked on. Staked holders can enjoy a constant APR/APY and wield their voting power to determine which AI models will receive more rewards. Get ready to shape the future of computing and network incentives.",
+    "date": "May 27, 2024",
+    "image": step1,
+    "videoFile": videoeg1,
+    "url": "https://x.com/arbius_ai/status/1795184308199551008"
   },
   {
-    title: "Audit is Completed",
-    description: "Audit is Completed, for the final phase of new tokenomics.",
-    date: "June 2, 2024",
-    image: step2
+    "title": "First DAO Proposal",
+    "description": "Arbius and @exa_bits have joined forces to redefine the AI sector and prioritize the compute of the many over the compute of the abundant few. Together, we are redefining AI hosting and ownership, putting the power back in the hands of the people.",
+    "date": "May 3, 2024",
+    "image": step5,
+    "videoFile": videoeg5,
+    "url": "https://x.com/arbius_ai/status/1790367805352603820"
   },
   {
-    title: "AIUS Staking is in the works",
-    description: "AIUS Staking is in the works.",
-    date: "June 1, 2024",
-    image: step3
+    "title": "Tokenomics Upgrade Announcement",
+    "description": "The Arbius Network Upgrade is imminent. The Arbius network is about to undergo its most significant upgrade since its launch. We are introducing a new feature where task creators will now receive a 10% reward from the rewards pool. This will add new possibilities for users.",
+    "date": "April 30, 2024",
+    "image": step3,
+    "videoFile": videoeg3,
+    "url": "https://x.com/arbius_ai/status/1785401938550444218"
+  },
+  {
+    "title": "Kasumi-2 Released",
+    "description": "We are thrilled to announce Kasumi2 Open Beta. Kasumi2 is an autonomous AI agent that performs actions in the Arbius network. It is a miner, has its own wallet, can retrieve results from Arbius AI models, and runs its own individual LLM model.",
+    "date": "April 27, 2024",
+    "image": step4,
+    "videoFile": videoeg4,
+    "url": "https://x.com/arbius_ai/status/1783980046111150589"
+  },
+  {
+    "title": "Amica Update",
+    "description": "Say hello to the new Amica soon! A small update has been deployed with the following features: Load/Save Conversations: Easily save and load your chats right where you left them last time. Ability to Upload Images: Share photos and visuals to improve your conversations.",
+    "date": "April 22, 2024",
+    "image": step2,
+    "videoFile": videoeg2,
+    "url": "https://x.com/arbius_ai/status/1800228956651573748"
   }
-];
+]
 
 export default function ArbiusMedia() {
   return (
@@ -35,7 +66,7 @@ export default function ArbiusMedia() {
           <div className="flex items-center lg:flex-row flex-col justify-between pb-5">
             <div className="lg:w-[70%] 2xl:w-[50%] w-[100%]">
               <div>
-                  <h2 className="font-Sequel-Sans-Medium-Head lg:text-header-xl 2xl:text-header-xl text-mobile-header text-black-text mb-2 fade-container">
+                  <h2 className="lato-regular lg:text-header-xl 2xl:text-header-xl text-mobile-header text-black-text mb-2 fade-container">
                       <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
                       Arbius Media
                       </Fade>
@@ -44,7 +75,7 @@ export default function ArbiusMedia() {
               <div>
                   <Fade direction="up" triggerOnce={true}>
                       <div className="mb-4">
-                          <p className="text-subtext-three font-Sequel-Sans-Light-Body text-large-description">
+                          <p className="text-subtext-three lato-regular text-large-description">
                           See what’s happening across the Arbius Ecosystem.
                           </p>
                       </div>
@@ -52,7 +83,7 @@ export default function ArbiusMedia() {
               </div>
               <button type="button" className="relative group bg-white-background border-[1px] border-original-black py-2  px-8 rounded-full flex items-center  gap-3">
                   <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <p className="relative z-10 text-original-black font-Sequel-Sans-Medium-Head group-hover:text-original-white">View more</p>
+                  <p className="relative z-10 text-original-black lato-bold group-hover:text-original-white">View more</p>
                   <Image src={arrow} width={18} className="relative z-10 filter invert group-hover:filter-none"  alt="right arrow"/>
               </button>
             </div>
@@ -62,22 +93,11 @@ export default function ArbiusMedia() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {posts.map((post, index) => (
             <div key={index}>
-              <div
-                id="image-parent"
-                className="relative border-transparent w-[320px] h-[260px] flex justify-center items-center rounded-[50px] 2xl:m-[auto]"
-              >
-                <div className="relative">
-                  <Image
-                    className="h-[auto] w-[auto]"
-                    src={post.image}
-                    alt={post.title}
-                    width={380}
-                    height={300}
-                  />
-                </div>
+              <div id="image-parent" className="relative bg-models-gradient border-transparent w-[350px] h-[260px] flex justify-center items-center rounded-[30px] ">
+                  <VideoThumbnail thumbnailSrc={post.image} altText="kokok" videoFile={post.videoFile} url={post.url}/>
               </div>
               <div className="py-2">
-                <h2 className="text-xl font-Sequel-Sans-Medium-Head text-gray-800">{post.title}</h2>
+                <h2 className="text-xl lato-regular text-gray-800">{post.title}</h2>
                 <p className="text-gray-400 mt-2 ">{post.date}</p>
               </div>
             </div>

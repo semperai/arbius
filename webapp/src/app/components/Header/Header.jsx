@@ -186,8 +186,10 @@ export default function Header() {
                 </div>
               </div>
             </Link>
-
-            <div className="item lg:hidden hover:!text-purple-text">Media</div>
+            <a href="/media" target="_blank">
+             <div className="item lg:block hover:!text-purple-text">Media</div>
+            </a>
+            
           </div>
           <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[40px] lg:mb-[0]">
             <div>
