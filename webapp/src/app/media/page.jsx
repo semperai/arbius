@@ -9,11 +9,6 @@ import step2 from '../assets/images/armica_upgrade.jpg'
 import step3 from '../assets/images/tokenomics_upgrade.jpg'
 import step4 from '../assets/images/kasumi_upgrade.jpg'
 import step5 from '../assets/images/partnership_update.jpg'
-import videoeg1 from '../assets/images/staking.mp4'
-import videoeg2 from '../assets/images/Amica Update.mp4'
-import videoeg3 from '../assets/images/Tokenomics Upgrade.mp4'
-import videoeg4 from '../assets/images/Kasumi_Upgrade.mp4'
-import videoeg5 from '../assets/images/Partnership_Upgrade.mp4'
 import VideoThumbnail from '../components/VideoComponent/videoThumbnail';
 const posts =[
   {
@@ -21,7 +16,6 @@ const posts =[
     "description": "$AIUS staking is being worked on. Staked holders can enjoy a constant APR/APY and wield their voting power to determine which AI models will receive more rewards. Get ready to shape the future of computing and network incentives.",
     "date": "May 27, 2024",
     "image": step1,
-    "videoFile": videoeg1,
     "url": "https://x.com/arbius_ai/status/1795184308199551008"
   },
   {
@@ -29,7 +23,6 @@ const posts =[
     "description": "Arbius and @exa_bits have joined forces to redefine the AI sector and prioritize the compute of the many over the compute of the abundant few. Together, we are redefining AI hosting and ownership, putting the power back in the hands of the people.",
     "date": "May 3, 2024",
     "image": step5,
-    "videoFile": videoeg5,
     "url": "https://x.com/arbius_ai/status/1790367805352603820"
   },
   {
@@ -37,7 +30,6 @@ const posts =[
     "description": "The Arbius Network Upgrade is imminent. The Arbius network is about to undergo its most significant upgrade since its launch. We are introducing a new feature where task creators will now receive a 10% reward from the rewards pool. This will add new possibilities for users.",
     "date": "April 30, 2024",
     "image": step3,
-    "videoFile": videoeg3,
     "url": "https://x.com/arbius_ai/status/1785401938550444218"
   },
   {
@@ -45,7 +37,6 @@ const posts =[
     "description": "We are thrilled to announce Kasumi2 Open Beta. Kasumi2 is an autonomous AI agent that performs actions in the Arbius network. It is a miner, has its own wallet, can retrieve results from Arbius AI models, and runs its own individual LLM model.",
     "date": "April 27, 2024",
     "image": step4,
-    "videoFile": videoeg4,
     "url": "https://x.com/arbius_ai/status/1783980046111150589"
   },
   {
@@ -53,7 +44,6 @@ const posts =[
     "description": "Say hello to the new Amica soon! A small update has been deployed with the following features: Load/Save Conversations: Easily save and load your chats right where you left them last time. Ability to Upload Images: Share photos and visuals to improve your conversations.",
     "date": "April 22, 2024",
     "image": step2,
-    "videoFile": videoeg2,
     "url": "https://x.com/arbius_ai/status/1800228956651573748"
   }
 ]
@@ -94,11 +84,11 @@ export default function ArbiusMedia() {
           {posts.map((post, index) => (
             <div key={index}>
               <div id="image-parent" className="relative bg-models-gradient border-transparent w-[350px] h-[260px] flex justify-center items-center rounded-[30px] ">
-                  <VideoThumbnail thumbnailSrc={post.image} altText="kokok" videoFile={post.videoFile} url={post.url}/>
+                  <VideoThumbnail thumbnailSrc={post.image} altText="kokok"  url={post.url}/>
               </div>
               <div className="py-2">
-                <h2 className="text-xl lato-regular text-gray-800">{post.title}</h2>
-                <p className="text-gray-400 mt-2 ">{post.date}</p>
+                <h2 className="text-xl lato-bold text-gray-800">{post.title}</h2>
+                <p className="text-gray-400 mt-2 lato-Regular">{post.date}</p>
               </div>
             </div>
           ))}

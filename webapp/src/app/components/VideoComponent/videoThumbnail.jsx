@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 
-const VideoThumbnail = ({ thumbnailSrc, altText,videoFile ,url}) => {
+const VideoThumbnail = ({ thumbnailSrc, altText ,url}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -21,15 +21,7 @@ const VideoThumbnail = ({ thumbnailSrc, altText,videoFile ,url}) => {
           objectFit="cover"
         />
         </a>
-      ) : (
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          src={videoFile}
-          autoPlay
-          muted
-          loop
-        />
-      )}
+      ) : null}
     </div>
   );
 };
