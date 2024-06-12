@@ -49,7 +49,6 @@ export default function ArbiusMedia() {
                           </p>
                       </div>
                   </Fade>
-                  
               </div>
               <button type="button" className="relative group bg-white-background border-[1px] border-original-black py-2  px-8 rounded-full flex items-center  gap-3">
                   <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
