@@ -103,7 +103,7 @@ export default function Header() {
                         src={gysr}
                         alt=""
                       />
-                      <div>GYSR</div>
+                      <div className="lato-bold">GYSR</div>
                       <div>Provide liquidity, earn AIUS rewards.</div>
                     </div>
                   </Link>
