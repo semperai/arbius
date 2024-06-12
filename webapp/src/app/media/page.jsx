@@ -2,7 +2,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Fade } from 'react-awesome-reveal';
-
+import Link from 'next/link';
 import arrow from '../assets/images/right_arrow.png'
 import step1 from '../assets/images/staking_upgrade.jpg'
 import step2 from '../assets/images/armica_upgrade.jpg'
@@ -71,11 +71,13 @@ export default function ArbiusMedia() {
                       </div>
                   </Fade>
               </div>
-              <button type="button" className="relative group bg-white-background border-[1px] border-original-black py-2  px-8 rounded-full flex items-center  gap-3 hover:border-none">
-                  <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500 "></div>
-                  <p className="relative z-10 text-original-black lato-bold group-hover:text-original-white ">View more</p>
-                  <Image src={arrow} width={18} className="relative z-10 filter invert group-hover:filter-none"  alt="right arrow"/>
-              </button>
+              <Link href="https://x.com/arbius_ai" target="_blank">
+                <button type="button" className="relative group bg-white-background border-[1px] border-original-black py-2  px-8 rounded-full flex items-center  gap-3 hover:border-none">
+                    <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500 "></div>
+                    <p className="relative z-10 text-original-black lato-bold group-hover:text-original-white ">View more</p>
+                    <Image src={arrow} width={18} className="relative z-10 filter invert group-hover:filter-none"  alt="right arrow"/>
+                </button>
+              </Link>
             </div>
                       
           </div>
