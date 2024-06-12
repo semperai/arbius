@@ -24,7 +24,7 @@ export default function Footer(){
         {
             id:"6",
             name:"Media",
-            link:"https://arbius.ai/media"
+            link:"/media"
         },
         {
             id:"2",
@@ -46,6 +46,16 @@ export default function Footer(){
             name:"Explorer",
             link:"https://arbius.ai/explorer"
         },
+        {
+            id:"5",
+            name:"veAIUS",
+            link:"/stake/aius"
+        },
+        {
+            id:"6",
+            name:"GYSR",
+            link:"/#"
+        }
       
        
     ]
@@ -122,11 +132,25 @@ export default function Footer(){
                         </div>
                         <div>
                             {
-                                footerLinks.slice(-3).map((link)=>{
+                                footerLinks.slice(-5,-2).map((link)=>{
                                     return(
                                         <Link href={link.link} target="_blank" key={link.id}>
                                             <div>
                                                 <p className="text-[#393939]  hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
+                                            </div>
+                                        </Link>
+                                    )
+                                })
+                            }
+                        
+                        </div>
+                        <div>
+                            {
+                                footerLinks.slice(-2).map((link)=>{
+                                    return(
+                                        <Link href={link.link}  key={link.id}>
+                                            <div>
+                                                <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                             </div>
                                         </Link>
                                     )

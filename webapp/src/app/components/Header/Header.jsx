@@ -86,7 +86,7 @@ export default function Header() {
 
             <div className="link-with-image relative group w-[auto]">
               <div
-                className={`link lg:block ${activeLink=='stake' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
+                className={`link lg:block ${activeLink=='stake/aius' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
                 onClick={() => setStakingOpen(!stakingOpen)}
               >
                 Staking
@@ -127,12 +127,11 @@ export default function Header() {
                     </div>
                   </Link>
                   <Link
-                    href={"https://swap.cow.fi/#/1/swap/WETH/AIUS"}
-                    target="_blank"
+                    href={"/stake/aius"}
                   >
                     <div className="staking-block relative">
                         <div className="absolute top-2  lg:block hidden p-2 right-2 bg-background-gradient  rounded-2xl">
-                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
+                          {/* <p className="text-original-white lato-regular text-[12px]">Coming Soon</p> */}
                         </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
