@@ -44,10 +44,6 @@ module.exports = {
         "Geist-Regular":["Geist-Regular"],
         "At-Hauss": ["AtHaussAero-Light"]
     },
-    //  fontSize:{
-    //   'header':"55px",
-    //   "para":"20px"
-    // },
     backgroundImage: theme => ({
       'media-gradient': 'linear-gradient(110.02deg, rgba(146, 189, 255, 0.02) 16.98%, rgba(81, 54, 255, 0.1) 60.14%, rgba(253, 253, 255, 0.3) 111.08%)',
       'democratic-gradient':"linear-gradient(142.65deg, rgba(146, 189, 255, 0.02) -27.23%, rgba(81, 54, 255, 0.1) 31.69%, rgba(255, 255, 255, 0.159364) 60.92%, rgba(212, 179, 255, 0.2) 101.25%)",

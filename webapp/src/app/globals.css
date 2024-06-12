@@ -265,3 +265,25 @@
 .stake-box-shadow{
     box-shadow: -4px 0px 50px rgba(74, 40, 255, 0.1);
 }
+
+
+/* hiding arrows in input type number*/
+/* WebKit browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* IE 10+ */
+input[type="number"]::-ms-clear,
+input[type="number"]::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}

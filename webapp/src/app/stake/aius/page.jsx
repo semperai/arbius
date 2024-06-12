@@ -8,13 +8,13 @@ export default function AIUS(){
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div>
                     <div>
-                        <h2 className="font-Sequel-Sans-Medium-Head lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mb-4">ve-AIUS Staking</h2>
+                        <h2 className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mb-4">veAIUS Staking</h2>
                     </div>
-                    <div className="flex justify-between">
-                        <div className="w-[48%]">
+                    <div className="flex lg:flex-row flex-col lg:gap-0 gap-4 justify-between">
+                        <div className="lg:w-[48%] w-[100%]">
                             <Stake/>
                         </div>
-                        <div className="w-[48%]">
+                        <div className="lg:w-[48%] w-[100%]">
                            <div className="mb-4">
                                 <Steps/>
                             </div>
