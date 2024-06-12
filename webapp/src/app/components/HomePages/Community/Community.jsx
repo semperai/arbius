@@ -17,7 +17,6 @@ export default function Community(){
             link:"https://arbiusdata.io/",
             nameImage:arbius_data,
             background:"bg-[url('./assets/images/arbiusdata_background.png')]",
-            hover_background:"hover:bg-[url('./assets/images/arbiusdata_hover_background.png')]"
         },
         {
             id:"2",
@@ -27,7 +26,6 @@ export default function Community(){
             buttonText:"Visit Swap Market",
             link:"https://app.uniswap.org/swap",
             background:"bg-[url('./assets/images/swap_market_background.png')]",
-            hover_background:"hover:bg-[url('./assets/images/swap_market_hover_background.png')]"
         }
     ]
     return (
@@ -76,13 +74,13 @@ export default function Community(){
                                                     <p className="text-card-heading lato-regular text-[16px] mt-6">{platform.content}</p>
                                                 </div>
                                                 <div className="mt-6">
-                                                <Link href={platform.link} target="_blank" className="inline-block md:absolute bottom-12">   
-                                                    <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3">
-                                                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                                        <p className="relative z-10 mb-1 text-original-white lato-bold">{platform.buttonText}</p>
-                                                        <Image src={arrow} width={18} className="relative z-10"  alt="right arrow"/>
-                                                    </button>
-                                                </Link>
+                                                    <Link href={platform.link} target="_blank" className="inline-block md:absolute bottom-12">   
+                                                        <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3">
+                                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                            <p className="relative z-10 mb-1 text-original-white lato-bold">{platform.buttonText}</p>
+                                                            <Image src={arrow} width={18} className="relative z-10"  alt="right arrow"/>
+                                                        </button>
+                                                    </Link>
                                                 </div>
                                             </div>
                                         )

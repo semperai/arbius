@@ -54,7 +54,6 @@ export default function Models() {
       setStopEffect(true);
       setSelectedModel(item);
     },500)
-    // setBackground(AllModels[item].background);
   };
 
   useEffect(() => {

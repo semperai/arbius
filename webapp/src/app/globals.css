@@ -209,20 +209,11 @@
     overflow: hidden;
     user-select: none;
     gap: var(--gap);
-    /* padding-bottom: 130px; */
     max-width: var(--max-width-container);
     width: 100%;
     margin: auto;
 }
 .MarqueeContainer {
-    /*white-space: nowrap;
-    box-sizing: border-box;
-    animation: marquee 30s linear infinite;
-    display: flex;
-    width: 100%;
-    scroll-snap-type: repeat;
-    scroll-behavior: linear;
-    justify-content: space-between;*/
     animation: marquee 30s linear infinite;
     flex-shrink: 0;
     display: flex;
@@ -259,7 +250,6 @@
     height: auto;
     width: 100%;
     object-fit: cover;
-    /* filter: var(--collaborators-logo-filter); */
 }
 .Gradient-transparent-text{
     -webkit-text-fill-color: transparent;

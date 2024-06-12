@@ -71,12 +71,10 @@ export default function Footer(){
         }
     ]
     const scrollTop=()=>{
-        // document.querySelector("#scrollToTopButton").addEventListener("click", function() {
             window.scrollTo({
               top: 0,
               behavior: 'smooth'
             });
-        //   });
     }
     return(
         <div className="bg-white-background lg:py-20 py-10">
@@ -137,10 +135,10 @@ export default function Footer(){
                             </div>
                         </div>
                     </div>
-                            <div className="bg-[#F4F4F4] h-[1.5px] w-[100%]"></div>
-                            <div className="mt-10">
-                                <p className="text-copyright-text text-[14px] lato-regular">&copy; Arbius 2024</p>
-                            </div>
+                    <div className="bg-[#F4F4F4] h-[1.5px] w-[100%]"></div>
+                    <div className="mt-10">
+                        <p className="text-copyright-text text-[14px] lato-regular">&copy; Arbius 2024</p>
+                    </div>
                 </div>
                 <div className="lg:hidden block">
                     <div className="flex lm:flex-row flex-col justify-between w-[100%] ">
