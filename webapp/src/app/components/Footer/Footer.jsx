@@ -22,6 +22,11 @@ export default function Footer(){
             link:"https://arbius.ai/upgrade"
         },
         {
+            id:"6",
+            name:"Media",
+            link:"https://arbius.ai/media"
+        },
+        {
             id:"2",
             name:"Staking",
             link:"https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"

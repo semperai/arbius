@@ -9,20 +9,39 @@ import arbius from "../../assets/images/arbius_logo_without_name.png";
 import gysr from "../../assets/images/gysr_logo_without_name.png";
 import kandinsky from "../../assets/images/kandinsky.png";
 import Image from "next/image";
+// import { useRouter } from 'next/router';
+import { usePathname ,useRouter} from "next/navigation";
 import AnimateHeight from "react-animate-height";
 import Link from "next/link";
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [stakingOpen, setStakingOpen] = useState(true);
   const [modelsOpen, setModelsOpen] = useState(true);
+  const [activeLink, setActiveLink] = useState("")
   const [lastScrollTop, setLastScrollTop] = useState(0);
-
+  const router = useRouter();
+  const pathname = usePathname()
+  const route = pathname.replace("/","")
   useEffect(() => {
     if (window.innerWidth < 1024) {
       setStakingOpen(false);
       setModelsOpen(false);
     }
   }, []);
+  useEffect(()=>{
+       
+    if (typeof window !== 'undefined') {
+        
+       
+        if(route){
+            setActiveLink(route)
+        }
+    
+  }
+  return()=>{
+       
+  }
+  },[route])
 
   useEffect(() => {
     function handleScroll() {
@@ -67,7 +86,7 @@ export default function Header() {
 
             <div className="link-with-image relative group w-[auto]">
               <div
-                className="link hover:!text-purple-text"
+                className={`link lg:block ${activeLink=='stake' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
                 onClick={() => setStakingOpen(!stakingOpen)}
               >
                 Staking
@@ -202,8 +221,8 @@ export default function Header() {
                 </div>
               </div>
             </Link>
-            <a href="/media" target="_blank">
-             <div className="item lg:block hover:!text-purple-text">Media</div>
+            <a href="/media">
+             <div className={`item lg:block ${activeLink=='media' ? '!text-purple-text' : 'hover:!text-purple-text'}`}>Media</div>
             </a>
             
           </div>
