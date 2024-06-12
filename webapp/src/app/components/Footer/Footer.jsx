@@ -99,7 +99,10 @@ export default function Footer(){
                     <div className="flex justify-between mb-10">
                         <div>
                             <div>
-                                <Image src={arbius_logo} className="h-[40px] w-[auto]" alt="arbius"/>
+                                <a href="/">
+                                    <Image src={arbius_logo} className="h-[40px] w-[auto]" alt="arbius"/>
+                                </a>
+                                
                             </div>
                             <div className="flex items-center gap-4 mt-6">
                                 {
@@ -121,7 +124,7 @@ export default function Footer(){
                             {
                                 footerLinks.slice(0,3).map((link)=>{
                                     return(
-                                        <Link href={link.link} target="_blank" key={link.id}>
+                                        <Link href={link.link} target={link.link=="/media"?"":"_blank"} key={link.id}>
                                             <div>
                                                 <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                             </div>

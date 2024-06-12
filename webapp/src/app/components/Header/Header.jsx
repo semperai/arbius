@@ -68,11 +68,13 @@ export default function Header() {
     >
       <div className="flex justify-between py-4 w-[90%] m-auto max-w-center-width">
         <div className="flex items-center">
+          <a href="/">
           <Image
             className="h-[40px] w-[auto]"
             src={ArbiusLogo}
             alt="Arbius Logo"
           />
+          </a>
         </div>
         <div
           className={`${
