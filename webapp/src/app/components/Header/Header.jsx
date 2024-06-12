@@ -96,7 +96,7 @@ export default function Header() {
                  
                     <div className="staking-block relative">
                         <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
                         </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
@@ -113,7 +113,7 @@ export default function Header() {
                   >
                     <div className="staking-block relative">
                         <div className="absolute top-2  lg:block hidden p-2 right-2 bg-background-gradient  rounded-2xl">
-                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
                         </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
@@ -147,7 +147,7 @@ export default function Header() {
                   <Link href={"https://arbius.ai/generate"} target="_blank">
                     <div className="staking-block">
                       <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
                         </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
@@ -161,7 +161,7 @@ export default function Header() {
                   <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
                     <div className="staking-block">
                        <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
                         </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]]"
@@ -175,7 +175,7 @@ export default function Header() {
                   <Link target="_blank" href={"https://amica.arbius.ai/"}>
                     <div className="staking-block">
                        <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                          <p className="text-original-white font-Sequel-Sans-Light-Body text-[12px]">Coming Soon</p>
+                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
                         </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
@@ -215,7 +215,7 @@ export default function Header() {
                 className="m-[auto] relative group bg-black lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
               >
                 <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="font-Sequel-Sans-Medium-Head relative mt-[-1.5px] z-10 text-original-white">
+                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white">
                   Connect
                 </div>
               </button>

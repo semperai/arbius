@@ -110,7 +110,7 @@ export default function Footer(){
                                     return(
                                         <Link href={link.link} target="_blank" key={link.id}>
                                             <div>
-                                                <p className="text-[#393939] hover:text-purple-text font-Sequel-Sans-Light-Body text-[14px] mb-4">{link.name}</p>
+                                                <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                             </div>
                                         </Link>
                                     )
@@ -123,7 +123,7 @@ export default function Footer(){
                                     return(
                                         <Link href={link.link} target="_blank" key={link.id}>
                                             <div>
-                                                <p className="text-[#393939]  hover:text-purple-text font-Sequel-Sans-Light-Body text-[14px] mb-4">{link.name}</p>
+                                                <p className="text-[#393939]  hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                             </div>
                                         </Link>
                                     )
@@ -132,14 +132,14 @@ export default function Footer(){
                         </div>
                         <div>
                             <div className="flex items-center gap-4 cursor-pointer group" onClick={scrollTop}>
-                               <p className="text-[#393939] font-Sequel-Sans-Light-Body text-[14px] group-hover:text-purple-text">Back to top</p>
+                               <p className="text-[#393939] lato-regular text-[14px] group-hover:text-purple-text">Back to top</p>
                                <Image src={small_arrow} className="rotate-[-90deg]" alt="arrow" width={8}/>
                             </div>
                         </div>
                     </div>
                             <div className="bg-[#F4F4F4] h-[1.5px] w-[100%]"></div>
                             <div className="mt-10">
-                                <p className="text-copyright-text text-[14px] font-Sequel-Sans-Light-Body">&copy; Arbius 2024</p>
+                                <p className="text-copyright-text text-[14px] lato-regular">&copy; Arbius 2024</p>
                             </div>
                 </div>
                 <div className="lg:hidden block">
@@ -163,7 +163,7 @@ export default function Footer(){
                                 }
                             </div>
                             <div className="mt-10">
-                                <p className="text-copyright-text text-[13px] font-Sequel-Sans-Light-Body">&copy; Arbius 2024</p>
+                                <p className="text-copyright-text text-[13px] lato-regular">&copy; Arbius 2024</p>
                             </div>
                         </div>
                         <div>
@@ -173,7 +173,7 @@ export default function Footer(){
                                         return(
                                             <Link href={link.link} target="_blank" key={link.id}>
                                                 <div>
-                                                    <p className="text-[#393939] hover:text-purple-text font-Sequel-Sans-Light-Body text-right font-medium text-[16px]">{link.name}</p>
+                                                    <p className="text-[#393939] hover:text-purple-text lato-regular text-right font-medium text-[16px]">{link.name}</p>
                                                 </div>
                                             </Link>
                                         )

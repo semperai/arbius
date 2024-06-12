@@ -36,12 +36,12 @@ export default function Community(){
                 <div>
                     <div>
                         <div className="mb-6">
-                            <h2 className="font-Sequel-Sans-Medium-Head lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text fade-container lg:leading-none leading-[60px] ">
+                            <h2 className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text fade-container lg:leading-none leading-[60px] ">
                                 <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}> 
                                    dApps & Community
                                 </Fade>
                             </h2>
-                            <h2 className="font-Sequel-Sans-Medium-Head lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text flex items-center gap-4 fade-container lg:mt-2 lg:leading-none leading-[60px]">
+                            <h2 className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text flex items-center gap-4 fade-container lg:mt-2 lg:leading-none leading-[60px]">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                                   Initiatives
                                 </Fade>
@@ -54,7 +54,7 @@ export default function Community(){
                         </div>
                         <Fade direction="up" triggerOnce={true}>
                             <div className="mb-12">
-                                <p className="text-subtext-three font-Sequel-Sans-Light-Body text-para lg:w-[70%] w-[100%]">Discover diverse dApps and community initiatives on the Arbius Network, each supported by our DAO and enhancing our blockchain ecosystem with innovative and collaborative services.</p>
+                                <p className="text-subtext-three lato-regular text-para lg:w-[70%] w-[100%]">Discover diverse dApps and community initiatives on the Arbius Network, each supported by our DAO and enhancing our blockchain ecosystem with innovative and collaborative services.</p>
                             </div>
                         </Fade>
                     </div>
@@ -69,17 +69,17 @@ export default function Community(){
                                                     {
                                                         platform?.nameType==="Image"?
                                                         <Image src={platform?.nameImage} alt={platform?.name} width={150}/>
-                                                        :<h3 className="text-card-heading font-Sequel-Sans-Medium-Head text-[25px]">{platform?.name}</h3>
+                                                        :<h3 className="text-card-heading lato-bold text-[25px]">{platform?.name}</h3>
                                                     }
                                                 </div>
                                                 <div>
-                                                    <p className="text-card-heading font-Sequel-Sans-Light-Body text-[16px] mt-6">{platform.content}</p>
+                                                    <p className="text-card-heading lato-regular text-[16px] mt-6">{platform.content}</p>
                                                 </div>
                                                 <div className="mt-6">
                                                 <Link href={platform.link} target="_blank" className="inline-block md:absolute bottom-12">   
                                                     <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3">
                                                         <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                                        <p className="relative z-10 text-original-white font-Sequel-Sans-Medium-Head">{platform.buttonText}</p>
+                                                        <p className="relative z-10 text-original-white lato-bold">{platform.buttonText}</p>
                                                         <Image src={arrow} width={18} className="relative z-10"  alt="right arrow"/>
                                                     </button>
                                                 </Link>

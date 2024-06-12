@@ -35,6 +35,15 @@
     margin: 0;
     padding: 0;
 }
+.lato-regular {
+    font-family: var(--font-lato);
+    font-weight: 400;
+  }
+  
+  .lato-bold {
+    font-family: var(--font-lato);
+    font-weight: 600;
+  }
 .fade-container>div{
     white-space:pre!important;
 }

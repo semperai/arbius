@@ -14,8 +14,8 @@ export default function Quote(){
                             <Image src={quote} alt="quote" width={30}/>
                         </div>
                         <div className="w-[80%] mx-auto" >
-                            <p className="text-black-text font-Sequel-Sans-Medium-Head text-center text-[20px]">The price of any commodity tends to gravitate toward the production cost. If the price is below cost, then production slows down. If the price is above cost, profit can be made by generating and selling more. At the same time, the increased production would increase the difficulty, pushing the cost of generating towards the price.</p>
-                            <p className=" mt-6 font-Sequel-Sans-Light-Body text-center text-original-black font-normal">-Satoshi Nakamoto</p>
+                            <p className="text-black-text lato-bold text-center text-[20px]">The price of any commodity tends to gravitate toward the production cost. If the price is below cost, then production slows down. If the price is above cost, profit can be made by generating and selling more. At the same time, the increased production would increase the difficulty, pushing the cost of generating towards the price.</p>
+                            <p className=" mt-6 lato-regular text-center text-original-black font-normal">-Satoshi Nakamoto</p>
                         </div>
                         <div >
                             <Image className="ml-auto mt-[-50px]" src={quote_two} alt="quote" width={30}/>
