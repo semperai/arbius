@@ -60,11 +60,11 @@ export default function Stake(){
                 <div className="flex items-center justify-between">
                     <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border">
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">APR</p>
-                        <p className="md:text-[20px] text-[16px] lato-bold text-original-white">75%</p>
+                        <p className="md:text-[20px] text-[16px] lato-bold text-original-white">0%</p>
                     </div>
                     <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border">
-                        <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">ve-AIUS Balance</p>
-                        <p className="md:text-[20px] text-[16px] lato-bold text-original-white">0.00 ve-AIUS</p>
+                        <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">veAIUS Balance</p>
+                        <p className="md:text-[20px] text-[16px] lato-bold text-original-white">0.00 veAIUS</p>
                     </div>
                 </div>
             </div>
