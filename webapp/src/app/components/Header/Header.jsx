@@ -34,7 +34,7 @@ export default function Header() {
         
        
         if(route){
-            setActiveLink(route)
+            // setActiveLink(route)
         }
     
   }
