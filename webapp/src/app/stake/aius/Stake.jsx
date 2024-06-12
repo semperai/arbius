@@ -33,7 +33,7 @@ export default function Stake(){
                         <div className="mb-8">
                             <ReactSlider
                                 min={0}
-                                max={240}
+                                max={24}
                                 step={1}
                                 onAfterChange={(value, index) =>
                                     {
