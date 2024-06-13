@@ -128,7 +128,7 @@ export default function Models() {
           <Fade direction="up" triggerOnce={true}>
             <div>
               <div className="text-para text-subtext-three lato-regular text-subtext-two">
-                Model creators are able to set a base fee for invocations, allowing them to monetize their creations. A portion of the revenue is also distributed to Arbius DAO's treasury and to those who hold veAIUS.
+                Model creators are able to set a base fee for invocations, allowing them to monetize their creations. A portion of the revenue is also distributed to Arbius DAO&apos;s treasury and to those who hold veAIUS.
               </div>
             </div>
           </Fade>
