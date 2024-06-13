@@ -3,9 +3,6 @@ import React, { useState, useEffect } from "react";
 import amica from "../../../assets/images/amica.jpg";
 import generativeAI from "../../../assets/images/ai_generation.jpg";
 import marketplace from "../../../assets/images/marketplace.jpg";
-import armica_mobile from "../../../assets/images/armica_mobile.png";
-import generativeAI_mobile from "../../../assets/images/generativeAi_mobile.png";
-import marketplace_mobile from "../../../assets/images/marketplace_mobile.png";
 import Image from "next/image";
 import right_arrow from "../../../assets/images/arrow.png";
 import arbius_logo_round from "../../../assets/images/arbius_logo_round.png";
@@ -15,7 +12,6 @@ export default function Models() {
   const [selectedModel, setSelectedModel] = useState("Generative AI");
   const [stopEffect, setStopEffect] = useState(false);
   const [opacity, setOpacity] = useState(true);
-  const [windowWidth, setWindowWidth] = useState("")
   const [index, setActiveIndex] = useState(0)
   const [modelFadeIn, setModelFadeIn] = useState(true);
   const AllModels = {
@@ -23,20 +19,17 @@ export default function Models() {
       text: "Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.",
       image: generativeAI,
       background: "bg-ai-gradient",
-      mobileImage: generativeAI_mobile,
     },
     "Amica": {
       text: "Amica is an open source AI persona chatbot interface that provides emotion, bi-directional text to speech, audial interpretation, and visual recognition based interactions.",
       image: amica,
       background: "bg-ai-gradient",
       link: "https://amica.arbius.ai/",
-      mobileImage:armica_mobile,
     },
     "Marketplace": {
       text: "Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here. Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.",
       image: marketplace,
       background: "bg-ai-gradient",
-      mobileImage: marketplace_mobile,
     },
   };
   const [background, setBackground] = useState(AllModels["Generative AI"].background);
@@ -92,9 +85,7 @@ export default function Models() {
 
   useEffect(() => {
     let AllModelNames = Object.keys(AllModels);
-    if (typeof window !== 'undefined') {
-      setWindowWidth(window.innerWidth)
-    }
+
     const interval = setInterval(() => {
       let currentIndex = index + 1;
 
