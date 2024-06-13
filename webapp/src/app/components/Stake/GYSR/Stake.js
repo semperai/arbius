@@ -9,7 +9,7 @@ function Stake() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-mobile-section-width lg:w-[90%] m-[auto]">
 
                 {isStakeClicked ? (<>
-                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[500px] bg-white-background stake-card">
+                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[auto] bg-white-background stake-card">
                         <div>
                             <h1 className="text-[15px] lg:text-[20px] font-medium">Stake</h1>
                             <div className="flex justify-start items-end mt-6 gap-20">
@@ -60,7 +60,7 @@ function Stake() {
 
                     </div>
 
-                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[500px] bg-white-background stake-card">
+                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[auto] bg-white-background stake-card">
 
                         <div>
                             <h1 className="text-[15px] lg:text-[20px] font-medium">Unstake</h1>
@@ -166,16 +166,16 @@ function Stake() {
                     </div>
 
                 </>) : (<>
-                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[350px] lg:h-[500px] bg-white-background stake-card">
+                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[350px] lg:h-[auto] bg-white-background stake-card">
                         <div>
                             <h1 className="text-[15px] lg:text-[20px] font-medium">Stake</h1>
                             <p className="text-[11px] lg:text-para mt-6">Please connect a wallet to interact with this pool!</p>
                         </div>
 
 
-                        <div className="flex justify-center items-center ">
+                        <div className="flex justify-center items-center lg:mt-16 lg:mb-16">
 
-                            <div className="relative w-[100px] h-[100px] lg:w-[150px] lg:h-[150px]">
+                            <div className="relative w-[100px] h-[100px] lg:w-[100px] lg:h-[100px]">
 
                                 <Image src={walletImage} fill />
 
@@ -194,16 +194,16 @@ function Stake() {
 
                     </div>
 
-                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[350px] lg:h-[500px] bg-white-background stake-card">
+                    <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[350px] lg:h-[auto] bg-white-background stake-card">
                         <div>
                             <h1 className="text-[15px] lg:text-[20px] font-medium">Unstake</h1>
                             <p className="text-[11px] lg:text-para mt-6">Please connect a wallet to interact with this pool!</p>
                         </div>
 
 
-                        <div className="flex justify-center items-center ">
+                        <div className="flex justify-center items-center lg:mt-16 lg:mb-16">
 
-                            <div className="relative w-[100px] h-[100px] lg:w-[150px] lg:h-[150px]">
+                            <div className="relative w-[100px] h-[100px] lg:w-[100px] lg:h-[100px]">
 
                                 <Image src={walletImage} fill />
 
