@@ -46,7 +46,7 @@ export default function Stake(){
                                 renderThumb={(props, state) => <div {...props}></div>}
                             />
                         </div>
-                        <div className="flex justify-between items-center text-[#808080] lato-regular">
+                        <div className="flex justify-between items-center text-[#808080] lato-regular ">
                           <p>0</p>  
                           <p>4</p>
                           <p>8</p>
