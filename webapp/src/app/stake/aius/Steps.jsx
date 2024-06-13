@@ -2,7 +2,7 @@ import React from "react"
 export default function Steps() {
     return (
         <div className="bg-white-background lg:h-[270px] h-auto stake-box-shadow rounded-2xl p-8 box-border flex justify-start items-start">
-            {/* <div className="mt-2 flex r gap-4">
+            <div className="mt-2 flex r gap-4">
                 <div className="flex flex-col items-center">
                     <div className="w-[25px] h-[25px] bg-black flex items-center justify-center rounded-full"><p className="text-original-white">1</p></div>
                     <div className="w-[2px] h-[25px] bg-black"></div>
@@ -34,12 +34,12 @@ export default function Steps() {
                         </p>
                     </div>
                 </div>
-            </div> */}
+            </div>
           
 
 
 
-            <div class="flex  items-start justify-start bg-white  ">
+            {/* <div class="flex  items-start justify-start bg-white  ">
                 <div class="space-y-6 border-l-2">
                     <div class="relative w-full">
                         <div className="absolute -top-0 z-10 ml-[-.73rem] p-2 w-[1.4rem] h-[1.4rem] flex justify-center items-center rounded-full text-blue-500 bg-black text-original-white">
@@ -79,7 +79,7 @@ export default function Steps() {
                     </div>
 
                 </div>
-            </div>
+            </div> */}
 
 
 
