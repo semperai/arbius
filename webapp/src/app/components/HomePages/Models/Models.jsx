@@ -45,9 +45,9 @@ export default function Models() {
     }
   };
   const renderModel = (item) => {
-    console.log({ index });
+    console.log({ selectedModel });
     console.log({ item });
-    if (index === 0 && item === "Generative AI")
+    if (selectedModel === "Generative AI" && item === "Generative AI")
       return
     setStopEffect(false);
     setModelFadeIn(false);
@@ -59,7 +59,7 @@ export default function Models() {
       setOpacity(true);
       setStopEffect(true);
       setSelectedModel(Object.keys(AllModels)[0]);
-      if (item === "Generative AI" || index == 0)
+      if (item === "Generative AI" )
         return
       setTimeout(() => {
         setStopEffect(false);
