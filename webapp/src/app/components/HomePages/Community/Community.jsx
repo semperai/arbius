@@ -29,7 +29,7 @@ export default function Community(){
         }
     ]
     return (
-        <div className=" py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
+        <div className="py-20 lg:py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width bg-white-background py-10 box-border">
                 <div>
                     <div>
@@ -58,11 +58,12 @@ export default function Community(){
                     </div>
                     <Fade direction="up" triggerOnce={true}>
                         <div>
-                            <div className="flex md:flex-row flex-col  md:gap-0 gap-2 2xl:gap-[12%] items-center 2xl:justify-start justify-between">
+                            <div className="flex md:flex-row flex-col  md:gap-0 gap-6 2xl:gap-[12%] items-center 2xl:justify-start justify-between">
                                 {
                                     platforms.map((platform)=>{
                                         return (
                                             <div className={`${platform.background} relative bg-no-repeat bg-cover rounded-3xl p-6 2xl:w-[30%] md:w-[45%] md:h-[250px] w-[95%] h-auto`} key={platform.id}>
+                                                <Link href={platform.link} target="_blank" className="block md:hidden absolute inset-0 z-10"></Link>
                                                 <div>
                                                     {
                                                         platform?.nameType==="Image"?
@@ -76,7 +77,7 @@ export default function Community(){
                                                 <div className="mt-6">
                                                     <Link href={platform.link} target="_blank" className="inline-block md:absolute bottom-12">   
                                                         <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3">
-                                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 md:group-hover:none lg:group-hover:opacity-100 transition-opacity duration-500"></div>
                                                             <p className="relative z-10  text-original-white lato-bold">{platform.buttonText}</p>
                                                             <Image src={arrow} width={18} className="relative z-10"  alt="right arrow"/>
                                                         </button>

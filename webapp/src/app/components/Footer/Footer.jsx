@@ -197,7 +197,7 @@ export default function Footer(){
                             </div>
                         </div>
                         <div>
-                            <div className="flex lm:flex-col flex-row lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
+                            <div className="flex flex-col lg:flex-row  lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
                                 {
                                     footerLinks.map((link)=>{
                                         return(

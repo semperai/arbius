@@ -31,7 +31,7 @@ export default function Democratic(){
         }
     ]
     return(
-        <div className="bg-democratic-gradient py-24">
+        <div className="bg-democratic-gradient  py-24">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div>
                     <div>

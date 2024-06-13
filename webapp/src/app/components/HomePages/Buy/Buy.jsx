@@ -16,7 +16,7 @@ export default function Buy(){
         "Promote free and open AI"
     ]
     return(
-        <div className="bg-white-background py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
+        <div className="bg-white-background py-20 lg:py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div className="flex items-center lg:flex-row flex-col justify-between">
                     <div className="lg:w-[70%] 2xl:w-[50%] w-[100%]">

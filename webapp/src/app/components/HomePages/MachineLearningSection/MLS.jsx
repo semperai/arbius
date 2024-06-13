@@ -10,7 +10,7 @@ export default function MachineLearningSection() {
       <div className="py-24 lg:p-0 w-mobile-section-width lg:w-section-width m-[auto] max-w-center-width">
         <div className="w-[100%] xl:w-[65%]">
           <Fade direction="up" triggerOnce={true}>
-            <div className="text-[12px] Gradient-transparent-text bg-background-gradient-txt">
+            <div className="text-[16px] lg:text-[12px] mb-2 lg:mb-0 Gradient-transparent-text bg-background-gradient-txt">
               Welcome to Arbius!
             </div>
           </Fade>
@@ -49,10 +49,10 @@ export default function MachineLearningSection() {
                   <div>
                     <button
                       type="button"
-                      className="relative group bg-black py-2 px-5 lg:px-8 rounded-full flex items-center gap-3"
+                      className="relative group bg-black py-2 px-5 lg:px-8 rounded-full flex items-center gap-3 "
                     >
-                      <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <div className="lato-regular  relative z-10 text-original-white lg:text-[100%]">
+                      <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-10 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
                         Try now
                       </div>
                       <Image

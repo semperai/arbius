@@ -28,20 +28,16 @@ export default function Header() {
       setModelsOpen(false);
     }
   }, []);
-  useEffect(() => {
-
+  useEffect(()=>{
     if (typeof window !== 'undefined') {
-
-
-      if (route) {
-        // setActiveLink(route)
-      }
-
-    }
-    return () => {
-
-    }
-  }, [route])
+        if(route){
+            // setActiveLink(route)
+        }
+  }
+  return()=>{
+       
+  }
+  },[route])
 
   useEffect(() => {
     function handleScroll() {
