@@ -97,7 +97,7 @@ export default function Header() {
                   alt=""
                 />
                 <Image
-                  className={`${stakingOpen ? "rotate-[180deg]" : ""
+                  className={`${stakingOpen ? "rotate-[180deg] mb-1" : ""
                     } transition mobile-height ext-link block lg:hidden mt-2`}
                   src={down_arrow}
                   alt=""
@@ -155,7 +155,7 @@ export default function Header() {
               >
                 <h1>Models</h1>
                 <Image
-                  className={`${modelsOpen ? "rotate-[180deg]" : ""
+                  className={`${modelsOpen ? "rotate-[180deg] mb-1" : ""
                     } transition mobile-height inline ext-link block lg:hidden mt-2`}
                   src={down_arrow}
                   alt=""
