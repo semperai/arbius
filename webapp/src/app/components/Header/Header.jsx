@@ -132,8 +132,8 @@ export default function Header() {
                     href={"/stake/aius"}
                   >
                     <div className="staking-block relative">
-                        <div className="absolute top-2  lg:block hidden p-2 right-2 bg-background-gradient  rounded-2xl">
-                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
+                        <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
+                          <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Coming Soon</p>
                         </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"

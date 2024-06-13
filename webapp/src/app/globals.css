@@ -125,7 +125,14 @@
     .links-parent a{
         @apply w-[100%];
     }
-
+    .staking-block:hover .badge{
+        background: #6755fe;
+      
+    }
+    
+    .staking-block:hover .badge-text{
+        color: white !important;
+    }
     @media(max-width: 1024px){
         .link-with-image .staking-block{
             @apply w-[100%] flex-row h-[auto] drop-shadow-none justify-start items-center gap-[10px];

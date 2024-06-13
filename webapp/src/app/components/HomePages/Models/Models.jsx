@@ -48,12 +48,34 @@ export default function Models() {
     setStopEffect(false);
     setModelFadeIn(false);
     setOpacity(false);
+
+
     setTimeout(() => {
       setModelFadeIn(true);
       setOpacity(true);
       setStopEffect(true);
-      setSelectedModel(item);
+      setSelectedModel(Object.keys(AllModels)[0]);
+
+      setTimeout(()=>{
+        setStopEffect(false);
+        setModelFadeIn(false);
+        setOpacity(false);
+
+        setTimeout(()=>{
+          setModelFadeIn(true);
+          setOpacity(true);
+          setStopEffect(true);
+          setSelectedModel(item)
+    
+        },500)
+         setBackground(AllModels[item].background);
+
+      },1000)
+      
+      
     },500)
+    setBackground(AllModels[Object.keys(AllModels)[0]].background);
+   
   };
 
   useEffect(() => {
