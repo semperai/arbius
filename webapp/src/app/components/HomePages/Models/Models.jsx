@@ -9,11 +9,11 @@ import arbius_logo_round from "../../../assets/images/arbius_logo_round.png";
 import { Fade } from "react-awesome-reveal";
 import Link from "next/link";
 export default function Models() {
-  const [selectedModel, setSelectedModel] = useState("Amica");
-  const [stopEffect,setStopEffect]=useState(false);
-  const [opacity,setOpacity]=useState(true);
-  const [index,setActiveIndex]=useState(1)
-  const [modelFadeIn, setModelFadeIn] = useState(true); 
+  const [selectedModel, setSelectedModel] = useState("Generative AI");
+  const [stopEffect, setStopEffect] = useState(false);
+  const [opacity, setOpacity] = useState(true);
+  const [index, setActiveIndex] = useState(0)
+  const [modelFadeIn, setModelFadeIn] = useState(true);
   const AllModels = {
     "Generative AI": {
       text: "Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.",
@@ -32,7 +32,7 @@ export default function Models() {
       background: "bg-ai-gradient",
     },
   };
-  const [background, setBackground] = useState(AllModels.Amica.background);
+  const [background, setBackground] = useState(AllModels["Generative AI"].background);
   const toggleBackground = (add) => {
     if (add) {
       document
@@ -45,6 +45,10 @@ export default function Models() {
     }
   };
   const renderModel = (item) => {
+    console.log({ index });
+    console.log({ item });
+    if (index === 0 && item === "Generative AI")
+      return
     setStopEffect(false);
     setModelFadeIn(false);
     setOpacity(false);
@@ -55,55 +59,56 @@ export default function Models() {
       setOpacity(true);
       setStopEffect(true);
       setSelectedModel(Object.keys(AllModels)[0]);
-
-      setTimeout(()=>{
+      if (item === "Generative AI" || index == 0)
+        return
+      setTimeout(() => {
         setStopEffect(false);
         setModelFadeIn(false);
         setOpacity(false);
 
-        setTimeout(()=>{
+        setTimeout(() => {
           setModelFadeIn(true);
           setOpacity(true);
           setStopEffect(true);
           setSelectedModel(item)
-    
-        },500)
-         setBackground(AllModels[item].background);
 
-      },1000)
-      
-      
-    },500)
+        }, 500)
+        setBackground(AllModels[item].background);
+
+      }, 1000)
+
+
+    }, 500)
     setBackground(AllModels[Object.keys(AllModels)[0]].background);
-   
+
   };
 
   useEffect(() => {
-      let AllModelNames = Object.keys(AllModels);
+    let AllModelNames = Object.keys(AllModels);
 
-      const interval = setInterval(() => {
-        let currentIndex = index + 1;
+    const interval = setInterval(() => {
+      let currentIndex = index + 1;
 
-        if (currentIndex > 2) {
-          currentIndex = 0;
-        }
-        if (!stopEffect) {
-          setActiveIndex(currentIndex);
-          setSelectedModel(AllModelNames[currentIndex]);
-          setModelFadeIn(true)
+      if (currentIndex > 2) {
+        currentIndex = 0;
+      }
+      if (!stopEffect) {
+        setActiveIndex(currentIndex);
+        setSelectedModel(AllModelNames[currentIndex]);
+        setModelFadeIn(true)
 
-        }
-      }, 20000); // Change the interval duration to 30 seconds (30000 milliseconds)
-    
-      return () => clearInterval(interval);
+      }
+    }, 20000); // Change the interval duration to 30 seconds (30000 milliseconds)
+
+    return () => clearInterval(interval);
   }, [index, stopEffect]);
   useEffect(() => {
     console.log(modelFadeIn)
-    if (modelFadeIn&&!stopEffect) {
+    if (modelFadeIn && !stopEffect) {
       const timer = setTimeout(() => {
         setModelFadeIn(false);
       }, 19500);
-  
+
       return () => clearTimeout(timer);
     }
   }, [modelFadeIn]);
@@ -113,17 +118,17 @@ export default function Models() {
       <div className="w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
         <div className="w-full lg:w-[50%]">
           <div className="text-[12px] Gradient-transparent-text bg-button-gradient-txt">
-            Our Models!
+            Multi-Model Economy
           </div>
           <div className="lg:text-header 2xl:text-header-2xl text-mobile-header font-medium text-black-text mb-6">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
-              Defi for AI
+              DeFi AI
             </Fade>
           </div>
           <Fade direction="up" triggerOnce={true}>
             <div>
               <div className="text-para text-subtext-three lato-regular text-subtext-two">
-              OSS (open source software) models such as Llama 3 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from AI.
+                Model creators are able to set a base fee for invocations, allowing them to monetize their creations. A portion of the revenue is also distributed to Arbius DAO's treasury and to those who hold veAIUS.
               </div>
             </div>
           </Fade>
@@ -147,36 +152,36 @@ export default function Models() {
                 })}
               </div>
               <Fade direction="top">
-              <div className="mt-[30px]">
-                <div className={`text-[28px]  font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
-                  {selectedModel}
-                </div>
-                <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px]  model-container ${modelFadeIn||stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
-                  {AllModels[selectedModel].text}
+                <div className="mt-[30px]">
+                  <div className={`text-[28px]  font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
+                    {selectedModel}
+                  </div>
+                  <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px]  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
+                    {AllModels[selectedModel].text}
 
-                  <div>
-                    {AllModels[selectedModel].link && (
-                      <Link href={"https://amica.arbius.ai/"} target="_blank">
-                        <button
-                          type="button"
-                          className={` relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
-                        >
-                          <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                          <div className="lato-bold  relative z-10 text-original-white">
-                            Try now
-                          </div>
-                          <Image
-                            src={right_arrow}
-                            width={18}
-                            className="relative z-10"
-                            alt="right arrow"
-                          />
-                        </button>
-                      </Link>
-                    )}
+                    <div>
+                      {AllModels[selectedModel].link && (
+                        <Link href={"https://amica.arbius.ai/"} target="_blank">
+                          <button
+                            type="button"
+                            className={` relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn || stopEffect ? "fade-in" : ""}`}
+                          >
+                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="lato-bold  relative z-10 text-original-white">
+                              Try now
+                            </div>
+                            <Image
+                              src={right_arrow}
+                              width={18}
+                              className="relative z-10"
+                              alt="right arrow"
+                            />
+                          </button>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
               </Fade>
             </div>
           </Fade>
@@ -185,7 +190,7 @@ export default function Models() {
           <div className="2xl:ml-[20%]">
             <div
               id="image-parent"
-              className={`relative border-[transparent] w-[320px] h-[430px] flex justify-center items-center rounded-[50px] ml-[auto] 2xl:m-[auto]   model-container ${modelFadeIn||stopEffect ? "fade-in" : ""}`}
+              className={`relative border-[transparent] w-[320px] h-[430px] flex justify-center items-center rounded-[50px] ml-[auto] 2xl:m-[auto]   model-container ${modelFadeIn || stopEffect ? "fade-in" : ""}`}
             >
               <div className="relative">
                 <Image

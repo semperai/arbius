@@ -19,9 +19,9 @@ const posts =[
     "url": "https://x.com/arbius_ai/status/1795184308199551008"
   },
   {
-    "title": "First DAO Proposal",
+    "title": "Partnership with Exabits",
     "description": "Arbius and @exa_bits have joined forces to redefine the AI sector and prioritize the compute of the many over the compute of the abundant few. Together, we are redefining AI hosting and ownership, putting the power back in the hands of the people.",
-    "date": "May 3, 2024",
+    "date": "14th May 2024",
     "image": step5,
     "url": "https://x.com/arbius_ai/status/1790367805352603820"
   },
