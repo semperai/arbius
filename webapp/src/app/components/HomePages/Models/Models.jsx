@@ -71,15 +71,15 @@ export default function Models() {
           setOpacity(true);
           setStopEffect(true);
           setSelectedModel(item)
-
+          setBackground(AllModels[item].background);
         }, 500)
-        setBackground(AllModels[item].background);
+        
 
       }, 1000)
 
-
+      setBackground(AllModels[Object.keys(AllModels)[0]].background);
     }, 500)
-    setBackground(AllModels[Object.keys(AllModels)[0]].background);
+    
 
   };
 
