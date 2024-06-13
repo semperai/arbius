@@ -9,7 +9,7 @@ export default function AIUS(){
                 <div>
                     <div className="flex items-center gap-2">
                         <h2 className="lato-regular text-[8vw] lg:text-header-xl 2xl:text-header-xl  text-black-text mb-4">veAIUS Staking</h2>
-                        <div className="bg-[#FAF9F6] inline-block py-2 px-3 rounded-2xl">
+                        <div className="bg-[#FAF9F6] inline-block py-2 px-3 rounded-2xl mb-4 lg:mb-0">
                             <p className="text-[#4A28FF] text-[8px]  lg:text-[14px] lato-regular">Coming Soon!</p>
                         </div>
                     </div>
