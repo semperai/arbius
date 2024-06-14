@@ -27,7 +27,7 @@ export default function Models() {
       link: "https://amica.arbius.ai/",
     },
     "Marketplace": {
-      text: "Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here. Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.",
+      text: "Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here! Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.",
       image: marketplace,
       background: "bg-ai-gradient",
     },
@@ -193,7 +193,7 @@ export default function Models() {
         <div className="block lg:hidden mt-8">
           {Object.keys(AllModels).map((item, key) => {
             return (
-              <div key={key} className="mb-[4rem]">
+              <div key={key} className={key === Object.keys(AllModels).length -1 ? "":"mb-[4rem]"}>
                 <Fade direction="up" triggerOnce={true}>
                   <div className="">
                     <div

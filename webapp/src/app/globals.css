@@ -297,7 +297,7 @@ input[type="number"]::-ms-reveal {
   
   .customSlider-mark {
     cursor: pointer;
-    top: 30px;
+    top: 20px;
     height: 8px;
     color: black;
   }

@@ -24,7 +24,7 @@ export default function Community(){
             nameType:"",
             content:"Exchange AIUS in a decentralized way here.",
             buttonText:"Visit Swap Market",
-            link:"https://app.uniswap.org/swap",
+            link:"https://swap.cow.fi/#/1/swap/ETH/0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852",
             background:"bg-[url('./assets/images/swap_market_background.png')]",
         }
     ]

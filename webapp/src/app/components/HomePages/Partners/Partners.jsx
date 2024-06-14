@@ -6,6 +6,7 @@ import labs from "../../../assets/images/labs.png";
 import exabits from "../../../assets/images/exabits.png";
 import nosana from "../../../assets/images/nosana.png";
 import arbitrum from "../../../assets/images/arbitrum.png";
+import unicrow from "../../../assets/images/unicrow.svg"
 import Image from "next/image";
 
 export default function Partners() {
@@ -38,6 +39,10 @@ export default function Partners() {
     "weboasis": {
       "image": weboasis,
       "url": "https://weboasis.io/"
+    },
+    "Unicrow":{
+      "image":unicrow,
+      "url":"https://unicrow.io/"
     }
   }
 

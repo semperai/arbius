@@ -162,8 +162,8 @@ export default function Header() {
                 <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex">
                   <Link href={"https://arbius.ai/generate"} target="_blank">
                     <div className="staking-block">
-                      <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                        <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
+                      <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
+                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
                       </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
@@ -176,8 +176,8 @@ export default function Header() {
                   </Link>
                   <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
                     <div className="staking-block">
-                      <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                        <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
+                      <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
+                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
                       </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]]"
