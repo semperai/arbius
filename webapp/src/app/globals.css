@@ -294,3 +294,11 @@ input[type="number"]::-ms-reveal {
   width: 0;
   height: 0;
 }
+  
+  .customSlider-mark {
+    cursor: pointer;
+    top: 30px;
+    height: 8px;
+    color: black;
+  }
+  
