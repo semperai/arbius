@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function MachineLearningSection() {
   return (
     <div className="bg-[url('./assets/images/peer_background.jpg')] bg-cover lato-bold  lg:h-[75vh] lg:flex lg:items-center mt-[72px]">
-      <div className="py-24 lg:p-0 w-mobile-section-width lg:w-section-width m-[auto] max-w-center-width">
+      <div className="py-16 lg:py-24 lg:p-0 w-mobile-section-width lg:w-section-width m-[auto] max-w-center-width">
         <div className="w-[100%] xl:w-[65%]">
           <Fade direction="up" triggerOnce={true}>
             <div className="text-[16px] lg:text-[12px] mb-2 lg:mb-0 Gradient-transparent-text bg-background-gradient-txt">

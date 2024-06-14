@@ -57,10 +57,10 @@ export default function Democratic(){
                                                     <Image src={card.icon} alt={card.title} width={20}/>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-card-heading lato-bold text-[25px]">{card.title}</h3>
+                                                    <h3 className="text-card-heading lato-bold text-[25px] relative z-10">{card.title}</h3>
                                                 </div>
                                                 <div>
-                                                    <p className="text-card-heading lato-regular text-[16px] mt-6">{card.content}</p>
+                                                    <p className="text-card-heading lato-regular text-[16px] relative z-10 mt-6">{card.content}</p>
                                                 </div>
                                             </div>
                                         )
