@@ -1,8 +1,14 @@
 import React from "react"
 export default function Steps() {
+    const steps = [
+        "Select the amount of AIUS you want to lock.",
+        "Select the number of weeks, the minimum lock time is one week, and the maximum lock time is 2 years.",
+        "Confirm the locking",
+        "Your lock will be available in the dashboard. Confirm the locking"
+      ];
     return (
         <div className="bg-white-background lg:h-[270px] h-auto stake-box-shadow rounded-2xl p-8 box-border flex justify-start items-start">
-            <div className="mt-2 flex r gap-4">
+            {/* <div className="mt-2 flex r gap-4">
                 <div className="flex flex-col items-center">
                     <div className="w-[25px] h-[25px] bg-black flex items-center justify-center rounded-full"><p className="text-original-white">1</p></div>
                     <div className="w-[2px] h-[25px] bg-black"></div>
@@ -18,12 +24,12 @@ export default function Steps() {
                             Select the amount of AIUS you want to lock.
                         </p>
                     </div>
-                    <div className="mt-[22px]">
+                    <div className="mt-[26px]">
                         <p className="text-original-black lato-regular">
-                            Select the number of weeks, the minimum lock time is one week, and the maximum lock time is two years.
+                            Select the number of weeks, the minimum lock time is one week, and the maximum lock time is 2 years.
                         </p>
                     </div>
-                    <div className="mt-[16px]">
+                    <div className="mt-[10px]">
                         <p className="text-original-black lato-regular">
                             Confirm the lock duration.
                         </p>
@@ -34,9 +40,18 @@ export default function Steps() {
                         </p>
                     </div>
                 </div>
-            </div>
+            </div> */}
           
-
+          <div className="container mt-2">
+      <div className="steps-container">
+        {steps.map((step, index) => (
+          <div key={index} className="step-item">
+            <div className="step-circle">{index + 1}</div>
+            <p className="step-text">{step}</p>
+          </div>
+        ))}
+      </div>
+    </div>
 
 
             {/* <div class="flex  items-start justify-start bg-white  ">

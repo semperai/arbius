@@ -286,6 +286,75 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+}
+
+.steps-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    right: 0px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+
+.step-item::before {
+    content: '';
+    position: absolute;
+    left: 12px; /* Center the line with the circle */
+    top: 0;
+    width: 2px;
+    height: 200%;
+    background-color: black;
+}
+
+.step-circle {
+    width: 25px;
+    height: 25px;
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+}
+
+.step-text {
+    font-family: 'Lato', sans-serif;
+    color: black;
+    margin-left: 10px;
+}
+
+.step-item:last-child::before {
+    height: 50%; /* Adjust based on your design to stop the line at the last step */
+}
+.step-item p{
+    width:500px;
+}
+
+
+@media (max-width: 768px) {
+    .steps-container {
+        right: 10px;
+    }
+    .step-item p{
+        width: 240px;
+        font-size: 12px;
+    }
+}
 
 /* IE 10+ */
 input[type="number"]::-ms-clear,
