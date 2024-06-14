@@ -20,17 +20,17 @@ export default function Steps() {
                     </div>
                     <div className="mt-[26px]">
                         <p className="text-original-black lato-regular">
-                            Select the number of weeks, the minimum lock time is one week, and the maximum lock time is 4 years.
+                            Select the number of weeks, the minimum lock time is one week, and the maximum lock time is two years.
                         </p>
                     </div>
                     <div className="mt-[10px]">
                         <p className="text-original-black lato-regular">
-                            Confirm the locking
+                            Confirm the lock duration
                         </p>
                     </div>
                     <div className="mt-[22px]">
                         <p className="text-original-black lato-regular">
-                            Your lock will be available in the dashboard.  Confirm the locking
+                            Details about your lock will be available inside the dashboard
                         </p>
                     </div>
                 </div>

@@ -26,7 +26,7 @@ export default function Democratic(){
             id:"3",
             icon:ai,
             title:"DeFi AI",
-            content:"Model creators are able to set a base fee for invocations of their model, delivering revenue to those who hold the models token.",
+            content:"Model creators are able to set a base fee for invocations, allowing them to monetize their creations. A portion of the revenue is also distributed to Arbius DAO's treasury and to those who hold veAIUS.",
             background:"bg-[url('./assets/images/ai_background.png')]"
         }
     ]

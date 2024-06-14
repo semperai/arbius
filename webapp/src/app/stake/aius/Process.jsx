@@ -9,7 +9,7 @@ export default function Process(){
                 <div>
                     <p className="lato-regular mb-2 ">Lock AIUS: Receive veAIUS NFTs.</p>
                     <p className="lato-regular mb-2">Vote: veAIUS holders vote weekly for AI models, earning rewards.</p>
-                    <p className="lato-regular mb-2">Emission Distribution: Managed by Voter and Gauges based on veAIUS voting weight.</p>
+                    <p className="lato-regular mb-2">Emission Distribution: Managed by voter gauges based on veAIUS governance power.</p>
                 </div>
             </div>
         </div>
