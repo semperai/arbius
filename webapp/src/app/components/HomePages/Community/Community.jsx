@@ -29,7 +29,7 @@ export default function Community(){
         }
     ]
     return (
-        <div className="py-20 lg:py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
+        <div className="py-16 lg:py-24 bg-[url('./assets/images/buy_background.png')] bg-no-repeat bg-cover">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width bg-white-background py-10 box-border">
                 <div>
                     <div>

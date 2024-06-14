@@ -92,7 +92,7 @@ export default function Models() {
       <div className="w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
         <div className="w-full lg:w-[50%]">
           <div className="text-[16px] lg:text-[12px] mb-2 lg:mb-0 Gradient-transparent-text bg-button-gradient-txt">
-            Multi-Model Economy
+            Multi-Model Economy!
           </div>
           <div className="lg:text-header 2xl:text-header-2xl text-mobile-header font-medium text-black-text mb-6">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
