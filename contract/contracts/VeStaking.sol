@@ -17,14 +17,18 @@ contract VeStaking is IVeStaking, Ownable {
     IERC20 public rewardsToken;
     IVotingEscrow public votingEscrow;
 
-    uint256 public periodFinish = 0;
-    uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 7 days; // todo: maybe bind this to epoch 
+    uint256 public periodFinish;
+    uint256 public rewardRate;
+    uint256 public rewardsDuration = 1 weeks; 
+    // last time any user staked, withdrew or claimed rewards
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
+
+    uint256 private _totalSupply;
+    mapping(address => uint256) private _balances;
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -39,12 +43,19 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== VIEWS ========== */
 
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function balanceOf(address account) external view returns (uint256) {
+        return _balances[account];
+    }
+
     function lastTimeRewardApplicable() public view returns (uint256) {
         return block.timestamp < periodFinish ? block.timestamp : periodFinish;
     }
 
     function rewardPerToken() public view returns (uint256) {
-        uint256 _totalSupply = votingEscrow.totalSupply();
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
         }
@@ -54,20 +65,9 @@ contract VeStaking is IVeStaking, Ownable {
     }
 
     function earned(address account) public view returns (uint256) {
-        // number of veNFTs owned by `account`
-        uint256 _veNFTBalance = votingEscrow.balanceOf(account);
-        
-        // iterate over veNFTs owned by `account`
-        // and call votingEscrow.tokenOfOwnerByIndex to get the sum of veAIUS balance
-        uint256 _veAIUSBalance;
-        for (uint256 i = 0; i < _veNFTBalance; i++) {
-            uint256 _veTokenId = votingEscrow.tokenOfOwnerByIndex(account, i);
-            _veAIUSBalance += votingEscrow.balanceOfNFT(_veTokenId);
-        }
-
         return (
             (
-                _veAIUSBalance
+                _balances[account]
                     * (rewardPerToken() - userRewardPerTokenPaid[account])
             ) / 1e18
         ) + rewards[account];
@@ -89,7 +89,7 @@ contract VeStaking is IVeStaking, Ownable {
         }
 
         lastUpdateTime = block.timestamp;
-        periodFinish = block.timestamp + rewardsDuration;
+        periodFinish = (block.timestamp + rewardsDuration) / 1 weeks * 1 weeks; // periodFinish is rounded down to weeks
 
         // transfer reward in
         rewardsToken.safeTransferFrom(msg.sender, address(this), reward);
@@ -106,13 +106,15 @@ contract VeStaking is IVeStaking, Ownable {
 
     function stake(uint256 amount) external onlyVotingEscrow updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
-
+        _totalSupply += amount;
+        _balances[msg.sender] += amount;
         emit Staked(msg.sender, amount);
     }
 
     function withdraw(uint256 amount) public onlyVotingEscrow updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
-
+        _totalSupply -= amount;
+        _balances[msg.sender] -= amount;
         emit Withdrawn(msg.sender, amount);
     }
 

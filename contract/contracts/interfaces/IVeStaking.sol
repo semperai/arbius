@@ -3,6 +3,8 @@ pragma solidity ^0.8.13;
 
 interface IVeStaking {
     // Views
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
     function earned(address account) external view returns (uint256);
     function getRewardForDuration() external view returns (uint256);
     function lastTimeRewardApplicable() external view returns (uint256);
