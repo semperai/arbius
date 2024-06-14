@@ -66,6 +66,11 @@ export default function Models() {
   };
 
   useEffect(() => {
+    let AllModelNames = Object.keys(AllModels);
+
+    // Set loading state to false after prefetching
+    
+
     
     const interval = setInterval(() => {
       let currentIndex = index + 1;
@@ -85,7 +90,7 @@ export default function Models() {
       clearInterval(interval)
       // clearInterval(loadingTimeout)
     };
-  }, [index, stopEffect]);
+  }, [index, stopEffect,AllModels]);
   useEffect(() => {
     console.log(modelFadeIn)
     if (modelFadeIn && !stopEffect) {
