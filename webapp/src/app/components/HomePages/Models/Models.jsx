@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Head from 'next/head';
 import amica from "../../../assets/images/amica.jpg";
 import generativeAI from "../../../assets/images/ai_generation.jpg";
 import marketplace from "../../../assets/images/marketplace.jpg";
@@ -65,14 +66,6 @@ export default function Models() {
   };
 
   useEffect(() => {
-    let AllModelNames = Object.keys(AllModels);
-    console.log(AllModelNames)
-    const imageUrls = AllModelNames?.map(model => model.image);
-    prefetchImages(imageUrls);
-
-    // Set loading state to false after prefetching
-    
-
     
     const interval = setInterval(() => {
       let currentIndex = index + 1;
@@ -92,7 +85,7 @@ export default function Models() {
       clearInterval(interval)
       // clearInterval(loadingTimeout)
     };
-  }, [index, stopEffect,AllModels]);
+  }, [index, stopEffect]);
   useEffect(() => {
     console.log(modelFadeIn)
     if (modelFadeIn && !stopEffect) {
@@ -177,6 +170,11 @@ export default function Models() {
             </div>
           </Fade>
         </div>
+        <Head>
+        {Object.keys(AllModels).map((model, index) => (
+          <link key={index} rel="preload" href={model.image} as="image" />
+        ))}
+      </Head>
         <Fade direction="up" triggerOnce={true} className="hidden lg:block lg:w-[50%]">
           <div className="2xl:ml-[20%]">
             <div
