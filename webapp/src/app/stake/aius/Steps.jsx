@@ -18,12 +18,12 @@ export default function Steps() {
                             Select the amount of AIUS you want to lock.
                         </p>
                     </div>
-                    <div className="mt-[26px]">
+                    <div className="mt-[22px]">
                         <p className="text-original-black lato-regular">
                             Select the number of weeks, the minimum lock time is one week, and the maximum lock time is two years.
                         </p>
                     </div>
-                    <div className="mt-[10px]">
+                    <div className="mt-[16px]">
                         <p className="text-original-black lato-regular">
                             Confirm the lock duration
                         </p>
