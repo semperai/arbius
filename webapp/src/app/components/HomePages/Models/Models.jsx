@@ -45,42 +45,16 @@ export default function Models() {
     }
   };
   const renderModel = (item) => {
-    console.log({ selectedModel });
-    console.log({ item });
-    if (selectedModel === "Generative AI" && item === "Generative AI")
-      return
     setStopEffect(false);
     setModelFadeIn(false);
     setOpacity(false);
-
-
     setTimeout(() => {
       setModelFadeIn(true);
       setOpacity(true);
       setStopEffect(true);
-      setSelectedModel(Object.keys(AllModels)[0]);
-      if (item === "Generative AI" )
-        return
-      setTimeout(() => {
-        setStopEffect(false);
-        setModelFadeIn(false);
-        setOpacity(false);
-
-        setTimeout(() => {
-          setModelFadeIn(true);
-          setOpacity(true);
-          setStopEffect(true);
-          setSelectedModel(item)
-          setBackground(AllModels[item].background);
-        }, 500)
-        
-
-      }, 1000)
-
-      setBackground(AllModels[Object.keys(AllModels)[0]].background);
-    }, 500)
-    
-
+      setSelectedModel(item);
+    },500)
+    setBackground(AllModels[item].background);
   };
 
   useEffect(() => {

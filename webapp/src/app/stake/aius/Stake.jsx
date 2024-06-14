@@ -5,6 +5,10 @@ import Image from "next/image"
 import ReactSlider from 'react-slider'
 export default function Stake() {
     const [sliderValue, setSliderValue] = useState(0)
+    const [duration, setDuration] = useState({
+        months:0,
+        weeks:0
+    })
     return (
         <div>
             <div className="bg-white-background 2xl:h-[480px] lg:h-[535px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border">
@@ -28,7 +32,7 @@ export default function Stake() {
                     </div>
                 </div>
                 <div>
-                    <p className="mt-8 mb-8 text-[22px] lato-bold  text-stake">Locking for {sliderValue} months for 0.0 AIUS voting power.</p>
+                    <p className="mt-8 mb-8 text-[22px] lato-bold  text-stake">Locking for {duration.months !== 0 ? `${duration.months} months `: `${duration.weeks} weeks` } for 0.0 AIUS voting power.</p>
                     <div className="mb-10">
                         <div className="mb-8">
                             {/* <ReactSlider
@@ -55,10 +59,19 @@ export default function Stake() {
                                 markClassName="customSlider-mark"
                                 marks={4}
                                 min={0}
+                                step={.25}
                                 max={24}
                                 defaultValue={0}
                                 value={sliderValue}
-                                onChange={(value) => setSliderValue(value)}
+                                onChange={(value) => {
+                                    setSliderValue(value)
+
+                                    if(value < 1){
+                                        setDuration({...duration, months:0, weeks:4*value})
+                                    }else{
+                                        setDuration({...duration, months: value, weeks:0})
+                                    }
+                                }}
                                 renderMark={(props) => {
                                
                                 
