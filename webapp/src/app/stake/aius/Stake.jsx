@@ -32,7 +32,7 @@ export default function Stake() {
                     </div>
                 </div>
                 <div>
-                    <p className="mt-8 mb-8 text-[22px] lato-bold  text-stake">Locking for {duration.months !== 0 ? `${duration.months} months `: `${duration.weeks} weeks` } for 0.0 AIUS voting power.</p>
+                    <p className="mt-8 mb-8 text-[22px] lato-bold  text-stake">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month":"months"} `: `${duration.weeks} ${(duration.weeks <= 1) ? "week":"weeks"}` } for 0.0 AIUS voting power.</p>
                     <div className="mb-10">
                         <div className="mb-8">
                             {/* <ReactSlider
