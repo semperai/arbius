@@ -24,11 +24,11 @@ contract VeStaking is IVeStaking, Ownable {
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
 
-    mapping(address => uint256) public userRewardPerTokenPaid;
-    mapping(address => uint256) public rewards;
+    mapping(uint256 => uint256) public rewardPerTokenPaid;
+    mapping(uint256 => uint256) public rewards;
 
     uint256 private _totalSupply;
-    mapping(address => uint256) private _balances;
+    mapping(uint256 => uint256) private _balances;
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -47,8 +47,8 @@ contract VeStaking is IVeStaking, Ownable {
         return _totalSupply;
     }
 
-    function balanceOf(address account) external view returns (uint256) {
-        return _balances[account];
+    function balanceOf(uint256 tokenId) external view returns (uint256) {
+        return _balances[tokenId];
     }
 
     function lastTimeRewardApplicable() public view returns (uint256) {
@@ -64,13 +64,13 @@ contract VeStaking is IVeStaking, Ownable {
             / _totalSupply;
     }
 
-    function earned(address account) public view returns (uint256) {
+    function earned(uint256 tokenId) public view returns (uint256) {
         return (
             (
-                _balances[account]
-                    * (rewardPerToken() - userRewardPerTokenPaid[account])
+                _balances[tokenId]
+                    * (rewardPerToken() - rewardPerTokenPaid[tokenId])
             ) / 1e18
-        ) + rewards[account];
+        ) + rewards[tokenId];
     }
 
     function getRewardForDuration() external view returns (uint256) {
@@ -79,7 +79,7 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    function notifyRewardAmount(uint256 reward) external updateReward(address(0)) {
+    function notifyRewardAmount(uint256 reward) external updateReward(0) {
         if (block.timestamp >= periodFinish) {
             rewardRate = reward / rewardsDuration;
         } else {
@@ -104,26 +104,38 @@ contract VeStaking is IVeStaking, Ownable {
         emit RewardAdded(reward);
     }
 
-    function stake(uint256 amount) external onlyVotingEscrow updateReward(msg.sender) {
+    // we use internal notation since this function can only be called by the VotingEscrow contract
+    function _stake(uint256 tokenId, uint256 amount) external onlyVotingEscrow updateReward(tokenId) {
         require(amount > 0, "Cannot stake 0");
         _totalSupply += amount;
-        _balances[msg.sender] += amount;
-        emit Staked(msg.sender, amount);
+        _balances[tokenId] += amount;
+        emit Staked(tokenId, amount);
     }
 
-    function withdraw(uint256 amount) public onlyVotingEscrow updateReward(msg.sender) {
-        require(amount > 0, "Cannot withdraw 0");
+    // we use internal notation since this function can only be called by the VotingEscrow contract
+    function _withdraw(uint256 tokenId) external onlyVotingEscrow updateReward(tokenId) {
+        uint256 amount = _balances[tokenId];
         _totalSupply -= amount;
-        _balances[msg.sender] -= amount;
-        emit Withdrawn(msg.sender, amount);
+        _balances[tokenId] = 0;
+        emit Withdrawn(tokenId, amount);
     }
 
-    function getReward() public updateReward(msg.sender) {
-        uint256 reward = rewards[msg.sender];
+    // we use internal notation since this function can only be called by the VotingEscrow contract
+    function _updateBalance(uint256 tokenId, uint256 newAmount) external onlyVotingEscrow updateReward(tokenId) {
+        uint256 amount = _balances[tokenId];
+        _totalSupply = _totalSupply - amount + newAmount;
+        _balances[tokenId] = newAmount;
+        emit BalanceUpdated(tokenId, amount, newAmount);
+    }
+
+    function getReward(uint256 tokenId) external updateReward(tokenId) {
+        address tokenOwner = votingEscrow.ownerOf(tokenId);
+
+        uint256 reward = rewards[tokenId];
         if (reward > 0) {
-            rewards[msg.sender] = 0;
-            rewardsToken.safeTransfer(msg.sender, reward);
-            emit RewardPaid(msg.sender, reward);
+            rewards[tokenId] = 0;
+            rewardsToken.safeTransfer(tokenOwner, reward);
+            emit RewardPaid(tokenOwner, reward);
         }
     }
 
@@ -151,12 +163,12 @@ contract VeStaking is IVeStaking, Ownable {
         _;
     }
 
-    modifier updateReward(address account) {
+    modifier updateReward(uint256 tokenId) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
-        if (account != address(0)) {
-            rewards[account] = earned(account);
-            userRewardPerTokenPaid[account] = rewardPerTokenStored;
+        if (tokenId != 0) {
+            rewards[tokenId] = earned(tokenId);
+            rewardPerTokenPaid[tokenId] = rewardPerTokenStored;
         }
         _;
     }
@@ -164,9 +176,10 @@ contract VeStaking is IVeStaking, Ownable {
     /* ========== EVENTS ========== */
 
     event RewardAdded(uint256 reward);
-    event Staked(address indexed user, uint256 amount);
-    event Withdrawn(address indexed user, uint256 amount);
-    event RewardPaid(address indexed user, uint256 reward);
+    event Staked(uint256 indexed tokenId, uint256 amount);
+    event Withdrawn(uint256 indexed tokenId, uint256 amount);
+    event BalanceUpdated(uint256 indexed tokenId, uint256 oldAmount, uint256 newAmount);
+    event RewardPaid(address indexed tokenId, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);
 }
