@@ -69,6 +69,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     address public voter;
     address public team;
     address public artProxy;
+    address public veStaking;
 
     mapping(uint256 => Point) public point_history; // epoch -> unsigned point
 
@@ -89,11 +90,14 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
     /// @notice Contract constructor
     /// @param token_addr `AIUS` token address
-    constructor(address token_addr, address art_proxy) {
+    /// @param art_proxy `VeNFTRender` contract address
+    /// @param _veStaking `VeStaking` contract address
+    constructor(address token_addr, address art_proxy, address _veStaking) {
         token = token_addr;
         voter = msg.sender;
         team = msg.sender;
         artProxy = art_proxy;
+        veStaking = _veStaking;
 
         point_history[0].blk = block.number;
         point_history[0].ts = block.timestamp;
@@ -141,6 +145,11 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     function setArtProxy(address _proxy) external {
         require(msg.sender == team);
         artProxy = _proxy;
+    }
+
+    function setVeStaking(address _veStaking) external {
+        require(msg.sender == team);
+        veStaking = _veStaking;
     }
 
     /// @dev Returns current token URI metadata
@@ -698,12 +707,31 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         }
         locked[_tokenId] = _locked;
 
+        // get current balance before checkpoint
+        uint256 balanceOfNFTBefore = _balanceOfNFT(_tokenId, block.timestamp);
+
         // Possibilities:
         // Both old_locked.end could be current or expired (>/< block.timestamp)
         // value == 0 (extend lock) or value > 0 (add to lock or extend lock)
         // _locked.end > block.timestamp (always)
         _checkpoint(_tokenId, old_locked, _locked);
 
+        // get current balance after checkpoint and calculate diff
+        uint256 balanceOfNFTAfter = _balanceOfNFT(_tokenId, block.timestamp);
+        uint256 balanceDiff = balanceOfNFTAfter - balanceOfNFTBefore;
+
+        // update veStaking balance
+        // three possibilites: 
+        // 1. create lock / increase lock amount: increase veStaking balance by `balanceDiff`
+        // 2. increase unlock time: update veStaking balance to `balanceOfNFTAfter`
+        // 3. merge: increase veStaking balance by `balanceDiff`
+        if (balanceDiff > 0 && deposit_type != DepositType.INCREASE_UNLOCK_TIME){
+            IVeStaking(veStaking)._stake(_tokenId, balanceDiff);
+        } else if (deposit_type == DepositType.INCREASE_UNLOCK_TIME) {
+            IVeStaking(veStaking)._updateBalance(_tokenId, balanceOfNFTAfter);
+        } 
+
+        // transfer tokens in 
         address from = msg.sender;
         if (_value != 0 && deposit_type != DepositType.MERGE_TYPE) {
             assert(IERC20(token).transferFrom(from, address(this), _value));
@@ -822,6 +850,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         // _locked has only 0 end
         // Both can have >= 0 amount
         _checkpoint(_tokenId, _locked, LockedBalance(0, 0));
+
+        // withdraw from veStaking and claim any outstanding rewards
+        IVeStaking(veStaking)._withdraw(_tokenId);
+        IVeStaking(veStaking).getReward(_tokenId);
 
         assert(IERC20(token).transfer(msg.sender, value));
 
@@ -1057,6 +1089,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         LockedBalance memory _locked1 = locked[_to];
         uint256 value0 = uint256(int256(_locked0.amount));
         uint256 end = _locked0.end >= _locked1.end ? _locked0.end : _locked1.end;
+
+        // withdraw from veStaking and claim any outstanding rewards
+        IVeStaking(veStaking)._withdraw(_from);
+        IVeStaking(veStaking).getReward(_from);
 
         locked[_from] = LockedBalance(0, 0);
         _checkpoint(_from, _locked0, LockedBalance(0, 0));
