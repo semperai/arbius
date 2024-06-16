@@ -697,7 +697,11 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         LockedBalance memory _locked = locked_balance;
         uint256 supply_before = supply;
 
-        supply = supply_before + _value;
+        // If we are merging, we don't need to add to supply
+        if(deposit_type != DepositType.MERGE_TYPE) {
+            supply = supply_before + _value;
+        }
+
         LockedBalance memory old_locked;
         (old_locked.amount, old_locked.end) = (_locked.amount, _locked.end);
         // Adding to existing lock, or if a lock is expired - creating a new one
@@ -735,10 +739,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         address from = msg.sender;
         if (_value != 0 && deposit_type != DepositType.MERGE_TYPE) {
             assert(IERC20(token).transferFrom(from, address(this), _value));
-        }
-
+            emit Supply(supply_before, supply_before + _value);
+            }
+            
         emit Deposit(from, _tokenId, _value, _locked.end, deposit_type, block.timestamp);
-        emit Supply(supply_before, supply_before + _value);
     }
 
     function block_number() external view returns (uint256) {
