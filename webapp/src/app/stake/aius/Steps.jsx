@@ -3,7 +3,7 @@ export default function Steps() {
     const steps = [
         "Select the amount of AIUS you want to lock.",
         "Select the duration, the minimum lock time is one week, and the maximum lock time is two years.",
-        "Confirm the lock duration",
+        "Confirm the lock duration.",
         "Details about your lock will be available inside the dashboard."
       ];
     return (

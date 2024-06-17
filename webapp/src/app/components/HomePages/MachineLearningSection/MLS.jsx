@@ -33,14 +33,14 @@ export default function MachineLearningSection() {
 
           <div>
             <Fade direction="up" triggerOnce={true}>
-              <div className="text-para lato-regular text-subtext-one">
+              <div className="text-para lato-regular text-subtext-one header-para " >
                 Arbius is a decentralized network for machine learning and a
                 token with a fixed supply like Bitcoin. New coins are generated
                 with GPU power by participating in the network. There is no
                 central authority to create new coins. Arbius is fully
                 open-source. Holders vote on-chain for protocol upgrades. Models
                 operate as DAOS with custom rules for distribution and rewards,
-                providing a way for model creators to earn income.
+                providing a way for model creators to earn&nbsp;income&nbsp;.
               </div>
             </Fade>
             <Fade direction="up" triggerOnce={true}>

@@ -401,3 +401,10 @@ input[type="number"]::-ms-reveal {
     color: black;
   }
   
+@media (min-width:769px) {
+
+    .header-para{
+        width: 105%;
+    }
+    
+}

@@ -113,13 +113,13 @@ export default function Models() {
           </div>
           <div className="lg:text-header 2xl:text-header-2xl text-mobile-header font-medium text-black-text mb-6">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
-              DeFi AI
+              DeFi for AI
             </Fade>
           </div>
           <Fade direction="up" triggerOnce={true}>
             <div>
               <div className="text-para text-subtext-three lato-regular text-subtext-two">
-              OSS (open source software) models such as Llama 3 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from AI.
+              OSS (open source software) models such as Llama 3 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from&nbsp;AI&nbsp;.
               </div>
             </div>
           </Fade>
