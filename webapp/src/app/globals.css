@@ -206,7 +206,7 @@
     opacity: 0;
 }  
 .model-container.fade-in {
-    opacity: 1;
+    opacity: 1 !important;
     animation:fade-in 500ms ease-in-out forwards
 }
 .CollaboratorsMarquee{

@@ -196,10 +196,23 @@ export default function Footer(){
                                 <p className="text-copyright-text text-[13px] lato-regular">&copy; Arbius 2024</p>
                             </div>
                         </div>
-                        <div>
+                        <div className="flex justify-between flex-row">
                             <div className="flex flex-col lg:flex-row items-start  lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
                                 {
-                                    footerLinks.map((link)=>{
+                                     footerLinks.slice(0,5).map((link)=>{
+                                        return(
+                                            <Link href={link.link} target="_blank" key={link.id}>
+                                                <div>
+                                                    <p className="text-[#393939] hover:text-purple-text lato-regular text-right font-medium text-[16px]">{link.name}</p>
+                                                </div>
+                                            </Link>
+                                        )
+                                    })
+                                }
+                            </div>
+                            <div className="flex flex-col lg:flex-row items-start  lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
+                                {
+                                     footerLinks.slice(-4).map((link)=>{
                                         return(
                                             <Link href={link.link} target="_blank" key={link.id}>
                                                 <div>
