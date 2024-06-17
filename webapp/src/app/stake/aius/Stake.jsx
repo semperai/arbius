@@ -55,8 +55,8 @@ export default function Stake() {
 
                                 <ReactSlider
                                     className=" text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
-                                    thumbClassName={`example-thumb w-[28px] h-[28px] ${sliderValue === 0 ? "ml-[-8px]" : "ml-[-4px]"} bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none`}
-
+                                    
+                                    thumbClassName= " w-[28px] h-[28px] ml-[-5px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none" 
                                     markClassName="customSlider-mark"
                                     marks={4}
                                     min={0}
@@ -64,15 +64,25 @@ export default function Stake() {
                                     max={24}
                                     defaultValue={0}
                                     value={sliderValue}
-                                    onAfterChange={(value) => {
-                                        setSliderValue(value)
-
+                                    onChange={(value)=>{
+                                        console.log(value);
                                         if (value < 1) {
                                             setDuration({ ...duration, months: 0, weeks: 4 * value })
                                         } else {
                                             setDuration({ ...duration, months: value, weeks: 0 })
                                         }
+                                        setSliderValue(value)
                                     }}
+                                    // onChange={(value) => {
+                                        
+
+                                    //     // if (value < 1) {
+                                    //     //     setDuration({ ...duration, months: 0, weeks: 4 * value })
+                                    //     // } else {
+                                    //     //     setDuration({ ...duration, months: value, weeks: 0 })
+                                    //     // }
+                                    //     setSliderValue(value)
+                                    // }}
                                     renderMark={(props) => {
 
 

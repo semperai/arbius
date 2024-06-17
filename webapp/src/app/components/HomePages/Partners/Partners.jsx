@@ -6,7 +6,7 @@ import labs from "../../../assets/images/labs.png";
 import exabits from "../../../assets/images/exabits.png";
 import nosana from "../../../assets/images/nosana.png";
 import arbitrum from "../../../assets/images/arbitrum.png";
-import unicrow from "../../../assets/images/unicrow.svg"
+import unicrow from "../../../assets/images/unicrow_logo.png"
 import Image from "next/image";
 
 export default function Partners() {

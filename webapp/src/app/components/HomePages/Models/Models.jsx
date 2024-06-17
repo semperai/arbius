@@ -92,7 +92,7 @@ export default function Models() {
       <div className="w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
         <div className="w-full lg:w-[50%]">
           <div className="text-[16px] lg:text-[12px] mb-2 lg:mb-0 Gradient-transparent-text bg-button-gradient-txt">
-            Multi-Model Economy!
+            Our Models!
           </div>
           <div className="lg:text-header 2xl:text-header-2xl text-mobile-header font-medium text-black-text mb-6">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
@@ -102,7 +102,7 @@ export default function Models() {
           <Fade direction="up" triggerOnce={true}>
             <div>
               <div className="text-para text-subtext-three lato-regular text-subtext-two">
-                Model creators are able to set a base fee for invocations, allowing them to monetize their creations. A portion of the revenue is also distributed to Arbius DAO&apos;s treasury and to those who hold veAIUS.
+              OSS (open source software) models such as Llama 3 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from AI.
               </div>
             </div>
           </Fade>

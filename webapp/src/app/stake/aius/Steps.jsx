@@ -25,12 +25,12 @@ export default function Steps() {
                     </div>
                     <div className="mt-[16px]">
                         <p className="text-original-black lato-regular">
-                            Confirm the lock duration
+                            Confirm the lock duration.
                         </p>
                     </div>
                     <div className="mt-[22px]">
                         <p className="text-original-black lato-regular">
-                            Details about your lock will be available inside the dashboard
+                            Details about your lock will be available inside the dashboard.
                         </p>
                     </div>
                 </div>
