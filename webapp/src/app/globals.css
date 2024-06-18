@@ -209,7 +209,7 @@
     opacity: 0;
 }  
 .model-container.fade-in {
-    opacity: 1 !important;
+    opacity: 1 ;
     animation:fade-in 500ms ease-in-out forwards
 }
 .CollaboratorsMarquee{

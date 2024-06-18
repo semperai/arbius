@@ -147,7 +147,7 @@ export default function Models() {
                   <div className={`text-[28px]  font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
                     {selectedModel}
                   </div>
-                  <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px]  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
+                  <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px]  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? " opacity-100" : "opacity-0"}`}>
                     {AllModels[selectedModel].text}
 
                     <div>
