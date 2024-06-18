@@ -84,7 +84,7 @@ export default function Models() {
         setActiveIndex(currentIndex);
         setSelectedModel(AllModelNames[currentIndex]);
         setModelFadeIn(true)
-
+        setCurrentImageIndex(currentIndex)
       }
     }, 20000); // Change the interval duration to 30 seconds (30000 milliseconds)
 
@@ -144,10 +144,10 @@ export default function Models() {
               </div>
               <Fade direction="top" triggerOnce={true}>
                 <div className="mt-[30px]">
-                  <div className={`text-[28px]  font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "opacity-100" : "opacity-0"}`}>
+                  <div className={`text-[28px]  font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "!opacity-100" : "opacity-0"}`}>
                     {selectedModel}
                   </div>
-                  <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px]  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? " opacity-100" : "opacity-0"}`}>
+                  <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px]  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "!opacity-100" : "opacity-0"}`}>
                     {AllModels[selectedModel].text}
 
                     <div>
@@ -155,7 +155,7 @@ export default function Models() {
                         <Link href={"https://amica.arbius.ai/"} target="_blank">
                           <button
                             type="button"
-                            className={` relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn || stopEffect ? "fade-in" : ""}`}
+                            className={` relative group bg-black py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn || stopEffect || opacity ? "fade-in" : ""}`}
                           >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="lato-bold  relative z-10 text-original-white">
