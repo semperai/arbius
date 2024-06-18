@@ -1,7 +1,7 @@
 "use client"
 import React from "react"
 import community_box from '@/app/assets/images/community_box.png'
-import arbius_data from '@/app/assets/images/arbius_data.png'
+import arbius_data from '@/app/assets/images/Arbiusdata_logo.svg'
 import arrow from '@/app/assets/images/arrow.png'
 import Image from "next/image"
 import Link from "next/link"
@@ -68,7 +68,7 @@ export default function Community(){
                                                     {
                                                         platform?.nameType==="Image"?
                                                         <Image src={platform?.nameImage} alt={platform?.name} width={150}/>
-                                                        :<h3 className="text-card-heading lato-bold text-[25px]">{platform?.name}</h3>
+                                                        :<h3 className="text-[#000000] lato-bold text-[25px]">{platform?.name}</h3>
                                                     }
                                                 </div>
                                                 <div>

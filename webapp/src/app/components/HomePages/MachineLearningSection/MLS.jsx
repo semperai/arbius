@@ -40,7 +40,7 @@ export default function MachineLearningSection() {
                 central authority to create new coins. Arbius is fully
                 open-source. Holders vote on-chain for protocol upgrades. Models
                 operate as DAOS with custom rules for distribution and rewards,
-                providing a way for model creators to earn&nbsp;income&nbsp;.
+                providing a way for model creators to earn&nbsp;income.&nbsp;
               </div>
             </Fade>
             <Fade direction="up" triggerOnce={true}>

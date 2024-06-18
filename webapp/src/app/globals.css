@@ -177,6 +177,9 @@
     .ArbiusPartners div img.nosana{
         @apply h-[25px];
     }
+    .ArbiusPartners div img.Unicrow{
+        @apply h-[40px];
+    }
 
 }
 /* Partners styles */
