@@ -40,25 +40,21 @@ export default function Partners() {
       "image": weboasis,
       "url": "https://weboasis.io/"
     },
-    "Unicrow":{
-      "image":unicrow,
-      "url":"https://unicrow.io/"
+    "Unicrow": {
+      "image": unicrow,
+      "url": "https://unicrow.io/"
     }
   }
 
   return (
     <div className="relative">
-      {/* <div className="text-center text-[16px] text-grey-text absolute top-[6px] left-[50%] translate-x-[-50%]">
-        trusted by
-      </div> */}
-
       <div className="CollaboratorsMarquee">
         <div className="ArbiusPartners flex items-center justify-around pt-[40px] pb-[40px] MarqueeContainer PartnersMarqueeContainer">
           {
-            Object.keys(partnersData).map(function(partner, index){
+            Object.keys(partnersData).map(function (partner, index) {
               return <div className="px-8" key={index}>
-                      <a href={partnersData[partner].url} target="_blank"><Image className={partner} src={partnersData[partner].image} priority={true} alt="" /></a>
-                    </div>
+                <a href={partnersData[partner].url} target="_blank"><Image className={partner} src={partnersData[partner].image} priority={true} alt="" /></a>
+              </div>
             })
           }
         </div>
@@ -67,10 +63,10 @@ export default function Partners() {
           aria-hidden="true"
         >
           {
-            Object.keys(partnersData).map(function(partner, index){
+            Object.keys(partnersData).map(function (partner, index) {
               return <div className="px-8" key={index}>
-                      <a href={partnersData[partner].url} target="_blank"><Image className={partner} src={partnersData[partner].image} priority={true} alt="" /></a>
-                    </div>
+                <a href={partnersData[partner].url} target="_blank"><Image className={partner} src={partnersData[partner].image} priority={true} alt="" /></a>
+              </div>
             })
           }
         </div>

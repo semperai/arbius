@@ -75,7 +75,7 @@ export default function MachineLearningSection() {
                         Read Whitepaper
                       </div>
                     </button>
-                 </div>
+                  </div>
                 </Link>
               </div>
             </Fade>
