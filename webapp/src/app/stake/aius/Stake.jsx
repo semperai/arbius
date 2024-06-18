@@ -36,26 +36,8 @@ export default function Stake() {
                         <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for 0.0 AIUS voting power.</p>
                         <div className="mb-10">
                             <div className="mb-8">
-                                {/* <ReactSlider
-                                min={0}
-                                max={24}
-                                step={1}
-                                marks={[0, 4, 8, 16,12, 20, 24]}
-                                markClassName={"w-[4px] h-[8px] bg-[#000000] ml-0"}
-                                onAfterChange={(value, index) =>
-                                    {
-                                        setSliderValue(value)
-                                    }
-                                }
-                                className="horizontal-slider text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
-                                thumbClassName={`example-thumb w-[28px] h-[28px] ${!sliderValue?"ml-[-5px]":"ml-[5px]"} bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none`}
-                                // trackClassName="bg-[#000000] h-[2px] w-[100%]"
-                                renderThumb={(props, state) => <div {...props}></div>}
-                            /> */}
-
                                 <ReactSlider
                                     className=" text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
-                                    
                                     thumbClassName= " w-[28px] h-[28px] ml-[-5px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none" 
                                     markClassName="customSlider-mark"
                                     marks={4}
@@ -73,39 +55,14 @@ export default function Stake() {
                                         }
                                         setSliderValue(value)
                                     }}
-                                    // onChange={(value) => {
-                                        
-
-                                    //     // if (value < 1) {
-                                    //     //     setDuration({ ...duration, months: 0, weeks: 4 * value })
-                                    //     // } else {
-                                    //     //     setDuration({ ...duration, months: value, weeks: 0 })
-                                    //     // }
-                                    //     setSliderValue(value)
-                                    // }}
                                     renderMark={(props) => {
-
-
-
                                         props.className = "customSlider-mark customSlider-mark-before text-[16px] text-start ml-[0px] w-[16.66%]";
-
-
-
                                         return <span {...props} >
-                                            <h1>{props.key}</h1>
-                                        </span>;
+                                                    <h1>{props.key}</h1>
+                                                </span>;
                                     }}
                                 />
                             </div>
-                            {/* <div className="flex justify-between items-center text-[#808080] lato-regular ">
-                            <p>0</p>
-                            <p>4</p>
-                            <p>8</p>
-                            <p>12</p>
-                            <p>16</p>
-                            <p>20</p>
-                            <p>24</p>
-                        </div> */}
                         </div>
                     </div>
                 </div>

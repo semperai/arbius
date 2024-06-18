@@ -30,7 +30,7 @@ export default function Footer() {
         //     id: "2",
         //     name: "Staking",
         //     link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
-        // },
+        // }, //commenting for mobile footer
         {
             id: "6",
             name: "Docs",
