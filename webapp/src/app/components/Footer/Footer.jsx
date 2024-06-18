@@ -26,11 +26,11 @@ export default function Footer() {
             name: "Media",
             link: "/media"
         },
-        {
-            id: "2",
-            name: "Staking",
-            link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
-        },
+        // {
+        //     id: "2",
+        //     name: "Staking",
+        //     link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
+        // },
         {
             id: "6",
             name: "Docs",
@@ -94,7 +94,7 @@ export default function Footer() {
         });
     }
     return (
-        <div className="bg-white-background lg:py-20 py-10">
+        <div className="bg-white-background lg:py-20 py-8">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <Fade direction="up" triggerOnce={true}>
                     <div className=" lg:block hidden">
@@ -175,7 +175,7 @@ export default function Footer() {
                         </div>
                     </div>
                     <div className="lg:hidden block">
-                        <div className="flex lm:flex-row flex-col justify-between w-[100%] ">
+                        <div className="flex  flex-col justify-between w-[100%] ">
                             <div>
                                 <div>
                                     <Image src={arbius_logo} className="h-[40px] w-[auto]" alt="arbius" />
@@ -201,7 +201,7 @@ export default function Footer() {
                             <div className="flex justify-between flex-row">
                                 <div className="flex flex-col lg:flex-row items-start  lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
                                     {
-                                        footerLinks.slice(0, 5).map((link) => {
+                                        footerLinks.slice(0, 4).map((link) => {
                                             return (
                                                 <Link href={link.link} target="_blank" key={link.id}>
                                                     <div>
