@@ -4,6 +4,9 @@ import Head from 'next/head';
 import amica from "../../../assets/images/amica.png";
 import generativeAI from "../../../assets/images/ai_generation.png";
 import marketplace from "../../../assets/images/marketplace.png";
+import amica_mobile from "../../../assets/images/amica_mobile.png";
+import generativeAI_mobile from "../../../assets/images/ai_generation_mobile.png";
+import marketplace_mobile from "../../../assets/images/marketplace_mobile.png";
 import NextImage from "next/image";
 import right_arrow from "../../../assets/images/arrow.png";
 import arbius_logo_round from "../../../assets/images/arbius_logo_round.png";
@@ -20,17 +23,20 @@ export default function Models() {
     "Generative AI": {
       text: "Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.",
       image: generativeAI,
+      mobile_image: generativeAI_mobile,
       background: "bg-ai-gradient",
     },
     "Amica": {
       text: "Amica is an open source AI persona chatbot interface that provides emotion, bi-directional text to speech, audial interpretation, and visual recognition based interactions.",
       image: amica,
+      mobile_image: amica_mobile,
       background: "bg-ai-gradient",
       link: "https://amica.arbius.ai/",
     },
     "Marketplace": {
       text: "Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here! Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.",
       image: marketplace,
+      mobile_image: marketplace_mobile,
       background: "bg-ai-gradient",
     },
   };
@@ -216,7 +222,7 @@ export default function Models() {
                       <div className="relative">
                         <NextImage
                           className="h-[240px] w-[full] object-cover rounded-[20px]"
-                          src={AllModels[item].image}
+                          src={AllModels[item].mobile_image}
                           objectFit="cover"
                           alt=""
                           onMouseOver={() => toggleBackground(true)}
