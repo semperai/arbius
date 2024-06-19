@@ -221,7 +221,7 @@ export default function Models() {
                     >
                       <div className="relative">
                         <NextImage
-                          className="h-[240px] w-[full] object-cover rounded-[20px]"
+                          className="h-[240px] w-[full] object-contain rounded-[20px]"
                           src={AllModels[item].mobile_image}
                           objectFit="contain"
                           alt=""
