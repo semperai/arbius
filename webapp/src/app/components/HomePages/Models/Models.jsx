@@ -223,7 +223,7 @@ export default function Models() {
                         <NextImage
                           className="h-[240px] w-[full] object-cover rounded-[20px]"
                           src={AllModels[item].mobile_image}
-                          objectFit="cover"
+                          objectFit="contain"
                           alt=""
                           onMouseOver={() => toggleBackground(true)}
                           onMouseOut={() => toggleBackground(false)}
