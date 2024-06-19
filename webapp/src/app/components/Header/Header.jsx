@@ -28,34 +28,49 @@ export default function Header() {
       setModelsOpen(false);
     }
   }, []);
-  useEffect(()=>{
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-        if(route){
-            // setActiveLink(route)
-        }
-  }
-  return()=>{
-       
-  }
-  },[route])
+      if (route) {
+        // setActiveLink(route)
+      }
+    }
+    return () => {
+
+    }
+  }, [route])
+
+  // useEffect(() => {
+  //   function handleScroll() {
+  //     var header = document.getElementById('headerId');
+  //     console.log(header, "YO")
+  //     let st = window.pageYOffset || document.documentElement.scrollTop;
+  //     if (st > lastScrollTop) {
+  //       header.style.opacity = 0
+  //     } else {
+  //       // setOpacity(1);  // scrolling up, show header
+  //       header.style.opacity = 1;
+  //     }
+  //     setLastScrollTop(st <= 0 ? 0 : st);
+  //   }
+
+  //   window.addEventListener('scroll', handleScroll);
+  //   return () => window.removeEventListener('scroll', handleScroll);
+  // }, [lastScrollTop]);
 
   useEffect(() => {
-    function handleScroll() {
-      var header = document.getElementById('headerId');
-      console.log(header, "YO")
-      let st = window.pageYOffset || document.documentElement.scrollTop;
-      if (st > lastScrollTop) {
-        header.style.opacity = 0
-      } else {
-        // setOpacity(1);  // scrolling up, show header
-        header.style.opacity = 1;
-      }
-      setLastScrollTop(st <= 0 ? 0 : st);
+    if(!document)
+      return 
+    if (headerOpen) {
+      console.log("heree");
+      let bg = document.getElementsByTagName("main")
+      bg[0].style.display = "none"
+    } else {
+      console.log("heree");
+      let bg = document.getElementsByTagName("main")
+      bg[0].style.display = "block"
     }
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollTop]);
+  }, [headerOpen])
 
   return (
     <div
@@ -74,173 +89,177 @@ export default function Header() {
         </div>
         <div
           className={`${headerOpen ? "w-[100%]" : "w-[0%]"
-            } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row`}
+            } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row overflow-y-auto`}
         >
-          <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
-            <Link href={"https://arbius.ai/generate"} target="_blank">
-              <div className="item hover:text-purple-text">Generate</div>
-            </Link>
+          <div className={headerOpen ? "relative overflow-auto h-[93vh] pb-8":"hidden"}>
 
-            <div className="link-with-image relative group w-[auto]">
-              <div
-                className={`link lg:block ${activeLink == 'stake/aius' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
-                onClick={() => setStakingOpen(!stakingOpen)}
-              >
-                Staking
-                <Image
-                  className="ext-link hidden lg:block max-w-[unset]"
-                  src={external_link}
-                  alt=""
-                />
-                <Image
-                  className={`${stakingOpen ? "rotate-[180deg] mb-1" : ""
-                    } transition mobile-height ext-link block lg:hidden mt-2`}
-                  src={down_arrow}
-                  alt=""
-                />
+            <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
+              <Link href={"https://arbius.ai/generate"} target="_blank">
+                <div className="item hover:text-purple-text">Generate</div>
+              </Link>
+
+              <div className="link-with-image relative group w-[auto]">
+                <div
+                  className={`link lg:block ${activeLink == 'stake/aius' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
+                  onClick={() => setStakingOpen(!stakingOpen)}
+                >
+                  Staking
+                  <Image
+                    className="ext-link hidden lg:block max-w-[unset]"
+                    src={external_link}
+                    alt=""
+                  />
+                  <Image
+                    className={`${stakingOpen ? "rotate-[180deg] mb-1" : ""
+                      } transition mobile-height ext-link block lg:hidden mt-2`}
+                    src={down_arrow}
+                    alt=""
+                  />
+                </div>
+                <div className="p-[15px_30px] bg-[black] absolute opacity-0"></div>
+                <AnimateHeight height={stakingOpen ? "auto" : 0}>
+                  <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex ">
+                    <Link
+                      href={
+                        "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
+                      }
+                      target="_blank"
+                    >
+
+                      <div className="staking-block relative">
+                        <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
+                        </div>
+                        <Image
+                          className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
+                          src={gysr}
+                          alt=""
+                        />
+                        <div className="lato-bold">GYSR</div>
+                        <div>Provide liquidity, earn AIUS rewards.</div>
+                      </div>
+                    </Link>
+                    <Link
+                      href={"/stake/aius"}
+                      onClick={() => {
+                        setHeaderOpen(!headerOpen)
+                      }}
+                    >
+                      <div className="staking-block relative">
+                        <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
+                          <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Coming Soon</p>
+                        </div>
+                        <Image
+                          className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
+                          src={arbius}
+                          alt=""
+                        />
+                        <div>veAIUS</div>
+                        <div>Lock AIUS, earn rewards over time.</div>
+                      </div>
+                    </Link>
+                  </div>
+                </AnimateHeight>
               </div>
-              <div className="p-[15px_30px] bg-[black] absolute opacity-0"></div>
-              <AnimateHeight height={stakingOpen ? "auto" : 0}>
-                <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex ">
-                  <Link
-                    href={
-                      "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
-                    }
-                    target="_blank"
-                  >
-
-                    <div className="staking-block relative">
-                      <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                        <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
-                      </div>
-                      <Image
-                        className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
-                        src={gysr}
-                        alt=""
-                      />
-                      <div className="lato-bold">GYSR</div>
-                      <div>Provide liquidity, earn AIUS rewards.</div>
-                    </div>
-                  </Link>
-                  <Link
-                    href={"/stake/aius"}
-                    onClick={() => {
-                      setHeaderOpen(!headerOpen)
-                    }}
-                  >
-                    <div className="staking-block relative">
-                      <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
-                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Coming Soon</p>
-                      </div>
-                      <Image
-                        className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
-                        src={arbius}
-                        alt=""
-                      />
-                      <div>veAIUS</div>
-                      <div>Lock AIUS, earn rewards over time.</div>
-                    </div>
-                  </Link>
+              <div className="relative group link-with-image ">
+                <div
+                  className="link hover:!text-purple-text "
+                  onClick={() => setModelsOpen(!modelsOpen)}
+                >
+                  <h1>Models</h1>
+                  <Image
+                    className={`${modelsOpen ? "rotate-[180deg] mb-1" : ""
+                      } transition mobile-height inline ext-link block lg:hidden mt-2`}
+                    src={down_arrow}
+                    alt=""
+                  />
                 </div>
-              </AnimateHeight>
-            </div>
-            <div className="relative group link-with-image ">
-              <div
-                className="link hover:!text-purple-text "
-                onClick={() => setModelsOpen(!modelsOpen)}
-              >
-                <h1>Models</h1>
-                <Image
-                  className={`${modelsOpen ? "rotate-[180deg] mb-1" : ""
-                    } transition mobile-height inline ext-link block lg:hidden mt-2`}
-                  src={down_arrow}
-                  alt=""
-                />
+                <div className="p-[15px_30px] bg-[black] absolute opacity-0 ml-[-5px]"></div>
+                <AnimateHeight height={modelsOpen ? "auto" : 0}>
+                  <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex">
+                    <Link href={"https://arbius.ai/generate"} target="_blank">
+                      <div className="staking-block">
+                        <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
+                          <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
+                        </div>
+                        <Image
+                          className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
+                          src={kandinsky}
+                          alt=""
+                        />
+                        <div>Kandinsky 2</div>
+                        <div>Image Generation</div>
+                      </div>
+                    </Link>
+                    <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
+                      <div className="staking-block">
+                        <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
+                          <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
+                        </div>
+                        <Image
+                          className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]]"
+                          src={kasumi_l}
+                          alt=""
+                        />
+                        <div>Kasumi 2</div>
+                        <div>Telegram Integrated Mining Agent & Image Generator</div>
+                      </div>
+                    </Link>
+                    <Link target="_blank" href={"https://amica.arbius.ai/"}>
+                      <div className="staking-block">
+                        <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
+                          <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
+                        </div>
+                        <Image
+                          className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
+                          src={amica_l}
+                          alt=""
+                        />
+                        <div>Amica</div>
+                        <div>AI persona</div>
+                      </div>
+                    </Link>
+                  </div>
+                </AnimateHeight>
               </div>
-              <div className="p-[15px_30px] bg-[black] absolute opacity-0 ml-[-5px]"></div>
-              <AnimateHeight height={modelsOpen ? "auto" : 0}>
-                <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex">
-                  <Link href={"https://arbius.ai/generate"} target="_blank">
-                    <div className="staking-block">
-                      <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
-                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
-                      </div>
-                      <Image
-                        className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
-                        src={kandinsky}
-                        alt=""
-                      />
-                      <div>Kandinsky 2</div>
-                      <div>Image Generation</div>
-                    </div>
-                  </Link>
-                  <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
-                    <div className="staking-block">
-                      <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
-                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
-                      </div>
-                      <Image
-                        className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]]"
-                        src={kasumi_l}
-                        alt=""
-                      />
-                      <div>Kasumi 2</div>
-                      <div>Telegram Integrated Mining Agent & Image Generator</div>
-                    </div>
-                  </Link>
-                  <Link target="_blank" href={"https://amica.arbius.ai/"}>
-                    <div className="staking-block">
-                      <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                        <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
-                      </div>
-                      <Image
-                        className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
-                        src={amica_l}
-                        alt=""
-                      />
-                      <div>Amica</div>
-                      <div>AI persona</div>
-                    </div>
-                  </Link>
+
+              <Link href={"https://arbius.ai/explorer"} target="_blank">
+                <div className="item hover:text-purple-text">Explorer</div>
+              </Link>
+
+              <Link href={"https://docs.arbius.ai/"} target="_blank">
+                <div className="link-with-image">
+                  <div className="link hover:!text-purple-text">
+                    Docs
+                    <Image className="ext-link" src={external_link} alt="" />
+                  </div>
                 </div>
-              </AnimateHeight>
-            </div>
-
-            <Link href={"https://arbius.ai/explorer"} target="_blank">
-              <div className="item hover:text-purple-text">Explorer</div>
-            </Link>
-
-            <Link href={"https://docs.arbius.ai/"} target="_blank">
-              <div className="link-with-image">
-                <div className="link hover:!text-purple-text">
-                  Docs
-                  <Image className="ext-link" src={external_link} alt="" />
-                </div>
-              </div>
-            </Link>
-            <Link
-              href={"/media"}
-              onClick={() => {
-                setHeaderOpen(!headerOpen)
-              }}
-            >
-              <div className={`item lg:block ${activeLink == 'media' ? '!text-purple-text' : 'hover:!text-purple-text'}`}>Media</div>
-            </Link>
-
-          </div>
-          <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[40px] lg:mb-[0]">
-            <div>
-              {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
-              <button
-                type="button"
-                className="m-[auto] relative group bg-black lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
+              </Link>
+              <Link
+                href={"/media"}
+                onClick={() => {
+                  setHeaderOpen(!headerOpen)
+                }}
               >
-                <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white">
-                  Connect
-                </div>
-              </button>
+                <div className={`item lg:block ${activeLink == 'media' ? '!text-purple-text' : 'hover:!text-purple-text'}`}>Media</div>
+              </Link>
+
             </div>
+            <div className="hidden lg:block relative mt-[20px] mb-[100px] lg:mt-[0] lg:ml-[40px] lg:mb-[0]">
+              <div>
+                {/*<button className="hover:bg-buy-hover transition-all ease-in duration-300 bg-[black] p-[5px_25px] rounded-[20px] text-[white] text-[14px]">Connect</button>*/}
+                <button
+                  type="button"
+                  className="m-[auto] relative group bg-black lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
+                >
+                  <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white">
+                    Connect
+                  </div>
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
         <div className="flex items-center lg:hidden MobileHeader">
