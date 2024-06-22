@@ -8,7 +8,8 @@ import {SD59x18, sd, unwrap} from "@prb/math/src/SD59x18.sol";
 import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
-import "hardhat/console.sol";
+
+import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant RESERVED_ENGINE_TOKEN_AMOUNT = 300_000e18;
@@ -63,7 +64,7 @@ struct Contestation {
     uint256 slashAmount; // amount to slash
 }
 
-contract V2_EngineV3 is OwnableUpgradeable {
+contract V2_EngineV4 is OwnableUpgradeable {
     IBaseToken public baseToken;
 
     address public treasury; // where treasury fees/rewards go
@@ -143,7 +144,11 @@ contract V2_EngineV3 is OwnableUpgradeable {
     uint256 public taskOwnerRewardPercentage; // v3
     uint256 public contestationVoteExtensionTime; // v3
 
-    uint256[40] __gap; // upgradeable gap
+    address public veStaking; // v4
+    uint256 veRewards; // v4
+
+
+    uint256[38] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
 
@@ -231,14 +236,8 @@ contract V2_EngineV3 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public reinitializer(3) {
-        minClaimSolutionTime = 3600; // 60 minutes
-        minContestationVotePeriodTime = 360; // 6 minutes
-        exitValidatorMinUnlockTime = 259200; // 3 days
-        solutionRateLimit = 1 ether; // 1 second required between solution submissions
-        taskOwnerRewardPercentage = 0.1 ether; // 10%
-        contestationVoteExtensionTime = 10; // 10 seconds
-        totalHeld = 3333; // TODO update this during upgrade
+    function initialize() public reinitializer(4) {
+        taskOwnerRewardPercentage = 0;
     }
 
     /// @notice Transfer ownership
@@ -296,6 +295,13 @@ contract V2_EngineV3 is OwnableUpgradeable {
     function setStartBlockTime(uint64 startBlockTime_) external onlyOwner {
         startBlockTime = startBlockTime_;
         emit StartBlockTimeChanged(startBlockTime_);
+    }
+
+    /// @notice Set veStaking address
+    /// @dev introduced in v4
+    /// @param veStaking_ veStaking address
+    function setVeStaking(address veStaking_) external onlyOwner {
+        veStaking = veStaking_;
     }
 
     /// @notice Get slash amount
@@ -831,9 +837,17 @@ contract V2_EngineV3 is OwnableUpgradeable {
             );
         }
 
+        // if block.timestamp > veStaking.periodFinish, set veReward to 0 and transfer funds via veStaking.notifyRewardAmount
+        if(block.timestamp > IVeStaking(veStaking).periodFinish()){
+            IVeStaking(veStaking).notifyRewardAmount(veRewards);
+            veRewards = 0;
+        }
+                
         uint256 modelRate = models[tasks[taskid_].model].rate;
         if (modelRate > 0) {
-            uint256 total = (getReward() * modelRate) / 1e18;
+            // half of emissions are distributed to veStaking
+            uint256 total = (getReward() * modelRate) / 2e18; 
+            veRewards += total;
 
             if (total > 0) {
                 uint256 treasuryReward = total -
