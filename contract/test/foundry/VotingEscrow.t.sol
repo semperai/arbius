@@ -10,13 +10,11 @@ contract VotingEscrowTest is BaseTest {
         vm.warp((1704067200  / WEEK) * WEEK); // Thu Dec 28 2023 00:00:00 GMT+0000
 
         deployContracts();
-        mintAius(alice, 1000 ether);
-        mintAius(address(this), 1000 ether);
-
-        // approve AIUS to votingEscrow
-        AIUS.approve(address(votingEscrow), 1000 ether);
-        vm.prank(alice);
-        AIUS.approve(address(votingEscrow), 1000 ether);
+        
+        // mint and approve AIUS 
+        mintTestAius();
+        approveTestAiusToEscrow();
+        approveTestAiusToVeStaking();
     }
 
     function testCreateLock() public {
@@ -27,6 +25,20 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.create_lock(1000 ether, YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
         assertEq(votingEscrow.balanceOf(alice), 1);
+    }
+
+    function testCreateTwoLocks() public {
+        vm.prank(alice);
+        votingEscrow.create_lock(1000 ether, YEAR);
+
+        skip(1 weeks);
+        vm.roll(block.number + 1);
+
+        vm.prank(bob);
+        votingEscrow.create_lock(1000 ether, 104 weeks);
+
+        assertEq(votingEscrow.balanceOf(address(alice)), 1);
+        assertEq(votingEscrow.balanceOf(address(bob)), 1);
     }
 
     function testTotalSupplyDecreasing() public {

@@ -46,18 +46,16 @@ contract BaseTest is Test {
         votingEscrow.setVeStaking(address(veStaking));
     }
 
-    function mintAius(address to, uint256 amount) public {
-        AIUS.mint(to, amount);
+
+    function mintTestAius() public {
+        AIUS.mint(address(this), 1000 ether);
+        AIUS.mint(alice, 1000 ether);
+        AIUS.mint(bob, 1000 ether);
+        AIUS.mint(charlie, 1000 ether);
+        AIUS.mint(dave, 1000 ether);
     }
 
-    function mintAndApproveAius() public {
-        mintAius(alice, 1000 ether);
-        mintAius(bob, 1000 ether);
-        mintAius(charlie, 1000 ether);
-        mintAius(dave, 1000 ether);
-        mintAius(address(this), 1000 ether);
-
-        // approve AIUS to votingEscrow
+    function approveTestAiusToEscrow() public {
         AIUS.approve(address(votingEscrow), 1000 ether);
 
         vm.prank(alice);
@@ -68,5 +66,18 @@ contract BaseTest is Test {
         AIUS.approve(address(votingEscrow), 1000 ether);
         vm.prank(dave);
         AIUS.approve(address(votingEscrow), 1000 ether);    
+    }
+
+    function approveTestAiusToVeStaking() public {
+        AIUS.approve(address(veStaking), 1000 ether);
+
+        vm.prank(alice);
+        AIUS.approve(address(veStaking), 1000 ether);
+        vm.prank(bob);
+        AIUS.approve(address(veStaking), 1000 ether);
+        vm.prank(charlie);
+        AIUS.approve(address(veStaking), 1000 ether);
+        vm.prank(dave);
+        AIUS.approve(address(veStaking), 1000 ether);    
     }
 }

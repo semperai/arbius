@@ -11,11 +11,11 @@ contract VeStakingTest is BaseTest {
 
         deployContracts();
 
-        // mint AIUS 
-        mintAndApproveAius();
+        // mint and approve AIUS 
+        mintTestAius();
+        approveTestAiusToEscrow();
+        approveTestAiusToVeStaking();
 
-        // approve AIUS to veStaking
-        AIUS.approve(address(veStaking), 1000 ether);
         // add rewards to veStaking
         veStaking.notifyRewardAmount(7 ether);
     }
@@ -72,13 +72,13 @@ contract VeStakingTest is BaseTest {
 
         skip(1 days);
 
-        // 1% error allowed due to rounding
-        assertApproxEqRel(veStaking.earned(1), 1 ether, 1e16, "!earned");
+        // 0.1% error allowed due to rounding
+        assertApproxEqRel(veStaking.earned(1), 1 ether, 1e15, "!earned");
 
         skip(6 days);
 
-        // 1% error allowed due to rounding
-        assertApproxEqRel(veStaking.earned(1), 7 ether, 1e16, "!earned");
+        // 0.1% error allowed due to rounding
+        assertApproxEqRel(veStaking.earned(1), 7 ether, 1e15, "!earned");
     }
 
     function testGetReward() public {
@@ -99,6 +99,11 @@ contract VeStakingTest is BaseTest {
 
         veStaking.notifyRewardAmount(10 ether);
         assertGt(veStaking.rewardRate(), initialRewardRate, "!rewardRate");
+    }
+
+    function testGetRewardForDuration() public {
+        // 0.1% error allowed due to rounding
+        assertApproxEqRel(veStaking.getRewardForDuration(), 7 ether, 1e15, "!getRewardForDuration");
     }
 
     function testStake() public {
