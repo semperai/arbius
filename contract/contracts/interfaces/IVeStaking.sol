@@ -18,6 +18,7 @@ interface IVeStaking {
     function rewardPerTokenPaid(uint256) external view returns (uint256);
 
     // Mutative
+    function notifyRewardAmount(uint256 reward) external;
     function getReward(uint256 tokenId) external;
     function _stake(uint256 tokenId, uint256 amount) external;
     function _withdraw(uint256 amount) external;
