@@ -13,7 +13,8 @@
     "size": "npx hardhat size-contracts",
     "prettier:check": "prettier --check .",
     "prettier:lint": "prettier --write .",
-    "coverage": "npx hardhat coverage --network localhost"
+    "coverage": "npx hardhat coverage --network localhost",
+    "forge-test": "forge test --fork-url http://localhost:8545 --fork-block-number 1"
   },
   "devDependencies": {
     "@arbitrum/nitro-contracts": "^1.0.2",
