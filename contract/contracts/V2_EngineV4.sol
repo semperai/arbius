@@ -8,12 +8,9 @@ import {SD59x18, sd, unwrap} from "@prb/math/src/SD59x18.sol";
 import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
-
 import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
-uint256 constant RESERVED_ENGINE_TOKEN_AMOUNT = 300_000e18;
-uint256 constant EMISSION_ENGINE_TOKEN_AMOUNT = STARTING_ENGINE_TOKEN_AMOUNT - RESERVED_ENGINE_TOKEN_AMOUNT;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
@@ -360,12 +357,12 @@ contract V2_EngineV4 is OwnableUpgradeable {
         // ms * (1 - 1 / 2 ** (t/(60*60*24*365)))
         // target is max
         if (t > 3153600000) {
-            return EMISSION_ENGINE_TOKEN_AMOUNT;
+            return STARTING_ENGINE_TOKEN_AMOUNT;
         }
         uint256 e = unwrap(ud(t).div(ud(60 * 60 * 24 * 365)).exp2());
         return
-            EMISSION_ENGINE_TOKEN_AMOUNT -
-            ((EMISSION_ENGINE_TOKEN_AMOUNT * 1e18 * 1e18) / e / 1e18);
+            STARTING_ENGINE_TOKEN_AMOUNT -
+            ((STARTING_ENGINE_TOKEN_AMOUNT * 1e18 * 1e18) / e / 1e18);
     }
 
     /// @notice Difficulty multiplier
@@ -424,9 +421,9 @@ contract V2_EngineV4 is OwnableUpgradeable {
         }
 
         return
-            (((EMISSION_ENGINE_TOKEN_AMOUNT - ts) *
+            (((STARTING_ENGINE_TOKEN_AMOUNT - ts) *
                 BASE_TOKEN_STARTING_REWARD) * diffMul(t, ts)) /
-            EMISSION_ENGINE_TOKEN_AMOUNT / 2 /
+            STARTING_ENGINE_TOKEN_AMOUNT /
             1e18;
     }
 
@@ -435,17 +432,13 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @return Total supply of Engine tokens
     function getPsuedoTotalSupply() public view returns (uint256) {
         uint256 balance = baseToken.balanceOf(address(this));
-        if (balance == 0) {
-            return EMISSION_ENGINE_TOKEN_AMOUNT;
-        }
-
-        // hard assumption the balance will be over 300k
-        uint256 b = balance - totalHeld - RESERVED_ENGINE_TOKEN_AMOUNT;
-        if (b >= EMISSION_ENGINE_TOKEN_AMOUNT) {
+        if (balance >= STARTING_ENGINE_TOKEN_AMOUNT) {
             return 0;
         }
 
-        return EMISSION_ENGINE_TOKEN_AMOUNT - b;
+        uint256 b = balance - totalHeld;
+
+        return STARTING_ENGINE_TOKEN_AMOUNT - b;
     }
 
     /// @notice Calculates the reward for current timestamp/supply
