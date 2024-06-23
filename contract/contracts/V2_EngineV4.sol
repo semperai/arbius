@@ -237,7 +237,6 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
     function initialize() public reinitializer(4) {
-        taskOwnerRewardPercentage = 0;
     }
 
     /// @notice Transfer ownership
@@ -846,6 +845,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
         uint256 modelRate = models[tasks[taskid_].model].rate;
         if (modelRate > 0) {
             // half of emissions are distributed to veStaking
+            // todo: maybe increasing precision? -> TEST! 
             uint256 total = (getReward() * modelRate) / 2e18; 
             veRewards += total;
 
