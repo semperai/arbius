@@ -141,8 +141,9 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
+    // Recover tokens that are accidentally sent to the contract
     function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
+        require(tokenAddress != address(rewardsToken), "Cannot withdraw the rewards token");
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
         emit Recovered(tokenAddress, tokenAmount);
     }
