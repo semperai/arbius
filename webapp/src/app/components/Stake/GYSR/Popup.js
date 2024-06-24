@@ -45,7 +45,7 @@ function Popup({isPopupOpen, setIsPopupOpen}) {
 
                     <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3 w-[100%] lg:w-[100%]" onClick={() => setIsStakeClicked(true)}>
                         <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <p className="relative z-10 text-original-white font-Sequel-Sans-Medium-Head mb-1 w-[100%] lg:w-[100%]">Claim</p>
+                        <p className="relative z-10 text-original-white  mb-1 w-[100%] lg:w-[100%]">Claim</p>
 
                     </button>
 

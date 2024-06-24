@@ -50,7 +50,7 @@ function TopHeaderSection() {
                         </div>
 
                     </div>
-                    <p className="text-para text-subtext-three font-Sequel-Sans-Light-Body text-subtext-two mt-6">
+                    <p className="text-para text-subtext-three  text-subtext-two mt-6">
                         Stake AIUS and ETH, earn AIUS rewards.
                     </p>
 

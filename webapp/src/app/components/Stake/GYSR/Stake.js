@@ -68,17 +68,17 @@ function Stake() {
                         </div>
 
 
-                        <div className="flex justify-end items-center gap-4">
+                        <div className="flex justify-end items-center gap-4 mt-4 md:mb-0">
                             <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3" onClick={() =>{
                                 handleApproveClick()
                             }}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <p className="relative z-10 text-original-white text-[13px] font-Sequel-Sans-Medium-Head mb-[1px]">Approve SUNI-V2</p>
+                                <p className="relative z-10 text-original-white text-[13px] mb-[2px]">Approve SUNI-V2</p>
                             </button>
 
                             <button type="button" className="relative group bg-[#121212] py-2 bg-opacity-5 px-8 rounded-full flex items-center  gap-3" onClick={() => setIsStakeClicked(true)}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full  opacity-0  transition-opacity duration-500"></div>
-                                <p className="relative z-10 text-[#101010] opacity-30 text-[15px] font-Sequel-Sans-Medium-Head mb-[1px]">Stake</p>
+                                <p className="relative z-10 text-[#101010] opacity-30 text-[15px] mb-[2px]">Stake</p>
                             </button>
                         </div>
 
@@ -174,12 +174,12 @@ function Stake() {
                             <div className="flex justify-end items-center gap-4 mt-6">
                                 <button type="button" className="relative group bg-[#121212] py-2 bg-opacity-5 px-8 rounded-full flex items-center  gap-3" onClick={() => setIsStakeClicked(true)}>
                                     <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full  opacity-0  transition-opacity duration-500"></div>
-                                    <p className="relative z-10 text-[#101010] opacity-30 text-[15px] font-Sequel-Sans-Medium-Head mb-[1px]">Stake</p>
+                                    <p className="relative z-10 text-[#101010] opacity-30 text-[15px]  mb-[1px]">Claim</p>
 
                                 </button>
                                 <button type="button" className="relative group bg-[#121212] py-2 bg-opacity-5 px-8 rounded-full flex items-center  gap-3" onClick={() => setIsStakeClicked(true)}>
                                     <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full  opacity-0  transition-opacity duration-500"></div>
-                                    <p className="relative z-10 text-[#101010] opacity-30 text-[15px] font-Sequel-Sans-Medium-Head mb-[1px]">Stake</p>
+                                    <p className="relative z-10 text-[#101010] opacity-30 text-[15px]  mb-[1px]">Unstake & Claim</p>
 
                                 </button>
                             </div>
@@ -210,7 +210,7 @@ function Stake() {
 
                             <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3 w-[100%] lg:w-[auto]" onClick={() => setIsStakeClicked(true)}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <p className="relative z-10 text-original-white font-Sequel-Sans-Medium-Head mb-1 w-[100%] lg:w-[auto]">Connect Wallet</p>
+                                <p className="relative z-10 text-original-white  mb-1 w-[100%] lg:w-[auto]">Connect Wallet</p>
 
                             </button>
 
@@ -238,7 +238,7 @@ function Stake() {
 
                             <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3 w-[100%] lg:w-[auto]" onClick={() => setIsStakeClicked(true)}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <p className="relative z-10 text-original-white font-Sequel-Sans-Medium-Head mb-1 w-[100%] lg:w-[auto]">Connect Wallet</p>
+                                <p className="relative z-10 text-original-white  mb-1 w-[100%] lg:w-[auto]">Connect Wallet</p>
 
                             </button>
 

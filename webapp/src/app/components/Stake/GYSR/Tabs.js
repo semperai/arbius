@@ -52,7 +52,7 @@ function Tabs() {
                                         setMobileSelectedTab(item)
                                         setSelectedTab(item)
                                     }}>
-                                        <p className="relative z-10  font-Sequel-Sans-Medium-Head mb-1 ">{item}</p>
+                                        <p className="relative z-10   mb-1 ">{item}</p>
                                     </button>
                                 </div>
                             )
