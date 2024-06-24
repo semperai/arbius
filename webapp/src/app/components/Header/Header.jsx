@@ -73,7 +73,7 @@ export default function Header() {
           </a>
         </div>
         <div
-          className={`${headerOpen ? "w-[100%] pb-[90px] md:pb-0" : "w-[0%]"
+          className={`${headerOpen ? "w-[100%] pb-[90px] lg:pb-0" : "w-[0%]"
             } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row`}
         >
           <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">

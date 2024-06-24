@@ -51,7 +51,7 @@ const posts =[
 export default function ArbiusMedia() {
   return (
     <div className='w-[100%] h-[100%] bg-media-gradient py-20'>
-      <div className="bg-gray-50 lg:p-0 w-mobile-section-width lg:w-section-width m-[auto] max-w-center-width ">
+      <div className="bg-gray-50 lg:p-0 w-mobile-section-width lg:w-[90%] xl:w-section-width m-[auto] max-w-center-width ">
         <div className='pt-10 pb-10'>
           <div className="flex items-center lg:flex-row flex-col justify-between pb-5">
             <div className="lg:w-[70%] 2xl:w-[50%] w-[100%]">
@@ -82,7 +82,7 @@ export default function ArbiusMedia() {
                       
           </div>
           </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-2  xl:grid-cols-3 gap-8">
           {posts.map((post, index) => (
             <div key={index}>
               <div id="image-parent" className="relative bg-models-gradient border-transparent w-[350px] h-[260px] flex justify-center items-center rounded-[30px] ">

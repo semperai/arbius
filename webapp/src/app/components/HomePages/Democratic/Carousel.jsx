@@ -12,7 +12,7 @@ export default function Carousel({ cardsData }) {
     };
 
     return (
-        <div className="relative mt-4">
+        <div className="relative mt-7">
             <div className=" w-[100%] overflow-hidden flex">
                 {
                     cardsData.map((card) => {
