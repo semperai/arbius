@@ -2,17 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face{
-    font-family: "Sequel-Sans-Light-Body";
-    src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/Sequel-Sans-Light-Body_d83yzy.ttf');
-    /*https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/Sequel-Sans-Light-Body_d83yzy.ttf*/
-}
-@font-face {
-    font-family: "Sequel-Sans-Medium-Head";
-    src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/Sequel-Sans-Medium-Head_umakd5.ttf');
-    font-display: swap;
-    /*https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/Sequel-Sans-Medium-Head_umakd5.ttf*/
-}
 @font-face {
     font-family: "Geist-SemiBold";
     src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1715256918/Geist-SemiBold_h3w290.ttf');
@@ -35,6 +24,15 @@
     margin: 0;
     padding: 0;
 }
+.lato-regular {
+    font-family: var(--font-lato);
+    font-weight: 400;
+  }
+  
+  .lato-bold {
+    font-family: var(--font-lato);
+    font-weight: 600;
+  }
 .fade-container>div{
     white-space:pre!important;
 }
@@ -92,21 +90,24 @@
         @apply gap-[10px] absolute ml-[-50%];
     }
     .link-with-image .staking-block{
-        @apply flex flex-col gap-[50px] items-start lg:bg-[white] w-[170px] h-[250px] p-[20px_10px] lg:hover-bg-image drop-shadow-xl;
-    }
-    .link-with-image .staking-block div:nth-child(2){
-        @apply font-medium text-[black] text-[16px] font-Sequel-Sans-Medium-Head;
+        @apply flex flex-col gap-[50px] items-start lg:bg-[white] w-[170px] h-[250px] p-[30px_10px] lg:hover-bg-image drop-shadow-xl box-border;
     }
     .link-with-image .staking-block div:nth-child(3){
+        @apply font-medium text-[black] text-[16px] lato-bold;
+    }
+    .link-with-image .staking-block div:nth-child(4){
         @apply text-[11px] font-Geist-SemiBold text-footer-text;
+    }
+    .hover-bg-image:hover div:nth-child(1){
+        background-image: none;
     }
     .hover-bg-image:hover {
         @apply background-gradient; /* Apply the custom background image class on hover */
     }
-    .hover-bg-image:hover div:nth-child(2){
+    .hover-bg-image:hover div:nth-child(3){
         @apply text-[white];
     }
-    .hover-bg-image:hover div:nth-child(3){
+    .hover-bg-image:hover div:nth-child(4){
         @apply text-[white];
     }
     .hover-bg-image:hover img{
@@ -124,12 +125,19 @@
     .links-parent a{
         @apply w-[100%];
     }
-
+    .staking-block:hover .badge{
+        background: #6755fe;
+      
+    }
+    
+    .staking-block:hover .badge-text{
+        color: white !important;
+    }
     @media(max-width: 1024px){
         .link-with-image .staking-block{
             @apply w-[100%] flex-row h-[auto] drop-shadow-none justify-start items-center gap-[10px];
         }
-        .link-with-image .staking-block div:nth-child(3){
+        .link-with-image .staking-block div:nth-child(4){
             @apply hidden;
         }
         .links-parent > div{
@@ -168,6 +176,9 @@
     }
     .ArbiusPartners div img.nosana{
         @apply h-[25px];
+    }
+    .ArbiusPartners div img.Unicrow{
+        @apply h-[40px];
     }
 
 }
@@ -214,7 +225,7 @@
     opacity: 0;
 }  
 .model-container.fade-in {
-    opacity: 1;
+    opacity: 1 ;
     animation:fade-in 500ms ease-in-out forwards
 }
 
@@ -232,20 +243,11 @@
     overflow: hidden;
     user-select: none;
     gap: var(--gap);
-    /* padding-bottom: 130px; */
     max-width: var(--max-width-container);
     width: 100%;
     margin: auto;
 }
 .MarqueeContainer {
-    /*white-space: nowrap;
-    box-sizing: border-box;
-    animation: marquee 30s linear infinite;
-    display: flex;
-    width: 100%;
-    scroll-snap-type: repeat;
-    scroll-behavior: linear;
-    justify-content: space-between;*/
     animation: marquee 30s linear infinite;
     flex-shrink: 0;
     display: flex;
@@ -282,7 +284,6 @@
     height: auto;
     width: 100%;
     object-fit: cover;
-    /* filter: var(--collaborators-logo-filter); */
 }
 .Gradient-transparent-text{
     -webkit-text-fill-color: transparent;
@@ -294,4 +295,143 @@
 
 .gradient-header-bg{
     background:  linear-gradient(180deg, #FBFBFB 70.03%, #4A28FF 330.54%);
+}
+.stake-box-shadow{
+    box-shadow: -4px 0px 50px rgba(74, 40, 255, 0.1);
+}
+
+
+/* hiding arrows in input type number*/
+/* WebKit browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+}
+
+.steps-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    right: 0px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+
+.step-item::before {
+    content: '';
+    position: absolute;
+    left: 12px; /* Center the line with the circle */
+    top: 0;
+    width: 2px;
+    height: 200%;
+    background-color: black;
+}
+
+.step-circle {
+    width: 25px;
+    height: 25px;
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+}
+
+.step-text {
+    font-family: 'Lato', sans-serif;
+    color: black;
+    margin-left: 10px;
+}
+
+.step-item:last-child::before {
+    height: 50%; /* Adjust based on your design to stop the line at the last step */
+}
+.step-item p{
+    width:500px;
+}
+.lowBrightness {
+    position: relative;
+    /* width: 100%; */
+    /* height: 100vh; Adjust the height as needed */
+    /* background-image: url('path/to/your/image.jpg'); */
+    background-size: cover;
+    background-position: center;
+    overflow: hidden; /* Ensure the pseudo-element doesn't extend beyond the container */
+  }
+  
+  .lowBrightness::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(179, 87, 87, 0.1); 
+    z-index: 1;
+  }
+  
+
+
+@media (max-width: 1400px) {
+    .steps-container {
+        right: 10px;
+    }
+    .step-item p{
+        width: 350px;
+        font-size: 12px;
+    }
+}
+@media (max-width: 768px) {
+    .steps-container {
+        right: 10px;
+    }
+    .step-item p{
+        width: 240px;
+        font-size: 12px;
+    }
+}
+
+/* IE 10+ */
+input[type="number"]::-ms-clear,
+input[type="number"]::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+  
+  .customSlider-mark {
+    cursor: pointer;
+    top: 20px;
+    height: 8px;
+    color: black;
+  }
+  
+@media (min-width:769px) {
+
+    .header-para{
+        width: 105%;
+    }
+    
 }

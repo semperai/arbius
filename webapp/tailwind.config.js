@@ -7,13 +7,18 @@ module.exports = {
   ],
   theme: {
     extend: {
+      filter: {
+        'invert': 'invert(1)',
+      },
     },
     fontSize:{
       "header-2xl": "70px",
+      'header-xl':'60px',
       'header':"50px",
       'header-md':"40px",
       "para":"16px",
-      'mobile-header':"45px"
+      'mobile-header':"45px",
+      'large-description':'20px'
     },
     colors:{
       'black-text':"#333333",
@@ -27,7 +32,10 @@ module.exports = {
       'card-heading':"#454545",
       'footer-text':'#979797',
       'grey-text': '#c2c2c2',
-      'copyright-text':'#39393980'
+      'copyright-text':'#39393980',
+      'stake':"#1A1A1A",
+      'available':'#5B5B5B',
+      'aius':'#0E0E0E'
      },
      fontFamily: {
         "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
@@ -36,11 +44,8 @@ module.exports = {
         "Geist-Regular":["Geist-Regular"],
         "At-Hauss": ["AtHaussAero-Light"]
     },
-    //  fontSize:{
-    //   'header':"55px",
-    //   "para":"20px"
-    // },
     backgroundImage: theme => ({
+      'media-gradient': 'linear-gradient(110.02deg, rgba(146, 189, 255, 0.02) 16.98%, rgba(81, 54, 255, 0.1) 60.14%, rgba(253, 253, 255, 0.3) 111.08%)',
       'democratic-gradient':"linear-gradient(142.65deg, rgba(146, 189, 255, 0.02) -27.23%, rgba(81, 54, 255, 0.1) 31.69%, rgba(255, 255, 255, 0.159364) 60.92%, rgba(212, 179, 255, 0.2) 101.25%)",
       'models-gradient': "linear-gradient(101.66deg, rgba(146, 189, 255, 0.02) -6.48%, rgba(81, 54, 255, 0.1) 45.24%, rgba(212, 179, 255, 0.2) 106.31%)",
       'background-gradient': "linear-gradient(90deg, #4A28FF 16.5%, #9ED6FF 100%)",
@@ -52,7 +57,9 @@ module.exports = {
       "amica-gradient":"linear-gradient(101.66deg, rgba(146, 189, 255, 0.02) -6.48%, rgba(81, 54, 255, 0.1) 45.24%, rgba(212, 179, 255, 0.2) 106.31%)",
       "ai-gradient":"linear-gradient(37.19deg, rgba(146, 189, 255, 0.02) 19.15%, rgba(81, 54, 255, 0.1) 66.39%, rgba(253, 79, 89, 0.2) 122.15%)",
       "marketplace-gradient":"linear-gradient(162.01deg, rgba(146, 189, 255, 0.02) 9.35%, rgba(81, 54, 255, 0.1) 62.99%, rgba(255, 55, 235, 0.2) 126.32%)",
-      "aius-stake":"linear-gradient(95.16deg, rgba(146, 189, 255, 0.02) -0.99%, rgba(81, 54, 255, 0.1) 46.28%, rgba(212, 179, 255, 0.2) 102.09%)"
+      "aius-stake":"linear-gradient(101.66deg, rgba(146, 189, 255, 0.02) -6.48%, rgba(81, 54, 255, 0.1) 45.24%, rgba(212, 179, 255, 0.2) 106.31%)",
+      'apr':' linear-gradient(77.91deg, #4A28FF 55.47%, #E8E8E8 185.26%)',
+      'thumb':'linear-gradient(153.62deg, #4332FF 16.58%, #AD4EDA 146.02%, #A750DF 155.02%)'
    }),
     screens: {
       '2xl': '1800px',
@@ -82,6 +89,7 @@ module.exports = {
       "black":"#000000",
       'purple-background':"#4A28FF",
       'hamburger-background': "#333333",
+      'stake-input':"#E6DFFF"
     }
   },
   plugins: [],
