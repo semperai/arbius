@@ -6,7 +6,12 @@ import './BaseTest.sol';
 import "contracts/V2_EngineV4.sol";
 import "contracts/BaseTokenV1.sol";
 
-/// @notice Tests are invoked with `npm forge-test` command
+/**
+* @notice Steps to test EngineV4:
+* 1. Deploy local hardhat node with `npx hardhat node`
+* 2. Then, run hardhat setup on local node with `npx hardhat test test/enginev4.test.ts --network localhost`
+* 3. Run Foundry tests with `npm run forge-test`, or `npm run forge-test-v` for verbose output
+*/
 contract EngineV4Test is BaseTest {
 
     // default test mnemonic used in hardhat tests
