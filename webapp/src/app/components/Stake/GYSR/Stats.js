@@ -117,8 +117,8 @@ function Stats() {
                                     <div className="border-l-[1px] border-purple-text pl-6 relative pb-6">
                                         <div className="w-[8px] h-[8px] bg-purple-background rounded-full translate-x-[-28px]"></div>
                                         <div className="text-[8px] translate-y-[-18px]">
-                                            <h1>20/07/2024</h1>
-                                            <h1>Pool Created</h1>
+                                            <h1>{item?.time}</h1>
+                                            <h1>{item?.message}</h1>
                                         </div>
                                     </div>
 
@@ -129,8 +129,8 @@ function Stats() {
                                         <div className="border-l-[1px] border-purple-text pl-6 relative pb-6">
                                             <div className="w-[8px] h-[8px] bg-purple-background rounded-full translate-x-[-28px]"></div>
                                             <div className="text-[8px] translate-y-[-18px] translate-x-[-90px]">
-                                                <h1>20/07/2024</h1>
-                                                <h1>Pool Created</h1>
+                                                <h1>{item?.time}</h1>
+                                                <h1>{item?.message}</h1>
                                             </div>
                                         </div>
 

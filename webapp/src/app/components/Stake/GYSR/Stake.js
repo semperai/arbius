@@ -1,11 +1,33 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import walletImage from '../../../assets/images/ion_wallet-outline.png'
 import Image from 'next/image'
+import Popup from './Popup'
 function Stake() {
     const [isStakeClicked, setIsStakeClicked] = useState(false)
+    const [isPopupOpen, setIsPopupOpen] = useState(false)
+
+    const handleApproveClick = ()=>{
+        if(!document)
+            return 
+        let body = document.getElementsByTagName("body");
+        body[0].style.overflow = "hidden"
+        setIsPopupOpen(true);
+    }
+
+    useEffect(()=>{
+        if(isPopupOpen == false){
+
+            if(!document)
+                return 
+            let body = document.getElementsByTagName("body");
+            body[0].style.overflow = "auto"
+        }
+
+    },[isPopupOpen])
     return (
         <>
+            {isPopupOpen && <Popup isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen}/>}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-mobile-section-width lg:w-[90%] m-[auto]">
 
                 {isStakeClicked ? (<>
@@ -47,7 +69,9 @@ function Stake() {
 
 
                         <div className="flex justify-end items-center gap-4">
-                            <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3" onClick={() => setIsStakeClicked(true)}>
+                            <button type="button" className="relative group bg-black py-2  px-8 rounded-full flex items-center  gap-3" onClick={() =>{
+                                handleApproveClick()
+                            }}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                 <p className="relative z-10 text-original-white text-[13px] font-Sequel-Sans-Medium-Head mb-[1px]">Approve SUNI-V2</p>
                             </button>
