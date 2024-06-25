@@ -101,10 +101,9 @@ export default function Footer() {
                         <div className="flex justify-between mb-10">
                             <div>
                                 <div>
-                                    <a href="/">
+                                    <Link href="/">
                                         <Image src={arbius_logo} className="h-[40px] w-[auto]" alt="arbius" />
-                                    </a>
-
+                                    </Link>
                                 </div>
                                 <div className="flex items-center gap-4 mt-6">
                                     {

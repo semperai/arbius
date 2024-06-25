@@ -163,7 +163,7 @@ function Stake() {
                                 </div>
 
                                 <div className="text-[#101010] text-[15px] text-opacity-10 font-medium mt-4 pr-4">
-                                    <h1 className="">You'll Receive</h1>
+                                    <h1 className="">You&apos;ll Receive</h1>
                                     <h1>0.000 AIUS</h1>
 
                                 </div>

@@ -104,13 +104,13 @@ export default function Header() {
     >
       <div className="flex justify-between py-4 w-[90%] m-auto max-w-center-width">
         <div className="flex items-center">
-          <a href="/">
+          <Link href="/">
             <Image
               className="h-[40px] w-[auto]"
               src={ArbiusLogo}
               alt="Arbius Logo"
             />
-          </a>
+          </Link>
         </div>
         <div
           className={`${headerOpen ? "w-[100%] pb-[90px] lg:pb-0" : "w-[0%]"

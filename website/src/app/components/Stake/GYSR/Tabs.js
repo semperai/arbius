@@ -47,7 +47,7 @@ function Tabs() {
                         {mobiletabs.map(function (item, index) {
 
                             return (
-                                <div className="w-[50%]">
+                                <div className="w-[50%]" key={index}>
                                     <button type="button" className={`${mobileSelectedtab === item ? "bg-buy-hover text-original-white" : "text-subtext-three"} rounded-full  flex items-center w-[100%] justify-center py-4 `} onClick={() => {
                                         setMobileSelectedTab(item)
                                         setSelectedTab(item)
