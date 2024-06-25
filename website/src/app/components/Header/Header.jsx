@@ -13,6 +13,14 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import AnimateHeight from "react-animate-height";
 import Link from "next/link";
+
+import ConnectWallet from '@/components/ConnectWallet'; // main arbius component
+import { useWeb3Modal } from '@web3modal/react'; // main arbius component
+import {
+  useAccount,
+} from 'wagmi';  // main arbius component
+
+
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [stakingOpen, setStakingOpen] = useState(true);
@@ -56,6 +64,38 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollTop]);
+
+
+
+
+
+  // MAIN ARBIUS AI CODE
+  const {
+    isConnected,
+    isConnecting,
+    isDisconnected,
+  } = useAccount()
+  const { open: openWeb3Modal } = useWeb3Modal()
+
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
+
+  useEffect(() => {
+    setWalletConnected(isConnected);
+  }, [isConnected]);
+
+  function clickConnect() {
+    async function f() {
+      setLoadingWeb3Modal(true);
+      await openWeb3Modal();
+      setLoadingWeb3Modal(false)
+    }
+    f();
+  }
+  // MAIN ARBIUS AI CODE
+
+
+
 
   return (
     <div
@@ -236,8 +276,10 @@ export default function Header() {
                 className="m-[auto] relative group bg-black-background lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
               >
                 <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white">
-                  Connect
+                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white"
+                  onClick={clickConnect}
+                >
+                  { walletConnected ? "Connected" : "Connect" }
                 </div>
               </button>
             </div>
