@@ -146,6 +146,7 @@ export default function Header() {
                     href={
                       "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
                     }
+                    target="_blank"
                   >
 
                     <div className="staking-block relative">

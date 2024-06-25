@@ -157,7 +157,7 @@
         @apply cursor-pointer;
     }
     .link-block .link-with-image .link{
-        @apply flex items-center text-original-black lg:text-subtext-three px-[10px];
+        @apply flex items-center text-original-black lg:text-subtext-three;
     }
     .link-block .link-with-image .ext-link{
         @apply w-[20px] h-[auto] lg:h-[10px] lg:w-[auto] ml-[3px];
