@@ -139,14 +139,13 @@ export default function Header() {
                   alt=""
                 />
               </div>
-              <div className="p-[15px_30px] bg-[black] absolute opacity-0"></div>
+              <div className="p-[15px_50px] left-[-18px] bg-[black] absolute opacity-0"></div>
               <AnimateHeight height={stakingOpen ? "auto" : 0}>
                 <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex ">
                   <Link
                     href={
-                      "/stake/gysr"
+                      "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
                     }
-                    
                   >
 
                     <div className="staking-block relative">
@@ -197,7 +196,7 @@ export default function Header() {
                   alt=""
                 />
               </div>
-              <div className="p-[15px_30px] bg-[black] absolute opacity-0 ml-[-5px]"></div>
+              <div className="p-[15px_50px] left-[-18px] bg-[black] absolute opacity-0 ml-[-5px]"></div>
               <AnimateHeight height={modelsOpen ? "auto" : 0}>
                 <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex">
                   <Link href={"/generate"} target="_blank">

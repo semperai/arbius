@@ -4,13 +4,11 @@ import Stake from "./Stake"
 import Steps from "./Steps"
 import Process from "./Process"
 import { Fade } from "react-awesome-reveal"
-import Header from '@/app/components/Header/Header'
-import Footer from '@/app/components/Footer/Footer'
+import RootLayout from "@/app/layout";
 
 export default function AIUS() {
     return (
-        <div className="bg-white-background">
-        <Header />
+        <RootLayout>
         <div className="bg-aius-stake py-24">
             <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                 <div>
@@ -46,7 +44,6 @@ export default function AIUS() {
                 </div>
             </div>
         </div>
-        <Footer />
-        </div>
+        </RootLayout>
     )
 }
