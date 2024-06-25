@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import './BaseTest.sol';
+import "./BaseTest.sol";
 
 contract VotingEscrowTest is BaseTest {
-
     function setUp() public {
         // set time
-        vm.warp((1704067200  / WEEK) * WEEK); // Thu Dec 28 2023 00:00:00 GMT+0000
+        vm.warp((1704067200 / WEEK) * WEEK); // Thu Dec 28 2023 00:00:00 GMT+0000
 
         deployContracts();
-        
-        // mint and approve AIUS 
+
+        // mint and approve AIUS
         mintTestAius();
         approveTestAiusToEscrow();
         approveTestAiusToVeStaking();
@@ -58,7 +57,7 @@ contract VotingEscrowTest is BaseTest {
     }
 
     function testIncreaseLockAmount() public {
-        votingEscrow.create_lock(100 ether, 2* YEAR);
+        votingEscrow.create_lock(100 ether, 2 * YEAR);
 
         uint256 bal = votingEscrow.balanceOfNFT(1);
         skip(52 weeks);
@@ -103,7 +102,7 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.balanceOfNFT(1);
 
         // try to set unlock time to next month
-        vm.expectRevert(abi.encodePacked('Can only increase lock duration'));
+        vm.expectRevert(abi.encodePacked("Can only increase lock duration"));
         votingEscrow.increase_unlock_time(1, 1 * MONTH);
 
         // fast forward 50 weeks
@@ -115,10 +114,10 @@ contract VotingEscrowTest is BaseTest {
     }
 
     function testCreateLockOutsideAllowedZones() public {
-        vm.expectRevert(abi.encodePacked('Voting lock can be 2 years max'));
+        vm.expectRevert(abi.encodePacked("Voting lock can be 2 years max"));
         votingEscrow.create_lock(1000 ether, MAX_LOCK_TIME + MONTH);
 
-        vm.expectRevert(abi.encodePacked('Can only lock until time in the future'));
+        vm.expectRevert(abi.encodePacked("Can only lock until time in the future"));
         votingEscrow.create_lock(1000 ether, 2 days);
     }
 

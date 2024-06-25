@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import './BaseTest.sol';
+import "./BaseTest.sol";
 
 contract VeStakingTest is BaseTest {
-
     function setUp() public {
         // set time
-        vm.warp((1704067200  / WEEK) * WEEK); // Thu Dec 28 2023 00:00:00 GMT+0000
+        vm.warp((1704067200 / WEEK) * WEEK); // Thu Dec 28 2023 00:00:00 GMT+0000
 
         deployContracts();
 
-        // mint and approve AIUS 
+        // mint and approve AIUS
         mintTestAius();
         approveTestAiusToEscrow();
         approveTestAiusToVeStaking();
@@ -29,25 +28,25 @@ contract VeStakingTest is BaseTest {
 
     function testOnlyOwner() public {
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked('Ownable: caller is not the owner'));
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
         veStaking.setRewardsDuration(2 weeks);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked('Ownable: caller is not the owner'));
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
         veStaking.recoverERC20(address(mockToken), 10 ether);
     }
 
     function testOnlyVotingEscrow() public {
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked('Caller is not VotingEscrow contract'));
+        vm.expectRevert(abi.encodePacked("Caller is not VotingEscrow contract"));
         veStaking._stake(1, 100 ether);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked('Caller is not VotingEscrow contract'));
+        vm.expectRevert(abi.encodePacked("Caller is not VotingEscrow contract"));
         veStaking._withdraw(100 ether);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked('Caller is not VotingEscrow contract'));
+        vm.expectRevert(abi.encodePacked("Caller is not VotingEscrow contract"));
         veStaking._updateBalance(1, 100 ether);
     }
 
@@ -128,12 +127,12 @@ contract VeStakingTest is BaseTest {
         // fast forward
         skip(4 weeks);
         // get balance of NFT
-        escrowBalance = votingEscrow.balanceOfNFT(1); 
+        escrowBalance = votingEscrow.balanceOfNFT(1);
 
         // alice decides to increase her locked amount
         vm.prank(alice);
         votingEscrow.increase_amount(1, 50 ether);
-        
+
         uint256 newEscrowBalance = votingEscrow.balanceOfNFT(1); // get balance of NFT after increase
         uint256 diff = newEscrowBalance - escrowBalance; // get difference
         uint256 newStakingBalance = veStaking.balanceOf(1); // get new staking balance
@@ -154,16 +153,16 @@ contract VeStakingTest is BaseTest {
         // fast forward
         skip(4 weeks);
         // get balance of NFT
-        escrowBalance = votingEscrow.balanceOfNFT(1); 
+        escrowBalance = votingEscrow.balanceOfNFT(1);
 
         // alice decides to increase her locked amount
         vm.prank(alice);
         votingEscrow.increase_unlock_time(1, MAX_LOCK_TIME);
-        
+
         uint256 newEscrowBalance = votingEscrow.balanceOfNFT(1); // get balance of NFT after increase
         uint256 newStakingBalance = veStaking.balanceOf(1); // get new staking balance
 
-        // staking balance should be updated 
+        // staking balance should be updated
         assertEq(newEscrowBalance, newStakingBalance, "newEscrowBalance != newStakingBalance");
     }
 
@@ -180,16 +179,16 @@ contract VeStakingTest is BaseTest {
         // fast forward to almost her unlock time
         skip(MAX_LOCK_TIME - 1 weeks);
         // get balance of NFT
-        escrowBalance = votingEscrow.balanceOfNFT(1); 
+        escrowBalance = votingEscrow.balanceOfNFT(1);
 
         // alice decides to increase her lock duration again to the max amount
         vm.prank(alice);
         votingEscrow.increase_unlock_time(1, MAX_LOCK_TIME);
-        
+
         uint256 newEscrowBalance = votingEscrow.balanceOfNFT(1); // get balance of NFT after increase
         uint256 newStakingBalance = veStaking.balanceOf(1); // get new staking balance
 
-        // staking balance should be updated 
+        // staking balance should be updated
         assertEq(newEscrowBalance, newStakingBalance, "newEscrowBalance != newStakingBalance");
     }
 
@@ -206,16 +205,16 @@ contract VeStakingTest is BaseTest {
         // fast forward to almost her unlock time
         skip(MAX_LOCK_TIME - 1 weeks);
         // get balance of NFT
-        escrowBalance = votingEscrow.balanceOfNFT(1); 
+        escrowBalance = votingEscrow.balanceOfNFT(1);
 
         // alice decides to increase her lock duration for 2 weeks
         vm.prank(alice);
         votingEscrow.increase_unlock_time(1, 2 weeks);
-        
+
         uint256 newEscrowBalance = votingEscrow.balanceOfNFT(1); // get balance of NFT after increase
         uint256 newStakingBalance = veStaking.balanceOf(1); // get new staking balance
 
-        // staking balance should be updated 
+        // staking balance should be updated
         assertEq(newEscrowBalance, newStakingBalance, "newEscrowBalance != newStakingBalance");
     }
 
@@ -359,5 +358,4 @@ contract VeStakingTest is BaseTest {
         // staking balance should be updated by `diff`
         assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");
     }
-
 }

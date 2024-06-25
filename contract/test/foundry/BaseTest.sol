@@ -16,7 +16,7 @@ contract BaseTest is Test {
     VeStaking public veStaking;
     VeNFTRender public veNFTRender;
 
-    // time 
+    // time
     uint256 public constant WEEK = 7 days;
     uint256 public constant MONTH = 30 days;
     uint256 public constant YEAR = 12 * MONTH;
@@ -27,7 +27,6 @@ contract BaseTest is Test {
     address bob = makeAddr("bob");
     address charlie = makeAddr("charlie");
     address dave = makeAddr("dave");
-
 
     function deployContracts() public {
         // deploy and initialize AIUS
@@ -45,7 +44,6 @@ contract BaseTest is Test {
         // set veStaking in escrow
         votingEscrow.setVeStaking(address(veStaking));
     }
-
 
     function mintTestAius() public {
         AIUS.mint(address(this), 1000 ether);
@@ -65,7 +63,7 @@ contract BaseTest is Test {
         vm.prank(charlie);
         AIUS.approve(address(votingEscrow), 1000 ether);
         vm.prank(dave);
-        AIUS.approve(address(votingEscrow), 1000 ether);    
+        AIUS.approve(address(votingEscrow), 1000 ether);
     }
 
     function approveTestAiusToVeStaking() public {
@@ -78,6 +76,6 @@ contract BaseTest is Test {
         vm.prank(charlie);
         AIUS.approve(address(veStaking), 1000 ether);
         vm.prank(dave);
-        AIUS.approve(address(veStaking), 1000 ether);    
+        AIUS.approve(address(veStaking), 1000 ether);
     }
 }
