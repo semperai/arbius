@@ -69,6 +69,10 @@ contract EngineV4Test is Test {
 
         vm.prank(addr);
         modelid = engine.registerModel(addr, fee, TESTBUF);
+
+        // set model.rate so we can test reward emissions
+        vm.prank(deployer);
+        engine.setSolutionMineableRate(modelid, 1e18);
     }
 
     function bootstrapTaskParams(bytes32 modelid, uint256 feeEth)
@@ -204,8 +208,22 @@ contract EngineV4Test is Test {
         skip(engine.minClaimSolutionTime() + 1);
         vm.roll(block.number + 1);
 
+        uint256 reward = engine.getReward();
+        // console2.log("reward", reward);
+
         vm.prank(validator1);
         engine.claimSolution(taskid);
+
+        (uint256 stakedFinal,,) = engine.validators(validator1);
+
+        // solution stake amount should be released
+        assertEq(stakedFinal - staked, 0);
+
+        // check veStaking rewards
+        uint256 veRewards = engine.veRewards();
+
+        // veRewards should be reward * modelRate (1e18) / 2e18 = reward / 2
+        assertEq(engine.veRewards(), reward / 2);
     }
 
     // todo: rewards over 7 years, ve APY, task submitting etc
