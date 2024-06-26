@@ -9,6 +9,11 @@ import step2 from '../assets/images/armica_upgrade.jpg'
 import step3 from '../assets/images/tokenomics_upgrade.jpg'
 import step4 from '../assets/images/kasumi_upgrade.jpg'
 import step5 from '../assets/images/partnership_update.jpg'
+
+import amica_update_2 from '../assets/images/amica_update_2.png'
+import amica_launch from '../assets/images/amica_launch.png'
+import amica_token_launch from '../assets/images/amica_token_launch.png'
+import pre_launch from '../assets/images/pre_launch.png'
 import VideoThumbnail from '../components/VideoComponent/videoThumbnail';
 const posts =[
   {
@@ -21,7 +26,7 @@ const posts =[
   {
     "title": "Partnership with Exabits",
     "description": "Arbius and @exa_bits have joined forces to redefine the AI sector and prioritize the compute of the many over the compute of the abundant few. Together, we are redefining AI hosting and ownership, putting the power back in the hands of the people.",
-    "date": "14th May 2024",
+    "date": "May 14, 2024",
     "image": step5,
     "url": "https://x.com/arbius_ai/status/1790367805352603820"
   },
@@ -40,14 +45,41 @@ const posts =[
     "url": "https://x.com/arbius_ai/status/1783980046111150589"
   },
   {
-    "title": "Amica Update",
+    "title": "Amica Update #1",
     "description": "Say hello to the new Amica soon! A small update has been deployed with the following features: Load/Save Conversations: Easily save and load your chats right where you left them last time. Ability to Upload Images: Share photos and visuals to improve your conversations.",
-    "date": "April 22, 2024",
+    "date": "April 23, 2024",
     "image": step2,
+    "url": "https://x.com/arbius_ai/status/1782498339126124666/video/1"
+  },
+  {
+    "title": "Amica Update #2",
+    "description": "",
+    "date": "June 10, 2024",
+    "image": amica_update_2,
     "url": "https://x.com/arbius_ai/status/1800228956651573748"
+  },
+  {
+    "title": "Amica Launch",
+    "description": "",
+    "date": "March 21, 2024",
+    "image": amica_launch,
+    "url": "https://x.com/arbius_ai/status/1770547201669746702"
+  },
+  {
+    "title": "Amica Token Launch",
+    "description": "",
+    "date": "February 14, 2024",
+    "image": amica_token_launch,
+    "url": "https://x.com/arbius_ai/status/1757597553456017507/video/1"
+  },
+  {
+    "title": "Pre Launch Video",
+    "description": "",
+    "date": "February 2, 2024",
+    "image": pre_launch,
+    "url": "https://x.com/arbius_ai/status/1753478542497607913/video/1"
   }
 ]
-
 export default function ArbiusMedia() {
   return (
     <div className='w-[100%] h-[100%] bg-media-gradient py-20'>
