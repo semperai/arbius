@@ -132,6 +132,7 @@ export interface V2EngineV4Interface extends utils.Interface {
     "validatorWithdraw(uint256,address)": FunctionFragment;
     "validatorWithdrawPendingAmount(address)": FunctionFragment;
     "validators(address)": FunctionFragment;
+    "veRewards()": FunctionFragment;
     "veStaking()": FunctionFragment;
     "version()": FunctionFragment;
     "voteOnContestation(bytes32,bool)": FunctionFragment;
@@ -406,6 +407,7 @@ export interface V2EngineV4Interface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "validators", values: [string]): string;
+  encodeFunctionData(functionFragment: "veRewards", values?: undefined): string;
   encodeFunctionData(functionFragment: "veStaking", values?: undefined): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
   encodeFunctionData(
@@ -654,6 +656,7 @@ export interface V2EngineV4Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "validators", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "veRewards", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "veStaking", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
   decodeFunctionResult(
@@ -1237,6 +1240,8 @@ export interface V2EngineV4 extends BaseContract {
       }
     >;
 
+    veRewards(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     veStaking(overrides?: CallOverrides): Promise<[string]>;
 
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -1607,6 +1612,8 @@ export interface V2EngineV4 extends BaseContract {
     }
   >;
 
+  veRewards(overrides?: CallOverrides): Promise<BigNumber>;
+
   veStaking(overrides?: CallOverrides): Promise<string>;
 
   version(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1958,6 +1965,8 @@ export interface V2EngineV4 extends BaseContract {
         addr: string;
       }
     >;
+
+    veRewards(overrides?: CallOverrides): Promise<BigNumber>;
 
     veStaking(overrides?: CallOverrides): Promise<string>;
 
@@ -2450,6 +2459,8 @@ export interface V2EngineV4 extends BaseContract {
 
     validators(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    veRewards(overrides?: CallOverrides): Promise<BigNumber>;
+
     veStaking(overrides?: CallOverrides): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2816,6 +2827,8 @@ export interface V2EngineV4 extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    veRewards(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     veStaking(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

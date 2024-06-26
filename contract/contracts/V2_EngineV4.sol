@@ -142,7 +142,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
     uint256 public contestationVoteExtensionTime; // v3
 
     address public veStaking; // v4
-    uint256 veRewards; // v4
+    uint256 public veRewards; // v4
 
 
     uint256[38] __gap; // upgradeable gap
