@@ -8,9 +8,6 @@ import { V2EngineV2 } from "../typechain/V2EngineV2";
 import { V2EngineV3 } from "../typechain/V2EngineV3";
 import { V2EngineV4 } from "../typechain/V2EngineV4";
 
-const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
-const TESTBUF = '0x746573740a';
-
 describe("EngineV4 SetUp", () => {
   let signers: SignerWithAddress[];
   // let deployer: Signer;
