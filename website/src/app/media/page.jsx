@@ -10,10 +10,10 @@ import step3 from '../assets/images/tokenomics_upgrade.jpg'
 import step4 from '../assets/images/kasumi_upgrade.jpg'
 import step5 from '../assets/images/partnership_update.jpg'
 
-import amica_update_2 from '../assets/images/amica_update_2.png'
-import amica_launch from '../assets/images/amica_launch.png'
-import amica_token_launch from '../assets/images/amica_token_launch.png'
-import pre_launch from '../assets/images/pre_launch.png'
+import amica_update_2 from '../assets/images/amica_update_2.jpg'
+import amica_launch from '../assets/images/amica_launch.jpg'
+import amica_token_launch from '../assets/images/amica_token_launch.jpg'
+import pre_launch from '../assets/images/pre_launch.jpg'
 import VideoThumbnail from '../components/VideoComponent/videoThumbnail';
 const posts =[
   {
