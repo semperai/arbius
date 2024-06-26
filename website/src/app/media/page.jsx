@@ -5,7 +5,7 @@ import { Fade } from 'react-awesome-reveal';
 import Link from 'next/link';
 import arrow from '../assets/images/right_arrow.png'
 import step1 from '../assets/images/staking_upgrade.jpg'
-import step2 from '../assets/images/armica_upgrade.jpg'
+import step2 from '../assets/images/amica_update_2.jpg'
 import step3 from '../assets/images/tokenomics_upgrade.jpg'
 import step4 from '../assets/images/kasumi_upgrade.jpg'
 import step5 from '../assets/images/partnership_update.jpg'
