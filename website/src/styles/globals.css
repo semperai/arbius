@@ -199,7 +199,7 @@
         @apply h-[15px];
     }
     .links-parent a{
-        @apply w-[100%];
+        @apply w-[100%] text-original-black lg:text-[unset];
     }
     .staking-block:hover .badge{
         background: #6755fe;
