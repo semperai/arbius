@@ -91,9 +91,6 @@ contract VeStaking is IVeStaking, Ownable {
         lastUpdateTime = block.timestamp;
         periodFinish = (block.timestamp + rewardsDuration) / 1 weeks * 1 weeks; // periodFinish is rounded down to weeks
 
-        // transfer reward in
-        rewardsToken.safeTransferFrom(msg.sender, address(this), reward);
-
         // Ensure the provided reward amount is not more than the balance in the contract.
         // This keeps the reward rate in the right range, preventing overflows due to
         // very high values of rewardRate in the earned and rewardsPerToken functions;
