@@ -831,6 +831,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
 
         // if block.timestamp > veStaking.periodFinish, set veReward to 0 and transfer funds via veStaking.notifyRewardAmount
         if(block.timestamp > IVeStaking(veStaking).periodFinish()){
+            baseToken.transfer(veStaking, veRewards);
             IVeStaking(veStaking).notifyRewardAmount(veRewards);
             veRewards = 0;
         }
