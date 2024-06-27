@@ -219,11 +219,78 @@ contract EngineV4Test is Test {
         // solution stake amount should be released
         assertEq(stakedFinal - staked, 0);
 
-        // check veStaking rewards
-        uint256 veRewards = engine.veRewards();
-
         // veRewards should be reward * modelRate (1e18) / 2e18 = reward / 2
         assertEq(engine.veRewards(), reward / 2);
+    }
+
+    function testNotifyRewardAmount() public {
+        // call notifyRewardAmount so rewardDuration starts
+        veStaking.notifyRewardAmount(0);
+
+        deployBootstrapValidator();
+
+        bytes32 modelid = deployBootstrapModel();
+
+
+        uint256 veRewardsSum;
+        uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
+        // submit task and claim solution every hour until first rewardDuration passed and notifyRewardAmount is called
+        for(uint i = 0; i < 168; i++) {
+            /* submit task */
+            bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
+
+            /* signal commitment and submit solution */ 
+            bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+    
+            vm.prank(validator1);
+            engine.signalCommitment(commitment);
+    
+            // commitment must be in the past -> skip 12s and 1 block
+            skip(12);
+            vm.roll(block.number + 1);
+       
+            vm.prank(validator1);
+            engine.submitSolution(taskid, TESTCID);
+        
+            /* claim rewards */
+    
+            // fast forward `minClaimSolutionTime` and `minClaimSolutionTime/12` blocks
+            skip(minClaimSolutionTime + 1);
+            vm.roll(block.number + minClaimSolutionTime/12);
+    
+            uint256 reward = engine.getReward();
+            //console2.log("reward", reward);
+    
+            if(block.timestamp > veStaking.periodFinish()){
+                // notifyRewardAmount should be called 
+                vm.expectEmit();
+                emit VeStaking.RewardAdded(veRewardsSum);
+                vm.prank(validator1);
+                engine.claimSolution(taskid);
+
+
+                //console2.log("block.timestamp + 1 week", block.timestamp + 1 weeks);
+                //console2.log("block.timestamp % 1 week", block.timestamp % 1 weeks);
+                //console2.log("block.timestamp", block.timestamp);
+
+                // next period finish should be 1 week from now +- 1 hour
+                uint256 nextPeriodFinish = veStaking.periodFinish();
+                assertEq(nextPeriodFinish, block.timestamp + 1 weeks - block.timestamp % 1 weeks);
+
+                break;
+            }
+
+            vm.prank(validator1);
+            engine.claimSolution(taskid);
+    
+            veRewardsSum += reward / 2;
+            // veRewards should be equal to veRewardsSum
+            assertEq(engine.veRewards(), veRewardsSum);
+
+            // fast forward 1 hour
+            skip(3600);
+            vm.roll(block.number + 1);
+        }
     }
 
     // todo: rewards over 7 years, ve APY, task submitting etc
