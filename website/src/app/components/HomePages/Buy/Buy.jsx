@@ -52,7 +52,7 @@ export default function Buy() {
                         </div>
                         <Fade direction="up" triggerOnce={true}>
                             <div className="mt-12">
-                                <Link href="https://app.uniswap.org/swap" className="inline-block" target="_blank">
+                                <Link href="https://app.uniswap.org/swap?outputCurrency=0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852" className="inline-block" target="_blank">
                                     <button type="button" className=" relative group bg-black-background  py-2 px-8 rounded-full flex items-center  gap-3">
                                         <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                         <p className="text-original-white lato-bold relative z-10">Buy on Uniswap</p>
