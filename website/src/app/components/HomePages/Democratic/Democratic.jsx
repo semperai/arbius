@@ -43,6 +43,7 @@ export default function Democratic() {
                             </h2>
                             <Fade direction="up" triggerOnce={true}>
                                 <p className="text-subtext-three lato-regular text-para lg:w-[70%] w-[100%]">Arbius is controlled by its users, not monopolized by large corporations and governments. The design of Arbius makes it difficult or impossible to censor usage, allowing for anyone in the world to interact with AI models permissionlessly.</p>
+                                <p></p>
                                 <p className="text-subtext-three lato-regular text-para lg:w-[70%] w-[100%]">
               Model owners can leverage a distributed network of miners to execute and validate their AI models, ensuring high uptime and integrity. By decentralizing the verification process, Arbius offers a robust foundation for building reliable and transparent AI-driven applications on top of a censorship resistant network.
             </p>
