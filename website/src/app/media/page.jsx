@@ -24,56 +24,35 @@ const posts =[
     "url": "https://x.com/arbius_ai/status/1795184308199551008"
   },
   {
-    "title": "Partnership with Exabits",
-    "description": "Arbius and @exa_bits have joined forces to redefine the AI sector and prioritize the compute of the many over the compute of the abundant few. Together, we are redefining AI hosting and ownership, putting the power back in the hands of the people.",
-    "date": "May 14, 2024",
-    "image": step5,
-    "url": "https://x.com/arbius_ai/status/1790367805352603820"
-  },
-  {
-    "title": "Tokenomics Upgrade Announcement",
+    "title": "Arbius Network Upgrade ",
     "description": "The Arbius Network Upgrade is imminent. The Arbius network is about to undergo its most significant upgrade since its launch. We are introducing a new feature where task creators will now receive a 10% reward from the rewards pool. This will add new possibilities for users.",
     "date": "April 30, 2024",
     "image": step3,
     "url": "https://x.com/arbius_ai/status/1785401938550444218"
   },
   {
-    "title": "Kasumi-2 Released",
+    "title": "Kasumi-2 Demo Video",
     "description": "We are thrilled to announce Kasumi2 Open Beta. Kasumi2 is an autonomous AI agent that performs actions in the Arbius network. It is a miner, has its own wallet, can retrieve results from Arbius AI models, and runs its own individual LLM model.",
     "date": "April 27, 2024",
     "image": step4,
     "url": "https://x.com/arbius_ai/status/1783980046111150589"
   },
   {
-    "title": "Amica Update #1",
-    "description": "Say hello to the new Amica soon! A small update has been deployed with the following features: Load/Save Conversations: Easily save and load your chats right where you left them last time. Ability to Upload Images: Share photos and visuals to improve your conversations.",
-    "date": "April 23, 2024",
-    "image": step2,
-    "url": "https://x.com/arbius_ai/status/1782498339126124666/video/1"
-  },
-  {
-    "title": "Amica Update #2",
-    "description": "",
-    "date": "June 10, 2024",
-    "image": amica_update_2,
-    "url": "https://x.com/arbius_ai/status/1800228956651573748"
-  },
-  {
-    "title": "Amica Launch",
+    "title": "Amica Launch Trailer",
     "description": "",
     "date": "March 21, 2024",
     "image": amica_launch,
     "url": "https://x.com/arbius_ai/status/1770547201669746702"
   },
   {
-    "title": "Amica Token Launch",
+    "title": "Arbius Launch Video",
     "description": "",
     "date": "February 14, 2024",
     "image": amica_token_launch,
     "url": "https://x.com/arbius_ai/status/1757597553456017507/video/1"
   },
   {
-    "title": "Pre Launch Video",
+    "title": "Pre-Launch Video ",
     "description": "",
     "date": "February 2, 2024",
     "image": pre_launch,

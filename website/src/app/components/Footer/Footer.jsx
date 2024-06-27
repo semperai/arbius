@@ -55,6 +55,11 @@ export default function Footer() {
             id: "6",
             name: "GYSR",
             link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
+        },
+        {
+            id: "7",
+            name: "Blog",
+            link: "https://blog.arbius.ai/"
         }
 
 
