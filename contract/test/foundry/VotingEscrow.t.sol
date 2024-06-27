@@ -13,7 +13,6 @@ contract VotingEscrowTest is BaseTest {
         // mint and approve AIUS
         mintTestAius();
         approveTestAiusToEscrow();
-        approveTestAiusToVeStaking();
     }
 
     function testCreateLock() public {

@@ -13,10 +13,6 @@ contract VeStakingTest is BaseTest {
         // mint and approve AIUS
         mintTestAius();
         approveTestAiusToEscrow();
-        approveTestAiusToVeStaking();
-
-        // add rewards to veStaking
-        veStaking.notifyRewardAmount(7 ether);
     }
 
     function testConstructorAndSettings() public {
@@ -50,7 +46,26 @@ contract VeStakingTest is BaseTest {
         veStaking._updateBalance(1, 100 ether);
     }
 
+    function testRevertNotifyRewardAmount() public {
+        // transfering exact reward should work
+        AIUS.transfer(address(veStaking), 1e18);
+        veStaking.notifyRewardAmount(1e18);
+
+        // transfering too much reward should work
+        AIUS.transfer(address(veStaking), 10e18);
+        veStaking.notifyRewardAmount(9e18);
+
+        // transfering too little reward should revert
+        AIUS.transfer(address(veStaking), 0.99e18);
+        vm.expectRevert(abi.encodePacked("Provided reward too high"));
+        veStaking.notifyRewardAmount(2e18);
+    }
+
     function testLastTimeRewardApplicable() public {
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), 7 ether);
+        veStaking.notifyRewardAmount(7 ether);
+
         assertEq(veStaking.lastTimeRewardApplicable(), block.timestamp, "!lastTimeRewardApplicable");
 
         skip(8 days);
@@ -59,14 +74,38 @@ contract VeStakingTest is BaseTest {
     }
 
     function testRewardPerToken() public {
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), 7 ether);
+        veStaking.notifyRewardAmount(7 ether);
+
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
 
-        skip(1 days);
+        // rewardPerToken should increase over time
+        skip(1);
+        uint256 rewardPerToken = veStaking.rewardPerToken();
+        assertGt(rewardPerToken, 0, "!rewardPerToken");
 
-        assertGt(veStaking.rewardPerToken(), 0, "!rewardPerToken");
+        skip(1 days);
+        uint256 newRewardPerToken = veStaking.rewardPerToken();
+        assertGt(newRewardPerToken, rewardPerToken, "!rewardPerToken");
+
+        skip(7 days);
+        uint256 finalRewardPerToken = veStaking.rewardPerToken();
+        assertGt(finalRewardPerToken, newRewardPerToken, "!rewardPerToken");
+
+        // get veStaking balance 
+        uint256 veStakingBalance = veStaking.balanceOf(1);
+
+        // finalRewardPerToken should be (7e18 * 1e18) / veStakingBalance, with 1e18 = multiplier needed for division
+        // 0.001% error allowed, this should be relatively accurate
+        assertApproxEqRel(finalRewardPerToken, (7e36) / veStakingBalance, 1e13, "!rewardPerToken");
     }
 
     function testEarned() public {
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), 7 ether);
+        veStaking.notifyRewardAmount(7 ether);
+
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
 
         skip(1 days);
@@ -91,16 +130,22 @@ contract VeStakingTest is BaseTest {
     }
 
     function testRewardRateShouldIncrease() public {
+        AIUS.transfer(address(veStaking), 10 ether);
         veStaking.notifyRewardAmount(10 ether);
         uint256 initialRewardRate = veStaking.rewardRate();
 
         skip(1 days);
 
+        AIUS.transfer(address(veStaking), 10 ether);
         veStaking.notifyRewardAmount(10 ether);
         assertGt(veStaking.rewardRate(), initialRewardRate, "!rewardRate");
     }
 
     function testGetRewardForDuration() public {
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), 7 ether);
+        veStaking.notifyRewardAmount(7 ether);
+
         // 0.1% error allowed due to rounding
         assertApproxEqRel(veStaking.getRewardForDuration(), 7 ether, 1e15, "!getRewardForDuration");
     }

@@ -65,17 +65,4 @@ contract BaseTest is Test {
         vm.prank(dave);
         AIUS.approve(address(votingEscrow), 1000 ether);
     }
-
-    function approveTestAiusToVeStaking() public {
-        AIUS.approve(address(veStaking), 1000 ether);
-
-        vm.prank(alice);
-        AIUS.approve(address(veStaking), 1000 ether);
-        vm.prank(bob);
-        AIUS.approve(address(veStaking), 1000 ether);
-        vm.prank(charlie);
-        AIUS.approve(address(veStaking), 1000 ether);
-        vm.prank(dave);
-        AIUS.approve(address(veStaking), 1000 ether);
-    }
 }
