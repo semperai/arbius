@@ -38,14 +38,14 @@ export default function Democratic() {
                         <div>
                             <h2 className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mb-6 fade-container lg:leading-[55px] leading-none">
                                 <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
-                                    We dream of AI being open and accessible to all
+                                    We dream of open and accessible AI
                                 </Fade>
                             </h2>
                             <Fade direction="up" triggerOnce={true}>
                                 <p className="text-subtext-three lato-regular text-para lg:w-[70%] w-[100%]">Arbius is controlled by its users, not monopolized by large corporations and governments. The design of Arbius makes it difficult or impossible to censor usage, allowing for anyone in the world to interact with AI models permissionlessly.</p>
                                 <br></br>
                                 <p className="text-subtext-three lato-regular text-para lg:w-[70%] w-[100%]">
-              Model owners can leverage a distributed network of miners to execute and validate their AI models, ensuring high uptime and integrity. By decentralizing the verification process, Arbius offers a robust foundation for building reliable and transparent AI-driven applications on top of a censorship resistant network.
+                                AI model owners can now utilize a distributed network of miners and attribute request origins, ensuring high uptime and integrity. By decentralizing the hosting process, Arbius offers a robust foundation for building reliable and transparent AI-driven applications on top of a censorship resistant network.
             </p>
                             </Fade>
                         </div>
