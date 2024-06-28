@@ -97,12 +97,6 @@ interface Props {
   enableEth?: boolean;
 }
 
-const metadata = {
-  title: "Arbius: Decentralized AI Hosting & Marketplace",
-  description: "Arbius is a decentralized network powered by GPUs globally and a shared economy around generative AI",
-  baseURL: "https://arbius-merged-site.netlify.app"
-};
-
 export default function Layout({ children, title, full, enableEth, }: PropsWithChildren<Props>) {
   const { asPath } = useRouter();
 
@@ -113,32 +107,13 @@ export default function Layout({ children, title, full, enableEth, }: PropsWithC
   return (
     <>
       <Head>
-        {/*<title>{title}</title>*/}
-        {/*<meta name="description" content="Arbius: Decentralized Machine Learning" />
+        <title>{title}</title>
+        <meta name="description" content="Arbius: Decentralized Machine Learning" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />*/}
-        <title>{metadata.title}</title>
-        <meta name="description" content={metadata.description} />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon_new.ico" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon_new.ico" />
-        
-        <meta property="og:url" content={metadata.baseURL} />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={metadata.title} />
-        <meta property="og:description" content={metadata.description} />
-        <meta property="og:image" content={metadata.baseURL+"/arbius_thumbnail_website.png"} />
-
-        <meta name="twitter:card" content={metadata.baseURL+"/arbius_thumbnail_website.png"} />
-        <meta property="twitter:domain" content={metadata.baseURL} />
-        <meta property="twitter:url" content={metadata.baseURL} />
-        <meta name="twitter:title" content={metadata.title} />
-        <meta name="twitter:description" content={metadata.description} />
-        <meta name="twitter:image" content={metadata.baseURL+"/arbius_thumbnail_website.png"} />
-
+        <link rel="manifest" href="/site.webmanifest" />
         <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
