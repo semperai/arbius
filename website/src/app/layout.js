@@ -15,7 +15,7 @@ export const lato = Lato({
 export const metadata = {
   title: "Arbius: Decentralized AI Hosting & Marketplace",
   description: "Arbius is a decentralized network powered by GPUs globally and a shared economy around generative AI",
-  baseURL: "https://arbius-merged-site.netlify.app"
+  baseURL: "https://arbius.ai"
 };
 
 export default function RootLayout({ children }) {
