@@ -34,6 +34,7 @@
     "react-animate-height": "^3.2.3",
     "react-awesome-reveal": "^4.2.12",
     "react-dom": "18.2.0",
+    "react-helmet": "^6.1.0",
     "react-json-tree": "^0.18.0",
     "react-markdown": "^8.0.6",
     "react-slider": "^2.0.6",
