@@ -39,7 +39,7 @@ export default function Community(){
                                    dApps & Community
                                 </Fade>
                             </h2>
-                            <h2 className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text flex items-center gap-4 fade-container lg:mt-2 lg:leading-none leading-[60px]">
+                            <h2 className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text flex items-center gap-4 fade-container lg:mt-2">
                                 <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
                                   Initiatives
                                 </Fade>

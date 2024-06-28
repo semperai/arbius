@@ -2,6 +2,8 @@
 import Header from '@/app/components/Header/Header'
 import Footer from '@/app/components/Footer/Footer'
 import {Lato} from 'next/font/google'
+import { Helmet } from 'react-helmet';
+
 export const lato = Lato({
     subsets: ['latin'],
     preload:true,
@@ -10,17 +12,28 @@ export const lato = Lato({
     variable: '--font-lato',
   })
 export const metadata = {
-  title: "Arbius",
-  description: "Arbius: Decentralized Machine Learning"
+  title: "Arbius: Decentralized AI Hosting & Marketplace",
+  description: "Arbius is a decentralized network powered by GPUs globally and a shared economy around generative AI"
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="preload" as="font" href="https://res.cloudinary.com/aniket98571/raw/upload/v1715256918/Geist-SemiBold_h3w290.ttf" crossOrigin="anonymous"/>
-        <link rel="preload" as="font" href="https://res.cloudinary.com/aniket98571/raw/upload/v1715232194/Geist-Regular_vvwe3i.ttf" crossOrigin="anonymous"/>
-        <link rel="preload" as="font" href="https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/AtHaussAero-Light_iwko9o.ttf" crossOrigin="anonymous"/>
+        <Helmet>
+          <title>{metadata.title}</title>
+          <meta name="description" content={metadata.description} />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" type="image/png" sizes="32x32" href="/favicon_new.ico" />
+          <link rel="icon" type="image/png" sizes="16x16" href="/favicon_new.ico" />
+          <meta property="og:title" content={metadata.title} />
+          <meta property="og:description" content={metadata.description} />
+          <meta property="og:image" content="/arbius_thumbnail_website.png" />
+          <meta property="og:type" content="website" />
+          <link rel="preload" as="font" href="https://res.cloudinary.com/aniket98571/raw/upload/v1715256918/Geist-SemiBold_h3w290.ttf" crossOrigin="anonymous"/>
+          <link rel="preload" as="font" href="https://res.cloudinary.com/aniket98571/raw/upload/v1715232194/Geist-Regular_vvwe3i.ttf" crossOrigin="anonymous"/>
+          <link rel="preload" as="font" href="https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/AtHaussAero-Light_iwko9o.ttf" crossOrigin="anonymous"/>
+        </Helmet>
       </head>
       <body class="bg-white-background">
         <Header/>
