@@ -645,6 +645,7 @@ async function processAutomine() {
         ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(c.automine.input))),
         {
           gasLimit: 2_500_000,
+          maxPriorityFeePerGas: ethers.utils.parseUnits('0', 'gwei')
         }
       );
 
@@ -771,6 +772,7 @@ async function processTask(
       } else {
         const tx = await arbius.signalCommitment(commitment, {
           gasLimit: 450_000,
+          maxPriorityFeePerGas: ethers.utils.parseUnits('0', 'gwei')
         });
         // const receipt = await tx.wait(); // we dont wait here to be faster
         log.info(`[processTask] Commitment signalled in ${tx.hash}`);
@@ -796,6 +798,7 @@ async function processTask(
           } else {
             const tx = await solver.submitSolution(taskid, solutionCid, {
               gasLimit: 500_000,
+              maxPriorityFeePerGas: ethers.utils.parseUnits('0', 'gwei')
             });
             const receipt = await tx.wait();
             log.info(`[processTask] Solution submitted in ${receipt.transactionHash}`);
@@ -1096,6 +1099,7 @@ async function processClaim(taskid: string) {
       } else {
         const tx = await arbius.claimSolution(taskid, {
           gasLimit: 300_000,
+          maxPriorityFeePerGas: ethers.utils.parseUnits('0', 'gwei')
         });
         const receipt = await tx.wait()
         log.info(`[processClaim] Claim ${taskid} in ${receipt.transactionHash}`);
