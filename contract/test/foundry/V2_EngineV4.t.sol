@@ -38,7 +38,7 @@ contract EngineV4Test is Test {
     address validator3 = vm.addr(vm.deriveKey(mnemonic, 5));
     address validator4 = vm.addr(vm.deriveKey(mnemonic, 6));
     address treasury = vm.addr(vm.deriveKey(mnemonic, 7));
-    address model1 = vm.addr(vm.deriveKey(mnemonic, 8));
+    address modelOwner = vm.addr(vm.deriveKey(mnemonic, 8));
     address newowner = vm.addr(vm.deriveKey(mnemonic, 9));
 
     // contracts
@@ -66,6 +66,18 @@ contract EngineV4Test is Test {
     function deployBootstrapModel() public returns (bytes32 modelid) {
         address addr = user1;
         uint256 fee = 0;
+
+        vm.prank(addr);
+        modelid = engine.registerModel(addr, fee, TESTBUF);
+
+        // set model.rate so we can test reward emissions
+        vm.prank(deployer);
+        engine.setSolutionMineableRate(modelid, 1e18);
+    }
+
+    function deployBootstrapFeeModel() public returns (bytes32 modelid) {
+        address addr = modelOwner;
+        uint256 fee = 1 ether;
 
         vm.prank(addr);
         modelid = engine.registerModel(addr, fee, TESTBUF);
@@ -112,6 +124,12 @@ contract EngineV4Test is Test {
     }
 
     function deployBootstrapTask(bytes32 modelid, address submitter, uint256 feeEth) public returns (bytes32 taskid) {
+        // if fee != 0, set approval of fee Amount
+        if (feeEth != 0) {
+            vm.prank(submitter);
+            baseToken.approve(address(engine), feeEth);
+        }
+
         (uint8 version, address owner, bytes32 model, uint256 fee, bytes memory input, bytes memory cid) =
             bootstrapTaskParams(modelid, feeEth);
 
@@ -231,43 +249,41 @@ contract EngineV4Test is Test {
 
         bytes32 modelid = deployBootstrapModel();
 
-
         uint256 veRewardsSum;
         uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
         // submit task and claim solution every hour until first rewardDuration passed and notifyRewardAmount is called
-        for(uint i = 0; i < 168; i++) {
+        for (uint256 i = 0; i < 168; i++) {
             /* submit task */
             bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
 
-            /* signal commitment and submit solution */ 
+            /* signal commitment and submit solution */
             bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
-    
+
             vm.prank(validator1);
             engine.signalCommitment(commitment);
-    
+
             // commitment must be in the past -> skip 12s and 1 block
             skip(12);
             vm.roll(block.number + 1);
-       
+
             vm.prank(validator1);
             engine.submitSolution(taskid, TESTCID);
-        
+
             /* claim rewards */
-    
+
             // fast forward `minClaimSolutionTime` and `minClaimSolutionTime/12` blocks
             skip(minClaimSolutionTime + 1);
-            vm.roll(block.number + minClaimSolutionTime/12);
-    
+            vm.roll(block.number + minClaimSolutionTime / 12);
+
             uint256 reward = engine.getReward();
             //console2.log("reward", reward);
-    
-            if(block.timestamp > veStaking.periodFinish()){
-                // notifyRewardAmount should be called 
+
+            if (block.timestamp > veStaking.periodFinish()) {
+                // notifyRewardAmount should be called
                 vm.expectEmit();
                 emit VeStaking.RewardAdded(veRewardsSum);
                 vm.prank(validator1);
                 engine.claimSolution(taskid);
-
 
                 //console2.log("block.timestamp + 1 week", block.timestamp + 1 weeks);
                 //console2.log("block.timestamp % 1 week", block.timestamp % 1 weeks);
@@ -282,7 +298,7 @@ contract EngineV4Test is Test {
 
             vm.prank(validator1);
             engine.claimSolution(taskid);
-    
+
             veRewardsSum += reward / 2;
             // veRewards should be equal to veRewardsSum
             assertEq(engine.veRewards(), veRewardsSum);
@@ -293,5 +309,125 @@ contract EngineV4Test is Test {
         }
     }
 
-    // todo: rewards over 7 years, ve APY, task submitting etc
+    function testFeeDistribution() public {
+        // transfer some AIUS from deployer to user1 for fees
+        vm.prank(deployer);
+        baseToken.transfer(user1, 100 ether);
+
+        deployBootstrapValidator();
+
+        // deploy model with a fee of 1 AIUS
+        bytes32 modelid = deployBootstrapFeeModel();
+
+        // get totalHeld before submitting / claiming task
+        uint256 totalHeldBefore = engine.totalHeld();
+
+        /* submit task, set fee to 2 AIUS (1 AIUS to model owner, rest as tip to treasury&validator) */
+        bytes32 taskid = deployBootstrapTask(modelid, user1, 2 ether);
+
+        /* signal commitment and submit solution */
+        bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+
+        vm.prank(validator1);
+        engine.signalCommitment(commitment);
+
+        // commitment must be in the past -> skip 12s and 1 block
+        skip(12);
+        vm.roll(block.number + 1);
+
+        vm.prank(validator1);
+        engine.submitSolution(taskid, TESTCID);
+
+        /* claim rewards */
+
+        uint256 remainingFee = 1 ether; // taskfee - modelfee
+
+        // get treasuryFee
+        uint256 solutionFeePercentage = engine.solutionFeePercentage();
+        uint256 treasuryFee = remainingFee - ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
+
+        // get validatorFee
+        uint256 validatorFee = remainingFee - treasuryFee;
+
+        // get balance before claiming
+        uint256 modelOwnerBalanceBefore = baseToken.balanceOf(modelOwner);
+
+        // fast forward `minClaimSolutionTime` and `minClaimSolutionTime/12` blocks
+        uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
+        skip(minClaimSolutionTime + 1);
+        vm.roll(block.number + minClaimSolutionTime / 12);
+
+        // expect transfer of `validatorFee` to validator1
+        vm.expectEmit();
+        emit IERC20Upgradeable.Transfer(address(engine), validator1, validatorFee);
+        vm.prank(validator1);
+        engine.claimSolution(taskid);
+
+        // get balance after claiming
+        uint256 modelOwnerBalanceAfter = baseToken.balanceOf(modelOwner);
+
+        // modelOwner should receive 1 ether
+        assertEq(modelOwnerBalanceAfter - modelOwnerBalanceBefore, 1 ether);
+
+        // get totalHeld after claiming
+        uint256 totalHeldAfter = engine.totalHeld();
+        assertEq(totalHeldAfter, totalHeldBefore + treasuryFee);
+    }
+
+    function testRewardDistribution() public {
+        deployBootstrapValidator();
+
+        bytes32 modelid = deployBootstrapModel();
+        bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
+
+        bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+
+        vm.prank(validator1);
+        engine.signalCommitment(commitment);
+
+        // skip 12s and 1 block
+        skip(12);
+        vm.roll(block.number + 1);
+
+        (uint256 staked,,) = engine.validators(validator1);
+
+        vm.prank(validator1);
+        engine.submitSolution(taskid, TESTCID);
+
+        /* claim */
+
+        // fast forward `minClaimSolutionTime`
+        skip(engine.minClaimSolutionTime() + 1);
+        vm.roll(block.number + 1);
+
+        uint256 reward = engine.getReward();
+        // reward * modelRate (1e18) / 2e18 = reward / 2
+        uint256 total = reward / 2;
+
+        // get treasuryRewardPercentage
+        uint256 treasuryRewardPercentage = engine.treasuryRewardPercentage();
+        // get task owner reward percentage
+        uint256 taskOwnerRewardPercentage = engine.taskOwnerRewardPercentage();
+
+        // get task owner balance before
+        uint256 taskOwnerBalanceBefore = baseToken.balanceOf(user1);
+        // get validator balance before
+        uint256 validatorBalanceBefore = baseToken.balanceOf(validator1);
+        // get treasury balance before
+        uint256 treasuryBalanceBefore = baseToken.balanceOf(treasury);
+
+        vm.prank(validator1);
+        engine.claimSolution(taskid);
+
+        uint256 treasuryReward = total - (total * (1e18 - treasuryRewardPercentage)) / 1e18;
+        assertEq(baseToken.balanceOf(treasury) - treasuryBalanceBefore, treasuryReward);
+
+        uint256 taskOwnerReward = total - (total * (1e18 - taskOwnerRewardPercentage)) / 1e18;
+        assertEq(baseToken.balanceOf(user1) - taskOwnerBalanceBefore, taskOwnerReward);
+
+        assertEq(baseToken.balanceOf(validator1) - validatorBalanceBefore, total - treasuryReward - taskOwnerReward);
+
+        // veRewards should be reward * modelRate (1e18) / 2e18 = reward / 2
+        assertEq(engine.veRewards(), reward / 2);
+    }
 }
