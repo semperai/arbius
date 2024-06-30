@@ -65,6 +65,8 @@ export type { SubmitContestation } from "./SubmitContestation";
 export type { SubmitSolution } from "./SubmitSolution";
 export type { SubmitTask } from "./SubmitTask";
 export type { VoteOnContestation } from "./VoteOnContestation";
+export type { VeGovernorVotes } from "./VeGovernorVotes";
+export type { VeGovernorVotesQuorumFraction } from "./VeGovernorVotesQuorumFraction";
 export type { GovernorV1 } from "./GovernorV1";
 export type { IArbius } from "./IArbius";
 export type { IArbToken } from "./IArbToken";
@@ -171,6 +173,8 @@ export { SubmitContestation__factory } from "./factories/SubmitContestation__fac
 export { SubmitSolution__factory } from "./factories/SubmitSolution__factory";
 export { SubmitTask__factory } from "./factories/SubmitTask__factory";
 export { VoteOnContestation__factory } from "./factories/VoteOnContestation__factory";
+export { VeGovernorVotes__factory } from "./factories/VeGovernorVotes__factory";
+export { VeGovernorVotesQuorumFraction__factory } from "./factories/VeGovernorVotesQuorumFraction__factory";
 export { GovernorV1__factory } from "./factories/GovernorV1__factory";
 export { IArbius__factory } from "./factories/IArbius__factory";
 export { IArbToken__factory } from "./factories/IArbToken__factory";

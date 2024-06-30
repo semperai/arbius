@@ -269,6 +269,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VoteOnContestation__factory>;
     getContractFactory(
+      name: "VeGovernorVotes",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VeGovernorVotes__factory>;
+    getContractFactory(
+      name: "VeGovernorVotesQuorumFraction",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VeGovernorVotesQuorumFraction__factory>;
+    getContractFactory(
       name: "GovernorV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GovernorV1__factory>;
@@ -753,6 +761,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.VoteOnContestation>;
+    getContractAt(
+      name: "VeGovernorVotes",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VeGovernorVotes>;
+    getContractAt(
+      name: "VeGovernorVotesQuorumFraction",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VeGovernorVotesQuorumFraction>;
     getContractAt(
       name: "GovernorV1",
       address: string,
