@@ -4,17 +4,19 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+
+import {VeGovernorVotes, IVotes} from "./governance/VeGovernorVotes.sol";
+import {VeGovernorVotesQuorumFraction} from "./governance/VeGovernorVotesQuorumFraction.sol";
+
 import {getIPFSCIDMemory} from "./libraries/IPFS.sol";
 
 contract GovernorV1 is
     Governor,
     GovernorCompatibilityBravo,
     GovernorSettings,
-    GovernorVotes,
-    GovernorVotesQuorumFraction,
+    VeGovernorVotes,
+    VeGovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
     // proposal ids stored here to allow us to enumerate them
@@ -44,8 +46,8 @@ contract GovernorV1 is
             6575,
             1e18
         )
-        GovernorVotes(_token)
-        GovernorVotesQuorumFraction(4)
+        VeGovernorVotes(_token)
+        VeGovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
     {}
 
