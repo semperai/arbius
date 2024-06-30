@@ -13,7 +13,8 @@ import "contracts/VeNFTRender.sol";
 import "contracts/VeStaking.sol";
 
 /**
- * @notice Steps to test EngineV4:
+ * @notice Tests for V2_EngineV4.sol
+ * @dev Steps to test EngineV4:
  * 1. Deploy local hardhat node with `npx hardhat node`
  * 2. Then, run hardhat setup on local node with `npx hardhat test test/enginev4.test.ts --network localhost`
  * 3. Run Foundry tests with `npm run forge-test`, or `npm run forge-test-v` for verbose output
@@ -46,7 +47,7 @@ contract EngineV4Test is Test {
     BaseTokenV1 public baseToken = BaseTokenV1(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
 
     function setUp() public {
-        // set up is done in hardhat test file: test/enginev4.test.ts
+        // initial set up is done in hardhat test file: test/enginev4.test.ts
 
         /* ve specific setup */
         veNFTRender = new VeNFTRender();
@@ -241,7 +242,84 @@ contract EngineV4Test is Test {
         assertEq(engine.veRewards(), reward / 2);
     }
 
-    function testNotifyRewardAmount() public {
+    function testNotifyRewardAmountDist() public {
+        /* setup to test reward distribution to veAIUS holders */
+
+        // call notifyRewardAmount so first rewardDuration starts
+        veStaking.notifyRewardAmount(0);
+
+        // get period finish 
+        uint256 periodFinish = veStaking.periodFinish();
+        //console2.log("periodFinish", periodFinish);
+        //console2.log("block.timestamp", block.timestamp);
+
+        // fast forward to periodFinish
+        vm.warp(periodFinish);
+
+        // transfer some AIUS from deployer to validator3, validator4 and user2
+        vm.startPrank(deployer);
+        baseToken.transfer(validator3, 100 ether);
+        baseToken.transfer(validator4, 100 ether);
+        baseToken.transfer(user2, 100 ether);
+        vm.stopPrank();
+
+        // approve AIUS to votingEscrow
+        vm.prank(validator3);
+        baseToken.approve(address(votingEscrow), 100 ether);
+        vm.prank(validator4);
+        baseToken.approve(address(votingEscrow), 100 ether);
+        vm.prank(user2);
+        baseToken.approve(address(votingEscrow), 100 ether);
+   
+        // send rewards to veStaking contract and call notifyRewardAmount to start reward distribution
+        vm.prank(deployer);
+        baseToken.transfer(address(veStaking), 120 ether);
+        vm.prank(deployer);
+        veStaking.notifyRewardAmount(120 ether);
+
+        // get new periodFinish
+        //periodFinish = veStaking.periodFinish();
+        //console2.log("periodFinish", periodFinish);
+        //console2.log("block.timestamp", block.timestamp);
+
+        /* test logic begins */
+            
+        // users stake their AIUS, receive veAIUS
+        vm.prank(validator3);
+        votingEscrow.create_lock(100 ether, 104 weeks);
+        vm.prank(validator4);
+        votingEscrow.create_lock(100 ether, 52 weeks);
+
+        // balance of validator3 should be roughly (1% error) double of validator4, since locktime is twice as long
+        assertApproxEqRel(votingEscrow.balanceOfNFT(1), votingEscrow.balanceOfNFT(2) * 2, 1e16, "!ve-balance");
+
+        // fast forward half a week (1 week = 168 hours -> ff 84 hours)
+        skip(84 * 3600);
+        vm.roll(block.number + (84*3600 / 12));
+
+        // user2 decides to stake as well
+        vm.prank(user2);
+        votingEscrow.create_lock(100 ether, 52 weeks);
+
+        // vote escrow balance (i.e. voting weight) of validator4 should be the same as of user2, since amount and lock time is equal
+        assertEq(votingEscrow.balanceOfNFT(2), votingEscrow.balanceOfNFT(3), "!ve-balance");
+        // veStaking balance of user2 should be slightly less than of validator4, since user2 staked a few days later and a new epoch hasnt started yet
+        assertLt(veStaking.balanceOf(3), veStaking.balanceOf(2), "!veStaking-balance");
+
+        // fast forward to end of reward period
+        skip(84 * 3600);
+        vm.roll(block.number + (84*3600 / 12));
+    
+        // claim rewards for users
+        veStaking.getReward(1);
+        veStaking.getReward(2);
+        veStaking.getReward(3);
+
+        // all rewards should be distributed, minus some rounding error
+        assertApproxEqAbs(baseToken.balanceOf(address(veStaking)), 0, 0.00001 ether, "!rewards");
+    }
+
+    function testCallNotifyRewardAmount() public {
         // call notifyRewardAmount so rewardDuration starts
         veStaking.notifyRewardAmount(0);
 
@@ -277,6 +355,7 @@ contract EngineV4Test is Test {
 
             uint256 reward = engine.getReward();
             //console2.log("reward", reward);
+
 
             if (block.timestamp > veStaking.periodFinish()) {
                 // notifyRewardAmount should be called
@@ -389,8 +468,6 @@ contract EngineV4Test is Test {
         skip(12);
         vm.roll(block.number + 1);
 
-        (uint256 staked,,) = engine.validators(validator1);
-
         vm.prank(validator1);
         engine.submitSolution(taskid, TESTCID);
 
@@ -430,4 +507,6 @@ contract EngineV4Test is Test {
         // veRewards should be reward * modelRate (1e18) / 2e18 = reward / 2
         assertEq(engine.veRewards(), reward / 2);
     }
+
+    // todo: test ve-distribution after notifyRewardAmount
 }

@@ -3,6 +3,10 @@ pragma solidity ^0.8.19;
 
 import "./BaseTest.sol";
 
+/**
+ * @notice Isolated tests for VotingEscrow.sol, without involvement of engine contract
+ * @dev Can be run with `forge test --mc VotingEscrowTest`
+ */
 contract VotingEscrowTest is BaseTest {
     function setUp() public {
         // set time

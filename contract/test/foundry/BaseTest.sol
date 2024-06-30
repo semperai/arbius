@@ -9,6 +9,9 @@ import "contracts/VotingEscrow.sol";
 import "contracts/VeNFTRender.sol";
 import "contracts/VeStaking.sol";
 
+/**
+ * @notice Base test contract used for testing VeStaking.sol and VotingEscrow.sol
+ */
 contract BaseTest is Test {
     MockERC20 public AIUS;
     MockERC20 public mockToken;

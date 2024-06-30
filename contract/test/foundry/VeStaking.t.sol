@@ -3,6 +3,10 @@ pragma solidity ^0.8.19;
 
 import "./BaseTest.sol";
 
+/**
+ * @notice Isolated tests for VeStaking.sol, without involvement of engine contract
+ * @dev Can be run with `forge test --mc VeStakingTest`
+ */
 contract VeStakingTest is BaseTest {
     function setUp() public {
         // set time
@@ -93,7 +97,7 @@ contract VeStakingTest is BaseTest {
         uint256 finalRewardPerToken = veStaking.rewardPerToken();
         assertGt(finalRewardPerToken, newRewardPerToken, "!rewardPerToken");
 
-        // get veStaking balance 
+        // get veStaking balance
         uint256 veStakingBalance = veStaking.balanceOf(1);
 
         // finalRewardPerToken should be (7e18 * 1e18) / veStakingBalance, with 1e18 = multiplier needed for division
