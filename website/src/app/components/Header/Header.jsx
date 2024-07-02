@@ -117,7 +117,7 @@ export default function Header() {
             } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row`}
         >
           <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
-            <Link href={"/generate"}>
+            <Link href={"/generate"} target="_blank">
               <div className="item hover:text-purple-text">Generate</div>
             </Link>
 
@@ -167,6 +167,7 @@ export default function Header() {
                     onClick={() => {
                       setHeaderOpen(!headerOpen)
                     }}
+                    target="_blank"
                   >
                     <div className="staking-block relative">
                       <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
@@ -200,7 +201,7 @@ export default function Header() {
               <div className="p-[15px_50px] left-[-18px] bg-[black] absolute opacity-0 ml-[-5px]"></div>
               <AnimateHeight height={modelsOpen ? "auto" : 0}>
                 <div className="lg:staking lg:translate-x-[-40%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex">
-                  <Link href={"/generate"}>
+                  <Link href={"/generate"} target="_blank">
                     <div className="staking-block">
                       <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
                         <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
@@ -246,7 +247,7 @@ export default function Header() {
               </AnimateHeight>
             </div>
 
-            <Link href={"/explorer"}>
+            <Link href={"/explorer"} target="_blank">
               <div className="item hover:text-purple-text">Explorer</div>
             </Link>
 
@@ -263,6 +264,7 @@ export default function Header() {
               onClick={() => {
                 setHeaderOpen(!headerOpen)
               }}
+              target="_blank"
             >
               <div className={`item lg:block ${activeLink == 'media' ? '!text-purple-text' : 'hover:!text-purple-text'}`}>Media</div>
             </Link>

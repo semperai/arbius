@@ -130,7 +130,7 @@ export default function Footer() {
                                 {
                                     footerLinks.slice(0, 3).map((link) => {
                                         return (
-                                            <Link href={link.link} target={link.link == "/media" ? "" : "_blank"} key={link.id}>
+                                            <Link href={link.link} target="_blank" key={link.id}>
                                                 <div>
                                                     <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                                 </div>
@@ -157,7 +157,7 @@ export default function Footer() {
                                 {
                                     footerLinks.slice(-2).map((link) => {
                                         return (
-                                            <Link href={link.link} key={link.id} target={link.name == "GYSR" ? "_blank" : ""}>
+                                            <Link href={link.link} key={link.id} target="_blank">
                                                 <div>
                                                     <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                                 </div>
