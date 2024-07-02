@@ -36,7 +36,7 @@ export default function Democratic() {
                 <div>
                     <div>
                         <div>
-                            <h2 className="lato-bold lg:text-header text-mobile-header text-black-text mb-6 fade-container">
+                            <h2 className="lato-bold lg:text-header text-mobile-header text-black-text mb-6 fade-container 2xl:text-header-2xl">
                                 <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
                                     We dream of open and accessible AI
                                 </Fade>
