@@ -110,7 +110,7 @@ export default function Models() {
           <div className="text-[16px] lg:text-[12px] mb-2 lg:mb-0 Gradient-transparent-text bg-button-gradient-txt">
             Multi-Model Economy!
           </div>
-          <div className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header font-medium text-black-text mb-6">
+          <div className="lato-bold lg:text-header text-mobile-header font-medium text-black-text mb-6">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               DeFi for AI
             </Fade>
@@ -178,10 +178,10 @@ export default function Models() {
         </div>
 
         <Fade direction="up" triggerOnce={true} className=" lg:block lg:w-[50%]">
-          <div className="xl:ml-[20%]">
+          <div className="">{/*"xl:ml-[20%]"*/}
             <div
               id="image-parent"
-              className={`hidden lg:flex relative border-[transparent] w-[320px] h-[500px]  justify-center items-center rounded-[50px] ml-[auto] xl:m-[auto]`}
+              className={`hidden lg:flex relative border-[transparent] w-[320px] h-[500px]  justify-center items-center rounded-[50px] ml-[auto]`}
             >
               {Object.keys(AllModels).map((model, index) => (
 
