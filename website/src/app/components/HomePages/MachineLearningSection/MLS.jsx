@@ -15,12 +15,12 @@ export default function MachineLearningSection() {
             </div>
           </Fade>
 
-          <div className="hidden lg:block fade-container lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text">
+          <div className="hidden lg:block fade-container lg:text-header text-mobile-header text-black-text 2xl:text-header-2xl">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Peer-to-peer machine
             </Fade>
           </div>
-          <div className="hidden lg:block fade-container lg:text-header 2xl:text-header-2xl text-mobile-header text-black-text mt-[-15px] mb-6">
+          <div className="hidden lg:block fade-container lg:text-header text-mobile-header text-black-text mt-[-15px] mb-6 2xl:text-header-2xl">
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
               learning
             </Fade>
