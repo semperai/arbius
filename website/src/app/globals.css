@@ -197,7 +197,7 @@
         @apply p-[10px_0px] text-center border-b border-[#E1E1E7] flex-grow;
     }
     .all-models > div{
-        @apply cursor-pointer text-[17px] flex-1 pb-[20px] text-subtext-two font-At-Hauss 2xl:text-[20px];
+        @apply cursor-pointer text-[17px] flex-1 pb-[20px] text-subtext-two font-At-Hauss;
     }
     .all-models > .selected{
         @apply text-blue-text border-b-[2px] gradient-border;

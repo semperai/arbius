@@ -107,7 +107,7 @@ export default function Models() {
     <div className={`bg-democratic-gradient lg:${background} bg-cover lato-bold`}>
       <div className="w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width flex  flex-col lg:flex-row justify-between items-center">
         <div className="w-full lg:w-[50%]">
-          <div className="text-[16px] lg:text-[12px] mb-2 lg:mb-0 Gradient-transparent-text bg-button-gradient-txt 2xl:text-para">
+          <div className="text-[16px] lg:text-[12px] mb-2 lg:mb-0 Gradient-transparent-text bg-button-gradient-txt">
             Multi-Model Economy!
           </div>
           <div className="lato-bold lg:text-header 2xl:text-header-2xl text-mobile-header font-medium text-black-text mb-6">
@@ -117,7 +117,7 @@ export default function Models() {
           </div>
           <Fade direction="up" triggerOnce={true}>
             <div>
-              <div className="text-para lato-regular text-subtext-two 2xl:text-large-description">
+              <div className="text-para lato-regular text-subtext-two">
                 OSS (open source software) models such as Llama 3 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from&nbsp;AI.&nbsp;
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function Models() {
                   <div className={`text-[28px]  font-medium {/*Gradient-transparent-text bg-background-gradient-txt*/} text-blue-text  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "!opacity-100" : "opacity-0"}`}>
                     {selectedModel}
                   </div>
-                  <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px] 2xl:text-large-description model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "!opacity-100" : "opacity-0"}`}>
+                  <div className={`mt-[10px]  w-[80%] text-subtext-two lato-regular lg:h-[180px]  model-container ${modelFadeIn || stopEffect ? "fade-in" : ""} ${opacity ? "!opacity-100" : "opacity-0"}`}>
                     {AllModels[selectedModel].text}
 
                     <div>
@@ -157,7 +157,7 @@ export default function Models() {
                             className={` relative group bg-black-background py-2 px-8 rounded-full flex items-center gap-3 mt-[20px] overflow-hidden model-container ${modelFadeIn || stopEffect || opacity ? "fade-in" : ""}`}
                           >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold relative z-10 text-original-white 2xl:text-large-description">
+                            <div className="lato-bold  relative z-10 text-original-white">
                               Try now
                             </div>
                             <NextImage

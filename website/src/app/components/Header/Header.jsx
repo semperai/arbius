@@ -106,7 +106,7 @@ export default function Header() {
         <div className="flex items-center">
           <Link href="/">
             <Image
-              className="h-[40px] w-[auto] 2xl:h-[50px]"
+              className="h-[40px] w-[auto]"
               src={ArbiusLogo}
               alt="Arbius Logo"
             />
@@ -116,7 +116,7 @@ export default function Header() {
           className={`${headerOpen ? "w-[100%] pb-[90px] lg:pb-0" : "w-[0%]"
             } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row`}
         >
-          <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray] 2xl:text-large-description">
+          <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
             <Link href={"/generate"} target="_blank">
               <div className="item hover:text-purple-text">Generate</div>
             </Link>
@@ -278,7 +278,7 @@ export default function Header() {
                 className="m-[auto] relative group bg-black-background lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
               >
                 <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white 2xl:text-large-description"
+                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white"
                   onClick={clickConnect}
                 >
                   { walletConnected ? "Connected" : "Connect" }
