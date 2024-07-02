@@ -178,10 +178,10 @@ export default function Models() {
         </div>
 
         <Fade direction="up" triggerOnce={true} className=" lg:block lg:w-[50%]">
-          <div className="2xl:ml-[20%]">
+          <div className="xl:ml-[20%]">
             <div
               id="image-parent"
-              className={`hidden lg:flex relative border-[transparent] w-[320px] h-[500px]  justify-center items-center rounded-[50px] ml-[auto] 2xl:m-[auto]`}
+              className={`hidden lg:flex relative border-[transparent] w-[320px] h-[500px]  justify-center items-center rounded-[50px] ml-[auto] xl:m-[auto]`}
             >
               {Object.keys(AllModels).map((model, index) => (
 
