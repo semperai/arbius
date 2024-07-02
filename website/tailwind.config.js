@@ -12,7 +12,7 @@ module.exports = {
         'invert': 'invert(1)',
       },
       fontSize:{
-        "header-2xl": "70px",
+        "header-2xl": "72px",
         'header-xl':'60px',
         'header':"50px",
         'header-md':"40px",
