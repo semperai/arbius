@@ -8,9 +8,9 @@ import "contracts/BaseTokenV1.sol";
 import "contracts/V2_EngineV4.sol";
 import {getIPFSCIDMemory} from "contracts/libraries/IPFS.sol";
 
-import "contracts/VotingEscrow.sol";
-import "contracts/VeNFTRender.sol";
-import "contracts/VeStaking.sol";
+import "contracts/ve/VotingEscrow.sol";
+import "contracts/ve/VeNFTRender.sol";
+import "contracts/ve/VeStaking.sol";
 
 /**
  * @notice Tests for V2_EngineV4.sol

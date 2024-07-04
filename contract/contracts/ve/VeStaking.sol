@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IVeStaking} from "./interfaces/IVeStaking.sol";
+import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 
 /// @title VeStaking
@@ -79,6 +79,7 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
+    // todo: maybe limit calling to v4 and treasury.
     function notifyRewardAmount(uint256 reward) external updateReward(0) {
         if (block.timestamp >= periodFinish) {
             rewardRate = reward / rewardsDuration;

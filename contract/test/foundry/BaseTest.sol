@@ -5,9 +5,9 @@ import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 
 import "./utils/MockERC20.sol";
-import "contracts/VotingEscrow.sol";
-import "contracts/VeNFTRender.sol";
-import "contracts/VeStaking.sol";
+import "contracts/ve/VotingEscrow.sol";
+import "contracts/ve/VeNFTRender.sol";
+import "contracts/ve/VeStaking.sol";
 
 /**
  * @notice Base test contract used for testing VeStaking.sol and VotingEscrow.sol

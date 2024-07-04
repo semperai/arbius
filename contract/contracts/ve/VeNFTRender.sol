@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import "./libraries/Base64.sol";
+import "contracts/libraries/Base64.sol";
 
 contract VeNFTRender {
 
