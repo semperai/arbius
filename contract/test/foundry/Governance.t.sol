@@ -123,10 +123,11 @@ contract GovernanceTest is Test {
 
         /* mint aius, stake to receive veAIUS */
 
-        // mint 2 AIUS to user1 / user2 and 1 AIUS to timelock
+        // mint AIUS
         vm.startPrank(deployer);
         baseToken.bridgeMint(user1, 2e18);
         baseToken.bridgeMint(user2, 2e18);
+        baseToken.bridgeMint(validator1, 3e18);
         baseToken.bridgeMint(address(timelock), 1e18);
         vm.stopPrank();
 
@@ -135,12 +136,16 @@ contract GovernanceTest is Test {
         baseToken.approve(address(votingEscrow), 2e18);
         vm.prank(user2);
         baseToken.approve(address(votingEscrow), 2e18);
+        vm.prank(validator1);
+        baseToken.approve(address(votingEscrow), 3e18);
 
         // user stakes their AIUS, receives veAIUS
         vm.prank(user1);
         votingEscrow.create_lock(2e18, 104 weeks);
         vm.prank(user2);
         votingEscrow.create_lock(2e18, 104 weeks);
+        vm.prank(validator1);
+        votingEscrow.create_lock(3e18, 104 weeks);
 
         // no self-delegation needed
     }
@@ -398,5 +403,58 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         vm.expectRevert(abi.encodePacked("TimelockController: operation is not ready"));
         governor.execute(targets, values, calldatas, descriptionHash);
+    }
+
+    function testDelegate() public {
+        // validator1 delegates his veAIUS to validator2 (val2 has ZERO veAIUS)
+        vm.prank(validator1);
+        votingEscrow.delegate(validator2);
+
+        // register model
+        bytes32 modelid = engine.registerModel(user1, 0, TESTBUF);
+
+        address[] memory targets = new address[](1);
+        targets[0] = address(engine);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to set solutionMineableRate to 1 ether
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("setSolutionMineableRate(bytes32,uint256)", modelid, 1e18);
+
+        string memory description = "Proposal #1: setSolutionMineableRate model_1";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // propose
+        vm.prank(user1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        // fast forward one day (initialVotingDelay)
+        skip(1 days + 1);
+
+        // validator2 votes for
+        vm.prank(validator2);
+        governor.castVote(proposalId, 1);
+
+        // fast forward 3 days (votingPeriod)
+        skip(3 days);
+
+        // queue
+        vm.prank(user1);
+        governor.queue(targets, values, calldatas, descriptionHash);
+
+        // fast forward timelockMinDelay
+        skip(3 days);
+
+        // execute
+        vm.prank(user1);
+        governor.execute(targets, values, calldatas, descriptionHash);
+
+        // model should have updated solutionMineableRate
+        (,, uint256 rate,) = engine.models(modelid);
+        assertEq(rate, 1e18);
     }
 }
