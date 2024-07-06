@@ -1312,6 +1312,16 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     }
 
     function delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) public {
+        // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
+        // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
+        // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
+        // signatures from current libraries generate a unique signature with an s-value in the lower half order.
+        //
+        // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
+        // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
+        // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
+        // these malleable signatures as well.
+        require(uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0, "VotingEscrow::delegateBySig: invalid signature");
         bytes32 domainSeparator = keccak256(
             abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), keccak256(bytes(version)), block.chainid, address(this))
         );
@@ -1322,5 +1332,17 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
         require(nonce == nonces[signatory]++, "VotingEscrow::delegateBySig: invalid nonce");
         require(block.timestamp <= expiry, "VotingEscrow::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                              ERC6372 LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    function clock() external view returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    function CLOCK_MODE() external pure returns (string memory) {
+        return "mode=timestamp";
     }
 }
