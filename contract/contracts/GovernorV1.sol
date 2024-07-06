@@ -29,7 +29,7 @@ contract GovernorV1 is
     mapping(uint256 => bytes) public descriptionCids;
 
     /// @notice The name of this contract
-    /// @param _token The address of the Arbius token
+    /// @param _token The address of the VotingEscrow contract (veAIUS token)
     /// @param _timelock The address of the timelock
     constructor(
         IVotes _token,
@@ -38,13 +38,9 @@ contract GovernorV1 is
         Governor("Governor")
         GovernorCompatibilityBravo()
         GovernorSettings(
-            // 19725, // 3 days, initialVotingDelay,
-            // 19725, // 3 days, initialVotingPeriod,
-            // 1000e18 // minimum 1000 AIUS for initialProposalThreshold
-            // TODO change me
-            6575,
-            6575,
-            1e18
+            86400, // initialVotingDelay = 1 day
+            86400 * 3, // initialVotingPeriod = 3 days
+            1e18  // initialProposalThreshold = 1 veAIUS
         )
         VeGovernorVotes(_token)
         VeGovernorVotesQuorumFraction(4)

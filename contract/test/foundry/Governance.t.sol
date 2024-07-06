@@ -8,9 +8,9 @@ import "contracts/BaseTokenV1.sol";
 import "contracts/V2_EngineV4.sol";
 import {getIPFSCIDMemory} from "contracts/libraries/IPFS.sol";
 
-import "contracts/VotingEscrow.sol";
-import "contracts/VeNFTRender.sol";
-import "contracts/VeStaking.sol";
+import "contracts/ve/VotingEscrow.sol";
+import "contracts/ve/VeNFTRender.sol";
+import "contracts/ve/VeStaking.sol";
 
 import "contracts/GovernorV1.sol";
 import "contracts/TimelockV1.sol";
@@ -22,7 +22,6 @@ import "contracts/TimelockV1.sol";
  * 3. Run Foundry tests with `npm run forge-test`, or `npm run forge-test-v` for verbose output
  * 3.1 Alternatively, `forge test --fork-url http://localhost:8545 --fork-block-number 18 --mc GovernanceTest`
  */
-
 contract GovernanceTest is Test {
     VotingEscrow public votingEscrow;
     VeStaking public veStaking;
@@ -30,6 +29,8 @@ contract GovernanceTest is Test {
 
     GovernorV1 public governor;
     TimelockV1 public timelock;
+
+    bytes TESTBUF = "0x746573740a";
 
     // default test mnemonic used in hardhat tests
     string public constant mnemonic = "test test test test test test test test test test test junk";
@@ -76,24 +77,24 @@ contract GovernanceTest is Test {
         executors[1] = user1;
 
         timelock = new TimelockV1(0, proposers, executors, deployer);
-        governor = new GovernorV1(IVotes(address(baseToken)), TimelockController(payable(address(timelock))));
+        governor = new GovernorV1(IVotes(address(votingEscrow)), TimelockController(payable(address(timelock))));
 
         // transfer ownership to timelock
         engine.transferOwnership(address(timelock));
 
         // normally we'd do this, but we want ability to mint whenever easily for testing
         // baseToken.transferOwnership(adress(engine));
-        
+
         bytes32 TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
         bytes32 PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
         bytes32 EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
-        
+
         // grant roles
         timelock.grantRole(PROPOSER_ROLE, address(governor));
         timelock.grantRole(EXECUTOR_ROLE, address(governor));
 
-        uint256 timelockMinDelay = 60*60*24*3;
-        
+        uint256 timelockMinDelay = 60 * 60 * 24 * 3;
+
         timelock.schedule(
             address(timelock),
             0, // value
@@ -101,7 +102,7 @@ contract GovernanceTest is Test {
             bytes32(0), // predecessor
             bytes32(0), // salt
             0 // delay
-        );  
+        );
 
         // execute the proposal
         timelock.execute(
@@ -114,11 +115,34 @@ contract GovernanceTest is Test {
         //console2.log('Timelock: Minimum delay updated');
 
         // renounce roles
-        
+
         timelock.renounceRole(PROPOSER_ROLE, deployer);
         timelock.renounceRole(TIMELOCK_ADMIN_ROLE, deployer);
 
         vm.stopPrank();
+
+        /* mint aius, stake to receive veAIUS */
+
+        // mint 2 AIUS to user1 / user2 and 1 AIUS to timelock
+        vm.startPrank(deployer);
+        baseToken.bridgeMint(user1, 2e18);
+        baseToken.bridgeMint(user2, 2e18);
+        baseToken.bridgeMint(address(timelock), 1e18);
+        vm.stopPrank();
+
+        // approve AIUS to votingEscrow
+        vm.prank(user1);
+        baseToken.approve(address(votingEscrow), 2e18);
+        vm.prank(user2);
+        baseToken.approve(address(votingEscrow), 2e18);
+
+        // user stakes their AIUS, receives veAIUS
+        vm.prank(user1);
+        votingEscrow.create_lock(2e18, 104 weeks);
+        vm.prank(user2);
+        votingEscrow.create_lock(2e18, 104 weeks);
+
+        // no self-delegation needed
     }
 
     function testEngineOwner() public {
@@ -126,7 +150,253 @@ contract GovernanceTest is Test {
     }
 
     function testMinDelay() public {
-        uint256 timelockMinDelay = 60*60*24*3;
+        uint256 timelockMinDelay = 60 * 60 * 24 * 3;
         assertEq(timelock.getMinDelay(), timelockMinDelay);
+    }
+
+    function testTreasuryVote() public {
+        address[] memory targets = new address[](1);
+        targets[0] = address(baseToken);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to transfer 1 AIUS to user1
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+
+        string memory description = "Proposal #1: Give grant to team";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // propose
+        vm.prank(user1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        // fast forward one day (initialVotingDelay)
+        skip(1 days + 1);
+
+        // castVote
+        vm.prank(user1);
+        governor.castVote(proposalId, 1);
+
+        // fast forward 3 days (votingPeriod)
+        skip(3 days);
+
+        // queue
+        vm.prank(user1);
+        governor.queue(targets, values, calldatas, descriptionHash);
+
+        // fast forward timelockMinDelay
+        skip(3 days);
+
+        // execute
+        vm.prank(user1);
+        governor.execute(targets, values, calldatas, descriptionHash);
+
+        // user1 should have received 1 AIUS from timelock
+        assertEq(baseToken.balanceOf(user1), 1e18);
+        assertEq(baseToken.balanceOf(address(timelock)), 0);
+    }
+
+    function testTreasuryVoteFails() public {
+        // proposal
+        address[] memory targets = new address[](1);
+        targets[0] = address(baseToken);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to transfer 1 AIUS to user1
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+
+        string memory description = "Proposal #1: Give grant to team";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // propose
+        vm.prank(user1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        // fast forward one day (initialVotingDelay)
+        skip(1 days + 1);
+
+        // vote for
+        vm.prank(user1);
+        governor.castVote(proposalId, 1);
+
+        // vote against
+        vm.prank(user2);
+        governor.castVote(proposalId, 0);
+
+        // fast forward 3 days (votingPeriod)
+        skip(3 days);
+
+        // queue
+        vm.prank(user1);
+        vm.expectRevert(abi.encodePacked("Governor: proposal not successful"));
+        governor.queue(targets, values, calldatas, descriptionHash);
+    }
+
+    function testSolutionMineableRate() public {
+        // register model
+        bytes32 modelid = engine.registerModel(user1, 0, TESTBUF);
+
+        address[] memory targets = new address[](1);
+        targets[0] = address(engine);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to set solutionMineableRate to 1 ether
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("setSolutionMineableRate(bytes32,uint256)", modelid, 1e18);
+
+        string memory description = "Proposal #1: setSolutionMineableRate model_1";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // propose
+        vm.prank(user1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        // fast forward one day (initialVotingDelay)
+        skip(1 days + 1);
+
+        // castVote
+        vm.prank(user1);
+        governor.castVote(proposalId, 1);
+
+        // fast forward 3 days (votingPeriod)
+        skip(3 days);
+
+        // queue
+        vm.prank(user1);
+        governor.queue(targets, values, calldatas, descriptionHash);
+
+        // fast forward timelockMinDelay
+        skip(3 days);
+
+        // execute
+        vm.prank(user1);
+        governor.execute(targets, values, calldatas, descriptionHash);
+
+        // model should have updated solutionMineableRate
+        (,, uint256 rate,) = engine.models(modelid);
+        assertEq(rate, 1e18);
+    }
+
+    function testInitialVotingDelay() public {
+        // proposal
+        address[] memory targets = new address[](1);
+        targets[0] = address(baseToken);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to transfer 1 AIUS to user1
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+
+        string memory description = "Proposal #1: Give grant to team";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // propose
+        vm.prank(user1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        // fast forward less than `initialVotingDelay`
+        skip(1 days - 1);
+
+        // vote for
+        vm.prank(user1);
+        vm.expectRevert(abi.encodePacked("Governor: vote not currently active"));
+        governor.castVote(proposalId, 1);
+    }
+
+    function testVotingPeriod() public {
+        // proposal
+        address[] memory targets = new address[](1);
+        targets[0] = address(baseToken);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to transfer 1 AIUS to user1
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+
+        string memory description = "Proposal #1: Give grant to team";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // propose
+        vm.prank(user1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        // fast forward one day (initialVotingDelay)
+        skip(1 days + 1);
+
+        // vote for
+        vm.prank(user1);
+        governor.castVote(proposalId, 1);
+
+        // fast forward less than `votingPeriod`
+        skip(3 days - 1);
+
+        // queue
+        vm.prank(user1);
+        vm.expectRevert(abi.encodePacked("Governor: proposal not successful"));
+        governor.queue(targets, values, calldatas, descriptionHash);
+    }
+
+    function testTimelockMinDelay() public {
+        address[] memory targets = new address[](1);
+        targets[0] = address(baseToken);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to transfer 1 AIUS to user1
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+
+        string memory description = "Proposal #1: Give grant to team";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // propose
+        vm.prank(user1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+
+        // fast forward one day (initialVotingDelay)
+        skip(1 days + 1);
+
+        // castVote
+        vm.prank(user1);
+        governor.castVote(proposalId, 1);
+
+        // fast forward 3 days (votingPeriod)
+        skip(3 days);
+
+        // queue
+        vm.prank(user1);
+        governor.queue(targets, values, calldatas, descriptionHash);
+
+        // fast forward less than `timelockMinDelay`
+        skip(3 days - 1);
+
+        // execute
+        vm.prank(user1);
+        vm.expectRevert(abi.encodePacked("TimelockController: operation is not ready"));
+        governor.execute(targets, values, calldatas, descriptionHash);
     }
 }
