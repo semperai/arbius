@@ -1,12 +1,14 @@
 import React from 'react'
-import Slider from './Slider'
-
+// import Slider from './Slider'
+import SlidingCards from './SlidingCards'
+import Image from 'next/image'
+import aius_icon from "../../../app/assets/images/aius_icon.png"
 function DashBoard() {
     return (
-        <div className='lg:w-section-width w-mobile-section-width mx-auto max-w-center-width py-24'>
-            <h1 className='text-[#4A28FF] text-[50px]'>veAIUS Dashboard</h1>
+        <div className='xl:w-section-width w-mobile-section-width mx-auto max-w-center-width py-24'>
+            <div className='flex justify-start items-baseline gap-3'><h1 className='text-[#4A28FF] text-[40px]'>veAIUS Dashboard </h1> <Image src={aius_icon} width={"auto"} height={33} /></div>
 
-            <div className='grid grid-cols-3 gap-10 my-10'>
+            <div className='hidden xl:grid grid-cols-3 gap-10 my-10 mt-14'>
                 <div className="col-span-1 h-auto">
 
                     <div className='rounded-2xl p-8 bg-white stake-box-shadow h-full'>
@@ -58,20 +60,20 @@ function DashBoard() {
 
                     <div>
 
-                        <Slider/>
+                        <SlidingCards/>
 
                     </div>
 
                 </div>
 
             </div>
-            <div className='grid grid-cols-3 gap-10 my-10'>
+            <div className='grid grid-cols-1 xl:grid-cols-3 gap-10 my-10'>
                 <div className="col-span-1 block">
 
                     <div className='rounded-2xl p-8 bg-white stake-box-shadow'>
 
                         <h1 className='text-[#4A28FF] text-[20px]'>Protocol Info</h1>
-                        <div className='flex justify-start gap-12 mt-6 mb-10'>
+                        <div className='flex justify-start xl:justify-start gap-8 lg:gap-[8rem] xl:gap-12 mt-6 mb-10'>
 
                             <div className='flex flex-col gap-6 justify-center items-center'>
                                 <div>
@@ -105,7 +107,7 @@ function DashBoard() {
 
                     </div>
                 </div>
-                <div className='col-span-2 pl-6'>
+                <div className='hidden xl:block col-span-2 pl-6'>
 
                     <div className='rounded-2xl p-8 bg-white stake-box-shadow'>
                         <h1 className='text-[#4A28FF] text-[20px]'>Staking</h1>

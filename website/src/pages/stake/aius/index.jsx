@@ -6,11 +6,12 @@ import Process from "./Process"
 import { Fade } from "react-awesome-reveal"
 import RootLayout from "@/app/layout";
 import Tabs from "./Tabs"
+import Notifications from "./Notifications"
 
 export default function AIUS() {
     return (
         <RootLayout>
-            <div className=" py-24">
+            <div className=" pt-24 xl:pb-24 pb-8">
                 <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
                     <div>
                         <div className="flex items-center gap-2">
@@ -46,7 +47,7 @@ export default function AIUS() {
                 </div>
             </div>
 
-
+            <Notifications/>
             {/* tabs */}
             <Tabs/>
         </RootLayout>

@@ -511,3 +511,9 @@ input[type="number"]::-ms-reveal {
     }
     
 }
+.slick-slider{
+    width: 100%;
+}
+.slick-slide >div{
+    margin: 0 1rem;
+}
