@@ -58,11 +58,12 @@ contract VeStakingTest is BaseTest {
         // transfering too much reward should work
         AIUS.transfer(address(veStaking), 10e18);
         veStaking.notifyRewardAmount(9e18);
+    }
 
+    function testFailNotifyRewardAmount() public {
         // transfering too little reward should revert
-        AIUS.transfer(address(veStaking), 0.99e18);
-        vm.expectRevert(abi.encodePacked("Provided reward too high"));
-        veStaking.notifyRewardAmount(2e18);
+        AIUS.transfer(address(veStaking), 99e17);
+        veStaking.notifyRewardAmount(100e17);
     }
 
     function testLastTimeRewardApplicable() public {
@@ -123,6 +124,21 @@ contract VeStakingTest is BaseTest {
         assertApproxEqRel(veStaking.earned(1), 7 ether, 1e15, "!earned");
     }
 
+    function testNotEarned() public {
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), 7 ether);
+        veStaking.notifyRewardAmount(7 ether);
+
+        // fast forward 1 week
+        skip(1 weeks);
+
+        // now create a lock
+        votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
+
+        // since rewardsDuration has passed, no rewards should be earned
+        assertEq(veStaking.earned(1), 0, "!earned");
+    }
+
     function testGetReward() public {
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
 
@@ -164,7 +180,7 @@ contract VeStakingTest is BaseTest {
         assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
     }
 
-    function testIncreaseStake() public {
+    function testIncreaseAmount() public {
         vm.prank(alice);
         votingEscrow.create_lock(100 ether, YEAR);
 
@@ -310,7 +326,8 @@ contract VeStakingTest is BaseTest {
         // balance of lock #1 should be 0
         assertEq(veStaking.balanceOf(1), 0, "balanceOf(1) != 0");
 
-        // staking balance should be updated by `diff`
+        // staking balance should have increased by `diff`
+        // since merging is like calling increase_amount on the lock with the highest unlock time
         assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");
     }
 
@@ -356,8 +373,9 @@ contract VeStakingTest is BaseTest {
         assertEq(veStaking.rewards(1), 0, "rewards(1) != 0");
         // balance of lock #1 should be 0
         assertEq(veStaking.balanceOf(1), 0, "balanceOf(1) != 0");
-
-        // staking balance should be updated by `diff`
+        
+        // staking balance should have increased by `diff`
+        // since merging is like calling increase_amount on the lock with the highest unlock time
         assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");
     }
 
@@ -404,7 +422,8 @@ contract VeStakingTest is BaseTest {
         // balance of lock #1 should be 0
         assertEq(veStaking.balanceOf(1), 0, "balanceOf(1) != 0");
 
-        // staking balance should be updated by `diff`
+        // staking balance should have increased by `diff`
+        // since merging is like calling increase_amount on the lock with the highest unlock time
         assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");
     }
 }

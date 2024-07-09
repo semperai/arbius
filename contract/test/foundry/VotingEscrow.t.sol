@@ -24,9 +24,14 @@ contract VotingEscrowTest is BaseTest {
         assertEq(votingEscrow.balanceOf(address(alice)), 0);
 
         vm.prank(alice);
-        votingEscrow.create_lock(1000 ether, YEAR);
+        votingEscrow.create_lock(1000 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
         assertEq(votingEscrow.balanceOf(alice), 1);
+        assertApproxEqAbs(
+            votingEscrow.balanceOfNFT(1),
+            1000 ether,
+            10 ether // time lock is rounded down to the nearest week
+        );
     }
 
     function testCreateTwoLocks() public {
@@ -37,10 +42,17 @@ contract VotingEscrowTest is BaseTest {
         vm.roll(block.number + 1);
 
         vm.prank(bob);
-        votingEscrow.create_lock(1000 ether, 104 weeks);
+        votingEscrow.create_lock(1000 ether, 2 * YEAR);
 
         assertEq(votingEscrow.balanceOf(address(alice)), 1);
         assertEq(votingEscrow.balanceOf(address(bob)), 1);
+
+        // bob should have double the balance of alice
+        assertApproxEqAbs(
+            votingEscrow.balanceOfNFT(1) * 2,
+            votingEscrow.balanceOfNFT(2),
+            20 ether // time lock is rounded down to the nearest week
+        );
     }
 
     function testTotalSupplyDecreasing() public {
@@ -54,71 +66,127 @@ contract VotingEscrowTest is BaseTest {
 
         assertTrue(newTotalSupply < initialTotalSupply, "Total supply should decrease over time");
 
-        // supply is decreasing per second
-        // todo: check why underflow error
-        //votingEscrow.totalSupplyAtT(block.timestamp-1);
+        skip(YEAR);
+
+        newTotalSupply = votingEscrow.totalSupply();
+
+        assertEq(newTotalSupply, 0, "!totalSupply");
     }
 
     function testIncreaseLockAmount() public {
         votingEscrow.create_lock(100 ether, 2 * YEAR);
 
         uint256 bal = votingEscrow.balanceOfNFT(1);
-        skip(52 weeks);
-        bal = votingEscrow.balanceOfNFT(1);
 
+        assertApproxEqAbs(
+            bal,
+            100 ether,
+            1 ether // time lock is rounded down to the nearest week
+        );
+
+        // fast forward 52 weeks
+        skip(52 weeks);
+
+        uint256 newBal = votingEscrow.balanceOfNFT(1);
+        // balance is now roughly half of initial balance
+        assertApproxEqAbs(
+            newBal,
+            50 ether,
+            1 ether // time lock is rounded down to the nearest week
+        );
+
+        // increase lock amount
         votingEscrow.increase_amount(1, 50 ether);
 
-        votingEscrow.balanceOfNFT(1);
+        uint256 finalBal = votingEscrow.balanceOfNFT(1);
+
+        // balance is now roughly 75 AIUS, since lock time didnt change
+        // it's as if we created the initial lock with 150 AIUS, instead of 100 AIUS 
+        assertApproxEqAbs(
+            finalBal,
+            75 ether,
+            1 ether // time lock is rounded down to the nearest week
+        );
     }
 
     function testIncreaseUnlockTime() public {
-        // create lock for 1 year (31104000 seconds, Sunday Dec 27)
-        // unlock time is at 30844800 seconds (Thursday Dec 24), since locks are rounded down to the nearest week)
+        // create lock for 1 year
         votingEscrow.create_lock(1000 ether, YEAR);
 
-        uint256 bal = votingEscrow.balanceOfNFT(1);
+        uint256 initialBal = votingEscrow.balanceOfNFT(1);
+        assertApproxEqAbs(
+            initialBal,
+            500 ether,
+            10 ether // time lock is rounded down to the nearest week)
+        );
+
+        // fast forward 26 weeks
         skip(26 weeks);
-        vm.roll(block.number + 1); // mine the next block
+       
         // balance is now roughly half of initial balance
+        uint256 bal = votingEscrow.balanceOfNFT(1);
         votingEscrow.balanceOfNFT(1);
+        assertApproxEqAbs(
+            bal * 2,
+            initialBal,
+            10 ether // time lock is rounded down to the nearest week)
+        );
 
-        // increase unlock time to 1 year from now
-        votingEscrow.increase_unlock_time(1, YEAR);
-
+        // call increase_unlock_time
+        // this is like creating a new lock with unlock time 1 year from now
         votingEscrow.increase_unlock_time(1, YEAR + 1 weeks);
-        votingEscrow.increase_unlock_time(1, YEAR + 3 weeks);
 
         // balance is now identical to initial balance, since lock time is identical
-        votingEscrow.balanceOfNFT(1);
+        uint256 newBal = votingEscrow.balanceOfNFT(1);
+        assertApproxEqAbs(
+            newBal,
+            initialBal,
+            10 ether // time lock is rounded down to the nearest week)
+        );
 
         // increase unlock time to 2 years from now
         votingEscrow.increase_unlock_time(1, MAX_LOCK_TIME);
 
         // balance is now double the initial balance
-        votingEscrow.balanceOfNFT(1);
-
-        console.log(votingEscrow.epoch());
+        uint256 finalBal = votingEscrow.balanceOfNFT(1);
+        assertApproxEqAbs(
+            finalBal,
+            initialBal * 2,
+            10 ether // time lock is rounded down to the nearest week)
+        );
     }
 
     function testIncreaseUnlockTimeRevert() public {
         votingEscrow.create_lock(1000 ether, YEAR);
-        votingEscrow.balanceOfNFT(1);
 
-        // try to set unlock time to next month
+        uint256 initialBal = votingEscrow.balanceOfNFT(1);
+        assertApproxEqAbs(
+            initialBal,
+            500 ether,
+            10 ether // time lock is rounded down to the nearest week)
+        );
+
+        // try to set unlock time to next month, should revert
         vm.expectRevert(abi.encodePacked("Can only increase lock duration"));
         votingEscrow.increase_unlock_time(1, 1 * MONTH);
 
         // fast forward 50 weeks
         skip(50 weeks);
 
-        // now it works, but veAIUS balance is ~1/12 of initial balance, since lock time is only 1 month
+        // now it works since new end time is greater than initial end time
+        // veAIUS balance is ~1/12 of initial balance, since lock time is only 1 month instead of 12
         votingEscrow.increase_unlock_time(1, 1 * MONTH);
-        votingEscrow.balanceOfNFT(1);
+        uint256 newBal = votingEscrow.balanceOfNFT(1);
+        assertApproxEqAbs(
+            newBal,
+            initialBal / 12,
+            10 ether // time lock is rounded down to the nearest week)
+        );
     }
 
     function testCreateLockOutsideAllowedZones() public {
         vm.expectRevert(abi.encodePacked("Voting lock can be 2 years max"));
-        votingEscrow.create_lock(1000 ether, MAX_LOCK_TIME + MONTH);
+        votingEscrow.create_lock(1000 ether, MAX_LOCK_TIME + 1 weeks);
 
         vm.expectRevert(abi.encodePacked("Can only lock until time in the future"));
         votingEscrow.create_lock(1000 ether, 2 days);
@@ -132,14 +200,16 @@ contract VotingEscrowTest is BaseTest {
         uint256 tokenId = 1;
         vm.expectRevert(abi.encodePacked("The lock didn't expire"));
         votingEscrow.withdraw(tokenId);
+
         // Now try withdraw after the time has expired
         skip(lockDuration);
-        vm.roll(block.number + 1); // mine the next block
         votingEscrow.withdraw(tokenId);
 
+        // check balances
         assertEq(AIUS.balanceOf(address(this)), 1000 ether);
-        // Check that the NFT is burnt
         assertEq(votingEscrow.balanceOfNFT(tokenId), 0);
+
+        // Check that the NFT is burnt
         assertEq(votingEscrow.ownerOf(tokenId), address(0));
     }
 

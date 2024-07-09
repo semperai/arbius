@@ -22,7 +22,7 @@ contract BaseTest is Test {
     // time
     uint256 public constant WEEK = 7 days;
     uint256 public constant MONTH = 30 days;
-    uint256 public constant YEAR = 12 * MONTH;
+    uint256 public constant YEAR = 365 days;
     uint256 public constant MAX_LOCK_TIME = 2 * YEAR;
 
     // test addresses
