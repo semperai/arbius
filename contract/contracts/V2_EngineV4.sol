@@ -436,7 +436,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
             return 0;
         }
 
-        uint256 b = balance - totalHeld;
+        uint256 b = balance - totalHeld - veRewards;
 
         return STARTING_ENGINE_TOKEN_AMOUNT - b;
     }
@@ -839,7 +839,6 @@ contract V2_EngineV4 is OwnableUpgradeable {
         uint256 modelRate = models[tasks[taskid_].model].rate;
         if (modelRate > 0) {
             // half of emissions are distributed to veStaking
-            // todo: maybe increasing precision? -> TEST! 
             uint256 total = (getReward() * modelRate) / 2e18; 
             veRewards += total;
 
