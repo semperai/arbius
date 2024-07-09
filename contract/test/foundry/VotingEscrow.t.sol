@@ -101,7 +101,7 @@ contract VotingEscrowTest is BaseTest {
         uint256 finalBal = votingEscrow.balanceOfNFT(1);
 
         // balance is now roughly 75 AIUS, since lock time didnt change
-        // it's as if we created the initial lock with 150 AIUS, instead of 100 AIUS 
+        // it's as if we created the initial lock with 150 AIUS, instead of 100 AIUS
         assertApproxEqAbs(
             finalBal,
             75 ether,
@@ -122,7 +122,7 @@ contract VotingEscrowTest is BaseTest {
 
         // fast forward 26 weeks
         skip(26 weeks);
-       
+
         // balance is now roughly half of initial balance
         uint256 bal = votingEscrow.balanceOfNFT(1);
         votingEscrow.balanceOfNFT(1);

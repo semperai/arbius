@@ -373,7 +373,7 @@ contract VeStakingTest is BaseTest {
         assertEq(veStaking.rewards(1), 0, "rewards(1) != 0");
         // balance of lock #1 should be 0
         assertEq(veStaking.balanceOf(1), 0, "balanceOf(1) != 0");
-        
+
         // staking balance should have increased by `diff`
         // since merging is like calling increase_amount on the lock with the highest unlock time
         assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");

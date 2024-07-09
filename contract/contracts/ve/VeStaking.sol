@@ -79,7 +79,6 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    // todo: maybe limit calling to v4 and treasury.
     function notifyRewardAmount(uint256 reward) external updateReward(0) {
         if (block.timestamp >= periodFinish) {
             rewardRate = reward / rewardsDuration;

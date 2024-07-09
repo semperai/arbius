@@ -248,7 +248,7 @@ contract EngineV4Test is Test {
         // call notifyRewardAmount so first rewardDuration starts
         veStaking.notifyRewardAmount(0);
 
-        // get period finish 
+        // get period finish
         uint256 periodFinish = veStaking.periodFinish();
         //console2.log("periodFinish", periodFinish);
         //console2.log("block.timestamp", block.timestamp);
@@ -270,7 +270,7 @@ contract EngineV4Test is Test {
         baseToken.approve(address(votingEscrow), 100 ether);
         vm.prank(user2);
         baseToken.approve(address(votingEscrow), 100 ether);
-   
+
         // send rewards to veStaking contract and call notifyRewardAmount to start reward distribution
         vm.prank(deployer);
         baseToken.transfer(address(veStaking), 120 ether);
@@ -283,7 +283,7 @@ contract EngineV4Test is Test {
         //console2.log("block.timestamp", block.timestamp);
 
         /* test logic begins */
-            
+
         // users stake their AIUS, receive veAIUS
         vm.prank(validator3);
         votingEscrow.create_lock(100 ether, 104 weeks);
@@ -295,7 +295,7 @@ contract EngineV4Test is Test {
 
         // fast forward half a week (1 week = 168 hours -> ff 84 hours)
         skip(84 * 3600);
-        vm.roll(block.number + (84*3600 / 12));
+        vm.roll(block.number + (84 * 3600 / 12));
 
         // user2 decides to stake as well
         vm.prank(user2);
@@ -308,8 +308,8 @@ contract EngineV4Test is Test {
 
         // fast forward to end of reward period
         skip(84 * 3600);
-        vm.roll(block.number + (84*3600 / 12));
-    
+        vm.roll(block.number + (84 * 3600 / 12));
+
         // claim rewards for users
         veStaking.getReward(1);
         veStaking.getReward(2);
@@ -355,7 +355,6 @@ contract EngineV4Test is Test {
 
             uint256 reward = engine.getReward();
             //console2.log("reward", reward);
-
 
             if (block.timestamp > veStaking.periodFinish()) {
                 // notifyRewardAmount should be called
@@ -507,6 +506,4 @@ contract EngineV4Test is Test {
         // veRewards should be reward * modelRate (1e18) / 2e18 = reward / 2
         assertEq(engine.veRewards(), reward / 2);
     }
-
-    // todo: test ve-distribution after notifyRewardAmount
 }

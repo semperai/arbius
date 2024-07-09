@@ -222,7 +222,7 @@ contract GovernanceTest is Test {
 
         // user1 votes for, but proposal should fail due to lack of quorum
         governor.castVote(proposalId, 1);
-        
+
         // queue
         governor.queue(targets, values, calldatas, descriptionHash);
     }
@@ -258,12 +258,12 @@ contract GovernanceTest is Test {
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
 
-        // user1 and validator1 votes for: votes > quorum 
+        // user1 and validator1 votes for: votes > quorum
         vm.prank(user1);
         governor.castVote(proposalId, 1);
         vm.prank(validator1);
         governor.castVote(proposalId, 1);
-        
+
         // fast forward 3 days (votingPeriod)
         skip(3 days);
 
@@ -604,7 +604,7 @@ contract GovernanceTest is Test {
         // now user1 delegates to user2
         assertEq(votingEscrow.delegates(user1), user2);
     }
-    
+
     function testDelegate() public {
         // validator1 delegates his veAIUS to validator2 (val2 has ZERO veAIUS)
         vm.prank(validator1);
