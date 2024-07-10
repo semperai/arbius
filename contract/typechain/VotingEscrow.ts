@@ -19,6 +19,7 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface VotingEscrowInterface extends utils.Interface {
   functions: {
+    "CLOCK_MODE()": FunctionFragment;
     "DELEGATION_TYPEHASH()": FunctionFragment;
     "DOMAIN_TYPEHASH()": FunctionFragment;
     "MAX_DELEGATES()": FunctionFragment;
@@ -32,6 +33,7 @@ export interface VotingEscrowInterface extends utils.Interface {
     "block_number()": FunctionFragment;
     "checkpoint()": FunctionFragment;
     "checkpoints(address,uint32)": FunctionFragment;
+    "clock()": FunctionFragment;
     "create_lock(uint256,uint256)": FunctionFragment;
     "create_lock_for(uint256,uint256,address)": FunctionFragment;
     "decimals()": FunctionFragment;
@@ -89,6 +91,10 @@ export interface VotingEscrowInterface extends utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "CLOCK_MODE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "DELEGATION_TYPEHASH",
     values?: undefined
   ): string;
@@ -134,6 +140,7 @@ export interface VotingEscrowInterface extends utils.Interface {
     functionFragment: "checkpoints",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "clock", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "create_lock",
     values: [BigNumberish, BigNumberish]
@@ -304,6 +311,7 @@ export interface VotingEscrowInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "CLOCK_MODE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "DELEGATION_TYPEHASH",
     data: BytesLike
@@ -341,6 +349,7 @@ export interface VotingEscrowInterface extends utils.Interface {
     functionFragment: "checkpoints",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "clock", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "create_lock",
     data: BytesLike
@@ -601,6 +610,8 @@ export interface VotingEscrow extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<[string]>;
+
     DELEGATION_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
     DOMAIN_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
@@ -650,6 +661,8 @@ export interface VotingEscrow extends BaseContract {
       arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { timestamp: BigNumber }>;
+
+    clock(overrides?: CallOverrides): Promise<[number]>;
 
     create_lock(
       _value: BigNumberish,
@@ -920,6 +933,8 @@ export interface VotingEscrow extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
   DELEGATION_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   DOMAIN_TYPEHASH(overrides?: CallOverrides): Promise<string>;
@@ -969,6 +984,8 @@ export interface VotingEscrow extends BaseContract {
     arg1: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  clock(overrides?: CallOverrides): Promise<number>;
 
   create_lock(
     _value: BigNumberish,
@@ -1233,6 +1250,8 @@ export interface VotingEscrow extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<string>;
+
     DELEGATION_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     DOMAIN_TYPEHASH(overrides?: CallOverrides): Promise<string>;
@@ -1277,6 +1296,8 @@ export interface VotingEscrow extends BaseContract {
       arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    clock(overrides?: CallOverrides): Promise<number>;
 
     create_lock(
       _value: BigNumberish,
@@ -1617,6 +1638,8 @@ export interface VotingEscrow extends BaseContract {
   };
 
   estimateGas: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<BigNumber>;
+
     DELEGATION_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     DOMAIN_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1666,6 +1689,8 @@ export interface VotingEscrow extends BaseContract {
       arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    clock(overrides?: CallOverrides): Promise<BigNumber>;
 
     create_lock(
       _value: BigNumberish,
@@ -1920,6 +1945,8 @@ export interface VotingEscrow extends BaseContract {
   };
 
   populateTransaction: {
+    CLOCK_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     DELEGATION_TYPEHASH(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1974,6 +2001,8 @@ export interface VotingEscrow extends BaseContract {
       arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    clock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     create_lock(
       _value: BigNumberish,

@@ -440,18 +440,6 @@ declare module "hardhat/types/runtime" {
       name: "VotingEscrow",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VotingEscrow__factory>;
-    getContractFactory(
-      name: "VeNFTRender",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.VeNFTRender__factory>;
-    getContractFactory(
-      name: "VeStaking",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.VeStaking__factory>;
-    getContractFactory(
-      name: "VotingEscrow",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.VotingEscrow__factory>;
 
     getContractAt(
       name: "ArbSys",
@@ -973,21 +961,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.V2EngineV4>;
-    getContractAt(
-      name: "VeNFTRender",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.VeNFTRender>;
-    getContractAt(
-      name: "VeStaking",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.VeStaking>;
-    getContractAt(
-      name: "VotingEscrow",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.VotingEscrow>;
     getContractAt(
       name: "VeNFTRender",
       address: string,
