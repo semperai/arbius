@@ -59,7 +59,7 @@ function SlidingCards() {
         dots: false,
         infinite: false,
         speed: 500,
-        slidesToShow: 2,
+        slidesToShow: 5 / 2,
         slidesToScroll: 1,
         nextArrow: <NextBtn />,
         prevArrow: <PrevBtn />
@@ -85,32 +85,32 @@ function SlidingCards() {
                         <div className='rounded-2xl px-8 py-4  bg-white w-[40%]' key={key}>
                             <div className='flex justify-start gap-12 items-center mt-4'>
                                 <div>
-                                    <h2 className="text-[10px] opacity-60">Balance</h2>
-                                    <h2 className='text-[12px]'>641.12451 AIUS</h2>
+                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
+                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
 
                                 </div>
                                 <div>
-                                    <h2 className="text-[10px] opacity-60">Balance</h2>
-                                    <h2 className='text-[12px]'>641.12451 AIUS</h2>
-
-                                </div>
-                            </div>
-                            <div className='flex justify-start gap-12 items-center mt-4'>
-                                <div>
-                                    <h2 className="text-[10px] opacity-60">Balance</h2>
-                                    <h2 className='text-[12px]'>641.12451 AIUS</h2>
-
-                                </div>
-                                <div>
-                                    <h2 className="text-[10px] opacity-60">Balance</h2>
-                                    <h2 className='text-[12px]'>641.12451 AIUS</h2>
+                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
+                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
 
                                 </div>
                             </div>
                             <div className='flex justify-start gap-12 items-center mt-4'>
                                 <div>
-                                    <h2 className="text-[10px] opacity-60">Balance</h2>
-                                    <h2 className='text-[12px]'>641.12451 AIUS</h2>
+                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
+                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
+
+                                </div>
+                                <div>
+                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
+                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
+
+                                </div>
+                            </div>
+                            <div className='flex justify-start gap-12 items-center mt-4'>
+                                <div>
+                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
+                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
 
                                 </div>
 
@@ -121,10 +121,10 @@ function SlidingCards() {
                                 <div>
                                     <button
                                         type="button"
-                                        className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                                        className="relative group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 "
                                     >
-                                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                        <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        <div className="lato-bold  relative z-10 text-original-white lg:text-[12px]">
                                             Add
                                         </div>
 
@@ -133,11 +133,11 @@ function SlidingCards() {
                                 <div>
                                     <button
                                         type="button"
-                                        className="relative group bg-black-background bg-opacity-10 py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                                        className="relative group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 "
                                     >
 
-                                        <div className="lato-bold  relative z-10 text-black opacity-40 lg:text-[100%]">
-                                            Add
+                                        <div className="lato-bold  relative z-10 text-black opacity-40 lg:text-[12px]">
+                                            Extend
                                         </div>
 
                                     </button>
@@ -145,11 +145,11 @@ function SlidingCards() {
                                 <div>
                                     <button
                                         type="button"
-                                        className="relative group bg-black-background bg-opacity-10 py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                                        className="relative group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 "
                                     >
 
-                                        <div className="lato-bold  relative z-10 text-black opacity-40 lg:text-[100%]">
-                                            Add
+                                        <div className="lato-bold  relative z-10 text-black opacity-40 lg:text-[12px]">
+                                            Claim
                                         </div>
 
                                     </button>
