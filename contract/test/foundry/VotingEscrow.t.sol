@@ -32,6 +32,13 @@ contract VotingEscrowTest is BaseTest {
             1000 ether,
             10 ether // time lock is rounded down to the nearest week
         );
+
+        assertEq(AIUS.balanceOf(address(votingEscrow)), 1000 ether);
+    }
+
+    function testCreateLockWithZeroAmount() public {
+        vm.expectRevert();
+        votingEscrow.create_lock(0, 2 weeks);
     }
 
     function testCreateTwoLocks() public {
