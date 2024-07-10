@@ -95,7 +95,6 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     constructor(address token_addr, address art_proxy, address _veStaking) {
         token = token_addr;
         voter = msg.sender;
-        team = msg.sender;
         artProxy = art_proxy;
         veStaking = _veStaking;
 
@@ -136,11 +135,6 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     string public constant symbol = "veNFT";
     string public constant version = "1.0.0";
     uint8 public constant decimals = 18;
-
-    function setTeam(address _team) external {
-        require(msg.sender == team);
-        team = _team;
-    }
 
     function setArtProxy(address _proxy) external {
         require(msg.sender == team);
