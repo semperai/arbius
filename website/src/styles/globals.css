@@ -522,3 +522,15 @@ input[type="number"]::-ms-reveal {
     display: grid;
     grid-template-columns: repeat(24, 1fr);
 }
+
+#start-stake::before{
+    content: '';
+    width: 1px;
+    height:80px;
+    left: 0px;
+    background-color: rgb(206, 206, 206);
+    position: absolute;
+    /* left: 0; */
+    top: 55%;
+    z-index: 1;
+}

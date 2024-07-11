@@ -95,7 +95,7 @@ function GanttChart() {
 
             </div>
 
-            <div className='max-h-[144px] overflow-y-auto mb-2'>
+            <div className='max-h-[144px] overflow-y-auto mb-2 relative'>
 
                 {
                     data?.map((item, key) => {
@@ -106,7 +106,7 @@ function GanttChart() {
 
                                 {item?.stake_start !== 0 && (
 
-                                    <div className={`   bg-transparent h-[.4rem] my-3 rounded-full `} style={{
+                                    <div className={`   bg-transparent h-[.4rem] my-3 rounded-full  z-20`} style={{
                                         gridColumn: `span ${item?.stake_start} / span ${item?.stake_start}`
                                     }}>
                                     </div>
@@ -115,7 +115,7 @@ function GanttChart() {
 
                                 {item?.staked_till_now !== 0 && (
 
-                                    <div className={` bg-[#4A28FF] h-[.4rem] my-3 rounded-full relative`} style={{
+                                    <div className={` bg-[#4A28FF] h-[.4rem] my-3 rounded-full relative z-20`} id='start-stake' style={{
                                         gridColumn: `span ${item?.staked_till_now} / span ${item?.staked_till_now}`
                                     }}>
                                         <h1 className='absolute left-0 bottom-[8px] text-[.6rem] opacity-30'>Locked Until</h1>
@@ -125,7 +125,7 @@ function GanttChart() {
                                 {
                                     item?.stake_completion !== 0 && (
 
-                                        <div className={` bg-gray-300  h-[.4rem] my-3 rounded-r-full relative`} style={{
+                                        <div className={` bg-gray-300  h-[.4rem] my-3 rounded-r-full relative z-20`} style={{
                                             gridColumn: `span ${item?.stake_completion} / span ${item?.stake_completion}`
                                         }}>
                                             <h1 className='absolute right-0 bottom-[8px] text-[.7rem] text-[#4A28FF] min-w-[90px]'>14.12 veAIUS</h1>
