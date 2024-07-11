@@ -35,7 +35,30 @@ function NextBtn(props) {
 
 function SlidingCards() {
     const sliderRef = useRef()
-    const data = [{}, {}, {}, {}]
+    const data = [{
+        staked: "2,441.21 AIUS",
+        apr: "14.1211%",
+        governance: "12.12",
+        stake_date: "06/14/2024",
+        end_date: "06/14/2024"
+    },
+    {
+
+        staked: "2,441.21 AIUS",
+        apr: "14.1211%",
+        governance: "12.12",
+        stake_date: "06/14/2024",
+        end_date: "06/14/2024"
+    },
+    {
+
+        staked: "2,441.21 AIUS",
+        apr: "14.1211%",
+        governance: "12.12",
+        stake_date: "06/14/2024",
+        end_date: "06/14/2024"
+    }
+    ]
     // const [scrollPosition, setScrollPosition] = useState(0)
     // const handleLeftSwipe = () => {
     //     const doc = sliderRef.current;
@@ -82,35 +105,40 @@ function SlidingCards() {
                 <Slider {...settings}>
                     {data?.map((item, key) => (
 
-                        <div className='rounded-2xl px-8 py-4  bg-white w-[40%]' key={key}>
-                            <div className='flex justify-start gap-12 items-center mt-4'>
-                                <div>
-                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
-                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
+                        <div className='rounded-2xl px-8 py-6  bg-white w-[40%] ' key={key}>
+                            <div className='flex justify-start gap-12 items-center'>
+                                <div className='flex flex-col gap-3 justify-center items-start'>
+                                    <div>
+                                        <h2 className="text-[10px] opacity-30 font-semibold">Total Staked</h2>
+                                        <h2 className='text-[11px] font-semibold'>{item?.staked}</h2>
+
+                                    </div>
+                                    <div>
+                                        <h2 className="text-[10px] opacity-30 font-semibold">APR</h2>
+                                        <h2 className='text-[11px] font-semibold'>{item?.apr}</h2>
+
+                                    </div>
 
                                 </div>
-                                <div>
-                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
-                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
+                                <div className='flex flex-col gap-3 justify-center items-start'>
+                                    <div>
+                                        <h2 className="text-[10px] opacity-30 font-semibold">Governance Power</h2>
+                                        <h2 className='text-[11px] font-semibold'>{item?.governance}</h2>
 
+                                    </div>
+                                    <div>
+                                        <h2 className="text-[10px] opacity-30 font-semibold">Staked on</h2>
+                                        <h2 className='text-[11px] font-semibold'>{item?.stake_date}</h2>
+
+                                    </div>
                                 </div>
+
                             </div>
-                            <div className='flex justify-start gap-12 items-center mt-4'>
-                                <div>
-                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
-                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
 
-                                </div>
+                            <div className='flex justify-start gap-12 items-center mt-3'>
                                 <div>
-                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
-                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
-
-                                </div>
-                            </div>
-                            <div className='flex justify-start gap-12 items-center mt-4'>
-                                <div>
-                                    <h2 className="text-[10px] opacity-30 font-semibold">Balance</h2>
-                                    <h2 className='text-[11px] font-semibold'>641.12451 AIUS</h2>
+                                    <h2 className="text-[10px] opacity-30 font-semibold">End Date</h2>
+                                    <h2 className='text-[11px] font-semibold'>{item?.end_date}</h2>
 
                                 </div>
 
