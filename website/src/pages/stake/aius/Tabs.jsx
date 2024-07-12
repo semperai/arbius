@@ -40,20 +40,11 @@ function Tabs() {
 
             </div>
 
-            <div className="pt-8 pb-24 lg:py-24 max-w-center-width bg-aius-stake min-w-full relative">
+            <div className="pt-8 pb-24 lg:py-18 max-w-center-width bg-aius-stake min-w-full relative">
 
                 
                 {selectedtab === "Dashboard" ? (<DashBoard/>): (<Gauge/>)}
             
-                {/* {selectedtab === "Stake" && (<Stake />)}
-                {selectedtab === "Stats" && (
-                    <Stats />
-                )}
-                {selectedtab === "Activity" && (
-                    <div className="w-mobile-section-width lg:w-[90%] m-[auto]">
-                        <ActivityTable />
-                    </div>
-                )} */}
             </div>
 
         </>

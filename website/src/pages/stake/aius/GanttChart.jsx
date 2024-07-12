@@ -84,7 +84,7 @@ function GanttChart() {
                         </div>
                     </div>
 
-                    <div id='info' className='hidden absolute top-12 left-0  bg-white stake-box-shadow p-2 rounded-xl z-20 w-[150px]'>
+                    <div id='info' className='hidden absolute top-12 left-0  bg-white stake-box-shadow p-2 rounded-xl z-40 w-[150px]'>
                         <h1 className='text-[.5rem] opacity-30'>As your stake(s) age, this value decays from the original veAIUS balance. To increase this value, extend your stake(s). </h1>
                     </div>
 
