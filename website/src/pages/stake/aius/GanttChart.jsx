@@ -43,7 +43,7 @@ function GanttChart() {
         let staked_till_now = getMonthDifference(staked_till_now_date, stake_start_date)
         let stake_completion = getMonthDifference(stake_completion_date, staked_till_now_date)
 
-        console.log({ stake_start });
+        // console.log({ stake_start });
         return {
             stake_start: stake_start,
             staked_till_now: staked_till_now,
