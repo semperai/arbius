@@ -49,7 +49,7 @@ contract BaseTest is Test {
     }
 
     function mintTestAius() public {
-        AIUS.mint(address(this), 1000 ether);
+        AIUS.mint(address(this), 10000 ether);
         AIUS.mint(alice, 1000 ether);
         AIUS.mint(bob, 1000 ether);
         AIUS.mint(charlie, 1000 ether);

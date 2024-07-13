@@ -19,6 +19,30 @@ contract VotingEscrowTest is BaseTest {
         approveTestAiusToEscrow();
     }
 
+    function testOnlyOwner() public {
+        assertEq(votingEscrow.owner(), address(this));
+
+        votingEscrow.setArtProxy(address(1));
+        assertEq(votingEscrow.artProxy(), address(1));
+
+        votingEscrow.setVeStaking(address(1));
+        assertEq(votingEscrow.veStaking(), address(1));
+
+        votingEscrow.setVoter(address(1));
+        assertEq(votingEscrow.voter(), address(1));
+    }
+
+    function testFailOnlyOwner() public {
+        vm.prank(alice);
+        votingEscrow.setArtProxy(address(0));
+
+        vm.prank(alice);
+        votingEscrow.setVeStaking(address(0));
+
+        vm.prank(alice);
+        votingEscrow.setVoter(address(0));
+    }
+
     function testCreateLock() public {
         // Balance should be zero before and 1 after creating the lock
         assertEq(votingEscrow.balanceOf(address(alice)), 0);

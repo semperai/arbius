@@ -34,6 +34,10 @@ contract VeStakingTest is BaseTest {
         vm.prank(alice);
         vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
         veStaking.recoverERC20(address(mockToken), 10 ether);
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
+        veStaking.skim();        
     }
 
     function testOnlyVotingEscrow() public {
@@ -64,7 +68,7 @@ contract VeStakingTest is BaseTest {
         assertEq(mockToken.balanceOf(address(this)), 100 ether, "!balanceOf(this)");
     }
 
-    function testRecoverStakingToken() public {
+    function testRecoverRewardsToken() public {
         AIUS.transfer(address(veStaking), 100 ether);
 
         // should revert when trying to recover staking token
@@ -74,26 +78,77 @@ contract VeStakingTest is BaseTest {
         assertEq(AIUS.balanceOf(address(veStaking)), 100 ether, "!balanceOf(veStaking)");
     }
 
-    function testRevertNotifyRewardAmount() public {
-        // transfering exact reward should work
-        AIUS.transfer(address(veStaking), 1e18);
-        veStaking.notifyRewardAmount(1e18);
+    function testSkimRewardsToken() public {
+        AIUS.transfer(address(veStaking), 100 ether);
+        veStaking.notifyRewardAmount(100 ether);
 
-        // transfering too much reward should work
-        AIUS.transfer(address(veStaking), 10e18);
-        veStaking.notifyRewardAmount(9e18);
+        // get reward for duration
+        uint256 rewardForDuration = veStaking.getRewardForDuration();
+
+        // call skim
+        veStaking.skim();
+
+        // make sure that balance is >= rewardForDuration
+        assertGe(AIUS.balanceOf(address(veStaking)), rewardForDuration, "!balanceOf(veStaking)");
+
+        // skip to end of rewards period
+        skip(1 weeks);
+
+        // call skim again
+        veStaking.skim();
+
+        // rewards should be transferred out
+        assertEq(AIUS.balanceOf(address(veStaking)), 0, "!balanceOf(veStaking)");
     }
 
-    function testFailNotifyRewardAmount() public {
+    function testAlignedDurations(uint256 time) public {
+        // bind time to skip to be between 1 week and 10 years
+        time = bound(time, 1 weeks, 10 * YEAR);
+
+        // periodFinish should be aligned with end time of locks / gauge voting period
+        veStaking.notifyRewardAmount(0);
+        votingEscrow.create_lock(100 ether, 1 weeks);
+
+        (, uint256 end) = votingEscrow.locked(1);
+
+        assertEq(veStaking.periodFinish(), end, "!durations");
+
+        // skip random time forward
+        skip(time);
+
+        veStaking.notifyRewardAmount(0);
+        votingEscrow.create_lock(100 ether, 1 weeks);
+
+        (, end) = votingEscrow.locked(2);
+
+        assertEq(veStaking.periodFinish(), end, "!durations");
+    }
+
+    function testNotifyRewardAmount(uint256 reward) public {
+        // bind reward to be between 1 and 4999 AIUS
+        reward = bound(reward, 1 ether, 4999 ether);
+
+        // transfering exact reward should work
+        AIUS.transfer(address(veStaking), reward);
+        veStaking.notifyRewardAmount(reward);
+
+        // transfering too much reward should work
+        AIUS.transfer(address(veStaking), reward);
+        veStaking.notifyRewardAmount(reward - 0.001 ether);
+    }
+
+    function testFailNotifyRewardAmount(uint256 reward) public {
+        // bind reward to be between 1 and 9999 AIUS
+        reward = bound(reward, 1 ether, 9999 ether);
+
         // transfering too little reward should revert
-        AIUS.transfer(address(veStaking), 99e17);
-        veStaking.notifyRewardAmount(100e17);
+        AIUS.transfer(address(veStaking), reward - 0.001 ether);
+        veStaking.notifyRewardAmount(reward);
     }
 
     function testLastTimeRewardApplicable() public {
-        // add rewards to veStaking
-        AIUS.transfer(address(veStaking), 7 ether);
-        veStaking.notifyRewardAmount(7 ether);
+        // call notifyRewardAmount so rewardDuration starts
+        veStaking.notifyRewardAmount(0);
 
         assertEq(veStaking.lastTimeRewardApplicable(), block.timestamp, "!lastTimeRewardApplicable");
 
@@ -176,9 +231,11 @@ contract VeStakingTest is BaseTest {
     }
 
     function testRewardPerToken() public {
+        uint256 rewardToAdd = 10 ether;
+
         // add rewards to veStaking
-        AIUS.transfer(address(veStaking), 7 ether);
-        veStaking.notifyRewardAmount(7 ether);
+        AIUS.transfer(address(veStaking), rewardToAdd);
+        veStaking.notifyRewardAmount(rewardToAdd);
 
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
 
@@ -198,27 +255,77 @@ contract VeStakingTest is BaseTest {
         // get veStaking balance
         uint256 veStakingBalance = veStaking.balanceOf(1);
 
-        // finalRewardPerToken should be (7e18 * 1e18) / veStakingBalance, with 1e18 = multiplier needed for division
+        // finalRewardPerToken should be (rewardToAdd * 1e18) / veStakingBalance, with 1e18 = multiplier needed for division
         // 0.001% error allowed, this should be relatively accurate
-        assertApproxEqRel(finalRewardPerToken, (7e36) / veStakingBalance, 1e13, "!rewardPerToken");
+        assertApproxEqRel(finalRewardPerToken, (rewardToAdd * 1e18) / veStakingBalance, 1e13, "!rewardPerToken");
+    }
+
+    function testRewardsTokenBalanceShouldRollOver() public {
+        votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
+
+        // send rewards to veStaking
+        AIUS.transfer(address(veStaking), 10 ether);
+        veStaking.notifyRewardAmount(10 ether);
+        uint256 initialRewardRate = veStaking.rewardRate();
+        assertEq(initialRewardRate, 10 ether / veStaking.rewardsDuration(), "!rewardRate");
+
+        skip(1 weeks);
+
+        uint256 earnedFirst = veStaking.earned(1);
+    
+        // send more rewards to veStaking
+        AIUS.transfer(address(veStaking), 10 ether);
+        veStaking.notifyRewardAmount(10 ether);
+
+        skip(1 weeks);
+
+        uint256 earnedSecond = veStaking.earned(1);
+
+        // 0.001% error due to rounding
+        assertApproxEqRel(earnedFirst * 2, earnedSecond, 1e13, "!earned");
     }
 
     function testEarned() public {
-        // add rewards to veStaking
-        AIUS.transfer(address(veStaking), 7 ether);
-        veStaking.notifyRewardAmount(7 ether);
+        // 1 AIUS per day in rewards
+        uint256 rewardsToDistribute = 7 ether;
 
+        vm.prank(alice);
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
+
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), rewardsToDistribute);
+        veStaking.notifyRewardAmount(rewardsToDistribute);
 
         skip(1 days);
 
         // 0.1% error allowed due to rounding
-        assertApproxEqRel(veStaking.earned(1), 1 ether, 1e15, "!earned");
+        assertApproxEqRel(veStaking.earned(1), rewardsToDistribute / 7, 1e15, "!earned");
 
-        skip(6 days);
+        // skip to half of rewards duration (84 hours - 1 day = 60 hours)
+        skip(60 hours);
 
-        // 0.1% error allowed due to rounding
-        assertApproxEqRel(veStaking.earned(1), 7 ether, 1e15, "!earned");
+        // alice should have earned half of the rewards
+        assertApproxEqRel(veStaking.earned(1), rewardsToDistribute / 2, 1e15, "!earned");
+
+        // now bob stakes as well
+        vm.prank(bob);
+        votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
+
+        // add more rewards to veStaking
+        AIUS.transfer(address(veStaking), rewardsToDistribute);
+        veStaking.notifyRewardAmount(rewardsToDistribute);
+
+        // get remaining rewards
+        uint256 remainingRewards = veStaking.getRewardForDuration();
+        assertApproxEqRel(remainingRewards, rewardsToDistribute * 2 - rewardsToDistribute / 2, 1e15, "!remainingRewards");
+
+        // skip to end of rewards duration
+        skip(84 hours);
+
+        // alice should have earned `rewardsToDistribute / 2` + `remainingRewards / 2`
+        assertApproxEqRel(veStaking.earned(1), rewardsToDistribute / 2 + remainingRewards / 2, 2e15, "!earned");
+        // bob should have earned `remainingRewards / 2`
+        assertApproxEqRel(veStaking.earned(2), remainingRewards / 2, 3e15, "!earned");
     }
 
     function testNotEarned() public {
@@ -232,11 +339,18 @@ contract VeStakingTest is BaseTest {
         // now create a lock
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
 
-        // since rewardsDuration has passed, no rewards should be earned
+        // since rewardsDuration has passed before creating the lock, no rewards should be earned
         assertEq(veStaking.earned(1), 0, "!earned");
+
+        // at this point unclaimed rewards can either be distributed in the next period by calling `notifyRewardAmount`
+        // or they can be withdrawn from the staking contract by the owner via `skim`      
     }
 
     function testGetReward() public {
+        // send rewards to veStaking
+        AIUS.transfer(address(veStaking), 10 ether);
+        veStaking.notifyRewardAmount(10 ether);
+
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
 
         skip(7 days);
@@ -247,24 +361,47 @@ contract VeStakingTest is BaseTest {
     }
 
     function testRewardRateShouldIncrease() public {
+        veStaking.notifyRewardAmount(0);
+        assertEq(veStaking.rewardRate(), 0, "!rewardRate");
+
+        // send rewards to veStaking
         AIUS.transfer(address(veStaking), 10 ether);
         veStaking.notifyRewardAmount(10 ether);
         uint256 initialRewardRate = veStaking.rewardRate();
+        assertEq(initialRewardRate, 10 ether / veStaking.rewardsDuration(), "!rewardRate");
 
-        skip(1 days);
-
+        skip(3 days);
+    
+        // send more rewards to veStaking
         AIUS.transfer(address(veStaking), 10 ether);
         veStaking.notifyRewardAmount(10 ether);
+
+        // rewardRate should have increased
         assertGt(veStaking.rewardRate(), initialRewardRate, "!rewardRate");
     }
 
     function testGetRewardForDuration() public {
         // add rewards to veStaking
-        AIUS.transfer(address(veStaking), 7 ether);
-        veStaking.notifyRewardAmount(7 ether);
+        AIUS.transfer(address(veStaking), 10 ether);
+        veStaking.notifyRewardAmount(10 ether);
 
         // 0.1% error allowed due to rounding
-        assertApproxEqRel(veStaking.getRewardForDuration(), 7 ether, 1e15, "!getRewardForDuration");
+        assertApproxEqRel(veStaking.getRewardForDuration(), 10 ether, 1e15, "!getRewardForDuration");
+
+        // skip to half of rewards duration
+        skip(84 hours);
+        assertApproxEqRel(veStaking.getRewardForDuration(), 5 ether, 1e15, "!getRewardForDuration");
+
+        // add more rewards to veStaking
+        AIUS.transfer(address(veStaking), 10 ether);
+        veStaking.notifyRewardAmount(10 ether);
+        assertApproxEqRel(veStaking.getRewardForDuration(), 15 ether, 1e15, "!getRewardForDuration");
+
+        // skip to end of rewards duration
+        skip(84 hours);
+
+        // 0.1% error allowed due to rounding
+        assertApproxEqRel(veStaking.getRewardForDuration(), 0, 1e15, "!getRewardForDuration");
     }
 
     function testStake() public {
