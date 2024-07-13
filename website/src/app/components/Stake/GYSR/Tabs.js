@@ -10,7 +10,7 @@ const tabs = [
 const mobiletabs = [
     "Stats", "Activity"
 ]
-function Tabs() {
+function Tabs({data}) {
     const [selectedtab, setSelectedTab] = useState("Stake")
     const [mobileSelectedtab, setMobileSelectedTab] = useState("Stats")
     return (
@@ -63,7 +63,7 @@ function Tabs() {
 
                 {selectedtab === "Stake" && (<Stake />)}
                 {selectedtab === "Stats" && (
-                    <Stats />
+                    <Stats data={data} />
                 )}
                 {selectedtab === "Activity" && (
                     <div className="w-mobile-section-width lg:w-[90%] m-[auto]">

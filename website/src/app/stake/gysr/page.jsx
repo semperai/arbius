@@ -1,5 +1,5 @@
 
-
+"use client"
 import React from "react"
 import Tabs from "@/app/components/Stake/GYSR/Tabs";
 import TopHeaderSection from "@/app/components/Stake/GYSR/TopHeaderSection";

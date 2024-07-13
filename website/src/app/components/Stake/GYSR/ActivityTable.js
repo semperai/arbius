@@ -1,4 +1,5 @@
 import React from 'react'
+import { useEffect,useState } from 'react'
 import gysr_logo from "../../../assets/images/gysr_logo_without_name.png"
 import wallet_icon from "../../../assets/images/ion_wallet-outline.png"
 import up_icon from "../../../assets/images/amount_up.png"
@@ -7,42 +8,109 @@ import gift_icon from "../../../assets/images/gift.png"
 import time_icon from "../../../assets/images/time.png"
 import arrow_icon from "../../../assets/images/rounded_arrow.png"
 import Image from 'next/image'
+import { getTransactions } from '../../../Utils/getActivities'
+import Loader from '../../Loader/loader'
 
-const data = [
-    {
-        action: "Claim",
-        amount: "39,8 UBI-V2",
-        earnings: "55.9 AIUS",
-        gysr_spent: "600 GYSR",
-        account: "xamn...jks",
-        time: "13 Hrs ago"
-    },
-    {
-        action: "Claim",
-        amount: "39,8 UBI-V2",
-        earnings: "55.9 AIUS",
-        gysr_spent: "600 GYSR",
-        account: "xamn...jks",
-        time: "13 Hrs ago"
-    },
-    {
-        action: "Claim",
-        amount: "39,8 UBI-V2",
-        earnings: "55.9 AIUS",
-        gysr_spent: "600 GYSR",
-        account: "xamn...jks",
-        time: "13 Hrs ago"
-    }
-]
 
 
 function ActivityTable() {
+    const [data, setData] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const fetchedData = await getTransactions();
+                setData(fetchedData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                // Handle error as needed
+            }
+        };
+
+        fetchData(); // Call fetchData function on component mount (similar to componentDidMount)
+    }, [currentPage]);
+
+    const handleClickNext = () => {
+        if (currentPage < Math.ceil(data.length / itemsPerPage)) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handleClickPrev = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const handleClickTab = (pageNum) => {
+        setCurrentPage(pageNum);
+    };
+    const paginatedData = data?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    function timeSince(timestamp) {
+        const now = Date.now(); // Current time in milliseconds since epoch
+        timestamp = Number(timestamp);
+
+    // Check if the timestamp is in milliseconds or seconds and convert if necessary
+        if (timestamp.toString().length === 10) {
+            timestamp *= 1000; // Convert seconds to milliseconds
+        }
+
+        const diffMs = now - timestamp; // Difference in milliseconds between now and the timestamp
+    
+        // Calculate time differences in days, hours, and minutes
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+        // Construct the time ago string based on the largest time unit that is nonzero
+        if (diffDays > 0) {
+            return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+        } else if (diffHours > 0) {
+            return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+        } else {
+            return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+        }
+    }
+    function hexToDecimal(hexString) {
+        // alert(hexString)
+        // Remove the '0x' prefix if present
+        if(hexString=="0x"){
+            return '-'
+        }
+        hexString = hexString.startsWith('0x') ? hexString.slice(2) : hexString;
+        
+        // Convert hexadecimal to decimal using BigInt
+        const decimalValue = BigInt('0x' + hexString).toString();
+    
+        return formatNumber(decimalValue)
+    }
+    function formatNumber(number) {
+        const symbols = ['', 'k', 'M', 'B', 'T']; // Add more as needed for larger numbers
+        const tier = Math.floor(Math.log10(number) / 3);
+    
+        if (tier === 0) return number.toString(); // Less than 1000, no abbreviation needed
+    
+        const suffix = symbols[tier];
+        const scale = Math.pow(10, tier * 3);
+    
+        const scaledNumber = number / scale;
+        const formattedNumber = scaledNumber.toFixed(1); // Adjust decimals as needed
+    
+        return formattedNumber ;
+    }
+ // Output: e.g., "2 days ago", "1 hour ago", "5 minutes ago", etc.
+    
+    
     return (
         <div>
             <div class="flex flex-col bg-white-background table-gysr px-6 py-4">
                 <div class=" overflow-x-auto">
                     <div class="p-1.5 min-w-full inline-block align-middle">
                         <div class="overflow-hidden">
+                        {
+                            data ?
                             <table class="min-w-full ">
                                 <thead>
                                     <tr>
@@ -78,24 +146,32 @@ function ActivityTable() {
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody class="">
-                                    {data?.map((item, key) => {
-                                        return <>
-                                            <tr key={key}>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] font-medium text-gray-800">{item?.action}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.amount}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.earnings}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.gysr_spent}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.account}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.time}</td>
-                                            </tr>
+                                 <tbody class="">
+                                   {data ? paginatedData?.map((item, key) => {
+                                       return <>
+                                           <tr key={key}>
+                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] font-medium text-gray-800">{item?.functionName}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{parseFloat(item?.amount).toFixed(2)}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.gysr_spent}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{hexToDecimal(item?.decodedParams.rewarddata)}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.from}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{timeSince(item?.timestamp)}</td>
+                                           </tr>
 
-                                        </>
-                                    })}
+                                       </>
+                                   }):null}
 
 
-                                </tbody>
-                            </table>
+                               </tbody>:<thread className='w-[100%] flex justify-center items-center'>
+                               
+                               </thread>
+                                
+                                
+                            </table>:
+                            <div className='w-[100%] flex justify-center'>
+                            <Loader/>
+                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -105,22 +181,22 @@ function ActivityTable() {
 
             <div className='flex justify-end mt-6'>
                 <div className='bg-white-background flex gap-4 justify-center items-center p-3 rounded-md'>
-                    <button className='p-1 rotate-180'>
+                    <button className='p-1 rotate-180 'onClick={()=>handleClickPrev()}>
 
                         <Image src={arrow_icon} width={20} height={20} />
 
                     </button>
 
-                    <button className='p-1'>1</button>
-                    <button className='p-1'>2</button>
-                    <button className='p-1'>3</button>
-                    <button className='p-1'>4</button>
-                    <button className='p-1'>5</button>
-                    <button className='p-1'>6</button>
-                    <button className='p-1'>7</button>
+                    <button className='p-1' onClick={()=>handleClickTab(1)}>1</button>
+                    <button className='p-1' onClick={()=>handleClickTab(2)}>2</button>
+                    <button className='p-1' onClick={()=>handleClickTab(3)}>3</button>
+                    <button className='p-1' onClick={()=>handleClickTab(4)}>4</button>
+                    <button className='p-1' onClick={()=>handleClickTab(5)}>5</button>
+                    <button className='p-1' onClick={()=>handleClickTab(6)}>6</button>
+                    <button className='p-1' onClick={()=>handleClickTab(7)}>7</button>
 
 
-                    <button className='p-1'>
+                    <button className='p-1' onClick={()=>handleClickNext()}>
 
                         <Image src={arrow_icon} width={20} height={20} />
 

@@ -10,6 +10,17 @@ module.exports = {
     extend: {
       filter: {
         'invert': 'invert(1)',
+        keyframes: {
+          l3: {
+            to: { transform: 'rotate(1turn)' },
+          },
+        },
+        animation: {
+          l3: 'l3 1s infinite linear',
+        },
+      },
+      boxShadow: {
+        stats: '0px 4px 20px 0px rgba(74, 40, 255, 0.2)',
       },
       fontSize:{
         "header-2xl": "70px",

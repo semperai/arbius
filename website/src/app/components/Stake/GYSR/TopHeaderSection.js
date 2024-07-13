@@ -1,33 +1,36 @@
 import React from 'react'
+import { useEffect } from 'react';
 import Image from 'next/image';
 import gysr from "@/app/assets/images/gysr_logo_without_name.png";
 import unilogo from "@/app/assets/images/unilogo.png"
 import arbiuslogorounded from "@/app/assets/images/arbiuslogo_rounded.png"
 import gysrlogorounded from "@/app/assets/images/gysrlogo_rounded.png"
 import GradientCrad from "@/app/components/Stake/GYSR/GradientCrad";
-const headerCardData = [
 
-    {
-        heading: 673,
-        subheading: "UNI-V2",
-        para: "Stacked",
-        logo: unilogo
-    },
-    {
-        heading: "13.5K",
-        subheading: "AIUS",
-        para: "Remaining",
-        logo: arbiuslogorounded
-    },
-    {
-        heading: "204.29%",
-        subheading: "",
-        para: "APR",
-        logo: gysrlogorounded,
-    }
+function TopHeaderSection({data}) {
+    
+    const headerCardData = [
 
-]
-function TopHeaderSection() {
+        {
+            heading: data?parseFloat(data?.pool?.staked).toFixed(2):"",
+            subheading: "UNI-V2",
+            para: "Stacked",
+            logo: unilogo
+        },
+        {
+            heading: `${parseFloat(parseFloat((data.pool.funded-data.pool.distributed).toFixed(2))/1000).toFixed(2)} k` ,
+            subheading: "AIUS",
+            para: "Remaining",
+            logo: arbiuslogorounded
+        },
+        {
+            heading: data?parseFloat(data?.pool?.apr).toFixed(2):"",
+            subheading: "",
+            para: "APR",
+            logo: gysrlogorounded,
+        }
+    
+    ]
     return (
         <>
 
@@ -58,7 +61,7 @@ function TopHeaderSection() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
                         {headerCardData.map((item, key) => {
                             return (
-                                <GradientCrad key={key} heading={item?.heading} subheading={item?.subheading} para={item?.para} logo={item?.logo} />
+                                <GradientCrad data={data} key={key} heading={item?.heading} subheading={item?.subheading} para={item?.para} logo={item?.logo} />
                             )
                         })}
 
