@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC721, IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
@@ -16,7 +17,7 @@ import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 /// @author Modified from Curve (https://github.com/curvefi/curve-dao-contracts/blob/master/contracts/VotingEscrow.vy)
 /// @author Modified from Nouns DAO (https://github.com/withtally/my-nft-dao-project/blob/main/contracts/ERC721Checkpointable.sol)
 /// @dev Vote weight decays linearly over time. Lock time cannot be more than `MAXTIME` (2 years).
-contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
+contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     enum DepositType {
         DEPOSIT_FOR_TYPE,
         CREATE_LOCK_TYPE,
@@ -67,7 +68,6 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
     address public immutable token;
     address public voter;
-    address public team;
     address public artProxy;
     address public veStaking;
 
@@ -92,7 +92,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     /// @param token_addr `AIUS` token address
     /// @param art_proxy `VeNFTRender` contract address
     /// @param _veStaking `VeStaking` contract address
-    constructor(address token_addr, address art_proxy, address _veStaking) {
+    constructor(address token_addr, address art_proxy, address _veStaking) Ownable() {
         token = token_addr;
         voter = msg.sender;
         artProxy = art_proxy;
@@ -136,13 +136,11 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
     string public constant version = "1.0.0";
     uint8 public constant decimals = 18;
 
-    function setArtProxy(address _proxy) external {
-        require(msg.sender == team);
+    function setArtProxy(address _proxy) external onlyOwner {
         artProxy = _proxy;
     }
 
-    function setVeStaking(address _veStaking) external {
-        require(msg.sender == team);
+    function setVeStaking(address _veStaking) external onlyOwner {
         veStaking = _veStaking;
     }
 
@@ -1051,7 +1049,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes {
 
     mapping(uint256 => bool) public voted;
 
-    function setVoter(address _voter) external {
+    function setVoter(address _voter) external onlyOwner {
         require(msg.sender == voter);
         voter = _voter;
     }
