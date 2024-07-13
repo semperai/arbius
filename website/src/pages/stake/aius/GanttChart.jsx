@@ -147,7 +147,7 @@ function GanttChart() {
                         console.log({ containsStakeStart });
                         if (containsStakeStart !== -1)
                             return (
-                                <div className='text-start text-[.55rem] text-[#4A28FF]'>
+                                <div className='text-start text-[.55rem] text-[#4A28FF]' key={key}>
                                     <h1>{data[containsStakeStart].stake_start_date}</h1>
 
                                 </div>
@@ -163,7 +163,7 @@ function GanttChart() {
 
                 {
                     Array(24).fill(null).map((item, key) => {
-                        return <div className={key == 23 ? 'w-full border-x-[1px] border-[#4828ff4f] pt-2' : 'w-full border-l-[1px] border-[#4828ff4f] pt-2'}>
+                        return <div className={key == 23 ? 'w-full border-x-[1px] border-[#4828ff4f] pt-2' : 'w-full border-l-[1px] border-[#4828ff4f] pt-2'} key={key}>
                             <div className='w-full bg-[#EDEDED] h-[.35rem]'>
 
                             </div>
