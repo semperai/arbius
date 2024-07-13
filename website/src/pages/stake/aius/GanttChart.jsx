@@ -99,10 +99,10 @@ function GanttChart() {
 
                 {
                     data?.map((item, key) => {
-                        return <div className=' my-3'>
+                        return <div className=' my-3' key={key}>
 
 
-                            <div className='item-grid' key={key}>
+                            <div className='item-grid'>
 
                                 {item?.stake_start !== 0 && (
 
