@@ -43,21 +43,22 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.setVoter(address(0));
     }
 
-    function testCreateLock() public {
+    function testCreateLock(uint256 amount) public {
+        // bind amount to be between 0.0001 AIUS and 1000 AIUS
+        amount = bound(amount, 0.0001 ether, 1000 ether);
+
         // Balance should be zero before and 1 after creating the lock
         assertEq(votingEscrow.balanceOf(address(alice)), 0);
 
         vm.prank(alice);
-        votingEscrow.create_lock(1000 ether, 2 * YEAR);
+        votingEscrow.create_lock(amount, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
         assertEq(votingEscrow.balanceOf(alice), 1);
-        assertApproxEqAbs(
-            votingEscrow.balanceOfNFT(1),
-            1000 ether,
-            10 ether // time lock is rounded down to the nearest week
-        );
 
-        assertEq(AIUS.balanceOf(address(votingEscrow)), 1000 ether);
+        // error of 1% due to rounding down to the nearest week
+        assertApproxEqRel(votingEscrow.balanceOfNFT(1), amount, 1e16);
+
+        assertEq(AIUS.balanceOf(address(votingEscrow)), amount);
     }
 
     function testCreateLockWithZeroAmount() public {
@@ -237,7 +238,7 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.withdraw(tokenId);
 
         // check balances
-        assertEq(AIUS.balanceOf(address(this)), 1000 ether);
+        assertEq(AIUS.balanceOf(address(this)), 10000 ether);
         assertEq(votingEscrow.balanceOfNFT(tokenId), 0);
 
         // Check that the NFT is burnt
