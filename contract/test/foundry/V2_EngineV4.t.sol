@@ -560,7 +560,7 @@ contract EngineV4Test is Test {
 
                 // veRewards should be distributed, set to current reward / 2
                 veRewardsSum = reward / 2;
-                
+
                 assertEq(engine.veRewards(), veRewardsSum);
             } else {
                 vm.prank(validator1);
@@ -580,5 +580,27 @@ contract EngineV4Test is Test {
             skip(3600);
             vm.roll(block.number + 1);
         }
+    }
+
+    function testCheckReward() public {
+        // should-be-values taken from V2_EngineV2.reward
+        // https://nova.arbiscan.io/address/0x3ba380bf035a02cb0a4a5001c73b831de3e7033e#readContract
+        assertEq(engine.reward(31536000, 0), 1000000000000000000);
+        assertEq(engine.reward(31536000, 1 ether), 99999833333333333333);
+        assertEq(engine.reward(31536000, 100000 ether), 83333333333333333333);
+        assertEq(engine.reward(31536000, 300000 ether), 500000000000000000);
+        assertEq(engine.reward(63072000, 450000 ether), 250000000000000000);
+    }
+
+    function testTargetTs() public {
+        // target total supply of 600000(1-0.5^y) AIUS, where y = year
+        // after 1 year approx 300k tokens, after 2 years 450k tokens, ...
+        assertEq(engine.targetTs(31536000), 300000 ether);
+        assertEq(engine.targetTs(2 * 31536000), 450000 ether);
+        assertEq(engine.targetTs(3 * 31536000), 525000 ether);
+        assertEq(engine.targetTs(4 * 31536000), 562500 ether);
+        assertEq(engine.targetTs(5 * 31536000), 581250 ether);
+        assertEq(engine.targetTs(6 * 31536000), 590625 ether);
+        assertEq(engine.targetTs(7 * 31536000), 595312.5 ether);
     }
 }
