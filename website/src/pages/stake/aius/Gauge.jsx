@@ -134,7 +134,7 @@ function Gauge() {
             <div className='hidden lg:flex justify-between items-center w-full'>
                 <div className='flex justify-start items-center gap-4 w-full h-auto'>
                     <h1 className='text-[40px] text-[#4A28FF] mb-2'>Gauge</h1>
-                    <div className='rounded-md bg-white flex  items-center px-2 pr-3 justify-between h-auto w-[70%] stake-box-shadow'>
+                    <div className='rounded-md bg-white-background flex  items-center px-2 pr-3 justify-between h-auto w-[70%] stake-box-shadow'>
                         <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none ' />
                         <Image src={search_icon} className='h-4 w-4' />
                     </div>
@@ -152,12 +152,12 @@ function Gauge() {
                 </div>
 
             </div>
-            <div className='flex lg:hidden rounded-md items-center px-2 pr-3  bg-white  justify-between h-auto stake-box-shadow'>
+            <div className='flex lg:hidden rounded-md items-center px-2 pr-3  bg-white-background  justify-between h-auto stake-box-shadow'>
                 <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none ' />
                 <Image src={search_icon} className='h-4 w-4' />
             </div>
             <div className='w-full overflow-x-auto xl:overflow-x-visible'>
-                <div className='rounded-lg  p-6 px-10 flex justify-between gap-8 items-center bg-white mt-2 mb-4 min-w-[1200px]'>
+                <div className='rounded-lg  p-6 px-10 flex justify-between gap-8 items-center bg-white-background mt-2 mb-4 min-w-[1200px]'>
                     <div className='w-[20%]'>
                         <h1>Model Name</h1>
                     </div>
@@ -179,9 +179,9 @@ function Gauge() {
                 {data?.map((item, key) => {
                     return (
 
-                        <div className='rounded-lg  p-4 px-10 flex justify-between gap-8 items-center bg-white my-2 relative min-w-[1200px]' key={key}>
+                        <div className='rounded-lg  p-4 px-10 flex justify-between gap-8 items-center bg-white-background my-2 relative min-w-[1200px]' key={key}>
                             <div className='flex hidden justify-start items-center absolute left-[-110px]  top-[10%] z-20' id={key}>
-                                <div className='bg-white w-auto p-3 rounded-xl'>
+                                <div className='bg-white-background w-auto p-3 rounded-xl'>
                                     <h1 className='text-[.6rem] mb-1 opacity-40'>Model ID</h1>
                                     <p className='text-[.4rem]'>{item?.model_id}</p>
                                 </div>

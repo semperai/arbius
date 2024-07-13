@@ -13,7 +13,7 @@ function PrevBtn(props) {
     const { className, style, onClick } = props;
     return (
         <div
-            className={`absolute top-[40%]  left-[-10px] cursor-pointer rounded-full  z-20 bg-white p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
+            className={`absolute top-[40%]  left-[-10px] cursor-pointer rounded-full  z-20 bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
 
             onClick={onClick}
         >
@@ -27,7 +27,7 @@ function NextBtn(props) {
     const { className, style, onClick } = props;
     return (
         <div
-            className={`absolute top-[40%] rounded-full  right-[-8px] cursor-pointer  bg-white p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
+            className={`absolute top-[40%] rounded-full  right-[-8px] cursor-pointer  bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
 
             onClick={onClick}
         >
@@ -323,7 +323,7 @@ function SlidingCards() {
                     <Slider {...settings}>
                         {data?.map((item, key) => (
 
-                            <div className='rounded-2xl px-8 py-6  bg-white w-[40%] ' key={key}>
+                            <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] ' key={key}>
                                 <div className='flex justify-start gap-12 items-center'>
                                     <div className='flex flex-col gap-3 justify-center items-start'>
                                         <div>

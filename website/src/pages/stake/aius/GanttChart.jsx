@@ -55,7 +55,7 @@ function GanttChart() {
         }
     })
     return (
-        <div className='rounded-2xl p-8 px-10 bg-white stake-box-shadow relative h-full stake-box-shadow'>
+        <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow'>
             <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
             <div className='flex justify-between items-center mt-6 mb-3'>
                 <div>
@@ -84,7 +84,7 @@ function GanttChart() {
                         </div>
                     </div>
 
-                    <div id='info' className='hidden absolute top-12 left-0  bg-white stake-box-shadow p-2 rounded-xl z-40 w-[150px]'>
+                    <div id='info' className='hidden absolute top-12 left-0  bg-white-background stake-box-shadow p-2 rounded-xl z-40 w-[150px]'>
                         <h1 className='text-[.5rem] opacity-30'>As your stake(s) age, this value decays from the original veAIUS balance. To increase this value, extend your stake(s). </h1>
                     </div>
 
