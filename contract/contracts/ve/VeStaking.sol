@@ -64,6 +64,7 @@ contract VeStaking is IVeStaking, Ownable {
             / _totalSupply;
     }
 
+    // returns earned rewards for `tokenId`
     function earned(uint256 tokenId) public view returns (uint256) {
         return (
             (
@@ -73,30 +74,42 @@ contract VeStaking is IVeStaking, Ownable {
         ) + rewards[tokenId];
     }
 
+    // returns remaining rewards for the current period
     function getRewardForDuration() external view returns (uint256) {
-        return rewardRate * rewardsDuration;
+        if (block.timestamp >= periodFinish) {
+            return 0;
+        } else {
+            return rewardRate * (periodFinish - block.timestamp);
+        }
     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
     function notifyRewardAmount(uint256 reward) external updateReward(0) {
+        // remaining time until periodFinish
+        uint256 remaining;
+
         if (block.timestamp >= periodFinish) {
-            rewardRate = reward / rewardsDuration;
+            // set new periodFinish if the previous period has ended
+            // periodFinish is rounded down to weeks to be aligned with the weekly gauge voting schedule
+            periodFinish = (block.timestamp + rewardsDuration) / 1 weeks * 1 weeks; 
+
+            remaining = periodFinish - block.timestamp;
+            rewardRate = reward / remaining;
         } else {
-            uint256 remaining = periodFinish - block.timestamp;
+            remaining = periodFinish - block.timestamp;
             uint256 leftover = remaining * rewardRate;
-            rewardRate = (reward + leftover) / rewardsDuration;
+            rewardRate = (reward + leftover) / remaining;
         }
 
         lastUpdateTime = block.timestamp;
-        periodFinish = (block.timestamp + rewardsDuration) / 1 weeks * 1 weeks; // periodFinish is rounded down to weeks
 
         // Ensure the provided reward amount is not more than the balance in the contract.
         // This keeps the reward rate in the right range, preventing overflows due to
         // very high values of rewardRate in the earned and rewardsPerToken functions;
         // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
         uint256 balance = rewardsToken.balanceOf(address(this));
-        require(rewardRate <= (balance / rewardsDuration), "Provided reward too high");
+        require(rewardRate <= (balance / remaining), "Provided reward too high");
 
         emit RewardAdded(reward);
     }
@@ -145,6 +158,21 @@ contract VeStaking is IVeStaking, Ownable {
         emit Recovered(tokenAddress, tokenAmount);
     }
 
+    // Remove excess `rewardsToken` due to rounding errors
+    function skim() external onlyOwner {
+        uint256 excess;
+        if(periodFinish > block.timestamp) {
+            uint256 remaining = periodFinish - block.timestamp;
+            uint256 remainingRewards = rewardRate * remaining;
+            excess = rewardsToken.balanceOf(address(this)) - remainingRewards;  
+        } else {
+            // period has ended, so safe to transfer all remaining tokens
+            excess = rewardsToken.balanceOf(address(this));
+        }
+
+        rewardsToken.safeTransfer(msg.sender, excess);
+    }
+    
     function setRewardsDuration(uint256 _rewardsDuration) external onlyOwner {
         require(
             block.timestamp > periodFinish,
