@@ -125,7 +125,7 @@ function GanttChart() {
                                 {
                                     item?.stake_completion !== 0 && (
 
-                                        <div className={` bg-gray-300  h-[.4rem] my-3 rounded-r-full relative z-20`} style={{
+                                        <div className={`bg-[#D9D9D9]  h-[.4rem] my-3   rounded-r-full relative z-20`} style={{
                                             gridColumn: `span ${item?.stake_completion} / span ${item?.stake_completion}`
                                         }}>
                                             <h1 className='absolute right-0 bottom-[8px] text-[.7rem] text-[#4A28FF] min-w-[90px]'>14.12 veAIUS</h1>

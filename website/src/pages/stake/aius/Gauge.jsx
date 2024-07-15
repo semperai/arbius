@@ -23,7 +23,7 @@ function Gauge() {
 
         },
         {
-            model_name: "kandinsky 2",
+            model_name: "Kasumi 2",
             model_id: "arbiusllama3-400b-0703",
             description: "Image Generator",
             emissions: "21.1244%",
@@ -34,7 +34,17 @@ function Gauge() {
 
         },
         {
-            model_name: "kandinsky 2",
+            model_name: "Llama 3-400b",
+            model_id: "arbiusllama3-400b-0703",
+            description: "Image Generator",
+            emissions: "21.1244%",
+            prompts: "121,412",
+            icon: llama_icon,
+
+
+        },
+        {
+            model_name: "Llama 3-120b",
             model_id: "arbiusllama3-400b-0703",
             description: "Image Generator",
             emissions: "21.1244%",
@@ -49,7 +59,7 @@ function Gauge() {
     const [showPopUp, setShowPopUp] = useState(false)
 
     return (
-        <div className='lg:w-section-width w-mobile-section-width mx-auto max-w-center-width py-24 '>
+        <div className='lg:w-section-width w-mobile-section-width mx-auto max-w-center-width py-24 text-black-text '>
 
             {
                 showPopUp && selectedModel !== null && (

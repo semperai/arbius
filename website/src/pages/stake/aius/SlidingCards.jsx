@@ -37,7 +37,7 @@ function NextBtn(props) {
 
 }
 
-const AddPopUpChildren = () => {
+const AddPopUpChildren = ({setShowPopUp}) => {
     return (
         <>
             <div className='flex justify-between items-center my-2'>
@@ -63,13 +63,13 @@ const AddPopUpChildren = () => {
                         <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px]" type="number" placeholder="0.0" />
                     </div>
                 </div>
-                <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS 00.70</h1>
+                <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS 0.70</h1>
             </div>
             <div className='flex justify-center gap-2 items-center'>
                 <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
 
                     <h1 className='text-xs'><span className='text-[20px] text-purple-text'>0.000</span>veAIUS</h1>
-                    <h1 className='text-[.6rem]'>Est. veAIUS rewards</h1>
+                    <h1 className='text-[.6rem]'>Est. veAIUS balance</h1>
                 </div>
                 <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
 
@@ -103,7 +103,7 @@ const AddPopUpChildren = () => {
     )
 }
 
-const ExtendPopUpChildren = () => {
+const ExtendPopUpChildren = ({setShowPopUp}) => {
     const [sliderValue, setSliderValue] = useState(0)
     const [duration, setDuration] = useState({
         months: 0,
@@ -169,7 +169,7 @@ const ExtendPopUpChildren = () => {
 
             <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
                     <Image src={info_icon}/>
-                    <h1 className='text-[0.6rem] text-purple-text'>Extend allows you to only increase the duration of your stake by max 2 years</h1>
+                    <h1 className='text-[0.66rem] font-semibold text-purple-text'>An extension's duration cannot exceed a two year maximum</h1>
             </div>
 
             <div className='flex justify-end gap-2 mt-4'>
@@ -196,7 +196,7 @@ const ExtendPopUpChildren = () => {
 }
 
 
-const ClaimPopUpChildren = () =>{
+const ClaimPopUpChildren = ({setShowPopUp}) =>{
 
     return <>
             <div className='flex justify-between items-center my-2'>
@@ -212,10 +212,10 @@ const ClaimPopUpChildren = () =>{
 
            
             <div className='flex justify-center gap-2 items-center mt-6'>
-                <div className='w-full bg-[#EEEAFF] text-center p-3 py-8 rounded-md'>
+                <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
 
                     <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>0.046</span> AIUS</h1>
-                    <h1 className='text-[.6rem]'>Claimable AIUS</h1>
+                    <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
                 
 
@@ -223,7 +223,7 @@ const ClaimPopUpChildren = () =>{
 
             <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
                     <Image src={info_icon}/>
-                    <h1 className='text-[0.6rem] text-purple-text'>Extend allows you to only increase the duration of your stake by max 2 years</h1>
+                    <h1 className='text-[0.66rem] font-semibold text-purple-text'>AIUS is claimable directly to your wallet </h1>
             </div>
 
             <div className='flex justify-end gap-2 mt-12'>
@@ -310,9 +310,9 @@ function SlidingCards() {
         <div>
             {showPopUp !== false && (
                 <PopUp setShowPopUp={setShowPopUp}>
-                    {showPopUp === "add" && <AddPopUpChildren />}
-                    {showPopUp === "claim" && <ClaimPopUpChildren />}
-                    {showPopUp === "extend" && <ExtendPopUpChildren />}
+                    {showPopUp === "add" && <AddPopUpChildren  setShowPopUp={setShowPopUp}/>}
+                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp}/>}
+                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp} />}
                 </PopUp>
             )}
             <div className='relative'>
@@ -384,7 +384,7 @@ function SlidingCards() {
                                             className="relative group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 "
                                         >
 
-                                            <div className="lato-bold  relative z-10 text-black opacity-40 lg:text-[12px]">
+                                            <div className="lato-bold  relative z-10 text-black-text opacity-40 lg:text-[12px]">
                                                 Extend
                                             </div>
 
@@ -397,7 +397,7 @@ function SlidingCards() {
                                             className="relative group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 "
                                         >
 
-                                            <div className="lato-bold  relative z-10 text-black opacity-40 lg:text-[12px]">
+                                            <div className="lato-bold  relative z-10 text-black-text opacity-40 lg:text-[12px]">
                                                 Claim
                                             </div>
 
