@@ -18,7 +18,7 @@ function TopHeaderSection({data}) {
             logo: unilogo
         },
         {
-            heading: `${parseFloat(parseFloat((data.pool.funded-data.pool.distributed).toFixed(2))/1000).toFixed(2)} k` ,
+            heading: `${parseFloat(parseFloat((data?.pool?.funded - data?.pool.distributed).toFixed(2))/1000).toFixed(2)} k` ,
             subheading: "AIUS",
             para: "Remaining",
             logo: arbiuslogorounded
