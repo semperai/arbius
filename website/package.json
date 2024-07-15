@@ -11,6 +11,7 @@
   "dependencies": {
     "@apollo/client": "^3.9.7",
     "@emotion/react": "^11.11.4",
+    "@gysr/core": "^3.0.0",
     "@headlessui/react": "^1.7.13",
     "@heroicons/react": "^2.0.16",
     "@openzeppelin/hardhat-upgrades": "^1.22.1",
@@ -41,7 +42,8 @@
     "sharp": "^0.32.1",
     "slick-carousel": "^1.8.1",
     "typescript": "4.9.5",
-    "wagmi": "^0.12.1"
+    "wagmi": "^0.12.1",
+    "web3": "^4.10.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",
