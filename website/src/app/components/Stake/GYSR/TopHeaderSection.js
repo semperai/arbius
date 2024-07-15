@@ -24,7 +24,7 @@ function TopHeaderSection({data}) {
             logo: arbiuslogorounded
         },
         {
-            heading: data?parseFloat(data?.pool?.apr).toFixed(2):"",
+            heading: `${data?parseFloat(data?.pool?.apr).toFixed(2):""}%`,
             subheading: "",
             para: "APR",
             logo: gysrlogorounded,

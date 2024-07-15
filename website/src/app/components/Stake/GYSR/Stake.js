@@ -135,16 +135,17 @@ function Stake() {
                             }}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                 <p className="relative z-10 text-original-white text-[13px] mb-[2px]">Approve SUNI-V2</p>
-                            </button>
-                            <HintBox
+                                <HintBox
                                         content={"Approve the Pool to access $UNI-V2 in your wallet in order to stake"}
-                                        customStyle={{}}
+                                        customStyle={{'arrowLeft':'40%'}}
                                         link={null}
                                         boxStyle={{ width: '200px', top: '50%', zIndex: 10 }}
-                                            hoverId={"approveUniV2"}
+                                        hoverId={"approveUniV2"}
                                         currentHoverId={currentHoverId}
                                         setCurrentHoverId={setCurrentHoverId}
                                     />
+                            </button>
+                            
                             <button type="button" className="relative group bg-[#121212] py-2 bg-opacity-5 px-8 rounded-full flex items-center  gap-3" onClick={() => connectWallet()}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full  opacity-0  transition-opacity duration-500"></div>
                                 <p className="relative z-10 text-[#101010] opacity-30 text-[15px] mb-[2px]">Stake</p>
@@ -208,8 +209,16 @@ function Stake() {
                                     <h1 className="text-[18px] text-[#4A28FF]">382</h1>
                                     <h1 className='text-[14px] self-end'>AIUS</h1>
                                     </div>
-                                    <h2 className="text-[15px] font-medium">Global Unlocked</h2>
-
+                                    <h2 className="text-[15px] font-medium" id="globalUnlocked">Global Unlocked</h2>
+                                    <HintBox
+                                    content={"Total AIUS currently unlocked for entire pool. This number is important to keep an eye on for timing your unstakes."}
+                                    customStyle={{'arrowLeft':'50%','marginBottom':'80px'}}
+                                    link={null}
+                                    boxStyle={{ width: '200px', top: '0%', zIndex: 10 }}
+                                    hoverId={"globalUnlocked"}
+                                    currentHoverId={currentHoverId}
+                                    setCurrentHoverId={setCurrentHoverId}
+                                    />
                                 </div>
                                 <div >
 
@@ -258,7 +267,7 @@ function Stake() {
                                     </div>
                                     <HintBox
                                         content={"By spending GYSR you will multiply the number of share seconds that you have accrued"}
-                                        customStyle={{}}
+                                        customStyle={{'arrowLeft':'35%'}}
                                         link={null}
                                         boxStyle={{ width: '200px', top: '50%', zIndex: 10 }}
                                         hoverId={"multiplyQuotient"}

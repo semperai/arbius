@@ -100,7 +100,7 @@ function Stats({data}) {
                             <h2 className="text-[18px] font-medium" onClick={()=>claimRwards()}>Value locked</h2>
                         </div>
                         <div >
-                            <h1 className="text-[20px] text-purple-text">${parseFloat(data.pool.volume/1000).toFixed(2)}</h1>
+                            <h1 className="text-[20px] text-purple-text">$0&nbsp;</h1>
                             <h2 className="text-[18px] font-medium">24Hr Volumes</h2>
                         </div>
                     </div>

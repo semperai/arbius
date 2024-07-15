@@ -9,12 +9,13 @@ import step2 from '../assets/images/amica_update_2.jpg'
 import step3 from '../assets/images/tokenomics_upgrade.jpg'
 import step4 from '../assets/images/kasumi_upgrade.jpg'
 import step5 from '../assets/images/partnership_update.jpg'
-
+import { useEffect } from 'react';
 import amica_update_2 from '../assets/images/amica_update_2.jpg'
 import amica_launch from '../assets/images/amica_launch.jpg'
 import amica_token_launch from '../assets/images/amica_token_launch.jpg'
 import pre_launch from '../assets/images/pre_launch.jpg'
 import VideoThumbnail from '../components/VideoComponent/videoThumbnail';
+
 const posts =[
   {
     "title": "Introducing AIUS Staking",
@@ -60,6 +61,7 @@ const posts =[
   }
 ]
 export default function ArbiusMedia() {
+  
   return (
     <div className='w-[100%] h-[100%] bg-media-gradient py-20'>
       <div className="lg:p-0 w-mobile-section-width lg:w-[90%] xl:w-section-width m-[auto] max-w-center-width ">
@@ -109,3 +111,4 @@ export default function ArbiusMedia() {
     </div>
   );
 }
+
