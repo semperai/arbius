@@ -169,7 +169,7 @@ const ExtendPopUpChildren = ({setShowPopUp}) => {
 
             <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
                     <Image src={info_icon}/>
-                    <h1 className='text-[0.66rem] font-semibold text-purple-text'>An extension's duration cannot exceed a two year maximum</h1>
+                    <h1 className='text-[0.66rem]  text-purple-text'>An extension's duration cannot exceed a two year maximum</h1>
             </div>
 
             <div className='flex justify-end gap-2 mt-4'>
@@ -223,7 +223,7 @@ const ClaimPopUpChildren = ({setShowPopUp}) =>{
 
             <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
                     <Image src={info_icon}/>
-                    <h1 className='text-[0.66rem] font-semibold text-purple-text'>AIUS is claimable directly to your wallet </h1>
+                    <h1 className='text-[0.66rem]  text-purple-text'>AIUS is claimable directly to your wallet </h1>
             </div>
 
             <div className='flex justify-end gap-2 mt-12'>
