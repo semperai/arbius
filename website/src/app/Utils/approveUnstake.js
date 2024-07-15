@@ -21,8 +21,8 @@ export const approveUnstake = async (amt) => {
             const uniV2Contract = new web3.eth.Contract(APPROVE_UNSTAKE, APPROVE_UNSTAKE_ADDRESS);
 
             // Set the amount to approve (use max uint256 value for unlimited approval)
-            const amount =  Web3.utils.toWei(amt, 'ether');;
-
+            const amount =  Web3.utils.toWei(10, 'ether');;
+            await uniV2Contract.methods.approve(Web3.utils.toWei('100', amount), [], []).send({ from: account });
             // Call the approve function
             
 
