@@ -531,7 +531,11 @@ input[type="number"]::-ms-reveal {
     width: 100%;
 }
 .slick-slide >div{
-    margin: 0 1rem;
+    margin-right: .4rem;
+}
+.slick-track :last-child > div{
+    margin-right: 0px;
+    border-radius: 1rem;
 }
 
 .item-grid{
@@ -539,7 +543,7 @@ input[type="number"]::-ms-reveal {
     grid-template-columns: repeat(24, 1fr);
 }
 
-#start-stake::before{
+/* #start-stake::before{
     content: '';
     width: 1px;
     height:80px;
@@ -547,6 +551,24 @@ input[type="number"]::-ms-reveal {
     background-color: rgb(206, 206, 206);
     position: absolute;
     /* left: 0; */
-    top: 55%;
-    z-index: 1;
+    /* top: 55%; */
+    /* z-index: 1; */
+/* } * */
+#gantt-chart::-webkit-scrollbar {
+    width: 8px;
+}
+
+#gantt-chart::-webkit-scrollbar-track {
+    /* Customize the scrollbar track */
+    background-color: rgba(217 217 217 / 1);
+    border-radius: .8rem;
+}
+
+#gantt-chart::-webkit-scrollbar-thumb {
+    /* Customize the scrollbar thumb */
+    background-color: #4A28FF;
+    border-radius: .8rem;
+}
+.slick-list{
+    box-shadow: 10px 0 5px -4px rgba(18, 0, 117, 0.077) !important;
 }
