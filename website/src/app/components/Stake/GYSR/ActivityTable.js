@@ -157,9 +157,9 @@ function ActivityTable() {
                                        return <>
                                            <tr key={key} className='text-[#101010]'>
                                                <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] font-medium ">{item?.functionName}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{parseFloat(item?.amount).toFixed(2)}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{item?.gysr_spent}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{hexToDecimal(item?.decodedParams.rewarddata)}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{parseFloat(item?.amount).toFixed(2)} UNI-V2</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{item?.gysr_spent} </td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{hexToDecimal(item?.decodedParams.rewarddata) =='-'?"-": `${hexToDecimal(item?.decodedParams.rewarddata)} GYSR`}</td>
                                                <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{cropAddress(item?.from)}</td>
                                                <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{timeSince(item?.timestamp)}</td>
                                            </tr> 
