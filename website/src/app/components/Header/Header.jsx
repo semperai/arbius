@@ -9,7 +9,6 @@ import arbius from "../../assets/images/arbius_logo_without_name.png";
 import gysr from "../../assets/images/gysr_logo_without_name.png";
 import kandinsky from "../../assets/images/kandinsky.png";
 import Image from "next/image";
-// import { useRouter } from 'next/router';
 import { usePathname, useRouter } from "next/navigation";
 import AnimateHeight from "react-animate-height";
 import Link from "next/link";
@@ -123,7 +122,7 @@ export default function Header() {
 
             <div className="link-with-image relative group w-[auto]">
               <div
-                className={`link lg:block ${activeLink == 'stake/aius' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
+                className={`link lg:block ${activeLink == 'aius' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
                 onClick={() => setStakingOpen(!stakingOpen)}
               >
                 Staking
@@ -143,7 +142,7 @@ export default function Header() {
               <AnimateHeight height={stakingOpen ? "auto" : 0}>
                 <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex ">
                   <Link
-                    href={"/stake/gysr"}
+                    href={"/gysr"}
                     onClick={() => {
                       setHeaderOpen(!headerOpen)
                     }}
@@ -164,7 +163,7 @@ export default function Header() {
                     </div>
                   </Link>
                   <Link
-                    href={"/stake/aius"}
+                    href={"/aius"}
                     onClick={() => {
                       setHeaderOpen(!headerOpen)
                     }}

@@ -1,4 +1,4 @@
-import GYSR from "../app/components/gysr/page";
+import GYSR from "../app/stake/aius/gysr/page";
 import RootLayout from "@/app/layout";
 
 export default function Home() {

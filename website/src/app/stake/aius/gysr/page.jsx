@@ -1,9 +1,9 @@
 "use client"
 import React, { useState,useEffect } from "react"
-import fetchData from "../../Utils/getGysrData";
+import fetchData from "../../../Utils/getGysrData";
 import Tabs from "@/app/components/Stake/GYSR/Tabs";
 import TopHeaderSection from "@/app/components/Stake/GYSR/TopHeaderSection";
-import { getTransactions } from "../../Utils/getActivities";
+import { getTransactions } from "../../../Utils/getActivities";
 export default function GYSR() {
   const [data, setData] = useState(null)
     useEffect(() => {

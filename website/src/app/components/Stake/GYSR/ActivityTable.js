@@ -22,6 +22,7 @@ function ActivityTable() {
         const fetchData = async () => {
             try {
                 const fetchedData = await getTransactions();
+                 console.log(fetchedData,"transactions")
                 setData(fetchedData);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -76,10 +77,10 @@ function ActivityTable() {
     function hexToDecimal(hexString) {
         // alert(hexString)
         // Remove the '0x' prefix if present
-        if(hexString=="0x"){
+        if(hexString=="0x" ||hexString==null  ){
             return '-'
         }
-        hexString = hexString.startsWith('0x') ? hexString.slice(2) : hexString;
+        hexString = hexString?.startsWith('0x') ? hexString.slice(2) : hexString;
         
         // Convert hexadecimal to decimal using BigInt
         const decimalValue = BigInt('0x' + hexString).toString();
@@ -100,13 +101,18 @@ function ActivityTable() {
     
         return formattedNumber ;
     }
+    function cropAddress(address) {
+        var start = window.innerWidth > '786' ? address.substring(0, 6) : address.substring(0, 2); // Change the numbers to adjust the length of the beginning part you want to keep
+        var end = address.substring(address.length - 4, address.length); // Change the numbers to adjust the length of the end part you want to keep
+        return start + "..." + end;
+    }
  // Output: e.g., "2 days ago", "1 hour ago", "5 minutes ago", etc.
     
     
     return (
         <div>
-            <div class="flex flex-col bg-white-background table-gysr px-6 py-4">
-                <div class=" overflow-x-auto">
+            <div class="flex flex-col bg-white-background table-gysr px-6 py-4 text-[#101010]">
+                <div class=" overflow-x-auto ">
                     <div class="p-1.5 min-w-full inline-block align-middle">
                         <div class="overflow-hidden">
                         {
@@ -146,17 +152,17 @@ function ActivityTable() {
                                         </th>
                                     </tr>
                                 </thead>
-                                 <tbody class="">
+                                 <tbody className="text-[#101010]">
                                    {data ? paginatedData?.map((item, key) => {
                                        return <>
-                                           <tr key={key}>
-                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] font-medium text-gray-800">{item?.functionName}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{parseFloat(item?.amount).toFixed(2)}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.gysr_spent}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{hexToDecimal(item?.decodedParams.rewarddata)}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{item?.from}</td>
-                                               <td class="px-6 py-4 whitespace-nowrap text-center text-[12px] lg:text-[15px] text-gray-800">{timeSince(item?.timestamp)}</td>
-                                           </tr>
+                                           <tr key={key} className='text-[#101010]'>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] font-medium ">{item?.functionName}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{parseFloat(item?.amount).toFixed(2)}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{item?.gysr_spent}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{hexToDecimal(item?.decodedParams.rewarddata)}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{cropAddress(item?.from)}</td>
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{timeSince(item?.timestamp)}</td>
+                                           </tr> 
 
                                        </>
                                    }):null}
@@ -179,7 +185,7 @@ function ActivityTable() {
 
 
 
-            <div className='flex justify-end mt-6'>
+            <div className='flex justify-end mt-6 text-[#101010]'>
                 <div className='bg-white-background flex gap-4 justify-center items-center p-3 rounded-md'>
                     <button className='p-1 rotate-180 'onClick={()=>handleClickPrev()}>
 

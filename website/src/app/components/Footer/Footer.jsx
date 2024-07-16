@@ -49,12 +49,12 @@ export default function Footer() {
         {
             id: "5",
             name: "veAIUS",
-            link: "/stake/aius"
+            link: "/aius"
         },
         {
             id: "6",
             name: "GYSR",
-            link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
+            link: "/gysr"
         },
         {
             id: "7",

@@ -47,7 +47,7 @@ function Stake() {
         }
     }
     const connectWallet=async()=>{
-        alert("nnni")
+        
         const connct= await connectWalletHandler()
         if(connct){
             setIsStakeClicked(true)
@@ -85,7 +85,7 @@ function Stake() {
                             <h1 className="text-[15px] lg:text-[20px] font-medium text-[#4A28FF]">Stake</h1>
                             <div className="flex justify-start items-end mt-6 gap-20">
 
-                                <div className='flex flex-col justify-center'>
+                                <div className='flex flex-col justify-center text-[#101010]'>
                                     <div className="flex justify-start items-baseline">
                                         <h1 className="text-[25px] lg:text-[30px] font-medium">0.000</h1>
                                         <p className="text-para ">Uni-V2</p>
@@ -95,7 +95,7 @@ function Stake() {
                                 </div>
 
 
-                                <div className='flex flex-col justify-center'>
+                                <div className='flex flex-col justify-center text-[#101010]'>
                                     <div className="flex justify-start items-baseline" id="BonusPeriod">
                                         <h1 className="text-[25px] lg:text-[30px] font-medium">90</h1>
                                         <p className="text-para ">Days</p>
@@ -114,8 +114,8 @@ function Stake() {
                                 </div>
 
                             </div>
-                            <div className="rounded-[25px]  flex justify-center w-[100%] mt-6">
-                                <input className="p-2 lg:p-3 border-[1px] border-r-0 rounded-l-[25px] rounded-r-none w-[70%] focus:outline-none" placeholder="Amount of UNI-V2 to stake" />
+                            <div className="rounded-[25px]  flex justify-center w-[100%] mt-6 text-[#101010]">
+                                <input className="p-2 lg:p-3 border-[1px] border-r-0 rounded-l-[25px] rounded-r-none w-[70%] focus:outline-none bg-original-white" placeholder="Amount of UNI-V2 to stake" />
                                 <div className="p-2 lg:p-3 w-[30%] rounded-r-[25px] rounded-l-none  border-[1px] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-4 items-center">
                                     <h className="text-[10px] lg:text-[15px] font-medium">UNI-V2</h>
                                     <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">
@@ -127,7 +127,7 @@ function Stake() {
                         </div>
 
 
-                        <div className="flex justify-end items-center gap-4 mt-4 md:mb-0">
+                        <div className="flex justify-end items-center gap-4 mt-4 md:mb-0 text-[#101010]">
                             <button type="button" className="relative group bg-black-background py-2  px-8 rounded-full flex items-center  gap-3"
                               id={"approveUniV2"}
                               onClick={() =>{
@@ -158,7 +158,7 @@ function Stake() {
 
                         <div>
                             <h1 className="text-[15px] lg:text-[20px] text-[#4A28FF] font-medium">Unstake</h1>
-                            <div className="flex justify-start items-end mt-6 mb-8 gap-[40px]">
+                            <div className="flex justify-start items-end mt-6 mb-8 gap-[40px] text-[#101010]">
 
                                 <div className='bg-[#EEEAFF] p-4 rounded-lg' >
                                     <div id="unstakeBalance" className="flex justify-start items-baseline">
@@ -178,7 +178,7 @@ function Stake() {
                                 </div>
                                 
 
-                                <div className='bg-[#EEEAFF] p-4 rounded-lg'>
+                                <div className='bg-[#EEEAFF] p-4 rounded-lg '>
                                     <div  id="claimableRewards" className="flex justify-start items-baseline">
                                         <h1 className="text-[25px] lg:text-[30px] text-[#4A28FF]">{convertLargeNumber(String(data?.unstake.rewards))}&nbsp;</h1>
                                         <p className="text-para ">AIUS</p>
@@ -192,7 +192,7 @@ function Stake() {
                                         setCurrentHoverId={setCurrentHoverId}
                                     />
                                     </div>
-                                    <h1 className="text-[8px] lg:text-[13px] font-medium">Claimable Rewards</h1>
+                                    <h1  className=" text-[#101010] text-[8px] lg:text-[13px] font-medium">Claimable Rewards</h1>
 
 
                                 </div>
@@ -202,12 +202,12 @@ function Stake() {
 
                             <hr className="opacity-10" />
 
-                            <div className="flex justify-start gap-[50px] mt-4">
+                            <div className="flex justify-start gap-[50px] mt-4 text-[#101010] ">
                                 <div >
 
-                                    <div className='flex flex-row gap-1'>
+                                    <div className='flex flex-row gap-1 '>
                                     <h1 className="text-[18px] text-[#4A28FF]">382</h1>
-                                    <h1 className='text-[14px] self-end'>AIUS</h1>
+                                    <h1 className='text-[14px] self-end '>AIUS</h1>
                                     </div>
                                     <h2 className="text-[15px] font-medium" id="globalUnlocked">Global Unlocked</h2>
                                     <HintBox
@@ -222,7 +222,7 @@ function Stake() {
                                 </div>
                                 <div >
 
-                                    <div className='flex flex-row gap-1'>
+                                    <div className='flex flex-row gap-1 text-[#101010]'>
                                     <h1 className="text-[18px] text-[#4A28FF]">1.25x</h1>
                                     </div>
                                     <h2 className="text-[15px] font-medium">Total Mult</h2>
@@ -238,8 +238,8 @@ function Stake() {
 
                                 </div>
                             </div>
-                            <div className="rounded-[25px]  flex justify-center w-[100%] mt-6">
-                                <input className="p-2 lg:p-3 border-[1px] border-r-0 rounded-l-[25px] rounded-r-none w-[70%] focus:outline-none" placeholder="Amount of UNI-V2 to stake" />
+                            <div className="rounded-[25px]  flex justify-center w-[100%] mt-6 text-[#101010]">
+                                <input className="p-2 lg:p-3 border-[1px] border-r-0 rounded-l-[25px] rounded-r-none w-[70%] focus:outline-none bg-original-white" placeholder="Amount of UNI-V2 to stake" />
                                 <div className="p-2 lg:p-3 w-[30%] rounded-r-[25px] rounded-l-none  border-[1px] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-4 items-center">
                                     <h className="text-[10px] lg:text-[15px] font-medium">UNI-V2</h>
                                     <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">
@@ -249,10 +249,10 @@ function Stake() {
 
 
                             </div>
-                            <div className="flex justify-between items-end">
+                            <div className="flex justify-between items-end text-[#101010]">
                                 <div className="w-[70%] flex justify-between items-end gap-4">
                                     <div className="rounded-[25px]  flex justify-center w-[100%] mt-6">
-                                        <input className="p-2 lg:p-3 border-[1px] border-r-0 rounded-l-[25px] rounded-r-none w-[70%] focus:outline-none" placeholder="0" />
+                                        <input className="p-2 lg:p-3 border-[1px] border-r-0 rounded-l-[25px] rounded-r-none w-[70%] focus:outline-none bg-original-white" placeholder="0" />
                                         <div className="p-2 lg:p-3 w-[50%] rounded-r-[25px] rounded-l-none  border-[1px] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-4 items-center">
                                             <h className="text-[10px] lg:text-[15px] font-medium">GYSR</h>
                                             <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">

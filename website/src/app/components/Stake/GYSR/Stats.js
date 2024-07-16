@@ -70,7 +70,7 @@ function Stats({data}) {
     ]
     return (
         <>
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-mobile-section-width lg:w-[90%] m-[auto]">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-mobile-section-width lg:w-[90%] m-[auto] text-[#101010]">
 
                 <div className="rounded-2xl p-6 lg:p-10 h-[auto]  lg:h-[auto]  bg-white-background stake-card">
                     <div>
@@ -140,7 +140,7 @@ function Stats({data}) {
 
                 </div>
 
-                <div className="rounded-2xl p-6 lg:p-10 h-[auto] lg:h-[auto] bg-white-background stake-card">
+                <div className="rounded-2xl p-6 lg:p-10 h-[auto] lg:h-[auto] bg-white-background stake-card text-[#101010]">
                     <div>
                         <h1 className="text-[15px] lg:text-[20px] font-medium text-purple-text">Schedule</h1>
                     </div>
@@ -165,9 +165,9 @@ function Stats({data}) {
 
 
                     </div>
-                    <hr className="opacity-60 mt-6" />
+                    <hr className="opacity-60 mt-6 " />
                     <div className="bg-[#F9F6FF] rounded-[25px] p-6 mt-6 flex justify-center h-[300px] overflow-x-scroll">
-                        <div className="flex items-center relative left-[200px]">
+                        <div className="flex items-center relative left-[200px] text-[#101010]">
                             {dataConst?.map((item, idx) => (
                             <div className="relative flex flex-col items-center" key={idx}>
                                 {idx % 2 === 0 ? (
@@ -188,7 +188,8 @@ function Stats({data}) {
                                 {
                                     idx==0 || idx==dataConst.length -2?
                                     <div className="border-t-[1px] border-purple-text w-[100px] relative">
-                                            <div className="w-[20px] h-[20px] border-[1px] bg-purple-text z-10  rounded-full absolute left-[50%] translate-x-[-50%] top-[50%] translate-y-[-50%]">
+                                            <div className="w-[30px] h-[30px] border-[1px] bg-purple-text z-10  rounded-full absolute left-[50%] translate-x-[-50%] top-[50%] translate-y-[-50%] flex justify-center items-center"
+                                            style={{left:idx==0?'10px':'90px'}}>
                                                 <Image height={'100%'} width={'100%'} src={clock} alt="time"/>
                                             </div>
                                     </div>
