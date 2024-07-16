@@ -1,7 +1,7 @@
 "use client"
 import Image from 'next/image';
 import React from 'react'
-import clock from '../../../assets/images/time (2).png'
+import clock from '../../../assets/images/time_(2).png'
 import HintBox from '../../HintBox/Hintbox';
 import { useState } from 'react';
 function Stats({data}) {
