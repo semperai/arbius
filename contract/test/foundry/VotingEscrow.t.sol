@@ -225,6 +225,8 @@ contract VotingEscrowTest is BaseTest {
     }
 
     function testWithdraw() public {
+        uint256 balanceBefore = AIUS.balanceOf(address(this));
+
         uint256 lockDuration = 1 weeks;
         votingEscrow.create_lock(1000 ether, lockDuration);
 
@@ -238,7 +240,7 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.withdraw(tokenId);
 
         // check balances
-        assertEq(AIUS.balanceOf(address(this)), 10000 ether);
+        assertEq(AIUS.balanceOf(address(this)), balanceBefore);
         assertEq(votingEscrow.balanceOfNFT(tokenId), 0);
 
         // Check that the NFT is burnt
