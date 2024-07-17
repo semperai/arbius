@@ -66,7 +66,7 @@ function Tabs({data}) {
                     <Stats data={data} />
                 )}
                 {selectedtab === "Activity" && (
-                    <div className="w-mobile-section-width lg:w-[90%] m-[auto]">
+                    <div className="w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width ">
                         <ActivityTable />
                     </div>
                 )}

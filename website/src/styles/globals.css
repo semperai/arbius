@@ -569,6 +569,31 @@ input[type="number"]::-ms-reveal {
     background-color: #4A28FF;
     border-radius: .8rem;
 }
+
+
+#custom-scrollbar::-webkit-scrollbar {
+    height: 6px !important;
+}
+
+#custom-scrollbar::-webkit-scrollbar-track {
+    /* Customize the scrollbar track */
+    background-color: rgba(217 217 217 / 1);
+    border-radius: .8rem;
+}
+
+#custom-scrollbar::-webkit-scrollbar-thumb {
+    /* Customize the scrollbar thumb */
+    /* width: 3px !important; */
+    background-color: #4A28FF;
+    border-radius: .8rem;
+}
 .slick-list{
     box-shadow: 10px 0 5px -4px rgba(18, 0, 117, 0.077) !important;
+}
+
+
+.inner-shdadow{
+    --tw-shadow: 0px 4px 20px 0px rgba(74, 40, 255, 0.2);
+    --tw-shadow-colored: 0px 4px 20px 0px var(--tw-shadow-color);
+    box-shadow: inset var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }

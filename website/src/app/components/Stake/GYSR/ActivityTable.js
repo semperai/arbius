@@ -110,7 +110,7 @@ function ActivityTable() {
     
     
     return (
-        <div>
+        <div className=''>
             <div class="flex flex-col bg-white-background table-gysr px-6 py-4 text-[#101010]">
                 <div class=" overflow-x-auto ">
                     <div class="p-1.5 min-w-full inline-block align-middle">
@@ -193,13 +193,13 @@ function ActivityTable() {
 
                     </button>
 
-                    <button className='p-1' onClick={()=>handleClickTab(1)}>1</button>
-                    <button className='p-1' onClick={()=>handleClickTab(2)}>2</button>
-                    <button className='p-1' onClick={()=>handleClickTab(3)}>3</button>
-                    <button className='p-1' onClick={()=>handleClickTab(4)}>4</button>
-                    <button className='p-1' onClick={()=>handleClickTab(5)}>5</button>
-                    <button className='p-1' onClick={()=>handleClickTab(6)}>6</button>
-                    <button className='p-1' onClick={()=>handleClickTab(7)}>7</button>
+                    <button className={`p-1 ${currentPage ===1 && 'text-purple-text font-bold'}`} onClick={()=>handleClickTab(1)}>1</button>
+                    <button className={`p-1 ${currentPage ===2 && 'text-purple-text font-bold'}`} onClick={()=>handleClickTab(2)}>2</button>
+                    <button className={`p-1 ${currentPage ===3 && 'text-purple-text font-bold'}`} onClick={()=>handleClickTab(3)}>3</button>
+                    <button className={`p-1 ${currentPage ===4 && 'text-purple-text font-bold'}`} onClick={()=>handleClickTab(4)}>4</button>
+                    <button className={`p-1 ${currentPage ===5 && 'text-purple-text font-bold'}`} onClick={()=>handleClickTab(5)}>5</button>
+                    <button className={`p-1 ${currentPage ===6 && 'text-purple-text font-bold'}`} onClick={()=>handleClickTab(6)}>6</button>
+                    <button className={`p-1 ${currentPage ===7 && 'text-purple-text font-bold'}`} onClick={()=>handleClickTab(7)}>7</button>
 
 
                     <button className='p-1' onClick={()=>handleClickNext()}>
