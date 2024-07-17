@@ -67,7 +67,7 @@ function TopHeaderSection({ data }) {
 
                     </div>
 
-                    <Link href="https://app.uniswap.org/add/v2/0x8afe4055ebc86bd2afb3940c0095c9aca511d852/ETH?chain=mainnet">
+                    <Link href="https://app.uniswap.org/add/v2/0x8afe4055ebc86bd2afb3940c0095c9aca511d852/ETH?chain=mainnet" target="_blank">
                         <p className="text-para text-subtext-three font-medium  text-subtext-two mt-6 hover:underline decoration-[#4A28FF] hover:text-[#4A28FF]">
                             Get UNI-V2 by providing liquidity on Uniswap ➚
                         </p>
