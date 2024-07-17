@@ -14,8 +14,8 @@
     "prettier:check": "prettier --check .",
     "prettier:lint": "prettier --write .",
     "coverage": "npx hardhat coverage --network localhost",
-    "forge-test": "forge test --fork-url http://localhost:8545 --fork-block-number 18 --mc EngineV4Test",
-    "forge-test-v": "forge test --fork-url http://localhost:8545 --fork-block-number 18 --mc EngineV4Test -vvv"
+    "forge-test": "forge test --fork-url http://localhost:8545 --fork-block-number 18",
+    "forge-test-v": "forge test --fork-url http://localhost:8545 --fork-block-number 18 -vvv"
   },
   "devDependencies": {
     "@arbitrum/nitro-contracts": "^1.0.2",
