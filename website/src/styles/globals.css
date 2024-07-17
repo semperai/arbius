@@ -596,16 +596,6 @@ input[type="number"]::-ms-reveal {
 }
 
 
-.inner-shdadow{
-    --tw-shadow: 0px 4px 20px 0px rgba(74, 40, 255, 0.2);
-    --tw-shadow-colored: 0px 4px 20px 0px var(--tw-shadow-color);
-    box-shadow: inset var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+#inner-shdadow{
+    background: linear-gradient(199.89deg, #FFFFFF 20.7%, #5E40FD 310.09%);
 }
-
-
-
-/* #outline-none:focus{
-    outline: none !important; 
-    border: none !important;
-
-} */

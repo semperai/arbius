@@ -214,7 +214,7 @@ function Stake() {
                                     <h2 className="text-[15px] font-medium" id="globalUnlocked">Global Unlocked</h2>
                                     <HintBox
                                         content={"Total AIUS currently unlocked for entire pool. This number is important to keep an eye on for timing your unstakes."}
-                                        customStyle={{ 'arrowLeft': '50%', 'marginBottom': '80px' }}
+                                        customStyle={{ 'arrowLeft': '50%', 'marginBottom': '' }}
                                         link={null}
                                         boxStyle={{ width: '200px', top: '0%', zIndex: 10 }}
                                         hoverId={"globalUnlocked"}
@@ -262,11 +262,11 @@ function Stake() {
 
                             </div>
                             <div className="flex justify-between items-center gap-2 text-[#101010] mt-6">
-                                <div className="w-[60%] flex justify-between items-end gap-1">
+                                <div className="w-[50%] flex justify-between items-end gap-0">
                                     <div className="rounded-[25px]  flex justify-center w-[100%] ">
                                         <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[40%] border-l-0 bg-[#E6DFFF] flex justify-center gap-1 lg:gap-1 items-center">
-                                            <div className=" bg-[#5E40FD] rounded-full px-4 py-[1px] text-original-white flex items-center">
-                                                <p className="text-[6px] lg:text-[12px] pb-[2px]">max</p>
+                                            <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">
+                                                <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
                                             </div>
                                             <h className="text-[10px] lg:text-[14px] font-medium">GYSR</h>
 
@@ -278,9 +278,9 @@ function Stake() {
                                     </div>
 
                                 </div>
-                                <div className='flex justify-center gap-1 items-center rounded-full p-4 shadow-stats inner-shdadow'>
+                                <div className='flex justify-center gap-1 items-center rounded-full p-4 px-3 shadow-stats inner-shdadow w-[50%]' id="inner-shdadow">
                                     <div id="multiplyQuotient">
-                                        <h1 className="text-[14px] font-medium text-[#777777]">1.00 x</h1>
+                                        <h1 className="text-[16px]  text-[#777777]">1.00 x</h1>
                                     </div>
                                     <HintBox
                                         content={"By spending GYSR you will multiply the number of share seconds that you have accrued"}
@@ -291,8 +291,8 @@ function Stake() {
                                         currentHoverId={currentHoverId}
                                         setCurrentHoverId={setCurrentHoverId}
                                     />
-                                    <div className="text-[#101010] text-[12px] font-medium">
-                                        <h1 className="text-[#777777]">You&apos;ll Receive <span className='text-purple-text text-[16px]'>0.000 AIUS</span></h1>
+                                    <div className="text-[#101010] text-[14px] ">
+                                        <h1 className="text-[#777777]">You&apos;ll Receive <span className='text-purple-text text-[16px] lato-bold'>0.000 AIUS</span></h1>
 
                                     </div>
                                 </div>
