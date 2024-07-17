@@ -43,18 +43,25 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== VIEWS ========== */
 
+    /// @notice Returns the total supply
     function totalSupply() external view returns (uint256) {
         return _totalSupply;
     }
 
+    /// @notice Returns the veStaking balance of `tokenId`
+    /// @param tokenId ID of the veNFT
+    /// @dev The veStaking balance is the initial veNFT balance at time of staking
+    /// @dev It is not decaying over time, unlike the veToken balance
     function balanceOf(uint256 tokenId) external view returns (uint256) {
         return _balances[tokenId];
     }
 
+    /// @notice Returns the last time rewards were applicable
     function lastTimeRewardApplicable() public view returns (uint256) {
         return block.timestamp < periodFinish ? block.timestamp : periodFinish;
     }
 
+    /// @notice Returns the reward per token
     function rewardPerToken() public view returns (uint256) {
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
@@ -64,7 +71,7 @@ contract VeStaking is IVeStaking, Ownable {
             / _totalSupply;
     }
 
-    // returns earned rewards for `tokenId`
+    /// @notice Returns earned rewards for `tokenId`
     function earned(uint256 tokenId) public view returns (uint256) {
         return (
             (
@@ -74,7 +81,7 @@ contract VeStaking is IVeStaking, Ownable {
         ) + rewards[tokenId];
     }
 
-    // returns remaining rewards for the current period
+    /// @notice Returns remaining rewards for the current period
     function getRewardForDuration() external view returns (uint256) {
         if (block.timestamp >= periodFinish) {
             return 0;
@@ -85,6 +92,8 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
+    /// @notice Adds `reward` to be distributed to veToken holders
+    /// @param reward Amount of rewards to add
     function notifyRewardAmount(uint256 reward) external updateReward(0) {
         // remaining time until periodFinish
         uint256 remaining;
@@ -114,7 +123,11 @@ contract VeStaking is IVeStaking, Ownable {
         emit RewardAdded(reward);
     }
 
-    // we use internal notation since this function can only be called by the VotingEscrow contract
+    /// @notice Stakes `amount` for `tokenId`
+    /// @param tokenId ID of the veNFT
+    /// @param amount Amount to stake
+    /// @dev Internal notation is used since this function can only be called by the VotingEscrow contract
+    /// @dev This function is called by VotingEscrow.create_lock, VotingEscrow.increase_amount and VotingEscrow.merge
     function _stake(uint256 tokenId, uint256 amount) external onlyVotingEscrow updateReward(tokenId) {
         require(amount > 0, "Cannot stake 0");
         _totalSupply += amount;
@@ -122,7 +135,10 @@ contract VeStaking is IVeStaking, Ownable {
         emit Staked(tokenId, amount);
     }
 
-    // we use internal notation since this function can only be called by the VotingEscrow contract
+    /// @notice Withdraws `tokenId` from the staking contract
+    /// @param tokenId ID of the veNFT
+    /// @dev Internal notation is used since this function can only be called by the VotingEscrow contract
+    /// @dev This function is called by VotingEscrow.withdraw
     function _withdraw(uint256 tokenId) external onlyVotingEscrow updateReward(tokenId) {
         uint256 amount = _balances[tokenId];
         _totalSupply -= amount;
@@ -130,7 +146,11 @@ contract VeStaking is IVeStaking, Ownable {
         emit Withdrawn(tokenId, amount);
     }
 
-    // we use internal notation since this function can only be called by the VotingEscrow contract
+    /// @notice Updates the balance of `tokenId` to `newAmount`
+    /// @param tokenId ID of the veNFT
+    /// @param newAmount New balance of the veNFT
+    /// @dev Internal notation is used since this function can only be called by the VotingEscrow contract
+    /// @dev This function is called by VotingEscrow.increase_unlock_time
     function _updateBalance(uint256 tokenId, uint256 newAmount) external onlyVotingEscrow updateReward(tokenId) {
         uint256 amount = _balances[tokenId];
         _totalSupply = _totalSupply - amount + newAmount;
@@ -138,6 +158,8 @@ contract VeStaking is IVeStaking, Ownable {
         emit BalanceUpdated(tokenId, amount, newAmount);
     }
 
+    /// @notice Claim rewards for `tokenId`
+    /// @param tokenId ID of the veNFT
     function getReward(uint256 tokenId) external updateReward(tokenId) {
         address tokenOwner = votingEscrow.ownerOf(tokenId);
 
@@ -151,14 +173,16 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    // Recover tokens that are accidentally sent to the contract
+    /// @notice Recover tokens that are accidentally sent to the contract
+    /// @param tokenAddress Address of the token to recover
+    /// @param tokenAmount Amount of tokens to recover
     function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
         require(tokenAddress != address(rewardsToken), "Cannot withdraw the rewards token");
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
         emit Recovered(tokenAddress, tokenAmount);
     }
 
-    // Remove excess `rewardsToken` due to rounding errors
+    /// @notice Removes excess `rewardsToken` due to rounding errors
     function skim() external onlyOwner {
         uint256 excess;
         if(periodFinish > block.timestamp) {
@@ -172,7 +196,9 @@ contract VeStaking is IVeStaking, Ownable {
 
         rewardsToken.safeTransfer(msg.sender, excess);
     }
-    
+
+    /// @notice Sets the duration of the rewards period
+    /// @param _rewardDuration Duration of the rewards period in seconds
     function setRewardsDuration(uint256 _rewardsDuration) external onlyOwner {
         require(
             block.timestamp > periodFinish,

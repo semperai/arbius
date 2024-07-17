@@ -16,6 +16,7 @@ import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 /// @author Modified from Solidly (https://github.com/solidlyexchange/solidly/blob/master/contracts/ve.sol)
 /// @author Modified from Curve (https://github.com/curvefi/curve-dao-contracts/blob/master/contracts/VotingEscrow.vy)
 /// @author Modified from Nouns DAO (https://github.com/withtally/my-nft-dao-project/blob/main/contracts/ERC721Checkpointable.sol)
+/// @author Modified from velodrome v1 (https://github.com/velodrome-finance/v1)
 /// @dev Vote weight decays linearly over time. Lock time cannot be more than `MAXTIME` (2 years).
 contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     enum DepositType {

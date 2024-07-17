@@ -436,7 +436,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
             return 0;
         }
 
-        uint256 b = balance - totalHeld - veRewards;
+        uint256 b = balance - totalHeld - veRewards; // veRewards added in v4
 
         return STARTING_ENGINE_TOKEN_AMOUNT - b;
     }
@@ -830,7 +830,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
         }
 
         // if block.timestamp > veStaking.periodFinish, set veReward to 0 and transfer funds via veStaking.notifyRewardAmount
-        if(block.timestamp > IVeStaking(veStaking).periodFinish()){
+        if(block.timestamp > IVeStaking(veStaking).periodFinish()){ // v4
             baseToken.transfer(veStaking, veRewards);
             IVeStaking(veStaking).notifyRewardAmount(veRewards);
             veRewards = 0;
@@ -840,7 +840,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
         if (modelRate > 0) {
             // half of emissions are distributed to veStaking
             uint256 total = (getReward() * modelRate) / 2e18; 
-            veRewards += total;
+            veRewards += total; // v4
 
             if (total > 0) {
                 uint256 treasuryReward = total -
