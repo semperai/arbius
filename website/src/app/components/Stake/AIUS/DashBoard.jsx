@@ -7,7 +7,7 @@ import gysr_logo_wallet from "../../../assets/images/gysr_logo_wallet.png"
 import GanttChart from './GanttChart'
 function DashBoard() {
     return (
-        <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-16'>
+        <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-16' id="dashboard">
             <div className='flex justify-start items-baseline gap-3'><h1 className='text-[#4A28FF] lato-bold text-[40px]'>veAIUS Dashboard </h1> <Image src={aius_icon} width={"auto"} height={33} /></div>
 
             <div className='hidden xl:grid grid-cols-3 gap-10 my-10 mt-14'>

@@ -82,7 +82,17 @@ const AddPopUpChildren = ({ setShowPopUp }) => {
             </div>
 
             <div className='flex justify-end gap-2 mt-16'>
-                <button className='rounded-full bg-[#F1F0F3] text-[#AFAFB0] p-1 text-sm px-6' >Cancel</button>
+                <button
+                    type="button"
+                    className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                    onClick={() => setShowPopUp(false)}
+                >
+                    <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
+                        Cancel
+                    </div>
+
+                </button>
                 <div className='flex justify-end'>
 
                     <button
@@ -139,20 +149,15 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
                     defaultValue={0}
                     value={sliderValue}
                     onChange={(value) => {
-                        // console.log(value);
-                        // let obj = extendEndDate   
+
                         if (value < 1) {
                             setDuration({ ...duration, months: 0, weeks: 4 * value })
-                            setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() , extendStartDate.getDate() + 30 * value))
+                            setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value))
                         } else {
                             setDuration({ ...duration, months: value, weeks: 0 })
-                            setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth()  + value, extendStartDate.getDate() ))
+                            setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
                         }
-                        
-                        
-                        
-                        // console.log({obj});
-                        // setExtendEndDate(obj)
+
                         setSliderValue(value)
                     }}
                     renderMark={(props) => {
@@ -179,12 +184,22 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
             </div>
 
             <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
-                    <Image src={info_icon} width={14} height={14}/>
-                    <h1 className='text-[0.66rem]  text-purple-text'>An extension&apos;s duration cannot exceed a two year maximum</h1>
+                <Image src={info_icon} width={14} height={14} />
+                <h1 className='text-[0.66rem]  text-purple-text'>An extension&apos;s duration cannot exceed a two year maximum</h1>
             </div>
 
             <div className='flex justify-end gap-2 mt-4'>
-                <button className='rounded-full bg-[#F1F0F3] text-[#AFAFB0] p-1 text-sm px-6' >Cancel</button>
+                <button
+                    type="button"
+                    className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                    onClick={() => setShowPopUp(false)}
+                >
+                    <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
+                        Cancel
+                    </div>
+
+                </button>
                 <div className='flex justify-end'>
 
                     <button
@@ -238,7 +253,19 @@ const ClaimPopUpChildren = ({ setShowPopUp }) => {
         </div>
 
         <div className='flex justify-end gap-2 mt-12'>
-            <button className='rounded-full bg-[#F1F0F3] text-[#AFAFB0] p-1 text-sm px-6' >Cancel</button>
+
+            <button
+                type="button"
+                className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                onClick={() => setShowPopUp(false)}
+            >
+                <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
+                    Cancel
+                </div>
+
+            </button>
+
             <div className='flex justify-end'>
 
                 <button
@@ -364,7 +391,7 @@ function SlidingCards() {
                                         <button
                                             type="button"
                                             onClick={() => setShowPopUp("add")}
-                                           className="relative justify-center py-2 group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
+                                            className="relative justify-center py-2 group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
                                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
@@ -390,7 +417,7 @@ function SlidingCards() {
                                         <button
                                             type="button"
                                             onClick={() => setShowPopUp("claim")}
-                                             className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
+                                            className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
                                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             <div className="lato-bold  relative z-10 text-original-white lg:text-[15px]">

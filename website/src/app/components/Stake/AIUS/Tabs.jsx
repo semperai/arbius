@@ -3,15 +3,13 @@
 import React, { useState } from 'react'
 import DashBoard from './DashBoard'
 import Gauge from './Gauge'
-// import ActivityTable from "@/app/components/Stake/GYSR/ActivityTable";
-// import Stake from "@/app/components/Stake/GYSR/Stake";
-// import Stats from "@/app/components/Stake/GYSR/Stats";
+
 const tabs = [
     "Dashboard", "Gauge"
 ]
 
-function Tabs() {
-    const [selectedtab, setSelectedTab] = useState("Dashboard")
+function Tabs({ selectedtab, setSelectedTab }) {
+    // const [selectedtab, setSelectedTab] = useState("Dashboard")
 
     return (
         <>

@@ -4,7 +4,8 @@ import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_na
 import info_icon from '@/app/assets/images/info_icon_white.png'
 import Image from "next/image"
 import ReactSlider from 'react-slider'
-export default function Stake() {
+import Link from "next/link"
+export default function Stake({selectedtab, setSelectedTab}) {
     const [sliderValue, setSliderValue] = useState(0)
     const [duration, setDuration] = useState({
         months: 0,
@@ -13,7 +14,7 @@ export default function Stake() {
     const [amount, setAmount] = useState()
     return (
         <div>
-            <div className="bg-white-background 2xl:h-[480px] lg:h-[535px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border flex flex-col justify-between">
+            <div className="bg-white-background 2xl:h-[530px] lg:h-[535px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border flex flex-col justify-between">
                 <div>
                     <div>
                         <div className="flex justify-between items-center mb-4">
@@ -97,25 +98,28 @@ export default function Stake() {
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2 mb-4">
 
                     <div className=' mt-6'>
-                        <button
-                            type="button"
-                      
-                            className="relative justify-center py-2 group bg-black-background bg-opacity-10 py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
-                        >
-                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
-                                Manage
-                            </div>
+                        <Link href={"#dashboard"} onClick={() => setSelectedTab("Dashboard")}>
+                            <button
+                                type="button"
 
-                        </button>
+                                className="relative justify-center py-2 group bg-black-background bg-opacity-10 py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
+                            >
+                                <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
+                                    Manage
+                                </div>
+
+                            </button>
+                        </Link>
+
                     </div>
                     <div className=' mt-6'>
                         <button
                             type="button"
-                            
+
                             className="relative justify-center py-2 group bg-black-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
                         >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

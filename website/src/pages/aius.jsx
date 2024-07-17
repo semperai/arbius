@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import React, { useState } from "react"
 import Stake from "../app/components/Stake/AIUS/Stake"
 import Steps from "../app/components/Stake/AIUS/Steps"
 import Process from "../app/components/Stake/AIUS/Process"
@@ -9,6 +9,7 @@ import Tabs from "../app/components/Stake/AIUS/Tabs"
 import Notifications from "../app/components/Stake/AIUS/Notifications"
 
 export default function AIUS() {
+    const [selectedtab, setSelectedTab] = useState("Dashboard")
     return (
         <RootLayout>
             <div className="">
@@ -33,7 +34,7 @@ export default function AIUS() {
                             </div>
                             <div className="flex lg:flex-row flex-col lg:gap-0 gap-4 justify-between">
                                 <div className="lg:w-[48%] w-[100%]">
-                                    <Stake />
+                                    <Stake selectedtab={selectedtab} setSelectedTab={setSelectedTab} />
                                 </div>
                                 <div className="lg:w-[48%] w-[100%]">
                                     <div className="mb-4">
@@ -50,7 +51,7 @@ export default function AIUS() {
 
                 <Notifications />
                 {/* tabs */}
-                <Tabs />
+                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} />
 
             </div>
 

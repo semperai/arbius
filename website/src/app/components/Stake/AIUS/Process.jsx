@@ -2,7 +2,7 @@ import React from "react"
 export default function Process(){
     return(
         <div>
-            <div className="bg-white-background 2xl:h-[200px] lg:h-[250px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-8 lg:pt-10 pb-8  pt-8 box-border text-original-black">
+            <div className="bg-white-background 2xl:h-[242px] lg:h-[246px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-8 lg:pt-10 pb-8  pt-8 box-border text-original-black">
                 <div>
                     <p className="lato-bold mb-4">veAIUS Process Overview:</p>
                 </div>
