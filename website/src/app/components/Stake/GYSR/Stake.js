@@ -249,14 +249,14 @@ function Stake() {
                                 </div>
                             </div>
                             <div className="rounded-[25px]  flex justify-center w-[100%] mt-6 text-[#101010]">
-                                <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[30%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
-                                    <div className=" bg-[#5E40FD] rounded-full px-5 py-[1px] text-original-white flex items-center">
-                                        <p className="text-[6px] lg:text-[12px] pb-[2px]">max</p>
+                                <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[25%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
+                                    <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">
+                                        <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
                                     </div>
                                     <h className="text-[10px] lg:text-[14px] font-medium">UNI-V2</h>
 
                                 </div>
-                                <input className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[70%] focus:outline-none bg-original-white" placeholder="Amount of UNI-V2 to stake" />
+                                <input className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[75%] focus:outline-none bg-original-white" placeholder="Amount of UNI-V2 to stake" />
 
 
 
@@ -264,7 +264,7 @@ function Stake() {
                             <div className="flex justify-between items-center gap-2 text-[#101010] mt-6">
                                 <div className="w-[50%] flex justify-between items-end gap-0">
                                     <div className="rounded-[25px]  flex justify-center w-[100%] ">
-                                        <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[40%] border-l-0 bg-[#E6DFFF] flex justify-center gap-1 lg:gap-1 items-center">
+                                        <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[60%] border-l-0 bg-[#E6DFFF] flex justify-center gap-1 lg:gap-1 items-center">
                                             <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">
                                                 <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
                                             </div>
