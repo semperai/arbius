@@ -25,8 +25,8 @@ export default function AIUS() {
                                 </h2>
 
                                 <Fade direction="up" triggerOnce={true}>
-                                    <div className="bg-[#FAF9F6] inline-block py-2 px-3 rounded-2xl mb-4 lg:mb-0">
-                                        <p className="text-[#4A28FF] text-[8px]  lg:text-[14px] lato-regular">Coming Soon!</p>
+                                    <div className="bg-[#ece9fe] inline-block py-2 px-3 rounded-2xl mb-4 lg:mb-0">
+                                        <p className="text-[#4A28FF] bg-[#ece9fe] text-[8px]  lg:text-[14px] lato-regular">Coming Soon!</p>
                                     </div>
 
                                 </Fade>

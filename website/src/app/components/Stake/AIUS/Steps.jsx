@@ -12,7 +12,8 @@ export default function Steps() {
                 <div className="steps-container">
                 {steps.map((step, index) => (
                     <div key={index} className="step-item">
-                        <div className="step-circle">{index + 1}
+                        <div className="step-circle">
+                            <h1>{index + 1}</h1>
                             
                         </div>
                         <p className="step-text">{step}</p>

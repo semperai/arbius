@@ -14,7 +14,7 @@ function PrevBtn(props) {
     const { className, style, onClick } = props;
     return (
         <div
-            className={`absolute top-[40%]  left-[-14px] cursor-pointer rounded-full  z-20 bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
+            className={`absolute top-[40%]  left-[-22px] cursor-pointer rounded-full  z-20 bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
 
             onClick={onClick}
         >
@@ -61,7 +61,7 @@ const AddPopUpChildren = ({ setShowPopUp }) => {
                         <p className="pr- text-aius lato-bold text-[12px]">AIUS</p>
                     </div>
                     <div className="w-[94%]">
-                        <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px]" type="number" placeholder="0.0" />
+                        <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px] border-none focus:ring-0 " type="number" placeholder="0.0" />
                     </div>
                 </div>
                 <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS 0.70</h1>
@@ -152,11 +152,12 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
 
                         if (value < 1) {
                             setDuration({ ...duration, months: 0, weeks: 4 * value })
-                            setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value))
+                            
                         } else {
                             setDuration({ ...duration, months: value, weeks: 0 })
-                            setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
+                            // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
                         }
+                        setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value))
 
                         setSliderValue(value)
                     }}
@@ -172,12 +173,12 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
             <div className='flex justify-center gap-2 items-center mt-20'>
                 <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
 
-                    <h1 className='text-xs text-purple-text font-semibold'>{extendStartDate.getDate()}/{extendStartDate.getMonth() + 1}/{extendStartDate.getFullYear()}</h1>
+                    <h1 className='text-xs text-purple-text font-semibold'>{extendStartDate.getMonth() + 1}/{extendStartDate.getDate()}/{extendStartDate.getFullYear()}</h1>
                     <h1 className='text-[.6rem]'>Current Stake ends at</h1>
                 </div>
                 <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
 
-                    <h1 className='text-xs text-purple-text font-semibold'>{extendEndDate.getDate()}/{extendEndDate.getMonth() + 1}/{extendEndDate.getFullYear()}</h1>
+                    <h1 className='text-xs text-purple-text font-semibold'>{extendEndDate.getMonth() + 1}/{extendEndDate.getDate()}/{extendEndDate.getFullYear()}</h1>
                     <h1 className='text-[.6rem]'>Stake extended till</h1>
                 </div>
 
@@ -324,7 +325,8 @@ function SlidingCards() {
         slidesToShow: 5 / 2,
         slidesToScroll: 1,
         nextArrow: <NextBtn />,
-        prevArrow: <PrevBtn />
+        prevArrow: <PrevBtn />,
+        
     };
 
     return (

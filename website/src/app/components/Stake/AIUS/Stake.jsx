@@ -30,7 +30,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                                     <p className="pr- text-aius lato-bold text-[15px]">AIUS</p>
                                 </div>
                                 <div className="w-[94%]">
-                                    <input className="w-[100%] border-0 outline-none rounded-r-3xl p-2 lato-bold text-[15px] text-black-text" type="number" placeholder="0.0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                                    <input className="w-[100%] border-0 rounded-r-3xl p-2 lato-bold text-[15px] text-black-text border-none focus:ring-0 " id="outline-none" type="number" placeholder="0.0" value={amount} onChange={(e) => setAmount(e.target.value)} />
                                 </div>
                             </div>
                         </div>
@@ -75,7 +75,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                     <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border relative">
                         <div className="right-3 top-3 absolute group cursor-pointer">
                             <Image src={info_icon} width={20} height={20} alt="info" />
-                            <div className="absolute hidden group-hover:block right-6 xl:w-[90px] top-0 text-[.6rem] lato-bold bg-white-background text-black-text p-2 rounded-md text-center">
+                            <div className="absolute hidden group-hover:block right-6 xl:w-[110px] top-0 text-[.7rem] lato-bold bg-white-background text-black-text p-2 rounded-md text-center">
                                 2-Year APR Est.
 
                             </div>
@@ -87,7 +87,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                     <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border relative">
                         <div className="right-3 top-3 absolute group cursor-pointer">
                             <Image src={info_icon} width={20} height={20} alt="info" className="" />
-                            <div className="absolute hidden group-hover:block right-6 xl:w-[140px] top-0 text-[.6rem] lato-bold bg-white-background text-black-text p-2 rounded-md text-left">
+                            <div className="absolute hidden group-hover:block right-6 xl:w-[160px] top-0 text-[.7rem] lato-bold bg-white-background text-black-text p-2 rounded-md text-left">
                                 Total veAIUS staked by user
 
                             </div>
@@ -105,7 +105,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                             <button
                                 type="button"
 
-                                className="relative justify-center py-2 group bg-black-background bg-opacity-10 py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
+                                className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
                             >
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                 <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">

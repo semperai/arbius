@@ -52,6 +52,22 @@ function Gauge() {
 
     const [selectedModel, setSelectedModel] = useState(null)
     const [showPopUp, setShowPopUp] = useState(false)
+    const [filteredData, setFilteredData] = useState(data)
+    const [searchText, setSearchText] = useState("")
+    console.log("filteredData", filteredData)
+    const handleSearch = (e) => {
+        console.log(e.target.value)
+        setSearchText(e.target.value)
+        // debounce the function call   
+        let time = setTimeout(() => {
+            // setFilteredData(data)
+            setFilteredData(data.filter(item => item.model_name.toLowerCase().includes(e.target.value.toLowerCase())))
+            clearTimeout(time)
+        }, 300)
+        
+        
+    }
+
 
     return (
         <div className='lg:w-section-width w-mobile-section-width mx-auto max-w-center-width py-24 text-black-text '>
@@ -140,13 +156,15 @@ function Gauge() {
                 <div className='flex justify-start items-center gap-4 w-full h-auto'>
                     <h1 className='text-[40px] text-[#4A28FF] mb-2 lato-bold'>Gauge</h1>
                     <div className='rounded-md bg-white-background flex  items-center px-2 pr-3 justify-between h-auto w-[70%] stake-box-shadow'>
-                        <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none ' />
+                        <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none ' value={searchText} onChange={(e)=>{
+                            handleSearch(e)
+                        }} />
                         <Image src={search_icon} className='h-4 w-4' />
                     </div>
                 </div>
 
                 <div className='text-[#4A28FF] text-[14px] w-[30%] gap-2 text-end font-semibold flex justify-end items-center'>
-                <Image src={clock_icon} className='h-4 w-4' />
+                    <Image src={clock_icon} className='h-4 w-4' />
                     <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1>
                 </div>
 
@@ -160,7 +178,9 @@ function Gauge() {
 
             </div>
             <div className='flex lg:hidden rounded-md items-center px-2 pr-3  bg-white-background  justify-between h-auto stake-box-shadow'>
-                <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none placeholder:lato-regular' />
+                <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none placeholder:lato-regular' value={searchText} onChange={(e)=>{
+                    handleSearch(e)
+                }} />
                 <Image src={search_icon} className='h-4 w-4' />
             </div>
             <div className='w-full overflow-x-auto xl:overflow-x-visible'>
@@ -183,10 +203,10 @@ function Gauge() {
 
                 </div>
 
-                {data?.map((item, key) => {
+                {filteredData?.map((item, key) => {
                     return (
 
-                        <div className='rounded-lg  p-4 px-10 flex justify-between gap-8 items-center bg-white-background my-3 relative min-w-[1000px] font-semibold hover:translate-y-[-3px] hover:stake-box-shadow' key={key}>
+                        <div className='rounded-lg  p-4 px-10 flex justify-between gap-8 items-center bg-white-background my-3 relative min-w-[1000px] font-semibold ' key={key}>
                             <div className='flex hidden justify-start items-center absolute left-[-145px]  top-[10%] z-20' id={key}>
                                 <div className='bg-white-background w-auto p-3 rounded-xl'>
                                     <h1 className='text-[.6rem] mb-1 text-[#8D8D8D]'>Model ID</h1>
@@ -222,14 +242,25 @@ function Gauge() {
                             </div>
                             <div className='w-[20%] flex justify-end'>
 
-                                <button className='rounded-full bg-[#F1F0F3] text-[#AFAFB0] p-1 text-sm px-6' onClick={() => {
+                                {/* <button className='rounded-full bg-[#F1F0F3] text-[#AFAFB0] p-1 text-sm px-6' onClick={() => {
                                     setSelectedModel(item)
                                     setShowPopUp(true);
 
 
-                                }}>Vote</button>
+                                }}>Vote</button> */}
+                                <button className='relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3' onClick={() => {
+                                    setSelectedModel(item)
+                                    setShowPopUp(true);
 
-                               
+
+                                }}>
+                                    <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                    <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                                        Vote
+                                    </div>
+                                </button>
+
+
 
                             </div>
 
