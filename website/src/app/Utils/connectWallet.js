@@ -7,20 +7,20 @@ export const connectWalletHandler = async () => {
             try {
                 await window.ethereum.enable();
                 localStorage.setItem("walletConnected", "true");
-                alert("MetaMask is enabled and connected!");
+                
                 return true;
             } catch (error) {
                 console.error("User denied account access");
-                localStorage.removeItem("walletConnected");
+                
                 return false;
             }
         } else if (window.web3) {
             window.web3 = new Web3(window.web3.currentProvider);
             localStorage.setItem("walletConnected", "true");
-            alert("MetaMask is enabled and connected!");
+            
             return true;
         } else {
-            alert("MetaMask needed");
+            
             localStorage.removeItem("walletConnected");
             return false;
         }

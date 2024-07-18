@@ -58,7 +58,6 @@ function Stake() {
             await openWeb3Modal();
             setLoadingWeb3Modal(false)
             localStorage.setItem("walletConnected", "true");
-            alert("wallet is enabled and connected!");
             return true;
         } catch (error) {
             console.error("User denied account access");
