@@ -393,7 +393,7 @@ function SlidingCards() {
                                         <button
                                             type="button"
                                             onClick={() => setShowPopUp("add")}
-                                            className="relative justify-center py-2 group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
+                                            className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
                                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
@@ -406,7 +406,7 @@ function SlidingCards() {
                                         <button
                                             type="button"
                                             onClick={() => setShowPopUp("extend")}
-                                            className="relative justify-center py-2 group bg-black-background bg-opacity-10 py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
+                                            className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
                                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
