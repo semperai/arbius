@@ -160,9 +160,10 @@ function ActivityTable() {
                                                <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{parseFloat(item?.amount).toFixed(2)} UNI-V2</td>
                                                <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{item?.gysr_spent} </td>
                                                <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{hexToDecimal(item?.decodedParams.rewarddata) =='-'?"-": `${hexToDecimal(item?.decodedParams.rewarddata)} GYSR`}</td>
-                                               <a target="_blank" href={`https://etherscan.io/tx/${item.blockHash}`}>
-                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{cropAddress(item?.from)}</td>
-                                               </a>
+                                             
+                                               <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">
+                                               <a target="_blank" href={`https://etherscan.io/tx/${item.blockHash}`}>{cropAddress(item?.from)}</a></td>
+                                               
                                                
                                                <td class="px-6 py-4 whitespace-nowrap text-[#101010] text-center text-[12px] lg:text-[15px] ">{timeSince(item?.timestamp)}</td>
                                            </tr> 
