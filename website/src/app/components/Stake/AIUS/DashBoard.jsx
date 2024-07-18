@@ -16,17 +16,17 @@ function DashBoard() {
                     <div className='rounded-2xl p-8 bg-white-background stake-box-shadow h-full stake-box-shadow'>
 
                         <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Wallet</h1>
-                        <div className='grid grid-cols-2 2xl:gap-[2vw] mt-6 xl:mt-8 2xl:mt-12 mb-10'>
+                        <div className='grid grid-cols-2 2xl:gap-[2vw] mt-6 xl:mt-8 mb-10'>
 
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Balance</h2>
-                                    <h2 className='text-[16px] font-semibold mt-1'>641.12451 AIUS</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>641.12451 AIUS</h2>
 
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Historical LP Profit %</h2>
-                                    <div className='flex justify-start items-center gap-2 mt-1'> <h2 className='text-[16px] font-semibold'>+ 41.12%</h2>
+                                    <div className='flex justify-start items-center gap-2 mt-[2px]'> <h2 className='text-[16px] 2xl:text-[18px] font-semibold'>+ 41.12%</h2>
                                         <Image src={gysr_logo_wallet} width={22} height={22} />
                                     </div>
 
@@ -37,13 +37,13 @@ function DashBoard() {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Wallet TVL</h2>
-                                    <h2 className='text-[16px] font-semibold mt-1'>$142.12</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$142.12</h2>
 
                                 </div>
 
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Estimated Total APR</h2>
-                                    <h2 className='text-[16px] font-semibold mt-1'>12.4512%</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>12.4512%</h2>
 
                                 </div>
 
@@ -75,18 +75,18 @@ function DashBoard() {
                     <div className='rounded-2xl p-8 bg-white-background stake-box-shadow h-full stake-box-shadow'>
 
                         <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Protocol Info</h1>
-                        <div className='grid grid-cols-2 2xl:gap-[2vw] mt-6 xl:mt-12 2xl:mt-16 mb-10'>
+                        <div className='grid grid-cols-2 2xl:gap-[2vw] mt-6 xl:mt-8 mb-10'>
 
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Staked</h2>
-                                    <h2 className='text-[16px] font-semibold mt-1'>15% / $1,500,000</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>15% / $1,500,000</h2>
 
 
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>
-                                    <h2 className='text-[16px] font-semibold mt-1'>1,000,000 AIUS</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>1,000,000 AIUS</h2>
 
 
                                 </div>
@@ -95,13 +95,13 @@ function DashBoard() {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Market Cap</h2>
-                                    <h2 className='text-[16px] font-semibold mt-1'>$10.04M </h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$10.04M </h2>
 
 
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Circulating supply</h2>
-                                    <h2 className='text-[16px] font-semibold mt-1'>145,432 AIUS</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>145,432 AIUS</h2>
 
 
                                 </div>
