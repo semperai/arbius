@@ -70,7 +70,7 @@ function Stats({data}) {
     ]
     return (
         <>
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width text-[#101010]">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-mobile-section-width lg:w-section-width m-[auto] pt-8 pb-16 max-w-center-width text-[#101010]">
 
                 <div className="rounded-2xl p-6 lg:p-10 h-[auto]  lg:h-[auto]  bg-white-background stake-card">
                     <div>
@@ -175,7 +175,7 @@ function Stats({data}) {
                             <div className="relative flex flex-col items-center" key={idx}>
                                 {idx % 2 === 0 ? (
                                 <div className="text-[12px] relative left-[-50px] w-[100px]">
-                                    <div className=' absolute top-[18px] text-left'>
+                                    <div className=' absolute top-[18px] text-left' style={{right:idx==0?'-20px':"" }}>
                                     <h1 className='text-[12px] font-medium'>{item?.time}</h1>
                                     <h2 className=' opacity-70 '>{item?.message}</h2>
                                     </div>

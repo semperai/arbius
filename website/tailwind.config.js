@@ -100,7 +100,11 @@ module.exports = {
         "black-background":"#000000",
         'purple-background':"#4A28FF",
         'hamburger-background': "#333333",
-        'stake-input':"#E6DFFF"
+        'stake-input':"#E6DFFF",
+        
+      },
+      background:{
+        'hoverBg':'linear-gradient(271.97deg, #B45FD0 7.24%, #F95782 115.71%)'
       }
     },
   },

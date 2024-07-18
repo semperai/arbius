@@ -8,6 +8,11 @@ import { approveUNIV2 } from '../../../Utils/approveUniv2'
 import { stakeTokens } from '../../../Utils/staking'
 import { connectWalletHandler } from '../../../Utils/connectWallet'
 import { claimTokens } from '../../../Utils/claim'
+import ConnectWallet from '@/components/ConnectWallet'; // main arbius component
+import { useWeb3Modal } from '@web3modal/react'; // main arbius component
+import {
+    useAccount,
+  } from 'wagmi';
 import { unstakeTokens } from '../../../Utils/unstake'
 import { claimableRewards } from '../../../Utils/claimableRewards'
 import { stakeTokenBalance } from '../../../Utils/stakedTokenBalance'
@@ -31,7 +36,39 @@ function Stake() {
         }
         getData()
     }, [])
-
+    const {
+        isConnected,
+        isConnecting,
+        isDisconnected,
+      } = useAccount()
+      const { open: openWeb3Modal } = useWeb3Modal()
+    
+      const [walletConnected, setWalletConnected] = useState(false);
+      const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
+    
+      useEffect(() => {
+        setWalletConnected(isConnected);
+      }, [isConnected]);
+    
+      function clickConnect() {
+        async function f() {
+          setLoadingWeb3Modal(true);
+         
+          try {
+            await openWeb3Modal();
+            setLoadingWeb3Modal(false)
+            localStorage.setItem("walletConnected", "true");
+            alert("wallet is enabled and connected!");
+            return true;
+        } catch (error) {
+            console.error("User denied account access");
+            localStorage.removeItem("walletConnected");
+            return false;
+        }
+        //   return true;
+        }
+        f();
+      }
     const handleApproveClick = async () => {
         if (!document)
             return
@@ -39,7 +76,8 @@ function Stake() {
         body[0].style.overflow = "hidden"
         // setIsPopupOpen(true);
         // alert("clicked")
-        await connectWalletHandler()
+        await clickConnect()
+        // connectWalletHandler()
 
         const approved = await approveUNIV2('1')
         if (approved) {
@@ -48,7 +86,9 @@ function Stake() {
     }
     const connectWallet = async () => {
 
-        const connct = await connectWalletHandler()
+        const connct =await clickConnect()
+        
+        // await connectWalletHandler()
         if (connct) {
             setIsStakeClicked(true)
         }
@@ -77,7 +117,7 @@ function Stake() {
     return (
         <>
             {isPopupOpen && <Popup isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-mobile-section-width lg:w-section-width m-[auto] py-24 max-w-center-width">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-mobile-section-width lg:w-section-width m-[auto] pt-8 pb-16 max-w-center-width">
 
                 {isStakeClicked || localStorage.getItem('walletConnected') ? (<>
                     <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[auto] bg-white-background stake-card">
@@ -250,7 +290,7 @@ function Stake() {
                             </div>
                             <div className="rounded-[25px]  flex justify-center w-[100%] mt-6 text-[#101010]">
                                 <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[25%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
-                                    <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">
+                                    <div className=" maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
                                         <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
                                     </div>
                                     <h className="text-[10px] lg:text-[14px] font-medium">UNI-V2</h>
@@ -265,7 +305,7 @@ function Stake() {
                                 <div className="w-[50%] flex justify-between items-end gap-0">
                                     <div className="rounded-[25px]  flex justify-center w-[100%] ">
                                         <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[60%] border-l-0 bg-[#E6DFFF] flex justify-center gap-1 lg:gap-1 items-center">
-                                            <div className=" bg-[#5E40FD] rounded-full px-3 py-[1px] text-original-white flex items-center">
+                                            <div className="maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
                                                 <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
                                             </div>
                                             <h className="text-[10px] lg:text-[14px] font-medium">GYSR</h>
@@ -291,8 +331,8 @@ function Stake() {
                                         currentHoverId={currentHoverId}
                                         setCurrentHoverId={setCurrentHoverId}
                                     />
-                                    <div className="text-[#101010] text-[14px] ">
-                                        <h1 className="text-[#777777]">You&apos;ll Receive <span className='text-purple-text text-[16px] lato-bold'>0.000 AIUS</span></h1>
+                                    <div className="text-[#101010] text-[10px] xl:text-[14px] ">
+                                        <h1 className="text-[#777777]">You&apos;ll Receive <span className='text-purple-text  text-[12px] xl:text-[16px] lato-bold'>0 AIUS</span></h1>
 
                                     </div>
                                 </div>

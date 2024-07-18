@@ -599,3 +599,10 @@ input[type="number"]::-ms-reveal {
 #inner-shdadow{
     background: linear-gradient(199.89deg, #FFFFFF 20.7%, #5E40FD 310.09%);
 }
+.maxButtonHover{
+    background: #5E40FD;
+}
+.maxButtonHover:hover{
+    background: linear-gradient(271.97deg, #B45FD0 7.24%, #F95782 115.71%);
+    cursor: pointer;
+}
