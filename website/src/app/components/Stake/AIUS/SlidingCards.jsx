@@ -113,7 +113,7 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
 
                 <ReactSlider
                     className=" text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
-                    thumbClassName=" w-[28px] h-[28px] ml-[-10px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
+                    thumbClassName=" w-[28px] h-[28px] ml-[-6px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
                     markClassName="customSlider-mark"
                     marks={4}
                     min={0}
