@@ -70,7 +70,7 @@ function Gauge() {
 
 
     return (
-        <div className='lg:w-section-width w-mobile-section-width mx-auto max-w-center-width py-24 text-black-text '>
+        <div className='lg:w-section-width w-mobile-section-width mx-auto max-w-center-width py-10 lg:py-16 text-black-text '>
 
             {
                 showPopUp && selectedModel !== null && (

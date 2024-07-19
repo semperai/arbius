@@ -38,7 +38,7 @@ function Tabs({ selectedtab, setSelectedTab }) {
 
             </div>
 
-            <div className="lg:pt-8 lg:pb-24 lg:py-10 max-w-center-width bg-aius-stake min-w-full relative">
+            <div className="max-w-center-width bg-aius-stake min-w-full relative">
 
                 {selectedtab === "Dashboard" ? (<DashBoard/>): (<Gauge/>)}
             

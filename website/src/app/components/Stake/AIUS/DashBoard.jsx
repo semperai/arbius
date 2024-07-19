@@ -54,7 +54,7 @@ function DashBoard() {
                     </div>
                 </div>
             </div>
-            <div className='hidden xl:grid grid-cols-1 xl:grid-cols-3 gap-10 my-10 '>
+            <div className='hidden xl:grid grid-cols-1 xl:grid-cols-3 gap-10 mt-10'>
                 <div className="col-span-1 block h-auto">
 
                     <div className='rounded-2xl py-8 px-2 um:p-8 bg-white-background stake-box-shadow h-full stake-box-shadow'>

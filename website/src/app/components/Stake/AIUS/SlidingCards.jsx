@@ -390,7 +390,7 @@ function SlidingCards() {
                             <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] relative ' key={key}>
 
                                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' />
-                                <div className='flex justify-start gap-8 items-center'>
+                                <div className='flex justify-start gap-8 items-start'>
                                     <div className='flex flex-col gap-3 justify-center items-start'>
                                         <div>
                                             <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
