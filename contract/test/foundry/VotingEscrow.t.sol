@@ -108,6 +108,47 @@ contract VotingEscrowTest is BaseTest {
         assertEq(newTotalSupply, 0, "!totalSupply");
     }
 
+    function testDepositedSupply() public {
+        votingEscrow.create_lock(1000 ether, YEAR);
+        assertEq(votingEscrow.supply(), 1000 ether, "!depositedSupply");
+
+        // fast forward 1 year
+        skip(YEAR);
+
+        assertEq(votingEscrow.supply(), 1000 ether, "!depositedSupply");
+        // withdraw
+        votingEscrow.withdraw(1);
+        assertEq(votingEscrow.supply(), 0, "!depositedSupply");
+
+        // alice deposits
+        vm.prank(alice);
+        votingEscrow.create_lock(900 ether, 2 * YEAR);
+
+        // alice increases lock amount
+        vm.prank(alice);
+        votingEscrow.increase_amount(2, 100 ether);
+        assertEq(votingEscrow.supply(), 1000 ether, "!depositedSupply");
+
+        // bob deposits
+        vm.prank(bob);
+        votingEscrow.create_lock(250 ether, YEAR);
+        assertEq(votingEscrow.supply(), 1250 ether, "!depositedSupply");
+
+        // bob does another deposit
+        vm.prank(bob);
+        votingEscrow.create_lock(750 ether, YEAR);
+
+        assertEq(votingEscrow.supply(), 2000 ether, "!depositedSupply");
+
+        // bob merges his two locks
+        vm.prank(bob);
+        votingEscrow.merge(3, 4);
+        assertEq(votingEscrow.supply(), 2000 ether, "!depositedSupply");
+
+        // sanity check
+        assertEq(votingEscrow.supply(), AIUS.balanceOf(address(votingEscrow)));
+    }
+
     function testIncreaseLockAmount() public {
         votingEscrow.create_lock(100 ether, 2 * YEAR);
 
