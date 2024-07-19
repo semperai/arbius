@@ -275,24 +275,24 @@ function SlidingCards() {
         staked: "2,441.21 AIUS",
         apr: "14.1211%",
         governance: "12.12",
-        stake_date: "06/14/2024",
-        end_date: "06/14/2024"
+        stake_date: "6/14/2024",
+        end_date: "6/14/2024"
     },
     {
 
         staked: "2,441.21 AIUS",
         apr: "14.1211%",
         governance: "12.12",
-        stake_date: "06/14/2024",
-        end_date: "06/14/2024"
+        stake_date: "6/14/2024",
+        end_date: "6/14/2024"
     },
     {
 
         staked: "2,441.21 AIUS",
         apr: "14.1211%",
         governance: "12.12",
-        stake_date: "06/14/2024",
-        end_date: "06/14/2024"
+        stake_date: "6/14/2024",
+        end_date: "6/14/2024"
     }
     ]
 

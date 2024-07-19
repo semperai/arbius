@@ -129,7 +129,7 @@ function Gauge() {
                                         <p className="pr- text-aius lato-bold text-[12px]">veAIUS</p>
                                     </div>
                                     <div className="w-[94%]">
-                                        <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px]" type="number" placeholder="0.0" />
+                                        <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px] focus:ring-0" type="number" placeholder="0.0" />
                                     </div>
                                 </div>
                             </div>
