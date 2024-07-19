@@ -25,11 +25,13 @@ contract EngineV4Test is Test {
     VeStaking public veStaking;
     VeNFTRender public veNFTRender;
 
-    bytes TESTCID = "0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8";
+    bytes TESTCID =
+        "0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8";
     bytes TESTBUF = "0x746573740a";
 
     // default test mnemonic used in hardhat tests
-    string public constant mnemonic = "test test test test test test test test test test test junk";
+    string public constant mnemonic =
+        "test test test test test test test test test test test junk";
 
     address deployer = vm.addr(vm.deriveKey(mnemonic, 0));
     address user1 = vm.addr(vm.deriveKey(mnemonic, 1));
@@ -43,15 +45,21 @@ contract EngineV4Test is Test {
     address newowner = vm.addr(vm.deriveKey(mnemonic, 9));
 
     // contracts
-    V2_EngineV4 public engine = V2_EngineV4(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
-    BaseTokenV1 public baseToken = BaseTokenV1(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
+    V2_EngineV4 public engine =
+        V2_EngineV4(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
+    BaseTokenV1 public baseToken =
+        BaseTokenV1(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
 
     function setUp() public {
         // initial set up is done in hardhat test file: test/enginev4.test.ts
 
         /* ve specific setup */
         veNFTRender = new VeNFTRender();
-        votingEscrow = new VotingEscrow(address(baseToken), address(veNFTRender), address(0));
+        votingEscrow = new VotingEscrow(
+            address(baseToken),
+            address(veNFTRender),
+            address(0)
+        );
         veStaking = new VeStaking(address(baseToken), address(votingEscrow));
 
         // set veStaking in escrow
@@ -88,10 +96,20 @@ contract EngineV4Test is Test {
         engine.setSolutionMineableRate(modelid, 1e18);
     }
 
-    function bootstrapTaskParams(bytes32 modelid, uint256 feeEth)
+    function bootstrapTaskParams(
+        bytes32 modelid,
+        uint256 feeEth
+    )
         public
         view
-        returns (uint8 version, address owner, bytes32 model, uint256 fee, bytes memory input, bytes memory cid)
+        returns (
+            uint8 version,
+            address owner,
+            bytes32 model,
+            uint256 fee,
+            bytes memory input,
+            bytes memory cid
+        )
     {
         version = 0;
         owner = user1;
@@ -124,17 +142,34 @@ contract EngineV4Test is Test {
         baseToken.bridgeMint(address(engine), 597000);
     }
 
-    function deployBootstrapTask(bytes32 modelid, address submitter, uint256 feeEth) public returns (bytes32 taskid) {
+    function deployBootstrapTask(
+        bytes32 modelid,
+        address submitter,
+        uint256 feeEth
+    ) public returns (bytes32 taskid) {
         // if fee != 0, set approval of fee Amount
         if (feeEth != 0) {
             vm.prank(submitter);
             baseToken.approve(address(engine), feeEth);
         }
 
-        (uint8 version, address owner, bytes32 model, uint256 fee, bytes memory input, bytes memory cid) =
-            bootstrapTaskParams(modelid, feeEth);
+        (
+            uint8 version,
+            address owner,
+            bytes32 model,
+            uint256 fee,
+            bytes memory input,
+            bytes memory cid
+        ) = bootstrapTaskParams(modelid, feeEth);
 
-        Task memory t = Task(model, fee, owner, uint64(block.timestamp), version, cid);
+        Task memory t = Task(
+            model,
+            fee,
+            owner,
+            uint64(block.timestamp),
+            version,
+            cid
+        );
 
         if (submitter == address(0)) {
             submitter = user1;
@@ -158,7 +193,11 @@ contract EngineV4Test is Test {
         bytes32 modelid = deployBootstrapModel();
         bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
 
-        bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+        bytes32 commitment = engine.generateCommitment(
+            validator1,
+            taskid,
+            TESTCID
+        );
 
         vm.prank(validator1);
         engine.signalCommitment(commitment);
@@ -167,19 +206,19 @@ contract EngineV4Test is Test {
         skip(12);
         vm.roll(block.number + 1);
 
-        (uint256 staked,,) = engine.validators(validator1);
+        (uint256 staked, , ) = engine.validators(validator1);
 
         vm.prank(validator1);
         engine.submitSolution(taskid, TESTCID);
 
-        (uint256 stakedAfter,,) = engine.validators(validator1);
+        (uint256 stakedAfter, , ) = engine.validators(validator1);
 
         // solution stake amount should be reserved
         uint256 solutionsStakeAmount = engine.solutionsStakeAmount();
         assertEq(staked - stakedAfter, solutionsStakeAmount);
 
         // check solution val and cid
-        (address sval,,, bytes memory scid) = engine.solutions(taskid);
+        (address sval, , , bytes memory scid) = engine.solutions(taskid);
         assertEq(sval, validator1);
         assertEq(scid, TESTCID);
 
@@ -193,7 +232,11 @@ contract EngineV4Test is Test {
         bytes32 modelid = deployBootstrapModel();
         bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
 
-        bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+        bytes32 commitment = engine.generateCommitment(
+            validator1,
+            taskid,
+            TESTCID
+        );
 
         vm.prank(validator1);
         engine.signalCommitment(commitment);
@@ -202,19 +245,19 @@ contract EngineV4Test is Test {
         skip(12);
         vm.roll(block.number + 1);
 
-        (uint256 staked,,) = engine.validators(validator1);
+        (uint256 staked, , ) = engine.validators(validator1);
 
         vm.prank(validator1);
         engine.submitSolution(taskid, TESTCID);
 
-        (uint256 stakedAfter,,) = engine.validators(validator1);
+        (uint256 stakedAfter, , ) = engine.validators(validator1);
 
         // solution stake amount should be reserved
         uint256 solutionsStakeAmount = engine.solutionsStakeAmount();
         assertEq(staked - stakedAfter, solutionsStakeAmount);
 
         // check solution val and cid
-        (address sval,,, bytes memory scid) = engine.solutions(taskid);
+        (address sval, , , bytes memory scid) = engine.solutions(taskid);
         assertEq(sval, validator1);
         assertEq(scid, TESTCID);
 
@@ -233,7 +276,7 @@ contract EngineV4Test is Test {
         vm.prank(validator1);
         engine.claimSolution(taskid);
 
-        (uint256 stakedFinal,,) = engine.validators(validator1);
+        (uint256 stakedFinal, , ) = engine.validators(validator1);
 
         // solution stake amount should be released
         assertEq(stakedFinal - staked, 0);
@@ -291,24 +334,37 @@ contract EngineV4Test is Test {
         votingEscrow.create_lock(100 ether, 52 weeks);
 
         // balance of validator3 should be roughly (1% error) double of validator4, since locktime is twice as long
-        assertApproxEqRel(votingEscrow.balanceOfNFT(1), votingEscrow.balanceOfNFT(2) * 2, 1e16, "!ve-balance");
+        assertApproxEqRel(
+            votingEscrow.balanceOfNFT(1),
+            votingEscrow.balanceOfNFT(2) * 2,
+            1e16,
+            "!ve-balance"
+        );
 
         // fast forward half a week (1 week = 168 hours -> ff 84 hours)
         skip(84 * 3600);
-        vm.roll(block.number + (84 * 3600 / 12));
+        vm.roll(block.number + ((84 * 3600) / 12));
 
         // user2 decides to stake as well
         vm.prank(user2);
         votingEscrow.create_lock(100 ether, 52 weeks);
 
         // vote escrow balance (i.e. voting weight) of validator4 should be the same as of user2, since amount and lock time is equal
-        assertEq(votingEscrow.balanceOfNFT(2), votingEscrow.balanceOfNFT(3), "!ve-balance");
+        assertEq(
+            votingEscrow.balanceOfNFT(2),
+            votingEscrow.balanceOfNFT(3),
+            "!ve-balance"
+        );
         // veStaking balance of user2 should be slightly less than of validator4, since user2 staked a few days later and a new epoch hasnt started yet
-        assertLt(veStaking.balanceOf(3), veStaking.balanceOf(2), "!veStaking-balance");
+        assertLt(
+            veStaking.balanceOf(3),
+            veStaking.balanceOf(2),
+            "!veStaking-balance"
+        );
 
         // fast forward to end of reward period
         skip(84 * 3600);
-        vm.roll(block.number + (84 * 3600 / 12));
+        vm.roll(block.number + ((84 * 3600) / 12));
 
         // claim rewards for users
         veStaking.getReward(1);
@@ -316,7 +372,12 @@ contract EngineV4Test is Test {
         veStaking.getReward(3);
 
         // all rewards should be distributed, minus some rounding error
-        assertApproxEqAbs(baseToken.balanceOf(address(veStaking)), 0, 0.00001 ether, "!rewards");
+        assertApproxEqAbs(
+            baseToken.balanceOf(address(veStaking)),
+            0,
+            0.00001 ether,
+            "!rewards"
+        );
     }
 
     function testCallNotifyRewardAmount() public {
@@ -335,7 +396,11 @@ contract EngineV4Test is Test {
             bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
 
             /* signal commitment and submit solution */
-            bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+            bytes32 commitment = engine.generateCommitment(
+                validator1,
+                taskid,
+                TESTCID
+            );
 
             vm.prank(validator1);
             engine.signalCommitment(commitment);
@@ -369,7 +434,10 @@ contract EngineV4Test is Test {
 
                 // next period finish should be 1 week from now +- 1 hour
                 uint256 nextPeriodFinish = veStaking.periodFinish();
-                assertEq(nextPeriodFinish, block.timestamp + 1 weeks - block.timestamp % 1 weeks);
+                assertEq(
+                    nextPeriodFinish,
+                    block.timestamp + 1 weeks - (block.timestamp % 1 weeks)
+                );
 
                 break;
             }
@@ -404,7 +472,11 @@ contract EngineV4Test is Test {
         bytes32 taskid = deployBootstrapTask(modelid, user1, 2 ether);
 
         /* signal commitment and submit solution */
-        bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+        bytes32 commitment = engine.generateCommitment(
+            validator1,
+            taskid,
+            TESTCID
+        );
 
         vm.prank(validator1);
         engine.signalCommitment(commitment);
@@ -422,7 +494,8 @@ contract EngineV4Test is Test {
 
         // get treasuryFee
         uint256 solutionFeePercentage = engine.solutionFeePercentage();
-        uint256 treasuryFee = remainingFee - ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
+        uint256 treasuryFee = remainingFee -
+            ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
 
         // get validatorFee
         uint256 validatorFee = remainingFee - treasuryFee;
@@ -437,7 +510,11 @@ contract EngineV4Test is Test {
 
         // expect transfer of `validatorFee` to validator1
         vm.expectEmit();
-        emit IERC20Upgradeable.Transfer(address(engine), validator1, validatorFee);
+        emit IERC20Upgradeable.Transfer(
+            address(engine),
+            validator1,
+            validatorFee
+        );
         vm.prank(validator1);
         engine.claimSolution(taskid);
 
@@ -458,7 +535,11 @@ contract EngineV4Test is Test {
         bytes32 modelid = deployBootstrapModel();
         bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
 
-        bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+        bytes32 commitment = engine.generateCommitment(
+            validator1,
+            taskid,
+            TESTCID
+        );
 
         vm.prank(validator1);
         engine.signalCommitment(commitment);
@@ -495,13 +576,26 @@ contract EngineV4Test is Test {
         vm.prank(validator1);
         engine.claimSolution(taskid);
 
-        uint256 treasuryReward = total - (total * (1e18 - treasuryRewardPercentage)) / 1e18;
-        assertEq(baseToken.balanceOf(treasury) - treasuryBalanceBefore, treasuryReward);
+        uint256 treasuryReward = total -
+            (total * (1e18 - treasuryRewardPercentage)) /
+            1e18;
+        assertEq(
+            baseToken.balanceOf(treasury) - treasuryBalanceBefore,
+            treasuryReward
+        );
 
-        uint256 taskOwnerReward = total - (total * (1e18 - taskOwnerRewardPercentage)) / 1e18;
-        assertEq(baseToken.balanceOf(user1) - taskOwnerBalanceBefore, taskOwnerReward);
+        uint256 taskOwnerReward = total -
+            (total * (1e18 - taskOwnerRewardPercentage)) /
+            1e18;
+        assertEq(
+            baseToken.balanceOf(user1) - taskOwnerBalanceBefore,
+            taskOwnerReward
+        );
 
-        assertEq(baseToken.balanceOf(validator1) - validatorBalanceBefore, total - treasuryReward - taskOwnerReward);
+        assertEq(
+            baseToken.balanceOf(validator1) - validatorBalanceBefore,
+            total - treasuryReward - taskOwnerReward
+        );
 
         // veRewards should be reward * modelRate (1e18) / 2e18 = reward / 2
         assertEq(engine.veRewards(), reward / 2);
@@ -524,7 +618,11 @@ contract EngineV4Test is Test {
             bytes32 taskid = deployBootstrapTask(modelid, user1, 0);
 
             /* signal commitment and submit solution */
-            bytes32 commitment = engine.generateCommitment(validator1, taskid, TESTCID);
+            bytes32 commitment = engine.generateCommitment(
+                validator1,
+                taskid,
+                TESTCID
+            );
 
             vm.prank(validator1);
             engine.signalCommitment(commitment);
@@ -556,7 +654,10 @@ contract EngineV4Test is Test {
 
                 // next period finish should be 1 week from now +- 1 hour
                 uint256 nextPeriodFinish = veStaking.periodFinish();
-                assertEq(nextPeriodFinish, block.timestamp + 1 weeks - block.timestamp % 1 weeks);
+                assertEq(
+                    nextPeriodFinish,
+                    block.timestamp + 1 weeks - (block.timestamp % 1 weeks)
+                );
 
                 // veRewards should be distributed, set to current reward / 2
                 veRewardsSum = reward / 2;

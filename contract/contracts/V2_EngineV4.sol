@@ -144,7 +144,6 @@ contract V2_EngineV4 is OwnableUpgradeable {
     address public veStaking; // v4
     uint256 public veRewards; // v4
 
-
     uint256[38] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
@@ -215,9 +214,9 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @param addr Address to check
     /// @return Whether address is a validator
     function _onlyValidator(address addr) internal view returns (bool) {
-        return validators[addr].staked -
-                validatorWithdrawPendingAmount[addr] >=
-                getValidatorMinimum();
+        return
+            validators[addr].staked - validatorWithdrawPendingAmount[addr] >=
+            getValidatorMinimum();
     }
 
     /// @notice Modifier to restrict to only validators
@@ -233,8 +232,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public reinitializer(4) {
-    }
+    function initialize() public reinitializer(4) {}
 
     /// @notice Transfer ownership
     /// @param to_ Address to transfer ownership to
@@ -665,8 +663,8 @@ contract V2_EngineV4 is OwnableUpgradeable {
             addTask(version_, owner_, model_, fee_, cid);
         }
 
-        baseToken.transferFrom(msg.sender, address(this), fee_*n_);
-        totalHeld += fee_*n_; // v3
+        baseToken.transferFrom(msg.sender, address(this), fee_ * n_);
+        totalHeld += fee_ * n_; // v3
     }
 
     /// @notice Get block number (on both arbitrum and l1)
@@ -705,10 +703,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @dev this implements the core logic for submitting a solution. make sure to call _submitSolutionCommon before this
     /// @param taskid_ Task hash
     /// @param cid_ IPFS cid of solution
-    function _submitSolution(
-        bytes32 taskid_,
-        bytes calldata cid_
-    ) internal {
+    function _submitSolution(bytes32 taskid_, bytes calldata cid_) internal {
         require(tasks[taskid_].model != bytes32(0x0), "task does not exist");
         require(
             solutions[taskid_].validator == address(0x0),
@@ -756,7 +751,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
         // in sequential blocks having the same timestamp
         require(
             block.timestamp - lastSolutionSubmission[msg.sender] >
-                solutionRateLimit * n_ / 1e18,
+                (solutionRateLimit * n_) / 1e18,
             "solution rate limit"
         );
         lastSolutionSubmission[msg.sender] = block.timestamp;
@@ -765,7 +760,6 @@ contract V2_EngineV4 is OwnableUpgradeable {
         // move onlyValidator check here to avoid duplicate work for bulkSubmitSolution
         require(_onlyValidator(msg.sender), "min staked too low");
     }
-
 
     /// @notice Submit a solution
     /// @dev this is not onlyValidator as that is checked in _submitSolution
@@ -830,16 +824,17 @@ contract V2_EngineV4 is OwnableUpgradeable {
         }
 
         // if block.timestamp > veStaking.periodFinish, set veReward to 0 and transfer funds via veStaking.notifyRewardAmount
-        if(block.timestamp > IVeStaking(veStaking).periodFinish()){ // v4
+        if (block.timestamp > IVeStaking(veStaking).periodFinish()) {
+            // v4
             baseToken.transfer(veStaking, veRewards);
             IVeStaking(veStaking).notifyRewardAmount(veRewards);
             veRewards = 0;
         }
-                
+
         uint256 modelRate = models[tasks[taskid_].model].rate;
         if (modelRate > 0) {
             // half of emissions are distributed to veStaking
-            uint256 total = (getReward() * modelRate) / 2e18; 
+            uint256 total = (getReward() * modelRate) / 2e18;
             veRewards += total; // v4
 
             if (total > 0) {
@@ -965,11 +960,14 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @param taskid_ Task hash
     /// @return Whether contestation voting period ended
     function votingPeriodEnded(bytes32 taskid_) public view returns (bool) {
-        return block.timestamp >
+        return
+            block.timestamp >
             contestations[taskid_].blocktime +
-            minContestationVotePeriodTime +
-            // v3
-            ((contestationVoteYeas[taskid_].length + contestationVoteNays[taskid_].length) * contestationVoteExtensionTime);
+                minContestationVotePeriodTime +
+                // v3
+                ((contestationVoteYeas[taskid_].length +
+                    contestationVoteNays[taskid_].length) *
+                    contestationVoteExtensionTime);
     }
 
     /// @notice Check if validator can vote on a contestation

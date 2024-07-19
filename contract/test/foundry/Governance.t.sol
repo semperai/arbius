@@ -33,7 +33,8 @@ contract GovernanceTest is Test {
     bytes TESTBUF = "0x746573740a";
 
     // default test mnemonic used in hardhat tests
-    string public constant mnemonic = "test test test test test test test test test test test junk";
+    string public constant mnemonic =
+        "test test test test test test test test test test test junk";
 
     address deployer = vm.addr(vm.deriveKey(mnemonic, 0));
     address user1 = vm.addr(vm.deriveKey(mnemonic, 1));
@@ -47,15 +48,21 @@ contract GovernanceTest is Test {
     address newowner = vm.addr(vm.deriveKey(mnemonic, 9));
 
     // contracts
-    V2_EngineV4 public engine = V2_EngineV4(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
-    BaseTokenV1 public baseToken = BaseTokenV1(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
+    V2_EngineV4 public engine =
+        V2_EngineV4(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
+    BaseTokenV1 public baseToken =
+        BaseTokenV1(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
 
     function setUp() public {
         // initial set up is done in hardhat test file: test/enginev4.test.ts
 
         /* ve specific setup */
         veNFTRender = new VeNFTRender();
-        votingEscrow = new VotingEscrow(address(baseToken), address(veNFTRender), address(0));
+        votingEscrow = new VotingEscrow(
+            address(baseToken),
+            address(veNFTRender),
+            address(0)
+        );
         veStaking = new VeStaking(address(baseToken), address(votingEscrow));
 
         // set veStaking in escrow
@@ -77,7 +84,10 @@ contract GovernanceTest is Test {
         executors[1] = user1;
 
         timelock = new TimelockV1(0, proposers, executors, deployer);
-        governor = new GovernorV1(IVotes(address(votingEscrow)), TimelockController(payable(address(timelock))));
+        governor = new GovernorV1(
+            IVotes(address(votingEscrow)),
+            TimelockController(payable(address(timelock)))
+        );
 
         // transfer ownership to timelock
         engine.transferOwnership(address(timelock));
@@ -206,7 +216,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -215,7 +229,12 @@ contract GovernanceTest is Test {
         vm.startPrank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -244,7 +263,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -253,7 +276,12 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -292,7 +320,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -301,7 +333,12 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -339,7 +376,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -348,7 +389,12 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -382,16 +428,26 @@ contract GovernanceTest is Test {
 
         // calldata to set solutionMineableRate to 1 ether
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("setSolutionMineableRate(bytes32,uint256)", modelid, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "setSolutionMineableRate(bytes32,uint256)",
+            modelid,
+            1e18
+        );
 
-        string memory description = "Proposal #1: setSolutionMineableRate model_1";
+        string
+            memory description = "Proposal #1: setSolutionMineableRate model_1";
         bytes32 descriptionHash = keccak256(bytes(description));
 
         // propose
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -415,7 +471,7 @@ contract GovernanceTest is Test {
         governor.execute(targets, values, calldatas, descriptionHash);
 
         // model should have updated solutionMineableRate
-        (,, uint256 rate,) = engine.models(modelid);
+        (, , uint256 rate, ) = engine.models(modelid);
         assertEq(rate, 1e18);
     }
 
@@ -429,7 +485,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -438,14 +498,21 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward less than `initialVotingDelay`
         skip(1 days - 1);
 
         // vote for
         vm.prank(user1);
-        vm.expectRevert(abi.encodePacked("Governor: vote not currently active"));
+        vm.expectRevert(
+            abi.encodePacked("Governor: vote not currently active")
+        );
         governor.castVote(proposalId, 1);
     }
 
@@ -459,7 +526,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -468,7 +539,12 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -495,7 +571,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -504,7 +584,12 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -525,7 +610,9 @@ contract GovernanceTest is Test {
 
         // execute
         vm.prank(user1);
-        vm.expectRevert(abi.encodePacked("TimelockController: operation is not ready"));
+        vm.expectRevert(
+            abi.encodePacked("TimelockController: operation is not ready")
+        );
         governor.execute(targets, values, calldatas, descriptionHash);
     }
 
@@ -539,14 +626,22 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
 
         // deployer cant propose since he has no veAIUS
         vm.prank(deployer);
-        vm.expectRevert(abi.encodePacked("Governor: proposer votes below proposal threshold"));
+        vm.expectRevert(
+            abi.encodePacked(
+                "Governor: proposer votes below proposal threshold"
+            )
+        );
         governor.propose(targets, values, calldatas, description);
 
         // user1 can propose since he has veAIUS
@@ -564,7 +659,11 @@ contract GovernanceTest is Test {
 
         // calldata to transfer 1 AIUS to user1
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("transfer(address,uint256)", user1, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            user1,
+            1e18
+        );
 
         string memory description = "Proposal #1: Give grant to team";
         bytes32 descriptionHash = keccak256(bytes(description));
@@ -573,7 +672,12 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -621,16 +725,26 @@ contract GovernanceTest is Test {
 
         // calldata to set solutionMineableRate to 1 ether
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature("setSolutionMineableRate(bytes32,uint256)", modelid, 1e18);
+        calldatas[0] = abi.encodeWithSignature(
+            "setSolutionMineableRate(bytes32,uint256)",
+            modelid,
+            1e18
+        );
 
-        string memory description = "Proposal #1: setSolutionMineableRate model_1";
+        string
+            memory description = "Proposal #1: setSolutionMineableRate model_1";
         bytes32 descriptionHash = keccak256(bytes(description));
 
         // propose
         vm.prank(user1);
         governor.propose(targets, values, calldatas, description);
 
-        uint256 proposalId = governor.hashProposal(targets, values, calldatas, descriptionHash);
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
 
         // fast forward one day (initialVotingDelay)
         skip(1 days + 1);
@@ -654,7 +768,7 @@ contract GovernanceTest is Test {
         governor.execute(targets, values, calldatas, descriptionHash);
 
         // model should have updated solutionMineableRate
-        (,, uint256 rate,) = engine.models(modelid);
+        (, , uint256 rate, ) = engine.models(modelid);
         assertEq(rate, 1e18);
     }
 }

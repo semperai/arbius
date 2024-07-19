@@ -96,7 +96,10 @@ contract VotingEscrowTest is BaseTest {
 
         uint256 newTotalSupply = votingEscrow.totalSupply();
 
-        assertTrue(newTotalSupply < initialTotalSupply, "Total supply should decrease over time");
+        assertTrue(
+            newTotalSupply < initialTotalSupply,
+            "Total supply should decrease over time"
+        );
 
         skip(YEAR);
 
@@ -220,7 +223,9 @@ contract VotingEscrowTest is BaseTest {
         vm.expectRevert(abi.encodePacked("Voting lock can be 2 years max"));
         votingEscrow.create_lock(1000 ether, MAX_LOCK_TIME + 1 weeks);
 
-        vm.expectRevert(abi.encodePacked("Can only lock until time in the future"));
+        vm.expectRevert(
+            abi.encodePacked("Can only lock until time in the future")
+        );
         votingEscrow.create_lock(1000 ether, 2 days);
     }
 
@@ -281,10 +286,14 @@ contract VotingEscrowTest is BaseTest {
 
         assertTrue(votingEscrow.supportsInterface(ERC165_INTERFACE_ID));
         assertTrue(votingEscrow.supportsInterface(ERC721_INTERFACE_ID));
-        assertTrue(votingEscrow.supportsInterface(ERC721_METADATA_INTERFACE_ID));
+        assertTrue(
+            votingEscrow.supportsInterface(ERC721_METADATA_INTERFACE_ID)
+        );
     }
 
-    function testCheckSupportsInterfaceHandlesUnsupportedInterfacesCorrectly() public {
+    function testCheckSupportsInterfaceHandlesUnsupportedInterfacesCorrectly()
+        public
+    {
         bytes4 ERC721_FAKE = 0x780e9d61;
         assertFalse(votingEscrow.supportsInterface(ERC721_FAKE));
     }

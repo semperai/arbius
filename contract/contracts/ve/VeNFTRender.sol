@@ -1,12 +1,17 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.19;
 
 import "contracts/libraries/Base64.sol";
 
+/// @title VeNFTRender
+/// @notice Renders the veAIUS NFT tokenURI
 contract VeNFTRender {
-
-    function _tokenURI(uint _tokenId, uint _balanceOf, uint _locked_end, uint _value) external pure returns (string memory output) {
-
+    function _tokenURI(
+        uint _tokenId,
+        uint _balanceOf,
+        uint _locked_end,
+        uint _value
+    ) external pure returns (string memory output) {
         bytes memory image = abi.encodePacked(
             "data:image/svg+xml;base64,",
             Base64.encode(
@@ -41,28 +46,30 @@ contract VeNFTRender {
                         '</text><text x="20" y="190" class="base">',
                         "Locked $AIUS (wei): ",
                         toString(_value),
-                        '</text>',
+                        "</text>",
                         "</svg>"
                     )
                 )
             )
         );
-        return string(
-            abi.encodePacked(
-                "data:application/json;base64,",
-                Base64.encode(
-                    bytes(
-                        abi.encodePacked(
-                            '{"name":"veAIUS #',
-                            toString(_tokenId),
-                            '", "image":"',
-                            image,
-                            unicode'", "description": "This NFT represents locked $AIUS. It receives token emissions and can be used for governance."}'
+
+        return
+            string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(
+                        bytes(
+                            abi.encodePacked(
+                                '{"name":"veAIUS #',
+                                toString(_tokenId),
+                                '", "image":"',
+                                image,
+                                unicode'", "description": "This NFT represents locked $AIUS. It receives token emissions and can be used for governance."}'
+                            )
                         )
                     )
                 )
-            )
-        );
+            );
     }
 
     function toString(uint256 value) internal pure returns (string memory) {

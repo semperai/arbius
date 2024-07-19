@@ -7,7 +7,9 @@ import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
 import {VeGovernorVotes, IVotes} from "./governance/VeGovernorVotes.sol";
-import {VeGovernorVotesQuorumFraction} from "./governance/VeGovernorVotesQuorumFraction.sol";
+import {
+    VeGovernorVotesQuorumFraction
+} from "./governance/VeGovernorVotesQuorumFraction.sol";
 
 import {getIPFSCIDMemory} from "./libraries/IPFS.sol";
 
@@ -40,7 +42,7 @@ contract GovernorV1 is
         GovernorSettings(
             86400, // initialVotingDelay = 1 day
             86400 * 3, // initialVotingPeriod = 3 days
-            1e18  // initialProposalThreshold = 1 veAIUS
+            1e18 // initialProposalThreshold = 1 veAIUS
         )
         VeGovernorVotes(_token)
         VeGovernorVotesQuorumFraction(4)

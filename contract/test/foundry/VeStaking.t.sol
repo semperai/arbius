@@ -23,9 +23,21 @@ contract VeStakingTest is BaseTest {
 
     function testConstructorAndSettings() public {
         assertEq(veStaking.owner(), address(this), "owner != this");
-        assertEq(address(veStaking.rewardsToken()), address(AIUS), "rewardsToken != AIUS");
-        assertEq(address(veStaking.votingEscrow()), address(votingEscrow), "votingEscrow != votingEscrow");
-        assertEq(veStaking.rewardsDuration(), 1 weeks, "rewardsDuration != 1 weeks");
+        assertEq(
+            address(veStaking.rewardsToken()),
+            address(AIUS),
+            "rewardsToken != AIUS"
+        );
+        assertEq(
+            address(veStaking.votingEscrow()),
+            address(votingEscrow),
+            "votingEscrow != votingEscrow"
+        );
+        assertEq(
+            veStaking.rewardsDuration(),
+            1 weeks,
+            "rewardsDuration != 1 weeks"
+        );
     }
 
     function testOnlyOwner() public {
@@ -44,15 +56,21 @@ contract VeStakingTest is BaseTest {
 
     function testOnlyVotingEscrow() public {
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked("Caller is not VotingEscrow contract"));
+        vm.expectRevert(
+            abi.encodePacked("Caller is not VotingEscrow contract")
+        );
         veStaking._stake(1, 100 ether);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked("Caller is not VotingEscrow contract"));
+        vm.expectRevert(
+            abi.encodePacked("Caller is not VotingEscrow contract")
+        );
         veStaking._withdraw(100 ether);
 
         vm.prank(alice);
-        vm.expectRevert(abi.encodePacked("Caller is not VotingEscrow contract"));
+        vm.expectRevert(
+            abi.encodePacked("Caller is not VotingEscrow contract")
+        );
         veStaking._updateBalance(1, 100 ether);
     }
 
@@ -67,7 +85,11 @@ contract VeStakingTest is BaseTest {
 
         // should work
         veStaking.recoverERC20(address(mockToken), 100 ether);
-        assertEq(mockToken.balanceOf(address(this)), 100 ether, "!balanceOf(this)");
+        assertEq(
+            mockToken.balanceOf(address(this)),
+            100 ether,
+            "!balanceOf(this)"
+        );
     }
 
     function testRecoverRewardsToken() public {
@@ -77,7 +99,11 @@ contract VeStakingTest is BaseTest {
         vm.expectRevert(abi.encodePacked("Cannot withdraw the rewards token"));
         veStaking.recoverERC20(address(AIUS), 100 ether);
 
-        assertEq(AIUS.balanceOf(address(veStaking)), 100 ether, "!balanceOf(veStaking)");
+        assertEq(
+            AIUS.balanceOf(address(veStaking)),
+            100 ether,
+            "!balanceOf(veStaking)"
+        );
     }
 
     function testSkimRewardsToken() public {
@@ -91,7 +117,11 @@ contract VeStakingTest is BaseTest {
         veStaking.skim();
 
         // make sure that balance is >= rewardForDuration
-        assertGe(AIUS.balanceOf(address(veStaking)), rewardForDuration, "!balanceOf(veStaking)");
+        assertGe(
+            AIUS.balanceOf(address(veStaking)),
+            rewardForDuration,
+            "!balanceOf(veStaking)"
+        );
 
         // skip to end of rewards period
         skip(1 weeks);
@@ -100,7 +130,11 @@ contract VeStakingTest is BaseTest {
         veStaking.skim();
 
         // rewards should be transferred out
-        assertEq(AIUS.balanceOf(address(veStaking)), 0, "!balanceOf(veStaking)");
+        assertEq(
+            AIUS.balanceOf(address(veStaking)),
+            0,
+            "!balanceOf(veStaking)"
+        );
     }
 
     function testSetRewardsDuration() public {
@@ -109,7 +143,11 @@ contract VeStakingTest is BaseTest {
         assertEq(veStaking.rewardsDuration(), 1 weeks, "!rewardsDuration");
 
         uint256 initialPeriodFinish = veStaking.periodFinish();
-        assertEq(initialPeriodFinish, block.timestamp + 1 weeks, "!periodFinish");
+        assertEq(
+            initialPeriodFinish,
+            block.timestamp + 1 weeks,
+            "!periodFinish"
+        );
 
         // fast forward to end of rewards period
         vm.warp(initialPeriodFinish + 1);
@@ -124,7 +162,11 @@ contract VeStakingTest is BaseTest {
         veStaking.notifyRewardAmount(0);
 
         // periodFinish should be updated to `initialPeriodFinish + 2 weeks`
-        assertEq(veStaking.periodFinish(), initialPeriodFinish + 2 weeks, "!periodFinish");
+        assertEq(
+            veStaking.periodFinish(),
+            initialPeriodFinish + 2 weeks,
+            "!periodFinish"
+        );
     }
 
     function testSetRewardsDurationBeforePeriodFinish() public {
@@ -133,7 +175,11 @@ contract VeStakingTest is BaseTest {
         assertEq(veStaking.rewardsDuration(), 1 weeks, "!rewardsDuration");
 
         uint256 initialPeriodFinish = veStaking.periodFinish();
-        assertEq(initialPeriodFinish, block.timestamp + 1 weeks, "!periodFinish");
+        assertEq(
+            initialPeriodFinish,
+            block.timestamp + 1 weeks,
+            "!periodFinish"
+        );
 
         // should fail, previous rewards period must be complete before changing the duration
         vm.expectRevert();
@@ -146,11 +192,19 @@ contract VeStakingTest is BaseTest {
         // call notifyRewardAmount so rewardDuration starts
         veStaking.notifyRewardAmount(0);
 
-        assertEq(veStaking.lastTimeRewardApplicable(), block.timestamp, "!lastTimeRewardApplicable");
+        assertEq(
+            veStaking.lastTimeRewardApplicable(),
+            block.timestamp,
+            "!lastTimeRewardApplicable"
+        );
 
         skip(8 days);
 
-        assertEq(veStaking.lastTimeRewardApplicable(), veStaking.periodFinish(), "!lastTimeRewardApplicable");
+        assertEq(
+            veStaking.lastTimeRewardApplicable(),
+            veStaking.periodFinish(),
+            "!lastTimeRewardApplicable"
+        );
     }
 
     function testPeriodFinish() public {
@@ -158,7 +212,11 @@ contract VeStakingTest is BaseTest {
         veStaking.notifyRewardAmount(0);
 
         uint256 initialPeriodFinish = veStaking.periodFinish();
-        assertEq(initialPeriodFinish, block.timestamp + 1 weeks, "!initialPeriodFinish");
+        assertEq(
+            initialPeriodFinish,
+            block.timestamp + 1 weeks,
+            "!initialPeriodFinish"
+        );
 
         skip(3 days);
 
@@ -166,7 +224,11 @@ contract VeStakingTest is BaseTest {
         veStaking.notifyRewardAmount(0);
 
         // periodFinish should not have changed
-        assertEq(veStaking.periodFinish(), initialPeriodFinish, "!initialPeriodFinish");
+        assertEq(
+            veStaking.periodFinish(),
+            initialPeriodFinish,
+            "!initialPeriodFinish"
+        );
 
         skip(5 days);
 
@@ -175,7 +237,11 @@ contract VeStakingTest is BaseTest {
 
         uint256 newPeriodFinish = veStaking.periodFinish();
         // periodFinish should have been updated to `initialPeriodFinish + 1 weeks`
-        assertEq(newPeriodFinish, initialPeriodFinish + 1 weeks, "!newPeriodFinish");
+        assertEq(
+            newPeriodFinish,
+            initialPeriodFinish + 1 weeks,
+            "!newPeriodFinish"
+        );
 
         vm.warp(newPeriodFinish + 1);
 
@@ -186,7 +252,11 @@ contract VeStakingTest is BaseTest {
         veStaking.notifyRewardAmount(0);
 
         // periodFinish should have been updated to `newPeriodFinish + 1 weeks`
-        assertEq(veStaking.periodFinish(), newPeriodFinish + 1 weeks, "!finalPeriodFinish");
+        assertEq(
+            veStaking.periodFinish(),
+            newPeriodFinish + 1 weeks,
+            "!finalPeriodFinish"
+        );
     }
 
     function testAlignedDurations(uint256 time) public {
@@ -261,7 +331,12 @@ contract VeStakingTest is BaseTest {
 
         // finalRewardPerToken should be (rewardToAdd * 1e18) / veStakingBalance, with 1e18 = multiplier needed for division
         // 0.001% error allowed, this should be relatively accurate
-        assertApproxEqRel(finalRewardPerToken, (rewardToAdd * 1e18) / veStakingBalance, 1e13, "!rewardPerToken");
+        assertApproxEqRel(
+            finalRewardPerToken,
+            (rewardToAdd * 1e18) / veStakingBalance,
+            1e13,
+            "!rewardPerToken"
+        );
     }
 
     function testRewardsTokenBalanceShouldRollOver() public {
@@ -271,7 +346,11 @@ contract VeStakingTest is BaseTest {
         AIUS.transfer(address(veStaking), 10 ether);
         veStaking.notifyRewardAmount(10 ether);
         uint256 initialRewardRate = veStaking.rewardRate();
-        assertEq(initialRewardRate, 10 ether / veStaking.rewardsDuration(), "!rewardRate");
+        assertEq(
+            initialRewardRate,
+            10 ether / veStaking.rewardsDuration(),
+            "!rewardRate"
+        );
 
         skip(1 weeks);
 
@@ -303,13 +382,23 @@ contract VeStakingTest is BaseTest {
         skip(1 days);
 
         // 0.1% error allowed due to rounding
-        assertApproxEqRel(veStaking.earned(1), rewardsToDistribute / 7, 1e15, "!earned");
+        assertApproxEqRel(
+            veStaking.earned(1),
+            rewardsToDistribute / 7,
+            1e15,
+            "!earned"
+        );
 
         // skip to half of rewards duration (84 hours - 1 day = 60 hours)
         skip(60 hours);
 
         // alice should have earned half of the rewards
-        assertApproxEqRel(veStaking.earned(1), rewardsToDistribute / 2, 1e15, "!earned");
+        assertApproxEqRel(
+            veStaking.earned(1),
+            rewardsToDistribute / 2,
+            1e15,
+            "!earned"
+        );
 
         // now bob stakes as well
         vm.prank(bob);
@@ -322,16 +411,29 @@ contract VeStakingTest is BaseTest {
         // get remaining rewards
         uint256 remainingRewards = veStaking.getRewardForDuration();
         assertApproxEqRel(
-            remainingRewards, rewardsToDistribute * 2 - rewardsToDistribute / 2, 1e15, "!remainingRewards"
+            remainingRewards,
+            rewardsToDistribute * 2 - rewardsToDistribute / 2,
+            1e15,
+            "!remainingRewards"
         );
 
         // skip to end of rewards duration
         skip(84 hours);
 
         // alice should have earned `rewardsToDistribute / 2` + `remainingRewards / 2`
-        assertApproxEqRel(veStaking.earned(1), rewardsToDistribute / 2 + remainingRewards / 2, 2e15, "!earned");
+        assertApproxEqRel(
+            veStaking.earned(1),
+            rewardsToDistribute / 2 + remainingRewards / 2,
+            2e15,
+            "!earned"
+        );
         // bob should have earned `remainingRewards / 2`
-        assertApproxEqRel(veStaking.earned(2), remainingRewards / 2, 3e15, "!earned");
+        assertApproxEqRel(
+            veStaking.earned(2),
+            remainingRewards / 2,
+            3e15,
+            "!earned"
+        );
     }
 
     function testNotEarned() public {
@@ -363,7 +465,12 @@ contract VeStakingTest is BaseTest {
         veStaking.getReward(1);
 
         // rewards should be transferred out after rewardsDuration has passed (except some rounding error)
-        assertApproxEqAbs(AIUS.balanceOf(address(veStaking)), 0, 1e6, "!balanceOf(veStaking)");
+        assertApproxEqAbs(
+            AIUS.balanceOf(address(veStaking)),
+            0,
+            1e6,
+            "!balanceOf(veStaking)"
+        );
     }
 
     function testRewardRateShouldIncrease() public {
@@ -374,7 +481,11 @@ contract VeStakingTest is BaseTest {
         AIUS.transfer(address(veStaking), 10 ether);
         veStaking.notifyRewardAmount(10 ether);
         uint256 initialRewardRate = veStaking.rewardRate();
-        assertEq(initialRewardRate, 10 ether / veStaking.rewardsDuration(), "!rewardRate");
+        assertEq(
+            initialRewardRate,
+            10 ether / veStaking.rewardsDuration(),
+            "!rewardRate"
+        );
 
         skip(3 days);
 
@@ -392,22 +503,42 @@ contract VeStakingTest is BaseTest {
         veStaking.notifyRewardAmount(10 ether);
 
         // 0.1% error allowed due to rounding
-        assertApproxEqRel(veStaking.getRewardForDuration(), 10 ether, 1e15, "!getRewardForDuration");
+        assertApproxEqRel(
+            veStaking.getRewardForDuration(),
+            10 ether,
+            1e15,
+            "!getRewardForDuration"
+        );
 
         // skip to half of rewards duration
         skip(84 hours);
-        assertApproxEqRel(veStaking.getRewardForDuration(), 5 ether, 1e15, "!getRewardForDuration");
+        assertApproxEqRel(
+            veStaking.getRewardForDuration(),
+            5 ether,
+            1e15,
+            "!getRewardForDuration"
+        );
 
         // add more rewards to veStaking
         AIUS.transfer(address(veStaking), 10 ether);
         veStaking.notifyRewardAmount(10 ether);
-        assertApproxEqRel(veStaking.getRewardForDuration(), 15 ether, 1e15, "!getRewardForDuration");
+        assertApproxEqRel(
+            veStaking.getRewardForDuration(),
+            15 ether,
+            1e15,
+            "!getRewardForDuration"
+        );
 
         // skip to end of rewards duration
         skip(84 hours);
 
         // 0.1% error allowed due to rounding
-        assertApproxEqRel(veStaking.getRewardForDuration(), 0, 1e15, "!getRewardForDuration");
+        assertApproxEqRel(
+            veStaking.getRewardForDuration(),
+            0,
+            1e15,
+            "!getRewardForDuration"
+        );
     }
 
     /* user related tests: staking, increasing amount, increasing duration, merging */
@@ -429,7 +560,11 @@ contract VeStakingTest is BaseTest {
         uint256 escrowBalance = votingEscrow.balanceOfNFT(1);
         uint256 stakingBalance = veStaking.balanceOf(1);
 
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
     }
 
     function testIncreaseAmount() public {
@@ -439,7 +574,11 @@ contract VeStakingTest is BaseTest {
         uint256 escrowBalance = votingEscrow.balanceOfNFT(1);
         uint256 stakingBalance = veStaking.balanceOf(1);
 
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
 
         // fast forward
         skip(4 weeks);
@@ -465,7 +604,11 @@ contract VeStakingTest is BaseTest {
         uint256 escrowBalance = votingEscrow.balanceOfNFT(1);
         uint256 stakingBalance = veStaking.balanceOf(1);
 
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
 
         // fast forward
         skip(4 weeks);
@@ -480,7 +623,11 @@ contract VeStakingTest is BaseTest {
         uint256 newStakingBalance = veStaking.balanceOf(1); // get new staking balance
 
         // staking balance should be updated
-        assertEq(newEscrowBalance, newStakingBalance, "newEscrowBalance != newStakingBalance");
+        assertEq(
+            newEscrowBalance,
+            newStakingBalance,
+            "newEscrowBalance != newStakingBalance"
+        );
     }
 
     function testIncreaseLockDurationLong() public {
@@ -491,7 +638,11 @@ contract VeStakingTest is BaseTest {
         uint256 escrowBalance = votingEscrow.balanceOfNFT(1);
         uint256 stakingBalance = veStaking.balanceOf(1);
 
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
 
         // fast forward to almost her unlock time
         skip(MAX_LOCK_TIME - 1 weeks);
@@ -506,7 +657,11 @@ contract VeStakingTest is BaseTest {
         uint256 newStakingBalance = veStaking.balanceOf(1); // get new staking balance
 
         // staking balance should be updated
-        assertEq(newEscrowBalance, newStakingBalance, "newEscrowBalance != newStakingBalance");
+        assertEq(
+            newEscrowBalance,
+            newStakingBalance,
+            "newEscrowBalance != newStakingBalance"
+        );
     }
 
     function testIncreaseLockDurationShort() public {
@@ -517,7 +672,11 @@ contract VeStakingTest is BaseTest {
         uint256 escrowBalance = votingEscrow.balanceOfNFT(1);
         uint256 stakingBalance = veStaking.balanceOf(1);
 
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
 
         // fast forward to almost her unlock time
         skip(MAX_LOCK_TIME - 1 weeks);
@@ -532,7 +691,11 @@ contract VeStakingTest is BaseTest {
         uint256 newStakingBalance = veStaking.balanceOf(1); // get new staking balance
 
         // staking balance should be updated
-        assertEq(newEscrowBalance, newStakingBalance, "newEscrowBalance != newStakingBalance");
+        assertEq(
+            newEscrowBalance,
+            newStakingBalance,
+            "newEscrowBalance != newStakingBalance"
+        );
     }
 
     function testBalanceWhenMerging() public {
@@ -556,8 +719,16 @@ contract VeStakingTest is BaseTest {
         uint256 stakingBalance2 = veStaking.balanceOf(2);
 
         // balances should be equal
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
-        assertEq(escrowBalance2, stakingBalance2, "escrowBalance2 != stakingBalance2");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
+        assertEq(
+            escrowBalance2,
+            stakingBalance2,
+            "escrowBalance2 != stakingBalance2"
+        );
 
         // fast forward
         skip(4 weeks);
@@ -580,7 +751,11 @@ contract VeStakingTest is BaseTest {
 
         // staking balance should have increased by `diff`
         // since merging is like calling increase_amount on the lock with the highest unlock time
-        assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");
+        assertEq(
+            veStaking.balanceOf(2),
+            stakingBalance2 + diff,
+            "!balanceOf(2)"
+        );
     }
 
     function testBalanceWhenMergingShort() public {
@@ -604,8 +779,16 @@ contract VeStakingTest is BaseTest {
         uint256 stakingBalance2 = veStaking.balanceOf(2);
 
         // balances should be equal
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
-        assertEq(escrowBalance2, stakingBalance2, "escrowBalance2 != stakingBalance2");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
+        assertEq(
+            escrowBalance2,
+            stakingBalance2,
+            "escrowBalance2 != stakingBalance2"
+        );
 
         // fast forward
         skip(1 weeks);
@@ -628,7 +811,11 @@ contract VeStakingTest is BaseTest {
 
         // staking balance should have increased by `diff`
         // since merging is like calling increase_amount on the lock with the highest unlock time
-        assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");
+        assertEq(
+            veStaking.balanceOf(2),
+            stakingBalance2 + diff,
+            "!balanceOf(2)"
+        );
     }
 
     function testBalanceWhenMergingEdgeCase() public {
@@ -652,8 +839,16 @@ contract VeStakingTest is BaseTest {
         uint256 stakingBalance2 = veStaking.balanceOf(2);
 
         // balances should be equal
-        assertEq(escrowBalance, stakingBalance, "escrowBalance != stakingBalance");
-        assertEq(escrowBalance2, stakingBalance2, "escrowBalance2 != stakingBalance2");
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
+        assertEq(
+            escrowBalance2,
+            stakingBalance2,
+            "escrowBalance2 != stakingBalance2"
+        );
 
         // fast forward
         skip(1 weeks);
@@ -676,6 +871,10 @@ contract VeStakingTest is BaseTest {
 
         // staking balance should have increased by `diff`
         // since merging is like calling increase_amount on the lock with the highest unlock time
-        assertEq(veStaking.balanceOf(2), stakingBalance2 + diff, "!balanceOf(2)");
+        assertEq(
+            veStaking.balanceOf(2),
+            stakingBalance2 + diff,
+            "!balanceOf(2)"
+        );
     }
 }

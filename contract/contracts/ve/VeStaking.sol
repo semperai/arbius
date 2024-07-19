@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {
+    SafeERC20,
+    IERC20
+} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 
 /// @title VeStaking
-/// @notice Staking contract to distribute rewards to veToken holders
+/// @notice Staking contract to distribute rewards to veNFT holders
 /// @dev Based on SNX StakingRewards https://docs.synthetix.io/contracts/source/contracts/stakingrewards
 contract VeStaking is IVeStaking, Ownable {
     using SafeERC20 for IERC20;
@@ -19,7 +22,7 @@ contract VeStaking is IVeStaking, Ownable {
 
     uint256 public periodFinish;
     uint256 public rewardRate;
-    uint256 public rewardsDuration = 1 weeks; 
+    uint256 public rewardsDuration = 1 weeks;
     // last time any user staked, withdrew or claimed rewards
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
@@ -32,10 +35,7 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== CONSTRUCTOR ========== */
 
-    constructor(
-        address _rewardsToken,
-        address _votingEscrow
-    ) Ownable() {
+    constructor(address _rewardsToken, address _votingEscrow) Ownable() {
         rewardsToken = IERC20(_rewardsToken);
 
         votingEscrow = IVotingEscrow(_votingEscrow);
@@ -66,19 +66,20 @@ contract VeStaking is IVeStaking, Ownable {
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
         }
-        return rewardPerTokenStored
-        + (rewardRate * (lastTimeRewardApplicable() - lastUpdateTime) * 1e18)
-            / _totalSupply;
+        return
+            rewardPerTokenStored +
+            (rewardRate *
+                (lastTimeRewardApplicable() - lastUpdateTime) *
+                1e18) /
+            _totalSupply;
     }
 
     /// @notice Returns earned rewards for `tokenId`
     function earned(uint256 tokenId) public view returns (uint256) {
-        return (
-            (
-                _balances[tokenId]
-                    * (rewardPerToken() - rewardPerTokenPaid[tokenId])
-            ) / 1e18
-        ) + rewards[tokenId];
+        return
+            ((_balances[tokenId] *
+                (rewardPerToken() - rewardPerTokenPaid[tokenId])) / 1e18) +
+            rewards[tokenId];
     }
 
     /// @notice Returns remaining rewards for the current period
@@ -101,7 +102,9 @@ contract VeStaking is IVeStaking, Ownable {
         if (block.timestamp >= periodFinish) {
             // set new periodFinish if the previous period has ended
             // periodFinish is rounded down to weeks to be aligned with the weekly gauge voting schedule
-            periodFinish = (block.timestamp + rewardsDuration) / 1 weeks * 1 weeks; 
+            periodFinish =
+                ((block.timestamp + rewardsDuration) / 1 weeks) *
+                1 weeks;
 
             remaining = periodFinish - block.timestamp;
             rewardRate = reward / remaining;
@@ -118,7 +121,10 @@ contract VeStaking is IVeStaking, Ownable {
         // very high values of rewardRate in the earned and rewardsPerToken functions;
         // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
         uint256 balance = rewardsToken.balanceOf(address(this));
-        require(rewardRate <= (balance / remaining), "Provided reward too high");
+        require(
+            rewardRate <= (balance / remaining),
+            "Provided reward too high"
+        );
 
         emit RewardAdded(reward);
     }
@@ -128,7 +134,10 @@ contract VeStaking is IVeStaking, Ownable {
     /// @param amount Amount to stake
     /// @dev Internal notation is used since this function can only be called by the VotingEscrow contract
     /// @dev This function is called by VotingEscrow.create_lock, VotingEscrow.increase_amount and VotingEscrow.merge
-    function _stake(uint256 tokenId, uint256 amount) external onlyVotingEscrow updateReward(tokenId) {
+    function _stake(
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyVotingEscrow updateReward(tokenId) {
         require(amount > 0, "Cannot stake 0");
         _totalSupply += amount;
         _balances[tokenId] += amount;
@@ -139,7 +148,9 @@ contract VeStaking is IVeStaking, Ownable {
     /// @param tokenId ID of the veNFT
     /// @dev Internal notation is used since this function can only be called by the VotingEscrow contract
     /// @dev This function is called by VotingEscrow.withdraw
-    function _withdraw(uint256 tokenId) external onlyVotingEscrow updateReward(tokenId) {
+    function _withdraw(
+        uint256 tokenId
+    ) external onlyVotingEscrow updateReward(tokenId) {
         uint256 amount = _balances[tokenId];
         _totalSupply -= amount;
         _balances[tokenId] = 0;
@@ -151,7 +162,10 @@ contract VeStaking is IVeStaking, Ownable {
     /// @param newAmount New balance of the veNFT
     /// @dev Internal notation is used since this function can only be called by the VotingEscrow contract
     /// @dev This function is called by VotingEscrow.increase_unlock_time
-    function _updateBalance(uint256 tokenId, uint256 newAmount) external onlyVotingEscrow updateReward(tokenId) {
+    function _updateBalance(
+        uint256 tokenId,
+        uint256 newAmount
+    ) external onlyVotingEscrow updateReward(tokenId) {
         uint256 amount = _balances[tokenId];
         _totalSupply = _totalSupply - amount + newAmount;
         _balances[tokenId] = newAmount;
@@ -176,8 +190,14 @@ contract VeStaking is IVeStaking, Ownable {
     /// @notice Recover tokens that are accidentally sent to the contract
     /// @param tokenAddress Address of the token to recover
     /// @param tokenAmount Amount of tokens to recover
-    function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
-        require(tokenAddress != address(rewardsToken), "Cannot withdraw the rewards token");
+    function recoverERC20(
+        address tokenAddress,
+        uint256 tokenAmount
+    ) external onlyOwner {
+        require(
+            tokenAddress != address(rewardsToken),
+            "Cannot withdraw the rewards token"
+        );
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
         emit Recovered(tokenAddress, tokenAmount);
     }
@@ -185,10 +205,10 @@ contract VeStaking is IVeStaking, Ownable {
     /// @notice Removes excess `rewardsToken` due to rounding errors
     function skim() external onlyOwner {
         uint256 excess;
-        if(periodFinish > block.timestamp) {
+        if (periodFinish > block.timestamp) {
             uint256 remaining = periodFinish - block.timestamp;
             uint256 remainingRewards = rewardRate * remaining;
-            excess = rewardsToken.balanceOf(address(this)) - remainingRewards;  
+            excess = rewardsToken.balanceOf(address(this)) - remainingRewards;
         } else {
             // period has ended, so safe to transfer all remaining tokens
             excess = rewardsToken.balanceOf(address(this));
@@ -198,7 +218,7 @@ contract VeStaking is IVeStaking, Ownable {
     }
 
     /// @notice Sets the duration of the rewards period
-    /// @param _rewardDuration Duration of the rewards period in seconds
+    /// @param _rewardsDuration Duration of the rewards period in seconds
     function setRewardsDuration(uint256 _rewardsDuration) external onlyOwner {
         require(
             block.timestamp > periodFinish,
@@ -211,7 +231,10 @@ contract VeStaking is IVeStaking, Ownable {
     /* ========== MODIFIERS ========== */
 
     modifier onlyVotingEscrow() {
-        require(msg.sender == address(votingEscrow), "Caller is not VotingEscrow contract");
+        require(
+            msg.sender == address(votingEscrow),
+            "Caller is not VotingEscrow contract"
+        );
         _;
     }
 
@@ -230,7 +253,11 @@ contract VeStaking is IVeStaking, Ownable {
     event RewardAdded(uint256 reward);
     event Staked(uint256 indexed tokenId, uint256 amount);
     event Withdrawn(uint256 indexed tokenId, uint256 amount);
-    event BalanceUpdated(uint256 indexed tokenId, uint256 oldAmount, uint256 newAmount);
+    event BalanceUpdated(
+        uint256 indexed tokenId,
+        uint256 oldAmount,
+        uint256 newAmount
+    );
     event RewardPaid(address indexed tokenId, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);

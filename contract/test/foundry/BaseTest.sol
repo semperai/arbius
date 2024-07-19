@@ -40,7 +40,11 @@ contract BaseTest is Test {
         // deploy NFT render contract
         veNFTRender = new VeNFTRender();
         // deploy VotingEscrow contract
-        votingEscrow = new VotingEscrow(address(AIUS), address(veNFTRender), address(0));
+        votingEscrow = new VotingEscrow(
+            address(AIUS),
+            address(veNFTRender),
+            address(0)
+        );
         // deploy VeStaking contract
         veStaking = new VeStaking(address(AIUS), address(votingEscrow));
 
