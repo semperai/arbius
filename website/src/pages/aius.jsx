@@ -18,7 +18,7 @@ export default function AIUS() {
                         <div>
                             <div className="flex items-center gap-2">
 
-                                <h2 className="lato-bold text-[8vw] lg:text-header-xl 2xl:text-header-xl  text-black-text mb-4">
+                                <h2 className="lato-bold text-[8vw] lg:text-header 2xl:text-header-2xl  text-black-text mb-4">
                                     <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
                                         veAIUS Staking
                                     </Fade>

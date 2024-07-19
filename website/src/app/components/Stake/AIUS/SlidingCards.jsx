@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
@@ -10,33 +10,6 @@ import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_na
 import ReactSlider from 'react-slider'
 import info_icon from "../../../assets/images/info_icon.png"
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
-function PrevBtn(props) {
-    const { className, style, onClick } = props;
-    return (
-        <div
-            className={`absolute top-[40%]  left-[-22px] cursor-pointer rounded-full  z-20 bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
-
-            onClick={onClick}
-        >
-            <Image src={arrow_prev} className=' mr-[2px]' width={15} height={15} />
-
-        </div>
-    );
-}
-
-function NextBtn(props) {
-    const { className, style, onClick } = props;
-    return (
-        <div
-            className={`absolute top-[40%] rounded-full  right-[-20px] cursor-pointer  bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
-
-            onClick={onClick}
-        >
-            <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={15} height={15} />
-        </div>
-    );
-
-}
 
 const AddPopUpChildren = ({ setShowPopUp }) => {
     return (
@@ -158,7 +131,6 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
                             // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
                         }
                         setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value))
-
                         setSliderValue(value)
                     }}
                     renderMark={(props) => {
@@ -292,6 +264,8 @@ const ClaimPopUpChildren = ({ setShowPopUp }) => {
 function SlidingCards() {
     const [showPopUp, setShowPopUp] = useState(false)
     const sliderRef = useRef()
+    const [direction, setDirection] = useState("");
+
     const data = [{
         staked: "2,441.21 AIUS",
         apr: "14.1211%",
@@ -322,12 +296,74 @@ function SlidingCards() {
         dots: false,
         infinite: false,
         speed: 500,
-        slidesToShow: 5 / 2,
+        slidesToShow: 2.5,
         slidesToScroll: 1,
         nextArrow: <NextBtn />,
         prevArrow: <PrevBtn />,
-        
+        responsive: [
+        {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 1.5,
+              slidesToScroll: 1
+            }
+        },
+        {
+            breakpoint: 475,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1
+            }
+        },
+        ]
     };
+
+    function PrevBtn(props) {
+        const { className, style, onClick } = props;
+        if(className.includes("slick-disabled")){
+            setDirection("right");
+        }
+        return (
+            <div
+                className={`absolute top-[40%]  left-[-22px] cursor-pointer rounded-full  z-20 bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
+
+                onClick={onClick}
+            >
+                <Image src={arrow_prev} className=' mr-[2px]' width={15} height={15} />
+
+            </div>
+        );
+    }
+
+    function NextBtn(props) {
+        const { className, style, onClick } = props;
+        if(className.includes("slick-disabled")){
+            setDirection("left");
+        }
+        return (
+            <div
+                className={`absolute top-[40%] rounded-full  right-[-20px] cursor-pointer  bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
+
+                onClick={onClick}
+            >
+                <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={15} height={15} />
+            </div>
+        );
+
+    }
+
+
+    useEffect(() => {
+        console.log(direction, "direction")
+        const elements = document.querySelectorAll('.slick-list');
+        elements.forEach(element => {
+            if(direction == "right"){
+                element.style.boxShadow = '10px 0 5px -4px rgba(18, 0, 117, 0.077)';
+            }else if(direction == "left"){
+                element.style.boxShadow = '-10px 0 5px -4px rgba(18, 0, 117, 0.077)';
+            }
+        });
+    }, [direction]);
 
     return (
         <div>

@@ -169,7 +169,7 @@ function Gauge() {
                 </div>
 
             </div>
-            <div className='flex lg:hidden justify-between items-center font-semibold'>
+            <div className='flex flex-col items-start mb-2 um:mb-0 um:flex-row lg:hidden justify-between um:items-center font-semibold'>
                 <h1 className='text-[40px] text-[#4A28FF] mb-2  lato-bold'>Gauge</h1>
                 <div className='text-[#4A28FF] text-[.85rem]  text-end flex gap-2 justify-end items-center'>
                     <Image src={clock_icon} className='h-4 w-4' />
@@ -184,7 +184,7 @@ function Gauge() {
                 <Image src={search_icon} className='h-4 w-4' />
             </div>
             <div className='w-full overflow-x-auto xl:overflow-x-visible'>
-                <div className='rounded-lg  p-6 px-10 flex justify-between gap-8 items-center bg-white-background mt-2 mb-4 min-w-[1000px] font-semibold'>
+                <div className='gauge-table-headings rounded-lg pt-2 pb-2 px-5 lg:pt-6 lg:pb-6 lg:px-10 flex justify-between gap-8 items-center bg-white-background mt-2 mb-4 min-w-[1000px] font-semibold'>
                     <div className='w-[20%]'>
                         <h1>Model Name</h1>
                     </div>
@@ -206,7 +206,7 @@ function Gauge() {
                 {filteredData?.map((item, key) => {
                     return (
 
-                        <div className='rounded-lg  p-4 px-10 flex justify-between gap-8 items-center bg-white-background my-3 relative min-w-[1000px] font-semibold ' key={key}>
+                        <div className='gauge-table-item rounded-lg px-5 pt-4 pb-4 lg:px-10 flex justify-between gap-8 items-center bg-white-background my-3 relative min-w-[1000px] font-semibold ' key={key}>
                             <div className='flex hidden justify-start items-center absolute left-[-145px]  top-[10%] z-20' id={key}>
                                 <div className='bg-white-background w-auto p-3 rounded-xl'>
                                     <h1 className='text-[.6rem] mb-1 text-[#8D8D8D]'>Model ID</h1>

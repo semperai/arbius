@@ -46,7 +46,8 @@ module.exports = {
         'copyright-text':'#39393980',
         'stake':"#1A1A1A",
         'available':'#5B5B5B',
-        'aius':'#0E0E0E'
+        'aius':'#0E0E0E',
+        'gray-text': '#F3F3F3'
        },
        fontFamily: {
           "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
@@ -81,6 +82,8 @@ module.exports = {
 
         'md': '767px',
         
+        'um': '475px',
+
         'lm':"400px",
 
         'sm': '0px',
