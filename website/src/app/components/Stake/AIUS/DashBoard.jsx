@@ -21,7 +21,7 @@ function DashBoard() {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Balance</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{641.12451.toFixed(2)} AIUS</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{641.12451.toFixed(2)} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Historical LP Profit</h2>
@@ -71,7 +71,7 @@ function DashBoard() {
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>1,000,000 AIUS</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>1,000,000 <span className="text-[11px] font-medium">AIUS</span></h2>
 
 
                                 </div>
@@ -86,7 +86,7 @@ function DashBoard() {
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Circulating supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>145,432 AIUS</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>145,432 <span className="text-[11px] font-medium">AIUS</span></h2>
 
 
                                 </div>

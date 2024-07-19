@@ -537,7 +537,7 @@ input[type="number"]::-ms-reveal {
 }
 .slick-track :last-child > div{
     margin-right: 0px;
-    border-radius: 1rem;
+/*    border-radius: 1rem;*/
 }
 
 .item-grid{

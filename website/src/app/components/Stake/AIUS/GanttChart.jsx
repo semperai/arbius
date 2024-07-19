@@ -72,7 +72,7 @@ function GanttChart() {
                 </div>
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                    <h2 className='text-[16px] font-semibold'>340.21 AIUS</h2>
+                    <h2 className='text-[16px] font-semibold'>340.21 <span className="text-[11px] font-medium">AIUS</span></h2>
 
                 </div>
                 <div className='relative'>

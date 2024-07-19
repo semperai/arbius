@@ -272,7 +272,7 @@ function SlidingCards() {
     const [direction, setDirection] = useState("");
 
     const data = [{
-        staked: "2,441.21 AIUS",
+        staked: "2,441.21",
         apr: "14.1211%",
         governance: "12.12",
         stake_date: "6/14/2024",
@@ -280,7 +280,7 @@ function SlidingCards() {
     },
     {
 
-        staked: "2,441.21 AIUS",
+        staked: "2,441.21",
         apr: "14.1211%",
         governance: "12.12",
         stake_date: "6/14/2024",
@@ -288,7 +288,7 @@ function SlidingCards() {
     },
     {
 
-        staked: "2,441.21 AIUS",
+        staked: "2,441.21",
         apr: "14.1211%",
         governance: "12.12",
         stake_date: "6/14/2024",
@@ -301,7 +301,7 @@ function SlidingCards() {
         dots: false,
         infinite: false,
         speed: 500,
-        slidesToShow: 2.5,
+        slidesToShow: 2.3,
         slidesToScroll: 1,
         nextArrow: <NextBtn />,
         prevArrow: <PrevBtn />,
@@ -394,7 +394,7 @@ function SlidingCards() {
                                     <div className='flex flex-col gap-3 justify-center items-start'>
                                         <div>
                                             <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.staked}</h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.staked} <span className="text-[11px] font-medium">AIUS</span></h2>
 
                                         </div>
                                         <div>
