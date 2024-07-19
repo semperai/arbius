@@ -10,7 +10,8 @@ import "contracts/ve/VeNFTRender.sol";
 import "contracts/ve/VeStaking.sol";
 
 /**
- * @notice Base test contract used for testing VeStaking.sol and VotingEscrow.sol
+ * @dev Base test contract used for testing VeStaking.sol and VotingEscrow.sol
+ * @dev Deploys ve-contracts without involvement of engine_v4
  */
 contract BaseTest is Test {
     MockERC20 public AIUS;

@@ -16,7 +16,8 @@ import "contracts/GovernorV1.sol";
 import "contracts/TimelockV1.sol";
 
 /**
- * @notice Steps to test EngineV4:
+ * @notice Tests for onchain governance
+ * @dev Steps to run this test contract:
  * 1. Deploy local hardhat node with `npx hardhat node`
  * 2. Then, run hardhat setup on local node with `npx hardhat test test/enginev4.test.ts --network localhost`
  * 3. Run Foundry tests with `npm run forge-test`, or `npm run forge-test-v` for verbose output

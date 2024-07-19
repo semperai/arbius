@@ -161,6 +161,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
 
     /// @dev Returns current token URI metadata
     /// @param _tokenId Token ID to fetch URI for.
+    /// @return URI metadata for the token.
     function tokenURI(uint256 _tokenId) external view returns (string memory) {
         require(
             idToOwner[_tokenId] != address(0),
@@ -570,10 +571,15 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     //////////////////////////////////////////////////////////////*/
 
     mapping(uint256 => uint256) public user_point_epoch;
-    mapping(uint256 => Point[1000000000]) public user_point_history; // user -> Point[user_epoch]
+     // user -> Point[user_epoch]
+    mapping(uint256 => Point[1000000000]) public user_point_history;
+    // tokenId -> LockedBalance
     mapping(uint256 => LockedBalance) public locked;
+    // total count of epochs since contract creation
     uint256 public epoch;
-    mapping(uint256 => int128) public slope_changes; // time -> signed slope change
+    // time -> signed slope change
+    mapping(uint256 => int128) public slope_changes; 
+    // total amount of tokens deposited
     uint256 public supply;
 
     uint256 internal constant WEEK = 1 weeks;
@@ -1086,6 +1092,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         return _balanceOfNFT(_tokenId, block.timestamp);
     }
 
+    /// @notice Get the voting power for _tokenId at a given timestamp
+    /// @param _tokenId .
+    /// @param _t Timestamp to query voting power
+    /// @return Voting power
     function balanceOfNFTAt(
         uint256 _tokenId,
         uint256 _t
@@ -1219,6 +1229,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         return uint256(uint128(last_point.bias));
     }
 
+    /// @notice Calculate total voting power at current timestamp
+    /// @return Total voting power at current timestamp
     function totalSupply() external view returns (uint256) {
         return totalSupplyAtT(block.timestamp);
     }
@@ -1238,21 +1250,32 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
 
     mapping(uint256 => bool) public voted;
 
+    /// @notice Set the address of Voter.sol
+    /// @param _voter Address of the voter contract
     function setVoter(address _voter) external onlyOwner {
         require(msg.sender == voter);
         voter = _voter;
     }
 
+    /// @notice Set `tokenId` to voted
+    /// @param _tokenId veNFT ID
     function voting(uint256 _tokenId) external {
         require(msg.sender == voter);
         voted[_tokenId] = true;
     }
 
+    /// @notice Set voted for `tokenId` to false
+    /// @param _tokenId veNFT ID
     function abstain(uint256 _tokenId) external {
         require(msg.sender == voter);
         voted[_tokenId] = false;
     }
 
+    /// @notice Merges `_from` into `_to`.
+    /// @dev Cannot merge `_from` locks that have already voted this epoch.
+    ///      Cannot merge `_to` locks that have already expired.
+    /// @param _from VeNFT to merge from.
+    /// @param _to VeNFT to merge into.   
     function merge(uint256 _from, uint256 _to) external {
         require(!voted[_from], "voted");
         require(_from != _to);
@@ -1367,6 +1390,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         return lower;
     }
 
+    /**
+     * @dev Returns the amount of votes that `account` had at a specific moment in the past. If the `clock()` is
+     * configured to use block numbers, this will return the value at the end of the corresponding block.
+     */
     function getPastVotes(
         address account,
         uint256 timestamp
@@ -1384,6 +1411,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         return votes;
     }
 
+    /**
+     * @dev Returns the total supply of votes available at a specific moment in the past. If the `clock()` is
+     * configured to use block numbers, this will return the value at the end of the corresponding block.
+     */
     function getPastTotalSupply(
         uint256 timestamp
     ) external view returns (uint256) {
@@ -1393,6 +1424,81 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     /*///////////////////////////////////////////////////////////////
                              DAO VOTING LOGIC
     //////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Delegate votes from `msg.sender` to `delegatee`
+     * @param delegatee The address to delegate votes to
+     */
+    function delegate(address delegatee) public {
+        if (delegatee == address(0)) delegatee = msg.sender;
+        return _delegate(msg.sender, delegatee);
+    }
+
+    /**
+     * @dev Delegates votes from signer to `delegatee`.
+     */
+    function delegateBySig(
+        address delegatee,
+        uint256 nonce,
+        uint256 expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public {
+        // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
+        // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
+        // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
+        // signatures from current libraries generate a unique signature with an s-value in the lower half order.
+        //
+        // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
+        // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
+        // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
+        // these malleable signatures as well.
+        require(
+            uint256(s) <=
+                0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0,
+            "VotingEscrow::delegateBySig: invalid signature"
+        );
+        bytes32 domainSeparator = keccak256(
+            abi.encode(
+                DOMAIN_TYPEHASH,
+                keccak256(bytes(name)),
+                keccak256(bytes(version)),
+                block.chainid,
+                address(this)
+            )
+        );
+        bytes32 structHash = keccak256(
+            abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry)
+        );
+        bytes32 digest = keccak256(
+            abi.encodePacked("\x19\x01", domainSeparator, structHash)
+        );
+        address signatory = ecrecover(digest, v, r, s);
+        require(
+            signatory != address(0),
+            "VotingEscrow::delegateBySig: invalid signature"
+        );
+        require(
+            nonce == nonces[signatory]++,
+            "VotingEscrow::delegateBySig: invalid nonce"
+        );
+        require(
+            block.timestamp <= expiry,
+            "VotingEscrow::delegateBySig: signature expired"
+        );
+        return _delegate(signatory, delegatee);
+    }
+
+    function _delegate(address delegator, address delegatee) internal {
+        /// @notice differs from `_delegate()` in `Comp.sol` to use `delegates` override method to simulate auto-delegation
+        address currentDelegate = delegates(delegator);
+
+        _delegates[delegator] = delegatee;
+
+        emit DelegateChanged(delegator, currentDelegate, delegatee);
+        _moveAllDelegates(delegator, currentDelegate, delegatee);
+    }
 
     function _moveTokenDelegates(
         address srcRep,
@@ -1514,86 +1620,16 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         }
     }
 
-    function _delegate(address delegator, address delegatee) internal {
-        /// @notice differs from `_delegate()` in `Comp.sol` to use `delegates` override method to simulate auto-delegation
-        address currentDelegate = delegates(delegator);
-
-        _delegates[delegator] = delegatee;
-
-        emit DelegateChanged(delegator, currentDelegate, delegatee);
-        _moveAllDelegates(delegator, currentDelegate, delegatee);
-    }
-
-    /**
-     * @notice Delegate votes from `msg.sender` to `delegatee`
-     * @param delegatee The address to delegate votes to
-     */
-    function delegate(address delegatee) public {
-        if (delegatee == address(0)) delegatee = msg.sender;
-        return _delegate(msg.sender, delegatee);
-    }
-
-    function delegateBySig(
-        address delegatee,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public {
-        // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
-        // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
-        // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
-        // signatures from current libraries generate a unique signature with an s-value in the lower half order.
-        //
-        // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
-        // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
-        // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
-        // these malleable signatures as well.
-        require(
-            uint256(s) <=
-                0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0,
-            "VotingEscrow::delegateBySig: invalid signature"
-        );
-        bytes32 domainSeparator = keccak256(
-            abi.encode(
-                DOMAIN_TYPEHASH,
-                keccak256(bytes(name)),
-                keccak256(bytes(version)),
-                block.chainid,
-                address(this)
-            )
-        );
-        bytes32 structHash = keccak256(
-            abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry)
-        );
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", domainSeparator, structHash)
-        );
-        address signatory = ecrecover(digest, v, r, s);
-        require(
-            signatory != address(0),
-            "VotingEscrow::delegateBySig: invalid signature"
-        );
-        require(
-            nonce == nonces[signatory]++,
-            "VotingEscrow::delegateBySig: invalid nonce"
-        );
-        require(
-            block.timestamp <= expiry,
-            "VotingEscrow::delegateBySig: signature expired"
-        );
-        return _delegate(signatory, delegatee);
-    }
-
     /*//////////////////////////////////////////////////////////////
                               ERC6372 LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Returns the current timepoint according to the mode the contract is operating on
     function clock() external view returns (uint48) {
         return uint48(block.timestamp);
     }
 
+    /// @notice Returns a machine-readable string description of the clock the contract is operating on
     function CLOCK_MODE() external pure returns (string memory) {
         return "mode=timestamp";
     }

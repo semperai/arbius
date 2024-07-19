@@ -21,10 +21,10 @@ address constant ARBSYS_ADDRESS = address(100);
 
 // each run of model allocated fee to token address
 struct Model {
-    uint256 fee;
-    address addr;
-    uint256 rate;
-    bytes cid;
+    uint256 fee; // base fee for model
+    address addr; // address to send fee to
+    uint256 rate; // rate for rewards emissions
+    bytes cid; // ipfs cid
 }
 
 struct Validator {
@@ -64,42 +64,49 @@ struct Contestation {
 contract V2_EngineV4 is OwnableUpgradeable {
     IBaseToken public baseToken;
 
-    address public treasury; // where treasury fees/rewards go
+    // where treasury fees/rewards go
+    address public treasury; 
 
-    address public pauser; // who can pause contract
+    // who can pause contract
+    address public pauser; 
+    // if contract is paused
+    bool public paused; 
 
-    bool public paused; // if contract is paused
+    // fees in baseToken accrued to treasury
+    uint256 public accruedFees; 
+    // previous task hash, used to provide entropy for next task hash
+    bytes32 public prevhash; 
+    // when this was initialized
+    uint64 public startBlockTime; 
+    // version (should be updated when performing updates)
+    uint256 public version; 
 
-    uint256 public accruedFees; // fees in baseToken accrued to treasury
+    // how much a validator needs to stay a validator (of total supply)
+    uint256 public validatorMinimumPercentage; 
+    // how much validator should lose on failed vote (of total supply)
+    uint256 public slashAmountPercentage; 
+    // How much of task fee for solutions go to treasury
+    uint256 public solutionFeePercentage;  
+    // How much to charge users for retracting tasks (goes to treasury)
+    uint256 public retractionFeePercentage; 
+    // How much of task reward to send to treasury
+    uint256 public treasuryRewardPercentage; 
 
-    bytes32 public prevhash; // previous task hash, used to provide entropy for next task hash
-
-    uint64 public startBlockTime; // when this was initialized
-
-    uint256 public version; // version (should be updated when performing updates)
-
-    uint256 public validatorMinimumPercentage; // how much a validator needs to stay a validator (of total supply)
-
-    uint256 public slashAmountPercentage; // how much validator should lose on failed vote (of total supply)
-
-    uint256 public solutionFeePercentage; // How much of task fee for solutions go to treasury
-
-    uint256 public retractionFeePercentage; // How much to charge users for retracting tasks (goes to treasury)
-
-    uint256 public treasuryRewardPercentage; // How much of task reward to send to treasury
-
-    uint256 public minClaimSolutionTime; // how long a solver must wait to claim solution
-
-    uint256 public minRetractionWaitTime; // how long to wait without solution to retract
-
-    uint256 public minContestationVotePeriodTime; // how long voting period should last
-    uint256 public maxContestationValidatorStakeSince; // delay for validator "since" property after which a validator may no longer vote on a contestation
-
-    uint256 public exitValidatorMinUnlockTime; // how long it takes for a validator to wait to unstake
+    // how long a solver must wait to claim solution
+    uint256 public minClaimSolutionTime; 
+    // how long to wait without solution to retract
+    uint256 public minRetractionWaitTime;   
+    // how long voting period should last
+    uint256 public minContestationVotePeriodTime; 
+    // delay for validator "since" property after which a validator may no longer vote on a contestation
+    uint256 public maxContestationValidatorStakeSince; 
+    // how long it takes for a validator to wait to unstake
+    uint256 public exitValidatorMinUnlockTime; 
 
     // model hash -> model
     mapping(bytes32 => Model) public models;
 
+    // address -> Validator
     mapping(address => Validator) public validators;
 
     // address -> counter
@@ -147,7 +154,6 @@ contract V2_EngineV4 is OwnableUpgradeable {
     uint256[38] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
-
     event ValidatorDeposit(
         address indexed addr,
         address indexed validator,
@@ -169,7 +175,6 @@ contract V2_EngineV4 is OwnableUpgradeable {
         uint256 indexed count,
         uint256 amount
     );
-
     event TaskSubmitted(
         bytes32 indexed id,
         bytes32 indexed model,
@@ -249,7 +254,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
         emit TreasuryTransferred(to_);
     }
 
-    /// @notice Transfer ownership
+    /// @notice Transfer pauser
     /// @param to_ Address to transfer pauser to
     function transferPauser(address to_) external onlyOwner {
         pauser = to_;
