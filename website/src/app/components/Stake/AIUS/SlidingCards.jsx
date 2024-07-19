@@ -113,7 +113,7 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
 
                 <ReactSlider
                     className=" text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
-                    thumbClassName=" w-[28px] h-[28px] ml-[-5px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
+                    thumbClassName=" w-[28px] h-[28px] ml-[-10px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
                     markClassName="customSlider-mark"
                     marks={4}
                     min={0}
@@ -122,7 +122,6 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
                     defaultValue={0}
                     value={sliderValue}
                     onChange={(value) => {
-
                         if (value < 1) {
                             setDuration({ ...duration, months: 0, weeks: 4 * value })
                             
@@ -130,7 +129,13 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
                             setDuration({ ...duration, months: value, weeks: 0 })
                             // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
                         }
-                        setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value))
+                        let date;
+                        if(Number.isInteger(value)){
+                            date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth()+value, extendStartDate.getDate());
+                        }else{
+                            date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value);
+                        }
+                        setExtendEndDate(date)
                         setSliderValue(value)
                     }}
                     renderMark={(props) => {
