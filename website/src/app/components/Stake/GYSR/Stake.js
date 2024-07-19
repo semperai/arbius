@@ -175,7 +175,7 @@ function Stake() {
                                     handleApproveClick()
                                 }}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <p className="relative z-10 text-original-white text-[13px] mb-[2px]">Approve SUNI-V2</p>
+                                <p className="relative z-10 text-original-white text-[13px] ">Approve SUNI-V2</p>
                                 <HintBox
                                     content={"Approve the Pool to access $UNI-V2 in your wallet in order to stake"}
                                     customStyle={{ 'arrowLeft': '40%' }}
@@ -189,7 +189,7 @@ function Stake() {
 
                             <button type="button" className="relative group bg-[#121212] py-2 bg-opacity-5 px-8 rounded-full flex items-center  gap-3" onClick={() => connectWallet()}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full  opacity-0  transition-opacity duration-500"></div>
-                                <p className="relative z-10 text-[#101010] opacity-30 text-[15px] mb-[2px]">Stake</p>
+                                <p className="relative z-10 text-[#101010] opacity-30 text-[15px] ">Stake</p>
                             </button>
                         </div>
 

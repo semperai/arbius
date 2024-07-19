@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import { hash } from 'crypto';
 import { useEffect } from 'react';
 import Web3 from 'web3';
 const Pool = require('@gysr/core/abis/Pool.json'); // Import the ABI of the contract
@@ -26,18 +27,31 @@ async function decodeTransactionInput(inputData) {
         try {
             // Decode parameters
             const decodedParams = web3.eth.abi.decodeParameters(functionAbi.inputs, '0x' + input.slice(10));
+            
+            let reward = 0;
+            try {
+                reward = await fetchLogs('0xA8f103eEcfb619358C35F98c9372B31c64d3f4A1', inputData.from, ETHERSCAN_API_KEY,inputData.hash);
+                reward = hexToDecimal(reward);
+
+            } catch (error) {
+                console.error('Error fetching logs:', error);
+                reward = '0'; // Default value or handle as necessary
+            }
+            
+            console.log(reward, "REWARD");
 
             const decodedTransaction = {
                 from: inputData.from,
-                blockHash:inputData.hash,
+                blockHash: inputData.hash,
                 to: inputData.to,
+                reward:web3.utils.fromWei(reward, 'ether'),
                 value: web3.utils.fromWei(inputData.value, 'ether'), // Convert value from wei to ether (if applicable)
                 functionName: functionAbi.name,
                 decodedParams: decodedParams,
                 amount: web3.utils.fromWei(decodedParams.amount, 'ether'),
                 timestamp: inputData.timeStamp, // Convert timestamp to ISO format
             };
-          
+
             return decodedTransaction;
         } catch (error) {
             console.error('Error decoding input data:', error);
@@ -48,42 +62,54 @@ async function decodeTransactionInput(inputData) {
         return null;
     }
 }
+
 const hexToDecimal = (hex) => {
     return BigInt(hex).toString();
   };
 // Function to fetch transactions from Etherscan
-
-function decimalToHex(decimalAddress) {
-    // Remove '0x' prefix if present
-    decimalAddress = decimalAddress.toLowerCase().replace('0x', '');
-
-    // Convert decimal to BigNumber object
-    const bigNumberAddress = new BigNumber(decimalAddress);
-
-    // Convert BigNumber to hexadecimal string
-    let hexAddress = '0x' + bigNumberAddress.toString(16).padStart(40, '0');
-
-    return hexAddress;
-}
+function formatHexAddress(hexAddress) {
+    // Remove the '0x' prefix if it exists
+    const addressWithoutPrefix = hexAddress.startsWith('0x') ? hexAddress.slice(2) : hexAddress;
+    const formattedAddress = addressWithoutPrefix.toLowerCase().padStart(64, '0');
+    return `0x${formattedAddress}`;
+  }
 
 // Function to fetch logs based on parameters
-async function fetchLogs(fromAddress, toAddress, apiKey) {
+async function fetchLogs(fromAddress, toAddress, apiKey, transactionHash) {
     // Pad addresses with extra zeroes and '0x' prefix if needed
-    const paddedFromAddress = fromAddress;
-    const paddedToAddress = toAddress;
-    console.log(paddedFromAddress,"PADDING")
+    const paddedFromAddress = formatHexAddress(fromAddress);
+    const paddedToAddress = formatHexAddress(toAddress);
+    
     // Construct the API URL
-    const apiUrl = `https://api.etherscan.io/api?module=logs&action=getLogs&address=0xCB37089fC6A6faFF231B96e000300a6994d7a625&fromBlock=0&toBlock=latest&topic0=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&topic0_1_opr=and&topic1=${paddedFromAddress}&topic2=${paddedToAddress}&apikey=${apiKey}`;
+    const apiUrl = `https://api.etherscan.io/api?module=logs&action=getLogs&address=0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852&fromBlock=0&toBlock=latest&topic0=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&topic0_1_opr=and&topic1=${paddedFromAddress}&topic2=${paddedToAddress}&apikey=${apiKey}`;
 
     try {
         // Make GET request to Etherscan API
         const response = await axios.get(apiUrl);
-        return response.data; // Return the API response data
+        const results = response.data.result;
+
+        // console.log(results, "RESPONSE");
+
+        // Check for matching transactionHash
+        if (results.length > 1) {
+            for (const result of results) {
+                console.log(result,"YAHN",transactionHash)
+                if (result.transactionHash === transactionHash) {
+                    console.log(result.data, "RESPONSE");
+                    return result.data; // Return the data for the matching transaction
+                }
+            }
+        } else if (results.length === 1) {
+            return results[0].data; // Return the single result's data
+        }
+
+        throw new Error('No matching transaction found');
     } catch (error) {
         console.error('Error fetching logs:', error);
         throw error; // Throw error for handling in caller function
     }
 }
+
 
 export const getTransactions = async () => {
     try {
@@ -93,6 +119,7 @@ export const getTransactions = async () => {
                 action: 'txlist',
                 address: address,
                 startblock: 0,
+                offset: 100,
                 endblock: 'latest',
                 sort: 'desc',
                 apikey: ETHERSCAN_API_KEY
@@ -101,10 +128,12 @@ export const getTransactions = async () => {
 
         if (response.data.status === '1') {
             const transactions = response.data.result;
-            
+
+            // Limit the transactions to the latest 100
+            const latest100Transactions = transactions.slice(0, 10);
 
             // Process each transaction
-            const decodedTransactions = await Promise.all(transactions.map(async (transaction) => {
+            const decodedTransactions = await Promise.all(latest100Transactions.map(async (transaction) => {
                 return await decodeTransactionInput(transaction);
             }));
             

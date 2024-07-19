@@ -21,7 +21,6 @@ const Middleware = () => {
     };
   
     getData();
-    // getTransactions()
   }, []);
   return (
     <div>
