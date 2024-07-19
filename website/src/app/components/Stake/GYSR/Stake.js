@@ -116,7 +116,7 @@ function Stake() {
     return (
         <>
             {isPopupOpen && <Popup isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-mobile-section-width lg:w-section-width m-[auto] pt-8 pb-16 max-w-center-width">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-mobile-section-width lg:w-section-width m-[auto] pt-8 pb-8 max-w-center-width">
 
                 {isStakeClicked || localStorage.getItem('walletConnected') ? (<>
                     <div className="rounded-2xl p-6 lg:p-10 flex flex-col justify-between h-[auto] bg-white-background stake-card">
@@ -155,14 +155,19 @@ function Stake() {
                             </div>
                             <div className="rounded-[25px]  flex justify-center w-[100%] mt-6 text-[#101010]">
                                 <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[30%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
-                                    <div className=" maxButtonHover rounded-full px-5 py-[1px] text-original-white flex items-center">
-                                        <p className="text-[6px] lg:text-[12px] pb-[2px]">max</p>
-                                    </div>
+                                    
                                     <h className="text-[10px] lg:text-[14px] font-medium">UNI-V2</h>
 
                                 </div>
-                                <input className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[75%] focus:outline-none bg-original-white" placeholder="Amount of UNI-V2 to stake" />
-
+                                <div className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[75%] focus:outline-none bg-original-white flex flex-row justify-between">
+                                <div className='w-[80%]'>
+                                <input className='w-[100%]'  placeholder="Amount of UNI-V2 to stake" 
+                                /> 
+                                </div> 
+                                <div className=" maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
+                                        <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
+                                </div>
+                                </div>
                             </div>
 
                         </div>
@@ -172,7 +177,7 @@ function Stake() {
                             <button type="button" className="relative group bg-black-background py-2  px-8 rounded-full flex items-center  gap-3"
                                 id={"approveUniV2"}
                                 onClick={() => {
-                                    handleApproveClick()
+                                    // handleApproveClick()
                                 }}>
                                 <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                 <p className="relative z-10 text-original-white text-[13px] ">Approve SUNI-V2</p>
@@ -288,14 +293,21 @@ function Stake() {
                                 </div>
                             </div>
                             <div className="rounded-[25px]  flex justify-center w-[100%] mt-6 text-[#101010]">
-                                <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[25%] md:w-[42%] xl:w-[35%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
-                                    <div className=" maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
-                                        <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
-                                    </div>
+                                <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[25%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
+                                    
                                     <h className="text-[10px] lg:text-[14px] font-medium">UNI-V2</h>
 
                                 </div>
-                                <input className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[65%] focus:outline-none bg-original-white" placeholder="Amount of UNI-V2 to stake" />
+                                <div className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[75%] focus:outline-none bg-original-white flex flex-row justify-between">
+                                <div className='w-[80%]'>
+                                <input className='w-[100%]'  placeholder="Amount of UNI-V2 to stake" 
+                                /> 
+                                </div> 
+                                <div className=" maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
+                                        <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
+                                </div>
+                                </div>
+                                
 
 
 
@@ -304,13 +316,19 @@ function Stake() {
                                 <div className="w-[50%] flex justify-between items-end gap-0">
                                     <div className="rounded-[25px]  flex justify-center w-[100%] ">
                                         <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[60%] border-l-0 bg-[#E6DFFF] flex justify-center gap-1 lg:gap-1 items-center">
-                                            <div className="maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
-                                                <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
-                                            </div>
+                                            
                                             <h className="text-[10px] lg:text-[14px] font-medium">GYSR</h>
 
                                         </div>
-                                        <input className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[60%] focus:outline-none bg-original-white" placeholder="0.00" />
+                                        <div className="p-2 lg:p-3 border-[1.5px] border-l-0 rounded-r-[25px] rounded-l-none w-[65%] focus:outline-none bg-original-white flex flex-row justify-between">
+                                            <div className='w-[80%]'>
+                                            <input className='w-[100%]'  placeholder="0.00" 
+                                            /> 
+                                            </div> 
+                                            <div className=" maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
+                                                    <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
+                                            </div>
+                                            </div>
 
 
 

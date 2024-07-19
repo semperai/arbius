@@ -68,7 +68,7 @@ function Stats({data}) {
     ]
     return (
         <>
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-mobile-section-width lg:w-section-width m-[auto] pt-8 pb-16 max-w-center-width text-[#101010]">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-mobile-section-width lg:w-section-width m-[auto] pt-8 pb-8 max-w-center-width text-[#101010]">
 
                 <div className="rounded-2xl p-6 lg:p-10 h-[auto]  lg:h-[auto]  bg-white-background stake-card">
                     <div>
@@ -125,16 +125,16 @@ function Stats({data}) {
                                 <h1 className="text-[20px] lg:text-[28px] font-medium">{parseFloat(data?.pool?.funded/1000).toFixed(2)}k&nbsp;</h1>
                                 <p className="text-[14px] ">AIUS</p>
                             </div>
-                            <h1 className="text-[8px] lg:text-[13px] font-medium">Funded Rewards</h1>
+                            <h1 className="text-[8px] lg:text-[13px] font-medium opacity-70">Funded Rewards</h1>
                         </div>
                         <div className="flex justify-start gap-[40px] mt-12 pb-8">
                             <div >
                                 <h1 className="text-[20px] lato-bold">{parseFloat((data.pool.funded/1000-data.pool.distributed/1000).toFixed(2))}k AIUS</h1>
-                                <h2 className="text-[14px] font-medium">Remaining</h2>
+                                <h2 className="text-[14px] font-medium opacity-70">Remaining</h2>
                             </div>
                             <div >
                                 <h1 className="text-[20px] lato-bold">{parseFloat(data.pool.distributed/1000).toFixed(2)}k AIUS</h1>
-                                <h2 className="text-[14px] font-medium">Distributed</h2>
+                                <h2 className="text-[14px] font-medium opacity-70">Distributed</h2>
                             </div>
                         </div>
                     </div>

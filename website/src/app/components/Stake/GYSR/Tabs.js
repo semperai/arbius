@@ -16,28 +16,16 @@ function Tabs({data}) {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const handleResize = () => {
+            // const handleResize = () => {
                 const isMobile = window.innerWidth <= 768;
                 console.log(window.innerWidth)
                 if (isMobile) {
-                    setSelectedTab("Stats");
-                    // alert('hi');
-                } else {
                     
-                    // alert('hiijijiji');
+                    setSelectedTab("Stats");
                 }
-            };
+            // };
     
-            // Run the handler on mount
-            handleResize();
-    
-            // Add resize event listener
-            window.addEventListener('resize', handleResize);
-    
-            // Cleanup on unmount
-            return () => {
-                window.removeEventListener('resize', handleResize);
-            };
+            
         }
     }, []);
     
@@ -50,7 +38,7 @@ function Tabs({data}) {
                         {tabs.map(function (item, index) {
                             return (
                                 <div
-                                    className={`
+                                    className={`font-[600]
                         ${selectedTab === item ? "selected" : "non-selected"} hover:text-purple-text`
                                     }
                                     onClick={() => {
@@ -69,7 +57,7 @@ function Tabs({data}) {
 
             </div>
 
-            <div className="pt-8 pb-24 lg:py-24 max-w-center-width bg-aius-stake min-w-full">
+            <div className="pt-4 pb-4 lg:py-24 max-w-center-width bg-aius-stake min-w-full">
 
                 <div className="w-mobile-section-width lg:w-[90%] m-[auto] lg:hidden">
                     <div className="flex lg:hidden justify-center rounded-full bg-white-background w-[100%] mb-6 ">

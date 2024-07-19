@@ -146,7 +146,6 @@ export default function Header() {
                     onClick={() => {
                       setHeaderOpen(!headerOpen)
                     }}
-                    target="_blank"
                   >
 
                     <div className="staking-block relative">
