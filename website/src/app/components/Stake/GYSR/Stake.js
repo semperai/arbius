@@ -288,7 +288,7 @@ function Stake() {
                                 </div>
                             </div>
                             <div className="rounded-[25px]  flex justify-center w-[100%] mt-6 text-[#101010]">
-                                <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[35%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
+                                <div className="p-2 lg:p-3 px-2  rounded-l-[25px] rounded-r-none  border-[1px] w-[25%] md:w-[42%] xl:w-[35%] border-l-0 bg-[#E6DFFF] flex justify-center gap-2 lg:gap-2 items-center">
                                     <div className=" maxButtonHover  rounded-full px-3 py-[1px] text-original-white flex items-center">
                                         <p className="text-[6px] lg:text-[11px] pb-[2px]">max</p>
                                     </div>

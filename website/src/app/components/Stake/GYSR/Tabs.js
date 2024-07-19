@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState ,useEffect} from 'react'
 import ActivityTable from "@/app/components/Stake/GYSR/ActivityTable";
 import Stake from "@/app/components/Stake/GYSR/Stake";
 import Stats from "@/app/components/Stake/GYSR/Stats";
@@ -11,8 +11,37 @@ const mobiletabs = [
     "Stats", "Activity"
 ]
 function Tabs({data}) {
-    const [selectedtab, setSelectedTab] = useState("Stake")
-    const [mobileSelectedtab, setMobileSelectedTab] = useState("Stats")
+    const [selectedTab, setSelectedTab] = useState("Stake");
+    const [mobileSelectedTab, setMobileSelectedTab] = useState("Stats");
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const handleResize = () => {
+                const isMobile = window.innerWidth <= 768;
+                console.log(window.innerWidth)
+                if (isMobile) {
+                    setSelectedTab("Stats");
+                    // alert('hi');
+                } else {
+                    
+                    // alert('hiijijiji');
+                }
+            };
+    
+            // Run the handler on mount
+            handleResize();
+    
+            // Add resize event listener
+            window.addEventListener('resize', handleResize);
+    
+            // Cleanup on unmount
+            return () => {
+                window.removeEventListener('resize', handleResize);
+            };
+        }
+    }, []);
+    
+    
     return (
         <>
             <div className="w-mobile-section-width lg:w-section-width m-[auto]  max-w-center-width ">
@@ -22,7 +51,7 @@ function Tabs({data}) {
                             return (
                                 <div
                                     className={`
-                        ${selectedtab === item ? "selected" : "non-selected"} hover:text-purple-text`
+                        ${selectedTab === item ? "selected" : "non-selected"} hover:text-purple-text`
                                     }
                                     onClick={() => {
                                         setSelectedTab(item)
@@ -48,7 +77,7 @@ function Tabs({data}) {
 
                             return (
                                 <div className="w-[50%]" key={index}>
-                                    <button type="button" className={`${mobileSelectedtab === item ? "bg-buy-hover text-original-white" : "text-subtext-three"} rounded-full  flex items-center w-[100%] justify-center py-4 `} onClick={() => {
+                                    <button type="button" className={`${mobileSelectedTab === item ? "bg-buy-hover text-original-white" : "text-subtext-three"} rounded-full  flex items-center w-[100%] justify-center py-4 `} onClick={() => {
                                         setMobileSelectedTab(item)
                                         setSelectedTab(item)
                                     }}>
@@ -61,11 +90,11 @@ function Tabs({data}) {
 
                 </div>
 
-                {selectedtab === "Stake" && (<Stake />)}
-                {selectedtab === "Stats" && (
+                {selectedTab === "Stake" && (<Stake />)}
+                {selectedTab === "Stats" && (
                     <Stats data={data} />
                 )}
-                {selectedtab === "Activity" && (
+                {selectedTab === "Activity" && (
                     <div className="w-mobile-section-width lg:w-section-width m-[auto] pt-8 pb-16 max-w-center-width ">
                         <ActivityTable />
                     </div>

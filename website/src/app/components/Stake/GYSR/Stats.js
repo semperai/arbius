@@ -12,17 +12,15 @@ function Stats({data}) {
     
         // Extract the date components
         let year = date.getFullYear();
-        let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based, so we add 1
-        let day = date.getDate().toString().padStart(2, '0');
-        let hours = date.getHours().toString().padStart(2, '0');
-        let minutes = date.getMinutes().toString().padStart(2, '0');
-        let seconds = date.getSeconds().toString().padStart(2, '0');
+        let month = (date.getMonth() + 1); // Months are zero-based, so we add 1
+        let day = date.getDate();
     
         // Format the date string
-        let formattedDate = `${year}/${month}/${day}`;
+        let formattedDate = `${month}/${day}/${year}`;
     
         return formattedDate;
     }
+    
     function daysBetweenCurrentAndPassedDate(passedDate) {
         // Current date
         const currentDate = new Date();
@@ -100,11 +98,11 @@ function Stats({data}) {
                     <div className="flex justify-start gap-[40px] mt-4">
                         <div >
                             <h1 className="text-[24px] text-purple-text">${parseFloat(data.pool.tvl/1000000).toFixed(2) }M</h1>
-                            <h2 className="text-[18px] font-medium" onClick={()=>claimRwards()}>Value locked</h2>
+                            <h2 className="text-[18px] font-medium" onClick={()=>claimRwards()}>Value Locked</h2>
                         </div>
                         <div >
                             <h1 className="text-[24px] text-purple-text">$0&nbsp;</h1>
-                            <h2 className="text-[18px] font-medium">24Hr Volumes</h2>
+                            <h2 className="text-[18px] font-medium">24hr Volumes</h2>
                         </div>
                     </div>
                 </div>
