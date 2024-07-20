@@ -758,7 +758,7 @@ contract VeStakingTest is BaseTest {
         );
     }
 
-    function testBalanceWhenMergingShort() public {
+    function testBalanceWhenMergingShortToLong() public {
         // alice locks for max lock duration
         vm.prank(alice);
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
@@ -814,6 +814,66 @@ contract VeStakingTest is BaseTest {
         assertEq(
             veStaking.balanceOf(2),
             stakingBalance2 + diff,
+            "!balanceOf(2)"
+        );
+    }
+
+    function testBalanceWhenMergingLongToShort() public {
+        // alice locks for max lock duration
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, MAX_LOCK_TIME);
+
+        // get balances
+        uint256 escrowBalance = votingEscrow.balanceOfNFT(1);
+        uint256 stakingBalance = veStaking.balanceOf(1);
+
+        // fast forward
+        skip(4 weeks);
+
+        // alice creates another, very short lock
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 2 weeks);
+
+        // get balances
+        uint256 escrowBalance2 = votingEscrow.balanceOfNFT(2);
+        uint256 stakingBalance2 = veStaking.balanceOf(2);
+
+        // balances should be equal
+        assertEq(
+            escrowBalance,
+            stakingBalance,
+            "escrowBalance != stakingBalance"
+        );
+        assertEq(
+            escrowBalance2,
+            stakingBalance2,
+            "escrowBalance2 != stakingBalance2"
+        );
+
+        // fast forward
+        skip(1 weeks);
+
+        // get balance of lock #1 before merge
+        uint256 escrowBalanceBeforeMerge = votingEscrow.balanceOfNFT(1);
+
+        // alice decides to merge lock #2 into lock #1
+        vm.prank(alice);
+        votingEscrow.merge(2, 1);
+
+        // get balance of lock #1 after merge
+        uint256 escrowBalanceAfterMerge = votingEscrow.balanceOfNFT(1);
+        uint256 diff = escrowBalanceAfterMerge - escrowBalanceBeforeMerge;
+
+        // rewards for lock #2 should be claimed
+        assertEq(veStaking.rewards(2), 0, "rewards(1) != 0");
+        // balance of lock #2 should be 0
+        assertEq(veStaking.balanceOf(2), 0, "balanceOf(1) != 0");
+
+        // staking balance should have increased by `diff`
+        // since merging is like calling increase_amount on the lock with the highest unlock time
+        assertEq(
+            veStaking.balanceOf(1),
+            stakingBalance + diff,
             "!balanceOf(2)"
         );
     }
