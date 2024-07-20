@@ -757,7 +757,7 @@ contract GovernanceTest is Test {
 
         uint tokenId = votingEscrow.create_lock(100 ether, 7 days);
 
-        for(uint256 i = 0; i < votingEscrow.MAX_DELEGATES() - 1; i++) {
+        for (uint256 i = 0; i < votingEscrow.MAX_DELEGATES() - 1; i++) {
             vm.roll(block.number + 1);
             vm.warp(block.timestamp + 2);
 

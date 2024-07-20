@@ -112,11 +112,13 @@ contract VotingEscrowTest is BaseTest {
         // create a few locks to set initial total supply
         votingEscrow.create_lock(100 ether, YEAR); // veNFT id 1
         vm.prank(alice);
-        votingEscrow.create_lock(200 ether, 2 * YEAR);  // veNFT id 2
+        votingEscrow.create_lock(200 ether, 2 * YEAR); // veNFT id 2
         vm.prank(bob);
-        votingEscrow.create_lock(50 ether, 6 * MONTH);  // veNFT id 3
+        votingEscrow.create_lock(50 ether, 6 * MONTH); // veNFT id 3
 
-        uint256 firstTotalSupply = votingEscrow.balanceOfNFT(1) + votingEscrow.balanceOfNFT(2) + votingEscrow.balanceOfNFT(3);
+        uint256 firstTotalSupply = votingEscrow.balanceOfNFT(1) +
+            votingEscrow.balanceOfNFT(2) +
+            votingEscrow.balanceOfNFT(3);
         // for some weird reason we have to hardcode timestamps here, optimizer is probably fucking something up
         uint256 firstTimestamp = 1703721600;
         assertEq(votingEscrow.totalSupplyAtT(firstTimestamp), firstTotalSupply);
@@ -128,9 +130,13 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.create_lock(100 ether, MAX_LOCK_TIME); // veNFT id 4
 
         // only alice' and charlies locks are still active
-        uint256 secondTotalSupply = votingEscrow.balanceOfNFT(2) + votingEscrow.balanceOfNFT(4);
+        uint256 secondTotalSupply = votingEscrow.balanceOfNFT(2) +
+            votingEscrow.balanceOfNFT(4);
         uint256 secondTimestamp = 1735257600;
-        assertEq(votingEscrow.totalSupplyAtT(secondTimestamp), secondTotalSupply);
+        assertEq(
+            votingEscrow.totalSupplyAtT(secondTimestamp),
+            secondTotalSupply
+        );
 
         // fast forward 1 year
         skip(YEAR);
@@ -141,7 +147,7 @@ contract VotingEscrowTest is BaseTest {
         assertEq(votingEscrow.totalSupplyAtT(thirdTimestamp), thirdTotalSupply);
 
         // fast forward 4 years
-        skip(4*YEAR);
+        skip(4 * YEAR);
 
         // all locks are expired
         uint256 fourthTimestamp = 1892937600;
@@ -149,7 +155,10 @@ contract VotingEscrowTest is BaseTest {
 
         // querying total supply from the past should work
         assertEq(votingEscrow.totalSupplyAtT(firstTimestamp), firstTotalSupply);
-        assertEq(votingEscrow.totalSupplyAtT(secondTimestamp), secondTotalSupply);
+        assertEq(
+            votingEscrow.totalSupplyAtT(secondTimestamp),
+            secondTotalSupply
+        );
         assertEq(votingEscrow.totalSupplyAtT(thirdTimestamp), thirdTotalSupply);
         assertEq(votingEscrow.totalSupplyAtT(fourthTimestamp), 0);
     }

@@ -65,43 +65,43 @@ contract V2_EngineV4 is OwnableUpgradeable {
     IBaseToken public baseToken;
 
     // where treasury fees/rewards go
-    address public treasury; 
+    address public treasury;
 
     // who can pause contract
-    address public pauser; 
+    address public pauser;
     // if contract is paused
-    bool public paused; 
+    bool public paused;
 
     // fees in baseToken accrued to treasury
-    uint256 public accruedFees; 
+    uint256 public accruedFees;
     // previous task hash, used to provide entropy for next task hash
-    bytes32 public prevhash; 
+    bytes32 public prevhash;
     // when this was initialized
-    uint64 public startBlockTime; 
+    uint64 public startBlockTime;
     // version (should be updated when performing updates)
-    uint256 public version; 
+    uint256 public version;
 
     // how much a validator needs to stay a validator (of total supply)
-    uint256 public validatorMinimumPercentage; 
+    uint256 public validatorMinimumPercentage;
     // how much validator should lose on failed vote (of total supply)
-    uint256 public slashAmountPercentage; 
+    uint256 public slashAmountPercentage;
     // How much of task fee for solutions go to treasury
-    uint256 public solutionFeePercentage;  
+    uint256 public solutionFeePercentage;
     // How much to charge users for retracting tasks (goes to treasury)
-    uint256 public retractionFeePercentage; 
+    uint256 public retractionFeePercentage;
     // How much of task reward to send to treasury
-    uint256 public treasuryRewardPercentage; 
+    uint256 public treasuryRewardPercentage;
 
     // how long a solver must wait to claim solution
-    uint256 public minClaimSolutionTime; 
+    uint256 public minClaimSolutionTime;
     // how long to wait without solution to retract
-    uint256 public minRetractionWaitTime;   
+    uint256 public minRetractionWaitTime;
     // how long voting period should last
-    uint256 public minContestationVotePeriodTime; 
+    uint256 public minContestationVotePeriodTime;
     // delay for validator "since" property after which a validator may no longer vote on a contestation
-    uint256 public maxContestationValidatorStakeSince; 
+    uint256 public maxContestationValidatorStakeSince;
     // how long it takes for a validator to wait to unstake
-    uint256 public exitValidatorMinUnlockTime; 
+    uint256 public exitValidatorMinUnlockTime;
 
     // model hash -> model
     mapping(bytes32 => Model) public models;

@@ -570,14 +570,14 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     //////////////////////////////////////////////////////////////*/
 
     mapping(uint256 => uint256) public user_point_epoch;
-     // user -> Point[user_epoch]
+    // user -> Point[user_epoch]
     mapping(uint256 => Point[1000000000]) public user_point_history;
     // tokenId -> LockedBalance
     mapping(uint256 => LockedBalance) public locked;
     // total count of epochs since contract creation
     uint256 public epoch;
     // time -> signed slope change
-    mapping(uint256 => int128) public slope_changes; 
+    mapping(uint256 => int128) public slope_changes;
     // total amount of tokens deposited
     uint256 public supply;
 
@@ -1125,8 +1125,9 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     }
 
     /// @notice Binary search to get epoch for a given timestamp
-    function _findEpochForTimestamp(uint256 ts) internal view returns (uint256)
-    {
+    function _findEpochForTimestamp(
+        uint256 ts
+    ) internal view returns (uint256) {
         uint256 min = 0;
         uint256 max = epoch;
 
