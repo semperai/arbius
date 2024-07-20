@@ -176,30 +176,6 @@ contract GovernanceTest is Test {
         assertEq(governor.proposalThreshold(), 1e18);
     }
 
-    function testVeAiusMergeAutoDelegates() public {
-        // get votes before merge
-        uint256 votesBefore1 = votingEscrow.getVotes(address(user1));
-        uint256 votesBefore2 = votingEscrow.getVotes(address(user2));
-
-        vm.startPrank(address(user1));
-
-        // merge
-        votingEscrow.approve(address(user2), 1);
-        votingEscrow.transferFrom(address(user1), address(user2), 1);
-        vm.stopPrank();
-        vm.startPrank(address(user2));
-        votingEscrow.merge(2, 1);
-        vm.stopPrank();
-
-        // assert vote balances
-        uint256 votesAfter = votingEscrow.getVotes(address(user2));
-        assertApproxEqAbs(
-            votesBefore1 + votesBefore2,
-            votesAfter,
-            4 * 365 * 86400 // merge rounds down time lock
-        );
-    }
-
     function testFailProposalHasQuorum() public {
         // deployer stakes 93 AIUS for max lock time, veAIUS total supply is ~100 veAIUS
         // quorum is 4% of total supply, so 4 veAIUS needed for successful proposal

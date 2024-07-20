@@ -28,8 +28,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         DEPOSIT_FOR_TYPE,
         CREATE_LOCK_TYPE,
         INCREASE_LOCK_AMOUNT,
-        INCREASE_UNLOCK_TIME,
-        MERGE_TYPE
+        INCREASE_UNLOCK_TIME
     }
 
     struct LockedBalance {
@@ -791,11 +790,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     ) internal {
         LockedBalance memory _locked = locked_balance;
         uint256 supply_before = supply;
-
-        // If we are merging, we don't need to add to supply
-        if (deposit_type != DepositType.MERGE_TYPE) {
-            supply = supply_before + _value;
-        }
+        supply = supply_before + _value;
 
         LockedBalance memory old_locked;
         (old_locked.amount, old_locked.end) = (_locked.amount, _locked.end);
@@ -820,10 +815,9 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         uint256 balanceDiff = balanceOfNFTAfter - balanceOfNFTBefore;
 
         // update veStaking balance
-        // three possibilites:
+        // two possibilites:
         // 1. create lock / increase lock amount: increase veStaking balance by `balanceDiff`
         // 2. increase unlock time: update veStaking balance to `balanceOfNFTAfter`
-        // 3. merge: increase veStaking balance by `balanceDiff`, since merging is similiar to increasing lock amount
         if (
             balanceDiff > 0 && deposit_type != DepositType.INCREASE_UNLOCK_TIME
         ) {
@@ -834,7 +828,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
 
         // transfer tokens in
         address from = msg.sender;
-        if (_value != 0 && deposit_type != DepositType.MERGE_TYPE) {
+        if (_value != 0) {
             assert(IERC20(token).transferFrom(from, address(this), _value));
             emit Supply(supply_before, supply_before + _value);
         }
@@ -1269,34 +1263,6 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     function abstain(uint256 _tokenId) external {
         require(msg.sender == voter);
         voted[_tokenId] = false;
-    }
-
-    /// @notice Merges `_from` into `_to`.
-    /// @dev Cannot merge `_from` locks that have already voted this epoch.
-    ///      Cannot merge `_to` locks that have already expired.
-    /// @param _from VeNFT to merge from.
-    /// @param _to VeNFT to merge into.   
-    function merge(uint256 _from, uint256 _to) external {
-        require(!voted[_from], "voted");
-        require(_from != _to);
-        require(_isApprovedOrOwner(msg.sender, _from));
-        require(_isApprovedOrOwner(msg.sender, _to));
-
-        LockedBalance memory _locked0 = locked[_from];
-        LockedBalance memory _locked1 = locked[_to];
-        uint256 value0 = uint256(int256(_locked0.amount));
-        uint256 end = _locked0.end >= _locked1.end
-            ? _locked0.end
-            : _locked1.end;
-
-        // withdraw from veStaking and claim any outstanding rewards
-        IVeStaking(veStaking)._withdraw(_from);
-        IVeStaking(veStaking).getReward(_from);
-
-        locked[_from] = LockedBalance(0, 0);
-        _checkpoint(_from, _locked0, LockedBalance(0, 0));
-        _burn(_from);
-        _deposit_for(_to, value0, end, _locked1, DepositType.MERGE_TYPE);
     }
 
     /*///////////////////////////////////////////////////////////////

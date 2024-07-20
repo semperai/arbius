@@ -133,7 +133,7 @@ contract VeStaking is IVeStaking, Ownable {
     /// @param tokenId ID of the veNFT
     /// @param amount Amount to stake
     /// @dev Internal notation is used since this function can only be called by the VotingEscrow contract
-    /// @dev This function is called by VotingEscrow.create_lock, VotingEscrow.increase_amount and VotingEscrow.merge
+    /// @dev This function is called by VotingEscrow.create_lock and VotingEscrow.increase_amount
     function _stake(
         uint256 tokenId,
         uint256 amount
