@@ -1083,6 +1083,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     ) internal view returns (uint256) {
         Point memory last_point = point;
         uint256 t_i = (last_point.ts / WEEK) * WEEK;
+
         for (uint256 i = 0; i < 255; ++i) {
             t_i += WEEK;
             int128 d_slope = 0;
@@ -1104,6 +1105,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         if (last_point.bias < 0) {
             last_point.bias = 0;
         }
+
         return uint256(uint128(last_point.bias));
     }
 
@@ -1117,9 +1119,29 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     /// @dev Adheres to the ERC20 `totalSupply` interface for Aragon compatibility
     /// @return Total voting power
     function totalSupplyAtT(uint256 t) public view returns (uint256) {
-        uint256 _epoch = epoch;
+        uint256 _epoch = _findEpochForTimestamp(t);
         Point memory last_point = point_history[_epoch];
         return _supply_at(last_point, t);
+    }
+
+    /// @notice Binary search to get epoch for a given timestamp
+    function _findEpochForTimestamp(uint256 ts) internal view returns (uint256)
+    {
+        uint256 min = 0;
+        uint256 max = epoch;
+
+        for (uint256 i = 0; i < 128; i++) {
+            if (min >= max) {
+                break;
+            }
+            uint256 mid = (min + max + 1) / 2;
+            if (point_history[mid].ts <= ts) {
+                min = mid;
+            } else {
+                max = mid - 1;
+            }
+        }
+        return min;
     }
 
     /*///////////////////////////////////////////////////////////////

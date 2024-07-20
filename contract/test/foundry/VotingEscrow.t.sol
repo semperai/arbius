@@ -108,6 +108,52 @@ contract VotingEscrowTest is BaseTest {
         assertEq(newTotalSupply, 0, "!totalSupply");
     }
 
+    function testTotalSupplyAt() public {
+        // create a few locks to set initial total supply
+        votingEscrow.create_lock(100 ether, YEAR); // veNFT id 1
+        vm.prank(alice);
+        votingEscrow.create_lock(200 ether, 2 * YEAR);  // veNFT id 2
+        vm.prank(bob);
+        votingEscrow.create_lock(50 ether, 6 * MONTH);  // veNFT id 3
+
+        uint256 firstTotalSupply = votingEscrow.balanceOfNFT(1) + votingEscrow.balanceOfNFT(2) + votingEscrow.balanceOfNFT(3);
+        // for some weird reason we have to hardcode timestamps here, optimizer is probably fucking something up
+        uint256 firstTimestamp = 1703721600;
+        assertEq(votingEscrow.totalSupplyAtT(firstTimestamp), firstTotalSupply);
+
+        // fast forward 1 year
+        skip(YEAR);
+
+        vm.prank(charlie);
+        votingEscrow.create_lock(100 ether, MAX_LOCK_TIME); // veNFT id 4
+
+        // only alice' and charlies locks are still active
+        uint256 secondTotalSupply = votingEscrow.balanceOfNFT(2) + votingEscrow.balanceOfNFT(4);
+        uint256 secondTimestamp = 1735257600;
+        assertEq(votingEscrow.totalSupplyAtT(secondTimestamp), secondTotalSupply);
+
+        // fast forward 1 year
+        skip(YEAR);
+
+        // only charlies lock is still active
+        uint256 thirdTotalSupply = votingEscrow.balanceOfNFT(4);
+        uint256 thirdTimestamp = 1766793600;
+        assertEq(votingEscrow.totalSupplyAtT(thirdTimestamp), thirdTotalSupply);
+
+        // fast forward 4 years
+        skip(4*YEAR);
+
+        // all locks are expired
+        uint256 fourthTimestamp = 1892937600;
+        assertEq(votingEscrow.totalSupply(), 0);
+
+        // querying total supply from the past should work
+        assertEq(votingEscrow.totalSupplyAtT(firstTimestamp), firstTotalSupply);
+        assertEq(votingEscrow.totalSupplyAtT(secondTimestamp), secondTotalSupply);
+        assertEq(votingEscrow.totalSupplyAtT(thirdTimestamp), thirdTotalSupply);
+        assertEq(votingEscrow.totalSupplyAtT(fourthTimestamp), 0);
+    }
+
     function testDepositedSupply() public {
         votingEscrow.create_lock(1000 ether, YEAR);
         assertEq(votingEscrow.supply(), 1000 ether, "!depositedSupply");
