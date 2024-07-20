@@ -54,24 +54,23 @@ export interface VotingEscrowInterface extends utils.Interface {
     "isApprovedOrOwner(address,uint256)": FunctionFragment;
     "locked(uint256)": FunctionFragment;
     "locked__end(uint256)": FunctionFragment;
-    "merge(uint256,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "numCheckpoints(address)": FunctionFragment;
+    "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "ownership_change(uint256)": FunctionFragment;
     "point_history(uint256)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setArtProxy(address)": FunctionFragment;
-    "setTeam(address)": FunctionFragment;
     "setVeStaking(address)": FunctionFragment;
     "setVoter(address)": FunctionFragment;
     "slope_changes(uint256)": FunctionFragment;
     "supply()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
-    "team()": FunctionFragment;
     "token()": FunctionFragment;
     "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
@@ -79,6 +78,7 @@ export interface VotingEscrowInterface extends utils.Interface {
     "totalSupplyAt(uint256)": FunctionFragment;
     "totalSupplyAtT(uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
     "user_point_epoch(uint256)": FunctionFragment;
     "user_point_history(uint256,uint256)": FunctionFragment;
     "user_point_history__ts(uint256,uint256)": FunctionFragment;
@@ -213,16 +213,13 @@ export interface VotingEscrowInterface extends utils.Interface {
     functionFragment: "locked__end",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "merge",
-    values: [BigNumberish, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "nonces", values: [string]): string;
   encodeFunctionData(
     functionFragment: "numCheckpoints",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [BigNumberish]
@@ -236,6 +233,10 @@ export interface VotingEscrowInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "safeTransferFrom",
     values: [string, string, BigNumberish]
   ): string;
@@ -244,7 +245,6 @@ export interface VotingEscrowInterface extends utils.Interface {
     values: [string, boolean]
   ): string;
   encodeFunctionData(functionFragment: "setArtProxy", values: [string]): string;
-  encodeFunctionData(functionFragment: "setTeam", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setVeStaking",
     values: [string]
@@ -260,7 +260,6 @@ export interface VotingEscrowInterface extends utils.Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(functionFragment: "team", values?: undefined): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "tokenOfOwnerByIndex",
@@ -285,6 +284,10 @@ export interface VotingEscrowInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "user_point_epoch",
@@ -412,13 +415,13 @@ export interface VotingEscrowInterface extends utils.Interface {
     functionFragment: "locked__end",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "merge", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "numCheckpoints",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "ownership_change",
@@ -426,6 +429,10 @@ export interface VotingEscrowInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "point_history",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -440,7 +447,6 @@ export interface VotingEscrowInterface extends utils.Interface {
     functionFragment: "setArtProxy",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setTeam", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setVeStaking",
     data: BytesLike
@@ -456,7 +462,6 @@ export interface VotingEscrowInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "team", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenOfOwnerByIndex",
@@ -477,6 +482,10 @@ export interface VotingEscrowInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -504,6 +513,7 @@ export interface VotingEscrowInterface extends utils.Interface {
     "DelegateChanged(address,address,address)": EventFragment;
     "DelegateVotesChanged(address,uint256,uint256)": EventFragment;
     "Deposit(address,uint256,uint256,uint256,uint8,uint256)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
     "Supply(uint256,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "Withdraw(address,uint256,uint256,uint256)": EventFragment;
@@ -514,6 +524,7 @@ export interface VotingEscrowInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DelegateChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DelegateVotesChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Supply"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Withdraw"): EventFragment;
@@ -561,6 +572,14 @@ export type DepositEvent = TypedEvent<
 >;
 
 export type DepositEventFilter = TypedEventFilter<DepositEvent>;
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  { previousOwner: string; newOwner: string }
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export type SupplyEvent = TypedEvent<
   [BigNumber, BigNumber],
@@ -767,17 +786,13 @@ export interface VotingEscrow extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    merge(
-      _from: BigNumberish,
-      _to: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     name(overrides?: CallOverrides): Promise<[string]>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     numCheckpoints(arg0: string, overrides?: CallOverrides): Promise<[number]>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
 
     ownerOf(
       _tokenId: BigNumberish,
@@ -800,6 +815,10 @@ export interface VotingEscrow extends BaseContract {
         blk: BigNumber;
       }
     >;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
       _from: string,
@@ -827,11 +846,6 @@ export interface VotingEscrow extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setTeam(
-      _team: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setVeStaking(
       _veStaking: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -855,8 +869,6 @@ export interface VotingEscrow extends BaseContract {
     ): Promise<[boolean]>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
-
-    team(overrides?: CallOverrides): Promise<[string]>;
 
     token(overrides?: CallOverrides): Promise<[string]>;
 
@@ -887,6 +899,11 @@ export interface VotingEscrow extends BaseContract {
       _from: string,
       _to: string,
       _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1090,17 +1107,13 @@ export interface VotingEscrow extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  merge(
-    _from: BigNumberish,
-    _to: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   name(overrides?: CallOverrides): Promise<string>;
 
   nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   numCheckpoints(arg0: string, overrides?: CallOverrides): Promise<number>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
 
   ownerOf(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -1120,6 +1133,10 @@ export interface VotingEscrow extends BaseContract {
       blk: BigNumber;
     }
   >;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   "safeTransferFrom(address,address,uint256)"(
     _from: string,
@@ -1147,11 +1164,6 @@ export interface VotingEscrow extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setTeam(
-    _team: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setVeStaking(
     _veStaking: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1175,8 +1187,6 @@ export interface VotingEscrow extends BaseContract {
   ): Promise<boolean>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
-
-  team(overrides?: CallOverrides): Promise<string>;
 
   token(overrides?: CallOverrides): Promise<string>;
 
@@ -1204,6 +1214,11 @@ export interface VotingEscrow extends BaseContract {
     _from: string,
     _to: string,
     _tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  transferOwnership(
+    newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1399,17 +1414,13 @@ export interface VotingEscrow extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    merge(
-      _from: BigNumberish,
-      _to: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     name(overrides?: CallOverrides): Promise<string>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     numCheckpoints(arg0: string, overrides?: CallOverrides): Promise<number>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
 
     ownerOf(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -1429,6 +1440,8 @@ export interface VotingEscrow extends BaseContract {
         blk: BigNumber;
       }
     >;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     "safeTransferFrom(address,address,uint256)"(
       _from: string,
@@ -1453,8 +1466,6 @@ export interface VotingEscrow extends BaseContract {
 
     setArtProxy(_proxy: string, overrides?: CallOverrides): Promise<void>;
 
-    setTeam(_team: string, overrides?: CallOverrides): Promise<void>;
-
     setVeStaking(_veStaking: string, overrides?: CallOverrides): Promise<void>;
 
     setVoter(_voter: string, overrides?: CallOverrides): Promise<void>;
@@ -1472,8 +1483,6 @@ export interface VotingEscrow extends BaseContract {
     ): Promise<boolean>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
-
-    team(overrides?: CallOverrides): Promise<string>;
 
     token(overrides?: CallOverrides): Promise<string>;
 
@@ -1504,6 +1513,11 @@ export interface VotingEscrow extends BaseContract {
       _from: string,
       _to: string,
       _tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1605,6 +1619,15 @@ export interface VotingEscrow extends BaseContract {
       deposit_type?: null,
       ts?: null
     ): DepositEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
 
     "Supply(uint256,uint256)"(
       prevSupply?: null,
@@ -1792,17 +1815,13 @@ export interface VotingEscrow extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    merge(
-      _from: BigNumberish,
-      _to: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonces(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     numCheckpoints(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     ownerOf(
       _tokenId: BigNumberish,
@@ -1817,6 +1836,10 @@ export interface VotingEscrow extends BaseContract {
     point_history(
       arg0: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -1845,11 +1868,6 @@ export interface VotingEscrow extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setTeam(
-      _team: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setVeStaking(
       _veStaking: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1873,8 +1891,6 @@ export interface VotingEscrow extends BaseContract {
     ): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
-
-    team(overrides?: CallOverrides): Promise<BigNumber>;
 
     token(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1905,6 +1921,11 @@ export interface VotingEscrow extends BaseContract {
       _from: string,
       _to: string,
       _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2113,12 +2134,6 @@ export interface VotingEscrow extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    merge(
-      _from: BigNumberish,
-      _to: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonces(
@@ -2130,6 +2145,8 @@ export interface VotingEscrow extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     ownerOf(
       _tokenId: BigNumberish,
@@ -2144,6 +2161,10 @@ export interface VotingEscrow extends BaseContract {
     point_history(
       arg0: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -2172,11 +2193,6 @@ export interface VotingEscrow extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setTeam(
-      _team: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     setVeStaking(
       _veStaking: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2200,8 +2216,6 @@ export interface VotingEscrow extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    team(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -2232,6 +2246,11 @@ export interface VotingEscrow extends BaseContract {
       _from: string,
       _to: string,
       _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
