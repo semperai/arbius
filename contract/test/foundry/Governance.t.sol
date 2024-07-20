@@ -748,4 +748,38 @@ contract GovernanceTest is Test {
         (, , uint256 rate, ) = engine.models(modelid);
         assertEq(rate, 1e18);
     }
+
+    function testDelegateLimitGas() public {
+        // mint 1M AIUS
+        vm.prank(deployer);
+        baseToken.bridgeMint(address(this), 1e24);
+        baseToken.approve(address(votingEscrow), type(uint256).max);
+
+        uint tokenId = votingEscrow.create_lock(100 ether, 7 days);
+
+        for(uint256 i = 0; i < votingEscrow.MAX_DELEGATES() - 1; i++) {
+            vm.roll(block.number + 1);
+            vm.warp(block.timestamp + 2);
+
+            address fakeAccount = address(uint160(420 + i));
+
+            baseToken.transfer(fakeAccount, 1 ether);
+
+            vm.startPrank(fakeAccount);
+            baseToken.approve(address(votingEscrow), type(uint256).max);
+            votingEscrow.create_lock(1 ether, 52 weeks);
+            votingEscrow.delegate(address(this));
+            vm.stopPrank();
+        }
+
+        vm.roll(block.number + 1);
+        vm.warp(block.timestamp + 7 days);
+
+        uint initialGas = gasleft();
+        votingEscrow.withdraw(tokenId);
+        uint gasUsed = initialGas - gasleft();
+
+        // gas limit on arbitrum is 32M
+        assertLt(gasUsed, 32_000_000);
+    }
 }
