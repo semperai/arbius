@@ -843,6 +843,8 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         );
     }
 
+    /// @notice Returns L1 block number ("ish")
+    /// @dev https://docs.arbitrum.io/build-decentralized-apps/arbitrum-vs-ethereum/block-numbers-and-time
     function block_number() external view returns (uint256) {
         return block.number;
     }
@@ -1204,6 +1206,10 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         return votes;
     }
 
+    /**
+     * @notice Binary search to get the user point index for a token id at or prior to a given timestamp
+     * @dev If a user point does not exist prior to the timestamp, this will return 0.
+     */
     function getPastVotesIndex(
         address account,
         uint256 timestamp
