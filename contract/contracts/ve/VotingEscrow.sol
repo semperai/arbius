@@ -1027,37 +1027,11 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
                            GAUGE VOTING STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    // The following ERC20/minime-compatible methods are not real balanceOf and supply!
+    // The following methods are not real balanceOf and supply!
     // They measure the weights for the purpose of voting, so they don't represent
     // real coins.
 
-    /// @notice Binary search to estimate timestamp for block number
-    /// @param _block Block to find
-    /// @param max_epoch Don't go beyond this epoch
-    /// @return Approximate timestamp for block
-    function _find_block_epoch(
-        uint256 _block,
-        uint256 max_epoch
-    ) internal view returns (uint256) {
-        // Binary search
-        uint256 _min = 0;
-        uint256 _max = max_epoch;
-        for (uint256 i = 0; i < 128; ++i) {
-            // Will be always enough for 128-bit numbers
-            if (_min >= _max) {
-                break;
-            }
-            uint256 _mid = (_min + _max + 1) / 2;
-            if (point_history[_mid].blk <= _block) {
-                _min = _mid;
-            } else {
-                _max = _mid - 1;
-            }
-        }
-        return _min;
-    }
-
-    /// @notice Get the current voting power for `_tokenId`
+    /// @notice Get the voting power for _tokenId at a given timestamp
     /// @dev Adheres to the ERC20 `balanceOf` interface for Aragon compatibility
     /// @param _tokenId NFT for lock
     /// @param _t Epoch time to return voting power at
@@ -1095,98 +1069,6 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
         uint256 _t
     ) external view returns (uint256) {
         return _balanceOfNFT(_tokenId, _t);
-    }
-
-    /// @notice Measure voting power of `_tokenId` at block height `_block`
-    /// @dev Adheres to MiniMe `balanceOfAt` interface: https://github.com/Giveth/minime
-    /// @param _tokenId User's wallet NFT
-    /// @param _block Block to calculate the voting power at
-    /// @return Voting power
-    function _balanceOfAtNFT(
-        uint256 _tokenId,
-        uint256 _block
-    ) internal view returns (uint256) {
-        // Copying and pasting totalSupply code because Vyper cannot pass by
-        // reference yet
-        assert(_block <= block.number);
-
-        // Binary search
-        uint256 _min = 0;
-        uint256 _max = user_point_epoch[_tokenId];
-        for (uint256 i = 0; i < 128; ++i) {
-            // Will be always enough for 128-bit numbers
-            if (_min >= _max) {
-                break;
-            }
-            uint256 _mid = (_min + _max + 1) / 2;
-            if (user_point_history[_tokenId][_mid].blk <= _block) {
-                _min = _mid;
-            } else {
-                _max = _mid - 1;
-            }
-        }
-
-        Point memory upoint = user_point_history[_tokenId][_min];
-
-        uint256 max_epoch = epoch;
-        uint256 _epoch = _find_block_epoch(_block, max_epoch);
-        Point memory point_0 = point_history[_epoch];
-        uint256 d_block = 0;
-        uint256 d_t = 0;
-        if (_epoch < max_epoch) {
-            Point memory point_1 = point_history[_epoch + 1];
-            d_block = point_1.blk - point_0.blk;
-            d_t = point_1.ts - point_0.ts;
-        } else {
-            d_block = block.number - point_0.blk;
-            d_t = block.timestamp - point_0.ts;
-        }
-        uint256 block_time = point_0.ts;
-        if (d_block != 0) {
-            block_time += (d_t * (_block - point_0.blk)) / d_block;
-        }
-
-        upoint.bias -= upoint.slope * int128(int256(block_time - upoint.ts));
-        if (upoint.bias >= 0) {
-            return uint256(uint128(upoint.bias));
-        } else {
-            return 0;
-        }
-    }
-
-    function balanceOfAtNFT(
-        uint256 _tokenId,
-        uint256 _block
-    ) external view returns (uint256) {
-        return _balanceOfAtNFT(_tokenId, _block);
-    }
-
-    /// @notice Calculate total voting power at some point in the past
-    /// @param _block Block to calculate the total voting power at
-    /// @return Total voting power at `_block`
-    function totalSupplyAt(uint256 _block) external view returns (uint256) {
-        assert(_block <= block.number);
-        uint256 _epoch = epoch;
-        uint256 target_epoch = _find_block_epoch(_block, _epoch);
-
-        Point memory point = point_history[target_epoch];
-        uint256 dt = 0;
-        if (target_epoch < _epoch) {
-            Point memory point_next = point_history[target_epoch + 1];
-            if (point.blk != point_next.blk) {
-                dt =
-                    ((_block - point.blk) * (point_next.ts - point.ts)) /
-                    (point_next.blk - point.blk);
-            }
-        } else {
-            if (point.blk != block.number) {
-                dt =
-                    ((_block - point.blk) * (block.timestamp - point.ts)) /
-                    (block.number - point.blk);
-            }
-        }
-        // Now dt contains info on how far are we beyond point
-        return _supply_at(point, point.ts + dt);
     }
 
     /// @notice Calculate total voting power at some point in the past
