@@ -102,7 +102,7 @@ function Stats({data}) {
                         </div>
                         <div >
                             <h1 className="text-[24px] text-purple-text">$0&nbsp;</h1>
-                            <h2 className="text-[18px] font-medium">24hr Volumes</h2>
+                            <h2 className="text-[18px] font-medium">24hr Volume</h2>
                         </div>
                     </div>
                 </div>
