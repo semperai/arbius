@@ -5,6 +5,7 @@ import info_icon from '@/app/assets/images/info_icon_white.png'
 import Image from "next/image"
 import ReactSlider from 'react-slider'
 import Link from "next/link"
+import { relative } from "path"
 export default function Stake({selectedtab, setSelectedTab}) {
     const [sliderValue, setSliderValue] = useState(0)
     const [duration, setDuration] = useState({
@@ -59,8 +60,10 @@ export default function Stake({selectedtab, setSelectedTab}) {
                                         setSliderValue(value)
                                     }}
                                     renderMark={(props) => {
-                                        props.className = "customSlider-mark customSlider-mark-before text-[16px] text-start ml-[0px] w-[16.66%]";
-                                        return <span {...props} >
+                                        const isSingleDigit = props.key.toString().length === 1;
+                                        props.className = `customSlider-mark customSlider-mark-before text-[16px] text-start w-[16.66%]  ${isSingleDigit ? 'ml-[7px] !important' : 'ml-[0px] !important'}}`;
+                                        
+                                        return <span {...props}  >
                                             <h1>{props.key}</h1>
                                         </span>;
                                     }}
