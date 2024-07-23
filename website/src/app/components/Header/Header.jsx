@@ -9,6 +9,7 @@ import arbius from "../../assets/images/arbius_logo_without_name.png";
 import gysr from "../../assets/images/gysr_logo_without_name.png";
 import kandinsky from "../../assets/images/kandinsky.png";
 import Image from "next/image";
+import arbiusBWlogo from "../../assets/images/connect_logo.png"
 import { usePathname, useRouter } from "next/navigation";
 import AnimateHeight from "react-animate-height";
 import Link from "next/link";
@@ -18,6 +19,7 @@ import { useWeb3Modal } from '@web3modal/react'; // main arbius component
 import {
   useAccount,
 } from 'wagmi';  // main arbius component
+import getAIUSBalance from "../../Utils/aiusWalletBalance";
 
 
 export default function Header() {
@@ -77,10 +79,18 @@ export default function Header() {
   const { open: openWeb3Modal } = useWeb3Modal()
 
   const [walletConnected, setWalletConnected] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
 
   useEffect(() => {
-    setWalletConnected(isConnected);
+    const wallet=getAIUSBalance()
+    if(localStorage.getItem('aiusBalance')){
+      setWalletBalance(localStorage.getItem('aiusBalance'))
+      setWalletConnected(true);
+    }
+    else{
+      setWalletConnected(isConnected);
+    }
   }, [isConnected]);
 
   function clickConnect() {
@@ -277,10 +287,13 @@ export default function Header() {
                 className="m-[auto] relative group bg-black-background lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
               >
                 <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white"
+                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white flex flex-row gap-2"
                   onClick={clickConnect}
                 >
-                  { walletConnected ? "Connected" : "Connect" }
+                  {
+                    walletConnected ? <Image style={{filter:'invert(1)'}} src={arbiusBWlogo} height={20} alt="connected"/>:null
+                  }
+                  { walletConnected ? walletBalance : "Connect" }
                 </div>
               </button>
             </div>
