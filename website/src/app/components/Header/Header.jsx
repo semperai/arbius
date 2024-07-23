@@ -84,20 +84,20 @@ export default function Header() {
 
   useEffect(() => {
     
-    if(localStorage.getItem('aiusBalance')){
-      const wallet=getAIUSBalance()
-      setWalletBalance(localStorage.getItem('aiusBalance'))
-      setWalletConnected(true);
-    }
-    else{
+    // if(localStorage.getItem('aiusBalance')){
+    //   const wallet=getAIUSBalance()
+    //   // setWalletBalance(localStorage.getItem('aiusBalance'))
+    //   setWalletConnected(true);
+    // }
+    // else{
       setWalletConnected(isConnected);
-    }
+    // }
   }, [isConnected]);
 
   function clickConnect() {
     async function f() {
       setLoadingWeb3Modal(true);
-      getAIUSBalance()
+      // getAIUSBalance()
       await openWeb3Modal();
       setLoadingWeb3Modal(false)
     }
@@ -295,7 +295,7 @@ export default function Header() {
                   {
                     walletConnected ? <Image style={{filter:'invert(1)'}} src={arbiusBWlogo} height={20} alt="connected"/>:null
                   }
-                  { walletConnected ? walletBalance : "Connect" }
+                  { walletConnected ? 'Connected' : "Connect" }
                 </div>
               </button>
             </div>
