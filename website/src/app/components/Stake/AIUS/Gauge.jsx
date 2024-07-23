@@ -73,7 +73,9 @@ function Gauge() {
     }
 
 
-    const {days, hours, minutes, seconds} = useTimer({expiryTimestamp: getVoteStartDate()})
+    const {days, hours, minutes, seconds} = useTimer({expiryTimestamp: getVoteStartDate(), onExpire: () => {
+        console.log("expired")
+    }})
 
 
     return (
@@ -172,7 +174,7 @@ function Gauge() {
 
                 <div className='text-[#4A28FF] text-[14px] w-[30%] gap-2 text-end font-semibold flex justify-end items-center'>
                     <Image src={clock_icon} className='h-4 w-4' />
-                    <h1>Voting starts in   {days} D : {hours} Hr : {minutes} Min</h1>
+                    <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {days} D : {hours} Hr : {minutes} Min</h1>
                 </div>
 
             </div>
