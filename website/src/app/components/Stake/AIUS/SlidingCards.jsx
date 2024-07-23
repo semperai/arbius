@@ -11,6 +11,230 @@ import ReactSlider from 'react-slider'
 import info_icon from "../../../assets/images/info_icon.png"
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
 
+
+
+
+function SlidingCards() {
+    const [showPopUp, setShowPopUp] = useState(false)
+    const sliderRef = useRef()
+    const [direction, setDirection] = useState("");
+
+    const data = [{
+        staked: "2,441.21",
+        apr: "14.1211%",
+        governance: "12.12",
+        stake_date: "6/14/2024",
+        end_date: "6/14/2024"
+    },
+    {
+
+        staked: "2,441.21",
+        apr: "14.1211%",
+        governance: "12.12",
+        stake_date: "6/14/2024",
+        end_date: "6/14/2024"
+    },
+    {
+
+        staked: "2,441.21",
+        apr: "14.1211%",
+        governance: "12.12",
+        stake_date: "6/14/2024",
+        end_date: "6/14/2024"
+    }
+    ]
+
+
+    var settings = {
+        dots: false,
+        infinite: false,
+        speed: 500,
+        slidesToShow: 2.3,
+        slidesToScroll: 1,
+        nextArrow: <NextBtn />,
+        prevArrow: <PrevBtn />,
+        responsive: [
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 1.5,
+                    slidesToScroll: 1
+                }
+            },
+            {
+                breakpoint: 475,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                }
+            },
+        ]
+    };
+
+    function PrevBtn(props) {
+        const { className, style, onClick } = props;
+        if (className.includes("slick-disabled")) {
+            setDirection("right");
+        }
+        return (
+            <div
+                className={`absolute top-[40%]  left-[-22px] cursor-pointer rounded-full  z-20 bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
+
+                onClick={onClick}
+            >
+                <Image src={arrow_prev} className=' mr-[2px]' width={15} height={15} />
+
+            </div>
+        );
+    }
+
+    function NextBtn(props) {
+        const { className, style, onClick } = props;
+        if (className.includes("slick-disabled")) {
+            setDirection("left");
+        }
+        return (
+            <div
+                className={`absolute top-[40%] rounded-full  right-[-20px] cursor-pointer  bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
+
+                onClick={onClick}
+            >
+                <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={15} height={15} />
+            </div>
+        );
+
+    }
+
+
+    useEffect(() => {
+        console.log(direction, "direction")
+        const elements = document.querySelectorAll('.slick-list');
+        elements.forEach(element => {
+            if (direction == "right") {
+                element.style.boxShadow = '10px 0 5px -4px rgba(18, 0, 117, 0.077)';
+            } else if (direction == "left") {
+                element.style.boxShadow = '-10px 0 5px -4px rgba(18, 0, 117, 0.077)';
+            }
+        });
+    }, [direction]);
+
+    return (
+        <div>
+            {showPopUp !== false && (
+                <PopUp setShowPopUp={setShowPopUp}>
+                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} />}
+                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp} />}
+                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp} />}
+                </PopUp>
+            )}
+            <div className='relative'>
+                <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
+
+
+
+                    <Slider {...settings}>
+                        {data?.map((item, key) => (
+
+                            <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] relative ' key={key}>
+
+                                <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' />
+                                <div className='flex justify-start gap-8 items-start'>
+                                    <div className='flex flex-col gap-3 justify-center items-start'>
+                                        <div>
+                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.staked} <span className="text-[11px] font-medium">AIUS</span></h2>
+
+                                        </div>
+                                        <div>
+                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">APR</h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.apr}</h2>
+
+                                        </div>
+
+                                    </div>
+                                    <div className='flex flex-col gap-3 justify-center items-start'>
+                                        <div>
+                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Governance Power</h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.governance}</h2>
+
+                                        </div>
+                                        <div>
+                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Staked on</h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.stake_date}</h2>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div className='flex justify-start gap-12 items-center mt-3'>
+                                    <div>
+                                        <h2 className="text-[12px] text-[#8D8D8D] font-semibold">End Date</h2>
+                                        <h2 className='text-[15px] font-semibold'>{item?.end_date}</h2>
+
+                                    </div>
+
+                                </div>
+
+                                <div className='flex justify-between gap-2 items-center mt-4'>
+
+                                    <div className='w-[32%]'>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPopUp("add")}
+                                            className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
+                                        >
+                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
+                                                Add
+                                            </div>
+
+                                        </button>
+                                    </div>
+                                    <div className='w-[32%]'>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPopUp("extend")}
+                                            className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
+                                        >
+                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
+                                                Extend
+                                            </div>
+
+                                        </button>
+                                    </div>
+                                    <div className='w-[32%]'>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPopUp("claim")}
+                                            className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
+                                        >
+                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div className="lato-bold  relative z-10 text-original-white lg:text-[15px]">
+                                                Claim
+                                            </div>
+
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        ))}
+                    </Slider>
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+    )
+}
+
 const AddPopUpChildren = ({ setShowPopUp }) => {
     return (
         <>
@@ -124,15 +348,15 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
                     onChange={(value) => {
                         if (value < 1) {
                             setDuration({ ...duration, months: 0, weeks: 4 * value })
-                            
+
                         } else {
                             setDuration({ ...duration, months: value, weeks: 0 })
                             // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
                         }
                         let date;
-                        if(Number.isInteger(value)){
-                            date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth()+value, extendStartDate.getDate());
-                        }else{
+                        if (Number.isInteger(value)) {
+                            date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate());
+                        } else {
                             date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value);
                         }
                         setExtendEndDate(date)
@@ -263,228 +487,6 @@ const ClaimPopUpChildren = ({ setShowPopUp }) => {
         </div>
     </>
 
-}
-
-
-function SlidingCards() {
-    const [showPopUp, setShowPopUp] = useState(false)
-    const sliderRef = useRef()
-    const [direction, setDirection] = useState("");
-
-    const data = [{
-        staked: "2,441.21",
-        apr: "14.1211%",
-        governance: "12.12",
-        stake_date: "6/14/2024",
-        end_date: "6/14/2024"
-    },
-    {
-
-        staked: "2,441.21",
-        apr: "14.1211%",
-        governance: "12.12",
-        stake_date: "6/14/2024",
-        end_date: "6/14/2024"
-    },
-    {
-
-        staked: "2,441.21",
-        apr: "14.1211%",
-        governance: "12.12",
-        stake_date: "6/14/2024",
-        end_date: "6/14/2024"
-    }
-    ]
-
-
-    var settings = {
-        dots: false,
-        infinite: false,
-        speed: 500,
-        slidesToShow: 2.3,
-        slidesToScroll: 1,
-        nextArrow: <NextBtn />,
-        prevArrow: <PrevBtn />,
-        responsive: [
-        {
-            breakpoint: 768,
-            settings: {
-              slidesToShow: 1.5,
-              slidesToScroll: 1
-            }
-        },
-        {
-            breakpoint: 475,
-            settings: {
-              slidesToShow: 1,
-              slidesToScroll: 1
-            }
-        },
-        ]
-    };
-
-    function PrevBtn(props) {
-        const { className, style, onClick } = props;
-        if(className.includes("slick-disabled")){
-            setDirection("right");
-        }
-        return (
-            <div
-                className={`absolute top-[40%]  left-[-22px] cursor-pointer rounded-full  z-20 bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
-
-                onClick={onClick}
-            >
-                <Image src={arrow_prev} className=' mr-[2px]' width={15} height={15} />
-
-            </div>
-        );
-    }
-
-    function NextBtn(props) {
-        const { className, style, onClick } = props;
-        if(className.includes("slick-disabled")){
-            setDirection("left");
-        }
-        return (
-            <div
-                className={`absolute top-[40%] rounded-full  right-[-20px] cursor-pointer  bg-white-background p-3 w-[45px] h-[45px] border-2  flex justify-center items-center`}
-
-                onClick={onClick}
-            >
-                <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={15} height={15} />
-            </div>
-        );
-
-    }
-
-
-    useEffect(() => {
-        console.log(direction, "direction")
-        const elements = document.querySelectorAll('.slick-list');
-        elements.forEach(element => {
-            if(direction == "right"){
-                element.style.boxShadow = '10px 0 5px -4px rgba(18, 0, 117, 0.077)';
-            }else if(direction == "left"){
-                element.style.boxShadow = '-10px 0 5px -4px rgba(18, 0, 117, 0.077)';
-            }
-        });
-    }, [direction]);
-
-    return (
-        <div>
-            {showPopUp !== false && (
-                <PopUp setShowPopUp={setShowPopUp}>
-                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} />}
-                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp} />}
-                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp} />}
-                </PopUp>
-            )}
-            <div className='relative'>
-                <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
-
-
-
-                    <Slider {...settings}>
-                        {data?.map((item, key) => (
-
-                            <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] relative ' key={key}>
-
-                                <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' />
-                                <div className='flex justify-start gap-8 items-start'>
-                                    <div className='flex flex-col gap-3 justify-center items-start'>
-                                        <div>
-                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.staked} <span className="text-[11px] font-medium">AIUS</span></h2>
-
-                                        </div>
-                                        <div>
-                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">APR</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.apr}</h2>
-
-                                        </div>
-
-                                    </div>
-                                    <div className='flex flex-col gap-3 justify-center items-start'>
-                                        <div>
-                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Governance Power</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.governance}</h2>
-
-                                        </div>
-                                        <div>
-                                            <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Staked on</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.stake_date}</h2>
-
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div className='flex justify-start gap-12 items-center mt-3'>
-                                    <div>
-                                        <h2 className="text-[12px] text-[#8D8D8D] font-semibold">End Date</h2>
-                                        <h2 className='text-[15px] font-semibold'>{item?.end_date}</h2>
-
-                                    </div>
-
-                                </div>
-
-                                <div className='flex justify-between gap-2 items-center mt-4'>
-
-                                    <div className='w-[32%]'>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPopUp("add")}
-                                            className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
-                                        >
-                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                            <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
-                                                Add
-                                            </div>
-
-                                        </button>
-                                    </div>
-                                    <div className='w-[32%]'>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPopUp("extend")}
-                                            className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
-                                        >
-                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                            <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
-                                                Extend
-                                            </div>
-
-                                        </button>
-                                    </div>
-                                    <div className='w-[32%]'>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPopUp("claim")}
-                                            className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
-                                        >
-                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                            <div className="lato-bold  relative z-10 text-original-white lg:text-[15px]">
-                                                Claim
-                                            </div>
-
-                                        </button>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        ))}
-                    </Slider>
-
-
-
-
-                </div>
-            </div>
-
-        </div>
-    )
 }
 
 export default SlidingCards

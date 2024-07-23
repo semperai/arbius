@@ -5,6 +5,26 @@ import Image from 'next/image'
 import aius_icon from "../../../assets/images/aius_icon.png"
 import gysr_logo_wallet from "../../../assets/images/gysr_logo_wallet.png"
 import GanttChart from './GanttChart'
+
+const getWalletData = ()=>{
+    return {
+        balance:641.12,
+        wallet_tvl:142.12,
+        estimated_total_apr:12.4512,
+        historical_lp_profit:41.12
+    };
+}
+
+const getProtocolData = ()=>{
+    return {
+        aius_staked_percentage:15,
+        aius_staked_money:1500000,
+        total_supply:1000000,
+        aius_market_cap:10.04,
+        circulating_supply:145432,
+    };
+}
+
 function DashBoard() {
     return (
         <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-10 lg:py-16' id="dashboard">
@@ -21,11 +41,11 @@ function DashBoard() {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Balance</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{641.12451.toFixed(2)} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{getWalletData().balance.toFixed(2)} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Historical LP Profit</h2>
-                                    <div className='flex justify-start items-center gap-2 mt-[2px]'> <h2 className='text-[16px] 2xl:text-[18px] font-semibold'>+ 41.12%</h2>
+                                    <div className='flex justify-start items-center gap-2 mt-[2px]'> <h2 className='text-[16px] 2xl:text-[18px] font-semibold'>+ {getWalletData().historical_lp_profit.toFixed(2)}%</h2>
                                         <Image src={gysr_logo_wallet} width={22} height={22} />
                                     </div>
                                 </div>
@@ -33,11 +53,11 @@ function DashBoard() {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Wallet TVL</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$142.12</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>${getWalletData().wallet_tvl.toFixed(2)}</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Estimated Total APR</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>12.4512%</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{getWalletData().estimated_total_apr.toFixed(4)}%</h2>
                                 </div>
                             </div>
                         </div>
@@ -65,13 +85,13 @@ function DashBoard() {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Staked</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>15% / $1,500,000</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{getProtocolData().aius_staked_percentage}% / ${getProtocolData().aius_staked_money.toLocaleString()}</h2>
 
 
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>1,000,000 <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{getProtocolData().total_supply.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
 
 
                                 </div>
@@ -80,13 +100,13 @@ function DashBoard() {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Market Cap</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$10.04M </h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>${getProtocolData().aius_market_cap.toFixed(2)}M </h2>
 
 
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Circulating supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>145,432 <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{getProtocolData().circulating_supply.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
 
 
                                 </div>

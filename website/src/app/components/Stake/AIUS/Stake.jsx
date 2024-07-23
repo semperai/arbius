@@ -6,6 +6,20 @@ import Image from "next/image"
 import ReactSlider from 'react-slider'
 import Link from "next/link"
 import { relative } from "path"
+
+const getAPR = ()=>{
+    return "0";
+}
+const getveAIUSBalance = ()=>{
+    return parseFloat(0.00).toFixed(2);
+}
+const getAvailableAIUS = ()=>{
+    return parseFloat(0.00).toFixed(2);
+}
+const handleStake = ()=>{
+    return;
+}
+
 export default function Stake({selectedtab, setSelectedTab}) {
     const [sliderValue, setSliderValue] = useState(0)
     const [duration, setDuration] = useState({
@@ -20,7 +34,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-stake lato-bold text-[18px]">Amount to lock</p>
-                            <p className="text-available lato-regular text-[15px]">Available 0.0 AIUS</p>
+                            <p className="text-available lato-regular text-[15px]">Available {getAvailableAIUS()} AIUS</p>
                         </div>
                         <div>
                             <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
@@ -85,7 +99,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
 
                         </div>
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">APR</p>
-                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">0%</p>
+                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{getAPR() + "%"}</p>
                     </div>
                     <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border relative">
                         <div className="right-3 top-3 absolute group cursor-pointer">
@@ -97,7 +111,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
 
                         </div>
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">veAIUS Balance</p>
-                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">0.00 <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
+                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{getveAIUSBalance()} <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
                     </div>
                 </div>
 
@@ -122,7 +136,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                     <div className=' mt-6'>
                         <button
                             type="button"
-
+                            onClick={handleStake}
                             className="relative justify-center py-2 group bg-black-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
                         >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
