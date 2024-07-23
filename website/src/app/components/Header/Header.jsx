@@ -83,8 +83,9 @@ export default function Header() {
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
 
   useEffect(() => {
-    const wallet=getAIUSBalance()
+    
     if(localStorage.getItem('aiusBalance')){
+      const wallet=getAIUSBalance()
       setWalletBalance(localStorage.getItem('aiusBalance'))
       setWalletConnected(true);
     }
@@ -96,6 +97,7 @@ export default function Header() {
   function clickConnect() {
     async function f() {
       setLoadingWeb3Modal(true);
+      getAIUSBalance()
       await openWeb3Modal();
       setLoadingWeb3Modal(false)
     }
