@@ -60,3 +60,27 @@ Run the following commands to deploy the contracts to your local hardhat network
 npx hardhat node
 npx hardhat --network localhost run scripts/deploy-local-net.ts
 ```
+
+## Deploying
+
+Set the required environment variables in the .env file, e.g. `ARBSEPOLIA_PRIVATE_KEY` and `ARBSEPOLIA_PROVIDER_URL`.
+
+Example command to deploy on Arbitrum Sepolia:
+
+```
+npx hardhat run scripts/deploy-sepolia-v4.ts --network arbsepolia
+```
+
+To verify contracts `ETHERSCAN_API_KEY` must be set in .env
+
+```
+npx hardhat verify <contract-address> --network arbsepolia
+```
+
+## Other
+
+Show contract sizes
+
+```
+forge build --sizes
+```
