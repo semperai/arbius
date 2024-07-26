@@ -50,17 +50,17 @@ contract VeNFTRender {
                         "Token ID: ",
                         toString(_tokenId),
                         '</text><text x="20" y="150" class="base">',
-                        "Locked $AIUS (wei): ",
-                        toString(_value),
+                        "Locked $AIUS: ",
+                        convertWeiToEtherString(_value),
                         '</text><text x="20" y="170" class="base">',
                         "Lock ends at: ",
                         locked_end,
                         '</text><text x="20" y="190" class="base">',
                         "Voting weight in veAIUS: ",
-                        toString(_balanceOf),
+                        convertWeiToEtherString(_balanceOf),
                         '</text><text x="20" y="210" class="base">',
                         "veStaking balance: ",
-                        toString(_veStakingBal),
+                        convertWeiToEtherString(_veStakingBal),
                         "</text>",
                         "</svg>"
                     )
@@ -85,6 +85,13 @@ contract VeNFTRender {
                     )
                 )
             );
+    }
+
+    function convertWeiToEtherString(uint256 value) internal pure returns (string memory) {
+        uint256 whole = value / 1e18;
+        uint256 fraction = (value % 1e18) / 1e14; // Considering 4 decimal places
+
+        return string(abi.encodePacked(toString(whole), ".", toString(fraction)));
     }
 
     function toString(uint256 value) internal pure returns (string memory) {
