@@ -171,6 +171,7 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
             IVeNFTRender(artProxy)._tokenURI(
                 _tokenId,
                 _balanceOfNFT(_tokenId, block.timestamp),
+                IVeStaking(veStaking).balanceOf(_tokenId),
                 _locked.end,
                 uint256(int256(_locked.amount))
             );

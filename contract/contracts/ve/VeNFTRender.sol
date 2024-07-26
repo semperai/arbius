@@ -1,17 +1,29 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 import "contracts/libraries/Base64.sol";
+import "contracts/libraries/DateTimeLibrary.sol";
 
 /// @title VeNFTRender
 /// @notice Renders the veAIUS NFT tokenURI
 contract VeNFTRender {
     function _tokenURI(
-        uint _tokenId,
-        uint _balanceOf,
-        uint _locked_end,
-        uint _value
+        uint256 _tokenId,
+        uint256 _balanceOf,
+        uint256 _veStakingBal,
+        uint256 _locked_end,
+        uint256 _value
     ) external pure returns (string memory output) {
+
+        // get datetime from timestamp
+        (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second) = BokkyPooBahsDateTimeLibrary.timestampToDateTime(_locked_end);
+
+        // convert datetime to string and append UTC
+        string memory locked_end = string(abi.encodePacked(
+            toString(year), "-", toString(month), "-", toString(day), " ",
+            toString(hour), ":", toString(minute), ":", toString(second), " UTC"
+        ));
+
         bytes memory image = abi.encodePacked(
             "data:image/svg+xml;base64,",
             Base64.encode(
@@ -38,14 +50,17 @@ contract VeNFTRender {
                         "Token ID: ",
                         toString(_tokenId),
                         '</text><text x="20" y="150" class="base">',
-                        "$veAIUS Balance (wei): ",
-                        toString(_balanceOf),
-                        '</text><text x="20" y="170" class="base">',
-                        "End Date (Unix): ",
-                        toString(_locked_end),
-                        '</text><text x="20" y="190" class="base">',
                         "Locked $AIUS (wei): ",
                         toString(_value),
+                        '</text><text x="20" y="170" class="base">',
+                        "Lock ends at: ",
+                        locked_end,
+                        '</text><text x="20" y="190" class="base">',
+                        "Voting weight in veAIUS: ",
+                        toString(_balanceOf),
+                        '</text><text x="20" y="210" class="base">',
+                        "veStaking balance: ",
+                        toString(_veStakingBal),
                         "</text>",
                         "</svg>"
                     )
