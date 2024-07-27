@@ -14,15 +14,33 @@ contract VeNFTRender {
         uint256 _locked_end,
         uint256 _value
     ) external pure returns (string memory output) {
-
         // get datetime from timestamp
-        (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second) = BokkyPooBahsDateTimeLibrary.timestampToDateTime(_locked_end);
+        (
+            uint256 year,
+            uint256 month,
+            uint256 day,
+            uint256 hour,
+            uint256 minute,
+            uint256 second
+        ) = BokkyPooBahsDateTimeLibrary.timestampToDateTime(_locked_end);
 
         // convert datetime to string and append UTC
-        string memory locked_end = string(abi.encodePacked(
-            toString(year), "-", toString(month), "-", toString(day), " ",
-            toString(hour), ":", toString(minute), ":", toString(second), " UTC"
-        ));
+        string memory locked_end = string(
+            abi.encodePacked(
+                toString(year),
+                "-",
+                toString(month),
+                "-",
+                toString(day),
+                " ",
+                toString(hour),
+                ":",
+                toString(minute),
+                ":",
+                toString(second),
+                " UTC"
+            )
+        );
 
         bytes memory image = abi.encodePacked(
             "data:image/svg+xml;base64,",
@@ -87,11 +105,14 @@ contract VeNFTRender {
             );
     }
 
-    function convertWeiToEtherString(uint256 value) internal pure returns (string memory) {
+    function convertWeiToEtherString(
+        uint256 value
+    ) internal pure returns (string memory) {
         uint256 whole = value / 1e18;
         uint256 fraction = (value % 1e18) / 1e14; // Considering 4 decimal places
 
-        return string(abi.encodePacked(toString(whole), ".", toString(fraction)));
+        return
+            string(abi.encodePacked(toString(whole), ".", toString(fraction)));
     }
 
     function toString(uint256 value) internal pure returns (string memory) {
