@@ -27,7 +27,6 @@ export interface VotingEscrowInterface extends utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "artProxy()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "balanceOfAtNFT(uint256,uint256)": FunctionFragment;
     "balanceOfNFT(uint256)": FunctionFragment;
     "balanceOfNFTAt(uint256,uint256)": FunctionFragment;
     "block_number()": FunctionFragment;
@@ -75,7 +74,6 @@ export interface VotingEscrowInterface extends utils.Interface {
     "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
-    "totalSupplyAt(uint256)": FunctionFragment;
     "totalSupplyAtT(uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
@@ -116,10 +114,6 @@ export interface VotingEscrowInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "artProxy", values?: undefined): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "balanceOfAtNFT",
-    values: [BigNumberish, BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "balanceOfNFT",
     values: [BigNumberish]
@@ -274,10 +268,6 @@ export interface VotingEscrowInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "totalSupplyAt",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "totalSupplyAtT",
     values: [BigNumberish]
   ): string;
@@ -331,10 +321,6 @@ export interface VotingEscrowInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "artProxy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "balanceOfAtNFT",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "balanceOfNFT",
     data: BytesLike
@@ -470,10 +456,6 @@ export interface VotingEscrowInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupplyAt",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -651,12 +633,6 @@ export interface VotingEscrow extends BaseContract {
     artProxy(overrides?: CallOverrides): Promise<[string]>;
 
     balanceOf(_owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    balanceOfAtNFT(
-      _tokenId: BigNumberish,
-      _block: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
 
     balanceOfNFT(
       _tokenId: BigNumberish,
@@ -885,11 +861,6 @@ export interface VotingEscrow extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    totalSupplyAt(
-      _block: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     totalSupplyAtT(
       t: BigNumberish,
       overrides?: CallOverrides
@@ -972,12 +943,6 @@ export interface VotingEscrow extends BaseContract {
   artProxy(overrides?: CallOverrides): Promise<string>;
 
   balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  balanceOfAtNFT(
-    _tokenId: BigNumberish,
-    _block: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   balanceOfNFT(
     _tokenId: BigNumberish,
@@ -1200,11 +1165,6 @@ export interface VotingEscrow extends BaseContract {
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-  totalSupplyAt(
-    _block: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   totalSupplyAtT(
     t: BigNumberish,
     overrides?: CallOverrides
@@ -1284,12 +1244,6 @@ export interface VotingEscrow extends BaseContract {
     artProxy(overrides?: CallOverrides): Promise<string>;
 
     balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    balanceOfAtNFT(
-      _tokenId: BigNumberish,
-      _block: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     balanceOfNFT(
       _tokenId: BigNumberish,
@@ -1499,11 +1453,6 @@ export interface VotingEscrow extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    totalSupplyAt(
-      _block: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     totalSupplyAtT(
       t: BigNumberish,
       overrides?: CallOverrides
@@ -1683,12 +1632,6 @@ export interface VotingEscrow extends BaseContract {
     artProxy(overrides?: CallOverrides): Promise<BigNumber>;
 
     balanceOf(_owner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    balanceOfAtNFT(
-      _tokenId: BigNumberish,
-      _block: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     balanceOfNFT(
       _tokenId: BigNumberish,
@@ -1907,11 +1850,6 @@ export interface VotingEscrow extends BaseContract {
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
-    totalSupplyAt(
-      _block: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     totalSupplyAtT(
       t: BigNumberish,
       overrides?: CallOverrides
@@ -1991,12 +1929,6 @@ export interface VotingEscrow extends BaseContract {
 
     balanceOf(
       _owner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    balanceOfAtNFT(
-      _tokenId: BigNumberish,
-      _block: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2231,11 +2163,6 @@ export interface VotingEscrow extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    totalSupplyAt(
-      _block: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     totalSupplyAtT(
       t: BigNumberish,
