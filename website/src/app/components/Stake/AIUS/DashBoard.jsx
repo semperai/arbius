@@ -1,11 +1,21 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 // import Slider from './Slider'
 import SlidingCards from './SlidingCards'
 import Image from 'next/image'
 import aius_icon from "../../../assets/images/aius_icon.png"
 import gysr_logo_wallet from "../../../assets/images/gysr_logo_wallet.png"
 import GanttChart from './GanttChart'
-function DashBoard() {
+// import { walletBalance } from '../../../Utils/getAiusBalance'
+
+import { BigNumber } from 'ethers';
+
+function DashBoard({data, isLoading, isError}) {
+    // const { switchNetwork } = useSwitchNetwork({
+    //     chainId: 421614,
+    //   });
+    
+
+   
     return (
         <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-10 lg:py-16' id="dashboard">
             <div className='flex justify-start items-baseline gap-3'><h1 className='text-[#4A28FF] lato-bold text-[40px]'><span className="hidden um:inline">veAIUS</span> Dashboard </h1> <Image src={aius_icon} width={"auto"} height={33} /></div>
@@ -21,7 +31,7 @@ function DashBoard() {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Balance</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{641.12451.toFixed(2)} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!isLoading && data ? BigNumber.from(data?._hex).toString():0} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Historical LP Profit</h2>

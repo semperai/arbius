@@ -10,8 +10,62 @@ import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_na
 import ReactSlider from 'react-slider'
 import info_icon from "../../../assets/images/info_icon.png"
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
+import config from "../../../../sepolia_config.json"
+const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+const VE_STAKING_ADDRESS = config.veStakingAddress;
+import veStaking from "../../../abis/veStaking.json"
+import votingEscrow from "../../../abis/votingEscrow.json"
+import { useAccount, useContractRead } from 'wagmi';
+import { BigNumber } from 'ethers';
+
+
+// import Web3 from "web3";
+// import new_config from '../../new_config.json';
+// const VOTING_ESCROW_ADDRESS = new_config.votingEscrowAddress;
+// import votingEscrow from '../abis/votingEscrow.json'
+// import { getAPR } from './getAPR';
+// export const getTotalStakes = async () => {
+//     const web3 = new Web3(window.ethereum);
+//     const votingEscrowContract = new web3.eth.Contract(votingEscrow,VOTING_ESCROW_ADDRESS );
+//     const accounts = await web3.eth.getAccounts();
+//     const account = accounts[0];
+//     try {
+//         const total = await votingEscrowContract.methods.balanceOf(account).call();
+//         const tokenIDS = [];
+//         for (let i = 0; i < total; i++) {
+//             const tokenID = await votingEscrowContract.methods.tokenOfOwnerByIndex(account, i).call();
+//             tokenIDS.push(tokenID);
+//         }
+
+//         const totalStakes = [];
+//         for(let i = 0; i < tokenIDS.length; i++) {
+//             let id = tokenIDS[i];
+//             let totalStaked = await votingEscrowContract.methods.locked(id).call().amount;
+//             let endDate = await votingEscrowContract.methods.locked__end(id).call();
+//             let stakedOn = await votingEscrowContract.methods.user_point_history__ts(id, 1).call();
+//             let governancePower = await votingEscrowContract.methods.balanceOfNFT(id).call();
+//             let apr = await getAPR();
+//             totalStakes.push({
+//                 id: id,
+//                 totalStaked: totalStaked,
+//                 endDate: endDate,
+//                 stakedOn: stakedOn,
+//                 governancePower: governancePower,
+//                 apr: apr
+//             });
+//         }
+//         console.log(`Total Stakes: ${totalStakes}`);
+//         return totalStakes;
+//     } catch (error) {
+//         console.error(error);
+//     }
+
+
+// };
 
 const AddPopUpChildren = ({ setShowPopUp }) => {
+
+
     return (
         <>
             <div className='flex justify-between items-center my-2'>
@@ -124,15 +178,15 @@ const ExtendPopUpChildren = ({ setShowPopUp }) => {
                     onChange={(value) => {
                         if (value < 1) {
                             setDuration({ ...duration, months: 0, weeks: 4 * value })
-                            
+
                         } else {
                             setDuration({ ...duration, months: value, weeks: 0 })
                             // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
                         }
                         let date;
-                        if(Number.isInteger(value)){
-                            date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth()+value, extendStartDate.getDate());
-                        }else{
+                        if (Number.isInteger(value)) {
+                            date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate());
+                        } else {
                             date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value);
                         }
                         setExtendEndDate(date)
@@ -271,6 +325,140 @@ function SlidingCards() {
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
 
+
+
+    const { address, isConnected } = useAccount()
+    const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
+    const [totalStakes, setTotalStakes] = useState([])
+    const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'balanceOf',
+        args: [
+            address
+        ]
+    })
+
+    const rewardRate = useContractRead({
+        address: VE_STAKING_ADDRESS,
+        abi: veStaking.abi,
+        functionName: 'rewardRate',
+        args: [
+
+        ]
+    })
+
+    const totalSupply = useContractRead({
+        address: VE_STAKING_ADDRESS,
+        abi: veStaking.abi,
+        functionName: 'totalSupply',
+        args: [
+
+        ]
+    })
+    const getAPR = (rate, supply) => {
+
+        rate = BigNumber.from(rate).toNumber()
+        supply = BigNumber.from(supply).toNumber()
+        const rewardPerveAiusPerSecond = rate / supply;
+        console.log(rewardPerveAiusPerSecond);
+        const apr = rewardPerveAiusPerSecond * 365 * 24 * 60 * 60 * 100;
+        console.log(apr);
+        if (apr) {
+            return apr;
+        }
+        return 0;
+        // return apr;
+
+    }
+    if (totalEscrowBalance) {
+        for (let i = 0; i < totalEscrowBalance; i++) {
+            const {
+                data: tokenIDData,
+                isLoading: tokenIDIsLoading,
+                isError: tokenIDIsError
+            } = useContractRead({
+                address: VOTING_ESCROW_ADDRESS,
+                abi: votingEscrow.abi,
+                functionName: 'tokenOfOwnerByIndex',
+                args: [
+                    address,
+                    i
+                ]
+            })
+            if (tokenIDData) {
+                console.log(tokenIDData);
+                const {
+                    data: totalStaked,
+                    isLoading: totalStakedIsLoading,
+                    isError: totalStakedIsError
+                } = useContractRead({
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'locked',
+                    args: [
+                        BigNumber.from(tokenIDData?._hex).toNumber()
+                    ]
+                })
+                const {
+                    data: endDate,
+                    isLoading: endDateIsLoading,
+                    isError: endDateIsError
+                } = useContractRead({
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'locked__end',
+                    args: [
+                        BigNumber.from(tokenIDData?._hex).toNumber()
+                    ]
+                })
+                const {
+                    data: stakedOn,
+                    isLoading: stakedOnIsLoading,
+                    isError: stakedOnIsError
+                } = useContractRead({
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'user_point_history__ts',
+                    args: [
+                        BigNumber.from(tokenIDData?._hex).toNumber(),
+                        1
+                    ]
+                })
+                const {
+                    data: governancePower,
+                    isLoading: governancePowerIsLoading,
+                    isError: governancePowerIsError
+                } = useContractRead({
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'balanceOfNFT',
+                    args: [
+                        BigNumber.from(tokenIDData?._hex).toNumber()
+                    ]
+                })
+
+                const apr = getAPR(rewardRate.data?._hex, totalSupply.data?._hex);
+                setTotalStakes((prev) => [...prev, {
+                    id: BigNumber.from(tokenIDData?._hex).toNumber(),
+                    totalStaked: totalStaked.data?._hex,
+                    endDate: endDate.data?._hex,
+                    stakedOn: stakedOn.data?._hex,
+                    governancePower: governancePower.data?._hex,
+                    apr: apr
+                }])
+            }
+
+        }
+    }
+
+    useEffect(() => {
+        if (escrowBalanceData) {
+            setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
+
+        }
+    }, [escrowBalanceData])
+
     const data = [{
         staked: "2,441.21",
         apr: "14.1211%",
@@ -306,26 +494,26 @@ function SlidingCards() {
         nextArrow: <NextBtn />,
         prevArrow: <PrevBtn />,
         responsive: [
-        {
-            breakpoint: 768,
-            settings: {
-              slidesToShow: 1.5,
-              slidesToScroll: 1
-            }
-        },
-        {
-            breakpoint: 475,
-            settings: {
-              slidesToShow: 1,
-              slidesToScroll: 1
-            }
-        },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 1.5,
+                    slidesToScroll: 1
+                }
+            },
+            {
+                breakpoint: 475,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                }
+            },
         ]
     };
 
     function PrevBtn(props) {
         const { className, style, onClick } = props;
-        if(className.includes("slick-disabled")){
+        if (className.includes("slick-disabled")) {
             setDirection("right");
         }
         return (
@@ -342,7 +530,7 @@ function SlidingCards() {
 
     function NextBtn(props) {
         const { className, style, onClick } = props;
-        if(className.includes("slick-disabled")){
+        if (className.includes("slick-disabled")) {
             setDirection("left");
         }
         return (
@@ -362,14 +550,14 @@ function SlidingCards() {
         console.log(direction, "direction")
         const elements = document.querySelectorAll('.slick-list');
         elements.forEach(element => {
-            if(direction == "right"){
+            if (direction == "right") {
                 element.style.boxShadow = '10px 0 5px -4px rgba(18, 0, 117, 0.077)';
-            }else if(direction == "left"){
+            } else if (direction == "left") {
                 element.style.boxShadow = '-10px 0 5px -4px rgba(18, 0, 117, 0.077)';
             }
         });
     }, [direction]);
-
+    console.log({totalStakes});
     return (
         <div>
             {showPopUp !== false && (

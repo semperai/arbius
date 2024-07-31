@@ -1,18 +1,150 @@
 "use client"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png'
 import info_icon from '@/app/assets/images/info_icon_white.png'
 import Image from "next/image"
 import ReactSlider from 'react-slider'
 import Link from "next/link"
 import { relative } from "path"
-export default function Stake({selectedtab, setSelectedTab}) {
+import { BigNumber } from "ethers"
+import { getAIUSVotingPower } from "../../../Utils/getAIUSVotingPower"
+import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite} from 'wagmi'
+import config from "../../../../sepolia_config.json"
+const VE_STAKING_ADDRESS = config.veStakingAddress;
+const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+import votingEscrow from "../../../abis/votingEscrow.json"
+import veStaking from "../../../abis/veStaking.json"
+
+
+
+
+
+export default function Stake({selectedtab, setSelectedTab, data, isLoading, isError}) {
     const [sliderValue, setSliderValue] = useState(0)
+    const {address,isConnected} = useAccount()
+    const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
+    const [veAiusBalance, setVeAIUSBalance] = useState(0)
     const [duration, setDuration] = useState({
         months: 0,
         weeks: 0
     })
-    const [amount, setAmount] = useState()
+    const [amount, setAmount] = useState(0)
+    const rewardRate = useContractRead({
+        address: VE_STAKING_ADDRESS,
+        abi: veStaking.abi,
+        functionName: 'rewardRate',
+        args: [
+            
+        ]
+    })
+
+    const totalSupply = useContractRead({
+        address: VE_STAKING_ADDRESS,
+        abi: veStaking.abi,
+        functionName: 'totalSupply',
+        args: [
+            
+        ]
+    })
+
+    
+
+
+    const {data:escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError} = useContractRead({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'balanceOf',
+        args: [
+            address
+        ]
+    })
+
+    
+    
+
+    const getAPR = (rate, supply)=>{
+
+        rate = BigNumber.from(rate).toNumber()
+        supply = BigNumber.from(supply).toNumber()
+        const rewardPerveAiusPerSecond = rate/supply;
+        console.log(rewardPerveAiusPerSecond);
+        const apr = rewardPerveAiusPerSecond * 365 * 24 * 60 * 60*100;
+        console.log(apr);
+        if(apr){
+            return apr;
+        }
+        return 0;
+        // return apr;
+
+    }
+
+    if(totalEscrowBalance){
+        for (let i = 0; i < totalEscrowBalance; i++) {
+            const {
+                data: tokenIDData,
+                isLoading: tokenIDIsLoading,
+                isError: tokenIDIsError 
+            } = useContractRead({
+                address: VOTING_ESCROW_ADDRESS,
+                abi: votingEscrow.abi,
+                functionName: 'tokenOfOwnerByIndex',
+                args: [
+                    address,
+                    i
+                ]
+            })
+            if(tokenIDData){
+                console.log(tokenIDData);
+                const {
+                    data:veAIUSData,
+                    isLoading: veAIUSIsLoading,
+                    isError: veAIUSIsError
+                } = useContractRead({
+                    address: VE_STAKING_ADDRESS,
+                    abi: veStaking.abi,
+                    functionName: 'balanceOf',
+                    args: [
+                        BigNumber.from(tokenIDData?._hex).toNumber()
+                    ]
+                })
+                if(veAIUSData){
+                    console.log(veAIUSData);
+                    setVeAIUSBalance((prev) => prev + BigNumber.from(veAIUSData?._hex).toNumber())
+                }
+            }
+
+        }
+
+    }
+    console.log({totalEscrowBalance});
+    console.log({veAiusBalance});
+    useEffect(()=>{
+        if(escrowBalanceData){
+            setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
+            
+        }
+    },[escrowBalanceData])
+
+    const { config: stakeConfig } = usePrepareContractWrite({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'create_lock',
+        args: [
+            amount,
+            (duration.months !== 0 ? duration.months*(52/12) :duration.weeks)*7*24*60*60,
+            address
+        ],
+        enabled:Boolean(amount),
+    });
+
+    const {data:stakeData, error:stakeError, isPending:stakeIsPending, write} = useContractWrite(stakeConfig)
+
+    const handleStake = ()=>{
+        console.log({write});
+        write();
+        console.log({stakeData});
+    }
+    
     return (
         <div>
             <div className="bg-white-background 2xl:h-[530px] lg:h-[535px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border flex flex-col justify-between">
@@ -20,7 +152,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-stake lato-bold text-[18px]">Amount to lock</p>
-                            <p className="text-available lato-regular text-[15px]">Available 0.0 AIUS</p>
+                            <p className="text-available lato-regular text-[15px]">Available {!isLoading && data ? BigNumber.from(data?._hex).toString():0} AIUS</p>
                         </div>
                         <div>
                             <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
@@ -37,7 +169,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
                         </div>
                     </div>
                     <div>
-                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for 0.0 AIUS voting power.</p>
+                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for {getAIUSVotingPower(amount, duration.months !== 0 ? duration.months*(52/12) :( duration.weeks > 2?duration.weeks:2)).toFixed(2)} AIUS voting power.</p>
                         <div className="mb-10">
                             <div className="mb-8">
                                 <ReactSlider
@@ -85,7 +217,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
 
                         </div>
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">APR</p>
-                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">0%</p>
+                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate.data?._hex, totalSupply.data?._hex).toFixed(2) : 0}%</p>
                     </div>
                     <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border relative">
                         <div className="right-3 top-3 absolute group cursor-pointer">
@@ -97,7 +229,7 @@ export default function Stake({selectedtab, setSelectedTab}) {
 
                         </div>
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">veAIUS Balance</p>
-                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">0.00 <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
+                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{veAiusBalance} <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
                     </div>
                 </div>
 
@@ -122,7 +254,11 @@ export default function Stake({selectedtab, setSelectedTab}) {
                     <div className=' mt-6'>
                         <button
                             type="button"
-
+                                onClick={()=>{
+                                    if(!stakeIsPending && !stakeError){
+                                        handleStake()
+                                    }
+                                }}
                             className="relative justify-center py-2 group bg-black-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
                         >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

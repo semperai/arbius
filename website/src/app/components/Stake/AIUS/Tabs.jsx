@@ -8,7 +8,7 @@ const tabs = [
     "Dashboard", "Gauge"
 ]
 
-function Tabs({ selectedtab, setSelectedTab }) {
+function Tabs({ selectedtab, setSelectedTab, data, isLoading, isError }) {
     // const [selectedtab, setSelectedTab] = useState("Dashboard")
 
     return (
@@ -40,7 +40,7 @@ function Tabs({ selectedtab, setSelectedTab }) {
 
             <div className="max-w-center-width bg-aius-stake min-w-full relative">
 
-                {selectedtab === "Dashboard" ? (<DashBoard/>): (<Gauge/>)}
+                {selectedtab === "Dashboard" ? (<DashBoard data={data} isLoading={isLoading} isError={isError}/>): (<Gauge/>)}
             
             </div>
 
