@@ -10,14 +10,8 @@ import { BigNumber } from "ethers"
 import { getAIUSVotingPower } from "../../../Utils/getAIUSVotingPower"
 import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite} from 'wagmi'
 import config from "../../../../sepolia_config.json"
-const VE_STAKING_ADDRESS = config.veStakingAddress;
-const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
-
-
-
-
 
 export default function Stake({selectedtab, setSelectedTab, data, isLoading, isError}) {
     const [sliderValue, setSliderValue] = useState(0)
@@ -29,6 +23,10 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         weeks: 0
     })
     const [amount, setAmount] = useState(0)
+    
+    const VE_STAKING_ADDRESS = config.veStakingAddress;
+    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+
     const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
@@ -46,10 +44,6 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
             
         ]
     })
-
-    
-
-
     const {data:escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError} = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
@@ -57,25 +51,19 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         args: [
             address
         ]
-    })
-
-    
-    
+    })    
 
     const getAPR = (rate, supply)=>{
-
         rate = BigNumber.from(rate).toNumber()
         supply = BigNumber.from(supply).toNumber()
-        const rewardPerveAiusPerSecond = rate/supply;
-        console.log(rewardPerveAiusPerSecond);
-        const apr = rewardPerveAiusPerSecond * 365 * 24 * 60 * 60*100;
+        const rewardPerveAiusPerSecond = rate / supply;
+        let apr = rewardPerveAiusPerSecond * 31536000 // reward per second multiplied by seconds in an year
+        apr = apr * 100; // APR percentage
         console.log(apr);
         if(apr){
             return apr;
         }
         return 0;
-        // return apr;
-
     }
 
     if(totalEscrowBalance){
@@ -121,7 +109,6 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
     useEffect(()=>{
         if(escrowBalanceData){
             setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
-            
         }
     },[escrowBalanceData])
 
@@ -131,7 +118,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         functionName: 'create_lock',
         args: [
             amount,
-            (duration.months !== 0 ? duration.months*(52/12) :duration.weeks)*7*24*60*60,
+            (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks)*7*24*60*60,
             address
         ],
         enabled:Boolean(amount),
@@ -144,7 +131,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         write();
         console.log({stakeData});
     }
-    
+
     return (
         <div>
             <div className="bg-white-background 2xl:h-[530px] lg:h-[535px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border flex flex-col justify-between">
@@ -169,7 +156,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
                         </div>
                     </div>
                     <div>
-                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for {getAIUSVotingPower(amount, duration.months !== 0 ? duration.months*(52/12) :( duration.weeks > 2?duration.weeks:2)).toFixed(2)} AIUS voting power.</p>
+                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for {getAIUSVotingPower(amount, duration.months !== 0 ? duration.months*(52/12) : ( duration.weeks > 2 ? duration.weeks : 2)).toFixed(2)} AIUS voting power.</p>
                         <div className="mb-10">
                             <div className="mb-8">
                                 <ReactSlider
