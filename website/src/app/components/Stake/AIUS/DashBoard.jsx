@@ -140,7 +140,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Circulating supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{protocolData?.data?.AIUS?.self_reported_circulating_supply.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{protocolData?.data?.AIUS?.self_reported_circulating_supply.toFixed(0)} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                             </div>
                         </div>

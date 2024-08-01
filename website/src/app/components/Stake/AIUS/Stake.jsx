@@ -121,15 +121,15 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks)*7*24*60*60,
             address
         ],
-        enabled:Boolean(amount),
+        // enabled:Boolean(amount),
     });
 
-    const {data:stakeData, error:stakeError, isPending:stakeIsPending, write} = useContractWrite(stakeConfig)
+    const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
 
     const handleStake = ()=>{
         console.log({write});
         console.log({stakeData});
-        write();
+        stakeWrite?.();
     }
 
     return (
@@ -150,13 +150,13 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
                                     <p className="pr- text-aius lato-bold text-[15px]">AIUS</p>
                                 </div>
                                 <div className="w-[94%]">
-                                    <input className="w-[100%] border-0 rounded-r-3xl p-2 lato-bold text-[15px] text-black-text border-none focus:ring-0 " id="outline-none" type="number" placeholder="0.0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                                    <input className="w-[100%] border-0 rounded-r-3xl p-2 lato-bold text-[15px] text-black-text border-none focus:ring-0 " id="outline-none" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for {getAIUSVotingPower(amount, duration.months !== 0 ? duration.months*(52/12) : ( duration.weeks > 2 ? duration.weeks : 2)).toFixed(2)} AIUS voting power.</p>
+                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for {getAIUSVotingPower(amount, sliderValue).toFixed(2)} AIUS voting power.</p>
                         <div className="mb-10">
                             <div className="mb-8">
                                 <ReactSlider

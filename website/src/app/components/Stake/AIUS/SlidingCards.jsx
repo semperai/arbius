@@ -18,51 +18,8 @@ import { BigNumber } from 'ethers';
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
 
 
-// import Web3 from "web3";
-// import new_config from '../../new_config.json';
-// const VOTING_ESCROW_ADDRESS = new_config.votingEscrowAddress;
-// import votingEscrow from '../abis/votingEscrow.json'
-// import { getAPR } from './getAPR';
-// export const getTotalStakes = async () => {
-//     const web3 = new Web3(window.ethereum);
-//     const votingEscrowContract = new web3.eth.Contract(votingEscrow,VOTING_ESCROW_ADDRESS );
-//     const accounts = await web3.eth.getAccounts();
-//     const account = accounts[0];
-//     try {
-//         const total = await votingEscrowContract.methods.balanceOf(account).call();
-//         const tokenIDS = [];
-//         for (let i = 0; i < total; i++) {
-//             const tokenID = await votingEscrowContract.methods.tokenOfOwnerByIndex(account, i).call();
-//             tokenIDS.push(tokenID);
-//         }
 
-//         const totalStakes = [];
-//         for(let i = 0; i < tokenIDS.length; i++) {
-//             let id = tokenIDS[i];
-//             let totalStaked = await votingEscrowContract.methods.locked(id).call().amount;
-//             let endDate = await votingEscrowContract.methods.locked__end(id).call();
-//             let stakedOn = await votingEscrowContract.methods.user_point_history__ts(id, 1).call();
-//             let governancePower = await votingEscrowContract.methods.balanceOfNFT(id).call();
-//             let apr = await getAPR();
-//             totalStakes.push({
-//                 id: id,
-//                 totalStaked: totalStaked,
-//                 endDate: endDate,
-//                 stakedOn: stakedOn,
-//                 governancePower: governancePower,
-//                 apr: apr
-//             });
-//         }
-//         console.log(`Total Stakes: ${totalStakes}`);
-//         return totalStakes;
-//     } catch (error) {
-//         console.error(error);
-//     }
-
-
-// };
-
-    const AddPopUpChildren = ({ setShowPopUp, tokenId,  walletBalance, totalEscrowBalance, totalSupply, rewardRate, getAPR}) => {
+    const AddPopUpChildren = ({ setShowPopUp, selectedStake,  walletBalance, totalEscrowBalance, totalSupply, rewardRate, getAPR}) => {
 
         const [aiusToStake, setAIUSToStake] = useState(0);
         const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
@@ -72,10 +29,10 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
             abi: votingEscrow.abi,
             functionName: 'increase_amount',
             args: [
-                tokenId,
+                selectedStake?.tokenId,
                 aiusToStake
             ],
-            enabled: Boolean(aiusToStake)
+            // enabled: Boolean(aiusToStake)
         });
 
         const {
@@ -142,7 +99,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
                         <button
                             type="button"
                             className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3"
-                            onClick={()=>addAIUS()}
+                            onClick={()=>addAIUS?.()}
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
@@ -158,13 +115,13 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
         )
     }
 
-    const ExtendPopUpChildren = ({ setShowPopUp, tokenId }) => {
+    const ExtendPopUpChildren = ({ setShowPopUp, selectedStake }) => {
         const [sliderValue, setSliderValue] = useState(0)
         const [duration, setDuration] = useState({
             months: 0,
             weeks: 0
         })
-        const [extendStartDate, setExtendStartDate] = useState(new Date())
+        const [extendStartDate, setExtendStartDate] = useState(new Date(selectedStake?.endDate).toLocaleString('en-US'))
         const [extendEndDate, setExtendEndDate] = useState(new Date("09/10/2024"))
         const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 
@@ -173,10 +130,9 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
             abi: votingEscrow.abi,
             functionName: 'increase_unlock_time',
             args: [
-                tokenId,
-                (duration.months * 30 * 24 * 60 * 60) + (duration.weeks * 7 * 24 * 60 * 60)
+                selectedStake?.tokenId,
+                sliderValue * 2419200 // value in months(decimal) * 4*7*24*60*60
             ],
-            enabled: Boolean(duration.months || duration.weeks)
         });
 
         const {
@@ -185,6 +141,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
             isSuccess: addAIUSIsSuccess,
             write: extendAIUS
         } = useContractWrite(addAIUSConfig)
+        console.log({addAIUSData})
         return (
 
             <>
@@ -272,6 +229,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
 
                         <button
                             type="button"
+                            onClick={()=> extendAIUS?.()}
                             className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -290,7 +248,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
     }
 
 
-    const ClaimPopUpChildren = ({ setShowPopUp, tokenId }) => {
+    const ClaimPopUpChildren = ({ setShowPopUp, selectedStake }) => {
 
         const VE_STAKING_ADDRESS = config.veStakingAddress;
 
@@ -300,7 +258,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
                 abi: veStaking.abi,
                 functionName: 'getReward',
                 args: [
-                    tokenId
+                    selectedStake?.tokenId
                 ]
             })
             if(claimReward?.data?._hex){
@@ -377,7 +335,7 @@ function SlidingCards() {
     const [showPopUp, setShowPopUp] = useState(false)
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
-    const [selectedTokenId, setSelectedTokenId] = useState(false);
+    const [selectedStake, setSelectedStake] = useState(null);
 
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const VE_STAKING_ADDRESS = config.veStakingAddress;
@@ -431,8 +389,8 @@ function SlidingCards() {
     console.log(rewardRate, totalSupply, "RRTS")
 
     const getAPR = (rate, supply) => {
-        return 0;
-        /*console.log("RATE")
+        
+        console.log("RATE")
         rate = BigNumber.from(rate).toNumber()
         console.log("Supply")
         supply = BigNumber.from(supply).toNumber()
@@ -444,7 +402,7 @@ function SlidingCards() {
         if (apr) {
             return apr;
         }
-        return 0;*/
+        return 0;
     }
 
     if (totalEscrowBalance) {
@@ -535,31 +493,7 @@ function SlidingCards() {
         }
     }, [escrowBalanceData])
 
-    const myNFTData = [{
-        tokenId: 0,
-        staked: "2,441.21",
-        apr: "14.1211%",
-        governance: "12.12",
-        stake_date: "6/14/2024",
-        end_date: "6/14/2024"
-    },
-    {
-        tokenId: 1,
-        staked: "2,441.21",
-        apr: "14.1211%",
-        governance: "12.12",
-        stake_date: "6/14/2024",
-        end_date: "6/14/2024"
-    },
-    {
-        tokenId: 2,
-        staked: "2,441.21",
-        apr: "14.1211%",
-        governance: "12.12",
-        stake_date: "6/14/2024",
-        end_date: "6/14/2024"
-    }
-    ]
+
 
 
     var settings = {
@@ -640,36 +574,36 @@ function SlidingCards() {
         <div>
             {showPopUp !== false && (
                 <PopUp setShowPopUp={setShowPopUp}>
-                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} tokenId={selectedTokenId} walletBalance={walletBalance} totalEscrowBalance={totalEscrowBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} />}
-                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp}  tokenId={selectedTokenId} />}
-                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp}  tokenId={selectedTokenId} />}
+                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalEscrowBalance={totalEscrowBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} />}
+                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
+                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
                 </PopUp>
             )}
             <div className='relative'>
                 <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
                     <Slider {...settings}>
-                        {myNFTData?.map((item, key) => (
+                        {selectedStake?.map((item, key) => (
                             <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] relative ' key={key}>
                                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' alt="" />
                                 <div className='flex justify-start gap-8 items-start'>
                                     <div className='flex flex-col gap-3 justify-center items-start'>
                                         <div>
                                             <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.staked} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.totalStaked} <span className="text-[11px] font-medium">AIUS</span></h2>
                                         </div>
                                         <div>
                                             <h2 className="text-[12px] text-[#8D8D8D] font-semibold">APR</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.apr}</h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.apr.toFixed(2)}%</h2>
                                         </div>
                                     </div>
                                     <div className='flex flex-col gap-3 justify-center items-start'>
                                         <div>
                                             <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Governance Power</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.governance}</h2>
+                                            <h2 className='text-[15px] font-semibold'>{item?.governancePower.toFixed(2)}%</h2>
                                         </div>
                                         <div>
                                             <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Staked on</h2>
-                                            <h2 className='text-[15px] font-semibold'>{item?.stake_date}</h2>
+                                            <h2 className='text-[15px] font-semibold'>{new Date(item?.stakedOn).toLocaleString('en-US')}</h2>
                                         </div>
                                     </div>
 
@@ -678,7 +612,7 @@ function SlidingCards() {
                                 <div className='flex justify-start gap-12 items-center mt-3'>
                                     <div>
                                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">End Date</h2>
-                                        <h2 className='text-[15px] font-semibold'>{item?.end_date}</h2>
+                                        <h2 className='text-[15px] font-semibold'>{new Date(item?.endDate).toLocaleString('en-US')}</h2>
                                     </div>
                                 </div>
 
@@ -686,7 +620,7 @@ function SlidingCards() {
                                     <div className='w-[32%]'>
                                         <button
                                             type="button"
-                                            onClick={() => {setShowPopUp("add"); setSelectedTokenId(item.tokenId); }}
+                                            onClick={() => {setShowPopUp("add"); setSelectedStake(item); }}
                                             className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
                                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -698,7 +632,7 @@ function SlidingCards() {
                                     <div className='w-[32%]'>
                                         <button
                                             type="button"
-                                            onClick={() => {setShowPopUp("extend"); setSelectedTokenId(item.tokenId); }}
+                                            onClick={() => {setShowPopUp("extend"); setSelectedStake(item); }}
                                             className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
                                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -710,7 +644,7 @@ function SlidingCards() {
                                     <div className='w-[32%]'>
                                         <button
                                             type="button"
-                                            onClick={() => {setShowPopUp("claim"); setSelectedTokenId(item.tokenId);}}
+                                            onClick={() => {setShowPopUp("claim"); setSelectedStake(item);}}
                                             className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
                                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
