@@ -17,8 +17,6 @@ import { useAccount, useContractRead, usePrepareContractWrite, useContractWrite 
 import { BigNumber } from 'ethers';
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
 
-
-
     const AddPopUpChildren = ({ setShowPopUp, selectedStake,  walletBalance, totalEscrowBalance, totalSupply, rewardRate, getAPR}) => {
 
         const [aiusToStake, setAIUSToStake] = useState(0);

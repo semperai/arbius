@@ -142,7 +142,7 @@ export default function Header() {
               <AnimateHeight height={stakingOpen ? "auto" : 0}>
                 <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex ">
                   <Link
-                    href={"/gysr"}
+                    href={"https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"}
                     onClick={() => {
                       setHeaderOpen(!headerOpen)
                     }}
