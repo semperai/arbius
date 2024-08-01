@@ -23,7 +23,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         weeks: 0
     })
     const [amount, setAmount] = useState(0)
-    
+    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 
@@ -128,8 +128,8 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
 
     const handleStake = ()=>{
         console.log({write});
-        write();
         console.log({stakeData});
+        write();
     }
 
     return (
@@ -139,7 +139,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-stake lato-bold text-[18px]">Amount to lock</p>
-                            <p className="text-available lato-regular text-[15px]">Available {!isLoading && data ? BigNumber.from(data?._hex).toString():0} AIUS</p>
+                            <p className="text-available lato-regular text-[15px]">Available {walletBalance.toString()} AIUS</p>
                         </div>
                         <div>
                             <div className="border border-[#2F2F2F] rounded-3xl flex items-center">

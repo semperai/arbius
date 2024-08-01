@@ -21,6 +21,8 @@ function DashBoard({data, isLoading, isError}) {
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 
+    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
+
     const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
@@ -63,7 +65,7 @@ function DashBoard({data, isLoading, isError}) {
    
     return (
         <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-10 lg:py-16' id="dashboard">
-            <div className='flex justify-start items-baseline gap-3'><h1 className='text-[#4A28FF] lato-bold text-[40px]'><span className="hidden um:inline">veAIUS</span> Dashboard </h1> <Image src={aius_icon} width={"auto"} height={33} /></div>
+            <div className='flex justify-start items-baseline gap-3'><h1 className='text-[#4A28FF] lato-bold text-[40px]'><span className="hidden um:inline">veAIUS</span> Dashboard </h1> <Image src={aius_icon} width={"auto"} height={33} alt="" /></div>
 
             <div className='xl:grid grid-cols-3 gap-10 my-10 mt-14'>
                 <div className="col-span-1 h-auto">
@@ -76,12 +78,12 @@ function DashBoard({data, isLoading, isError}) {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Balance</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!isLoading && data ? BigNumber.from(data?._hex).toString():0} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{walletBalance.toString()} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Historical LP Profit</h2>
                                     <div className='flex justify-start items-center gap-2 mt-[2px]'> <h2 className='text-[16px] 2xl:text-[18px] font-semibold'>+ 41.12%</h2>
-                                        <Image src={gysr_logo_wallet} width={22} height={22} />
+                                        <Image src={gysr_logo_wallet} width={22} height={22} alt="" />
                                     </div>
                                 </div>
                             </div>

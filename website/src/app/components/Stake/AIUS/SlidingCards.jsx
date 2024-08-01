@@ -62,12 +62,302 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
 
 // };
 
+    const AddPopUpChildren = ({ setShowPopUp, tokenId,  walletBalance, totalEscrowBalance, totalSupply, rewardRate, getAPR}) => {
+
+        const [aiusToStake, setAIUSToStake] = useState(0);
+        const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+
+        const { config: addAIUSConfig } = usePrepareContractWrite({
+            address: VOTING_ESCROW_ADDRESS,
+            abi: votingEscrow.abi,
+            functionName: 'increase_amount',
+            args: [
+                tokenId,
+                aiusToStake
+            ],
+            enabled: Boolean(aiusToStake)
+        });
+
+        const {
+            data: addAIUSData,
+            isLoading: addAIUSIsLoading,
+            isSuccess: addAIUSIsSuccess,
+            write: addAIUS
+        } = useContractWrite(addAIUSConfig)
+
+        return (
+            <>
+                <div className='flex justify-between items-center my-2'>
+                    <div className='flex justify-start items-center gap-3'>
+                        <h1>Add AIUS</h1>
+                    </div>
+                    <div className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+                        <Image src={cross_icon} className='w-[10px] h-[10px]' alt="" />
+                    </div>
+
+                </div>
+
+                <div className='my-4'>
+                    <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
+                        <div className="bg-stake-input flex items-center gap-2 justify-center rounded-l-3xl  p-1 px-2 box-border">
+                            <div className="bg-white-background w-[30px] h-[30px] rounded-[50%] flex items-center justify-center ">
+                                <Image src={arbius_logo_without_name} width={15} alt="arbius" alt="" />
+                            </div>
+                            <p className="pr- text-aius lato-bold text-[12px]">AIUS</p>
+                        </div>
+                        <div className="w-[94%]">
+                            <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px] border-none focus:ring-0 " type="number" placeholder="0.0" value={aiusToStake} onChange={(e)=>setAIUSToStake(e.target.value)} />
+                        </div>
+                    </div>
+                    <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS {walletBalance.toString()}</h1>
+                </div>
+                <div className='flex justify-center gap-2 items-center'>
+                    <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
+
+                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{totalEscrowBalance.toString()}</span> veAIUS</h1>
+                        <h1 className='text-[.6rem]'>Est. veAIUS balance</h1>
+                    </div>
+                    <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
+
+                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate?.data?._hex, totalSupply?.data?._hex).toFixed(2) : 0}</span>%</h1>
+                        <h1 className='text-[0.6rem]'>APR</h1>
+
+                    </div>
+
+                </div>
+
+                <div className='flex justify-end gap-2 mt-16'>
+                    <button
+                        type="button"
+                        className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                        onClick={() => setShowPopUp(false)}
+                    >
+                        <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
+                            Cancel
+                        </div>
+
+                    </button>
+                    <div className='flex justify-end'>
+                        <button
+                            type="button"
+                            className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3"
+                            onClick={()=>addAIUS()}
+                        >
+                            <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                                Add
+                            </div>
+                        </button>
+
+
+                    </div>
+
+                </div>
+            </>
+        )
+    }
+
+    const ExtendPopUpChildren = ({ setShowPopUp }) => {
+        const [sliderValue, setSliderValue] = useState(0)
+        const [duration, setDuration] = useState({
+            months: 0,
+            weeks: 0
+        })
+        const [extendStartDate, setExtendStartDate] = useState(new Date("09/10/2024"))
+        const [extendEndDate, setExtendEndDate] = useState(new Date("09/10/2024"))
+        return (
+
+            <>
+                <div className='flex justify-between items-center my-2'>
+                    <div className='flex justify-start items-center gap-3'>
+
+                        <h1>Extend</h1>
+                    </div>
+                    <div className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+                        <Image src={cross_icon} className='w-[10px] h-[10px]' alt="" />
+                    </div>
+
+                </div>
+
+                <div className='my-6'>
+
+                    <ReactSlider
+                        className=" text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
+                        thumbClassName=" w-[28px] h-[28px] ml-[-6px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
+                        markClassName="customSlider-mark"
+                        marks={4}
+                        min={0}
+                        step={.25}
+                        max={24}
+                        defaultValue={0}
+                        value={sliderValue}
+                        onChange={(value) => {
+                            if (value < 1) {
+                                setDuration({ ...duration, months: 0, weeks: 4 * value })
+
+                            } else {
+                                setDuration({ ...duration, months: value, weeks: 0 })
+                                // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
+                            }
+                            let date;
+                            if (Number.isInteger(value)) {
+                                date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate());
+                            } else {
+                                date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value);
+                            }
+                            setExtendEndDate(date)
+                            setSliderValue(value)
+                        }}
+                        renderMark={(props) => {
+                            props.className = "customSlider-mark customSlider-mark-before text-[16px] text-start ml-[0px] w-[16.66%]";
+                            return <span {...props} >
+                                <h1>{props.key}</h1>
+                            </span>;
+                        }}
+                    />
+
+                </div>
+                <div className='flex justify-center gap-2 items-center mt-20'>
+                    <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
+
+                        <h1 className='text-xs text-purple-text font-semibold'>{extendStartDate.getMonth() + 1}/{extendStartDate.getDate()}/{extendStartDate.getFullYear()}</h1>
+                        <h1 className='text-[.6rem]'>Current Stake ends at</h1>
+                    </div>
+                    <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
+
+                        <h1 className='text-xs text-purple-text font-semibold'>{extendEndDate.getMonth() + 1}/{extendEndDate.getDate()}/{extendEndDate.getFullYear()}</h1>
+                        <h1 className='text-[.6rem]'>Stake extended till</h1>
+                    </div>
+
+                </div>
+
+                <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
+                    <Image src={info_icon} width={14} height={14} alt="" />
+                    <h1 className='text-[0.66rem]  text-purple-text'>An extension&apos;s duration cannot exceed a two year maximum</h1>
+                </div>
+
+                <div className='flex justify-end gap-2 mt-4'>
+                    <button
+                        type="button"
+                        className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                        onClick={() => setShowPopUp(false)}
+                    >
+                        <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
+                            Cancel
+                        </div>
+
+                    </button>
+                    <div className='flex justify-end'>
+
+                        <button
+                            type="button"
+                            className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                        >
+                            <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                                Extend
+                            </div>
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+            </>
+        )
+    }
+
+
+    const ClaimPopUpChildren = ({ setShowPopUp, tokenId }) => {
+
+        const VE_STAKING_ADDRESS = config.veStakingAddress;
+
+        const getClaimableReward = () => {
+            const claimReward = useContractRead({
+                address: VE_STAKING_ADDRESS,
+                abi: veStaking.abi,
+                functionName: 'getReward',
+                args: [
+                    tokenId
+                ]
+            })
+            if(claimReward?.data?._hex){
+                return BigNumber.from(claimReward.data._hex).toNumber();
+            }
+            return 0;
+        }
+
+        return <>
+            <div className='flex justify-between items-center my-2'>
+                <div className='flex justify-start items-center gap-3'>
+
+                    <h1>Claim</h1>
+                </div>
+                <div className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+                    <Image src={cross_icon} className='w-[10px] h-[10px]' alt="" />
+                </div>
+
+            </div>
+
+
+            <div className='flex justify-center gap-2 items-center mt-6'>
+                <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
+                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{getClaimableReward()}</span> AIUS</h1>
+                    <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
+                </div>
+
+
+            </div>
+
+            <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
+                <Image src={info_icon} width={14} height={14} alt="" />
+                <h1 className='text-[0.66rem]  text-purple-text'>AIUS is claimable directly to your wallet </h1>
+            </div>
+
+            <div className='flex justify-end gap-2 mt-12'>
+
+                <button
+                    type="button"
+                    className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                    onClick={() => setShowPopUp(false)}
+                >
+                    <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
+                        Cancel
+                    </div>
+
+                </button>
+
+                <div className='flex justify-end'>
+
+                    <button
+                        type="button"
+                        className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                    >
+                        <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                            Claim
+                        </div>
+
+                    </button>
+
+
+                </div>
+
+            </div>
+        </>
+
+    }
+
+
 
 function SlidingCards() {
     const [showPopUp, setShowPopUp] = useState(false)
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
-    const [aiusToStake, setAIUSToStake] = useState(0);
     const [selectedTokenId, setSelectedTokenId] = useState(false);
 
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
@@ -79,7 +369,7 @@ function SlidingCards() {
     const [totalStakes, setTotalStakes] = useState([])
 
     const {
-        walletBalance, isError, isLoading
+        data, isError, isLoading
     } = useContractRead({
         address: BASETOKEN_ADDRESS_V1,
         abi: baseTokenV1.abi,
@@ -88,6 +378,8 @@ function SlidingCards() {
             address
         ]
     })
+
+    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
 
     const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -117,26 +409,15 @@ function SlidingCards() {
 
         ]
     })
-
-    const getClaimableReward = () => {
-        const claimReward = useContractRead({
-            address: VE_STAKING_ADDRESS,
-            abi: veStaking.abi,
-            functionName: 'getReward',
-            args: [
-                selectedTokenId
-            ]
-        })
-        if(claimReward?.data?._hex){
-            return BigNumber.from(claimReward.data._hex).toNumber();
-        }
-        return 0;
-    }
+    console.log(rewardRate, totalSupply, "RRTS")
 
     const getAPR = (rate, supply) => {
-
+        return 0;
+        /*console.log("RATE")
         rate = BigNumber.from(rate).toNumber()
+        console.log("Supply")
         supply = BigNumber.from(supply).toNumber()
+        console.log(rate, supply, "RSPLY")
         const rewardPerveAiusPerSecond = rate / supply;
         console.log(rewardPerveAiusPerSecond);
         const apr = rewardPerveAiusPerSecond * 365 * 24 * 60 * 60 * 100;
@@ -144,8 +425,9 @@ function SlidingCards() {
         if (apr) {
             return apr;
         }
-        return 0;
+        return 0;*/
     }
+
     if (totalEscrowBalance) {
         for (let i = 0; i < totalEscrowBalance; i++) {
             const {
@@ -161,8 +443,9 @@ function SlidingCards() {
                     i
                 ]
             })
+            console.log(tokenIDData, "tokenIDData")
             if (tokenIDData) {
-                console.log(tokenIDData);
+                console.log({tokenIDData});
                 const {
                     data: totalStaked,
                     isLoading: totalStakedIsLoading,
@@ -227,12 +510,14 @@ function SlidingCards() {
     }
 
     useEffect(() => {
+        console.log(escrowBalanceData, "ESCROW")
         if (escrowBalanceData) {
             setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
         }
     }, [escrowBalanceData])
 
-    const data = [{
+    const myNFTData = [{
+        tokenId: 0,
         staked: "2,441.21",
         apr: "14.1211%",
         governance: "12.12",
@@ -240,7 +525,7 @@ function SlidingCards() {
         end_date: "6/14/2024"
     },
     {
-
+        tokenId: 1,
         staked: "2,441.21",
         apr: "14.1211%",
         governance: "12.12",
@@ -248,7 +533,7 @@ function SlidingCards() {
         end_date: "6/14/2024"
     },
     {
-
+        tokenId: 2,
         staked: "2,441.21",
         apr: "14.1211%",
         governance: "12.12",
@@ -295,7 +580,7 @@ function SlidingCards() {
 
                 onClick={onClick}
             >
-                <Image src={arrow_prev} className=' mr-[2px]' width={15} height={15} />
+                <Image src={arrow_prev} className=' mr-[2px]' width={15} height={15} alt="" />
 
             </div>
         );
@@ -312,7 +597,7 @@ function SlidingCards() {
 
                 onClick={onClick}
             >
-                <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={15} height={15} />
+                <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={15} height={15} alt="" />
             </div>
         );
 
@@ -332,293 +617,21 @@ function SlidingCards() {
     }, [direction]);
     console.log({totalStakes});
 
-    const { config: addAIUSConfig } = usePrepareContractWrite({
-        address: VOTING_ESCROW_ADDRESS,
-        abi: votingEscrow.abi,
-        functionName: 'increase_amount',
-        args: [
-            selectedTokenId,
-            aiusToStake
-        ],
-        enabled: Boolean(aiusToStake)
-    });
-
-    const {
-        data: addAIUSData,
-        isLoading: addAIUSIsLoading,
-        isSuccess: addAIUSIsSuccess,
-        write: addAIUS
-    } = useContractWrite(addAIUSConfig)
-
-
-    const AddPopUpChildren = ({ setShowPopUp }) => {
-
-
-        return (
-            <>
-                <div className='flex justify-between items-center my-2'>
-                    <div className='flex justify-start items-center gap-3'>
-                        <h1>Add AIUS</h1>
-                    </div>
-                    <div className='cursor-pointer' onClick={() => setShowPopUp(false)}>
-                        <Image src={cross_icon} className='w-[10px] h-[10px]' />
-                    </div>
-
-                </div>
-
-                <div className='my-4'>
-                    <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
-                        <div className="bg-stake-input flex items-center gap-2 justify-center rounded-l-3xl  p-1 px-2 box-border">
-                            <div className="bg-white-background w-[30px] h-[30px] rounded-[50%] flex items-center justify-center ">
-                                <Image src={arbius_logo_without_name} width={15} alt="arbius" />
-                            </div>
-                            <p className="pr- text-aius lato-bold text-[12px]">AIUS</p>
-                        </div>
-                        <div className="w-[94%]">
-                            <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px] border-none focus:ring-0 " type="number" placeholder="0.0" value={aiusToStake} onChange={(e)=>setAIUSToStake(e.target.value)} />
-                        </div>
-                    </div>
-                    <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS {walletBalance ? BigNumber.from(walletBalance?._hex).toString() : 0.00}</h1>
-                </div>
-                <div className='flex justify-center gap-2 items-center'>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
-
-                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{escrowBalanceData ? BigNumber.from(escrowBalanceData?._hex).toString() : 0}</span> veAIUS</h1>
-                        <h1 className='text-[.6rem]'>Est. veAIUS balance</h1>
-                    </div>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
-
-                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate.data?._hex, totalSupply.data?._hex).toFixed(2) : 0}</span>%</h1>
-                        <h1 className='text-[0.6rem]'>APR</h1>
-
-                    </div>
-
-                </div>
-
-                <div className='flex justify-end gap-2 mt-16'>
-                    <button
-                        type="button"
-                        className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
-                        onClick={() => setShowPopUp(false)}
-                    >
-                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
-                            Cancel
-                        </div>
-
-                    </button>
-                    <div className='flex justify-end'>
-                        <button
-                            type="button"
-                            className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3"
-                            onClick={()=>addAIUS()}
-                        >
-                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
-                                Add
-                            </div>
-                        </button>
-
-
-                    </div>
-
-                </div>
-            </>
-        )
-    }
-
-    const ExtendPopUpChildren = ({ setShowPopUp }) => {
-        const [sliderValue, setSliderValue] = useState(0)
-        const [duration, setDuration] = useState({
-            months: 0,
-            weeks: 0
-        })
-        const [extendStartDate, setExtendStartDate] = useState(new Date("09/10/2024"))
-        const [extendEndDate, setExtendEndDate] = useState(new Date("09/10/2024"))
-        return (
-
-            <>
-                <div className='flex justify-between items-center my-2'>
-                    <div className='flex justify-start items-center gap-3'>
-
-                        <h1>Extend</h1>
-                    </div>
-                    <div className='cursor-pointer' onClick={() => setShowPopUp(false)}>
-                        <Image src={cross_icon} className='w-[10px] h-[10px]' />
-                    </div>
-
-                </div>
-
-                <div className='my-6'>
-
-                    <ReactSlider
-                        className=" text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
-                        thumbClassName=" w-[28px] h-[28px] ml-[-6px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
-                        markClassName="customSlider-mark"
-                        marks={4}
-                        min={0}
-                        step={.25}
-                        max={24}
-                        defaultValue={0}
-                        value={sliderValue}
-                        onChange={(value) => {
-                            if (value < 1) {
-                                setDuration({ ...duration, months: 0, weeks: 4 * value })
-
-                            } else {
-                                setDuration({ ...duration, months: value, weeks: 0 })
-                                // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
-                            }
-                            let date;
-                            if (Number.isInteger(value)) {
-                                date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate());
-                            } else {
-                                date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value);
-                            }
-                            setExtendEndDate(date)
-                            setSliderValue(value)
-                        }}
-                        renderMark={(props) => {
-                            props.className = "customSlider-mark customSlider-mark-before text-[16px] text-start ml-[0px] w-[16.66%]";
-                            return <span {...props} >
-                                <h1>{props.key}</h1>
-                            </span>;
-                        }}
-                    />
-
-                </div>
-                <div className='flex justify-center gap-2 items-center mt-20'>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
-
-                        <h1 className='text-xs text-purple-text font-semibold'>{extendStartDate.getMonth() + 1}/{extendStartDate.getDate()}/{extendStartDate.getFullYear()}</h1>
-                        <h1 className='text-[.6rem]'>Current Stake ends at</h1>
-                    </div>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
-
-                        <h1 className='text-xs text-purple-text font-semibold'>{extendEndDate.getMonth() + 1}/{extendEndDate.getDate()}/{extendEndDate.getFullYear()}</h1>
-                        <h1 className='text-[.6rem]'>Stake extended till</h1>
-                    </div>
-
-                </div>
-
-                <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
-                    <Image src={info_icon} width={14} height={14} />
-                    <h1 className='text-[0.66rem]  text-purple-text'>An extension&apos;s duration cannot exceed a two year maximum</h1>
-                </div>
-
-                <div className='flex justify-end gap-2 mt-4'>
-                    <button
-                        type="button"
-                        className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
-                        onClick={() => setShowPopUp(false)}
-                    >
-                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
-                            Cancel
-                        </div>
-
-                    </button>
-                    <div className='flex justify-end'>
-
-                        <button
-                            type="button"
-                            className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
-                        >
-                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
-                                Extend
-                            </div>
-
-                        </button>
-
-
-                    </div>
-
-                </div>
-            </>
-        )
-    }
-
-
-    const ClaimPopUpChildren = ({ setShowPopUp }) => {
-
-        return <>
-            <div className='flex justify-between items-center my-2'>
-                <div className='flex justify-start items-center gap-3'>
-
-                    <h1>Claim</h1>
-                </div>
-                <div className='cursor-pointer' onClick={() => setShowPopUp(false)}>
-                    <Image src={cross_icon} className='w-[10px] h-[10px]' />
-                </div>
-
-            </div>
-
-
-            <div className='flex justify-center gap-2 items-center mt-6'>
-                <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
-                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{getClaimableReward()}</span> AIUS</h1>
-                    <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
-                </div>
-
-
-            </div>
-
-            <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
-                <Image src={info_icon} width={14} height={14} />
-                <h1 className='text-[0.66rem]  text-purple-text'>AIUS is claimable directly to your wallet </h1>
-            </div>
-
-            <div className='flex justify-end gap-2 mt-12'>
-
-                <button
-                    type="button"
-                    className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
-                    onClick={() => setShowPopUp(false)}
-                >
-                    <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
-                        Cancel
-                    </div>
-
-                </button>
-
-                <div className='flex justify-end'>
-
-                    <button
-                        type="button"
-                        className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
-                    >
-                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
-                            Claim
-                        </div>
-
-                    </button>
-
-
-                </div>
-
-            </div>
-        </>
-
-    }
-
     return (
         <div>
             {showPopUp !== false && (
                 <PopUp setShowPopUp={setShowPopUp}>
-                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} />}
-                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp} />}
-                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp} />}
+                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} tokenId={selectedTokenId} walletBalance={walletBalance} totalEscrowBalance={totalEscrowBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} />}
+                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp}  tokenId={selectedTokenId} />}
+                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp}  tokenId={selectedTokenId} />}
                 </PopUp>
             )}
             <div className='relative'>
                 <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
                     <Slider {...settings}>
-                        {totalStakes?.map((item, key) => (
+                        {myNFTData?.map((item, key) => (
                             <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] relative ' key={key}>
-                                <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' />
+                                <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' alt="" />
                                 <div className='flex justify-start gap-8 items-start'>
                                     <div className='flex flex-col gap-3 justify-center items-start'>
                                         <div>
@@ -657,7 +670,7 @@ function SlidingCards() {
                                             onClick={() => {setShowPopUp("add"); setSelectedTokenId(item.tokenId); }}
                                             className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
-                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
                                                 Add
                                             </div>
@@ -669,7 +682,7 @@ function SlidingCards() {
                                             onClick={() => {setShowPopUp("extend"); setSelectedTokenId(item.tokenId); }}
                                             className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
-                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
                                                 Extend
                                             </div>
@@ -681,7 +694,7 @@ function SlidingCards() {
                                             onClick={() => {setShowPopUp("claim"); setSelectedTokenId(item.tokenId);}}
                                             className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                         >
-                                            <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             <div className="lato-bold  relative z-10 text-original-white lg:text-[15px]">
                                                 Claim
                                             </div>
