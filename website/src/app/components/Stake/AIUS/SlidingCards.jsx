@@ -250,8 +250,8 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
 
         const VE_STAKING_ADDRESS = config.veStakingAddress;
 
-        const getClaimableReward = () => {
-            const claimReward = useContractRead({
+       
+            const {data: claimRewardData, isLoading: claimRewardIsLoading, isError: claimRewardIsError} = useContractRead({
                 address: VE_STAKING_ADDRESS,
                 abi: veStaking.abi,
                 functionName: 'getReward',
@@ -259,11 +259,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
                     selectedStake?.tokenId
                 ]
             })
-            if(claimReward?.data?._hex){
-                return BigNumber.from(claimReward.data._hex).toNumber();
-            }
-            return 0;
-        }
+           
 
         return <>
             <div className='flex justify-between items-center my-2'>
@@ -280,7 +276,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
 
             <div className='flex justify-center gap-2 items-center mt-6'>
                 <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
-                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{getClaimableReward()}</span> AIUS</h1>
+                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{claimRewardData?._hex && BigNumber.from(claimRewardData?._hex).toNumber()}</span> AIUS</h1>
                     <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
 
@@ -580,7 +576,7 @@ function SlidingCards() {
             <div className='relative'>
                 <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
                     <Slider {...settings}>
-                        {selectedStake?.map((item, key) => (
+                        {totalStakes?.map((item, key) => (
                             <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] relative ' key={key}>
                                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' alt="" />
                                 <div className='flex justify-start gap-8 items-start'>
