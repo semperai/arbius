@@ -13,8 +13,9 @@ import votingEscrow from "../../../abis/votingEscrow.json"
 // import { walletBalance } from '../../../Utils/getAiusBalance'
 
 import { BigNumber } from 'ethers';
+import { fetchArbiusData } from '../../../Utils/getArbiusData'
 
-function DashBoard({data, isLoading, isError}) {
+function DashBoard({ data, isLoading, isError, protocolData }) {
     // const { switchNetwork } = useSwitchNetwork({
     //     chainId: 421614,
     //   });
@@ -22,13 +23,13 @@ function DashBoard({data, isLoading, isError}) {
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 
     const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
-
+    // const [protocolData, setProtocolData] = useState([]);
     const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'rewardRate',
         args: [
-            
+
         ]
     })
 
@@ -37,32 +38,35 @@ function DashBoard({data, isLoading, isError}) {
         abi: veStaking.abi,
         functionName: 'totalSupply',
         args: [
-            
-        ]
-    })    
 
-    const getAPR = (rate, supply)=>{
+        ]
+    })
+
+    const getAPR = (rate, supply) => {
         rate = BigNumber.from(rate).toNumber()
         supply = BigNumber.from(supply).toNumber()
         const rewardPerveAiusPerSecond = rate / supply;
         let apr = rewardPerveAiusPerSecond * 31536000 // reward per second multiplied by seconds in an year
         apr = apr * 100; // APR percentage
         console.log(apr);
-        if(apr){
+        if (apr) {
             return apr;
         }
         return 0;
     }
 
     const { data: veSupplyData, isLoading: veSupplyIsLoading, isError: veSupplyIsError } = useContractRead({
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'supply',
-            args: [
-            ]
-        })
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'supply',
+        args: [
+        ]
+    })
 
-   
+
+    console.log({ protocolData });
+
+
     return (
         <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-10 lg:py-16' id="dashboard">
             <div className='flex justify-start items-baseline gap-3'><h1 className='text-[#4A28FF] lato-bold text-[40px]'><span className="hidden um:inline">veAIUS</span> Dashboard </h1> <Image src={aius_icon} width={"auto"} height={33} alt="" /></div>
@@ -119,21 +123,24 @@ function DashBoard({data, isLoading, isError}) {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Staked</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!veSupplyIsLoading && veSupplyData ? BigNumber.from(veSupplyData?._hex).toString() : 0 }</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!veSupplyIsLoading && veSupplyData ? BigNumber.from(veSupplyData?._hex).toString() : 0}</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>1,000,000 <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{protocolData?.data?.AIUS?.total_supply.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                             </div>
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Market Cap</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$10.04M </h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>${new Intl.NumberFormat('en-US', {
+                                        notation: 'compact',
+                                        compactDisplay: 'short'
+                                    }).format(protocolData?.data?.AIUS?.self_reported_market_cap)} </h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Circulating supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>145,432 <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{protocolData?.data?.AIUS?.self_reported_circulating_supply.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                             </div>
                         </div>

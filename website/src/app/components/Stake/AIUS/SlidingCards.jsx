@@ -101,7 +101,7 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
                     <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
                         <div className="bg-stake-input flex items-center gap-2 justify-center rounded-l-3xl  p-1 px-2 box-border">
                             <div className="bg-white-background w-[30px] h-[30px] rounded-[50%] flex items-center justify-center ">
-                                <Image src={arbius_logo_without_name} width={15} alt="arbius" alt="" />
+                                <Image src={arbius_logo_without_name} width={15} alt="arbius"  />
                             </div>
                             <p className="pr- text-aius lato-bold text-[12px]">AIUS</p>
                         </div>
@@ -158,14 +158,33 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
         )
     }
 
-    const ExtendPopUpChildren = ({ setShowPopUp }) => {
+    const ExtendPopUpChildren = ({ setShowPopUp, tokenId }) => {
         const [sliderValue, setSliderValue] = useState(0)
         const [duration, setDuration] = useState({
             months: 0,
             weeks: 0
         })
-        const [extendStartDate, setExtendStartDate] = useState(new Date("09/10/2024"))
+        const [extendStartDate, setExtendStartDate] = useState(new Date())
         const [extendEndDate, setExtendEndDate] = useState(new Date("09/10/2024"))
+        const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+
+        const { config: addAIUSConfig } = usePrepareContractWrite({
+            address: VOTING_ESCROW_ADDRESS,
+            abi: votingEscrow.abi,
+            functionName: 'increase_unlock_time',
+            args: [
+                tokenId,
+                (duration.months * 30 * 24 * 60 * 60) + (duration.weeks * 7 * 24 * 60 * 60)
+            ],
+            enabled: Boolean(duration.months || duration.weeks)
+        });
+
+        const {
+            data: addAIUSData,
+            isLoading: addAIUSIsLoading,
+            isSuccess: addAIUSIsSuccess,
+            write: extendAIUS
+        } = useContractWrite(addAIUSConfig)
         return (
 
             <>

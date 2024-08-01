@@ -11,8 +11,9 @@ import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi'
 import config from "../sepolia_config.json"
 const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 import baseTokenV1 from "../app/abis/baseTokenV1.json"
+import { fetchArbiusData } from "../app/Utils/getArbiusData"
 import { BigNumber } from 'ethers';
-export default function AIUS() {
+export default function AIUS({protocolData}) {
     const [selectedtab, setSelectedTab] = useState("Dashboard")
     const { address, isConnected } = useAccount();
     console.log({address});
@@ -69,10 +70,20 @@ export default function AIUS() {
 
                 <Notifications />
                 {/* tabs */}
-                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} />
+                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} protocolData={protocolData} />
 
             </div>
 
         </RootLayout>
     )
+}
+
+export async function getServerSideProps(context) {
+    const data = await fetchArbiusData();
+    console.log(data);
+    return {
+        props: {
+            protocolData: data,
+        }
+    }
 }
