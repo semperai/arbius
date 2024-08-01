@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { useTimer } from 'react-timer-hook';
+import React, { useState , useEffect} from 'react'
 import Image from 'next/image'
 import polygon from "../../../assets/images/polygon.png"
 import info_icon from "../../../assets/images/info_icon.png"
@@ -13,7 +12,7 @@ import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_na
 import clock_icon from "../../../assets/images/clock_icon.png"
 
 const getVoteStartDate = ()=>{
-    return new Date().setSeconds(new Date().getSeconds() + 60*60*24*11)
+    return new Date("08/23/2024") 
 }
 function Gauge() {
     const data = [
@@ -64,7 +63,7 @@ function Gauge() {
         setSearchText(e.target.value)
         // debounce the function call   
         let time = setTimeout(() => {
-            // setFilteredData(data)
+         
             setFilteredData(data.filter(item => item.model_name.toLowerCase().includes(e.target.value.toLowerCase())))
             clearTimeout(time)
         }, 300)
@@ -73,9 +72,28 @@ function Gauge() {
     }
 
 
-    const {days, hours, minutes, seconds} = useTimer({expiryTimestamp: getVoteStartDate(), onExpire: () => {
-        console.log("expired")
-    }})
+
+    const [timeRemaining, setTimeRemaining] = useState({});
+    useEffect(() => {
+        updateTimeRemaining(getVoteStartDate());
+    
+        const intervalId = setInterval(() => {
+          updateTimeRemaining(getVoteStartDate());
+          console.log("updateTimeRemaining");
+        }, 60000); // Update every minute
+    
+        return () => clearInterval(intervalId);
+      }, []);
+    
+  const updateTimeRemaining = (targetDate) => {
+    const now = new Date();
+    const target = new Date(targetDate);
+    const difference = target - now;
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    setTimeRemaining({  days, hours, minutes });
+  };
 
 
     return (
@@ -84,7 +102,6 @@ function Gauge() {
             {
                 showPopUp && selectedModel !== null && (
                     <PopUp setShowPopUp={setShowPopUp}>
-
                         <>
                             <div className='flex justify-between items-center my-2'>
                                 <div className='flex justify-start items-center gap-3'>
@@ -97,7 +114,6 @@ function Gauge() {
                                 <div className='cursor-pointer' onClick={() => setShowPopUp(false)}>
                                     <Image src={cross_icon} className='w-[10px] h-[10px]' />
                                 </div>
-
                             </div>
 
                             <p className='text-xs opacity-60 mb-6'>{selectedModel?.description}</p>
@@ -174,7 +190,7 @@ function Gauge() {
 
                 <div className='text-[#4A28FF] text-[14px] w-[30%] gap-2 text-end font-semibold flex justify-end items-center'>
                     <Image src={clock_icon} className='h-4 w-4' />
-                    <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {days} D : {hours} Hr : {minutes} Min</h1>
+                    <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1>
                 </div>
 
             </div>

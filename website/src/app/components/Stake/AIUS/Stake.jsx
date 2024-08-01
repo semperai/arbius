@@ -180,7 +180,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
                                     }}
                                     renderMark={(props) => {
                                         const isSingleDigit = props.key.toString().length === 1;
-                                        props.className = `customSlider-mark customSlider-mark-before text-[16px] text-start w-[16.66%]  ${isSingleDigit ? 'ml-[7px] !important' : 'ml-[0px] !important'}}`;
+                                        props.className = `customSlider-mark customSlider-mark-before text-[16px] text-start w-[16.66%]  ${isSingleDigit ? '!ml-[4px]' : '!ml-[0px]'}`;
                                         
                                         return <span {...props}  >
                                             <h1>{props.key}</h1>

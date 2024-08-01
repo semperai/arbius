@@ -660,5 +660,4 @@ function SlidingCards() {
         </div>
     )
 }
-
 export default SlidingCards
