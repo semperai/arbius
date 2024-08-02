@@ -120,8 +120,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         functionName: 'create_lock',
         args: [
             amount,
-            (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks)*7*24*60*60,
-            address
+            (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks)*7*24*60*60
         ],
         // enabled:Boolean(amount),
     });
