@@ -5,6 +5,8 @@ import baseTokenV1 from "../../../abis/baseTokenV1.json"
 import config from "../../../../sepolia_config.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
+import Image from "next/image"
+
 function StakeCard({idx, tokenID,getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp}) {
 
     const {data:totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError} = useContractRead({
