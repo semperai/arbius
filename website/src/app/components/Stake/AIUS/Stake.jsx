@@ -8,7 +8,7 @@ import Link from "next/link"
 import { relative } from "path"
 import { BigNumber } from "ethers"
 import { getAIUSVotingPower } from "../../../Utils/getAIUSVotingPower"
-import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite} from 'wagmi'
+import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite, useContractReads} from 'wagmi'
 import config from "../../../../sepolia_config.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
@@ -66,46 +66,48 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         return 0;
     }
 
-    if(totalEscrowBalance){
-        for (let i = 0; i < totalEscrowBalance; i++) {
-            const {
-                data: tokenIDData,
-                isLoading: tokenIDIsLoading,
-                isError: tokenIDIsError 
-            } = useContractRead({
-                address: VOTING_ESCROW_ADDRESS,
-                abi: votingEscrow.abi,
-                functionName: 'tokenOfOwnerByIndex',
-                args: [
-                    address,
-                    i
-                ]
-            })
-            if(tokenIDData){
-                console.log(tokenIDData);
-                const {
-                    data:veAIUSData,
-                    isLoading: veAIUSIsLoading,
-                    isError: veAIUSIsError
-                } = useContractRead({
-                    address: VE_STAKING_ADDRESS,
-                    abi: veStaking.abi,
-                    functionName: 'balanceOf',
-                    args: [
-                        BigNumber.from(tokenIDData?._hex).toNumber()
-                    ]
-                })
-                if(veAIUSData){
-                    console.log(veAIUSData);
-                    setVeAIUSBalance((prev) => prev + BigNumber.from(veAIUSData?._hex).toNumber())
-                }
-            }
 
+    const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
+        contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
+          return {
+            address: VOTING_ESCROW_ADDRESS,
+            abi: votingEscrow.abi,
+            functionName: 'tokenOfOwnerByIndex',
+            args: [
+              address,
+              i
+            ]
+          }
+        }) : null,
+      });
+      const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
+
+      useEffect(() => {
+        if (tokenIDs && tokenIDs.length > 0 && !tokenIDsIsLoading && !tokenIDsIsError) {
+          const contracts = tokenIDs?.map((tokenID) => ({
+            address: VE_STAKING_ADDRESS,
+            abi: veStaking.abi,
+            functionName: 'balanceOf',
+            args: [
+              BigNumber.from(tokenID?._hex).toNumber()
+            ]
+          }));
+          setVeAIUSBalancesContracts(contracts);
         }
+      }, [tokenIDs, tokenIDsIsLoading, tokenIDsIsError]);
+      
+      const { data: veAIUSBalances, isLoading: veAIUSBalancesIsLoading, isError: veAIUSBalancesIsError } = useContractReads({
+        contracts: veAIUSBalancesContracts,
+      });
 
-    }
-    console.log({totalEscrowBalance});
-    console.log({veAiusBalance});
+    useEffect(()=>{
+        veAIUSBalances?.forEach((veAIUSBalance, index) => {
+            if(veAIUSBalance){
+                setVeAIUSBalance((prev) => prev + BigNumber.from(veAIUSBalance?._hex).toNumber())
+            }
+        })
+    },[veAIUSBalances])
+
     useEffect(()=>{
         if(escrowBalanceData){
             setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
@@ -131,6 +133,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         console.log({stakeData});
         stakeWrite?.();
     }
+    // console.log({veAIUSBalances})
 
     return (
         <div>
