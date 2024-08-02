@@ -13,6 +13,7 @@ import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
 import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
+import { getAPR } from "../../../Utils/getAPR"
 import { useAccount, useContractRead, useContractReads, usePrepareContractWrite, useContractWrite } from 'wagmi';
 import { BigNumber } from 'ethers';
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
@@ -120,6 +121,7 @@ import StakeCard from './StakeCard';
             months: 0,
             weeks: 0
         })
+        const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
         const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
             address: VOTING_ESCROW_ADDRESS,
             abi: votingEscrow.abi,
@@ -130,7 +132,6 @@ import StakeCard from './StakeCard';
           })
         const [extendStartDate, setExtendStartDate] = useState(new Date(BigNumber.from(endDate?._hex).toNumber()).toLocaleString('en-US'))
         const [extendEndDate, setExtendEndDate] = useState(new Date("09/10/2024"))
-        const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 
         const { config: addAIUSConfig } = usePrepareContractWrite({
             address: VOTING_ESCROW_ADDRESS,
@@ -390,24 +391,6 @@ function SlidingCards() {
         ]
     })
     console.log(rewardRate, totalSupply, "RRTS")
-
-    const getAPR = (rate, supply) => {
-        
-        console.log("RATE")
-        rate = BigNumber.from(rate).toNumber()
-        console.log("Supply")
-        supply = BigNumber.from(supply).toNumber()
-        console.log(rate, supply, "RSPLY")
-        const rewardPerveAiusPerSecond = rate / supply;
-        console.log(rewardPerveAiusPerSecond);
-        const apr = rewardPerveAiusPerSecond * 365 * 24 * 60 * 60 * 100;
-        console.log(apr);
-        if (apr) {
-            return apr;
-        }
-        return 0;
-    }
-
 
     const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
         contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {

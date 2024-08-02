@@ -8,24 +8,31 @@ import Link from "next/link"
 import { relative } from "path"
 import { BigNumber } from "ethers"
 import { getAIUSVotingPower } from "../../../Utils/getAIUSVotingPower"
+import { getAPR } from "../../../Utils/getAPR"
 import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite, useContractReads} from 'wagmi'
 import config from "../../../../sepolia_config.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
+import baseTokenV1 from "../../../abis/baseTokenV1.json"
 
 export default function Stake({selectedtab, setSelectedTab, data, isLoading, isError}) {
     const [sliderValue, setSliderValue] = useState(0)
     const {address,isConnected} = useAccount()
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const [veAiusBalance, setVeAIUSBalance] = useState(0)
+    const [allowance, setAllowance] = useState(0)
     const [duration, setDuration] = useState({
         months: 0,
         weeks: 0
     })
     const [amount, setAmount] = useState(0)
-    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
+    const AIUS_wei = 1000000000000000000;
+    const defaultApproveAmount = 1000000000000000000000000n;
+    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+    const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 
     const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
@@ -53,20 +60,6 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         ]
     })    
 
-    const getAPR = (rate, supply)=>{
-        rate = BigNumber.from(rate).toNumber()
-        supply = BigNumber.from(supply).toNumber()
-        const rewardPerveAiusPerSecond = rate / supply;
-        let apr = rewardPerveAiusPerSecond * 31536000 // reward per second multiplied by seconds in an year
-        apr = apr * 100; // APR percentage
-        console.log(apr);
-        if(apr){
-            return apr;
-        }
-        return 0;
-    }
-
-
     const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
         contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
           return {
@@ -79,10 +72,10 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
             ]
           }
         }) : null,
-      });
-      const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
+    });
+    const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
 
-      useEffect(() => {
+    useEffect(() => {
         if (tokenIDs && tokenIDs.length > 0 && !tokenIDsIsLoading && !tokenIDsIsError) {
           const contracts = tokenIDs?.map((tokenID) => ({
             address: VE_STAKING_ADDRESS,
@@ -94,43 +87,81 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
           }));
           setVeAIUSBalancesContracts(contracts);
         }
-      }, [tokenIDs, tokenIDsIsLoading, tokenIDsIsError]);
-      
-      const { data: veAIUSBalances, isLoading: veAIUSBalancesIsLoading, isError: veAIUSBalancesIsError } = useContractReads({
-        contracts: veAIUSBalancesContracts,
-      });
+    }, [tokenIDs, tokenIDsIsLoading, tokenIDsIsError]);
 
+    const { data: veAIUSBalances, isLoading: veAIUSBalancesIsLoading, isError: veAIUSBalancesIsError } = useContractReads({
+        contracts: veAIUSBalancesContracts,
+    });
+
+    const {data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError} = useContractRead({
+        address: BASETOKEN_ADDRESS_V1,
+        abi: baseTokenV1.abi,
+        functionName: 'allowance',
+        args: [
+            address,
+            VOTING_ESCROW_ADDRESS
+        ]
+    })
+    console.log(checkAllowance, "TO CHECK")
     useEffect(()=>{
+        console.log(veAIUSBalances, "veAIUSBalances")
         veAIUSBalances?.forEach((veAIUSBalance, index) => {
             if(veAIUSBalance){
-                setVeAIUSBalance((prev) => prev + BigNumber.from(veAIUSBalance?._hex).toNumber())
+                setVeAIUSBalance((prev) => prev + (Number(veAIUSBalance?._hex) / AIUS_wei) )
             }
         })
     },[veAIUSBalances])
 
     useEffect(()=>{
+        console.log(escrowBalanceData, "escrowBalanceData")
         if(escrowBalanceData){
             setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
         }
     },[escrowBalanceData])
+
+    useEffect(()=>{
+        console.log(checkAllowance, "CHECK ALLOW")
+        if(checkAllowance){
+            const val = BigNumber.from(checkAllowance?._hex) / AIUS_wei
+            setAllowance(val)
+        }
+    },[checkAllowance])
+
+    const { config: approveConfig } = usePrepareContractWrite({
+        address: BASETOKEN_ADDRESS_V1,
+        abi: baseTokenV1.abi,
+        functionName: 'approve',
+        args: [
+            VOTING_ESCROW_ADDRESS,
+            (amount * AIUS_wei).toString()
+        ]
+    });
+
+    const {data:approveData, error:approveError, isPending:approvePending, write:approveWrite} = useContractWrite(approveConfig)
+    console.log({approveData, approveError, approvePending, allowance});
 
     const { config: stakeConfig } = usePrepareContractWrite({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'create_lock',
         args: [
-            amount,
+            (amount * AIUS_wei).toString(),
             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks)*7*24*60*60
         ],
-        // enabled:Boolean(amount),
+        enabled: allowance >= amount,
     });
 
     const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
 
     const handleStake = ()=>{
-        console.log({write});
         console.log({stakeData});
-        stakeWrite?.();
+        console.log({approveData});
+        console.log(amount, allowance, "AMT-ALL");
+        if(amount > allowance){
+            approveWrite?.();
+        }else{
+            stakeWrite?.();            
+        }
     }
     // console.log({veAIUSBalances})
 
@@ -158,7 +189,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
                         </div>
                     </div>
                     <div>
-                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for {getAIUSVotingPower(amount, sliderValue).toFixed(2)} AIUS voting power.</p>
+                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1) ? "week" : "weeks"}`} for {(getAIUSVotingPower(amount * AIUS_wei, sliderValue) / AIUS_wei).toFixed(2)} AIUS voting power.</p>
                         <div className="mb-10">
                             <div className="mb-8">
                                 <ReactSlider
@@ -218,7 +249,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
 
                         </div>
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">veAIUS Balance</p>
-                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{veAiusBalance} <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
+                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{veAiusBalance?.toFixed(2)} <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
                     </div>
                 </div>
 

@@ -9,7 +9,7 @@ import { useContractRead } from 'wagmi'
 import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
-
+import { getAPR } from "../../../Utils/getAPR"
 // import { walletBalance } from '../../../Utils/getAiusBalance'
 
 import { BigNumber } from 'ethers';
@@ -22,7 +22,9 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 
-    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
+    const AIUS_wei = 1000000000000000000;
+
+    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
     // const [protocolData, setProtocolData] = useState([]);
     const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
@@ -41,19 +43,6 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
         ]
     })
-
-    const getAPR = (rate, supply) => {
-        rate = BigNumber.from(rate).toNumber()
-        supply = BigNumber.from(supply).toNumber()
-        const rewardPerveAiusPerSecond = rate / supply;
-        let apr = rewardPerveAiusPerSecond * 31536000 // reward per second multiplied by seconds in an year
-        apr = apr * 100; // APR percentage
-        console.log(apr);
-        if (apr) {
-            return apr;
-        }
-        return 0;
-    }
 
     const { data: veSupplyData, isLoading: veSupplyIsLoading, isError: veSupplyIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -122,7 +111,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Staked</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!veSupplyIsLoading && veSupplyData ? BigNumber.from(veSupplyData?._hex).toString() : 0}</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!veSupplyIsLoading && veSupplyData ? (Number(veSupplyData?._hex) / AIUS_wei).toString() : 0}</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>
