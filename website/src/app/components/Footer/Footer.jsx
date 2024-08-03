@@ -17,12 +17,12 @@ export default function Footer() {
             link: "/generate"
         },
         {
-            id: "5",
+            id: "2",
             name: "Upgrade",
             link: "/upgrade"
         },
         {
-            id: "6",
+            id: "3",
             name: "Media",
             link: "/media"
         },
@@ -32,32 +32,32 @@ export default function Footer() {
         //     link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
         // }, //commenting for mobile footer
         {
-            id: "6",
+            id: "4",
             name: "Docs",
             link: "https://docs.arbius.ai/"
         },
         {
-            id: "3",
+            id: "5",
             name: "Models",
             link: "/models"
         },
         {
-            id: "4",
+            id: "6",
             name: "Explorer",
             link: "/explorer"
         },
         {
-            id: "5",
+            id: "7",
             name: "veAIUS",
             link: "/aius"
         },
         {
-            id: "6",
+            id: "8",
             name: "GYSR",
             link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
         },
         {
-            id: "7",
+            id: "9",
             name: "Blog",
             link: "https://blog.arbius.ai/"
         }

@@ -7,12 +7,13 @@ import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
 import Image from "next/image"
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
+import { AIUS_wei } from "../../../Utils/constantValues";
 
 function StakeCard({idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp}) {
     console.log(tokenID, "TOKEN ID")
+    const {address, isConnected} = useAccount();
 
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-    const AIUS_wei = 1000000000000000000;
 
     const {data:totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError} = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -20,15 +21,18 @@ function StakeCard({idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedSt
         functionName: 'locked',
         args: [
           Number(tokenID?._hex)
-        ]
+        ],
+        enabled: isConnected
       })
+    console.log(totalStaked, "ttsake")
       const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
         args: [
           Number(tokenID?._hex)
-        ]
+        ],
+        enabled: isConnected
       })
       console.log(Number(endDate?._hex), "endDate")
       const {data:stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError} = useContractRead({
@@ -38,7 +42,8 @@ function StakeCard({idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedSt
         args: [
           Number(tokenID?._hex),
           1
-        ]
+        ],
+        enabled: isConnected
       })
       console.log(stakedOn, "stakedOn")
       const {data:governancePower, isLoading: governancePowerIsLoading, isError: governancePowerIsError} = useContractRead({
@@ -47,17 +52,18 @@ function StakeCard({idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedSt
         functionName: 'balanceOfNFT',
         args: [
           Number(tokenID?._hex)
-        ]
+        ],
+        enabled: isConnected
       })
     
     return (
-        <div className='rounded-2xl px-8 py-6  bg-white-background w-[40%] relative '>
+        <div className='rounded-2xl px-8 py-6  bg-white-background relative'>
             <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20' alt="" />
             <div className='flex justify-start gap-8 items-start'>
                 <div className='flex flex-col gap-3 justify-center items-start'>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                        <h2 className='text-[15px] font-semibold'>{totalStaked?._hex ? BigNumber.from(totalStaked?._hex).toNumber() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
+                        <h2 className='text-[15px] font-semibold'>{totalStaked?.amount?._hex ? (Number(totalStaked.amount._hex) / AIUS_wei).toString() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">APR</h2>

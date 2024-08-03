@@ -5,7 +5,7 @@ import Image from 'next/image'
 import aius_icon from "../../../assets/images/aius_icon.png"
 import gysr_logo_wallet from "../../../assets/images/gysr_logo_wallet.png"
 import GanttChart from './GanttChart'
-import { useContractRead } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
@@ -14,15 +14,13 @@ import { getAPR } from "../../../Utils/getAPR"
 
 import { BigNumber } from 'ethers';
 import { fetchArbiusData } from '../../../Utils/getArbiusData'
+import { AIUS_wei } from "../../../Utils/constantValues";
 
 function DashBoard({ data, isLoading, isError, protocolData }) {
-    // const { switchNetwork } = useSwitchNetwork({
-    //     chainId: 421614,
-    //   });
+    const {address,isConnected} = useAccount()
+    console.log(isConnected, "IS CONNECT")
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-
-    const AIUS_wei = 1000000000000000000;
 
     const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
     // const [protocolData, setProtocolData] = useState([]);
@@ -30,26 +28,24 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'rewardRate',
-        args: [
-
-        ]
+        args: [],
+        enabled: isConnected
     })
 
     const totalSupply = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'totalSupply',
-        args: [
-
-        ]
+        args: [],
+        enabled: isConnected
     })
 
     const { data: veSupplyData, isLoading: veSupplyIsLoading, isError: veSupplyIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'supply',
-        args: [
-        ]
+        args: [],
+        enabled: isConnected
     })
 
 

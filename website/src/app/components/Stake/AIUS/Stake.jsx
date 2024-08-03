@@ -14,6 +14,7 @@ import config from "../../../../sepolia_config.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
+import { AIUS_wei, defaultApproveAmount } from "../../../Utils/constantValues";
 
 export default function Stake({selectedtab, setSelectedTab, data, isLoading, isError}) {
     const [sliderValue, setSliderValue] = useState(0)
@@ -21,14 +22,13 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const [veAiusBalance, setVeAIUSBalance] = useState(0)
     const [allowance, setAllowance] = useState(0)
+    const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
     const [duration, setDuration] = useState({
         months: 0,
         weeks: 0
     })
     const [amount, setAmount] = useState(0)
-    const AIUS_wei = 1000000000000000000;
-    const defaultApproveAmount = 1000000000000000000000000n;
-    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    const walletBalance = data && !isLoading ? Number(data._hex) / AIUS_wei : 0;
     
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
@@ -40,7 +40,8 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         functionName: 'rewardRate',
         args: [
             
-        ]
+        ],
+        enabled: isConnected
     })
 
     const totalSupply = useContractRead({
@@ -49,7 +50,8 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         functionName: 'totalSupply',
         args: [
             
-        ]
+        ],
+        enabled: isConnected
     })
     const {data:escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError} = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -57,7 +59,8 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         functionName: 'balanceOf',
         args: [
             address
-        ]
+        ],
+        enabled: isConnected
     })    
 
     const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
@@ -68,12 +71,11 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
             functionName: 'tokenOfOwnerByIndex',
             args: [
               address,
-              i
+              index
             ]
           }
         }) : null,
     });
-    const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
 
     useEffect(() => {
         if (tokenIDs && tokenIDs.length > 0 && !tokenIDsIsLoading && !tokenIDsIsError) {
@@ -82,17 +84,18 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
             abi: veStaking.abi,
             functionName: 'balanceOf',
             args: [
-              BigNumber.from(tokenID?._hex).toNumber()
+              Number(tokenID?._hex)
             ]
           }));
           setVeAIUSBalancesContracts(contracts);
         }
     }, [tokenIDs, tokenIDsIsLoading, tokenIDsIsError]);
 
+    console.log(veAIUSBalancesContracts, "BALANCE CONTRACTS")
     const { data: veAIUSBalances, isLoading: veAIUSBalancesIsLoading, isError: veAIUSBalancesIsError } = useContractReads({
         contracts: veAIUSBalancesContracts,
     });
-
+    console.log(veAIUSBalances, "BALANCES")
     const {data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError} = useContractRead({
         address: BASETOKEN_ADDRESS_V1,
         abi: baseTokenV1.abi,
@@ -100,29 +103,33 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         args: [
             address,
             VOTING_ESCROW_ADDRESS
-        ]
+        ],
+        enabled: isConnected
     })
     console.log(checkAllowance, "TO CHECK")
     useEffect(()=>{
         console.log(veAIUSBalances, "veAIUSBalances")
+        let sum = 0
         veAIUSBalances?.forEach((veAIUSBalance, index) => {
             if(veAIUSBalance){
-                setVeAIUSBalance((prev) => prev + (Number(veAIUSBalance?._hex) / AIUS_wei) )
+                sum = sum + Number(veAIUSBalance?._hex) / AIUS_wei
             }
         })
+        setVeAIUSBalance(sum);
     },[veAIUSBalances])
 
+    console.log(escrowBalanceData, "ESCROW _ B")
     useEffect(()=>{
         console.log(escrowBalanceData, "escrowBalanceData")
         if(escrowBalanceData){
-            setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
+            setTotalEscrowBalance(Number(escrowBalanceData?._hex))
         }
     },[escrowBalanceData])
 
     useEffect(()=>{
         console.log(checkAllowance, "CHECK ALLOW")
         if(checkAllowance){
-            const val = BigNumber.from(checkAllowance?._hex) / AIUS_wei
+            const val = Number(checkAllowance?._hex) / AIUS_wei
             setAllowance(val)
         }
     },[checkAllowance])
@@ -133,8 +140,10 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         functionName: 'approve',
         args: [
             VOTING_ESCROW_ADDRESS,
-            (amount * AIUS_wei).toString()
-        ]
+            defaultApproveAmount
+            //(amount * AIUS_wei).toString()
+        ],
+        enabled: amount
     });
 
     const {data:approveData, error:approveError, isPending:approvePending, write:approveWrite} = useContractWrite(approveConfig)

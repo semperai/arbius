@@ -18,19 +18,20 @@ import { useAccount, useContractRead, useContractReads, usePrepareContractWrite,
 import { BigNumber } from 'ethers';
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
 import StakeCard from './StakeCard';
+import { AIUS_wei } from "../../../Utils/constantValues";
 
     const AddPopUpChildren = ({ setShowPopUp, selectedStake,  walletBalance, totalEscrowBalance, totalSupply, rewardRate, getAPR}) => {
 
         const [aiusToStake, setAIUSToStake] = useState(0);
         const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-
+        console.log(Number(selectedStake), "SELC")
         const { config: addAIUSConfig } = usePrepareContractWrite({
             address: VOTING_ESCROW_ADDRESS,
             abi: votingEscrow.abi,
             functionName: 'increase_amount',
             args: [
-                BigNumber.from(selectedStake).toNumber(),
-                aiusToStake
+                Number(selectedStake),
+                (aiusToStake * AIUS_wei).toString()
             ],
             // enabled: Boolean(aiusToStake)
         });
@@ -121,25 +122,35 @@ import StakeCard from './StakeCard';
             months: 0,
             weeks: 0
         })
+        
+        function getCurrentTimeInMSeconds() {
+            const now = new Date();
+            return Math.floor(now.getTime());
+        }
+
         const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
         const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
             address: VOTING_ESCROW_ADDRESS,
             abi: votingEscrow.abi,
             functionName: 'locked__end',
             args: [
-              BigNumber.from(selectedStake).toNumber()
+              Number(selectedStake)
             ]
-          })
-        const [extendStartDate, setExtendStartDate] = useState(new Date(BigNumber.from(endDate?._hex).toNumber()).toLocaleString('en-US'))
-        const [extendEndDate, setExtendEndDate] = useState(new Date("09/10/2024"))
+        })
 
+        console.log(endDate, "END DATE")
+        let currentlyEndingAt = new Date(Number(endDate?._hex) * 1000).toLocaleDateString("en-US");
+        console.log(currentlyEndingAt, "AT")
+        const [currentEndDate, setCurrentEndDate] = useState(new Date(currentlyEndingAt))
+        const [extendEndDate, setExtendEndDate] = useState(new Date(currentlyEndingAt))
+        console.log(sliderValue, "SLIDER VAL", ((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
         const { config: addAIUSConfig } = usePrepareContractWrite({
             address: VOTING_ESCROW_ADDRESS,
             abi: votingEscrow.abi,
             functionName: 'increase_unlock_time',
             args: [
-                BigNumber.from(selectedStake).toNumber(),
-                sliderValue * 2419200 // value in months(decimal) * 4*7*24*60*60
+                Number(selectedStake),
+                parseInt((extendEndDate - getCurrentTimeInMSeconds()) / 1000).toString() // value in months(decimal) * 4*7*24*60*60
             ],
         });
 
@@ -182,13 +193,13 @@ import StakeCard from './StakeCard';
 
                             } else {
                                 setDuration({ ...duration, months: value, weeks: 0 })
-                                // setExtendEndDate(new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate()))
+                                // setExtendEndDate(new Date(currentEndDate.getFullYear(), currentEndDate.getMonth() + value, currentEndDate.getDate()))
                             }
                             let date;
                             if (Number.isInteger(value)) {
-                                date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth() + value, extendStartDate.getDate());
+                                date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth() + value, currentEndDate?.getDate());
                             } else {
-                                date = new Date(extendStartDate.getFullYear(), extendStartDate.getMonth(), extendStartDate.getDate() + 30 * value);
+                                date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth(), currentEndDate?.getDate() + 30 * value);
                             }
                             setExtendEndDate(date)
                             setSliderValue(value)
@@ -204,13 +215,14 @@ import StakeCard from './StakeCard';
                 </div>
                 <div className='flex justify-center gap-2 items-center mt-20'>
                     <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
+                        {console.log(currentEndDate, "EXTSTART")}
 
-                        <h1 className='text-xs text-purple-text font-semibold'>{extendStartDate.getMonth() + 1}/{extendStartDate.getDate()}/{extendStartDate.getFullYear()}</h1>
+                        <h1 className='text-xs text-purple-text font-semibold'>{currentEndDate?.getMonth() + 1}/{currentEndDate?.getDate()}/{currentEndDate?.getFullYear()}</h1>
                         <h1 className='text-[.6rem]'>Current Stake ends at</h1>
                     </div>
                     <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
 
-                        <h1 className='text-xs text-purple-text font-semibold'>{extendEndDate.getMonth() + 1}/{extendEndDate.getDate()}/{extendEndDate.getFullYear()}</h1>
+                        <h1 className='text-xs text-purple-text font-semibold'>{extendEndDate?.getMonth() + 1}/{extendEndDate?.getDate()}/{extendEndDate?.getFullYear()}</h1>
                         <h1 className='text-[.6rem]'>Stake extended till</h1>
                     </div>
 
@@ -266,10 +278,10 @@ import StakeCard from './StakeCard';
                 abi: veStaking.abi,
                 functionName: 'getReward',
                 args: [
-                    BigNumber.from(selectedStake).toNumber()
+                    Number(selectedStake)
                 ]
             })
-           
+            console.log(claimRewardData, "CRD", selectedStake)
 
         return <>
             <div className='flex justify-between items-center my-2'>
@@ -286,7 +298,7 @@ import StakeCard from './StakeCard';
 
             <div className='flex justify-center gap-2 items-center mt-6'>
                 <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
-                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{claimRewardData?._hex && BigNumber.from(claimRewardData?._hex).toNumber()}</span> AIUS</h1>
+                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{Number(claimRewardData?._hex) ? Number(claimRewardData?._hex).toString() : 0}</span> AIUS</h1>
                     <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
 
@@ -357,7 +369,8 @@ function SlidingCards() {
         functionName: 'balanceOf',
         args: [
             address
-        ]
+        ],
+        enabled: isConnected
     })
 
     const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
@@ -368,7 +381,8 @@ function SlidingCards() {
         functionName: 'balanceOf',
         args: [
             address
-        ]
+        ],
+        enabled: isConnected
     })
 
     console.log(escrowBalanceData, "VEBALANCE")
@@ -377,35 +391,34 @@ function SlidingCards() {
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'rewardRate',
-        args: [
-
-        ]
+        args: [],
+        enabled: isConnected
     })
 
     const {data:totalSupply, isLoading: totalSupplyIsLoading, isError: totalSupplyIsError} = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'totalSupply',
-        args: [
-
-        ]
+        args: [],
+        enabled: isConnected
     })
     console.log(rewardRate, totalSupply, "RRTS")
 
     const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
         contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
+            console.log("the loop", i, totalEscrowBalance)
           return {
             address: VOTING_ESCROW_ADDRESS,
             abi: votingEscrow.abi,
             functionName: 'tokenOfOwnerByIndex',
             args: [
               address,
-              i
+              index
             ]
           }
         }) : null,
-      });
-
+    });
+    console.log(tokenIDs, "tokenIDs")
 
 
 
@@ -507,7 +520,7 @@ function SlidingCards() {
                 <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
                     <Slider {...settings}>
                         {tokenIDs?.map((item, key) => (
-                            <StakeCard  tokenID={item} rewardRate={rewardRate} totalSupply={totalSupply} getAPR={getAPR} key={key} setSelectedStake={setSelectedStake} setShowPopUp={setShowPopUp} />
+                            <StakeCard tokenID={item} rewardRate={rewardRate} totalSupply={totalSupply} getAPR={getAPR} key={key} setSelectedStake={setSelectedStake} setShowPopUp={setShowPopUp} />
                         ))}
                     </Slider>
                 </div>

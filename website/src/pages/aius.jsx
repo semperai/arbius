@@ -13,6 +13,7 @@ const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 import baseTokenV1 from "../app/abis/baseTokenV1.json"
 import { fetchArbiusData } from "../app/Utils/getArbiusData"
 import { BigNumber } from 'ethers';
+
 export default function AIUS({protocolData}) {
     const [selectedtab, setSelectedTab] = useState("Dashboard")
     const { address, isConnected } = useAccount();
@@ -26,7 +27,8 @@ export default function AIUS({protocolData}) {
         functionName: 'balanceOf',
         args: [
             address
-        ]
+        ],
+        enabled: isConnected
     })
 
     return (
