@@ -8,7 +8,6 @@ import {SD59x18, sd, unwrap} from "@prb/math/src/SD59x18.sol";
 import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
-import "hardhat/console.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant RESERVED_ENGINE_TOKEN_AMOUNT = 300_000e18;
@@ -238,7 +237,8 @@ contract V2_EngineV3 is OwnableUpgradeable {
         solutionRateLimit = 1 ether; // 1 second required between solution submissions
         taskOwnerRewardPercentage = 0.1 ether; // 10%
         contestationVoteExtensionTime = 10; // 10 seconds
-        totalHeld = 3333; // TODO update this during upgrade
+        // add 1000 as buffer for solution staked amount
+        totalHeld = 7461843852911515700057;
     }
 
     /// @notice Transfer ownership
@@ -412,6 +412,9 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @param ts Total supply
     /// @return Reward
     function reward(uint256 t, uint256 ts) public pure returns (uint256) {
+        return 0; // disable all rewards
+
+        /*
         // we have a basic reward if for some reason our total supply is 0
         // this can happen if engine has a balance of 600k or more
         if (ts == 0) {
@@ -423,6 +426,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
                 BASE_TOKEN_STARTING_REWARD) * diffMul(t, ts)) /
             EMISSION_ENGINE_TOKEN_AMOUNT / 2 /
             1e18;
+        */
     }
 
     /// @notice Because we are using a token which is fully minted upfront we must calculate total supply based on the amount remaining in Engine
