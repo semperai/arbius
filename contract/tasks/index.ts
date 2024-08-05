@@ -287,6 +287,21 @@ task("engine:setSolutionMineableStatus", "Allow a model to receive rewards for t
   console.log(`${model} mineable status set to ${enabled}`);
 });
 
+task("v2:engine:setSolutionMineableRate", "Allow a model to receive rewards for tasks completed")
+.addParam("model", "Model id")
+.addParam("rate", "Rate in eth rate")
+.setAction(async ({ model, rate }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const tx = await engine.setSolutionMineableRate(model, rate);
+  await tx.wait();
+
+  const data = await engine.models(model);
+  console.log(data);
+
+  console.log(`${model} mineable rate set to ${rate}`);
+});
+
 task("engine:isPaused", "Check if engine is paused")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
