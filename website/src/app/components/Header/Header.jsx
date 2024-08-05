@@ -18,9 +18,14 @@ import ConnectWallet from '@/components/ConnectWallet'; // main arbius component
 import { useWeb3Modal } from '@web3modal/react'; // main arbius component
 import {
   useAccount,
+  useContractRead,
 } from 'wagmi';  // main arbius component
+import config from "../../../sepolia_config.json"
+const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
+import baseTokenV1 from "../../abis/baseTokenV1.json"
 import getAIUSBalance from "../../Utils/aiusWalletBalance";
-
+import { BigNumber } from 'ethers';
+import { AIUS_wei } from "../../Utils/constantValues";
 
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
@@ -75,11 +80,13 @@ export default function Header() {
     isConnected,
     isConnecting,
     isDisconnected,
+    address
+
   } = useAccount()
   const { open: openWeb3Modal } = useWeb3Modal()
 
   const [walletConnected, setWalletConnected] = useState(false);
-  const [walletBalance, setWalletBalance] = useState(0);
+  // const [walletBalance, setWalletBalance] = useState(0);
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
 
   useEffect(() => {
@@ -105,7 +112,22 @@ export default function Header() {
   }
   // MAIN ARBIUS AI CODE
 
+ 
+    console.log({address});
+    console.log({isConnected});
+    const {
+        data, isError, isLoading
+    } = useContractRead({
+        address: BASETOKEN_ADDRESS_V1,
+        abi: baseTokenV1.abi,
+        functionName: 'balanceOf',
+        args: [
+            address
+        ],
+        enabled: isConnected
+    })
 
+    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
 
 
   return (
@@ -295,7 +317,7 @@ export default function Header() {
                   {
                     walletConnected ? <Image style={{filter:'invert(1)'}} src={arbiusBWlogo} height={20} alt="connected"/>:null
                   }
-                  { walletConnected ? 'Connected' : "Connect" }
+                  { walletConnected ? walletBalance.toFixed(2) :  "Connect" }
                 </div>
               </button>
             </div>

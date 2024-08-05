@@ -2,14 +2,20 @@ import React, { useState , useEffect} from 'react'
 import Image from 'next/image'
 import polygon from "../../../assets/images/polygon.png"
 import info_icon from "../../../assets/images/info_icon.png"
-import kandinsky_icon from "../../../assets/images/kandinsky_icon.png"
-import kasumi_icon from "../../../assets/images/kasumi_l_icon.png"
+import mistral_icon from "../../../assets/images/mistral_icon.png"
+import nemotron_icon from "../../../assets/images/nemotron_icon.png"
+import deepseek_icon from "../../../assets/images/deepseek_icon.png"
 import llama_icon from "../../../assets/images/llama.png"
 import search_icon from "../../../assets/images/search_icon.png"
 import PopUp from './PopUp'
 import cross_icon from "../../../assets/images/cross_icon.png"
 import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png'
 import clock_icon from "../../../assets/images/clock_icon.png"
+import skeleton from "../../../assets/images/skeleton.png"
+import prompts from "../../../assets/images/prompts.png"
+import thunder from "../../../assets/images/thunder.png"
+import governance from "../../../assets/images/governance.png"
+import info_red from "../../../assets/images/info_red.png"
 
 const getVoteStartDate = ()=>{
     return new Date("08/23/2024") 
@@ -17,39 +23,39 @@ const getVoteStartDate = ()=>{
 function Gauge() {
     const data = [
         {
-            model_name: "kandinsky 2",
-            model_id: "arbiusllama3-400b-0703",
-            description: "Image Generator",
+            model_name: "Mistral-large-2407",
+            model_id: "Mistral-large-2407",
+            description: "Text Generator",
             emissions: "21.1244%",
             prompts: "121,412",
-            icon: kandinsky_icon,
+            icon: mistral_icon,
 
 
         },
         {
-            model_name: "Kasumi 2",
-            model_id: "arbiusllama3-400b-0703",
-            description: "Image Generator",
+            model_name: "Nemotron-4-340b",
+            model_id: "Nemotron-4-340b",
+            description: "Text Generator",
             emissions: "21.1244%",
             prompts: "121,412",
-            icon: kasumi_icon,
+            icon: nemotron_icon,
 
         },
         {
-            model_name: "Llama 3-405b",
-            model_id: "arbiusllama3-400b-0703",
-            description: "Image Generator",
+            model_name: "Llama-3.1-405b",
+            model_id: "Llama-3.1-405b",
+            description: "Text Generator",
             emissions: "21.1244%",
             prompts: "121,412",
             icon: llama_icon,
         },
         {
-            model_name: "Llama 3-120b",
-            model_id: "arbiusllama3-400b-0703",
-            description: "Image Generator",
+            model_name: "Deepseek-coder-v2",
+            model_id: "Deepseek-coder-v2",
+            description: "Code Generator",
             emissions: "21.1244%",
             prompts: "121,412",
-            icon: llama_icon,
+            icon: deepseek_icon,
         }
     ]
 
@@ -120,19 +126,22 @@ function Gauge() {
 
                             <div className='flex justify-start items-center gap-10 my-2'>
                                 <div>
-                                    <h3 className='opacity-50 text-xs'>Emissions</h3>
-                                    <h1 className='mt-1'>{selectedModel?.emissions}</h1>
+                                    <div className='flex justify-start gap-1 items-center'><Image src={thunder} className='w-[20px] h-[20px]' /><h3 className='opacity-50 text-xs'>Emissions</h3></div>
+                                    {/* <h1 className='mt-1'>{selectedModel?.emissions}</h1> */}
+                                    <Image src={skeleton} className='w-[100%] h-[20px] rounded-lg mt-1' />
                                 </div>
                                 <div>
-                                    <h3 className='opacity-50 text-xs'>Alloted Governance Power</h3>
-                                    <h1 className='mt-1'>{0}</h1>
+                                    <div className='flex justify-start gap-1 items-center'><Image src={governance} className='w-[16px] h-[16px]' /><h3 className='opacity-50 text-xs'>Alloted Governance Power</h3></div>
+                                    {/* <h1 className='mt-1'>{0}</h1> */}
+                                    <Image src={skeleton} className='w-[100%] h-[20px] rounded-lg mt-1' />
                                 </div>
 
                             </div>
                             <div className='flex justify-start items-center gap-10 my-4'>
                                 <div>
-                                    <h3 className='opacity-50 text-xs'>Total Prompts Requested</h3>
-                                    <h1 className='mt-1'>{selectedModel?.prompts}</h1>
+                                    <div className='flex justify-start gap-1 items-center'><Image src={prompts} className='w-[20px] h-[20px]' /><h3 className='opacity-50 text-xs'>Total Prompts Requested</h3></div>
+                                    {/* <h1 className='mt-1'>{selectedModel?.prompts}</h1> */}
+                                    <Image src={skeleton} className='w-[100%] h-[20px] rounded-lg mt-1' />
                                 </div>
 
 
@@ -158,20 +167,32 @@ function Gauge() {
                                     </div>
                                 </div>
                             </div>
+                            <div className='flex justify-center'>
 
-                            <div className='flex justify-end'>
+                                <div className='p-3 rounded-[10px] border-[1.6px] border-[#DB000033] border-opacity-20 bg-[#FF555508] bg-opacity-5 w-full'>
+                                    <div className='flex justify-between items-center gap-2'>
+                                        <Image src={info_red} className='w-[16px] h-[16px]' />
+                                        <h1 className='text-center text-[#DB0000] text-[16px]'>Voting is currently closed!</h1>
+                                        <div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            {/* <div className='flex justify-end'>
                                 <button
                                     type="button"
-                                    className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                                    className="relative group bg-black-background py-[6px] px-8 lg:px-8 rounded-full flex items-center gap-3 "
                                 >
                                     <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                    <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                                    <div className="lato-bold  relative z-10 text-original-white mb-[3.3px] lg:mb-0 text-sm lg:text-[90%]">
                                         Vote
                                     </div>
 
                                 </button>
 
-                            </div>
+                            </div> */}
                         </>
                     </PopUp>
                 )
@@ -189,16 +210,16 @@ function Gauge() {
                 </div>
 
                 <div className='text-[#4A28FF] text-[14px] w-[30%] gap-2 text-end font-semibold flex justify-end items-center'>
-                    <Image src={clock_icon} className='h-4 w-4' />
-                    <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1>
+                    {/* <Image src={clock_icon} className='h-4 w-4' /> */}
+                    {/* <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1> */}
                 </div>
 
             </div>
             <div className='flex flex-col items-start mb-2 um:mb-0 um:flex-row lg:hidden justify-between um:items-center font-semibold'>
                 <h1 className='text-[40px] text-[#4A28FF] mb-2  lato-bold'>Gauge</h1>
                 <div className='text-[#4A28FF] text-[.85rem]  text-end flex gap-2 justify-end items-center'>
-                    <Image src={clock_icon} className='h-4 w-4' />
-                    <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1>
+                    {/* <Image src={clock_icon} className='h-4 w-4' /> */}
+                    {/* <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1> */}
                 </div>
 
             </div>
@@ -241,11 +262,11 @@ function Gauge() {
 
                             </div>
                             <div className='w-[20%] flex justify-start gap-2 items-center'>
-                                <div className='bg-[#4A28FF] p-3  rounded-full '>
-                                    <Image src={item?.icon} className='w-[14px] h-[14px]' />
+                                <div className='bg-[#4A28FF]  px-2 py-[10px]  rounded-full relative '>
+                                    <Image src={item?.icon}  className=' w-[15px] max-h-[12px]'  />
 
                                 </div>
-                                <h1>{item?.model_name}</h1>
+                                <h1 className='text-xs xl:text-base'>{item?.model_name}</h1>
                                 <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100 mt-[1px]' onMouseOver={() => {
                                     document.getElementById(key).style.display = "flex"
                                 }}
@@ -257,13 +278,15 @@ function Gauge() {
                                 </div>
                             </div>
                             <div className='w-[20%]'>
-                                <h1>{item?.description}</h1>
+                                <h1 className='text-xs md:text-base'>{item?.description}</h1>
                             </div>
                             <div className='w-[20%]'>
-                                <h1>{item?.emissions}</h1>
+                                <Image src={skeleton} className='w-[100%] h-[24px] rounded-lg ' />
+                                {/* <h1>{item?.emissions}</h1> */}
                             </div>
                             <div className='w-[20%]'>
-                                <h1>{item?.prompts}</h1>
+                                <Image src={skeleton} className='w-[100%] h-[24px] rounded-lg ' />
+                                {/* <h1>{item?.prompts}</h1> */}
                             </div>
                             <div className='w-[20%] flex justify-end'>
 
@@ -273,14 +296,14 @@ function Gauge() {
 
 
                                 }}>Vote</button> */}
-                                <button className='relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3' onClick={() => {
+                                <button className='relative group bg-black-background py-[6px] px-8 lg:px-8 rounded-full flex items-center gap-3' onClick={() => {
                                     setSelectedModel(item)
                                     setShowPopUp(true);
 
 
                                 }}>
                                     <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                    <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                                    <div className="lato-bold  relative z-10 text-original-white mb-[3.5px] lg:mb-0 text-sm lg:text-[90%]">
                                         Vote
                                     </div>
                                 </button>
