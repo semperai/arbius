@@ -10,6 +10,8 @@ import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
+uint256 constant RESERVED_ENGINE_TOKEN_AMOUNT = 300_000e18;
+uint256 constant EMISSION_ENGINE_TOKEN_AMOUNT = STARTING_ENGINE_TOKEN_AMOUNT - RESERVED_ENGINE_TOKEN_AMOUNT;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
@@ -228,13 +230,15 @@ contract V2_EngineV3 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public initializer {
+    function initialize() public reinitializer(3) {
         minClaimSolutionTime = 3600; // 60 minutes
         minContestationVotePeriodTime = 360; // 6 minutes
         exitValidatorMinUnlockTime = 259200; // 3 days
         solutionRateLimit = 1 ether; // 1 second required between solution submissions
         taskOwnerRewardPercentage = 0.1 ether; // 10%
         contestationVoteExtensionTime = 10; // 10 seconds
+        // add 1000 as buffer for solution staked amount
+        totalHeld = 7461843852911515700057;
     }
 
     /// @notice Transfer ownership
@@ -351,12 +355,12 @@ contract V2_EngineV3 is OwnableUpgradeable {
         // ms * (1 - 1 / 2 ** (t/(60*60*24*365)))
         // target is max
         if (t > 3153600000) {
-            return STARTING_ENGINE_TOKEN_AMOUNT;
+            return EMISSION_ENGINE_TOKEN_AMOUNT;
         }
         uint256 e = unwrap(ud(t).div(ud(60 * 60 * 24 * 365)).exp2());
         return
-            STARTING_ENGINE_TOKEN_AMOUNT -
-            ((STARTING_ENGINE_TOKEN_AMOUNT * 1e18 * 1e18) / e / 1e18);
+            EMISSION_ENGINE_TOKEN_AMOUNT -
+            ((EMISSION_ENGINE_TOKEN_AMOUNT * 1e18 * 1e18) / e / 1e18);
     }
 
     /// @notice Difficulty multiplier
@@ -408,6 +412,9 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @param ts Total supply
     /// @return Reward
     function reward(uint256 t, uint256 ts) public pure returns (uint256) {
+        return 0; // disable all rewards
+
+        /*
         // we have a basic reward if for some reason our total supply is 0
         // this can happen if engine has a balance of 600k or more
         if (ts == 0) {
@@ -415,21 +422,29 @@ contract V2_EngineV3 is OwnableUpgradeable {
         }
 
         return
-            (((STARTING_ENGINE_TOKEN_AMOUNT - ts) *
+            (((EMISSION_ENGINE_TOKEN_AMOUNT - ts) *
                 BASE_TOKEN_STARTING_REWARD) * diffMul(t, ts)) /
-            STARTING_ENGINE_TOKEN_AMOUNT /
+            EMISSION_ENGINE_TOKEN_AMOUNT / 2 /
             1e18;
+        */
     }
 
     /// @notice Because we are using a token which is fully minted upfront we must calculate total supply based on the amount remaining in Engine
     /// @dev We return 0 rather than use require to avoid breaking the contract if bridged assets are sent to this contract before many tokens are mined
     /// @return Total supply of Engine tokens
     function getPsuedoTotalSupply() public view returns (uint256) {
-        uint256 b = baseToken.balanceOf(address(this)) - totalHeld;
-        if (b >= STARTING_ENGINE_TOKEN_AMOUNT) {
+        uint256 balance = baseToken.balanceOf(address(this));
+        if (balance == 0) {
+            return EMISSION_ENGINE_TOKEN_AMOUNT;
+        }
+
+        // hard assumption the balance will be over 300k
+        uint256 b = balance - totalHeld - RESERVED_ENGINE_TOKEN_AMOUNT;
+        if (b >= EMISSION_ENGINE_TOKEN_AMOUNT) {
             return 0;
         }
-        return STARTING_ENGINE_TOKEN_AMOUNT - b;
+
+        return EMISSION_ENGINE_TOKEN_AMOUNT - b;
     }
 
     /// @notice Calculates the reward for current timestamp/supply
@@ -623,12 +638,12 @@ contract V2_EngineV3 is OwnableUpgradeable {
         require(models[model_].addr != address(0x0), "model does not exist");
         require(fee_ >= models[model_].fee, "lower fee than model fee");
 
-        baseToken.transferFrom(msg.sender, address(this), fee_);
-        totalHeld += fee_; // v3
-
         bytes memory cid = getIPFSCID(input_);
 
         addTask(version_, owner_, model_, fee_, cid);
+
+        baseToken.transferFrom(msg.sender, address(this), fee_);
+        totalHeld += fee_; // v3
     }
 
     /// @notice Bulk submit tasks
@@ -650,14 +665,14 @@ contract V2_EngineV3 is OwnableUpgradeable {
         require(models[model_].addr != address(0x0), "model does not exist");
         require(fee_ >= models[model_].fee, "lower fee than model fee");
 
-        baseToken.transferFrom(msg.sender, address(this), fee_*n_);
-        totalHeld += fee_*n_;
-
         bytes memory cid = getIPFSCID(input_);
 
         for (uint256 i = 0; i < n_; ++i) {
             addTask(version_, owner_, model_, fee_, cid);
         }
+
+        baseToken.transferFrom(msg.sender, address(this), fee_*n_);
+        totalHeld += fee_*n_; // v3
     }
 
     /// @notice Get block number (on both arbitrum and l1)
@@ -743,8 +758,10 @@ contract V2_EngineV3 is OwnableUpgradeable {
         validators[msg.sender].staked -= solutionsStakeAmount * n_;
 
         // v3
+        // pat: strict greater than comparison to rate limit solution submissions
+        // in sequential blocks having the same timestamp
         require(
-            block.timestamp - lastSolutionSubmission[msg.sender] >=
+            block.timestamp - lastSolutionSubmission[msg.sender] >
                 solutionRateLimit * n_ / 1e18,
             "solution rate limit"
         );
