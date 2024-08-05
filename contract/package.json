@@ -13,6 +13,7 @@
     "size": "npx hardhat size-contracts",
     "prettier:check": "prettier --check .",
     "prettier:lint": "prettier --write .",
+    "slither": "slither --solc-remaps \"@openzeppelin/=$(pwd)/node_modules/@openzeppelin/ @prb=node_modules/@prb @arbitrum=node_modules/@arbitrum\"",
     "coverage": "npx hardhat coverage --network localhost"
   },
   "devDependencies": {
