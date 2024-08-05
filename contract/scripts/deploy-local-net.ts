@@ -2,8 +2,8 @@ import { ethers, upgrades } from "hardhat";
 import { getL2Network } from '@arbitrum/sdk';
 import { EngineV1 } from '../typechain/EngineV1';
 import { V2EngineV2 as EngineV2 } from '../typechain/V2EngineV2';
+import { V2EngineV3 as EngineV3 } from '../typechain/V2EngineV3';
 import * as fs from 'fs'
-import Config from './config.json';
 import 'dotenv/config';
 
 
@@ -13,14 +13,8 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
 
-  // TODO read these from nova
-  // const mirrorEngine = await ethers.getContractAt('V2EngineV2', Config.v2_engineAddress);
-  // const mirrorL2Token = await ethers.getContractAt('BaseTokenV1', Config.v2_l1TokenAddress);
-  // const mirrorEngineBalance = await mirrorL2Token.balanceOf(mirrorEngine.address);
   const mirrorEngineBalance = ethers.utils.parseEther('479655');
-  // const solutionStakeAmount = await mirrorEngine.solutionsStakeAmount();
   const solutionStakeAmount = ethers.utils.parseEther('0.001');
-  // const startTime = await mirrorEngine.startBlockTime();
   const startTime = 1708311640;
 
   console.log('Deploying the L2Token to L2:');
@@ -45,7 +39,10 @@ async function main() {
   console.log("Engine deployed to:", engine.address);
 
   engine = await upgrades.upgradeProxy(engine.address, EngineV2);
-  console.log("Engine upgraded");
+  console.log("Engine upgraded to V2");
+
+  engine = await upgrades.upgradeProxy(engine.address, EngineV3);
+  console.log("Engine upgraded to V3");
 
   await (await engine
     .connect(deployer)
