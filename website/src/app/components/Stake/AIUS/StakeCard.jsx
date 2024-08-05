@@ -20,41 +20,41 @@ function StakeCard({idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedSt
         abi: votingEscrow.abi,
         functionName: 'locked',
         args: [
-          Number(tokenID?._hex)
+            Number(tokenID?._hex)
         ],
         enabled: isConnected
-      })
+    })
     console.log(totalStaked, "ttsake")
-      const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
+    const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
         args: [
-          Number(tokenID?._hex)
+            Number(tokenID?._hex)
         ],
         enabled: isConnected
-      })
-      console.log(Number(endDate?._hex), "endDate")
-      const {data:stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError} = useContractRead({
+    })
+    console.log(Number(endDate?._hex), "endDate")
+    const {data:stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError} = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'user_point_history__ts',
         args: [
-          Number(tokenID?._hex),
-          1
+            Number(tokenID?._hex),
+            1
         ],
         enabled: isConnected
-      })
-      console.log(stakedOn, "stakedOn")
-      const {data:governancePower, isLoading: governancePowerIsLoading, isError: governancePowerIsError} = useContractRead({
+    })
+    console.log(stakedOn, "stakedOn")
+    const {data:governancePower, isLoading: governancePowerIsLoading, isError: governancePowerIsError} = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'balanceOfNFT',
         args: [
-          Number(tokenID?._hex)
+            Number(tokenID?._hex)
         ],
         enabled: isConnected
-      })
+    })
     
     return (
         <div className='rounded-2xl px-8 py-6  bg-white-background relative'>

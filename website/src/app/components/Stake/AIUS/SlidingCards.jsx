@@ -18,11 +18,13 @@ import { useAccount, useContractRead, useContractReads, usePrepareContractWrite,
 import { BigNumber } from 'ethers';
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
 import StakeCard from './StakeCard';
-import { AIUS_wei } from "../../../Utils/constantValues";
+import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
-    const AddPopUpChildren = ({ setShowPopUp, selectedStake,  walletBalance, totalEscrowBalance, totalSupply, rewardRate, getAPR}) => {
+    const AddPopUpChildren = ({ setShowPopUp, selectedStake,  walletBalance, totalSupply, rewardRate, getAPR}) => {
 
         const [aiusToStake, setAIUSToStake] = useState(0);
+        const [estBalance, setEstBalance] = useState(0);
+
         const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
         console.log(Number(selectedStake), "SELC")
         const { config: addAIUSConfig } = usePrepareContractWrite({
@@ -33,7 +35,7 @@ import { AIUS_wei } from "../../../Utils/constantValues";
                 Number(selectedStake),
                 (aiusToStake * AIUS_wei).toString()
             ],
-            // enabled: Boolean(aiusToStake)
+            enabled: Boolean(aiusToStake)
         });
 
         const {
@@ -42,6 +44,42 @@ import { AIUS_wei } from "../../../Utils/constantValues";
             isSuccess: addAIUSIsSuccess,
             write: addAIUS
         } = useContractWrite(addAIUSConfig)
+
+
+        const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
+            address: VOTING_ESCROW_ADDRESS,
+            abi: votingEscrow.abi,
+            functionName: 'locked__end',
+            args: [
+                Number(selectedStake)
+            ]
+        })
+        console.log(Number(endDate?._hex), "endDate")
+        const {data:stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError} = useContractRead({
+            address: VOTING_ESCROW_ADDRESS,
+            abi: votingEscrow.abi,
+            functionName: 'user_point_history__ts',
+            args: [
+                Number(selectedStake),
+                1
+            ]
+        })
+        const {data:totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError} = useContractRead({
+            address: VOTING_ESCROW_ADDRESS,
+            abi: votingEscrow.abi,
+            functionName: 'locked',
+            args: [
+                Number(selectedStake)
+            ]
+        })
+
+        useEffect(() => {
+            if(totalStaked && endDate && stakedOn){
+                const t = (Number(endDate?._hex) - Number(stakedOn?._hex)) / 1000;
+                const a_b = (Number(totalStaked?.amount?._hex) / AIUS_wei) + Number(aiusToStake)
+                setEstBalance(a_b * (t / t_max));
+            }
+        },[aiusToStake])
 
         return (
             <>
@@ -72,7 +110,7 @@ import { AIUS_wei } from "../../../Utils/constantValues";
                 <div className='flex justify-center gap-2 items-center'>
                     <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
 
-                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{totalEscrowBalance.toString()}</span> veAIUS</h1>
+                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{estBalance.toString()}</span> veAIUS</h1>
                         <h1 className='text-[.6rem]'>Est. veAIUS balance</h1>
                     </div>
                     <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
@@ -511,7 +549,7 @@ function SlidingCards() {
         <div>
             {showPopUp !== false && (
                 <PopUp setShowPopUp={setShowPopUp}>
-                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalEscrowBalance={totalEscrowBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} />}
+                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} />}
                     {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
                     {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
                 </PopUp>
