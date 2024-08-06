@@ -5,7 +5,7 @@ import info_icon from "../../../assets/images/info_icon.png"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import config from "../../../../sepolia_config.json"
 import { useAccount, useContractRead, useContractReads } from 'wagmi';
-import { AIUS_wei } from "../../../Utils/constantValues";
+import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
 function GanttChart() {
     let windowStartDate = '2024-02-20'
@@ -124,6 +124,12 @@ function GanttChart() {
     })
     console.log(stakingData, "stake_dta")
 
+    const veAIUSBalance = (staked, startDate, endDate) => {
+        const t = endDate - startDate;
+        const a_b = staked + 0
+        return a_b * (t / t_max);
+    }
+
     useEffect(() => {
         let finalData = {
             "firstUnlockDate": "",
@@ -148,7 +154,12 @@ function GanttChart() {
                     "lockedEndDate": new Date(Number(stakeData[(i*4)+1]._hex) * 1000).toLocaleDateString('en-US'),
                     "lockedStartDate": new Date(Number(stakeData[(i*4)+2]._hex) * 1000).toLocaleDateString('en-US'),
                     "currentDate": new Date().toLocaleDateString(),
-                    "governancePower": Number(stakeData[(i*4)+3]._hex) / AIUS_wei
+                    "governancePower": Number(stakeData[(i*4)+3]._hex) / AIUS_wei,
+                    "veAIUSBalance": veAIUSBalance(
+                                        Number(stakeData[(i*4)].amount._hex) / AIUS_wei,
+                                        Number(stakeData[(i*4)+2]._hex),
+                                        Number(stakeData[(i*4)+1]._hex)
+                                    )
                 })
             }
             setAllStakingData(finalData)
@@ -228,11 +239,8 @@ function GanttChart() {
 
                 {
                     allStakingData?.allStakes?.map((item, key) => {
-                        return <div className='py-2' key={key}>
-
-
+                    return <div className='py-2' key={key}>
                             <div className='item-grid'>
-
                                 {item?.lockedStartDate && (
                                     <div className={`   bg-transparent h-[.4rem] my-3 rounded-full  z-20 `} style={{
                                         gridColumn: `span ${item?.lockedStartDate} / span ${item?.lockedStartDate}`
@@ -254,7 +262,7 @@ function GanttChart() {
                                         <div className={`bg-[#eeeeee]  h-[.4rem] my-3   rounded-r-full relative z-20`} style={{
                                             gridColumn: `span ${item?.lockedEndDate} / span ${item?.lockedEndDate}`
                                         }}>
-                                            <h1 className='absolute right-0 text-end bottom-[8px] text-[.7rem] font-semibold text-[#4A28FF] min-w-[90px]'>14.12 veAIUS</h1>
+                                            <h1 className='absolute right-0 text-end bottom-[8px] text-[.7rem] font-semibold text-[#4A28FF] min-w-[90px]'>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
                                         </div>
                                     )
                                 }

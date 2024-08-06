@@ -75,7 +75,8 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
         useEffect(() => {
             if(totalStaked && endDate && stakedOn){
-                const t = (Number(endDate?._hex) - Number(stakedOn?._hex)) / 1000;
+                console.log(Number(endDate?._hex), "YOLO")
+                const t = (Number(endDate?._hex) - Number(stakedOn?._hex));
                 const a_b = (Number(totalStaked?.amount?._hex) / AIUS_wei) + Number(aiusToStake)
                 setEstBalance(a_b * (t / t_max));
             }
@@ -110,7 +111,7 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                 <div className='flex justify-center gap-2 items-center'>
                     <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
 
-                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{estBalance.toString()}</span> veAIUS</h1>
+                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{estBalance?.toFixed(2).toString()}</span> veAIUS</h1>
                         <h1 className='text-[.6rem]'>Est. veAIUS balance</h1>
                     </div>
                     <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
