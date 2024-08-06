@@ -143,12 +143,6 @@ export default function Header() {
         }
     }
 
-    console.log(checkNumber(1234.00)); // "1234 is a whole number with 4 digits"
-    console.log(checkNumber(123.12));  // "123.12 is a decimal number"
-    console.log(checkNumber(567));     // "567 is a whole number with 3 digits"
-    console.log(checkNumber(567.0));   // "567 is a whole number with 3 digits"
-
-
     let walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
     walletBalance = checkNumber(walletBalance)
 

@@ -1,6 +1,12 @@
-import React from 'react'
+"use client"
+import React, {useState, useEffect} from 'react'
 import Image from 'next/image';
 import info_icon from "../../../assets/images/info_icon.png"
+import votingEscrow from "../../../abis/votingEscrow.json"
+import config from "../../../../sepolia_config.json"
+import { useAccount, useContractRead, useContractReads } from 'wagmi';
+import { AIUS_wei } from "../../../Utils/constantValues";
+
 function GanttChart() {
     let windowStartDate = '2024-02-20'
     let windowEndDate = '2026-02-20';
@@ -8,6 +14,10 @@ function GanttChart() {
     windowStartDate = new Date(windowStartDate)
     windowEndDate = new Date(windowEndDate)
 
+    const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
+    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+    const { address, isConnected } = useAccount()
+    const [allStakingData, setAllStakingData] = useState({});
 
     let data = [
         {
@@ -34,6 +44,118 @@ function GanttChart() {
         },
 
     ]
+
+    const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'balanceOf',
+        args: [
+            address
+        ],
+        enabled: isConnected
+    })
+
+
+    const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
+        contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
+            console.log("the loop", i, totalEscrowBalance)
+          return {
+            address: VOTING_ESCROW_ADDRESS,
+            abi: votingEscrow.abi,
+            functionName: 'tokenOfOwnerByIndex',
+            args: [
+              address,
+              index
+            ]
+          }
+        }) : null,
+    });
+    console.log(tokenIDs, "TIOD")
+    useEffect(() => {
+        console.log(escrowBalanceData, "ESCROW")
+        if (escrowBalanceData) {
+            setTotalEscrowBalance(Number(escrowBalanceData?._hex))
+        }
+    }, [escrowBalanceData])
+
+
+    const stakingData = useContractReads({
+        contracts: (tokenIDs) ? tokenIDs.flatMap(tokenId => {
+            return [
+                {
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'locked',
+                    args: [
+                        Number(tokenId?._hex)
+                    ],
+                    enabled: isConnected
+                },
+                {
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'locked__end',
+                    args: [
+                        Number(tokenId?._hex)
+                    ],
+                    enabled: isConnected
+                },
+                {
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'user_point_history__ts',
+                    args: [
+                        Number(tokenId?._hex),
+                        1
+                    ],
+                    enabled: isConnected
+                },
+                {
+                    address: VOTING_ESCROW_ADDRESS,
+                    abi: votingEscrow.abi,
+                    functionName: 'balanceOfNFT',
+                    args: [
+                        Number(tokenId?._hex)
+                    ],
+                    enabled: isConnected
+                }
+            ]
+        }) : null
+    })
+    console.log(stakingData, "stake_dta")
+
+    useEffect(() => {
+        let finalData = {
+            "firstUnlockDate": "",
+            "totalStaked": 0,
+            "totalGovernancePower": 0,
+            "allStakes": []
+        }
+        console.log("STA DATA", stakingData?.data?.length)
+
+        if(stakingData?.data?.length){
+            let totalStakes = stakingData.data.length / 4;
+            let stakeData = stakingData.data;
+
+            for(let i=0; i<totalStakes; i++){
+                finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i*4)].amount._hex) / AIUS_wei;
+                if(finalData["firstUnlockDate"] == 0 || finalData["firstUnlockDate"] < Number(stakeData[(i*4)+1]._hex)){
+                    finalData["firstUnlockDate"] = new Date(Number(stakeData[(i*4)+1]._hex) * 1000).toLocaleDateString('en-US');
+                }
+                finalData["totalGovernancePower"] = finalData["totalGovernancePower"] + Number(stakeData[(i*4)+3]._hex) / AIUS_wei;
+                finalData["allStakes"].push({
+                    "staked": Number(stakeData[(i*4)].amount._hex) / AIUS_wei,
+                    "lockedEndDate": new Date(Number(stakeData[(i*4)+1]._hex) * 1000).toLocaleDateString('en-US'),
+                    "lockedStartDate": new Date(Number(stakeData[(i*4)+2]._hex) * 1000).toLocaleDateString('en-US'),
+                    "currentDate": new Date().toLocaleDateString(),
+                    "governancePower": Number(stakeData[(i*4)+3]._hex) / AIUS_wei
+                })
+            }
+            setAllStakingData(finalData)
+        }
+    },[stakingData?.data])
+
+    console.log(allStakingData, "ALLSTAKE DATa")
     // pre processing the data for gantt chart dist
 
 
@@ -67,19 +189,19 @@ function GanttChart() {
             <div className='flex justify-between items-center mt-6 mb-3'>
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">First unlock in</h2>
-                    <h2 className='text-[16px] font-semibold'>95 Days</h2>
+                    <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate}</h2>
 
                 </div>
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                    <h2 className='text-[16px] font-semibold'>340.21 <span className="text-[11px] font-medium">AIUS</span></h2>
+                    <h2 className='text-[16px] font-semibold'>{allStakingData?.totalStaked?.toFixed(2)} <span className="text-[11px] font-medium">AIUS</span></h2>
 
                 </div>
                 <div className='relative'>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Governance Power</h2>
                     <div className='flex justify-start items-center gap-1'>
 
-                        <h2 className='text-[16px] font-semibold'>25</h2>
+                        <h2 className='text-[16px] font-semibold'>{allStakingData?.totalGovernancePower?.toFixed(2)}</h2>
                         <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100' onMouseOver={() => {
                             document.getElementById("info").style.display = "flex"
                         }}
@@ -105,35 +227,32 @@ function GanttChart() {
             <div className='max-h-[156px] px-1 py-2 overflow-y-auto mb-2 relative' id="gantt-chart">
 
                 {
-                    data?.map((item, key) => {
+                    allStakingData?.allStakes?.map((item, key) => {
                         return <div className='py-2' key={key}>
 
 
                             <div className='item-grid'>
 
-                                {item?.stake_start !== 0 && (
-
+                                {item?.lockedStartDate && (
                                     <div className={`   bg-transparent h-[.4rem] my-3 rounded-full  z-20 `} style={{
-                                        gridColumn: `span ${item?.stake_start} / span ${item?.stake_start}`
+                                        gridColumn: `span ${item?.lockedStartDate} / span ${item?.lockedStartDate}`
                                     }}>
                                     </div>
                                 )}
 
 
-                                {item?.staked_till_now !== 0 && (
-
+                                {item?.currentDate && (
                                     <div className={` bg-[#4A28FF] h-[.4rem] my-3 rounded-full relative z-20`} id='start-stake' style={{
-                                        gridColumn: `span ${item?.staked_till_now} / span ${item?.staked_till_now}`
+                                        gridColumn: `span ${item?.currentDate} / span ${item?.currentDate}`
                                     }}>
-                                        <h1 className='absolute left-0 bottom-[8px] text-[.65rem]  font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>01/02/2025</span></h1>
-                                        <h1 className='absolute left-0 top-[8px] text-[.65rem] opacity-80 font-semibold text-[#4A28FF]'>7.021 AIUS Staked</h1>
+                                        <h1 className='absolute left-0 bottom-[8px] text-[.65rem]  font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{item?.lockedEndDate}</span></h1>
+                                        <h1 className='absolute left-0 top-[8px] text-[.65rem] opacity-80 font-semibold text-[#4A28FF]'>{item?.staked} AIUS Staked</h1>
                                     </div>
                                 )}
                                 {
-                                    item?.stake_completion !== 0 && (
-
+                                    item?.lockedEndDate && (
                                         <div className={`bg-[#eeeeee]  h-[.4rem] my-3   rounded-r-full relative z-20`} style={{
-                                            gridColumn: `span ${item?.stake_completion} / span ${item?.stake_completion}`
+                                            gridColumn: `span ${item?.lockedEndDate} / span ${item?.lockedEndDate}`
                                         }}>
                                             <h1 className='absolute right-0 text-end bottom-[8px] text-[.7rem] font-semibold text-[#4A28FF] min-w-[90px]'>14.12 veAIUS</h1>
                                         </div>
