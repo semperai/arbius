@@ -49,7 +49,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     })
 
 
-    console.log({ protocolData });
+    console.log({ protocolData }, "PROTOCOL");
 
     return (
         <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-10 lg:py-16' id="dashboard">
@@ -70,7 +70,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Historical LP Profit</h2>
-                                    <div className='flex justify-start items-center gap-2 mt-[2px]'> <h2 className='text-[16px] 2xl:text-[18px] font-semibold'>+ 41.12%</h2>
+                                    <div className='flex justify-start items-center gap-2 mt-[2px]'> <h2 className='text-[16px] 2xl:text-[18px] font-semibold'>0 %</h2>
                                         <Image src={gysr_logo_wallet} width={22} height={22} alt="" />
                                     </div>
                                 </div>
@@ -78,7 +78,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Wallet TVL</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$ 123</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$ {protocolData?.data?.AIUS?.quote?.USD?.price ? (protocolData?.data?.AIUS?.quote?.USD?.price * walletBalance).toFixed(2) : 0 }</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Estimated Total APR</h2>

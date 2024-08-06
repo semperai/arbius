@@ -82,7 +82,7 @@ export default function AIUS({protocolData}) {
 
 export async function getServerSideProps(context) {
     const data = await fetchArbiusData();
-    console.log(data);
+    console.log(data, "ARBIUS DATA");
     return {
         props: {
             protocolData: data,

@@ -478,8 +478,8 @@ function SlidingCards() {
         speed: 500,
         slidesToShow: tokenIDs?.length > 2 ? 2.3 : tokenIDs?.length,
         slidesToScroll: 1,
-        nextArrow: tokenIDs?.length <= 2 ? <NextBtn /> : null,
-        prevArrow: tokenIDs?.length <= 2 ? <PrevBtn /> : null,
+        nextArrow: tokenIDs?.length > 2 ? <NextBtn /> : null,
+        prevArrow: tokenIDs?.length > 2 ? <PrevBtn /> : null,
         responsive: [
             {
                 breakpoint: 768,

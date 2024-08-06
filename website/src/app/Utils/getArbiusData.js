@@ -14,14 +14,13 @@ export async function fetchArbiusData() {
         method: 'GET',
         headers: myHeaders,
         redirect: 'follow',
-        next: { revalidate: 60 },
+        next: { revalidate: 0 },
     };
 
 
     const response = await fetch(url, requestOptions);
     if (!response.ok) {
         throw new Error(`Error fetching Airbus data: ${response.statusText}`);
-
     }
     const data = await response.json();
     return data;

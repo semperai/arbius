@@ -7,7 +7,7 @@ import config from "../../../../sepolia_config.json"
 import { useAccount, useContractRead, useContractReads } from 'wagmi';
 import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
-function GanttChart() {
+function GanttChart(props) {
     let windowStartDate = '2024-02-20'
     let windowEndDate = '2026-02-20';
 
@@ -132,7 +132,7 @@ function GanttChart() {
 
     useEffect(() => {
         let finalData = {
-            "firstUnlockDate": "",
+            "firstUnlockDate": 0,
             "totalStaked": 0,
             "totalGovernancePower": 0,
             "allStakes": []
@@ -145,23 +145,28 @@ function GanttChart() {
 
             for(let i=0; i<totalStakes; i++){
                 finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i*4)].amount._hex) / AIUS_wei;
-                if(finalData["firstUnlockDate"] == 0 || finalData["firstUnlockDate"] < Number(stakeData[(i*4)+1]._hex)){
-                    finalData["firstUnlockDate"] = new Date(Number(stakeData[(i*4)+1]._hex) * 1000).toLocaleDateString('en-US');
+                if(finalData["firstUnlockDate"] == 0 || finalData["firstUnlockDate"] > Number(stakeData[(i*4)+1]._hex)){
+                    console.log(finalData["firstUnlockDate"], "FUNLD")
+                    finalData["firstUnlockDate"] = Number(stakeData[(i*4)+1]._hex);
                 }
                 finalData["totalGovernancePower"] = finalData["totalGovernancePower"] + Number(stakeData[(i*4)+3]._hex) / AIUS_wei;
                 finalData["allStakes"].push({
                     "staked": Number(stakeData[(i*4)].amount._hex) / AIUS_wei,
                     "lockedEndDate": new Date(Number(stakeData[(i*4)+1]._hex) * 1000).toLocaleDateString('en-US'),
                     "lockedStartDate": new Date(Number(stakeData[(i*4)+2]._hex) * 1000).toLocaleDateString('en-US'),
-                    "currentDate": new Date().toLocaleDateString(),
+                    "currentDate": new Date().toLocaleDateString('en-US'),
                     "governancePower": Number(stakeData[(i*4)+3]._hex) / AIUS_wei,
                     "veAIUSBalance": veAIUSBalance(
                                         Number(stakeData[(i*4)].amount._hex) / AIUS_wei,
                                         Number(stakeData[(i*4)+2]._hex),
                                         Number(stakeData[(i*4)+1]._hex)
-                                    )
+                                    ),
+                    "stake_start": getMonthDifference(new Date(Number(stakeData[(i*4)+2]._hex) * 1000), new Date(Number(stakeData[(i*4)+2]._hex) * 1000)),
+                    "staked_till_now": getMonthDifference(new Date(), new Date(Number(stakeData[(i*4)+2]._hex) * 1000)),
+                    "stake_completion": getMonthDifference(new Date(Number(stakeData[(i*4)+1]._hex) * 1000), new Date())
                 })
             }
+            finalData["firstUnlockDate"] = new Date(finalData["firstUnlockDate"] * 1000).toLocaleDateString('en-US')
             setAllStakingData(finalData)
         }
     },[stakingData?.data])
@@ -171,6 +176,7 @@ function GanttChart() {
 
 
     const getMonthDifference = (startDate, endDate) => {
+        console.log(startDate, "STARTDATE", startDate.getMonth())
         let diff = (startDate.getFullYear() * 12 + startDate.getMonth()) - (endDate.getFullYear() * 12 + endDate.getMonth())
         return diff
     }
@@ -194,6 +200,7 @@ function GanttChart() {
 
         }
     })
+    console.log(data, "HATA")
     return (
         <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow'>
             <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
@@ -242,8 +249,8 @@ function GanttChart() {
                     return <div className='py-2' key={key}>
                             <div className='item-grid'>
                                 {item?.lockedStartDate && (
-                                    <div className={`   bg-transparent h-[.4rem] my-3 rounded-full  z-20 `} style={{
-                                        gridColumn: `span ${item?.lockedStartDate} / span ${item?.lockedStartDate}`
+                                    <div className={`bg-transparent h-[.4rem] my-3 rounded-full z-20`} style={{
+                                        gridColumn: `span ${item?.stake_start_date} / span ${item?.stake_start_date}`
                                     }}>
                                     </div>
                                 )}
@@ -251,18 +258,18 @@ function GanttChart() {
 
                                 {item?.currentDate && (
                                     <div className={` bg-[#4A28FF] h-[.4rem] my-3 rounded-full relative z-20`} id='start-stake' style={{
-                                        gridColumn: `span ${item?.currentDate} / span ${item?.currentDate}`
+                                        gridColumn: `span ${item?.staked_till_now} / span ${item?.staked_till_now}`
                                     }}>
-                                        <h1 className='absolute left-0 bottom-[8px] text-[.65rem]  font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{item?.lockedEndDate}</span></h1>
-                                        <h1 className='absolute left-0 top-[8px] text-[.65rem] opacity-80 font-semibold text-[#4A28FF]'>{item?.staked} AIUS Staked</h1>
+                                        <h1 className='absolute left-0 bottom-[8px] text-[.65rem] font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{item?.lockedEndDate}</span></h1>
+                                        <h1 className='mt-[8px] text-[.65rem] opacity-80 font-semibold text-[#4A28FF] w-[100px]'>{item?.staked} AIUS Staked</h1>
                                     </div>
                                 )}
                                 {
                                     item?.lockedEndDate && (
-                                        <div className={`bg-[#eeeeee]  h-[.4rem] my-3   rounded-r-full relative z-20`} style={{
-                                            gridColumn: `span ${item?.lockedEndDate} / span ${item?.lockedEndDate}`
+                                        <div className={`bg-[#eeeeee] h-[.4rem] my-3 rounded-r-full relative z-20`} style={{
+                                            gridColumn: `span ${item?.stake_completion} / span ${item?.stake_completion}`
                                         }}>
-                                            <h1 className='absolute right-0 text-end bottom-[8px] text-[.7rem] font-semibold text-[#4A28FF] min-w-[90px]'>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+                                            <h1 className='mt-[7.5px] text-end text-[.7rem] font-semibold text-[#4A28FF] min-w-[90px]'>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
                                         </div>
                                     )
                                 }
