@@ -3,7 +3,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Image from "next/image"
-import arrow_prev from "../../../assets/images/arrow_slider.png"
+import arrow_prev from "../../../assets/images/arrow_slider_2.png"
 import PopUp from './PopUp';
 import cross_icon from "../../../assets/images/cross_icon.png"
 import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png'
@@ -475,23 +475,27 @@ function SlidingCards() {
         dots: false,
         infinite: false,
         speed: 500,
-        slidesToShow: 2.3,
+        slidesToShow: tokenIDs?.length > 2 ? 2.3 : tokenIDs?.length,
         slidesToScroll: 1,
-        nextArrow: <NextBtn />,
-        prevArrow: <PrevBtn />,
+        nextArrow: tokenIDs?.length <= 2 ? <NextBtn /> : null,
+        prevArrow: tokenIDs?.length <= 2 ? <PrevBtn /> : null,
         responsive: [
             {
                 breakpoint: 768,
                 settings: {
-                    slidesToShow: 1.5,
-                    slidesToScroll: 1
+                    slidesToShow: tokenIDs?.length > 1 ? 1.5 : tokenIDs?.length,
+                    slidesToScroll: 1,
+                    nextArrow: tokenIDs?.length > 1 ? <NextBtn /> : null,
+                    prevArrow: tokenIDs?.length > 1 ? <PrevBtn /> : null,
                 }
             },
             {
                 breakpoint: 475,
                 settings: {
                     slidesToShow: 1,
-                    slidesToScroll: 1
+                    slidesToScroll: 1,
+                    nextArrow: tokenIDs?.length > 1 ? <NextBtn /> : null,
+                    prevArrow: tokenIDs?.length > 1 ? <PrevBtn /> : null,
                 }
             },
         ]
@@ -508,7 +512,7 @@ function SlidingCards() {
 
                 onClick={onClick}
             >
-                <Image src={arrow_prev} className=' mr-[2px]' width={15} height={15} alt="" />
+                <Image src={arrow_prev} className='mr-[2px]' width={10} height={10} alt="" />
 
             </div>
         );
@@ -525,7 +529,7 @@ function SlidingCards() {
 
                 onClick={onClick}
             >
-                <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={15} height={15} alt="" />
+                <Image src={arrow_prev} className='rotate-180 ml-[2px]' width={10} height={10} alt="" />
             </div>
         );
 
@@ -535,13 +539,15 @@ function SlidingCards() {
     useEffect(() => {
         console.log(direction, "direction")
         const elements = document.querySelectorAll('.slick-list');
-        elements.forEach(element => {
-            if (direction == "right") {
-                element.style.boxShadow = '10px 0 5px -4px rgba(18, 0, 117, 0.077)';
-            } else if (direction == "left") {
-                element.style.boxShadow = '-10px 0 5px -4px rgba(18, 0, 117, 0.077)';
-            }
-        });
+        if(tokenIDs?.length > 2){
+            elements.forEach(element => {
+                if (direction == "right") {
+                    element.style.boxShadow = '10px 0 5px -4px rgba(18, 0, 117, 0.077)';
+                } else if (direction == "left") {
+                    element.style.boxShadow = '-10px 0 5px -4px rgba(18, 0, 117, 0.077)';
+                }
+            });
+        }
     }, [direction]);
     // console.log({totalStakes});
 

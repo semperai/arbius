@@ -127,7 +127,30 @@ export default function Header() {
         enabled: isConnected
     })
 
-    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    function checkNumber(num) {
+        // Check if the number is a whole number
+        if (Number.isInteger(num)) {
+            let numStr = num.toString();
+            numStr = numStr.split('.')[0];
+            return numStr;
+        } else {
+            let numStr = num.toString().split('.')[0];
+            if(numStr.length < 3){
+              return num.toFixed(2)
+            }else{
+              return numStr;
+            }
+        }
+    }
+
+    console.log(checkNumber(1234.00)); // "1234 is a whole number with 4 digits"
+    console.log(checkNumber(123.12));  // "123.12 is a decimal number"
+    console.log(checkNumber(567));     // "567 is a whole number with 3 digits"
+    console.log(checkNumber(567.0));   // "567 is a whole number with 3 digits"
+
+
+    let walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    walletBalance = checkNumber(walletBalance)
 
 
   return (
@@ -311,13 +334,13 @@ export default function Header() {
                 className="m-[auto] relative group bg-black-background lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
               >
                 <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white flex flex-row gap-2"
+                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white flex flex-row gap-2 items-center"
                   onClick={clickConnect}
                 >
                   {
-                    walletConnected ? <Image style={{filter:'invert(1)'}} src={arbiusBWlogo} height={20} alt="connected"/>:null
+                    walletConnected ? <Image className="h-[10px] w-[auto] mt-[1px]" style={{filter:'invert(1)'}} src={arbiusBWlogo} height={20} alt="connected"/>:null
                   }
-                  { walletConnected ? walletBalance.toFixed(2) :  "Connect" }
+                  { walletConnected ? walletBalance :  "Connect" }
                 </div>
               </button>
             </div>
