@@ -161,7 +161,8 @@ function GanttChart(props) {
                                         Number(stakeData[(i*4)+2]._hex),
                                         Number(stakeData[(i*4)+1]._hex)
                                     ),
-                    "stake_start": getMonthDifference(new Date(Number(stakeData[(i*4)+2]._hex) * 1000), new Date(Number(stakeData[(i*4)+2]._hex) * 1000)),
+                    //"stake_start": getMonthDifference(new Date(Number(stakeData[(i*4)+2]._hex) * 1000), new Date(Number(stakeData[(i*4)+2]._hex) * 1000)),
+                    "stake_start": getMonthDifference(new Date(Number(stakeData[(i*4)+2]._hex) * 1000), windowStartDate),
                     "staked_till_now": getMonthDifference(new Date(), new Date(Number(stakeData[(i*4)+2]._hex) * 1000)),
                     "stake_completion": getMonthDifference(new Date(Number(stakeData[(i*4)+1]._hex) * 1000), new Date())
                 })
@@ -252,7 +253,7 @@ function GanttChart(props) {
                             <div className='item-grid'>
                                 {item?.lockedStartDate && (
                                     <div className={`bg-transparent h-[.4rem] my-3 rounded-full z-20`} style={{
-                                        gridColumn: `span ${item?.stake_start_date} / span ${item?.stake_start_date}`
+                                        gridColumn: `span ${item?.stake_start} / span ${item?.stake_start}`
                                     }}>
                                     </div>
                                 )}
