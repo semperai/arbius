@@ -616,3 +616,11 @@ input[type="number"]::-ms-reveal {
 /* Gauge table */
 
 
+.CircularProgressbar-path {
+    stroke-width: 4px;
+  }
+  .CircularProgressbar-trail {
+    stroke-width: 4px;
+  }
+
+
