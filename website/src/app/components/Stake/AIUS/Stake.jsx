@@ -96,7 +96,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         contracts: veAIUSBalancesContracts,
     });
     console.log(veAIUSBalances, "BALANCES")
-    const {data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError} = useContractRead({
+    const {data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError, refetch: refetchAllowance} = useContractRead({
         address: BASETOKEN_ADDRESS_V1,
         abi: baseTokenV1.abi,
         functionName: 'allowance',
@@ -165,6 +165,8 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         console.log({stakeData});
         console.log({approveData});
         console.log(amount, allowance, "AMT-ALL");
+        refetchAllowance();
+        console.log(allowance, "REFETCHED")
         if(amount > allowance || allowance === 0){
             approveWrite?.();
         }else{
