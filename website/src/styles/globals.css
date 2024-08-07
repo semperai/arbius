@@ -618,9 +618,32 @@ input[type="number"]::-ms-reveal {
 
 .CircularProgressbar-path {
     stroke-width: 4px;
-  }
-  .CircularProgressbar-trail {
+}
+.CircularProgressbar-trail {
     stroke-width: 4px;
-  }
+}
 
 
+.TransactionPopup{
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.TransactionPopup > div{
+    padding: 100px 50px;
+    border-radius: 20px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-family: var(--font-lato);
+    font-weight: 400;
+}

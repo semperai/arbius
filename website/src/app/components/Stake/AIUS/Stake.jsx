@@ -9,7 +9,7 @@ import { relative } from "path"
 import { BigNumber } from "ethers"
 import { getAIUSVotingPower } from "../../../Utils/getAIUSVotingPower"
 import { getAPR } from "../../../Utils/getAPR"
-import { useContractRead, useAccount, useContractWrite, usePrepareContractWrite, useContractReads } from 'wagmi'
+import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite, useContractReads, useWaitForTransaction} from 'wagmi'
 import config from "../../../../sepolia_config.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
@@ -28,6 +28,8 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const [veAiusBalance, setVeAIUSBalance] = useState(0)
     const [allowance, setAllowance] = useState(0)
     const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
+    const [transactionPending, setTransactionPending] = useState(false);
+
     const [duration, setDuration] = useState({
         months: 0,
         weeks: 0
@@ -137,7 +139,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             const val = Number(checkAllowance?._hex) / AIUS_wei
             setAllowance(val)
         }
-    }, [checkAllowance])
+    },[checkAllowance?._hex])
 
     const { config: approveConfig } = usePrepareContractWrite({
         address: BASETOKEN_ADDRESS_V1,
@@ -162,24 +164,61 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
         ],
         enabled: allowance >= amount,
+    },[allowance]);
+
+    const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
+    console.log({stakeData, stakeError,stakeWrite})
+
+    const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
+        hash: approveData?.hash,
+        confirmations: 3,
+        onSuccess(data) {
+            console.log('approve tx successful data ', data);
+            setAllowance(Number(defaultApproveAmount) / AIUS_wei);
+        },
+        onError(err) {
+            console.log('approve tx error data ', err);
+        }
     });
 
-    const { data: stakeData, error: stakeError, isPending: stakeIsPending, write: stakeWrite } = useContractWrite(stakeConfig)
+    const { data: approveTx2, isError: txError2, isLoading: txLoading2 } = useWaitForTransaction({
+        hash: stakeData?.hash,
+        confirmations: 3,
+        onSuccess(data) {
+            console.log('approve tx successful data 2', data);
+        },
+        onError(err) {
+            console.log('approve tx error data 2', err);
+        }
+    });
 
-    const handleStake = () => {
-        console.log({ stakeData });
-        console.log({ approveData });
+    useEffect(() => {
+        console.log(allowance, amount, transactionPending)
+        if(allowance > amount && transactionPending){
+            console.log("running")
+            stakeWrite()
+        }
+    },[allowance])
+
+    const handleStake = async()=>{
+        console.log({stakeData});
+        console.log({approveData});
         console.log(amount, allowance, "AMT-ALL");
-        refetchAllowance();
-        console.log(allowance, "REFETCHED")
-        if (amount > allowance || allowance === 0) {
-            approveWrite?.();
-        } else {
-            if (amount && (duration.months || duration.weeks)) {
-                stakeWrite?.();
-                setShowPopUp(1)
-            } else {
-                alert("Please enter the amount and duration to stake!")
+
+        if(amount > allowance || allowance === 0){
+            if(amount && (duration.months || duration.weeks)){
+                setTransactionPending(true)
+                approveWrite?.()
+            }else{
+                //alert("Please enter the amount and duration to stake!")
+            }
+        }else{
+            if(amount && (duration.months || duration.weeks)){
+                setTransactionPending(true)
+                await stakeWrite?.();
+                setTransactionPending(false)
+            }else{
+                //alert("Please enter the amount and duration to stake!")
             }
         }
     }
@@ -187,6 +226,14 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const [showPopUp, setShowPopUp] = useState(false)
 
     return (
+        <>
+        {
+            transactionPending ?
+                <div className="TransactionPopup">
+                    <div>Transaction in progress...</div>
+                </div>
+            : null
+        }
         <div>
             {
                 showPopUp !== false && (
@@ -305,6 +352,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     <div className=' mt-6'>
                         <button
                             type="button"
+<<<<<<< HEAD
                             onClick={() => {
                                 if (!stakeIsPending && !stakeError) {
                                     handleStake()
@@ -312,9 +360,19 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                                 }
                             }}
                             className="relative justify-center py-2 group bg-black-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
+=======
+                                onClick={async()=>{
+                                    if(!stakeIsPending && !stakeError){
+                                        if(amount && (duration.months || duration.weeks)){
+                                            await handleStake()
+                                        }
+                                    }
+                                }}
+                            className={`relative justify-center py-2 group bg-black-background ${amount && (duration.months || duration.weeks) ? "" : "opacity-40" } py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
+>>>>>>> 2954135 (Added stake logic)
                         >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold  relative z-10 text-original-white lg:text-[15px]">
+                            <div className="lato-bold relative z-10 text-original-white lg:text-[15px]">
                                 Stake
                             </div>
 
@@ -323,6 +381,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 </div>
             </div>
         </div>
+        </>
     )
 }
 
