@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import polygon from "../../../assets/images/polygon.png"
 import info_icon from "../../../assets/images/info_icon.png"
@@ -17,8 +17,8 @@ import thunder from "../../../assets/images/thunder.png"
 import governance from "../../../assets/images/governance.png"
 import info_red from "../../../assets/images/info_red.png"
 
-const getVoteStartDate = ()=>{
-    return new Date("08/23/2024") 
+const getVoteStartDate = () => {
+    return new Date("08/23/2024")
 }
 function Gauge() {
     const data = [
@@ -69,12 +69,12 @@ function Gauge() {
         setSearchText(e.target.value)
         // debounce the function call   
         let time = setTimeout(() => {
-         
+
             setFilteredData(data.filter(item => item.model_name.toLowerCase().includes(e.target.value.toLowerCase())))
             clearTimeout(time)
         }, 300)
-        
-        
+
+
     }
 
 
@@ -82,24 +82,24 @@ function Gauge() {
     const [timeRemaining, setTimeRemaining] = useState({});
     useEffect(() => {
         updateTimeRemaining(getVoteStartDate());
-    
+
         const intervalId = setInterval(() => {
-          updateTimeRemaining(getVoteStartDate());
-          console.log("updateTimeRemaining");
+            updateTimeRemaining(getVoteStartDate());
+            console.log("updateTimeRemaining");
         }, 60000); // Update every minute
-    
+
         return () => clearInterval(intervalId);
-      }, []);
-    
-  const updateTimeRemaining = (targetDate) => {
-    const now = new Date();
-    const target = new Date(targetDate);
-    const difference = target - now;
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    setTimeRemaining({  days, hours, minutes });
-  };
+    }, []);
+
+    const updateTimeRemaining = (targetDate) => {
+        const now = new Date();
+        const target = new Date(targetDate);
+        const difference = target - now;
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        setTimeRemaining({ days, hours, minutes });
+    };
 
 
     return (
@@ -202,7 +202,7 @@ function Gauge() {
                 <div className='flex justify-start items-center gap-4 w-full h-auto'>
                     <h1 className='text-[40px] text-[#4A28FF] mb-2 lato-bold'>Gauge</h1>
                     <div className='rounded-md bg-white-background flex  items-center px-2 pr-3 justify-between h-auto w-[70%] stake-box-shadow'>
-                        <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none ' value={searchText} onChange={(e)=>{
+                        <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none ' value={searchText} onChange={(e) => {
                             handleSearch(e)
                         }} />
                         <Image src={search_icon} className='h-4 w-4' />
@@ -224,14 +224,14 @@ function Gauge() {
 
             </div>
             <div className='flex lg:hidden rounded-md items-center px-2 pr-3  bg-white-background  justify-between h-auto stake-box-shadow'>
-                <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none placeholder:lato-regular' value={searchText} onChange={(e)=>{
+                <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none placeholder:lato-regular' value={searchText} onChange={(e) => {
                     handleSearch(e)
                 }} />
                 <Image src={search_icon} className='h-4 w-4' />
             </div>
             <div className='w-full overflow-x-auto xl:overflow-x-visible'>
                 <div className='gauge-table-headings rounded-lg pt-2 pb-2 px-5 lg:pt-6 lg:pb-6 lg:px-10 flex justify-between gap-8 items-center bg-white-background mt-2 mb-4 min-w-[1000px] font-semibold'>
-                    <div className='w-[20%]'>
+                    <div className='w-[25%]'>
                         <h1>Model Name</h1>
                     </div>
                     <div className='w-[20%]'>
@@ -243,7 +243,7 @@ function Gauge() {
                     <div className='w-[20%]'>
                         <h1>Total Prompts Requested</h1>
                     </div>
-                    <div className='w-[20%]'>
+                    <div className='w-[15%]'>
 
                     </div>
 
@@ -261,12 +261,13 @@ function Gauge() {
                                 <Image src={polygon} className='-ml-2' />
 
                             </div>
-                            <div className='w-[20%] flex justify-start gap-2 items-center'>
-                                <div className='bg-[#4A28FF]  px-2 py-[10px]  rounded-full relative '>
-                                    <Image src={item?.icon}  className=' w-[15px] max-h-[12px]'  />
-
+                            <div className='w-[25%] flex justify-start gap-2 items-center'>
+                                <div className="flex items-center justify-center w-[28px] h-[28px] rounded-full bg-[#4A28FF]">
+                                    <div className="relative w-[16px] h-[16px] flex items-center justify-center">
+                                        <Image src={item?.icon}  fill className='w-full h-full object-contain' />
+                                    </div>
                                 </div>
-                                <h1 className='text-xs xl:text-base'>{item?.model_name}</h1>
+                                <h1 className='text-[0.85rem]  2xl:text-base'>{item?.model_name}</h1>
                                 <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100 mt-[1px]' onMouseOver={() => {
                                     document.getElementById(key).style.display = "flex"
                                 }}
@@ -278,7 +279,7 @@ function Gauge() {
                                 </div>
                             </div>
                             <div className='w-[20%]'>
-                                <h1 className='text-xs md:text-base'>{item?.description}</h1>
+                                <h1 className='text-[0.85rem]  2xl:text-base'>{item?.description}</h1>
                             </div>
                             <div className='w-[20%]'>
                                 <Image src={skeleton} className='w-[100%] h-[24px] rounded-lg ' />
@@ -288,7 +289,7 @@ function Gauge() {
                                 <Image src={skeleton} className='w-[100%] h-[24px] rounded-lg ' />
                                 {/* <h1>{item?.prompts}</h1> */}
                             </div>
-                            <div className='w-[20%] flex justify-end'>
+                            <div className='w-[15%] flex justify-end'>
 
                                 {/* <button className='rounded-full bg-[#F1F0F3] text-[#AFAFB0] p-1 text-sm px-6' onClick={() => {
                                     setSelectedModel(item)
