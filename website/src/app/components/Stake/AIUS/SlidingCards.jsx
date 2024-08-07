@@ -180,9 +180,15 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
         console.log(endDate, "END DATE")
         let currentlyEndingAt = new Date(Number(endDate?._hex) * 1000).toLocaleDateString("en-US");
         let currentDate = new Date().toLocaleDateString("en-US");
-        console.log(currentlyEndingAt, "AT")
+
         const [currentEndDate, setCurrentEndDate] = useState(new Date(currentlyEndingAt))
         const [extendStartDate, setExtendStartDate] = useState(new Date(currentDate))
+
+        let datePlus24Months = new Date();
+        datePlus24Months.setMonth(datePlus24Months.getMonth() + 24);
+        const currentlyEndingDate = new Date(currentlyEndingAt)
+        const numberOfMonths = (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 + (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
+        console.log(numberOfMonths, "NO OF")
         const [extendEndDate, setExtendEndDate] = useState(new Date(currentlyEndingAt))
         console.log(sliderValue, "SLIDER VAL", ((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
         const { config: addAIUSConfig } = usePrepareContractWrite({
@@ -225,7 +231,7 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                         marks={4}
                         min={0}
                         step={.25}
-                        max={24}
+                        max={numberOfMonths}
                         defaultValue={0}
                         value={sliderValue}
                         onChange={(value) => {
@@ -237,9 +243,9 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                             }
                             let date;
                             if (Number.isInteger(value)) {
-                                date = new Date(extendStartDate?.getFullYear(), extendStartDate?.getMonth() + value, extendStartDate?.getDate());
+                                date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth() + value, currentEndDate?.getDate());
                             } else {
-                                date = new Date(extendStartDate?.getFullYear(), extendStartDate?.getMonth(), extendStartDate?.getDate() + 30 * value);
+                                date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth(), currentEndDate?.getDate() + 30 * value);
                             }
                             setExtendEndDate(date)
                             setSliderValue(value)
