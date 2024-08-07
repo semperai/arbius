@@ -1,5 +1,5 @@
 "use client"
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import info_icon from "../../../assets/images/info_icon.png"
 import votingEscrow from "../../../abis/votingEscrow.json"
@@ -8,42 +8,37 @@ import { useAccount, useContractRead, useContractReads } from 'wagmi';
 import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
 function GanttChart(props) {
-    let windowStartDate = '2024-02-20'
-    let windowEndDate = '2026-02-20';
 
-    windowStartDate = new Date(windowStartDate)
-    windowEndDate = new Date(windowEndDate)
+    const [windowStartDate, setWindowStartDate] = useState(new Date('2024-02-20'))
+    const [windowEndDate, setWindowEndDate] = useState(new Date('2025-02-20'))
+    const [noCols, setNoCols] = useState((windowEndDate?.getFullYear() - windowStartDate?.getFullYear()) * 12 + windowEndDate?.getMonth() - windowStartDate?.getMonth())
+
+    console.log({ noCols })
+
 
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const { address, isConnected } = useAccount()
     const [allStakingData, setAllStakingData] = useState({});
 
-    let data = [
-        {
-            stake_start: '2024-06-20',
-            staked_till_now: '2024-10-20',
-            stake_completion: '2025-11-25',
-            total_staked:14.124,
-            staked_now: 14.124,
-        },
-        {
-            stake_start: '2024-11-20',
-            staked_till_now: '2025-11-20',
-            stake_completion: '2026-01-25',
-            total_staked:14.124,
-            staked_now: 7.021,
-        },
-        {
-            stake_start: '2024-02-20',
-            staked_till_now: '2024-10-20',
-            stake_completion: '2026-02-20',
-            total_staked:14.124,
-            staked_now: 1.0214
+    // let data = [
+    //     {
+    //         stake_start: '2024-02-20',
+    //         staked_till_now: '2024-10-20',
+    //         stake_completion: '2024-11-25',
+    //         total_staked: 14.124,
+    //         staked_now: 14.124,
+    //     },
+    //     {
+    //         stake_start: '2024-11-20',
+    //         staked_till_now: '2024-12-20',
+    //         stake_completion: '2025-01-25',
+    //         total_staked: 14.124,
+    //         staked_now: 7.021,
+    //     },
 
-        },
 
-    ]
+    // ]
 
     const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -59,15 +54,15 @@ function GanttChart(props) {
     const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
         contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
             console.log("the loop", i, totalEscrowBalance)
-          return {
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'tokenOfOwnerByIndex',
-            args: [
-              address,
-              index
-            ]
-          }
+            return {
+                address: VOTING_ESCROW_ADDRESS,
+                abi: votingEscrow.abi,
+                functionName: 'tokenOfOwnerByIndex',
+                args: [
+                    address,
+                    index
+                ]
+            }
         }) : null,
     });
     console.log(tokenIDs, "TIOD")
@@ -139,23 +134,23 @@ function GanttChart(props) {
         }
         console.log("STA DATA", stakingData?.data?.length)
 
-        if(stakingData?.data?.length){
+        if (stakingData?.data?.length) {
             let totalStakes = stakingData.data.length / 4;
             let stakeData = stakingData.data;
 
-            for(let i=0; i<totalStakes; i++){
-                finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i*4)]?.amount._hex) / AIUS_wei;
-                if(finalData["firstUnlockDate"] == 0 || finalData["firstUnlockDate"] > Number(stakeData[(i*4)+1]._hex)){
+            for (let i = 0; i < totalStakes; i++) {
+                finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i * 4)]?.amount._hex) / AIUS_wei;
+                if (finalData["firstUnlockDate"] == 0 || finalData["firstUnlockDate"] > Number(stakeData[(i * 4) + 1]._hex)) {
                     console.log(finalData["firstUnlockDate"], "FUNLD")
-                    finalData["firstUnlockDate"] = Number(stakeData[(i*4)+1]._hex);
+                    finalData["firstUnlockDate"] = Number(stakeData[(i * 4) + 1]._hex);
                 }
-                finalData["totalGovernancePower"] = finalData["totalGovernancePower"] + Number(stakeData[(i*4)+3]._hex) / AIUS_wei;
+                finalData["totalGovernancePower"] = finalData["totalGovernancePower"] + Number(stakeData[(i * 4) + 3]._hex) / AIUS_wei;
                 finalData["allStakes"].push({
-                    "staked": Number(stakeData[(i*4)]?.amount._hex) / AIUS_wei,
-                    "lockedEndDate": new Date(Number(stakeData[(i*4)+1]._hex) * 1000).toLocaleDateString('en-US'),
-                    "lockedStartDate": new Date(Number(stakeData[(i*4)+2]._hex) * 1000).toLocaleDateString('en-US'),
+                    "staked": Number(stakeData[(i * 4)]?.amount._hex) / AIUS_wei,
+                    "lockedEndDate": new Date(Number(stakeData[(i * 4) + 1]._hex) * 1000).toLocaleDateString('en-US'),
+                    "lockedStartDate": new Date(Number(stakeData[(i * 4) + 2]._hex) * 1000).toLocaleDateString('en-US'),
                     "currentDate": new Date().toLocaleDateString('en-US'),
-                    "governancePower": Number(stakeData[(i*4)+3]._hex) / AIUS_wei,
+                    "governancePower": Number(stakeData[(i * 4) + 3]._hex) / AIUS_wei,
                     "veAIUSBalance": veAIUSBalance(
                                         Number(stakeData[(i*4)]?.amount._hex) / AIUS_wei,
                                         Number(stakeData[(i*4)+2]._hex),
@@ -172,7 +167,7 @@ function GanttChart(props) {
         }
 
         setAllStakingData(finalData)
-    },[stakingData?.data?.length])
+    }, [stakingData?.data?.length])
 
     console.log(allStakingData, "ALLSTAKE DATa")
     // pre processing the data for gantt chart dist
@@ -183,27 +178,27 @@ function GanttChart(props) {
         let diff = (startDate.getFullYear() * 12 + startDate.getMonth()) - (endDate.getFullYear() * 12 + endDate.getMonth())
         return diff
     }
-    data = data.map((item) => {
-        let stake_start_date = new Date(item.stake_start)
-        let staked_till_now_date = new Date(item.staked_till_now)
-        let stake_completion_date = new Date(item.stake_completion)
+    // data = data.map((item) => {
+    //     let stake_start_date = new Date(item.stake_start)
+    //     let staked_till_now_date = new Date(item.staked_till_now)
+    //     let stake_completion_date = new Date(item.stake_completion)
 
-        let stake_start = getMonthDifference(stake_start_date, windowStartDate)
-        let staked_till_now = getMonthDifference(staked_till_now_date, stake_start_date)
-        let stake_completion = getMonthDifference(stake_completion_date, staked_till_now_date)
+    //     let stake_start = getMonthDifference(stake_start_date, windowStartDate)
+    //     let staked_till_now = getMonthDifference(staked_till_now_date, stake_start_date)
+    //     let stake_completion = getMonthDifference(stake_completion_date, staked_till_now_date)
 
-        // console.log({ stake_start });
-        return {
-            stake_start: stake_start,
-            staked_till_now: staked_till_now,
-            stake_completion: stake_completion,
+    //     // console.log({ stake_start });
+    //     return {
+    //         stake_start: stake_start,
+    //         staked_till_now: staked_till_now,
+    //         stake_completion: stake_completion,
 
 
-            stake_start_date: `${stake_start_date.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${stake_start_date.getFullYear().toString().slice(-2)}`,
+    //         stake_start_date: `${stake_start_date.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${stake_start_date.getFullYear().toString().slice(-2)}`,
 
-        }
-    })
-    console.log(data, "HATA")
+    //     }
+    // })
+    // console.log(data, "HATA")
     return (
         <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow'>
             <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
@@ -245,12 +240,12 @@ function GanttChart(props) {
 
             </div>
 
-            <div className='max-h-[156px] px-1 py-2 overflow-y-auto mb-2 relative' id="gantt-chart">
+            <div className='max-h-[156px]  py-2 overflow-y-auto mb-2 relative' id="gantt-chart">
 
                 {
                     allStakingData?.allStakes?.map((item, key) => {
-                    return <div className='py-2' key={key}>
-                            <div className='item-grid'>
+                        return <div className='py-2' key={key}>
+                            <div className='item-grid' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr) ` }}>
                                 {item?.lockedStartDate && (
                                     <div className={`bg-transparent h-[.4rem] my-3 rounded-full z-20`} style={{
                                         gridColumn: `span ${item?.stake_start} / span ${item?.stake_start}`
@@ -284,9 +279,9 @@ function GanttChart(props) {
 
             </div>
 
-            <div className='item-grid absolute bottom-[1.25rem] px-10 right-0 left-0'>
-                {   allStakingData?.allStakes?.length ?
-                    Array(24).fill(null).map((item, key) => {
+            <div className='item-grid absolute bottom-[1.25rem] px-[2.7rem] right-0 left-0' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr)` }}>
+                {allStakingData?.allStakes?.length ?
+                    Array(noCols).fill(null).map((item, key) => {
                         let containsStakeStart = data.findIndex(item => item.stake_start === key);
                         // console.log({ containsStakeStart });
                         if (containsStakeStart !== -1)
@@ -303,12 +298,11 @@ function GanttChart(props) {
                 }
 
             </div>
-            <div className='item-grid absolute bottom-[.0rem] right-0 left-0 px-10'>
+            <div className='item-grid absolute bottom-[.0rem] right-0 left-0 px-[2.7rem]' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr) ` }}>
 
-                {
-                    allStakingData?.allStakes?.length ?
-                    Array(24).fill(null).map((item, key) => {
-                        return <div className={key == 23 ? 'w-full border-x-[1px] border-[#4828ff4f] pt-2' : 'w-full border-l-[1px] border-[#4828ff4f] pt-2'} key={key}>
+                {allStakingData?.allStakes?.length ?
+                    Array(noCols).fill(null).map((item, key) => {
+                        return <div className={key == noCols - 1 ? 'w-full border-x-[1px] border-[#4828ff4f] pt-2' : 'w-full border-l-[1px] border-[#4828ff4f] pt-2'} key={key}>
                             <div className='w-full bg-[#EDEDED] h-[.35rem]'>
                             </div>
                         </div>
