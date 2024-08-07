@@ -144,20 +144,20 @@ function GanttChart(props) {
             let stakeData = stakingData.data;
 
             for(let i=0; i<totalStakes; i++){
-                finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i*4)].amount._hex) / AIUS_wei;
+                finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i*4)]?.amount._hex) / AIUS_wei;
                 if(finalData["firstUnlockDate"] == 0 || finalData["firstUnlockDate"] > Number(stakeData[(i*4)+1]._hex)){
                     console.log(finalData["firstUnlockDate"], "FUNLD")
                     finalData["firstUnlockDate"] = Number(stakeData[(i*4)+1]._hex);
                 }
                 finalData["totalGovernancePower"] = finalData["totalGovernancePower"] + Number(stakeData[(i*4)+3]._hex) / AIUS_wei;
                 finalData["allStakes"].push({
-                    "staked": Number(stakeData[(i*4)].amount._hex) / AIUS_wei,
+                    "staked": Number(stakeData[(i*4)]?.amount._hex) / AIUS_wei,
                     "lockedEndDate": new Date(Number(stakeData[(i*4)+1]._hex) * 1000).toLocaleDateString('en-US'),
                     "lockedStartDate": new Date(Number(stakeData[(i*4)+2]._hex) * 1000).toLocaleDateString('en-US'),
                     "currentDate": new Date().toLocaleDateString('en-US'),
                     "governancePower": Number(stakeData[(i*4)+3]._hex) / AIUS_wei,
                     "veAIUSBalance": veAIUSBalance(
-                                        Number(stakeData[(i*4)].amount._hex) / AIUS_wei,
+                                        Number(stakeData[(i*4)]?.amount._hex) / AIUS_wei,
                                         Number(stakeData[(i*4)+2]._hex),
                                         Number(stakeData[(i*4)+1]._hex)
                                     ),
@@ -166,10 +166,12 @@ function GanttChart(props) {
                     "stake_completion": getMonthDifference(new Date(Number(stakeData[(i*4)+1]._hex) * 1000), new Date())
                 })
             }
-            finalData["firstUnlockDate"] = new Date(finalData["firstUnlockDate"] * 1000).toLocaleDateString('en-US')
-            setAllStakingData(finalData)
+            finalData["firstUnlockDate"] = parseInt(((new Date(finalData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
+            console.log(finalData["firstUnlockDate"], "FUND")
         }
-    },[stakingData?.data])
+
+        setAllStakingData(finalData)
+    },[stakingData?.data?.length])
 
     console.log(allStakingData, "ALLSTAKE DATa")
     // pre processing the data for gantt chart dist
@@ -207,7 +209,7 @@ function GanttChart(props) {
             <div className='flex justify-between items-center mt-6 mb-3'>
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">First unlock in</h2>
-                    <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate}</h2>
+                    <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate} days</h2>
 
                 </div>
                 <div>
@@ -282,7 +284,7 @@ function GanttChart(props) {
             </div>
 
             <div className='item-grid absolute bottom-[1.25rem] px-10 right-0 left-0'>
-                {
+                {   allStakingData?.allStakes?.length ?
                     Array(24).fill(null).map((item, key) => {
                         let containsStakeStart = data.findIndex(item => item.stake_start === key);
                         // console.log({ containsStakeStart });
@@ -296,19 +298,20 @@ function GanttChart(props) {
 
                         else
                             return <div></div>
-                    })
+                    }) : null
                 }
 
             </div>
             <div className='item-grid absolute bottom-[.0rem] right-0 left-0 px-10'>
 
                 {
+                    allStakingData?.allStakes?.length ?
                     Array(24).fill(null).map((item, key) => {
                         return <div className={key == 23 ? 'w-full border-x-[1px] border-[#4828ff4f] pt-2' : 'w-full border-l-[1px] border-[#4828ff4f] pt-2'} key={key}>
                             <div className='w-full bg-[#EDEDED] h-[.35rem]'>
                             </div>
                         </div>
-                    })
+                    }) : null
                 }
 
             </div>
