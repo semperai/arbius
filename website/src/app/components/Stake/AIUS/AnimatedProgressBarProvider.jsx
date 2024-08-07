@@ -28,7 +28,7 @@ const AnimatedProgressProvider = ({
         };
     }, [repeat, duration]);
 
-    useEffect(()=>{
+    /*useEffect(()=>{
         setTimeout(() => {
             console.log("COMPLETED")
             if(isError)
@@ -39,7 +39,7 @@ const AnimatedProgressProvider = ({
             setShowPopUp("Success")
             // setShowPopUp(false)
         }, (duration +1)* 1000)
-    },[])
+    },[])*/
 
     return (
         <Animate

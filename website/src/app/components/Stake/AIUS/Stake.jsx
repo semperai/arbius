@@ -28,7 +28,6 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const [veAiusBalance, setVeAIUSBalance] = useState(0)
     const [allowance, setAllowance] = useState(0)
     const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
-    const [transactionPending, setTransactionPending] = useState(false);
 
     const [duration, setDuration] = useState({
         months: 0,
@@ -186,16 +185,19 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         confirmations: 3,
         onSuccess(data) {
             console.log('approve tx successful data 2', data);
+            setShowPopUp("Success")
         },
         onError(err) {
             console.log('approve tx error data 2', err);
+            setShowPopUp("Error")
         }
     });
 
     useEffect(() => {
-        console.log(allowance, amount, transactionPending)
-        if(allowance > amount && transactionPending){
+        console.log(allowance, amount)
+        if(allowance > amount && showPopUp === 1){
             console.log("running")
+            setShowPopUp(2)
             stakeWrite()
         }
     },[allowance])
@@ -207,16 +209,15 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
         if(amount > allowance || allowance === 0){
             if(amount && (duration.months || duration.weeks)){
-                setTransactionPending(true)
+                setShowPopUp(1)
                 approveWrite?.()
             }else{
                 //alert("Please enter the amount and duration to stake!")
             }
         }else{
             if(amount && (duration.months || duration.weeks)){
-                setTransactionPending(true)
-                await stakeWrite?.();
-                setTransactionPending(false)
+                setShowPopUp(2)
+                stakeWrite?.();
             }else{
                 //alert("Please enter the amount and duration to stake!")
             }
@@ -227,13 +228,6 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
     return (
         <>
-        {
-            transactionPending ?
-                <div className="TransactionPopup">
-                    <div>Transaction in progress...</div>
-                </div>
-            : null
-        }
         <div>
             {
                 showPopUp !== false && (
@@ -352,15 +346,6 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     <div className=' mt-6'>
                         <button
                             type="button"
-<<<<<<< HEAD
-                            onClick={() => {
-                                if (!stakeIsPending && !stakeError) {
-                                    handleStake()
-
-                                }
-                            }}
-                            className="relative justify-center py-2 group bg-black-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
-=======
                                 onClick={async()=>{
                                     if(!stakeIsPending && !stakeError){
                                         if(amount && (duration.months || duration.weeks)){
@@ -369,7 +354,6 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                                     }
                                 }}
                             className={`relative justify-center py-2 group bg-black-background ${amount && (duration.months || duration.weeks) ? "" : "opacity-40" } py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
->>>>>>> 2954135 (Added stake logic)
                         >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="lato-bold relative z-10 text-original-white lg:text-[15px]">
