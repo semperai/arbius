@@ -130,7 +130,7 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                         onClick={() => setShowPopUp(false)}
                     >
                         <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className="lato-bold  relative z-10 text-opacity-40 text-black-text group-hover:text-original-white lg:text-[100%]">
+                        <div className="lato-bold  relative z-10 text-opacity-40 mb-[1px] text-black-text group-hover:text-original-white lg:text-[100%]">
                             Cancel
                         </div>
 
@@ -138,11 +138,11 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                     <div className='flex justify-end'>
                         <button
                             type="button"
-                            className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3"
+                            className="relative group bg-black-background py-1 px-7 rounded-full flex items-center gap-3"
                             onClick={()=>addAIUS?.()}
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold  relative z-10 text-original-white lg:text-[100%]">
+                            <div className="lato-bold  relative z-10 text-original-white lg:text-[100%] mb-[1px]">
                                 Add
                             </div>
                         </button>
@@ -556,7 +556,7 @@ function SlidingCards() {
         <div>
             {showPopUp !== false && (
                 <PopUp setShowPopUp={setShowPopUp}>
-                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} />}
+                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
                     {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
                     {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
                 </PopUp>

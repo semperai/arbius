@@ -264,7 +264,7 @@ function GanttChart(props) {
                     allStakingData?.allStakes?.map((item, key) => {
                         return <div className='py-2' key={key}>
                             <div className='item-grid' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr) ` }}>
-                                {item?.lockedStartDate && (
+                                {item?.stake_start !== 0 && (
                                     <div className={`bg-transparent h-[.4rem] my-3 rounded-full z-20`} style={{
                                         gridColumn: `span ${item?.stake_start} / span ${item?.stake_start}`
                                     }}>
@@ -272,7 +272,7 @@ function GanttChart(props) {
                                 )}
 
 
-                                {item?.currentDate && (
+                                {item?.staked_till_now !== 0 && (
                                     <div className={` bg-[#4A28FF] h-[.4rem] my-3 rounded-full relative z-20`} id='start-stake' style={{
                                         gridColumn: `span ${item?.staked_till_now} / span ${item?.staked_till_now}`
                                     }}>
@@ -281,11 +281,23 @@ function GanttChart(props) {
                                     </div>
                                 )}
                                 {
-                                    item?.lockedEndDate && (
-                                        <div className={`bg-[#eeeeee] h-[.4rem] my-3 rounded-r-full relative z-20`} style={{
+                                    item?.stake_completion !== 0 && (
+                                        <div className={`bg-[#eeeeee] h-[.4rem] my-3 ${item?.staked_till_now === 0 ? 'rounded-full' : 'rounded-r-full'} relative z-20`} style={{
                                             gridColumn: `span ${item?.stake_completion} / span ${item?.stake_completion}`
                                         }}>
-                                            <h1 className='mt-[7.5px] text-end text-[.7rem] font-semibold text-[#4A28FF] min-w-[90px]'>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+                                            {
+                                                item?.staked_till_now === 0 ? (
+                                                    <>
+                                                        <h1 className='absolute left-0 bottom-[8px] text-[.65rem] font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{item?.lockedEndDate}</span></h1>
+                                                        <div className='flex justify-between items-center  absolute'>
+                                                            <h1 className=' mt-[8px] text-[.65rem] opacity-80 font-semibold text-[#4A28FF] w-[100px] whitespace-pre'>{item?.staked} AIUS Staked</h1>
+                                                            <h1 className={` mt-[7.5px] text-end text-[.7rem] font-semibold text-[#4A28FF] w-[80px] whitespace-pre`}>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+
+                                                        </div></>
+                                                ) : (
+                                                    <h1 className={` mt-[7.5px] text-end text-[.7rem] font-semibold text-[#4A28FF] min-w-[80px] `}>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+                                                )
+                                            }
                                         </div>
                                     )
                                 }
