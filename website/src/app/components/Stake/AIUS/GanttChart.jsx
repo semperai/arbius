@@ -10,10 +10,10 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 function GanttChart(props) {
 
     const [windowStartDate, setWindowStartDate] = useState(new Date('2024-02-20'))
-    const [windowEndDate, setWindowEndDate] = useState(new Date('2025-02-20'))
+    const [windowEndDate, setWindowEndDate] = useState(new Date('2026-02-20'))
     const [noCols, setNoCols] = useState((windowEndDate?.getFullYear() - windowStartDate?.getFullYear()) * 12 + windowEndDate?.getMonth() - windowStartDate?.getMonth())
 
-    console.log({ noCols })
+    console.log({ noCols }, windowStartDate, windowEndDate)
 
 
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
@@ -133,39 +133,57 @@ function GanttChart(props) {
             "allStakes": []
         }
         console.log("STA DATA", stakingData?.data?.length)
+        let earliestDate = 0;
+        let lastDate = 0;
 
         if (stakingData?.data?.length) {
             let totalStakes = stakingData.data.length / 4;
             let stakeData = stakingData.data;
 
             for (let i = 0; i < totalStakes; i++) {
-                finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i * 4)]?.amount._hex) / AIUS_wei;
+                if(Number(stakeData[(i*4)+1]._hex) > lastDate){
+                    lastDate = Number(stakeData[(i*4)+1]?._hex)
+                }
+                if(Number(stakeData[(i*4)+2]._hex) < earliestDate || earliestDate === 0){
+                    earliestDate = Number(stakeData[(i*4)+2]?._hex)
+                }
+            }
+            if(earliestDate && lastDate){
+                earliestDate = new Date(earliestDate * 1000);
+                lastDate = new Date(lastDate * 1000)
+                setWindowStartDate(earliestDate);
+                setWindowEndDate(lastDate);
+                setNoCols((lastDate.getFullYear() - earliestDate.getFullYear()) * 12 + lastDate.getMonth() - earliestDate.getMonth() + 2)
+            }
+            console.log(earliestDate, "EARLIEST DATE")
+
+            for (let i = 0; i < totalStakes; i++) {
+                finalData["totalStaked"] = finalData["totalStaked"] + Number(stakeData[(i * 4)]?.amount?._hex) / AIUS_wei;
                 if (finalData["firstUnlockDate"] == 0 || finalData["firstUnlockDate"] > Number(stakeData[(i * 4) + 1]._hex)) {
                     console.log(finalData["firstUnlockDate"], "FUNLD")
                     finalData["firstUnlockDate"] = Number(stakeData[(i * 4) + 1]._hex);
                 }
                 finalData["totalGovernancePower"] = finalData["totalGovernancePower"] + Number(stakeData[(i * 4) + 3]._hex) / AIUS_wei;
                 finalData["allStakes"].push({
-                    "staked": Number(stakeData[(i * 4)]?.amount._hex) / AIUS_wei,
+                    "staked": Number(stakeData[(i * 4)]?.amount?._hex) / AIUS_wei,
                     "lockedEndDate": new Date(Number(stakeData[(i * 4) + 1]._hex) * 1000).toLocaleDateString('en-US'),
                     "lockedStartDate": new Date(Number(stakeData[(i * 4) + 2]._hex) * 1000).toLocaleDateString('en-US'),
                     "currentDate": new Date().toLocaleDateString('en-US'),
                     "governancePower": Number(stakeData[(i * 4) + 3]._hex) / AIUS_wei,
                     "veAIUSBalance": veAIUSBalance(
-                                        Number(stakeData[(i*4)]?.amount._hex) / AIUS_wei,
-                                        Number(stakeData[(i*4)+2]._hex),
-                                        Number(stakeData[(i*4)+1]._hex)
-                                    ),
-                    //"stake_start": getMonthDifference(new Date(Number(stakeData[(i*4)+2]._hex) * 1000), new Date(Number(stakeData[(i*4)+2]._hex) * 1000)),
-                    "stake_start": getMonthDifference(new Date(Number(stakeData[(i*4)+2]._hex) * 1000), windowStartDate),
-                    "staked_till_now": getMonthDifference(new Date(), new Date(Number(stakeData[(i*4)+2]._hex) * 1000)),
-                    "stake_completion": getMonthDifference(new Date(Number(stakeData[(i*4)+1]._hex) * 1000), new Date())
+                        Number(stakeData[(i * 4)]?.amount?._hex) / AIUS_wei,
+                        Number(stakeData[(i * 4) + 2]._hex),
+                        Number(stakeData[(i * 4) + 1]._hex)
+                    ),
+                    "stake_start": getMonthDifference(new Date(Number(stakeData[(i * 4) + 2]._hex) * 1000), earliestDate),
+                    "staked_till_now": getMonthDifference(new Date(), new Date(Number(stakeData[(i * 4) + 2]._hex) * 1000)),
+                    "stake_completion": getMonthDifference(new Date(Number(stakeData[(i * 4) + 1]._hex) * 1000), new Date())
                 })
             }
             finalData["firstUnlockDate"] = parseInt(((new Date(finalData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
+            finalData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
             console.log(finalData["firstUnlockDate"], "FUND")
         }
-
         setAllStakingData(finalData)
     }, [stakingData?.data?.length])
 
@@ -282,13 +300,12 @@ function GanttChart(props) {
             <div className='item-grid absolute bottom-[1.25rem] px-[2.7rem] right-0 left-0' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr)` }}>
                 {allStakingData?.allStakes?.length ?
                     Array(noCols).fill(null).map((item, key) => {
-                        let containsStakeStart = data.findIndex(item => item.stake_start === key);
+                        let containsStakeStart = allStakingData?.allStakes?.findIndex(item => item.stake_start === key);
                         // console.log({ containsStakeStart });
                         if (containsStakeStart !== -1)
                             return (
                                 <div className='text-start text-[.55rem] text-[#4A28FF]' key={key}>
-                                    <h1>{data[containsStakeStart].stake_start_date}</h1>
-
+                                    <h1>{allStakingData?.stake_start_date}</h1>
                                 </div>
                             )
 
