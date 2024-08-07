@@ -142,8 +142,7 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
             VOTING_ESCROW_ADDRESS,
             defaultApproveAmount
             //(amount * AIUS_wei).toString()
-        ],
-        enabled: amount
+        ]
     });
 
     const {data:approveData, error:approveError, isPending:approvePending, write:approveWrite} = useContractWrite(approveConfig)
@@ -166,10 +165,14 @@ export default function Stake({selectedtab, setSelectedTab, data, isLoading, isE
         console.log({stakeData});
         console.log({approveData});
         console.log(amount, allowance, "AMT-ALL");
-        if(amount > allowance){
+        if(amount > allowance || allowance === 0){
             approveWrite?.();
         }else{
-            stakeWrite?.();            
+            if(amount && (duration.months || duration.weeks)){
+                stakeWrite?.();                
+            }else{
+                alert("Please enter the amount and duration to stake!")
+            }
         }
     }
     // console.log({veAIUSBalances})
