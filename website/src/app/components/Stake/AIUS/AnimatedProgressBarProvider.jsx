@@ -13,9 +13,11 @@ const AnimatedProgressProvider = ({
     isError
 }) => {
     const [isAnimated, setIsAnimated] = useState(false);
+    const endValue = repeat ? valueEnd : 50;
 
     useEffect(() => {
         let interval;
+        if(repeat)
         setIsAnimated(true);
         if (repeat) {
             interval = window.setInterval(() => {
@@ -48,7 +50,7 @@ const AnimatedProgressProvider = ({
                 value: valueStart
             })}
             update={() => ({
-                value: [isAnimated ? valueEnd : valueStart],
+                value: [isAnimated ? endValue : valueStart],
                 timing: {
                     duration: duration * 1000,
                     ease: easingFunction

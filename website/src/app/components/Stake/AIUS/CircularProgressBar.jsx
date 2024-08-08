@@ -2,7 +2,7 @@ import AnimatedProgressProvider from "./AnimatedProgressBarProvider";
 import {CircularProgressbarWithChildren, buildStyles} from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { easeQuadInOut } from "d3-ease";
-function CircularProgressBar({ valueStart, valueEnd, duration, text, setShowPopUp, step, isError , noChildren=false }) {
+function CircularProgressBar({ valueStart, valueEnd, duration, text, setShowPopUp, step, isError , noChildren=false, repeat=true }) {
 
     return <AnimatedProgressProvider
         valueStart={0}
@@ -12,7 +12,7 @@ function CircularProgressBar({ valueStart, valueEnd, duration, text, setShowPopU
         setShowPopUp={setShowPopUp}
         step={step}
         isError={isError}
-        repeat={true}
+        repeat={repeat}
 
     >
         {(value) => {

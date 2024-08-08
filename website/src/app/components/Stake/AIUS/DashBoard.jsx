@@ -125,7 +125,10 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Market Cap</h2>
                                     <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>${new Intl.NumberFormat('en-US', {
                                         notation: 'compact',
-                                        compactDisplay: 'short'
+                                        compactDisplay: 'short',
+                                        maximumFractionDigits: 2,
+                                        minimumFractionDigits: 2
+                                        
                                     }).format(protocolData?.data?.AIUS?.self_reported_market_cap)} </h2>
                                 </div>
                                 <div>
