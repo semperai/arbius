@@ -216,7 +216,8 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             }
         }else{
             if(amount && (duration.months || duration.weeks)){
-                setShowPopUp(2)
+                // setShowPopUp(2)
+                setShowPopUp(3)
                 stakeWrite?.();
             }else{
                 //alert("Please enter the amount and duration to stake!")
@@ -234,6 +235,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     <PopUp setShowPopUp={setShowPopUp}>
                         {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={false} />}
                         {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={false} />}
+                        {showPopUp === 3 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={true} />}
                         {showPopUp === "Success" && <SuccessChildren setShowPopUp={setShowPopUp} />}
                         {showPopUp === "Error" && <ErrorPopUpChildren setShowPopUp={setShowPopUp} />}
                     </PopUp>
