@@ -5,18 +5,19 @@ import { easeQuadInOut } from "d3-ease";
 function CircularProgressBar({ valueStart, valueEnd, duration, text, setShowPopUp, step, isError , noChildren=false, repeat=true }) {
 
     return <AnimatedProgressProvider
-        valueStart={0}
-        valueEnd={100}
+        valueStart={valueStart}
+        valueEnd={valueEnd}
         duration={4}
         easingFunction={easeQuadInOut}
         setShowPopUp={setShowPopUp}
         step={step}
         isError={isError}
         repeat={repeat}
+        
 
     >
         {(value) => {
-            const roundedValue = Math.round(value);
+            // const roundedValue = Math.round(value);
             return (
                 <CircularProgressbarWithChildren
                     value={value}

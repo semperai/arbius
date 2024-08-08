@@ -749,7 +749,7 @@ const StepTwoChildren = ({ setShowPopUp, isError, noChildren,  repeat=true }) =>
 
                 <div className="flex justify-center items-center">
                     <div className="w-40 h-40">
-                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} noChildren={noChildren} repeat={false} />
+                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} noChildren={noChildren} repeat={true} />
                     </div>
 
                 </div>

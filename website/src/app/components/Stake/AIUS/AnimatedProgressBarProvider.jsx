@@ -2,18 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Animate } from "react-move";
 
 const AnimatedProgressProvider = ({
-    valueStart = 0,
+    valueStart=0,
     valueEnd,
     duration,
     easingFunction,
-    repeat,
+    repeat=true,
     children,
     setShowPopUp,
     step,
     isError
 }) => {
     const [isAnimated, setIsAnimated] = useState(false);
-    const endValue = repeat ? valueEnd : 50;
+    
 
     useEffect(() => {
         let interval;
@@ -50,7 +50,7 @@ const AnimatedProgressProvider = ({
                 value: valueStart
             })}
             update={() => ({
-                value: [isAnimated ? endValue : valueStart],
+                value: [isAnimated ? valueEnd : valueStart],
                 timing: {
                     duration: duration * 1000,
                     ease: easingFunction
