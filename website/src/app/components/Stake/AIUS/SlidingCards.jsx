@@ -19,72 +19,79 @@ import { BigNumber } from 'ethers';
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
 import StakeCard from './StakeCard';
 import { AIUS_wei, t_max } from "../../../Utils/constantValues";
+import CircularProgressBar from "./CircularProgressBar"
+import powered_by from "../../../assets/images/powered_by.png"
+import cross from "../../../assets/images/cross.png"
+import error_stake from "../../../assets/images/error_stake.png"
+import success_stake from "../../../assets/images/success_stake.png"
 
-    const AddPopUpChildren = ({ setShowPopUp, selectedStake,  walletBalance, totalSupply, rewardRate, getAPR}) => {
+const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalance, totalSupply, rewardRate, getAPR }) => {
 
-        const [aiusToStake, setAIUSToStake] = useState(0);
-        const [estBalance, setEstBalance] = useState(0);
+    const [aiusToStake, setAIUSToStake] = useState(0);
+    const [estBalance, setEstBalance] = useState(0);
 
-        const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-        console.log(Number(selectedStake), "SELC")
-        const { config: addAIUSConfig } = usePrepareContractWrite({
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'increase_amount',
-            args: [
-                Number(selectedStake),
-                (aiusToStake * AIUS_wei).toString()
-            ],
-            enabled: Boolean(aiusToStake)
-        });
+    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+    console.log(Number(selectedStake), "SELC")
+    const { config: addAIUSConfig } = usePrepareContractWrite({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'increase_amount',
+        args: [
+            Number(selectedStake),
+            (aiusToStake * AIUS_wei).toString()
+        ],
+        enabled: Boolean(aiusToStake)
+    });
 
-        const {
-            data: addAIUSData,
-            isLoading: addAIUSIsLoading,
-            isSuccess: addAIUSIsSuccess,
-            write: addAIUS
-        } = useContractWrite(addAIUSConfig)
+    const {
+        data: addAIUSData,
+        isLoading: addAIUSIsLoading,
+        isSuccess: addAIUSIsSuccess,
+        write: addAIUS
+    } = useContractWrite(addAIUSConfig)
 
 
-        const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'locked__end',
-            args: [
-                Number(selectedStake)
-            ]
-        })
-        console.log(Number(endDate?._hex), "endDate")
-        const {data:stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError} = useContractRead({
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'user_point_history__ts',
-            args: [
-                Number(selectedStake),
-                1
-            ]
-        })
-        const {data:totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError} = useContractRead({
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'locked',
-            args: [
-                Number(selectedStake)
-            ]
-        })
+    const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'locked__end',
+        args: [
+            Number(selectedStake)
+        ]
+    })
+    console.log(Number(endDate?._hex), "endDate")
+    const { data: stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError } = useContractRead({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'user_point_history__ts',
+        args: [
+            Number(selectedStake),
+            1
+        ]
+    })
+    const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'locked',
+        args: [
+            Number(selectedStake)
+        ]
+    })
 
-        useEffect(() => {
-            if(totalStaked && endDate && stakedOn){
-                console.log(Number(endDate?._hex), "YOLO")
-                const t = (Number(endDate?._hex) - Number(stakedOn?._hex));
-                const a_b = (Number(totalStaked?.amount?._hex) / AIUS_wei) + Number(aiusToStake)
-                setEstBalance(a_b * (t / t_max));
-            }
-        },[aiusToStake])
+    useEffect(() => {
+        if (totalStaked && endDate && stakedOn) {
+            console.log(Number(endDate?._hex), "YOLO")
+            const t = (Number(endDate?._hex) - Number(stakedOn?._hex));
+            const a_b = (Number(totalStaked?.amount?._hex) / AIUS_wei) + Number(aiusToStake)
+            setEstBalance(a_b * (t / t_max));
+        }
+    }, [aiusToStake])
 
-        return (
-            <>
-                <div className='flex justify-between items-center my-2'>
+    return (
+        <>
+            <div className={showPopUp == "add" ? 'opacity-100' : 'opacity-0'}>
+
+                <div className={'flex justify-between items-center my-2'}>
                     <div className='flex justify-start items-center gap-3'>
                         <h1>Add AIUS</h1>
                     </div>
@@ -98,12 +105,12 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                     <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
                         <div className="bg-stake-input flex items-center gap-2 justify-center rounded-l-3xl  p-1 px-2 box-border">
                             <div className="bg-white-background w-[30px] h-[30px] rounded-[50%] flex items-center justify-center ">
-                                <Image src={arbius_logo_without_name} width={15} alt="arbius"  />
+                                <Image src={arbius_logo_without_name} width={15} alt="arbius" />
                             </div>
                             <p className="pr- text-aius lato-bold text-[12px]">AIUS</p>
                         </div>
                         <div className="w-[94%]">
-                            <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px] border-none focus:ring-0 " type="number" placeholder="0.0" value={aiusToStake} onChange={(e)=>setAIUSToStake(e.target.value)} />
+                            <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px] border-none focus:ring-0 " type="number" placeholder="0.0" value={aiusToStake} onChange={(e) => setAIUSToStake(e.target.value)} />
                         </div>
                     </div>
                     <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS {walletBalance.toString()}</h1>
@@ -139,7 +146,10 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                         <button
                             type="button"
                             className="relative group bg-black-background py-1 px-7 rounded-full flex items-center gap-3"
-                            onClick={()=>addAIUS?.()}
+                            onClick={() => {
+                                addAIUS?.()
+                                setShowPopUp("add/2")
+                            }}
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="lato-bold  relative z-10 text-original-white lg:text-[100%] mb-[1px]">
@@ -151,66 +161,71 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                     </div>
 
                 </div>
-            </>
-        )
+
+            </div>
+
+        </>
+    )
+}
+
+const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
+    const [sliderValue, setSliderValue] = useState(0)
+    const [duration, setDuration] = useState({
+        months: 0,
+        weeks: 0
+    })
+
+    function getCurrentTimeInMSeconds() {
+        const now = new Date();
+        return Math.floor(now.getTime());
     }
 
-    const ExtendPopUpChildren = ({ setShowPopUp, selectedStake }) => {
-        const [sliderValue, setSliderValue] = useState(0)
-        const [duration, setDuration] = useState({
-            months: 0,
-            weeks: 0
-        })
-        
-        function getCurrentTimeInMSeconds() {
-            const now = new Date();
-            return Math.floor(now.getTime());
-        }
+    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+    const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'locked__end',
+        args: [
+            Number(selectedStake)
+        ]
+    })
 
-        const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-        const {data:endDate, isLoading: endDateIsLoading, isError: endDateIsError} = useContractRead({
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'locked__end',
-            args: [
-              Number(selectedStake)
-            ]
-        })
+    console.log(endDate, "END DATE")
+    let currentlyEndingAt = new Date(Number(endDate?._hex) * 1000).toLocaleDateString("en-US");
+    let currentDate = new Date().toLocaleDateString("en-US");
 
-        console.log(endDate, "END DATE")
-        let currentlyEndingAt = new Date(Number(endDate?._hex) * 1000).toLocaleDateString("en-US");
-        let currentDate = new Date().toLocaleDateString("en-US");
+    const [currentEndDate, setCurrentEndDate] = useState(new Date(currentlyEndingAt))
+    const [extendStartDate, setExtendStartDate] = useState(new Date(currentDate))
 
-        const [currentEndDate, setCurrentEndDate] = useState(new Date(currentlyEndingAt))
-        const [extendStartDate, setExtendStartDate] = useState(new Date(currentDate))
+    let datePlus24Months = new Date();
+    datePlus24Months.setMonth(datePlus24Months.getMonth() + 24);
+    const currentlyEndingDate = new Date(currentlyEndingAt)
+    const numberOfMonths = (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 + (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
+    console.log(numberOfMonths, "NO OF")
+    const [extendEndDate, setExtendEndDate] = useState(new Date(currentlyEndingAt))
+    console.log(sliderValue, "SLIDER VAL", ((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
+    const { config: addAIUSConfig } = usePrepareContractWrite({
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'increase_unlock_time',
+        args: [
+            Number(selectedStake),
+            parseInt((extendEndDate - getCurrentTimeInMSeconds()) / 1000).toString() // value in months(decimal) * 4*7*24*60*60
+        ],
+    });
 
-        let datePlus24Months = new Date();
-        datePlus24Months.setMonth(datePlus24Months.getMonth() + 24);
-        const currentlyEndingDate = new Date(currentlyEndingAt)
-        const numberOfMonths = (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 + (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
-        console.log(numberOfMonths, "NO OF")
-        const [extendEndDate, setExtendEndDate] = useState(new Date(currentlyEndingAt))
-        console.log(sliderValue, "SLIDER VAL", ((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
-        const { config: addAIUSConfig } = usePrepareContractWrite({
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'increase_unlock_time',
-            args: [
-                Number(selectedStake),
-                parseInt((extendEndDate - getCurrentTimeInMSeconds()) / 1000).toString() // value in months(decimal) * 4*7*24*60*60
-            ],
-        });
+    const {
+        data: addAIUSData,
+        isLoading: addAIUSIsLoading,
+        isSuccess: addAIUSIsSuccess,
+        write: extendAIUS
+    } = useContractWrite(addAIUSConfig)
+    console.log({ addAIUSData })
+    return (
 
-        const {
-            data: addAIUSData,
-            isLoading: addAIUSIsLoading,
-            isSuccess: addAIUSIsSuccess,
-            write: extendAIUS
-        } = useContractWrite(addAIUSConfig)
-        console.log({addAIUSData})
-        return (
+        <>
+            <div className={showPopUp === "extend" ? 'opacity-100' : 'opacity-0'}>
 
-            <>
                 <div className='flex justify-between items-center my-2'>
                     <div className='flex justify-start items-center gap-3'>
 
@@ -295,7 +310,10 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
                         <button
                             type="button"
-                            onClick={()=> extendAIUS?.()}
+                            onClick={() => {
+                                extendAIUS?.()
+                                setShowPopUp("extend/2")
+                            }}
                             className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -309,27 +327,30 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                     </div>
 
                 </div>
-            </>
-        )
-    }
+
+            </div>
+        </>
+    )
+}
 
 
-    const ClaimPopUpChildren = ({ setShowPopUp, selectedStake }) => {
+const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
-        const VE_STAKING_ADDRESS = config.veStakingAddress;
+    const VE_STAKING_ADDRESS = config.veStakingAddress;
 
-       
-            const {data: claimRewardData, isLoading: claimRewardIsLoading, isError: claimRewardIsError} = useContractRead({
-                address: VE_STAKING_ADDRESS,
-                abi: veStaking.abi,
-                functionName: 'getReward',
-                args: [
-                    Number(selectedStake)
-                ]
-            })
-            console.log(claimRewardData, "CRD", selectedStake)
 
-        return <>
+    const { data: claimRewardData, isLoading: claimRewardIsLoading, isError: claimRewardIsError } = useContractRead({
+        address: VE_STAKING_ADDRESS,
+        abi: veStaking.abi,
+        functionName: 'getReward',
+        args: [
+            Number(selectedStake)
+        ]
+    })
+    console.log(claimRewardData, "CRD", selectedStake)
+
+    return <>
+        <div className={showPopUp === "claim" ? 'opacity-100' : 'opacity-0'}>
             <div className='flex justify-between items-center my-2'>
                 <div className='flex justify-start items-center gap-3'>
 
@@ -374,6 +395,9 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
                     <button
                         type="button"
+                        onClick={() => {
+                            setShowPopUp("claim/2")
+                        }}
                         className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
                     >
                         <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -387,9 +411,11 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
                 </div>
 
             </div>
-        </>
 
-    }
+        </div>
+    </>
+
+}
 
 
 
@@ -433,7 +459,7 @@ function SlidingCards() {
 
     console.log(escrowBalanceData, "VEBALANCE")
 
-    const {data:rewardRate, isLoading: rewardRateIsLoading, isError: rewardRateIsError} = useContractRead({
+    const { data: rewardRate, isLoading: rewardRateIsLoading, isError: rewardRateIsError } = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'rewardRate',
@@ -441,7 +467,7 @@ function SlidingCards() {
         enabled: isConnected
     })
 
-    const {data:totalSupply, isLoading: totalSupplyIsLoading, isError: totalSupplyIsError} = useContractRead({
+    const { data: totalSupply, isLoading: totalSupplyIsLoading, isError: totalSupplyIsError } = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'totalSupply',
@@ -453,15 +479,15 @@ function SlidingCards() {
     const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
         contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
             console.log("the loop", i, totalEscrowBalance)
-          return {
-            address: VOTING_ESCROW_ADDRESS,
-            abi: votingEscrow.abi,
-            functionName: 'tokenOfOwnerByIndex',
-            args: [
-              address,
-              index
-            ]
-          }
+            return {
+                address: VOTING_ESCROW_ADDRESS,
+                abi: votingEscrow.abi,
+                functionName: 'tokenOfOwnerByIndex',
+                args: [
+                    address,
+                    index
+                ]
+            }
         }) : null,
     });
     console.log(tokenIDs, "tokenIDs")
@@ -476,7 +502,7 @@ function SlidingCards() {
         }
     }, [escrowBalanceData])
 
-    
+
 
 
     var settings = {
@@ -547,7 +573,7 @@ function SlidingCards() {
     useEffect(() => {
         console.log(direction, "direction")
         const elements = document.querySelectorAll('.slick-list');
-        if(tokenIDs?.length > 2){
+        if (tokenIDs?.length > 2) {
             elements.forEach(element => {
                 if (direction == "right") {
                     element.style.boxShadow = '10px 0 5px -4px rgba(18, 0, 117, 0.077)';
@@ -562,11 +588,25 @@ function SlidingCards() {
     return (
         <div>
             {showPopUp !== false && (
-                <PopUp setShowPopUp={setShowPopUp}>
-                    {showPopUp === "add" && <AddPopUpChildren setShowPopUp={setShowPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
-                    {showPopUp === "claim" && <ClaimPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
-                    {showPopUp === "extend" && <ExtendPopUpChildren setShowPopUp={setShowPopUp}  selectedStake={selectedStake} />}
-                </PopUp>
+                <>
+
+                    {
+                        ["add/2", "claim/2", "extend/2", "Success", "Error"].includes(showPopUp) ? <PopUp setShowPopUp={setShowPopUp}>
+                            {["add/2", "claim/2", "extend/2"].includes(showPopUp) ? <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} /> : (showPopUp === "Success" ? <SuccessChildren setShowPopUp={setShowPopUp} /> : (showPopUp === "Error" ? <ErrorPopUpChildren setShowPopUp={setShowPopUp} /> : null))}
+
+                        </PopUp> :
+                            <PopUp setShowPopUp={setShowPopUp} isHidden={showPopUp === "claim/2" || showPopUp === "extend/2" || showPopUp === "add/2"}>
+                                {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
+                                {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
+                                {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
+
+                            </PopUp>
+                    }
+
+                </>
+
+
+
             )}
             <div className='relative'>
                 <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
@@ -581,3 +621,107 @@ function SlidingCards() {
     )
 }
 export default SlidingCards
+
+
+const StepTwoChildren = ({ setShowPopUp, isError, noChildren }) => {
+    return (
+        <div>
+            <div className="flex justify-end mt-4">
+                <button className="cursor-pointer" onClick={() => setShowPopUp(false)}>
+                    <Image src={cross} className="w-[10px]" alt="cross" />
+                </button>
+
+            </div>
+            <div className="my-12">
+
+                <div className="flex justify-center items-center">
+                    <div className="w-40 h-40">
+                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} noChildren={noChildren} />
+                    </div>
+
+                </div>
+                <h1 className="text-[20px] mt-4 text-[#000] text-center">Pending transaction confirmation!</h1>
+                <h1 className="text-[12px] text-[#8C8C8C] text-center">Confirm this transaction in your wallet.</h1>
+
+
+            </div>
+
+            <div className="flex justify-center items-center">
+                <Image src={powered_by} className="w-auto h-4" alt="powered_by" />
+            </div>
+        </div>
+    )
+}
+
+const SuccessChildren = ({ setShowPopUp }) => {
+
+    return (
+        <div>
+            <div className="flex justify-end mt-4">
+                <button className="cursor-pointer" onClick={() => setShowPopUp(false)}>
+                    <Image src={cross} className="w-[10px]" alt="cross" />
+                </button>
+
+            </div>
+            <div className="my-12">
+                <div className="flex justify-center items-center">
+                    <div className="w-40 h-40 flex justify-center items-center relative bg-[#FCFCFC] rounded-full">
+                        <Image src={success_stake} className=" w-12" alt="error_stake" />
+
+                    </div>
+                </div>
+
+                <h1 className="text-[20px] mt-4 text-[#000] text-center">Congrats!</h1>
+                <h1 className="text-[12px] text-[#8C8C8C] text-center">Transaction Completed.</h1>
+
+
+            </div>
+
+            <div className="flex justify-center items-center">
+                <Image src={powered_by} className="w-auto h-4" alt="powered_by" />
+            </div>
+        </div>
+    )
+
+}
+
+const ErrorPopUpChildren = ({ setShowPopUp }) => {
+    return (
+        <div>
+            <div className="flex justify-end mt-4">
+                <button className="cursor-pointer" onClick={() => setShowPopUp(false)}>
+                    <Image src={cross} className="w-[10px]" alt="cross" />
+                </button>
+
+            </div>
+            <div className="my-12">
+                <div className="flex justify-center items-center">
+                    <div className="w-40 h-40 flex justify-center items-center relative bg-[#FCFCFC] rounded-full">
+                        <Image src={success_stake} className=" w-12" alt="error_stake" />
+
+                    </div>
+                </div>
+                <h1 className="text-[20px] mt-4 text-[#000] text-center">Error!</h1>
+                <h1 className="text-[12px] text-[#8C8C8C] text-center">Please try again.</h1>
+
+                <div className="flex justify-center items-center">
+                    <button
+                        onClick={() => setShowPopUp(false)}
+                        type="button"
+                        className="relative justify-center mt-2 py-2 group bg-black-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 "
+                    >
+                        <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="lato-bold  relative z-10 text-original-white lg:text-[15px]">
+                            Continue
+                        </div>
+
+                    </button>
+                </div>
+            </div>
+
+            <div className="flex justify-center items-center">
+                <Image src={powered_by} className="w-auto h-4" alt="powered_by" />
+            </div>
+        </div>
+    )
+}

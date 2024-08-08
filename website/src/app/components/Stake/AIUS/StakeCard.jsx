@@ -63,17 +63,23 @@ function StakeCard({idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedSt
                 <div className='flex flex-col gap-3 justify-center items-start'>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                        <h2 className='text-[15px] font-semibold'>{totalStaked?.amount?._hex ? (Number(totalStaked.amount._hex) / AIUS_wei).toString() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
+                        <h2 className='text-[15px] font-semibold'>{totalStaked?.amount?._hex ? (Number(totalStaked.amount._hex) / AIUS_wei).toLocaleString() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">APR</h2>
-                        <h2 className='text-[15px] font-semibold'>{totalSupply?._hex && rewardRate?._hex ? getAPR(rewardRate?._hex, totalSupply?._hex).toFixed(2) : 0}%</h2>
+                        <h2 className='text-[15px] font-semibold'>{totalSupply?._hex && rewardRate?._hex ? getAPR(rewardRate?._hex, totalSupply?._hex)?.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }) : 0}%</h2>
                     </div>
                 </div>
                 <div className='flex flex-col gap-3 justify-center items-start'>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Governance Power</h2>
-                        <h2 className='text-[15px] font-semibold'>{governancePower?._hex ? (Number(governancePower?._hex) / AIUS_wei).toFixed(2).toString() : 0}%</h2>
+                        <h2 className='text-[15px] font-semibold'>{governancePower?._hex ? (Number(governancePower?._hex) / AIUS_wei)?.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }) : 0}%</h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Staked on</h2>

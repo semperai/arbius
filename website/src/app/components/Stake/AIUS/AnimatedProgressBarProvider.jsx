@@ -16,6 +16,7 @@ const AnimatedProgressProvider = ({
 
     useEffect(() => {
         let interval;
+        setIsAnimated(true);
         if (repeat) {
             interval = window.setInterval(() => {
                 setIsAnimated(prevIsAnimated => !prevIsAnimated);
@@ -53,10 +54,7 @@ const AnimatedProgressProvider = ({
                     ease: easingFunction
                 }
             })}
-            leave={() => {
-                console.log("COMPLETED")
-                
-            }}
+
             
         >
             {({ value }) => children(value)}

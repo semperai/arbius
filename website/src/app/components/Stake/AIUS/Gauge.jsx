@@ -210,16 +210,26 @@ function Gauge() {
                 </div>
 
                 <div className='text-[#4A28FF] text-[14px] w-[30%] gap-2 text-end font-semibold flex justify-end items-center'>
-                    {/* <Image src={clock_icon} className='h-4 w-4' /> */}
+                    <Image src={clock_icon} className='h-4 w-4' /> 
                     {/* <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1> */}
+
+                    <div className='flex justify-start items-center gap-2'>
+                        <h1 className='xl:text-[12px] 2xl:text-[16px] w-full'>Voting starts in</h1>
+                        <Image src={skeleton} className=' h-[20px] w-full rounded-lg mt-1' />
+
+                    </div>
                 </div>
 
             </div>
             <div className='flex flex-col items-start mb-2 um:mb-0 um:flex-row lg:hidden justify-between um:items-center font-semibold'>
                 <h1 className='text-[40px] text-[#4A28FF] mb-2  lato-bold'>Gauge</h1>
                 <div className='text-[#4A28FF] text-[.85rem]  text-end flex gap-2 justify-end items-center'>
-                    {/* <Image src={clock_icon} className='h-4 w-4' /> */}
+                  <Image src={clock_icon} className='h-4 w-4' />
                     {/* <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1> */}
+                    <div className='flex justify-start items-center gap-2'>
+                        <h1 className='w-full'>Voting starts in</h1>
+                        <Image src={skeleton} className='h-[20px] w-full rounded-lg mt-1' />
+                    </div>
                 </div>
 
             </div>

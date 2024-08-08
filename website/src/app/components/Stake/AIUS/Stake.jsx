@@ -232,8 +232,8 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             {
                 showPopUp !== false && (
                     <PopUp setShowPopUp={setShowPopUp}>
-                        {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} />}
-                        {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} />}
+                        {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={false} />}
+                        {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={false} />}
                         {showPopUp === "Success" && <SuccessChildren setShowPopUp={setShowPopUp} />}
                         {showPopUp === "Error" && <ErrorPopUpChildren setShowPopUp={setShowPopUp} />}
                     </PopUp>
@@ -370,7 +370,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 }
 
 
-const StepOneChildren = ({ setShowPopUp, isError }) => {
+const StepOneChildren = ({ setShowPopUp, isError, noChildren }) => {
     return (
         <div>
             <div className="flex justify-end mt-4">
@@ -383,7 +383,7 @@ const StepOneChildren = ({ setShowPopUp, isError }) => {
 
                 <div className="flex justify-center items-center">
                     <div className="w-40 h-40">
-                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"1/2"} setShowPopUp={setShowPopUp} step={1} isError={isError} />
+                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"1/2"} setShowPopUp={setShowPopUp} step={1} isError={isError} noChildren={noChildren} />
                     </div>
 
                 </div>
@@ -400,7 +400,7 @@ const StepOneChildren = ({ setShowPopUp, isError }) => {
 
     )
 }
-const StepTwoChildren = ({ setShowPopUp, isError }) => {
+const StepTwoChildren = ({ setShowPopUp, isError, noChildren }) => {
     return (
         <div>
             <div className="flex justify-end mt-4">
@@ -413,7 +413,7 @@ const StepTwoChildren = ({ setShowPopUp, isError }) => {
 
                 <div className="flex justify-center items-center">
                     <div className="w-40 h-40">
-                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} />
+                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} noChildren={noChildren} />
                     </div>
 
                 </div>

@@ -66,7 +66,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Balance</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{walletBalance.toString()} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{walletBalance?.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Historical LP Profit</h2>
@@ -78,11 +78,17 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Wallet TVL</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$ {protocolData?.data?.AIUS?.quote?.USD?.price ? (protocolData?.data?.AIUS?.quote?.USD?.price * walletBalance).toFixed(2) : 0 }</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$ {protocolData?.data?.AIUS?.quote?.USD?.price ? (protocolData?.data?.AIUS?.quote?.USD?.price * walletBalance)?.toLocaleString('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }) : 0 }</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Estimated Total APR</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate.data?._hex, totalSupply.data?._hex).toFixed(2) : 0}%</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate.data?._hex, totalSupply.data?._hex)?.toLocaleString('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }) : 0}%</h2>
                                 </div>
                             </div>
                         </div>
@@ -107,7 +113,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Staked</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!veSupplyIsLoading && veSupplyData ? (Number(veSupplyData?._hex) / AIUS_wei).toString() : 0}</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!veSupplyIsLoading && veSupplyData ? (Number(veSupplyData?._hex) / AIUS_wei).toString()?.toLocaleString() : 0}</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>
@@ -124,7 +130,10 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Circulating supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{protocolData?.data?.AIUS?.self_reported_circulating_supply.toFixed(0)} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{protocolData?.data?.AIUS?.self_reported_circulating_supply.toLocaleString('en-US', {
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0
+                                    })} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                             </div>
                         </div>
