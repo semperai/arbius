@@ -457,7 +457,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
 
 function SlidingCards() {
-    const [showPopUp, setShowPopUp] = useState('add')
+    const [showPopUp, setShowPopUp] = useState(false)
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
     const [selectedStake, setSelectedStake] = useState({});
