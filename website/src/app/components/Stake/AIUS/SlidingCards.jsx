@@ -89,7 +89,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
 
     return (
         <>
-            <div className={showPopUp == "add" ? 'opacity-100' : 'opacity-0'}>
+            <div className={showPopUp == "add" ? 'block' : 'hidden'}>
 
                 <div className={'flex justify-between items-center my-2'}>
                     <div className='flex justify-start items-center gap-3'>
@@ -164,6 +164,19 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
 
             </div>
 
+            <div className={showPopUp === "add/2" ? 'block' : 'hidden'}>
+                <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
+
+            </div>
+            <div className={showPopUp === "Success" ? 'block' : 'hidden'}>
+                <SuccessChildren setShowPopUp={setShowPopUp} />
+
+            </div>
+            <div className={showPopUp === "Error" ? 'block' : 'hidden'}>
+                <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
+
+            </div>
+
         </>
     )
 }
@@ -224,7 +237,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
     return (
 
         <>
-            <div className={showPopUp === "extend" ? 'opacity-100' : 'opacity-0'}>
+            <div className={showPopUp === "extend" ? 'block' : 'hidden'}>
 
                 <div className='flex justify-between items-center my-2'>
                     <div className='flex justify-start items-center gap-3'>
@@ -329,6 +342,18 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
                 </div>
 
             </div>
+            <div className={showPopUp === "extend/2" ? 'block' : 'hidden'}>
+                <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
+
+            </div>
+            <div className={showPopUp === "Success" ? 'block' : 'hidden'}>
+                <SuccessChildren setShowPopUp={setShowPopUp} />
+
+            </div>
+            <div className={showPopUp === "Error" ? 'block' : 'hidden'}>
+                <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
+
+            </div>
         </>
     )
 }
@@ -350,7 +375,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
     console.log(claimRewardData, "CRD", selectedStake)
 
     return <>
-        <div className={showPopUp === "claim" ? 'opacity-100' : 'opacity-0'}>
+        <div className={showPopUp === "claim" ? 'block' : 'hidden'}>
             <div className='flex justify-between items-center my-2'>
                 <div className='flex justify-start items-center gap-3'>
 
@@ -413,6 +438,18 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
             </div>
 
         </div>
+        <div className={showPopUp === "claim/2" ? 'block' : 'hidden'}>
+            <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
+
+        </div>
+        <div className={showPopUp === 'Success' ? 'block' : 'hidden'}>
+            <SuccessChildren setShowPopUp={setShowPopUp} />
+
+        </div>
+        <div className={showPopUp === "Error" ? 'block' : 'hidden'}>
+            <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
+
+        </div>
     </>
 
 }
@@ -420,7 +457,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
 
 function SlidingCards() {
-    const [showPopUp, setShowPopUp] = useState(false)
+    const [showPopUp, setShowPopUp] = useState('add')
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
     const [selectedStake, setSelectedStake] = useState({});
@@ -590,18 +627,15 @@ function SlidingCards() {
             {showPopUp !== false && (
                 <>
 
-                    {
-                        ["add/2", "claim/2", "extend/2", "Success", "Error"].includes(showPopUp) ? <PopUp setShowPopUp={setShowPopUp}>
-                            {["add/2", "claim/2", "extend/2"].includes(showPopUp) ? <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} /> : (showPopUp === "Success" ? <SuccessChildren setShowPopUp={setShowPopUp} /> : (showPopUp === "Error" ? <ErrorPopUpChildren setShowPopUp={setShowPopUp} /> : null))}
-
-                        </PopUp> :
-                            <PopUp setShowPopUp={setShowPopUp} isHidden={showPopUp === "claim/2" || showPopUp === "extend/2" || showPopUp === "add/2"}>
+                    
+                            <PopUp setShowPopUp={setShowPopUp} >
                                 {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
                                 {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
                                 {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
+                               
 
                             </PopUp>
-                    }
+                    
 
                 </>
 
