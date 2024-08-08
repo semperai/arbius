@@ -14,7 +14,7 @@ import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import { getAPR } from "../../../Utils/getAPR"
-import { useAccount, useContractRead, useContractReads, usePrepareContractWrite, useContractWrite } from 'wagmi';
+import { useAccount, useContractRead, useContractReads, usePrepareContractWrite, useContractWrite, useWaitForTransaction } from 'wagmi';
 import { BigNumber } from 'ethers';
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
 import StakeCard from './StakeCard';
@@ -47,6 +47,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
         data: addAIUSData,
         isLoading: addAIUSIsLoading,
         isSuccess: addAIUSIsSuccess,
+        isError: addAIUSError,
         write: addAIUS
     } = useContractWrite(addAIUSConfig)
 
@@ -86,6 +87,26 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
             setEstBalance(a_b * (t / t_max));
         }
     }, [aiusToStake])
+
+    const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
+        hash: addAIUSData?.hash,
+        confirmations: 3,
+        onSuccess(data) {
+            console.log('approve tx successful data ', data);
+            setShowPopUp("add/Success")
+        },
+        onError(err) {
+            console.log('approve tx error data ', err);
+            setShowPopUp("add/Error")
+        }
+    });
+
+
+    useEffect(() => {
+        if(addAIUSError){
+            setShowPopUp("add/Error")
+        }
+    },[addAIUSError])
 
     return (
         <>
@@ -149,7 +170,6 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                             onClick={() => {
                                 addAIUS?.()
                                 setShowPopUp("add/2")
-                                // setShowPopUp("add/Success")
                             }}
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -231,9 +251,31 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
         data: addAIUSData,
         isLoading: addAIUSIsLoading,
         isSuccess: addAIUSIsSuccess,
+        isError: addAIUSError,
         write: extendAIUS
     } = useContractWrite(addAIUSConfig)
     console.log({ addAIUSData })
+
+    const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
+        hash: addAIUSData?.hash,
+        confirmations: 3,
+        onSuccess(data) {
+            console.log('approve tx successful data ', data);
+            setShowPopUp("extend/Success")
+        },
+        onError(err) {
+            console.log('approve tx error data ', err);
+            setShowPopUp("extend/Error")
+        }
+    });
+
+
+    useEffect(() => {
+        if(addAIUSError){
+            setShowPopUp("extend/Error")
+        }
+    },[addAIUSError])
+
     return (
 
         <>
@@ -362,16 +404,44 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
     const VE_STAKING_ADDRESS = config.veStakingAddress;
 
-
-    const { data: claimRewardData, isLoading: claimRewardIsLoading, isError: claimRewardIsError } = useContractRead({
+    const { config: addAIUSConfig } = usePrepareContractWrite({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'getReward',
         args: [
             Number(selectedStake)
         ]
-    })
-    console.log(claimRewardData, "CRD", selectedStake)
+    });
+
+    const {
+        data: addAIUSData,
+        isLoading: addAIUSIsLoading,
+        isSuccess: addAIUSIsSuccess,
+        isError: addAIUSError,
+        write: claimAIUS
+    } = useContractWrite(addAIUSConfig)
+
+    console.log({ addAIUSData })
+
+    const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
+        hash: addAIUSData?.hash,
+        confirmations: 3,
+        onSuccess(data) {
+            console.log('approve tx successful data ', data);
+            setShowPopUp("claim/Success")
+        },
+        onError(err) {
+            console.log('approve tx error data ', err);
+            setShowPopUp("claim/Error")
+        }
+    });
+
+    useEffect(() => {
+        if(addAIUSError){
+            setShowPopUp("claim/Error")
+        }
+    },[addAIUSError])
+
 
     return <>
         <div className={showPopUp === "claim" ? 'block' : 'hidden'}>
@@ -389,7 +459,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
             <div className='flex justify-center gap-2 items-center mt-6'>
                 <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
-                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{Number(claimRewardData?._hex) ? Number(claimRewardData?._hex).toString() : 0}</span> AIUS</h1>
+                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>0</span> AIUS</h1>
                     <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
 
@@ -420,7 +490,8 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
                     <button
                         type="button"
                         onClick={() => {
-                            setShowPopUp("claim/2")
+                            claimAIUS?.();
+                            setShowPopUp("claim/2");
                         }}
                         className="relative group bg-black-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
                     >
