@@ -404,6 +404,16 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
     const VE_STAKING_ADDRESS = config.veStakingAddress;
 
+    const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
+        address: VE_STAKING_ADDRESS,
+        abi: veStaking.abi,
+        functionName: 'earned',
+        args: [
+            Number(selectedStake)
+        ]
+    })
+
+
     const { config: addAIUSConfig } = usePrepareContractWrite({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
@@ -459,7 +469,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
             <div className='flex justify-center gap-2 items-center mt-6'>
                 <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
-                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>0</span> AIUS</h1>
+                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{ earned?._hex ? (Number(earned?._hex) / AIUS_wei).toFixed(2).toString() : 0 }</span> AIUS</h1>
                     <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
 
