@@ -148,8 +148,8 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                             className="relative group bg-black-background py-1 px-7 rounded-full flex items-center gap-3"
                             onClick={() => {
                                 addAIUS?.()
-                                // setShowPopUp("add/2")
-                                setShowPopUp("add/Success")
+                                setShowPopUp("add/2")
+                                // setShowPopUp("add/Success")
                             }}
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -165,10 +165,9 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
 
             </div>
 
-            <div className={showPopUp === "add/2" ? 'block' : 'hidden'}>
-                <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
-
-            </div>
+            {
+                showPopUp === "add/2" && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />
+            }
             <div className={showPopUp === "add/Success" ? 'block' : 'hidden'}>
                 <SuccessChildren setShowPopUp={setShowPopUp} />
 
@@ -343,10 +342,9 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
                 </div>
 
             </div>
-            <div className={showPopUp === "extend/2" ? 'block' : 'hidden'}>
-                <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
-
-            </div>
+            {
+               showPopUp === "extend/2" && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />
+            }
             <div className={showPopUp === "extend/Success" ? 'block' : 'hidden'}>
                 <SuccessChildren setShowPopUp={setShowPopUp} />
 
@@ -439,10 +437,9 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
             </div>
 
         </div>
-        <div className={showPopUp === "claim/2" ? 'block' : 'hidden'}>
-            <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
-
-        </div>
+        {
+            showPopUp === "claim/2" && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />
+        }
         <div className={showPopUp === 'claim/Success' ? 'block' : 'hidden'}>
             <SuccessChildren setShowPopUp={setShowPopUp} />
 
@@ -658,7 +655,7 @@ function SlidingCards() {
 export default SlidingCards
 
 
-const StepTwoChildren = ({ setShowPopUp, isError, noChildren }) => {
+const StepTwoChildren = ({ setShowPopUp, isError, noChildren,  repeat=true }) => {
     return (
         <div>
             <div className="flex justify-end mt-4">
@@ -671,7 +668,7 @@ const StepTwoChildren = ({ setShowPopUp, isError, noChildren }) => {
 
                 <div className="flex justify-center items-center">
                     <div className="w-40 h-40">
-                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} noChildren={noChildren} />
+                        <CircularProgressBar valueStart={0} valueEnd={100} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} noChildren={noChildren} repeat={false} />
                     </div>
 
                 </div>
