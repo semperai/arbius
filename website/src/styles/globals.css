@@ -539,6 +539,9 @@ input[type="number"]::-ms-reveal {
     margin-right: 0px;
 /*    border-radius: 1rem;*/
 }
+.slick-track{
+    margin-left: 0 !important;
+}
 
 
 
