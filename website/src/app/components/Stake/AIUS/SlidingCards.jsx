@@ -148,7 +148,8 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                             className="relative group bg-black-background py-1 px-7 rounded-full flex items-center gap-3"
                             onClick={() => {
                                 addAIUS?.()
-                                setShowPopUp("add/2")
+                                // setShowPopUp("add/2")
+                                setShowPopUp("add/Success")
                             }}
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -168,11 +169,11 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                 <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
 
             </div>
-            <div className={showPopUp === "Success" ? 'block' : 'hidden'}>
+            <div className={showPopUp === "add/Success" ? 'block' : 'hidden'}>
                 <SuccessChildren setShowPopUp={setShowPopUp} />
 
             </div>
-            <div className={showPopUp === "Error" ? 'block' : 'hidden'}>
+            <div className={showPopUp === "add/Error" ? 'block' : 'hidden'}>
                 <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
 
             </div>
@@ -346,11 +347,11 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
                 <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
 
             </div>
-            <div className={showPopUp === "Success" ? 'block' : 'hidden'}>
+            <div className={showPopUp === "extend/Success" ? 'block' : 'hidden'}>
                 <SuccessChildren setShowPopUp={setShowPopUp} />
 
             </div>
-            <div className={showPopUp === "Error" ? 'block' : 'hidden'}>
+            <div className={showPopUp === "extend/Error" ? 'block' : 'hidden'}>
                 <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
 
             </div>
@@ -442,11 +443,11 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
             <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} />
 
         </div>
-        <div className={showPopUp === 'Success' ? 'block' : 'hidden'}>
+        <div className={showPopUp === 'claim/Success' ? 'block' : 'hidden'}>
             <SuccessChildren setShowPopUp={setShowPopUp} />
 
         </div>
-        <div className={showPopUp === "Error" ? 'block' : 'hidden'}>
+        <div className={showPopUp === "claim/Error" ? 'block' : 'hidden'}>
             <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
 
         </div>
@@ -457,7 +458,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
 
 function SlidingCards() {
-    const [showPopUp, setShowPopUp] = useState(false)
+    const [showPopUp, setShowPopUp] = useState()
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
     const [selectedStake, setSelectedStake] = useState({});
@@ -731,7 +732,7 @@ const ErrorPopUpChildren = ({ setShowPopUp }) => {
             <div className="my-12">
                 <div className="flex justify-center items-center">
                     <div className="w-40 h-40 flex justify-center items-center relative bg-[#FCFCFC] rounded-full">
-                        <Image src={success_stake} className=" w-12" alt="error_stake" />
+                        <Image src={error_stake} className=" w-40" alt="error_stake" />
 
                     </div>
                 </div>
