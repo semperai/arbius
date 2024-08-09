@@ -650,3 +650,13 @@ input[type="number"]::-ms-reveal {
     font-family: var(--font-lato);
     font-weight: 400;
 }
+
+
+@keyframes loader_spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.animate-spin-loader {
+    animation: loader_spin 2s linear infinite;
+}
