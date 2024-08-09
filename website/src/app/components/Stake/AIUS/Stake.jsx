@@ -277,9 +277,9 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             {
                 showPopUp !== false && (
                     <PopUp setShowPopUp={setShowPopUp}>
-                        {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={false} repeat={false} valueStart={0} valueEnd={50} />}
-                        {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={false} repeat={false} valueStart={50} valueEnd={100} />}
-                        {showPopUp === 3 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={approveError || stakeError} noChildren={true} repeat={true} valueStart={0} valueEnd={100} />}
+                        {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={stakeError} noChildren={false} repeat={false} valueStart={0} valueEnd={50} />}
+                        {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={stakeError} noChildren={false} repeat={false} valueStart={50} valueEnd={100} />}
+                        {showPopUp === 3 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={stakeError} noChildren={true} repeat={true} valueStart={0} valueEnd={100} />}
                         {showPopUp === "Success" && <SuccessChildren setShowPopUp={setShowPopUp} />}
                         {showPopUp === "Error" && <ErrorPopUpChildren setShowPopUp={setShowPopUp} />}
                     </PopUp>
