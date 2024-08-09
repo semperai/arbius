@@ -79,7 +79,7 @@ function StakeCard({idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedSt
                         <h2 className='text-[15px] font-semibold'>{governancePower?._hex ? (Number(governancePower?._hex) / AIUS_wei)?.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
-                        }) : 0}%</h2>
+                        }) : 0}</h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Staked on</h2>
