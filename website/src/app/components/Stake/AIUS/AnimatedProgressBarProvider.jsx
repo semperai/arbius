@@ -71,8 +71,6 @@ const AnimatedProgressProvider = ({
                 }
             })}
             key={animationKey}
-            
-            
         >
             {({ value }) => children(value)}
         </Animate>
