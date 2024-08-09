@@ -12,6 +12,7 @@ function GanttChart(props) {
     const [windowStartDate, setWindowStartDate] = useState(new Date('2024-02-20'))
     const [windowEndDate, setWindowEndDate] = useState(new Date('2026-02-20'))
     const [noCols, setNoCols] = useState((windowEndDate?.getFullYear() - windowStartDate?.getFullYear()) * 12 + windowEndDate?.getMonth() - windowStartDate?.getMonth())
+    const [markedMonths, setMarkedMonths] = useState([])
 
     console.log({ noCols }, windowStartDate, windowEndDate)
 
@@ -217,6 +218,34 @@ function GanttChart(props) {
     //     }
     // })
     // console.log(data, "HATA")
+
+
+    useEffect(() => {
+        let marked =[];
+        console.log({noCols});
+        
+        // mark every 4th month from windowStartDate to windowEndDate
+        for(let i = 0; i < noCols; i++){
+            if(i % 4 === 0){
+                marked.push({
+                    month : windowStartDate.getTime() + i * 30 * 24 * 60 * 60 * 1000,
+                    key:i
+
+                })
+            }
+            if(i === noCols - 1){
+                marked.push({
+                    month : windowEndDate.getTime() + i * 30 * 24 * 60 * 60 * 1000,
+                    key:noCols-1
+
+                })
+            }
+        }
+        console.log(marked, "MARKED")
+        
+        setMarkedMonths(marked)
+
+    },[noCols, windowStartDate, windowEndDate])
     return (
         <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow'>
             <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
@@ -289,7 +318,7 @@ function GanttChart(props) {
                                                 item?.staked_till_now === 0 ? (
                                                     <>
                                                         <h1 className='absolute left-0 bottom-[8px] text-[.65rem] font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{item?.lockedEndDate}</span></h1>
-                                                        <div className='flex justify-between items-center  absolute'>
+                                                        <div className='flex justify-between items-center  gap-2'>
                                                             <h1 className=' mt-[8px] text-[.65rem] opacity-80 font-semibold text-[#4A28FF] w-[100px] whitespace-pre'>{item?.staked} AIUS Staked</h1>
                                                             <h1 className={` mt-[7.5px] text-end text-[.7rem] font-semibold text-[#4A28FF] w-[80px] whitespace-pre`}>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
 
@@ -312,12 +341,12 @@ function GanttChart(props) {
             <div className='item-grid absolute bottom-[1.25rem] px-[2.7rem] right-0 left-0' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr)` }}>
                 {allStakingData?.allStakes?.length ?
                     Array(noCols).fill(null).map((item, key) => {
-                        let containsStakeStart = allStakingData?.allStakes?.findIndex(item => item.stake_start === key);
+                        let containsStakeStart = markedMonths?.findIndex(item => item?.key === key);
                         // console.log({ containsStakeStart });
                         if (containsStakeStart !== -1)
                             return (
-                                <div className='text-start text-[.55rem] text-[#4A28FF]' key={key}>
-                                    <h1>{allStakingData?.stake_start_date}</h1>
+                                <div className={ markedMonths[containsStakeStart].key === noCols-1 ? `text-end text-[.55rem] text-[#4A28FF]`: 'text-start text-[.55rem] text-[#4A28FF]'} key={key}>
+                                    <h1>{`${new Date(markedMonths[containsStakeStart]?.month)?.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${new Date(markedMonths[containsStakeStart]?.month).getFullYear().toString().slice(-2)}`}</h1>
                                 </div>
                             )
 

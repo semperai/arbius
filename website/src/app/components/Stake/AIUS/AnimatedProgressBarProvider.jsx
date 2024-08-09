@@ -16,19 +16,17 @@ const AnimatedProgressProvider = ({
     
 
     useEffect(() => {
-        let interval;
+        // let interval;
         if(repeat)
         setIsAnimated(true);
         if (repeat) {
-            interval = window.setInterval(() => {
-                setIsAnimated(prevIsAnimated => !prevIsAnimated);
-            }, duration * 1000);
+          
         } else {
             setIsAnimated(true);
         }
-        return () => {
-            window.clearInterval(interval);
-        };
+        // return () => {
+        //     window.clearInterval(interval);
+        // };
     }, [repeat, duration]);
 
     /*useEffect(()=>{
@@ -43,20 +41,36 @@ const AnimatedProgressProvider = ({
             // setShowPopUp(false)
         }, (duration +1)* 1000)
     },[])*/
+    const [animationKey, setAnimationKey] = useState(0);
+
+    useEffect(() => {
+        if (repeat) {
+            const interval = window.setInterval(() => {
+                setAnimationKey(prevKey => prevKey + 1);
+            }, duration * 1000);
+
+            return () => {
+                window.clearInterval(interval);
+            };
+        } else {
+            setAnimationKey(1);
+        }
+    }, [repeat, duration]);
+    
 
     return (
         <Animate
             start={() => ({
                 value: valueStart
             })}
-            update={() => ({
-                value: [isAnimated ? valueEnd : valueStart],
+            enter={() => ({
+                value: [valueEnd],
                 timing: {
                     duration: duration * 1000,
                     ease: easingFunction
                 }
             })}
-
+            key={animationKey}
             
         >
             {({ value }) => children(value)}
