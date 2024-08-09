@@ -233,7 +233,7 @@ function GanttChart(props) {
 
                 })
             }
-            if(i === noCols - 1){
+            if(i === noCols - 1 && noCols %4===0){
                 marked.push({
                     month : windowEndDate.getTime() + i * 30 * 24 * 60 * 60 * 1000,
                     key:noCols-1
