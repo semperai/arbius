@@ -21,6 +21,8 @@ import powered_by from "../../../assets/images/powered_by.png"
 import cross from "../../../assets/images/cross.png"
 import error_stake from "../../../assets/images/error_stake.png"
 import success_stake from "../../../assets/images/success_stake.png"
+import { ethers } from 'ethers';
+
 export default function Stake({ selectedtab, setSelectedTab, data, isLoading, isError }) {
     const [sliderValue, setSliderValue] = useState(0)
     const { address, isConnected } = useAccount()
@@ -162,9 +164,9 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             (amount * AIUS_wei).toString(),
             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
         ],
-        enabled: allowance >= amount,
-    },[allowance]);
-
+        enabled: allowance >= amount || approveData?.hash,
+    });
+    console.log(allowance, amount, "ALLOW AMOUNT")
     const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
     console.log({stakeData, stakeError,stakeWrite})
 
@@ -198,7 +200,11 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         if(allowance > amount && showPopUp === 1){
             console.log("running")
             setShowPopUp(2)
-            stakeWrite()
+            console.log("calling stake")
+            setTimeout(() => {
+                console.log("HEllo")
+                stakeWrite()
+            },2000)
         }
     },[allowance])
 
@@ -208,11 +214,46 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         console.log(amount, allowance, "AMT-ALL");
 
         if(amount > allowance || allowance === 0){
-            if(amount && (duration.months || duration.weeks)){
+            /*if(amount && (duration.months || duration.weeks)){
                 setShowPopUp(1)
                 approveWrite?.()
             }else{
                 //alert("Please enter the amount and duration to stake!")
+            }*/
+            try {
+                setShowPopUp(1);
+                // Request account access
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                // Create a provider
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+                // Get the signer
+                const signer = provider.getSigner();
+
+                const approveContract = new ethers.Contract(BASETOKEN_ADDRESS_V1, baseTokenV1.abi, signer)
+
+                const tx1 = await approveContract.approve(VOTING_ESCROW_ADDRESS, defaultApproveAmount)
+                
+                await tx1.wait();
+                
+                console.log('First transaction confirmed');
+
+                setShowPopUp(2);
+
+                const stakeContract = new ethers.Contract(VOTING_ESCROW_ADDRESS, votingEscrow.abi, signer)
+
+                const tx2 = await stakeContract.create_lock(
+                                                    (amount * AIUS_wei).toString(),
+                                                    (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
+                                                )
+                console.log('Second transaction hash:', tx2.hash);
+                await tx2.wait(); // Wait for the transaction to be mined
+                console.log('Second transaction confirmed');
+                setShowPopUp("Success")
+                console.log('Both transactions completed successfully');
+            } catch (error) {
+                setShowPopUp("Error")
             }
         }else{
             if(amount && (duration.months || duration.weeks)){
@@ -224,6 +265,8 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             }
         }
     }
+
+
     // console.log({veAIUSBalances})
     const [showPopUp, setShowPopUp] = useState(false)
 
