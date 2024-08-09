@@ -188,6 +188,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         onSuccess(data) {
             console.log('approve tx successful data 2', data);
             setShowPopUp("Success")
+            window.reload()
         },
         onError(err) {
             console.log('approve tx error data 2', err);
@@ -251,6 +252,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 console.log('Second transaction confirmed');
                 setShowPopUp("Success")
                 console.log('Both transactions completed successfully');
+                window.location.reload()
             } catch (error) {
                 setShowPopUp("Error")
             }
