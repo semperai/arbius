@@ -142,7 +142,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         }
     },[checkAllowance?._hex])
 
-    const { config: approveConfig } = usePrepareContractWrite({
+    /*const { config: approveConfig } = usePrepareContractWrite({
         address: BASETOKEN_ADDRESS_V1,
         abi: baseTokenV1.abi,
         functionName: 'approve',
@@ -154,7 +154,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     });
 
     const { data: approveData, error: approveError, isPending: approvePending, write: approveWrite } = useContractWrite(approveConfig)
-    console.log({ approveData, approveError, approvePending, allowance });
+    console.log({ approveData, approveError, approvePending, allowance });*/
 
     const { config: stakeConfig } = usePrepareContractWrite({
         address: VOTING_ESCROW_ADDRESS,
@@ -164,13 +164,13 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             (amount * AIUS_wei).toString(),
             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
         ],
-        enabled: allowance >= amount || approveData?.hash,
+        enabled: allowance >= amount,
     });
     console.log(allowance, amount, "ALLOW AMOUNT")
     const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
     console.log({stakeData, stakeError,stakeWrite})
 
-    const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
+    /*const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
         hash: approveData?.hash,
         confirmations: 3,
         onSuccess(data) {
@@ -180,7 +180,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         onError(err) {
             console.log('approve tx error data ', err);
         }
-    });
+    });*/
 
     const { data: approveTx2, isError: txError2, isLoading: txLoading2 } = useWaitForTransaction({
         hash: stakeData?.hash,
@@ -210,7 +210,6 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
     const handleStake = async()=>{
         console.log({stakeData});
-        console.log({approveData});
         console.log(amount, allowance, "AMT-ALL");
 
         if(amount > allowance || allowance === 0){

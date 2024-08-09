@@ -136,7 +136,7 @@ function GanttChart(props) {
         let earliestDate = 0;
         let lastDate = 0;
 
-        if (stakingData?.data?.length) {
+        if (stakingData?.data?.length && stakingData?.data?.[0]) {
             let totalStakes = stakingData.data.length / 4;
             let stakeData = stakingData.data;
 
