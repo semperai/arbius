@@ -9,7 +9,7 @@ import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
 
-import { inspect } from 'util';
+import { inspect } from "util";
 inspect.defaultOptions.depth = 10;
 
 // user created tasks
@@ -26,11 +26,24 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 200,
       },
-    viaIR: true,
+      viaIR: true,
     },
   },
   networks: {
-/*     mainnet: {
+    arbitrum: {
+      url: envconfig.arbitrum.provider_url,
+      accounts: [`0x${envconfig.arbitrum.private_key}`],
+    },
+    arbsepolia: {
+      url: envconfig.arbsepolia.provider_url,
+      accounts: [`0x${envconfig.arbsepolia.private_key}`],
+    },
+    nova: {
+      url: envconfig.nova.provider_url,
+      accounts: [`0x${envconfig.nova.private_key}`],
+    },
+    /*
+    mainnet: {
       url: envconfig.mainnet.provider_url,
       accounts: [`0x${envconfig.mainnet.private_key}`],
     },
@@ -45,15 +58,8 @@ const config: HardhatUserConfig = {
     arbgoerli: {
       url: envconfig.arbgoerli.provider_url,
       accounts: [`0x${envconfig.arbgoerli.private_key}`],
-    },
-    arbsepolia: {
-      url: envconfig.arbsepolia.provider_url,
-      accounts: [`0x${envconfig.arbsepolia.private_key}`],
-    },
-    nova: {
-      url: envconfig.nova.provider_url,
-      accounts: [`0x${envconfig.nova.private_key}`],
-    }, */
+    }, 
+    */
   },
   typechain: {
     outDir: "typechain",
@@ -68,9 +74,9 @@ const config: HardhatUserConfig = {
         chainId: 42170,
         urls: {
           apiURL: "https://api-nova.arbiscan.io/api",
-          browserURL: "https://nova.arbiscan.io"
-        }
-      }
+          browserURL: "https://nova.arbiscan.io",
+        },
+      },
     ],
   },
   sourcify: {
