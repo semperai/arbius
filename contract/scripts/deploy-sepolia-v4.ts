@@ -90,6 +90,11 @@ async function main() {
   ).wait();
   console.log(`Minted to mirror engine: ${mirrorEngineBalance}`);
 
+  // mint 1_000_000 - mirrorEngineBalance to deployer
+  const toMint = ethers.utils.parseEther("1000000").sub(mirrorEngineBalance);
+  await (await l2Token.connect(deployer).mint(deployer.address, toMint)).wait();
+  console.log(`Minted to deployer: ${toMint}`);
+
   engine = await upgrades.upgradeProxy(engine.address, V2_EngineV3, {
     call: "initialize",
   });
