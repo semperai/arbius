@@ -6,12 +6,12 @@ import aius_icon from "../../../assets/images/aius_icon.png"
 import gysr_logo_wallet from "../../../assets/images/gysr_logo_wallet.png"
 import GanttChart from './GanttChart'
 import { useAccount, useContractRead } from 'wagmi'
-import config from "../../../../sepolia_config.json"
+// import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import { getAPR } from "../../../Utils/getAPR"
 // import { walletBalance } from '../../../Utils/getAiusBalance'
-
+import loadConfig from './loadConfig'
 import { BigNumber } from 'ethers';
 import { fetchArbiusData } from '../../../Utils/getArbiusData'
 import { AIUS_wei } from "../../../Utils/constantValues";
@@ -19,6 +19,7 @@ import { AIUS_wei } from "../../../Utils/constantValues";
 function DashBoard({ data, isLoading, isError, protocolData }) {
     const {address,isConnected} = useAccount()
     console.log(isConnected, "IS CONNECT")
+    const config = loadConfig();
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 

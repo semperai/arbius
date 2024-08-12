@@ -2,18 +2,19 @@ import React from 'react'
 import { useContractRead, useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi'
 import { BigNumber } from 'ethers'
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
-import config from "../../../../sepolia_config.json"
+// import config from "../../../../sepolia_config.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
 import Image from "next/image"
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
 import { AIUS_wei } from "../../../Utils/constantValues";
 import Link from "next/link"
+import loadConfig from './loadConfig'
 
 function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp }) {
     console.log(tokenID, "TOKEN ID")
     const { address, isConnected } = useAccount();
-
+    const config = loadConfig();
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const VE_STAKING_ADDRESS = config.veStakingAddress;
 
@@ -75,10 +76,10 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
             Number(tokenID?._hex)
         ]
     })
-
+    const openseaLink = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev"? "https://testnets.opensea.io/assets/arbitrum-sepolia/" : "https://opensea.io/assets/arbitrum-one/"
     return (
         <div className='rounded-2xl px-8 py-6  bg-white-background relative'>
-            <Link href={`https://testnets.opensea.io/assets/arbitrum-sepolia/0x5df05497874a6ec96b54f9edad031619f258499a/${Number(tokenID?._hex)}`} target="_blank">
+            <Link href={`${openseaLink}${VOTING_ESCROW_ADDRESS}/${Number(tokenID?._hex)}`} target="_blank">
                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20 cursor-pointer' alt="" />
             </Link>
             <div className='flex justify-start gap-8 items-start'>

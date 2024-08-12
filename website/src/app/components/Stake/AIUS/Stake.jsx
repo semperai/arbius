@@ -10,7 +10,7 @@ import { BigNumber } from "ethers"
 import { getAIUSVotingPower } from "../../../Utils/getAIUSVotingPower"
 import { getAPR } from "../../../Utils/getAPR"
 import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite, useContractReads, useWaitForTransaction} from 'wagmi'
-import config from "../../../../sepolia_config.json"
+// import config from "../../../../sepolia_config.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import veStaking from "../../../abis/veStaking.json"
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
@@ -22,15 +22,16 @@ import cross from "../../../assets/images/cross.png"
 import error_stake from "../../../assets/images/error_stake.png"
 import success_stake from "../../../assets/images/success_stake.png"
 import { ethers } from 'ethers';
-
+import loadConfig from "./loadConfig"
 export default function Stake({ selectedtab, setSelectedTab, data, isLoading, isError }) {
+
     const [sliderValue, setSliderValue] = useState(0)
     const { address, isConnected } = useAccount()
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const [veAiusBalance, setVeAIUSBalance] = useState(0)
     const [allowance, setAllowance] = useState(0)
     const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
-
+    const config = loadConfig();
     const [duration, setDuration] = useState({
         months: 0,
         weeks: 0

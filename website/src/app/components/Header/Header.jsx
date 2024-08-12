@@ -20,13 +20,13 @@ import {
   useAccount,
   useContractRead,
 } from 'wagmi';  // main arbius component
-import config from "../../../sepolia_config.json"
-const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
+// import config from "../../../sepolia_config.json"
+// const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 import baseTokenV1 from "../../abis/baseTokenV1.json"
 import getAIUSBalance from "../../Utils/aiusWalletBalance";
 import { BigNumber } from 'ethers';
 import { AIUS_wei } from "../../Utils/constantValues";
-
+import loadConfig from "../Stake/AIUS/loadConfig";
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [stakingOpen, setStakingOpen] = useState(true);
@@ -36,6 +36,8 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname()
   const route = pathname.replace("/", "")
+  const config = loadConfig();
+  const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
   useEffect(() => {
     if (window.innerWidth < 1024) {
       setStakingOpen(false);

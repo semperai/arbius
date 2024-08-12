@@ -10,7 +10,7 @@ import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_na
 import ReactSlider from 'react-slider'
 import info_icon from "../../../assets/images/info_icon.png"
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
-import config from "../../../../sepolia_config.json"
+// import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import { getAPR } from "../../../Utils/getAPR"
@@ -24,7 +24,10 @@ import powered_by from "../../../assets/images/powered_by.png"
 import cross from "../../../assets/images/cross.png"
 import error_stake from "../../../assets/images/error_stake.png"
 import success_stake from "../../../assets/images/success_stake.png"
+import loadConfig from './loadConfig';
 
+
+const config = loadConfig();
 const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalance, totalSupply, rewardRate, getAPR }) => {
 
     const [aiusToStake, setAIUSToStake] = useState(0);

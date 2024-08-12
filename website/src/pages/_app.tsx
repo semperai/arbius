@@ -94,15 +94,50 @@ const arbitrumSepolia = {
       url: "https://nova.arbiscan.io"
     }
   },
-  contracts: {
-    multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11' as `0x${string}`,
-      blockCreated: 1746963,
-    },
-  }
+  // contracts: {
+  //   multicall3: {
+  //     address: '0xca11bde05977b3631167028862be2a173976ca11' as `0x${string}`,
+  //     blockCreated: 1746963,
+  //   },
+  // }
 }
 
-const chains = [arbitrumNova, mainnet,arbitrumSepolia]
+const arbitrumOne ={
+  id:42161,
+  network: "arbitrum-one",
+  name: "Arbitrum One",
+  nativeCurrency: {
+    name: "Ethereum",
+    symbol: "ETH",
+    decimals: 18
+  },
+  rpcUrls: {
+    default:{
+      http:['https://arb1.arbitrum.io/rpc']
+    },
+    public: {
+      http: [
+        'https://arb1.arbitrum.io/rpc',
+      ]
+    }
+  },
+  blockExplorers: {
+    etherscan: {
+      name: "Arbiscan",
+      url: "https://arbiscan.io"
+    },
+    // blockScout: {
+    //   name: 'BlockScout',
+    //   url: 'https://nova-explorer.arbitrum.io/',
+    // },
+    default: {
+      name: "Arbiscan",
+      url: "https://arbiscan.io"
+    }
+  },
+}
+
+const chains = [arbitrumNova, mainnet,arbitrumSepolia, arbitrumOne]
 
 const { provider } = configureChains(chains, [w3mProvider({ projectId })])
 const wagmiClient = createClient({

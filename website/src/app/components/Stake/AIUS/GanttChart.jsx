@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import info_icon from "../../../assets/images/info_icon.png"
 import votingEscrow from "../../../abis/votingEscrow.json"
-import config from "../../../../sepolia_config.json"
+// import config from "../../../../sepolia_config.json"
+import loadConfig from './loadConfig';
 import { useAccount, useContractRead, useContractReads } from 'wagmi';
 import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
@@ -13,9 +14,8 @@ function GanttChart(props) {
     const [windowEndDate, setWindowEndDate] = useState(new Date('2026-02-20'))
     const [noCols, setNoCols] = useState((windowEndDate?.getFullYear() - windowStartDate?.getFullYear()) * 12 + windowEndDate?.getMonth() - windowStartDate?.getMonth())
     const [markedMonths, setMarkedMonths] = useState([])
-
     console.log({ noCols }, windowStartDate, windowEndDate)
-
+    const config = loadConfig();
 
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
