@@ -263,8 +263,8 @@ function Gauge() {
                     return (
 
                         <div className='gauge-table-item rounded-lg px-5 pt-4 pb-4 lg:px-10 flex justify-between gap-8 items-center bg-white-background my-3 relative min-w-[1000px] font-semibold ' key={key}>
-                            <div className='flex hidden justify-start items-center absolute left-[-145px]  top-[10%] z-20' id={key}>
-                                <div className='bg-white-background w-auto p-3 rounded-xl'>
+                            <div className='flex hidden justify-start items-center absolute left-[-125px]  top-[10%] z-20 ' id={key}>
+                                <div className='bg-white-background w-auto p-3 rounded-xl w-[108px]'>
                                     <h1 className='text-[.6rem] mb-1 text-[#8D8D8D]'>Model ID</h1>
                                     <p className='text-[.6rem]'>{item?.model_id}</p>
                                 </div>
@@ -281,9 +281,9 @@ function Gauge() {
                                 <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100 mt-[1px]' onMouseOver={() => {
                                     document.getElementById(key).style.display = "flex"
                                 }}
-                                    onMouseLeave={() => {
-                                        document.getElementById(key).style.display = "none"
-                                    }}
+                                    // onMouseLeave={() => {
+                                    //     document.getElementById(key).style.display = "none"
+                                    // }}
                                 >
                                     <Image src={info_icon} height={12} width={12} />
                                 </div>
