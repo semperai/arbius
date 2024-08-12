@@ -178,7 +178,7 @@ function GanttChart(props) {
                     ),
                     "stake_start": getMonthDifference(new Date(Number(stakeData[(i * 4) + 2]._hex) * 1000), earliestDate),
                     "staked_till_now": getMonthDifference(new Date(), new Date(Number(stakeData[(i * 4) + 2]._hex) * 1000)),
-                    "stake_completion": getMonthDifference(new Date(Number(stakeData[(i * 4) + 1]._hex) * 1000), new Date())
+                    "stake_completion": getMonthDifference(new Date(Number(stakeData[(i * 4) + 1]._hex) * 1000), new Date()) 
                 })
             }
             finalData["firstUnlockDate"] = parseInt(((new Date(finalData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
@@ -246,6 +246,9 @@ function GanttChart(props) {
         setMarkedMonths(marked)
 
     },[noCols, windowStartDate, windowEndDate])
+
+    console.log(allStakingData, "allStakingData")
+    
     return (
         <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow'>
             <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
@@ -330,6 +333,30 @@ function GanttChart(props) {
                                         </div>
                                     )
                                 }
+
+                                {
+                                    item?.staked_till_now === 0 && item?.stake_completion  ===0 && (
+
+                                        <div className={`bg-[#eeeeee] h-[.4rem] my-3 ${item?.staked_till_now === 0 ? 'rounded-full' : 'rounded-r-full'} relative z-20 w-[5%]`} >
+                                            {
+                                                item?.staked_till_now === 0 ? (
+                                                    <>
+                                                        <h1 className='absolute left-0 bottom-[8px] text-[.65rem] font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{item?.lockedEndDate}</span></h1>
+                                                        <div className='flex justify-between items-center  gap-2'>
+                                                            <h1 className=' mt-[8px] text-[.65rem] opacity-80 font-semibold text-[#4A28FF] w-[100px] whitespace-pre'>{item?.staked} AIUS Staked</h1>
+                                                            <h1 className={` mt-[7.5px] text-end text-[.7rem] font-semibold text-[#4A28FF] w-[80px] whitespace-pre`}>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+
+                                                        </div></>
+                                                ) : (
+                                                    <h1 className={` mt-[7.5px] text-end text-[.7rem] font-semibold text-[#4A28FF] min-w-[80px] `}>{item?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+                                                )
+                                            }
+                                        </div>
+
+                                    )
+                                }
+
+                                
 
                             </div>
                         </div>

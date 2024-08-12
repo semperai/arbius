@@ -348,7 +348,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
                 <div className='border-2 rounded-xl  p-4 gap-3 flex justify-start items-center mt-4'>
                     <Image src={info_icon} width={14} height={14} alt="" />
-                    <h1 className='text-[0.66rem]  text-purple-text'>An extension&apos;s duration cannot exceed a two year maximum</h1>
+                    <h1 className='text-[0.66rem]  text-purple-text'>A lock duration cannot exceed two years</h1>
                 </div>
 
                 <div className='flex justify-end gap-2 mt-4'>
@@ -543,7 +543,7 @@ function SlidingCards() {
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
     const [selectedStake, setSelectedStake] = useState({});
-
+    const [windowWidth, setWindowWidth] = useState(null)
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
@@ -612,7 +612,9 @@ function SlidingCards() {
     console.log(tokenIDs, "tokenIDs")
 
 
-
+    useEffect(() => {
+        setWindowWidth(window.innerWidth)
+    }, [])
 
     useEffect(() => {
         console.log(escrowBalanceData, "ESCROW")
@@ -628,7 +630,7 @@ function SlidingCards() {
         dots: false,
         infinite: false,
         speed: 500,
-        slidesToShow: tokenIDs?.length > 2 ? 2.3 : 2,
+        slidesToShow: tokenIDs?.length > 2 ? (windowWidth > 1800 ? 2.8:2.3) : 2,
         slidesToScroll: 1,
         nextArrow: tokenIDs?.length > 2 ? <NextBtn /> : null,
         prevArrow: tokenIDs?.length > 2 ? <PrevBtn /> : null,
