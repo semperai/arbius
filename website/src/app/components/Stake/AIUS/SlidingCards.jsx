@@ -104,10 +104,10 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
 
 
     useEffect(() => {
-        if(addAIUSError){
+        if (addAIUSError) {
             setShowPopUp("add/Error")
         }
-    },[addAIUSError])
+    }, [addAIUSError])
 
     return (
         <>
@@ -273,10 +273,10 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
 
     useEffect(() => {
-        if(addAIUSError){
+        if (addAIUSError) {
             setShowPopUp("extend/Error")
         }
-    },[addAIUSError])
+    }, [addAIUSError])
 
     return (
 
@@ -387,7 +387,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
             </div>
             {
-               showPopUp === "extend/2" && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />
+                showPopUp === "extend/2" && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />
             }
             <div className={showPopUp === "extend/Success" ? 'block' : 'hidden'}>
                 <SuccessChildren setShowPopUp={setShowPopUp} />
@@ -450,10 +450,10 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
     });
 
     useEffect(() => {
-        if(addAIUSError){
+        if (addAIUSError) {
             setShowPopUp("claim/Error")
         }
-    },[addAIUSError])
+    }, [addAIUSError])
 
 
     return <>
@@ -472,7 +472,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
             <div className='flex justify-center gap-2 items-center mt-6'>
                 <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
-                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{ earned?._hex ? (Number(earned?._hex) / AIUS_wei).toFixed(2).toString() : 0 }</span> AIUS</h1>
+                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{earned?._hex ? (Number(earned?._hex) / AIUS_wei).toFixed(2).toString() : 0}</span> AIUS</h1>
                     <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
 
@@ -630,7 +630,7 @@ function SlidingCards() {
         dots: false,
         infinite: false,
         speed: 500,
-        slidesToShow: tokenIDs?.length > 2 ? (windowWidth > 1800 ? 2.8:2.3) : 2,
+        slidesToShow: tokenIDs?.length > 2 ? (windowWidth > 1800 ? 2.8 : 2.3) : 2,
         slidesToScroll: 1,
         nextArrow: tokenIDs?.length > 2 ? <NextBtn /> : null,
         prevArrow: tokenIDs?.length > 2 ? <PrevBtn /> : null,
@@ -711,15 +711,15 @@ function SlidingCards() {
             {showPopUp !== false && (
                 <>
 
-                    
-                            <PopUp setShowPopUp={setShowPopUp} >
-                                {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
-                                {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
-                                {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
-                               
 
-                            </PopUp>
-                    
+                    <PopUp setShowPopUp={setShowPopUp} >
+                        {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
+                        {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
+                        {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
+
+
+                    </PopUp>
+
 
                 </>
 
@@ -741,7 +741,7 @@ function SlidingCards() {
 export default SlidingCards
 
 
-const StepTwoChildren = ({ setShowPopUp, isError, noChildren,  repeat=true }) => {
+const StepTwoChildren = ({ setShowPopUp, isError, noChildren, repeat = true }) => {
     return (
         <div>
             <div className="flex justify-end mt-4">

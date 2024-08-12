@@ -67,6 +67,14 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
         ],
         enabled: isConnected
     })
+    const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
+        address: VE_STAKING_ADDRESS,
+        abi: veStaking.abi,
+        functionName: 'earned',
+        args: [
+            Number(tokenID?._hex)
+        ]
+    })
 
     return (
         <div className='rounded-2xl px-8 py-6  bg-white-background relative'>
@@ -98,7 +106,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Rewards</h2>
-                        <h2 className='text-[15px] font-semibold'>0 AIUS</h2>
+                        <h2 className='text-[15px] font-semibold'>{earned?._hex ? (Number(earned?._hex) / AIUS_wei).toFixed(2).toString() : 0} AIUS</h2>
                     </div>
                     <div>
                         <div>
