@@ -281,9 +281,9 @@ function Gauge() {
                                 <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100 mt-[1px]' onMouseOver={() => {
                                     document.getElementById(key).style.display = "flex"
                                 }}
-                                    // onMouseLeave={() => {
-                                    //     document.getElementById(key).style.display = "none"
-                                    // }}
+                                    onMouseLeave={() => {
+                                        document.getElementById(key).style.display = "none"
+                                    }}
                                 >
                                     <Image src={info_icon} height={12} width={12} />
                                 </div>
