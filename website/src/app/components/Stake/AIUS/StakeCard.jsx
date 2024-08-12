@@ -78,7 +78,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
 
     return (
         <div className='rounded-2xl px-8 py-6  bg-white-background relative'>
-            <Link href={`https://testnets.opensea.io/assets/arbitrum-sepolia/0x5df05497874a6ec96b54f9edad031619f258499a/${tokenID?._hex}`} target="_blank">
+            <Link href={`https://testnets.opensea.io/assets/arbitrum-sepolia/0x5df05497874a6ec96b54f9edad031619f258499a/${Number(tokenID?._hex)}`} target="_blank">
                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20 cursor-pointer' alt="" />
             </Link>
             <div className='flex justify-start gap-8 items-start'>

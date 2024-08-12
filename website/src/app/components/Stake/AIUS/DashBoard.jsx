@@ -84,7 +84,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                     }) : 0 }</h2>
                                 </div>
                                 <div>
-                                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Estimated Total APR</h2>
+                                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">APR</h2>
                                     <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate.data?._hex, totalSupply.data?._hex)?.toLocaleString('en-US', {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
