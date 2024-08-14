@@ -8,6 +8,7 @@ import "@nomicfoundation/hardhat-verify";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
+import "uniswap-v2-deploy-plugin";
 
 import { inspect } from 'util';
 inspect.defaultOptions.depth = 10;
@@ -21,7 +22,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 10,
       },
     },
   },

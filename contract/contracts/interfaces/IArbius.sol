@@ -128,6 +128,8 @@ interface IArbius {
     ) external returns (address);
 
     event ModelRegistered(bytes32 indexed id);
+    event ModelFeeChanged(bytes32 indexed id, uint256 fee);
+    event ModelAddrChanged(bytes32 indexed id, address addr);
 
     event ValidatorDeposit(
         address indexed addr,
@@ -226,6 +228,10 @@ interface IArbius {
     function getSlashAmount() external view returns (uint256);
 
     function getValidatorMinimum() external view returns (uint256);
+
+    function setModelFee(bytes32 model_, uint256 fee_) external;
+
+    function setModelAddr(bytes32 model_, address addr_) external;
 
     function generateIPFSCID(
         bytes calldata content_
