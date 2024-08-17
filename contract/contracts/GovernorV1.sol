@@ -4,17 +4,21 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+
+import {VeGovernorVotes, IVotes} from "./governance/VeGovernorVotes.sol";
+import {
+    VeGovernorVotesQuorumFraction
+} from "./governance/VeGovernorVotesQuorumFraction.sol";
+
 import {getIPFSCIDMemory} from "./libraries/IPFS.sol";
 
 contract GovernorV1 is
     Governor,
     GovernorCompatibilityBravo,
     GovernorSettings,
-    GovernorVotes,
-    GovernorVotesQuorumFraction,
+    VeGovernorVotes,
+    VeGovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
     // proposal ids stored here to allow us to enumerate them
@@ -27,7 +31,7 @@ contract GovernorV1 is
     mapping(uint256 => bytes) public descriptionCids;
 
     /// @notice The name of this contract
-    /// @param _token The address of the Arbius token
+    /// @param _token The address of the VotingEscrow contract (veAIUS token)
     /// @param _timelock The address of the timelock
     constructor(
         IVotes _token,
@@ -36,16 +40,12 @@ contract GovernorV1 is
         Governor("Governor")
         GovernorCompatibilityBravo()
         GovernorSettings(
-            // 19725, // 3 days, initialVotingDelay,
-            // 19725, // 3 days, initialVotingPeriod,
-            // 1000e18 // minimum 1000 AIUS for initialProposalThreshold
-            // TODO change me
-            6575,
-            6575,
-            1e18
+            86400, // initialVotingDelay = 1 day
+            86400 * 3, // initialVotingPeriod = 3 days
+            1e18 // initialProposalThreshold = 1 veAIUS
         )
-        GovernorVotes(_token)
-        GovernorVotesQuorumFraction(4)
+        VeGovernorVotes(_token)
+        VeGovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
     {}
 
