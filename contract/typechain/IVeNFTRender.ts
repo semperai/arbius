@@ -17,12 +17,18 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface IVeNFTRenderInterface extends utils.Interface {
   functions: {
-    "_tokenURI(uint256,uint256,uint256,uint256)": FunctionFragment;
+    "_tokenURI(uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "_tokenURI",
-    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+    values: [
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
+    ]
   ): string;
 
   decodeFunctionResult(functionFragment: "_tokenURI", data: BytesLike): Result;
@@ -60,6 +66,7 @@ export interface IVeNFTRender extends BaseContract {
     _tokenURI(
       _tokenId: BigNumberish,
       _balanceOf: BigNumberish,
+      _veStakingBal: BigNumberish,
       _locked_end: BigNumberish,
       _value: BigNumberish,
       overrides?: CallOverrides
@@ -69,6 +76,7 @@ export interface IVeNFTRender extends BaseContract {
   _tokenURI(
     _tokenId: BigNumberish,
     _balanceOf: BigNumberish,
+    _veStakingBal: BigNumberish,
     _locked_end: BigNumberish,
     _value: BigNumberish,
     overrides?: CallOverrides
@@ -78,6 +86,7 @@ export interface IVeNFTRender extends BaseContract {
     _tokenURI(
       _tokenId: BigNumberish,
       _balanceOf: BigNumberish,
+      _veStakingBal: BigNumberish,
       _locked_end: BigNumberish,
       _value: BigNumberish,
       overrides?: CallOverrides
@@ -90,6 +99,7 @@ export interface IVeNFTRender extends BaseContract {
     _tokenURI(
       _tokenId: BigNumberish,
       _balanceOf: BigNumberish,
+      _veStakingBal: BigNumberish,
       _locked_end: BigNumberish,
       _value: BigNumberish,
       overrides?: CallOverrides
@@ -100,6 +110,7 @@ export interface IVeNFTRender extends BaseContract {
     _tokenURI(
       _tokenId: BigNumberish,
       _balanceOf: BigNumberish,
+      _veStakingBal: BigNumberish,
       _locked_end: BigNumberish,
       _value: BigNumberish,
       overrides?: CallOverrides

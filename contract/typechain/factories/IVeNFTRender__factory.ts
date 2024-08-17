@@ -21,6 +21,11 @@ const _abi = [
       },
       {
         internalType: "uint256",
+        name: "_veStakingBal",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
         name: "_locked_end",
         type: "uint256",
       },
