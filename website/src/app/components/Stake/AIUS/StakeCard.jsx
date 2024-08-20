@@ -82,9 +82,9 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
     console.log(Number(endDate?._hex) * 1000, "current")
     console.log("current Date", Date.now())
     const { config: withdrawAIUSConfig } = usePrepareContractWrite({
-        address: VE_STAKING_ADDRESS,
-        abi: veStaking.abi,
-        functionName: '_withdraw',
+        address: VOTING_ESCROW_ADDRESS,
+        abi: votingEscrow.abi,
+        functionName: 'withdraw',
         args: [
             Number(tokenID?._hex)
         ]
