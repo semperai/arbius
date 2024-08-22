@@ -727,8 +727,8 @@ function SlidingCards() {
                         {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
                         {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
                         {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
-                        {showPopUp === ("withdraw/success") && (<SuccessChildren setShowPopUp={setShowPopUp} />)}
-                        {showPopUp ===("withdraw/error") && (<ErrorPopUpChildren setShowPopUp={setShowPopUp} />)}
+                        {showPopUp === ("withdraw/Success") && (<SuccessChildren setShowPopUp={setShowPopUp} />)}
+                        {showPopUp ===("withdraw/Error") && (<ErrorPopUpChildren setShowPopUp={setShowPopUp} />)}
                         {showPopUp ===("withdraw/2") && (<StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />)}
 
                     </PopUp>

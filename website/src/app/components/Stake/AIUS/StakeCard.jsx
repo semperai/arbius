@@ -115,7 +115,8 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
     });
 
     const handleWithdraw = (lockedEndDate)=>{
-        if(lockedEndDate < Date.now()){
+        console.log(lockedEndDate, Date.now(), "times")
+        if(lockedEndDate > Date.now()){
             return 
         }
         console.log(lockedEndDate, "LOCKED END DATE",  "Withdraw")
