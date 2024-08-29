@@ -145,6 +145,8 @@ export interface IArbiusInterface extends utils.Interface {
     "setMinClaimSolutionTime(uint256)": FunctionFragment;
     "setMinContestationVotePeriodTime(uint256)": FunctionFragment;
     "setMinRetractionWaitTime(uint256)": FunctionFragment;
+    "setModelAddr(bytes32,address)": FunctionFragment;
+    "setModelFee(bytes32,uint256)": FunctionFragment;
     "setPaused(bool)": FunctionFragment;
     "setRetractionFeePercentage(uint256)": FunctionFragment;
     "setSlashAmountPercentage(uint256)": FunctionFragment;
@@ -317,6 +319,14 @@ export interface IArbiusInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setMinRetractionWaitTime",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setModelAddr",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setModelFee",
+    values: [BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "setPaused", values: [boolean]): string;
   encodeFunctionData(
@@ -562,6 +572,14 @@ export interface IArbiusInterface extends utils.Interface {
     functionFragment: "setMinRetractionWaitTime",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setModelAddr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setModelFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRetractionFeePercentage",
@@ -676,6 +694,8 @@ export interface IArbiusInterface extends utils.Interface {
     "MinClaimSolutionTimeChanged(uint256)": EventFragment;
     "MinContestationVotePeriodTimeChanged(uint256)": EventFragment;
     "MinRetractionWaitTimeChanged(uint256)": EventFragment;
+    "ModelAddrChanged(bytes32,address)": EventFragment;
+    "ModelFeeChanged(bytes32,uint256)": EventFragment;
     "ModelRegistered(bytes32)": EventFragment;
     "PausedChanged(bool)": EventFragment;
     "PauserTransferred(address)": EventFragment;
@@ -713,6 +733,8 @@ export interface IArbiusInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "MinRetractionWaitTimeChanged"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModelAddrChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModelFeeChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModelRegistered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PausedChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PauserTransferred"): EventFragment;
@@ -800,6 +822,21 @@ export type MinRetractionWaitTimeChangedEvent = TypedEvent<
 
 export type MinRetractionWaitTimeChangedEventFilter =
   TypedEventFilter<MinRetractionWaitTimeChangedEvent>;
+
+export type ModelAddrChangedEvent = TypedEvent<
+  [string, string],
+  { id: string; addr: string }
+>;
+
+export type ModelAddrChangedEventFilter =
+  TypedEventFilter<ModelAddrChangedEvent>;
+
+export type ModelFeeChangedEvent = TypedEvent<
+  [string, BigNumber],
+  { id: string; fee: BigNumber }
+>;
+
+export type ModelFeeChangedEventFilter = TypedEventFilter<ModelFeeChangedEvent>;
 
 export type ModelRegisteredEvent = TypedEvent<[string], { id: string }>;
 
@@ -1138,6 +1175,18 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setModelAddr(
+      model_: BytesLike,
+      addr_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setModelFee(
+      model_: BytesLike,
+      fee_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setPaused(
       paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1459,6 +1508,18 @@ export interface IArbius extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setModelAddr(
+    model_: BytesLike,
+    addr_: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setModelFee(
+    model_: BytesLike,
+    fee_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setPaused(
     paused_: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1776,6 +1837,18 @@ export interface IArbius extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setModelAddr(
+      model_: BytesLike,
+      addr_: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setModelFee(
+      model_: BytesLike,
+      fee_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPaused(paused_: boolean, overrides?: CallOverrides): Promise<void>;
 
     setRetractionFeePercentage(
@@ -1973,6 +2046,24 @@ export interface IArbius extends BaseContract {
     MinRetractionWaitTimeChanged(
       amount?: BigNumberish | null
     ): MinRetractionWaitTimeChangedEventFilter;
+
+    "ModelAddrChanged(bytes32,address)"(
+      id?: BytesLike | null,
+      addr?: null
+    ): ModelAddrChangedEventFilter;
+    ModelAddrChanged(
+      id?: BytesLike | null,
+      addr?: null
+    ): ModelAddrChangedEventFilter;
+
+    "ModelFeeChanged(bytes32,uint256)"(
+      id?: BytesLike | null,
+      fee?: null
+    ): ModelFeeChangedEventFilter;
+    ModelFeeChanged(
+      id?: BytesLike | null,
+      fee?: null
+    ): ModelFeeChangedEventFilter;
 
     "ModelRegistered(bytes32)"(
       id?: BytesLike | null
@@ -2306,6 +2397,18 @@ export interface IArbius extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setModelAddr(
+      model_: BytesLike,
+      addr_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setModelFee(
+      model_: BytesLike,
+      fee_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setPaused(
       paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2628,6 +2731,18 @@ export interface IArbius extends BaseContract {
 
     setMinRetractionWaitTime(
       amount_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setModelAddr(
+      model_: BytesLike,
+      addr_: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setModelFee(
+      model_: BytesLike,
+      fee_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

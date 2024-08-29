@@ -137,6 +137,44 @@ const _abi = [
         name: "id",
         type: "bytes32",
       },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "addr",
+        type: "address",
+      },
+    ],
+    name: "ModelAddrChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "id",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "ModelFeeChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "id",
+        type: "bytes32",
+      },
     ],
     name: "ModelRegistered",
     type: "event",
@@ -1276,6 +1314,42 @@ const _abi = [
       },
     ],
     name: "setMinRetractionWaitTime",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "model_",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "addr_",
+        type: "address",
+      },
+    ],
+    name: "setModelAddr",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "model_",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "fee_",
+        type: "uint256",
+      },
+    ],
+    name: "setModelFee",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

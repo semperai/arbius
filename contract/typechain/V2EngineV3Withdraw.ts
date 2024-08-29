@@ -56,7 +56,7 @@ export type TaskStructOutput = [
   cid: string;
 };
 
-export interface V2EngineV4Interface extends utils.Interface {
+export interface V2EngineV3WithdrawInterface extends utils.Interface {
   functions: {
     "accruedFees()": FunctionFragment;
     "baseToken()": FunctionFragment;
@@ -101,12 +101,9 @@ export interface V2EngineV4Interface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "retractionFeePercentage()": FunctionFragment;
     "reward(uint256,uint256)": FunctionFragment;
-    "setModelAddr(bytes32,address)": FunctionFragment;
-    "setModelFee(bytes32,uint256)": FunctionFragment;
     "setPaused(bool)": FunctionFragment;
     "setSolutionMineableRate(bytes32,uint256)": FunctionFragment;
     "setStartBlockTime(uint64)": FunctionFragment;
-    "setVeStaking(address)": FunctionFragment;
     "setVersion(uint256)": FunctionFragment;
     "signalCommitment(bytes32)": FunctionFragment;
     "slashAmountPercentage()": FunctionFragment;
@@ -134,12 +131,11 @@ export interface V2EngineV4Interface extends utils.Interface {
     "validatorWithdraw(uint256,address)": FunctionFragment;
     "validatorWithdrawPendingAmount(address)": FunctionFragment;
     "validators(address)": FunctionFragment;
-    "veRewards()": FunctionFragment;
-    "veStaking()": FunctionFragment;
     "version()": FunctionFragment;
     "voteOnContestation(bytes32,bool)": FunctionFragment;
     "votingPeriodEnded(bytes32)": FunctionFragment;
     "withdrawAccruedFees()": FunctionFragment;
+    "withdrawAiusToOwner()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -300,14 +296,6 @@ export interface V2EngineV4Interface extends utils.Interface {
     functionFragment: "reward",
     values: [BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setModelAddr",
-    values: [BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setModelFee",
-    values: [BytesLike, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "setPaused", values: [boolean]): string;
   encodeFunctionData(
     functionFragment: "setSolutionMineableRate",
@@ -316,10 +304,6 @@ export interface V2EngineV4Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setStartBlockTime",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setVeStaking",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "setVersion",
@@ -417,8 +401,6 @@ export interface V2EngineV4Interface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "validators", values: [string]): string;
-  encodeFunctionData(functionFragment: "veRewards", values?: undefined): string;
-  encodeFunctionData(functionFragment: "veStaking", values?: undefined): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "voteOnContestation",
@@ -430,6 +412,10 @@ export interface V2EngineV4Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawAccruedFees",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawAiusToOwner",
     values?: undefined
   ): string;
 
@@ -569,14 +555,6 @@ export interface V2EngineV4Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "reward", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setModelAddr",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setModelFee",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSolutionMineableRate",
@@ -584,10 +562,6 @@ export interface V2EngineV4Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setStartBlockTime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setVeStaking",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setVersion", data: BytesLike): Result;
@@ -674,8 +648,6 @@ export interface V2EngineV4Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "validators", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "veRewards", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "veStaking", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "voteOnContestation",
@@ -689,14 +661,16 @@ export interface V2EngineV4Interface extends utils.Interface {
     functionFragment: "withdrawAccruedFees",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawAiusToOwner",
+    data: BytesLike
+  ): Result;
 
   events: {
     "ContestationSubmitted(address,bytes32)": EventFragment;
     "ContestationVote(address,bytes32,bool)": EventFragment;
     "ContestationVoteFinish(bytes32,uint32,uint32)": EventFragment;
     "Initialized(uint8)": EventFragment;
-    "ModelAddrChanged(bytes32,address)": EventFragment;
-    "ModelFeeChanged(bytes32,uint256)": EventFragment;
     "ModelRegistered(bytes32)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PausedChanged(bool)": EventFragment;
@@ -719,8 +693,6 @@ export interface V2EngineV4Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ContestationVote"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContestationVoteFinish"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ModelAddrChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ModelFeeChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModelRegistered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PausedChanged"): EventFragment;
@@ -766,21 +738,6 @@ export type ContestationVoteFinishEventFilter =
 export type InitializedEvent = TypedEvent<[number], { version: number }>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export type ModelAddrChangedEvent = TypedEvent<
-  [string, string],
-  { id: string; addr: string }
->;
-
-export type ModelAddrChangedEventFilter =
-  TypedEventFilter<ModelAddrChangedEvent>;
-
-export type ModelFeeChangedEvent = TypedEvent<
-  [string, BigNumber],
-  { id: string; fee: BigNumber }
->;
-
-export type ModelFeeChangedEventFilter = TypedEventFilter<ModelFeeChangedEvent>;
 
 export type ModelRegisteredEvent = TypedEvent<[string], { id: string }>;
 
@@ -893,12 +850,12 @@ export type VersionChangedEvent = TypedEvent<
 
 export type VersionChangedEventFilter = TypedEventFilter<VersionChangedEvent>;
 
-export interface V2EngineV4 extends BaseContract {
+export interface V2EngineV3Withdraw extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: V2EngineV4Interface;
+  interface: V2EngineV3WithdrawInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -1124,18 +1081,6 @@ export interface V2EngineV4 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    setModelAddr(
-      model_: BytesLike,
-      addr_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setModelFee(
-      model_: BytesLike,
-      fee_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setPaused(
       paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1149,11 +1094,6 @@ export interface V2EngineV4 extends BaseContract {
 
     setStartBlockTime(
       startBlockTime_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setVeStaking(
-      veStaking_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1289,10 +1229,6 @@ export interface V2EngineV4 extends BaseContract {
       }
     >;
 
-    veRewards(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    veStaking(overrides?: CallOverrides): Promise<[string]>;
-
     version(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     voteOnContestation(
@@ -1307,6 +1243,10 @@ export interface V2EngineV4 extends BaseContract {
     ): Promise<[boolean]>;
 
     withdrawAccruedFees(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawAiusToOwner(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1508,18 +1448,6 @@ export interface V2EngineV4 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  setModelAddr(
-    model_: BytesLike,
-    addr_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setModelFee(
-    model_: BytesLike,
-    fee_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setPaused(
     paused_: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1533,11 +1461,6 @@ export interface V2EngineV4 extends BaseContract {
 
   setStartBlockTime(
     startBlockTime_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setVeStaking(
-    veStaking_: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1673,10 +1596,6 @@ export interface V2EngineV4 extends BaseContract {
     }
   >;
 
-  veRewards(overrides?: CallOverrides): Promise<BigNumber>;
-
-  veStaking(overrides?: CallOverrides): Promise<string>;
-
   version(overrides?: CallOverrides): Promise<BigNumber>;
 
   voteOnContestation(
@@ -1691,6 +1610,10 @@ export interface V2EngineV4 extends BaseContract {
   ): Promise<boolean>;
 
   withdrawAccruedFees(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawAiusToOwner(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1889,18 +1812,6 @@ export interface V2EngineV4 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setModelAddr(
-      model_: BytesLike,
-      addr_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setModelFee(
-      model_: BytesLike,
-      fee_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setPaused(paused_: boolean, overrides?: CallOverrides): Promise<void>;
 
     setSolutionMineableRate(
@@ -1913,8 +1824,6 @@ export interface V2EngineV4 extends BaseContract {
       startBlockTime_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    setVeStaking(veStaking_: string, overrides?: CallOverrides): Promise<void>;
 
     setVersion(
       version_: BigNumberish,
@@ -2039,10 +1948,6 @@ export interface V2EngineV4 extends BaseContract {
       }
     >;
 
-    veRewards(overrides?: CallOverrides): Promise<BigNumber>;
-
-    veStaking(overrides?: CallOverrides): Promise<string>;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
 
     voteOnContestation(
@@ -2057,6 +1962,8 @@ export interface V2EngineV4 extends BaseContract {
     ): Promise<boolean>;
 
     withdrawAccruedFees(overrides?: CallOverrides): Promise<void>;
+
+    withdrawAiusToOwner(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -2093,24 +2000,6 @@ export interface V2EngineV4 extends BaseContract {
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
-
-    "ModelAddrChanged(bytes32,address)"(
-      id?: BytesLike | null,
-      addr?: null
-    ): ModelAddrChangedEventFilter;
-    ModelAddrChanged(
-      id?: BytesLike | null,
-      addr?: null
-    ): ModelAddrChangedEventFilter;
-
-    "ModelFeeChanged(bytes32,uint256)"(
-      id?: BytesLike | null,
-      fee?: null
-    ): ModelFeeChangedEventFilter;
-    ModelFeeChanged(
-      id?: BytesLike | null,
-      fee?: null
-    ): ModelFeeChangedEventFilter;
 
     "ModelRegistered(bytes32)"(
       id?: BytesLike | null
@@ -2428,18 +2317,6 @@ export interface V2EngineV4 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setModelAddr(
-      model_: BytesLike,
-      addr_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setModelFee(
-      model_: BytesLike,
-      fee_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setPaused(
       paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2453,11 +2330,6 @@ export interface V2EngineV4 extends BaseContract {
 
     setStartBlockTime(
       startBlockTime_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setVeStaking(
-      veStaking_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2562,10 +2434,6 @@ export interface V2EngineV4 extends BaseContract {
 
     validators(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    veRewards(overrides?: CallOverrides): Promise<BigNumber>;
-
-    veStaking(overrides?: CallOverrides): Promise<BigNumber>;
-
     version(overrides?: CallOverrides): Promise<BigNumber>;
 
     voteOnContestation(
@@ -2580,6 +2448,10 @@ export interface V2EngineV4 extends BaseContract {
     ): Promise<BigNumber>;
 
     withdrawAccruedFees(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    withdrawAiusToOwner(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -2785,18 +2657,6 @@ export interface V2EngineV4 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setModelAddr(
-      model_: BytesLike,
-      addr_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setModelFee(
-      model_: BytesLike,
-      fee_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     setPaused(
       paused_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2810,11 +2670,6 @@ export interface V2EngineV4 extends BaseContract {
 
     setStartBlockTime(
       startBlockTime_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setVeStaking(
-      veStaking_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2943,10 +2798,6 @@ export interface V2EngineV4 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    veRewards(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    veStaking(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     voteOnContestation(
@@ -2961,6 +2812,10 @@ export interface V2EngineV4 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     withdrawAccruedFees(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawAiusToOwner(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
