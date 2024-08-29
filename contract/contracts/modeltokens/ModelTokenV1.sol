@@ -3,10 +3,16 @@ pragma solidity ^0.8.9;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import {
+    ERC20Permit
+} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {
+    ERC20Votes
+} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import {
+    IUniswapV2Router02
+} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import {IArbius} from "./../interfaces/IArbius.sol";
 import {ModelTokenSwapReceiver} from "./ModelTokenSwapReceiver.sol";
 
@@ -20,7 +26,7 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     // our pair token
     IERC20 public arbiusToken;
 
-     // this can be a contract which e.g. airdrops to holders
+    // this can be a contract which e.g. airdrops to holders
     // or can be same as normal treasury address
     address public arbiusTreasury;
 
@@ -65,7 +71,6 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     event TargetPriceSet(bytes32 indexed model, uint256 targetPrice);
     event Sync(bytes32 indexed model, uint256 price);
 
-
     /// @notice Constructor
     /// @param _name the name of the token
     /// @param _symbol the symbol of the token
@@ -84,7 +89,7 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
         address _arbiusToken,
         address _arbiusTreasury,
         address _router
-    ) ERC20(_name, _symbol) ERC20Permit(_name) { 
+    ) ERC20(_name, _symbol) ERC20Permit(_name) {
         treasury = _treasury;
         arbius = IArbius(_arbius);
         arbiusToken = IERC20(_arbiusToken);
@@ -110,7 +115,10 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     /// @notice Allows the sync function to be called by anyone
     /// @param _model the model to enable public syncing for
     /// @param _enabled whether or not to enable public syncing
-    function setPublicSyncingEnabled(bytes32 _model, bool _enabled) public onlyOwner {
+    function setPublicSyncingEnabled(
+        bytes32 _model,
+        bool _enabled
+    ) public onlyOwner {
         publicSyncingEnabled[_model] = _enabled;
         emit PublicSyncingEnabled(_model, _enabled);
     }
@@ -125,11 +133,13 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
 
     /// @notice Sets the target price for syncing
     /// @param _targetPrice the new target price
-    function setTargetPrice(bytes32 _model, uint256 _targetPrice) public onlyOwner {
+    function setTargetPrice(
+        bytes32 _model,
+        uint256 _targetPrice
+    ) public onlyOwner {
         targetPrice[_model] = _targetPrice;
         emit TargetPriceSet(_model, _targetPrice);
     }
-
 
     /// @notice Sets the address that receives swap tokens
     /// @dev This is used for the liquidation function
@@ -164,15 +174,19 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     /// @dev a reward is given to the caller
     function liquidate() public {
         require(taxEnabled, "ModelTokenV1: tax not enabled");
-        require(address(swapReceiver) != address(0), "ModelTokenV1: swap receiver not set");
+        require(
+            address(swapReceiver) != address(0),
+            "ModelTokenV1: swap receiver not set"
+        );
 
         // temporarily disable taxes for liquidation
         taxEnabled = false;
 
         {
             // first a small reward is given to the caller
-            // per $10,000 transfer at 1% tax this is $0.01 
-            uint256 reward = balanceOf(address(this)) * 1 ether / rewardDivisor;
+            // per $10,000 transfer at 1% tax this is $0.01
+            uint256 reward = (balanceOf(address(this)) * 1 ether) /
+                rewardDivisor;
 
             if (reward > 0) {
                 // send reward to msg.sender
@@ -182,7 +196,9 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
 
         {
             // we convert half of the amount to aius for liquidity
-            uint256 amount = balanceOf(address(this)) * 1 ether / liquidityDivisor / 2;
+            uint256 amount = (balanceOf(address(this)) * 1 ether) /
+                liquidityDivisor /
+                2;
 
             if (amount > 0) {
                 // path is just model -> arbius
@@ -200,7 +216,10 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
                 );
 
                 // move the tokens back to our contract
-                swapReceiver.recover(address(arbiusToken), arbiusToken.balanceOf(address(swapReceiver)));
+                swapReceiver.recover(
+                    address(arbiusToken),
+                    arbiusToken.balanceOf(address(swapReceiver))
+                );
 
                 // next we add liquidity
                 router.addLiquidity(
@@ -236,7 +255,6 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
             }
         }
 
-
         // re-enable fees
         taxEnabled = true;
         emit Liquidation(msg.sender);
@@ -246,7 +264,7 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     /// @dev a reward is given to the caller
     function withdrawArbius() public {
         uint256 balance = arbiusToken.balanceOf(address(this));
-        uint256 reward = balance * 1 ether / rewardDivisor;
+        uint256 reward = (balance * 1 ether) / rewardDivisor;
         uint256 amount = balance - reward;
         if (reward > 0) {
             arbiusToken.transfer(msg.sender, reward);
@@ -275,8 +293,14 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     /// @dev We want to get price of arbius in usd by going from arbius -> weth -> usdc
     /// @param _model the model to sync
     function sync(bytes32 _model) public {
-        require(publicSyncingEnabled[_model] || msg.sender == owner(), "ModelTokenV1: public syncing not enabled");
-        require(address(pricingToken[_model]) != address(0), "ModelTokenV1: pricing token not set");
+        require(
+            publicSyncingEnabled[_model] || msg.sender == owner(),
+            "ModelTokenV1: public syncing not enabled"
+        );
+        require(
+            address(pricingToken[_model]) != address(0),
+            "ModelTokenV1: pricing token not set"
+        );
 
         address[] memory path = new address[](3);
         path[0] = address(pricingToken[_model]);
@@ -285,7 +309,7 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
 
         uint256[] memory out = router.getAmountsOut(1 ether, path);
 
-        uint256 fee = out[2] * targetPrice[_model] / 1e18;
+        uint256 fee = (out[2] * targetPrice[_model]) / 1e18;
 
         arbius.setModelFee(_model, fee);
 
@@ -301,19 +325,19 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
         uint256 _amount
     ) internal virtual override {
         if (
-            ! taxEnabled ||
+            !taxEnabled ||
             _from == address(0) ||
             _from == address(this) ||
             _from == treasury ||
-            _to   == address(0) ||
-            _to   == address(this) ||
-            _to   == treasury
+            _to == address(0) ||
+            _to == address(this) ||
+            _to == treasury
         ) {
             super._transfer(_from, _to, _amount);
             return;
         }
 
-        uint256 taxAmount  = _amount * 1 ether / taxDivisor;
+        uint256 taxAmount = (_amount * 1 ether) / taxDivisor;
         uint256 transferAmount = _amount - taxAmount;
 
         if (taxAmount > 0) {
@@ -346,9 +370,7 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
         super._burn(account_, amount_);
     }
 
-    function transferOwnership(
-        address to_
-    ) public override(Ownable) onlyOwner {
+    function transferOwnership(address to_) public override(Ownable) onlyOwner {
         super.transferOwnership(to_);
     }
 }
