@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React from 'react'
 
-function GradientCrad({ heading, subheading, para, logo }) {
+function GradientCrad({ heading, subheading, para, logo,data }) {
     return (
         <div className='bg-buy-hover py-4 px-6 rounded-xl text-[#ffffff]'>
             <div className='flex justify-start items-baseline'>

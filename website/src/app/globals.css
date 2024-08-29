@@ -61,6 +61,9 @@
 .header-gradient{
     background: linear-gradient(180deg, #FBFBFB 70.03%, #4A28FF 330.54%);
 }
+.maxButtonHover:hover{
+    background: linear-gradient(271.97deg, #B45FD0 7.24%, #F95782 115.71%);
+}
 .no-bg{
     background: unset;
 }
@@ -129,6 +132,7 @@
         background: #6755fe;
       
     }
+    
     
     .staking-block:hover .badge-text{
         color: white !important;
@@ -435,3 +439,8 @@ input[type="number"]::-ms-reveal {
     }
     
 }
+
+
+
+
+

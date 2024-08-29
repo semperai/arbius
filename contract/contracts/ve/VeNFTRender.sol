@@ -4,8 +4,6 @@ pragma solidity ^0.8.19;
 import "contracts/libraries/Base64.sol";
 import "contracts/libraries/DateTimeLibrary.sol";
 
-/*
-
 /// @title VeNFTRender
 /// @notice Renders the veAIUS NFT tokenURI
 contract VeNFTRender {
@@ -70,16 +68,16 @@ contract VeNFTRender {
                         "Token ID: ",
                         toString(_tokenId),
                         '</text><text x="20" y="150" class="base">',
-                        "Locked $AIUS: ",
+                        "Total Staked: ",
                         convertWeiToEtherString(_value),
                         '</text><text x="20" y="170" class="base">',
-                        "Lock ends at: ",
+                        "End Date: ",
                         locked_end,
                         '</text><text x="20" y="190" class="base">',
-                        "Voting weight in veAIUS: ",
+                        "Governance Power: ",
                         convertWeiToEtherString(_balanceOf),
                         '</text><text x="20" y="210" class="base">',
-                        "veStaking balance: ",
+                        "Initial Balance: ",
                         convertWeiToEtherString(_veStakingBal),
                         "</text>",
                         "</svg>"
@@ -139,4 +137,3 @@ contract VeNFTRender {
         return string(buffer);
     }
 }
-*/

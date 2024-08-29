@@ -10,6 +10,17 @@ module.exports = {
     extend: {
       filter: {
         'invert': 'invert(1)',
+        keyframes: {
+          l3: {
+            to: { transform: 'rotate(1turn)' },
+          },
+        },
+        animation: {
+          l3: 'l3 1s infinite linear',
+        },
+      },
+      boxShadow: {
+        stats: '0px 4px 20px 0px rgba(74, 40, 255, 0.2)',
       },
       fontSize:{
         "header-2xl": "70px",
@@ -35,7 +46,8 @@ module.exports = {
         'copyright-text':'#39393980',
         'stake':"#1A1A1A",
         'available':'#5B5B5B',
-        'aius':'#0E0E0E'
+        'aius':'#0E0E0E',
+        'gray-text': '#F3F3F3'
        },
        fontFamily: {
           "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
@@ -70,6 +82,8 @@ module.exports = {
 
         'md': '767px',
         
+        'um': '475px',
+
         'lm':"400px",
 
         'sm': '0px',
@@ -89,7 +103,11 @@ module.exports = {
         "black-background":"#000000",
         'purple-background':"#4A28FF",
         'hamburger-background': "#333333",
-        'stake-input':"#E6DFFF"
+        'stake-input':"#E6DFFF",
+        
+      },
+      background:{
+        'hoverBg':'linear-gradient(271.97deg, #B45FD0 7.24%, #F95782 115.71%)'
       }
     },
   },
