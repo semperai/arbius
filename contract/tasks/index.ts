@@ -724,3 +724,223 @@ task("governance:proposal", "Look up proposal info")
     }
   }
 });
+
+
+task("modeltoken:deploy", "Create new model token")
+.addParam("name", "Name of token (e.g. 'LLaMa')")
+.addParam("symbol", "Symbol of token (e.g. LLM)")
+.addParam("initialSupply", "Initial supply in ether")
+.addParam("treasury", "Treasury address")
+.addParam("arbius", "Arbius address")
+.addParam("arbiusToken", "AIUS token address")
+.addParam("arbiusTreasury", "Arbius treasury address")
+.addParam("router", "Uniswap router address")
+.setAction(async ({
+  name,
+  symbol,
+  initialSupply,
+  treasury,
+  arbius,
+  arbiusToken,
+  arbiusTreasury,
+  router,
+}, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  console.log('Deploying ModelToken with owner ', await getMinerAddress(hre));
+  const modelToken = await ModelToken.deploy(
+    name,
+    symbol,
+    hre.ethers.utils.parseEther(initialSupply),
+    treasury,
+    arbius,
+    arbiusToken,
+    arbiusTreasury,
+    router,
+  );
+  await modelToken.deployed();
+
+  console.log(`${name}(${symbol}) deployed to: ${modelToken.address}`);
+  console.log('Make sure to write this down!');
+
+  const ModelTokenSwapReceiver = await hre.ethers.getContractFactory("ModelTokenSwapReceiver");
+  const modelTokenSwapReceiver = await ModelTokenSwapReceiver.deploy();
+  await modelTokenSwapReceiver.deployed();
+  console.log('ModelTokenSwapReceiver deployed to: ', modelTokenSwapReceiver.address);
+  await modelTokenSwapReceiver.transferOwnership(modelToken.address);
+  console.log('ModelTokenSwapReceiver ownership transferred to ', modelToken.address);
+
+  await modelToken.setSwapReceiver(modelTokenSwapReceiver.address);
+  console.log('ModelToken swap receiver set to ', modelTokenSwapReceiver.address);
+});
+
+task("modeltoken:enabletax", "Enable tax for model token")
+.addParam("address", "Model token address")
+.setAction(async ({ address }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.enableTax();
+  await tx.wait();
+  console.log('Tax enabled');
+});
+
+task("modeltoken:deployModel", "Deploy model")
+.addParam("address", "Model token address")
+.addParam("fee", "Fee")
+.addParam("template", "Template")
+.setAction(async ({ address, fee, template }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("EngineV1");
+  const engine = await Engine.attach(Config.v4_engineAddress);
+
+  const templateBuf = fs.readFileSync(template);
+
+  const cid = await engine.generateIPFSCID(templateBuf);
+  console.log('model cid is', cid);
+
+  const feeParsed = hre.ethers.utils.parseEther(fee);
+
+  const modelId = await engine.hashModel({
+    addr: address,
+    fee: feeParsed,
+    rate: hre.ethers.utils.parseEther('0'),
+    cid,
+  }, await getMinerAddress(hre));
+
+  await (await engine.registerModel(address, feeParsed, templateBuf)).wait();
+  console.log('model added with id', modelId);
+});
+
+
+task("modeltoken:setPublicSyncingEnabled", "Enable public syncing for model")
+.addParam("address", "Model token address")
+.addParam("model", "Model id")
+.addParam("enabled", "Enable/Disable")
+.setAction(async ({ address, model, enabled }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.setPublicSyncingEnabled(model, enabled);
+  await tx.wait();
+  console.log(`Public syncing for model ${model} is now ${enabled}`);
+});
+
+task("modeltoken:setPricingToken", "Set pricing token for model")
+.addParam("address", "Model token address")
+.addParam("model", "Model id")
+.addParam("token", "Token address")
+.setAction(async ({ address, model, token }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.setPricingToken(model, token);
+  await tx.wait();
+  console.log(`Pricing token for model ${model} is now ${token}`);
+});
+
+task("modeltoken:setTargetPrice", "Set target price for model")
+.addParam("address", "Model token address")
+.addParam("model", "Model id")
+.addParam("price", "Price")
+.setAction(async ({ address, model, price }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.setTargetPrice(model, hre.ethers.utils.parseEther(price));
+  await tx.wait();
+  console.log(`Target price for model ${model} is now ${price}`);
+});
+
+task("modeltoken:setRewardDivisor", "Set reward divisor for model token")
+.addParam("address", "Model token address")
+.addParam("divisor", "Divisor")
+.setAction(async ({ address, divisor }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.setRewardDivisor(divisor);
+  await tx.wait();
+  console.log(`Reward divisor is now ${divisor}`);
+});
+
+task("modeltoken:setTaxDivisor", "Set tax divisor for model token")
+.addParam("address", "Model token address")
+.addParam("divisor", "Divisor")
+.setAction(async ({ address, model, divisor }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.setTaxDivisor(divisor);
+  await tx.wait();
+  console.log(`Tax divisor is now ${divisor}`);
+});
+
+task("modeltoken:setLiquidityDivisor", "Set liquidity divisor for model token")
+.addParam("address", "Model token address")
+.addParam("divisor", "Divisor")
+.setAction(async ({ address, divisor }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.setLiquidityDivisor(divisor);
+  await tx.wait();
+  console.log(`Liquidity divisor is now ${divisor}`);
+});
+
+task("modeltoken:liquidate", "Liquidate model token")
+.addParam("address", "Model token address")
+.setAction(async ({ address }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.liquidate();
+  await tx.wait();
+  console.log(`Model token liquidated`);
+});
+
+task("modeltoken:withdrawArbius", "Withdraw arbius from model token")
+.addParam("address", "Model token address")
+.setAction(async ({ address }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.withdrawArbius();
+  await tx.wait();
+  console.log(`Arbius withdrawn`);
+});
+
+task("modeltoken:updateModelFee", "Update fee for model")
+.addParam("address", "Model token address")
+.addParam("model", "Model id")
+.addParam("fee", "Fee")
+.setAction(async ({ address, model, fee }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.updateModelFee(model, fee);
+  await tx.wait();
+  console.log(`Model fee for model ${model} is now ${fee}`);
+});
+
+task("modeltoken:updateModelAddr", "Update model address for model")
+.addParam("address", "Model token address")
+.addParam("model", "Model id")
+.addParam("addr", "Address")
+.setAction(async ({ address, model, addr }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.updateModelAddr(model, addr);
+  await tx.wait();
+  console.log(`Model address for model ${model} is now ${addr}`);
+});
+
+task("modeltoken:sync", "Sync model with pricing token")
+.addParam("address", "Model token address")
+.addParam("model", "Model id")
+.setAction(async ({ address, model }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.sync(model);
+  await tx.wait();
+  console.log(`Model ${model} synced`);
+});
+
+task("modeltoken:transferOwnership", "Transfer ownership of model token")
+.addParam("address", "Model token address")
+.addParam("to", "To who?")
+.setAction(async ({ address, to }, hre) => {
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(address);
+  const tx = await modelToken.transferOwnership(to);
+  await tx.wait();
+  console.log(`Ownership transferred to ${to}`);
+});
