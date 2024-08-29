@@ -249,7 +249,10 @@ contract V2_EngineV4 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public reinitializer(4) {}
+    function initialize() public reinitializer(4) {
+        totalHeld = 0;
+        startBlockTime = uint64(block.timestamp);
+    }
 
     /// @notice Transfer ownership
     /// @param to_ Address to transfer ownership to
