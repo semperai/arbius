@@ -336,7 +336,10 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @dev Added in v4
     /// @param model_ Model hash
     /// @param fee_ Fee for model
-    function setModelFee(bytes32 model_, uint256 fee_) external onlyModelOwnerOrOwner(model_) {
+    function setModelFee(
+        bytes32 model_,
+        uint256 fee_
+    ) external onlyModelOwnerOrOwner(model_) {
         models[model_].fee = fee_;
         emit ModelFeeChanged(model_, fee_);
     }
@@ -345,7 +348,10 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @dev Added in v4
     /// @param model_ Model hash
     /// @param addr_ New address for model
-    function setModelAddr(bytes32 model_, address addr_) external onlyModelOwnerOrOwner(model_) {
+    function setModelAddr(
+        bytes32 model_,
+        address addr_
+    ) external onlyModelOwnerOrOwner(model_) {
         // we must have this check as models are checked to have an address for emptiness
         // if you wish to revoke a models owner set addr to 0x1
         require(addr_ != address(0x0), "address must be non-zero");
