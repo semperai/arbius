@@ -150,10 +150,12 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
                 }
                 console.log({ earliestDate });
-
+                console.log("LOCKED DOt end", token.locked.end);
+                
                 finalStakingData["allStakes"].push({
                     "staked": Number(token?.locked.amount) / AIUS_wei,
                     "lockedEndDate": new Date(Number(token?.locked__end) * 1000).toLocaleDateString('en-US'),
+                    
                     "lockedStartDate": new Date(Number(token?.user_point_history__ts) * 1000).toLocaleDateString('en-US'),
                     "currentDate": new Date().toLocaleDateString('en-US'),
                     "governancePower": Number(token?.balanceOfNFT) / AIUS_wei,

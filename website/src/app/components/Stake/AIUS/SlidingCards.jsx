@@ -231,7 +231,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
     )
 }
 
-const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
+const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }) => {
     const [sliderValue, setSliderValue] = useState(0)
     const [duration, setDuration] = useState({
         months: 0,
@@ -243,7 +243,8 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
         return Math.floor(now.getTime());
     }
     const [endDate, setEndDate] = useState(0);
-
+    console.log({selectedStake});
+    
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     /*const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -256,6 +257,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
     console.log(endDate, "END DATE")
     let currentlyEndingAt = new Date(Number(endDate) * 1000).toLocaleDateString("en-US");
+
     let currentDate = new Date().toLocaleDateString("en-US");
 
     const [currentEndDate, setCurrentEndDate] = useState(new Date(currentlyEndingAt))
@@ -267,7 +269,14 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
     const numberOfMonths = (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 + (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
     console.log(numberOfMonths, "NO OF")
     const [extendEndDate, setExtendEndDate] = useState(new Date(currentlyEndingAt))
-    console.log(sliderValue, "SLIDER VAL", ((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
+    console.log(sliderValue, "SLIDER VAL", {extendEndDate}, getCurrentTimeInMSeconds()  ,((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
+    console.log(extendEndDate, "EXTEND END DATE")
+    console.log(parseInt((extendEndDate.getTime() - getCurrentTimeInMSeconds()) / 1000).toString());
+    
+    console.log({currentlyEndingAt});
+    console.log({currentlyEndingDate});
+    
+    
     const { config: addAIUSConfig } = usePrepareContractWrite({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
@@ -276,6 +285,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
             Number(selectedStake),
             parseInt((extendEndDate - getCurrentTimeInMSeconds()) / 1000).toString() // value in months(decimal) * 4*7*24*60*60
         ],
+        enabled: extendEndDate >0
     });
 
     const {
@@ -314,8 +324,10 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
             const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
 
             const _endDate = await votingEscrowContract.methods.locked__end(selectedStake).call()
+            let _currentlyEndingAt = new Date(Number(_endDate) * 1000).toLocaleDateString("en-US");
 
             setEndDate(_endDate)
+            setCurrentEndDate(new Date(_currentlyEndingAt))
         }
         if(address){
             f();
@@ -447,7 +459,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 }
 
 
-const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
+const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }) => {
 
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const [earned, setEarned] = useState(0);
@@ -810,8 +822,8 @@ function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, wa
 
                     <PopUp setShowPopUp={setShowPopUp} >
                         {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} address={address} />}
-                        {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
-                        {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
+                        {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} address={address} />}
+                        {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} address={address} />}
                         {showPopUp === ("withdraw/Success") && (<SuccessChildren setShowPopUp={setShowPopUp} />)}
                         {showPopUp ===("withdraw/Error") && (<ErrorPopUpChildren setShowPopUp={setShowPopUp} />)}
                         {showPopUp ===("withdraw/2") && (<StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />)}
