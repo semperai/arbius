@@ -13,19 +13,19 @@ import loadConfig from './loadConfig'
 import info_icon from '@/app/assets/images/info_icon_white.png'
 import Web3 from 'web3';
 
-function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp }) {
-    console.log(tokenID, "TOKEN ID")
+function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp }) {
+    console.log(token, "TOKEN ID")
     const { address, isConnected } = useAccount();
     const config = loadConfig();
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const VE_STAKING_ADDRESS = config.veStakingAddress;
 
-    const [totalStaked, setTotalStaked] = useState(0);
-    const [endDate, setEndDate] = useState(0);
-    const [stakedOn, setStakedOn] = useState(0);
-    const [initialBalance, setInitialBalance] = useState(0);
-    const [governancePower, setGovernancePower] = useState(0);
-    const [earned, setEarned] = useState(0);
+    const [totalStaked, setTotalStaked] = useState(token?.locked);
+    const [endDate, setEndDate] = useState(token?.locked__end);
+    const [stakedOn, setStakedOn] = useState(token?.user_point_history__ts);
+    const [initialBalance, setInitialBalance] = useState(token?.initialBalance);
+    const [governancePower, setGovernancePower] = useState(token?.balanceOfNFT);
+    const [earned, setEarned] = useState(token?.earned);
 
     /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -95,7 +95,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
         abi: votingEscrow.abi,
         functionName: 'withdraw',
         args: [
-            Number(tokenID)
+            Number(token?.tokenID)
         ],
         enabled: Date.now() > (Number(endDate) * 1000)
     });
@@ -142,36 +142,36 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
     }, [withdrawAIUSError])
 
 
-    useEffect(() => {
-        const f = async() => {
-            const web3 = new Web3(window.ethereum);
-            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
-            const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+    // useEffect(() => {
+    //     const f = async() => {
+    //         const web3 = new Web3(window.ethereum);
+    //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+    //         const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
 
-            const _totalStaked = await votingEscrowContract.methods.locked(tokenID).call()
-            const _endDate = await votingEscrowContract.methods.locked__end(tokenID).call()
-            const _stakedOn = await votingEscrowContract.methods.user_point_history__ts(tokenID, 1).call()
-            const _governancePower = await votingEscrowContract.methods.balanceOfNFT(tokenID).call()
-            const _initialBalance = await veStakingContract.methods.balanceOf(tokenID).call()
-            const _earned = await veStakingContract.methods.earned(tokenID).call()
-            console.log(_totalStaked, _endDate, _stakedOn, _governancePower, _initialBalance, _earned, "^ 6 values")
-            setTotalStaked(_totalStaked)
-            setEndDate(_endDate)
-            setStakedOn(_stakedOn)
-            setGovernancePower(_governancePower)
-            setInitialBalance(_initialBalance)
-            setEarned(_earned)
-        }
-        if(address){
-            f();
-        }
-    },[address])
+    //         const _totalStaked = await votingEscrowContract.methods.locked(tokenID).call()
+    //         const _endDate = await votingEscrowContract.methods.locked__end(tokenID).call()
+    //         const _stakedOn = await votingEscrowContract.methods.user_point_history__ts(tokenID, 1).call()
+    //         const _governancePower = await votingEscrowContract.methods.balanceOfNFT(tokenID).call()
+    //         const _initialBalance = await veStakingContract.methods.balanceOf(tokenID).call()
+    //         const _earned = await veStakingContract.methods.earned(tokenID).call()
+    //         console.log(_totalStaked, _endDate, _stakedOn, _governancePower, _initialBalance, _earned, "^ 6 values")
+    //         setTotalStaked(_totalStaked)
+    //         setEndDate(_endDate)
+    //         setStakedOn(_stakedOn)
+    //         setGovernancePower(_governancePower)
+    //         setInitialBalance(_initialBalance)
+    //         setEarned(_earned)
+    //     }
+    //     if(address){
+    //         f();
+    //     }
+    // },[address])
     
 
     const openseaLink = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev" ? "https://testnets.opensea.io/assets/arbitrum-sepolia/" : "https://opensea.io/assets/arbitrum-one/"
     return (
         <div className='rounded-2xl px-8 py-6  bg-white-background relative'>
-            <Link href={`${openseaLink}${VOTING_ESCROW_ADDRESS}/${Number(tokenID)}`} target="_blank">
+            <Link href={`${openseaLink}${VOTING_ESCROW_ADDRESS}/${Number(token?.tokenID)}`} target="_blank">
                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20 cursor-pointer' alt="" />
             </Link>
             <div className='flex justify-start gap-8 items-start'>
@@ -223,7 +223,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                             <div className='w-[32%]'>
                                 <button
                                     type="button"
-                                    onClick={() => { setShowPopUp("add"); setSelectedStake(tokenID); }}
+                                    onClick={() => { setShowPopUp("add"); setSelectedStake(token?.tokenID); }}
                                     className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                 >
                                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -235,7 +235,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                             <div className='w-[32%]'>
                                 <button
                                     type="button"
-                                    onClick={() => { setShowPopUp("extend"); setSelectedStake(tokenID); }}
+                                    onClick={() => { setShowPopUp("extend"); setSelectedStake(token?.tokenID); }}
                                     className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                 >
                                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -247,7 +247,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                             <div className='w-[32%]'>
                                 <button
                                     type="button"
-                                    onClick={() => { setShowPopUp("claim"); setSelectedStake(tokenID); }}
+                                    onClick={() => { setShowPopUp("claim"); setSelectedStake(token?.tokenID); }}
                                     className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                 >
                                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -267,7 +267,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                             <div className='w-[40%]'>
                                 <button
                                     type="button"
-                                    onClick={() => { setSelectedStake(tokenID); handleWithdraw(Number(endDate) * 1000); }}
+                                    onClick={() => { setSelectedStake(token?.tokenID); handleWithdraw(Number(endDate) * 1000); }}
                                     className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                 >
                                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

@@ -14,11 +14,13 @@ import { getAPR } from "../../../Utils/getAPR"
 import loadConfig from './loadConfig'
 import { BigNumber } from 'ethers';
 import { fetchArbiusData } from '../../../Utils/getArbiusData'
-import { AIUS_wei } from "../../../Utils/constantValues";
+// import { AIUS_wei } from "../../../Utils/constantValues";
 import Web3 from 'web3';
+import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions'
+import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 
 function DashBoard({ data, isLoading, isError, protocolData }) {
-    const {address,isConnected} = useAccount()
+    const { address, isConnected } = useAccount()
     console.log(isConnected, "IS CONNECT")
     const config = loadConfig();
     const VE_STAKING_ADDRESS = config.veStakingAddress;
@@ -28,6 +30,24 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     const [rewardRate, setRewardRate] = useState(0);
     const [totalSupply, setTotalSupply] = useState(0);
     const [veSupplyData, setVESupplyData] = useState(0);
+    const [escrowBalanceData, setEscrowBalanceData] = useState(0);
+    const [tokenIDs, setTokenIDs] = useState([]);
+    const [windowStartDate, setWindowStartDate] = useState(new Date('2024-02-20'))
+    const [windowEndDate, setWindowEndDate] = useState(new Date('2026-02-20'))
+    const [noCols, setNoCols] = useState((windowEndDate?.getFullYear() - windowStartDate?.getFullYear()) * 12 + windowEndDate?.getMonth() - windowStartDate?.getMonth())
+
+    
+    const veAIUSBalance = (staked, startDate, endDate) => {
+        const t = endDate - startDate;
+        const a_b = staked + 0
+        return a_b * (t / t_max);
+    }
+    const getMonthDifference = (startDate, endDate) => {
+        console.log(startDate, "STARTDATE", startDate.getMonth())
+        let diff = (startDate.getFullYear() * 12 + startDate.getMonth()) - (endDate.getFullYear() * 12 + endDate.getMonth())
+        return diff
+    }
+    // const [walletBalance, setWalletBalance] = useState(0);
     // const [protocolData, setProtocolData] = useState([]);
     /*const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
@@ -54,23 +74,127 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     })*/
 
     useEffect(() => {
-        const f = async() => {
+        const f = async () => {
             const web3 = new Web3(window.ethereum);
             const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+            const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
 
             const _rewardRate = await veStakingContract.methods.rewardRate().call()
             const _totalSupply = await veStakingContract.methods.totalSupply().call()
             const _veSupplyData = await votingEscrowContract.methods.supply().call()
 
-            setRewardRate(_rewardRate)
-            setTotalSupply(_totalSupply)
+
+
+            setRewardRate(_rewardRate/AIUS_wei)
+            setTotalSupply(_totalSupply/AIUS_wei)
             setVESupplyData(_veSupplyData)
+
+
+            // prepiing sliding cards and ganttChart
+            const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
+            setEscrowBalanceData(_escrowBalanceData);
+            let tokens = await getTokenIDs( address, _escrowBalanceData);
+
+
+            console.log(tokens, "TTSSTAKES SSS")
+
+            // ganttChart
+            let mergedTokensData = {
+                "slidingCards": {},
+                "ganttChart": {}
+            }
+            let finalStakingData = {
+
+                "firstUnlockDate": 0,
+                "totalStaked": 0,
+                "totalGovernancePower": 0,
+                "allStakes": []
+            }
+            let lastDate =0;
+            let earliestDate = 0;
+            tokens.forEach(token => {
+                if (Number(token?.locked__end) > lastDate) {
+                    lastDate = Number(token?.locked__end)
+                    console.log(lastDate, "LAST DATE")
+
+                }
+                if (Number(token?.user_point_history__ts) < earliestDate || earliestDate === 0) {
+                    earliestDate = Number(token?.user_point_history__ts)
+                }
+
+            })
+            if (earliestDate && lastDate) {
+                console.log("HERE");
+
+                earliestDate = new Date(earliestDate * 1000);
+                console.log(earliestDate, "EARLIEST DATE HERE")
+
+                lastDate = new Date(lastDate * 1000)
+                setWindowStartDate(earliestDate);
+                setWindowEndDate(lastDate);
+                setNoCols((lastDate.getFullYear() - earliestDate.getFullYear()) * 12 + lastDate.getMonth() - earliestDate.getMonth() + 2)
+            }
+            // console.log(earliestDate, "EARLIEST DATE")
+
+            tokens.forEach(token => {
+
+                finalStakingData["totalStaked"] = finalStakingData["totalStaked"] + Number(token?.locked.amount) / AIUS_wei;
+                finalStakingData["totalGovernancePower"] = finalStakingData["totalGovernancePower"] + Number(token?.balanceOfNFT) / AIUS_wei;
+
+                if (finalStakingData["firstUnlockDate"] == 0 || finalStakingData["firstUnlockDate"] > Number(token?.locked__end)) {
+
+
+                    finalStakingData["firstUnlockDate"] = Number(token?.locked__end)
+                    console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime())
+                    // console.log();
+
+                }
+                console.log({ earliestDate });
+
+                finalStakingData["allStakes"].push({
+                    "staked": Number(token?.locked.amount) / AIUS_wei,
+                    "lockedEndDate": new Date(Number(token?.locked__end) * 1000).toLocaleDateString('en-US'),
+                    "lockedStartDate": new Date(Number(token?.user_point_history__ts) * 1000).toLocaleDateString('en-US'),
+                    "currentDate": new Date().toLocaleDateString('en-US'),
+                    "governancePower": Number(token?.balanceOfNFT) / AIUS_wei,
+                    "veAIUSBalance": veAIUSBalance(
+                        Number(token?.locked.amount) / AIUS_wei,
+                        Number(token?.user_point_history__ts),
+                        Number(token?.locked__end)
+                    ),
+
+
+                    "stake_start": getMonthDifference(new Date(Number(token?.user_point_history__ts) * 1000), earliestDate),
+                    "staked_till_now": getMonthDifference(new Date(), new Date(Number(token?.user_point_history__ts) * 1000)),
+                    "stake_completion": getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date())
+                })
+
+                // console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime(), "DIFF", finalStakingData["firstUnlockDate"] * 1000 - new Date().getTime())
+            })
+
+            finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
+            // earliestDate = new Date(earliestDate * 1000);
+            finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
+            console.log(finalStakingData["firstUnlockDate"], "FUND")
+
+            mergedTokensData["ganttChart"] = finalStakingData;
+            mergedTokensData["slidingCards"] = tokens;
+            setTokenIDs(mergedTokensData);
         }
-        if(address){
+        if (address) {
             f();
         }
-    },[address])
+    }, [address])
     /* DASHBOARD CALLS ENDS HERE */
+
+
+    console.log(tokenIDs, "TOKEN IDS")
+    
+
+
+
+
+
 
     return (
         <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-10 lg:py-16' id="dashboard">
@@ -102,7 +226,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                     <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>$ {protocolData?.data?.AIUS?.quote?.USD?.price ? (protocolData?.data?.AIUS?.quote?.USD?.price * walletBalance)?.toLocaleString('en-US', {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
-                                    }) : 0 }</h2>
+                                    }) : 0}</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">APR</h2>
@@ -122,7 +246,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                         </div>
                     </div>
                     <div className=''>
-                        <SlidingCards />
+                        <SlidingCards totalEscrowBalance={escrowBalanceData} tokenIDs={tokenIDs?.slidingCards} rewardRate={rewardRate} totalSupply={totalSupply} walletBalance={walletBalance}  />
                     </div>
                 </div>
             </div>
@@ -149,7 +273,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                         compactDisplay: 'short',
                                         maximumFractionDigits: 2,
                                         minimumFractionDigits: 2
-                                        
+
                                     }).format(protocolData?.data?.AIUS?.self_reported_market_cap)} </h2>
                                 </div>
                                 <div>
@@ -164,7 +288,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     </div>
                 </div>
                 <div className='hidden xl:block col-span-2 pl-2 h-full'>
-                    <GanttChart />
+                    <GanttChart allStakingData={tokenIDs?.ganttChart} noCols={noCols} windowStartDate={windowStartDate} windowEndDate={windowEndDate} />
                 </div>
             </div>
         </div>

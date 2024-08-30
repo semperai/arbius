@@ -29,7 +29,7 @@ import Web3 from 'web3';
 
 
 const config = loadConfig();
-const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalance, totalSupply, rewardRate, getAPR }) => {
+const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalance, totalSupply, rewardRate, getAPR, address }) => {
 
     const [aiusToStake, setAIUSToStake] = useState(0);
     const [estBalance, setEstBalance] = useState(0);
@@ -599,7 +599,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
 
 
-function SlidingCards() {
+function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, walletBalance}) {
     const [showPopUp, setShowPopUp] = useState(false)
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
@@ -610,13 +610,12 @@ function SlidingCards() {
     const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 
     const { address, isConnected } = useAccount()
-    const [totalStakes, setTotalStakes] = useState([])
 
-    const [totalEscrowBalance, setEscrowBalanceData] = useState(0)
-    const [totalSupply, setTotalSupply] = useState(0)
-    const [rewardRate, setRewardRate] = useState(0)
-    const [walletBalance, setWalletBalance] = useState(0)
-    const [tokenIDs, setTokenIDs] = useState([])
+    // const [totalEscrowBalance, setEscrowBalanceData] = useState(0)
+    // const [totalSupply, setTotalSupply] = useState(0)
+    // const [rewardRate, setRewardRate] = useState(0)
+    // const [walletBalance, setWalletBalance] = useState(0)
+    // const [tokenIDs, setTokenIDs] = useState([])
     /*const {
         data, isError, isLoading
     } = useContractRead({
@@ -769,35 +768,35 @@ function SlidingCards() {
     }, [direction]);
     // console.log({totalStakes});
 
-    useEffect(() => {
-        const f = async() => {
-            const web3 = new Web3(window.ethereum);
-            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
-            const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
-            const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
+    // useEffect(() => {
+    //     const f = async() => {
+    //         const web3 = new Web3(window.ethereum);
+    //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+    //         const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+    //         const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
 
-            const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
-            const _rewardRate = await veStakingContract.methods.rewardRate().call()
-            const _totalSupply = await veStakingContract.methods.totalSupply().call()
-            const _walletBalance = await baseTokenV1Contract.methods.balanceOf(address).call()
-            console.log(_escrowBalanceData, _rewardRate/AIUS_wei, _totalSupply/AIUS_wei, _walletBalance/AIUS_wei, "HYU");
+    //         const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
+    //         const _rewardRate = await veStakingContract.methods.rewardRate().call()
+    //         const _totalSupply = await veStakingContract.methods.totalSupply().call()
+    //         const _walletBalance = await baseTokenV1Contract.methods.balanceOf(address).call()
+    //         console.log(_escrowBalanceData, _rewardRate/AIUS_wei, _totalSupply/AIUS_wei, _walletBalance/AIUS_wei, "HYU");
             
-            let _tokenIDs = []
-            for(let i=0; i<_escrowBalanceData; i++){
-                _tokenIDs.push(await votingEscrowContract.methods.tokenOfOwnerByIndex(address, i).call())
-            }
-            console.log(_tokenIDs, "TTSSTAKES SSS")
+    //         let _tokenIDs = []
+    //         for(let i=0; i<_escrowBalanceData; i++){
+    //             _tokenIDs.push(await votingEscrowContract.methods.tokenOfOwnerByIndex(address, i).call())
+    //         }
+    //         console.log(_tokenIDs, "TTSSTAKES SSS")
 
-            setEscrowBalanceData(_escrowBalanceData);
-            setRewardRate(_rewardRate / AIUS_wei);
-            setTotalSupply(_totalSupply / AIUS_wei);
-            setWalletBalance(_walletBalance / AIUS_wei);
-            setTokenIDs(_tokenIDs)
-        }
-        if(address){
-            f();            
-        }
-    },[address])
+    //         setEscrowBalanceData(_escrowBalanceData);
+    //         setRewardRate(_rewardRate / AIUS_wei);
+    //         setTotalSupply(_totalSupply / AIUS_wei);
+    //         setWalletBalance(_walletBalance / AIUS_wei);
+    //         setTokenIDs(_tokenIDs)
+    //     }
+    //     if(address){
+    //         f();            
+    //     }
+    // },[address])
 
 
 
@@ -810,7 +809,7 @@ function SlidingCards() {
 
 
                     <PopUp setShowPopUp={setShowPopUp} >
-                        {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} />}
+                        {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} address={address} />}
                         {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
                         {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} />}
                         {showPopUp === ("withdraw/Success") && (<SuccessChildren setShowPopUp={setShowPopUp} />)}
@@ -829,7 +828,7 @@ function SlidingCards() {
                 <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
                     <Slider {...settings}>
                         {tokenIDs?.map((item, key) => (
-                            <StakeCard tokenID={item} rewardRate={rewardRate} totalSupply={totalSupply} getAPR={getAPR} key={key} setSelectedStake={setSelectedStake} setShowPopUp={setShowPopUp} />
+                            <StakeCard token={item} rewardRate={rewardRate} totalSupply={totalSupply} getAPR={getAPR} key={key} setSelectedStake={setSelectedStake} setShowPopUp={setShowPopUp} />
                         ))}
                     </Slider>
                 </div>

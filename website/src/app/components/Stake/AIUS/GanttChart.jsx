@@ -6,14 +6,12 @@ import votingEscrow from "../../../abis/votingEscrow.json"
 // import config from "../../../../sepolia_config.json"
 import loadConfig from './loadConfig';
 import { useAccount, useContractRead, useContractReads } from 'wagmi';
-import { AIUS_wei, t_max } from "../../../Utils/constantValues";
+
 import { getTokenIDs, getTotalEscrowBalance, init } from '../../../Utils/gantChart/contractInteractions';
 
-function GanttChart(props) {
+function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) {
 
-    const [windowStartDate, setWindowStartDate] = useState(new Date('2024-02-20'))
-    const [windowEndDate, setWindowEndDate] = useState(new Date('2026-02-20'))
-    const [noCols, setNoCols] = useState((windowEndDate?.getFullYear() - windowStartDate?.getFullYear()) * 12 + windowEndDate?.getMonth() - windowStartDate?.getMonth())
+
     const [markedMonths, setMarkedMonths] = useState([])
     console.log({ noCols }, windowStartDate, windowEndDate)
     const config = loadConfig();
@@ -21,7 +19,7 @@ function GanttChart(props) {
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const { address, isConnected } = useAccount()
-    const [allStakingData, setAllStakingData] = useState({});
+    // const [allStakingData, setAllStakingData] = useState({});
     const [contract, setContract] = useState(null);
     const [stakingData, setStakingData] = useState([]);
     // let data = [
@@ -76,97 +74,97 @@ function GanttChart(props) {
     //     }
     // }, [escrowBalanceData])
 
-    const loadData = async () => {
-        const contract = await init();
-        console.log(contract, "CONTRACT")
-        setContract(contract);
-        const totalEscrowBalance = await getTotalEscrowBalance(contract, address);
-        console.log(totalEscrowBalance, "TOTALESCROWBALANCE")
-        const tokens = await getTokenIDs(contract, address, totalEscrowBalance);
-        let finalStakingData = {
-            "firstUnlockDate": 0,
-            "totalStaked": 0,
-            "totalGovernancePower": 0,
-            "allStakes": []
-        }
-        let earliestDate = 0;
-        let lastDate = 0;
+    // const loadData = async () => {
+    //     const contract = await init();
+    //     console.log(contract, "CONTRACT")
+    //     setContract(contract);
+    //     const totalEscrowBalance = await getTotalEscrowBalance(contract, address);
+    //     console.log(totalEscrowBalance, "TOTALESCROWBALANCE")
+    //     const tokens = await getTokenIDs(contract, address, totalEscrowBalance);
+    //     let finalStakingData = {
+    //         "firstUnlockDate": 0,
+    //         "totalStaked": 0,
+    //         "totalGovernancePower": 0,
+    //         "allStakes": []
+    //     }
+    //     let earliestDate = 0;
+    //     let lastDate = 0;
 
 
-        tokens.forEach(token => {
-            if (Number(token?.locked__end) > lastDate) {
-                lastDate = Number(token?.locked__end)
-                console.log(lastDate, "LAST DATE")
+    //     tokens.forEach(token => {
+    //         if (Number(token?.locked__end) > lastDate) {
+    //             lastDate = Number(token?.locked__end)
+    //             console.log(lastDate, "LAST DATE")
 
-            }
-            if (Number(token?.user_point_history__ts) < earliestDate || earliestDate === 0) {
-                earliestDate = Number(token?.user_point_history__ts)
-            }
+    //         }
+    //         if (Number(token?.user_point_history__ts) < earliestDate || earliestDate === 0) {
+    //             earliestDate = Number(token?.user_point_history__ts)
+    //         }
 
-        })
-        if (earliestDate && lastDate) {
-            console.log("HERE");
+    //     })
+    //     if (earliestDate && lastDate) {
+    //         console.log("HERE");
 
-            earliestDate = new Date(earliestDate * 1000);
-            console.log(earliestDate, "EARLIEST DATE HERE")
+    //         earliestDate = new Date(earliestDate * 1000);
+    //         console.log(earliestDate, "EARLIEST DATE HERE")
 
-            lastDate = new Date(lastDate * 1000)
-            setWindowStartDate(earliestDate);
-            setWindowEndDate(lastDate);
-            setNoCols((lastDate.getFullYear() - earliestDate.getFullYear()) * 12 + lastDate.getMonth() - earliestDate.getMonth() + 2)
-        }
-        // console.log(earliestDate, "EARLIEST DATE")
+    //         lastDate = new Date(lastDate * 1000)
+    //         setWindowStartDate(earliestDate);
+    //         setWindowEndDate(lastDate);
+    //         setNoCols((lastDate.getFullYear() - earliestDate.getFullYear()) * 12 + lastDate.getMonth() - earliestDate.getMonth() + 2)
+    //     }
+    //     // console.log(earliestDate, "EARLIEST DATE")
 
-        tokens.forEach(token => {
+    //     tokens.forEach(token => {
 
-            finalStakingData["totalStaked"] = finalStakingData["totalStaked"] + Number(token?.locked.amount) / AIUS_wei;
-            finalStakingData["totalGovernancePower"] = finalStakingData["totalGovernancePower"] + Number(token?.balanceOfNFT) / AIUS_wei;
+    //         finalStakingData["totalStaked"] = finalStakingData["totalStaked"] + Number(token?.locked.amount) / AIUS_wei;
+    //         finalStakingData["totalGovernancePower"] = finalStakingData["totalGovernancePower"] + Number(token?.balanceOfNFT) / AIUS_wei;
 
-            if (finalStakingData["firstUnlockDate"] == 0 || finalStakingData["firstUnlockDate"] > Number(token?.locked__end)) {
-
-
-                finalStakingData["firstUnlockDate"] = Number(token?.locked__end)
-                console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime())
-                // console.log();
-
-            }
-            console.log({ earliestDate });
-
-            finalStakingData["allStakes"].push({
-                "staked": Number(token?.locked.amount) / AIUS_wei,
-                "lockedEndDate": new Date(Number(token?.locked__end) * 1000).toLocaleDateString('en-US'),
-                "lockedStartDate": new Date(Number(token?.user_point_history__ts) * 1000).toLocaleDateString('en-US'),
-                "currentDate": new Date().toLocaleDateString('en-US'),
-                "governancePower": Number(token?.balanceOfNFT) / AIUS_wei,
-                "veAIUSBalance": veAIUSBalance(
-                    Number(token?.locked.amount) / AIUS_wei,
-                    Number(token?.user_point_history__ts),
-                    Number(token?.locked__end)
-                ),
+    //         if (finalStakingData["firstUnlockDate"] == 0 || finalStakingData["firstUnlockDate"] > Number(token?.locked__end)) {
 
 
-                "stake_start": getMonthDifference(new Date(Number(token?.user_point_history__ts) * 1000), earliestDate),
-                "staked_till_now": getMonthDifference(new Date(), new Date(Number(token?.user_point_history__ts) * 1000)),
-                "stake_completion": getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date())
-            })
+    //             finalStakingData["firstUnlockDate"] = Number(token?.locked__end)
+    //             console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime())
+    //             // console.log();
 
-            // console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime(), "DIFF", finalStakingData["firstUnlockDate"] * 1000 - new Date().getTime())
-        })
+    //         }
+    //         console.log({ earliestDate });
 
-        finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
-        // earliestDate = new Date(earliestDate * 1000);
-        finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
-        console.log(finalStakingData["firstUnlockDate"], "FUND")
+    //         finalStakingData["allStakes"].push({
+    //             "staked": Number(token?.locked.amount) / AIUS_wei,
+    //             "lockedEndDate": new Date(Number(token?.locked__end) * 1000).toLocaleDateString('en-US'),
+    //             "lockedStartDate": new Date(Number(token?.user_point_history__ts) * 1000).toLocaleDateString('en-US'),
+    //             "currentDate": new Date().toLocaleDateString('en-US'),
+    //             "governancePower": Number(token?.balanceOfNFT) / AIUS_wei,
+    //             "veAIUSBalance": veAIUSBalance(
+    //                 Number(token?.locked.amount) / AIUS_wei,
+    //                 Number(token?.user_point_history__ts),
+    //                 Number(token?.locked__end)
+    //             ),
+
+
+    //             "stake_start": getMonthDifference(new Date(Number(token?.user_point_history__ts) * 1000), earliestDate),
+    //             "staked_till_now": getMonthDifference(new Date(), new Date(Number(token?.user_point_history__ts) * 1000)),
+    //             "stake_completion": getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date())
+    //         })
+
+    //         // console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime(), "DIFF", finalStakingData["firstUnlockDate"] * 1000 - new Date().getTime())
+    //     })
+
+    //     finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
+    //     // earliestDate = new Date(earliestDate * 1000);
+    //     finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
+    //     console.log(finalStakingData["firstUnlockDate"], "FUND")
 
 
 
-        console.log(tokens, "TOKENS")
-        setAllStakingData(finalStakingData);
-    }
+    //     console.log(tokens, "TOKENS")
+    //     setAllStakingData(finalStakingData);
+    // }
 
     useEffect(() => {
         console.log("LOAD DATA")
-        loadData();
+        // loadData();
     }, [address])
 
 
@@ -215,11 +213,6 @@ function GanttChart(props) {
     // })
 
 
-    const veAIUSBalance = (staked, startDate, endDate) => {
-        const t = endDate - startDate;
-        const a_b = staked + 0
-        return a_b * (t / t_max);
-    }
 
     // useEffect(() => {
     //     let finalData = {
@@ -291,11 +284,7 @@ function GanttChart(props) {
     // pre processing the data for gantt chart dist
 
 
-    const getMonthDifference = (startDate, endDate) => {
-        console.log(startDate, "STARTDATE", startDate.getMonth())
-        let diff = (startDate.getFullYear() * 12 + startDate.getMonth()) - (endDate.getFullYear() * 12 + endDate.getMonth())
-        return diff
-    }
+
 
 
 
