@@ -15,6 +15,7 @@ import loadConfig from './loadConfig'
 import { BigNumber } from 'ethers';
 import { fetchArbiusData } from '../../../Utils/getArbiusData'
 import { AIUS_wei } from "../../../Utils/constantValues";
+import Web3 from 'web3';
 
 function DashBoard({ data, isLoading, isError, protocolData }) {
     const {address,isConnected} = useAccount()
@@ -24,8 +25,11 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
 
     const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    const [rewardRate, setRewardRate] = useState(0);
+    const [totalSupply, setTotalSupply] = useState(0);
+    const [veSupplyData, setVESupplyData] = useState(0);
     // const [protocolData, setProtocolData] = useState([]);
-    const rewardRate = useContractRead({
+    /*const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'rewardRate',
@@ -47,10 +51,26 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
         functionName: 'supply',
         args: [],
         enabled: isConnected
-    })
+    })*/
 
+    useEffect(() => {
+        const f = async() => {
+            const web3 = new Web3(window.ethereum);
+            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
 
-    console.log({ protocolData }, "PROTOCOL");
+            const _rewardRate = await veStakingContract.methods.rewardRate().call()
+            const _totalSupply = await veStakingContract.methods.totalSupply().call()
+            const _veSupplyData = await votingEscrowContract.methods.supply().call()
+
+            setRewardRate(_rewardRate)
+            setTotalSupply(_totalSupply)
+            setVESupplyData(_veSupplyData)
+        }
+        if(address){
+            f();
+        }
+    },[address])
+    /* DASHBOARD CALLS ENDS HERE */
 
     return (
         <div className='xl:w-section-width w-mobile-section-width text-black-text mx-auto max-w-center-width py-10 lg:py-16' id="dashboard">
@@ -86,7 +106,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">APR</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate.data?._hex, totalSupply.data?._hex)?.toLocaleString('en-US', {
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{totalSupply && rewardRate ? getAPR(rewardRate, totalSupply)?.toLocaleString('en-US', {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     }) : 0}%</h2>
@@ -114,7 +134,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Staked</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{!veSupplyIsLoading && veSupplyData ? (Number(veSupplyData?._hex) / AIUS_wei).toString()?.toLocaleString() : 0}</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{veSupplyData ? (Number(veSupplyData) / AIUS_wei).toString()?.toLocaleString() : 0}</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>
