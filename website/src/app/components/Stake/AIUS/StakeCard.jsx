@@ -144,7 +144,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
 
     useEffect(() => {
         const f = async() => {
-            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const web3 = new Web3(window.ethereum);
             const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
             const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
 

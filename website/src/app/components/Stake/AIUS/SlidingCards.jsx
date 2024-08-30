@@ -120,7 +120,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
 
     useEffect(() => {
         const f = async() => {
-            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const web3 = new Web3(window.ethereum);
             const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
 
             const _totalStaked = await votingEscrowContract.methods.locked(selectedStake).call()
@@ -310,7 +310,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
     useEffect(() => {
         const f = async() => {
-            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const web3 = new Web3(window.ethereum);
             const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
 
             const _endDate = await votingEscrowContract.methods.locked__end(selectedStake).call()
@@ -504,7 +504,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
     useEffect(() => {
         const f = async() => {
-            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const web3 = new Web3(window.ethereum);
             const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
 
             const _earned = await veStakingContract.methods.earned(selectedStake).call()
@@ -771,7 +771,7 @@ function SlidingCards() {
 
     useEffect(() => {
         const f = async() => {
-            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const web3 = new Web3(window.ethereum);
             const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
             const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
             const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);

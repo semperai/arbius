@@ -167,7 +167,7 @@ function GanttChart(props) {
     useEffect(() => {
         console.log("LOAD DATA")
         loadData();
-    }, [])
+    }, [address])
 
 
     // const stakingData = useContractReads({
