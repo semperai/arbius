@@ -285,7 +285,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
             Number(selectedStake),
             parseInt((extendEndDate - getCurrentTimeInMSeconds()) / 1000).toString() // value in months(decimal) * 4*7*24*60*60
         ],
-        enabled: extendEndDate >0
+        enabled: extendEndDate > 0
     });
 
     const {
@@ -364,6 +364,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
                         defaultValue={0}
                         value={sliderValue}
                         onChange={(value) => {
+                            console.log(value, "VALUE")
                             if (value < 1) {
                                 setDuration({ ...duration, months: 0, weeks: 4 * value })
                             } else {
@@ -374,7 +375,11 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
                             if (Number.isInteger(value)) {
                                 date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth() + value, currentEndDate?.getDate());
                             } else {
-                                date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth(), currentEndDate?.getDate() + 30 * value);
+                                let additional_day = 1;
+                                if(value > 0.25){ // Special case for 1 week
+                                    additional_day = 0
+                                }
+                                date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth(), currentEndDate?.getDate() + 30 * value + additional_day);
                             }
                             setExtendEndDate(date)
                             setSliderValue(value)
@@ -397,7 +402,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
                     </div>
                     <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
 
-                        <h1 className='text-xs text-purple-text font-semibold'>{extendEndDate?.getMonth() + 1}/{extendEndDate?.getDate()}/{extendEndDate?.getFullYear()}</h1>
+                        <h1 className='text-xs text-purple-text font-semibold'>{` ${extendEndDate > 0 ? (extendEndDate?.getMonth() + 1).toString() + "/" + (extendEndDate?.getDate()).toString() + "/" + (extendEndDate?.getFullYear()).toString() : "-/-/-"} `}</h1>
                         <h1 className='text-[.6rem]'>Stake extended till</h1>
                     </div>
 
