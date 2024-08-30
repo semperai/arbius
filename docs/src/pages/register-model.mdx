@@ -75,9 +75,9 @@ Contains `title` , `description`, `git`, `docker` and `version` properties.
 * `git` refers to git repository.  On github you can press `y` for url to change to link to most recent commit
 * `docker` refers to docker repository. You can populate this with the link generated from `cog push`.
 
-<Note>
+<Danger>
 It is very common for different hardware to produce different results. You should include your specific hardware configuration (specifically GPU) in the title and/or description.
-</Note>
+</Danger>
 
 
 ### `input` property
@@ -221,17 +221,17 @@ This is the template schema used for Kandinsky 2 model on Arbius.
 
 ## Registering model with Arbius 
 
-### Get Ethereum on Arbitrum Nova
+### Get Ethereum on Arbitrum One
 
-To register a model you will need some amount of Eth on the Arbitrum Nova network.
+To register a model you will need some amount of Eth on the Arbitrum One network.
 
 For bridging assets, you have a few options:
 
-* [Official bridge](https://bridge.arbitrum.io/?l2chainId=42170)
+* [Official bridge](https://bridge.arbitrum.io/?l2chainId=42161)
 * [SideShift](https://sideshift.ai/)
 * [Multichain](https://multichain.org/)
 
-On Arbitrum Nova transactions are usually subcent. A few dollar equivalent in Eth is fine for all experimentation and deployment.
+On Arbitrum One transactions are usually very inexpensive. A few dollar equivalent in Eth is fine for all experimentation and deployment.
 
 ### Set up Arbius locally
 
@@ -245,7 +245,7 @@ cp env.example .env
 $(EDITOR) .env
 ```
 
-Replace `NOVA_PRIVATE_KEY='REPLACEME'` with your private key
+Replace `ARBITRUM_PRIVATE_KEY='REPLACEME'` with your private key
 Your private key can be found in MetaMask by clicking "account details".
 
 <Note>
@@ -282,6 +282,10 @@ Which will result in a `CID` (Content IDentifier). Others miners are likely to m
 
 ### Register model
 
+<Warning>
+Make sure you read the [Model Tokens](/model-tokens) guide before continuing if you would like to tokenize your model.
+</Warning>
+
 The following line will register a model with 0 fee, and it uses an unused address for the simplicity of this article.
 
 ```bash
@@ -300,10 +304,6 @@ Add the following to...
 ```
 
 Follow the instructions generated to store in the `arbius/contract/scripts/config.json` file. Use a lowercase alphanumeric name for the key field as this will be used in code.
-
-<Note>
-  If you would like to create a fee collecting model, consider modifying and running `/contract/scripts/00x-deploy-paid-model.ts` - this will allow for integration into the main UI of Arbius on the `/models` page. You may however use any address, including your own. Remember to set the fee (in wei) correctly.
-</Note>
 
 ## Adding model to the generate interface
 
