@@ -162,7 +162,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         abi: votingEscrow.abi,
         functionName: 'create_lock',
         args: [
-            (amount * AIUS_wei).toString(),
+            (Number(amount) * AIUS_wei).toString(),
             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
         ],
         enabled: allowance >= amount,

@@ -115,8 +115,8 @@ export default function Header() {
   // MAIN ARBIUS AI CODE
 
  
-    console.log({address});
-    console.log({isConnected});
+    //console.log({address});
+    //console.log({isConnected});
     const {
         data, isError, isLoading
     } = useContractRead({
