@@ -25,6 +25,7 @@ import cross from "../../../assets/images/cross.png"
 import error_stake from "../../../assets/images/error_stake.png"
 import success_stake from "../../../assets/images/success_stake.png"
 import loadConfig from './loadConfig';
+import Web3 from 'web3';
 
 
 const config = loadConfig();
@@ -46,6 +47,10 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
         enabled: Boolean(aiusToStake)
     });
 
+    const [endDate, setEndDate] = useState(0);
+    const [stakedOn, setStakedOn] = useState(0);
+    const [totalStaked, setTotalStaked] = useState(0);
+
     const {
         data: addAIUSData,
         isLoading: addAIUSIsLoading,
@@ -55,7 +60,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
     } = useContractWrite(addAIUSConfig)
 
 
-    const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
+    /*const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
@@ -63,6 +68,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
             Number(selectedStake)
         ]
     })
+
     console.log(Number(endDate?._hex), "endDate")
     const { data: stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
@@ -80,13 +86,13 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
         args: [
             Number(selectedStake)
         ]
-    })
+    })*/
 
     useEffect(() => {
         if (totalStaked && endDate && stakedOn) {
-            console.log(Number(endDate?._hex), "YOLO")
-            const t = (Number(endDate?._hex) - Number(stakedOn?._hex));
-            const a_b = (Number(totalStaked?.amount?._hex) / AIUS_wei) + Number(aiusToStake)
+            console.log(Number(endDate), "YOLO")
+            const t = (Number(endDate) - Number(stakedOn));
+            const a_b = (Number(totalStaked?.amount) / AIUS_wei) + Number(aiusToStake)
             setEstBalance(a_b * (t / t_max));
         }
     }, [aiusToStake])
@@ -111,6 +117,26 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
             setShowPopUp("add/Error")
         }
     }, [addAIUSError])
+
+    useEffect(() => {
+        const f = async() => {
+            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+
+            const _totalStaked = await votingEscrowContract.methods.locked(selectedStake).call()
+            const _endDate = await votingEscrowContract.methods.locked__end(selectedStake).call()
+            const _stakedOn = await votingEscrowContract.methods.user_point_history__ts(selectedStake, 1).call()
+
+            setTotalStaked(_totalStaked)
+            setEndDate(_endDate)
+            setStakedOn(_stakedOn)
+        }
+        if(address){
+            f();
+        }
+    },[address])
+
+
 
     return (
         <>
@@ -148,7 +174,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                     </div>
                     <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
 
-                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{totalSupply?._hex && rewardRate?._hex ? getAPR(rewardRate?._hex, totalSupply?._hex).toFixed(2) : 0}</span>%</h1>
+                        <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{totalSupply && rewardRate ? getAPR(rewardRate, totalSupply).toFixed(2) : 0}</span>%</h1>
                         <h1 className='text-[0.6rem]'>APR</h1>
 
                     </div>
@@ -216,19 +242,20 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
         const now = new Date();
         return Math.floor(now.getTime());
     }
+    const [endDate, setEndDate] = useState(0);
 
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-    const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
+    /*const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
         args: [
             Number(selectedStake)
         ]
-    })
+    })*/
 
     console.log(endDate, "END DATE")
-    let currentlyEndingAt = new Date(Number(endDate?._hex) * 1000).toLocaleDateString("en-US");
+    let currentlyEndingAt = new Date(Number(endDate) * 1000).toLocaleDateString("en-US");
     let currentDate = new Date().toLocaleDateString("en-US");
 
     const [currentEndDate, setCurrentEndDate] = useState(new Date(currentlyEndingAt))
@@ -280,6 +307,21 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
             setShowPopUp("extend/Error")
         }
     }, [addAIUSError])
+
+    useEffect(() => {
+        const f = async() => {
+            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+
+            const _endDate = await votingEscrowContract.methods.locked__end(selectedStake).call()
+
+            setEndDate(_endDate)
+        }
+        if(address){
+            f();
+        }
+    },[address])
+
 
     return (
 
@@ -408,15 +450,16 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
     const VE_STAKING_ADDRESS = config.veStakingAddress;
+    const [earned, setEarned] = useState(0);
 
-    const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
+    /*const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'earned',
         args: [
             Number(selectedStake)
         ]
-    })
+    })*/
 
 
     const { config: addAIUSConfig } = usePrepareContractWrite({
@@ -459,6 +502,21 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
     }, [addAIUSError])
 
 
+    useEffect(() => {
+        const f = async() => {
+            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+
+            const _earned = await veStakingContract.methods.earned(selectedStake).call()
+
+            setEarned(_earned)
+        }
+        if(address){
+            f();
+        }
+    },[address])
+
+
     return <>
         <div className={showPopUp === "claim" ? 'block' : 'hidden'}>
             <div className='flex justify-between items-center my-2'>
@@ -475,7 +533,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake }) => {
 
             <div className='flex justify-center gap-2 items-center mt-6'>
                 <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
-                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{earned?._hex ? (Number(earned?._hex) / AIUS_wei).toFixed(2).toString() : 0}</span> AIUS</h1>
+                    <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{earned ? (Number(earned) / AIUS_wei).toFixed(2).toString() : 0}</span> AIUS</h1>
                     <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
 
@@ -552,10 +610,14 @@ function SlidingCards() {
     const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 
     const { address, isConnected } = useAccount()
-    const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const [totalStakes, setTotalStakes] = useState([])
 
-    const {
+    const [totalEscrowBalance, setEscrowBalanceData] = useState(0)
+    const [totalSupply, setTotalSupply] = useState(0)
+    const [rewardRate, setRewardRate] = useState(0)
+    const [walletBalance, setWalletBalance] = useState(0)
+    const [tokenIDs, setTokenIDs] = useState([])
+    /*const {
         data, isError, isLoading
     } = useContractRead({
         address: BASETOKEN_ADDRESS_V1,
@@ -567,9 +629,9 @@ function SlidingCards() {
         enabled: isConnected
     })
 
-    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;
-
-    const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
+    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;*/
+    //console.log(walletBalance, "wallet balance")
+    /*const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'balanceOf',
@@ -577,28 +639,27 @@ function SlidingCards() {
             address
         ],
         enabled: isConnected
-    })
+    })*/
+    //console.log(escrowBalanceData, "VEBALANCE")
 
-    console.log(escrowBalanceData, "VEBALANCE")
-
-    const { data: rewardRate, isLoading: rewardRateIsLoading, isError: rewardRateIsError } = useContractRead({
+    /*const { data: rewardRate, isLoading: rewardRateIsLoading, isError: rewardRateIsError } = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'rewardRate',
         args: [],
         enabled: isConnected
-    })
+    })*/
 
-    const { data: totalSupply, isLoading: totalSupplyIsLoading, isError: totalSupplyIsError } = useContractRead({
+    /*const { data: totalSupply, isLoading: totalSupplyIsLoading, isError: totalSupplyIsError } = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'totalSupply',
         args: [],
         enabled: isConnected
-    })
-    console.log(rewardRate, totalSupply, "RRTS")
+    })*/
+    //console.log(rewardRate, totalSupply, "RRTS")
 
-    const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
+    /*const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
         contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
             console.log("the loop", i, totalEscrowBalance)
             return {
@@ -611,20 +672,19 @@ function SlidingCards() {
                 ]
             }
         }) : null,
-    });
-    console.log(tokenIDs, "tokenIDs")
-
+    });*/
+    //console.log(tokenIDs, "tokenIDs")
 
     useEffect(() => {
         setWindowWidth(window.innerWidth)
     }, [])
 
-    useEffect(() => {
+    /*useEffect(() => {
         console.log(escrowBalanceData, "ESCROW")
         if (escrowBalanceData) {
             setTotalEscrowBalance(BigNumber.from(escrowBalanceData?._hex).toNumber())
         }
-    }, [escrowBalanceData])
+    }, [escrowBalanceData])*/
 
 
 
@@ -709,9 +769,35 @@ function SlidingCards() {
     }, [direction]);
     // console.log({totalStakes});
 
+    useEffect(() => {
+        const f = async() => {
+            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+            const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+            const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
 
+            const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
+            const _rewardRate = await veStakingContract.methods.rewardRate().call()
+            const _totalSupply = await veStakingContract.methods.totalSupply().call()
+            const _walletBalance = await baseTokenV1Contract.methods.balanceOf(address).call()
+            console.log(_escrowBalanceData, _rewardRate/AIUS_wei, _totalSupply/AIUS_wei, _walletBalance/AIUS_wei, "HYU");
+            
+            let _tokenIDs = []
+            for(let i=0; i<_escrowBalanceData; i++){
+                _tokenIDs.push(await votingEscrowContract.methods.tokenOfOwnerByIndex(address, i).call())
+            }
+            console.log(_tokenIDs, "TTSSTAKES SSS")
 
-
+            setEscrowBalanceData(_escrowBalanceData);
+            setRewardRate(_rewardRate / AIUS_wei);
+            setTotalSupply(_totalSupply / AIUS_wei);
+            setWalletBalance(_walletBalance / AIUS_wei);
+            setTokenIDs(_tokenIDs)
+        }
+        if(address){
+            f();            
+        }
+    },[address])
 
 
 

@@ -144,7 +144,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     </div>
                 </div>
                 <div className='hidden xl:block col-span-2 pl-2 h-full'>
-                    <GanttChart />
+                    {/*<GanttChart />*/}
                 </div>
             </div>
         </div>

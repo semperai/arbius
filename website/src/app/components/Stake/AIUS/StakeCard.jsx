@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useContractRead, useAccount, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi'
 import { BigNumber } from 'ethers'
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
@@ -11,6 +11,8 @@ import { AIUS_wei } from "../../../Utils/constantValues";
 import Link from "next/link"
 import loadConfig from './loadConfig'
 import info_icon from '@/app/assets/images/info_icon_white.png'
+import Web3 from 'web3';
+
 function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp }) {
     console.log(tokenID, "TOKEN ID")
     const { address, isConnected } = useAccount();
@@ -18,7 +20,14 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const VE_STAKING_ADDRESS = config.veStakingAddress;
 
-    const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
+    const [totalStaked, setTotalStaked] = useState(0);
+    const [endDate, setEndDate] = useState(0);
+    const [stakedOn, setStakedOn] = useState(0);
+    const [initialBalance, setInitialBalance] = useState(0);
+    const [governancePower, setGovernancePower] = useState(0);
+    const [earned, setEarned] = useState(0);
+
+    /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'locked',
@@ -75,19 +84,20 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
         args: [
             Number(tokenID?._hex)
         ]
-    })
+    })*/
 
 
     // withdraw
-    console.log(Number(endDate?._hex) * 1000, "current")
+    console.log(Number(endDate) * 1000, "current")
     console.log("current Date", Date.now())
     const { config: withdrawAIUSConfig } = usePrepareContractWrite({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'withdraw',
         args: [
-            Number(tokenID?._hex)
-        ]
+            Number(tokenID)
+        ],
+        enabled: Date.now() > (Number(endDate) * 1000)
     });
 
     const {
@@ -131,45 +141,70 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
         }
     }, [withdrawAIUSError])
 
+
+    useEffect(() => {
+        const f = async() => {
+            const web3 = new Web3("https://arbitrum-sepolia.core.chainstack.com/90e6d20df024533303fc49b0d92ec9ef");
+            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+            const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+
+            const _totalStaked = await votingEscrowContract.methods.locked(tokenID).call()
+            const _endDate = await votingEscrowContract.methods.locked__end(tokenID).call()
+            const _stakedOn = await votingEscrowContract.methods.user_point_history__ts(tokenID, 1).call()
+            const _governancePower = await votingEscrowContract.methods.balanceOfNFT(tokenID).call()
+            const _initialBalance = await veStakingContract.methods.balanceOf(tokenID).call()
+            const _earned = await veStakingContract.methods.earned(tokenID).call()
+            console.log(_totalStaked, _endDate, _stakedOn, _governancePower, _initialBalance, _earned, "^ 6 values")
+            setTotalStaked(_totalStaked)
+            setEndDate(_endDate)
+            setStakedOn(_stakedOn)
+            setGovernancePower(_governancePower)
+            setInitialBalance(_initialBalance)
+            setEarned(_earned)
+        }
+        if(address){
+            f();
+        }
+    },[address])
     
 
     const openseaLink = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev" ? "https://testnets.opensea.io/assets/arbitrum-sepolia/" : "https://opensea.io/assets/arbitrum-one/"
     return (
         <div className='rounded-2xl px-8 py-6  bg-white-background relative'>
-            <Link href={`${openseaLink}${VOTING_ESCROW_ADDRESS}/${Number(tokenID?._hex)}`} target="_blank">
+            <Link href={`${openseaLink}${VOTING_ESCROW_ADDRESS}/${Number(tokenID)}`} target="_blank">
                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20 cursor-pointer' alt="" />
             </Link>
             <div className='flex justify-start gap-8 items-start'>
                 <div className='flex flex-col gap-3 justify-center items-start'>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                        <h2 className='text-[15px] font-semibold'>{totalStaked?.amount?._hex ? (Number(totalStaked.amount._hex) / AIUS_wei).toLocaleString() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
+                        <h2 className='text-[15px] font-semibold'>{totalStaked?.amount ? (Number(totalStaked.amount) / AIUS_wei).toLocaleString() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Initial Balance</h2>
-                        <h2 className='text-[15px] font-semibold'>{initialBalance?._hex ? (Number(initialBalance?._hex) / AIUS_wei).toLocaleString() : 0} <span className="text-[11px] font-medium">veAIUS</span></h2>
+                        <h2 className='text-[15px] font-semibold'>{initialBalance ? (Number(initialBalance) / AIUS_wei).toLocaleString() : 0} <span className="text-[11px] font-medium">veAIUS</span></h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Staked on</h2>
-                        <h2 className='text-[15px] font-semibold'>{new Date(Number(stakedOn?._hex) * 1000).toLocaleDateString('en-US')}</h2>
+                        <h2 className='text-[15px] font-semibold'>{new Date(Number(stakedOn) * 1000).toLocaleDateString('en-US')}</h2>
                     </div>
                 </div>
                 <div className='flex flex-col gap-3 justify-center items-start'>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Governance Power</h2>
-                        <h2 className='text-[15px] font-semibold'>{governancePower?._hex ? (Number(governancePower?._hex) / AIUS_wei)?.toLocaleString('en-US', {
+                        <h2 className='text-[15px] font-semibold'>{governancePower ? (Number(governancePower) / AIUS_wei)?.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                         }) : 0}</h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Rewards</h2>
-                        <h2 className='text-[15px] font-semibold'>{earned?._hex ? (Number(earned?._hex) / AIUS_wei).toFixed(2).toString() : 0} AIUS</h2>
+                        <h2 className='text-[15px] font-semibold'>{earned ? (Number(earned) / AIUS_wei).toFixed(2).toString() : 0} AIUS</h2>
                     </div>
                     <div>
                         <div>
                             <h2 className="text-[12px] text-[#8D8D8D] font-semibold">End Date</h2>
-                            <h2 className='text-[15px] font-semibold'>{new Date(Number(endDate?._hex) * 1000).toLocaleDateString('en-US')}</h2>
+                            <h2 className='text-[15px] font-semibold'>{new Date(Number(endDate) * 1000).toLocaleDateString('en-US')}</h2>
                         </div>
                     </div>
 
@@ -183,7 +218,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
 
             <div className='flex justify-between gap-2 items-center mt-4 '>
                 {
-                    Number(endDate?._hex) * 1000 > Date.now() ? (
+                    Number(endDate) * 1000 > Date.now() ? (
                         <>
                             <div className='w-[32%]'>
                                 <button
@@ -200,7 +235,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                             <div className='w-[32%]'>
                                 <button
                                     type="button"
-                                    onClick={() => { setShowPopUp("extend"); setSelectedStake(tokenID?._hex); }}
+                                    onClick={() => { setShowPopUp("extend"); setSelectedStake(tokenID); }}
                                     className="relative justify-center py-2 group bg-[#F3F3F3] py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                 >
                                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -212,7 +247,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                             <div className='w-[32%]'>
                                 <button
                                     type="button"
-                                    onClick={() => { setShowPopUp("claim"); setSelectedStake(tokenID?._hex); }}
+                                    onClick={() => { setShowPopUp("claim"); setSelectedStake(tokenID); }}
                                     className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                 >
                                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -232,7 +267,7 @@ function StakeCard({ idx, tokenID, getAPR, rewardRate, totalSupply, setSelectedS
                             <div className='w-[40%]'>
                                 <button
                                     type="button"
-                                    onClick={() => { setSelectedStake(tokenID?._hex); handleWithdraw(Number(endDate?._hex) * 1000); }}
+                                    onClick={() => { setSelectedStake(tokenID); handleWithdraw(Number(endDate) * 1000); }}
                                     className="relative justify-center py-2 group bg-black-background py-1 px-3 lg:px-4 rounded-full flex items-center gap-3 w-full"
                                 >
                                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
