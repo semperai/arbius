@@ -39,7 +39,17 @@ export default function AIUS({protocolData}) {
 
       useEffect(() => {
         console.log("switch");
-        
+        const f = async() => {
+            try {
+                const check = await window.ethereum.request({ method: 'eth_accounts' }); // Request account access if needed
+                if(check.length){
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                }
+            } catch (error) {
+            }
+        }
+
+        f();
         switchNetworkArbitrum?.();
       },[switchNetworkArbitrum])
 
