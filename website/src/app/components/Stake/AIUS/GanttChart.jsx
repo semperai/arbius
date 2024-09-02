@@ -323,19 +323,19 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
             <div className='flex justify-between items-center mt-6 mb-3'>
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">First unlock in</h2>
-                    <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate} days</h2>
+                    <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate ? allStakingData?.firstUnlockDate : "0"} days</h2>
 
                 </div>
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                    <h2 className='text-[16px] font-semibold'>{allStakingData?.totalStaked?.toFixed(2)} <span className="text-[11px] font-medium">AIUS</span></h2>
+                    <h2 className='text-[16px] font-semibold'>{allStakingData?.totalStaked ? allStakingData?.totalStaked?.toFixed(2) : "0"} <span className="text-[11px] font-medium">AIUS</span></h2>
 
                 </div>
                 <div className='relative'>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Governance Power</h2>
                     <div className='flex justify-start items-center gap-1'>
 
-                        <h2 className='text-[16px] font-semibold'>{allStakingData?.totalGovernancePower?.toFixed(2)}</h2>
+                        <h2 className='text-[16px] font-semibold'>{allStakingData?.totalGovernancePower ? allStakingData?.totalGovernancePower?.toFixed(2) : "0"}</h2>
                         <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100' onMouseOver={() => {
                             document.getElementById("info").style.display = "flex"
                         }}
