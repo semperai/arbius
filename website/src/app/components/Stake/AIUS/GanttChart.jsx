@@ -405,7 +405,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
                                 {
                                     item?.staked_till_now === 0 && item?.stake_completion === 0 && (
 
-                                        <div className={`bg-[#eeeeee] h-[.4rem] my-3 ${item?.staked_till_now === 0 ? 'rounded-full' : 'rounded-r-full'} relative z-20 w-[5%]`} >
+                                        <div className={`h-[.4rem] my-3 ${item?.staked_till_now === 0 ? 'rounded-full' : 'rounded-r-full'} ${new Date(item?.lockedEndDate).getTime() <= new Date().getTime() ? 'bg-[#4A28FF]' : 'bg-[#eeeeee]'}  relative z-20 w-[5%]`} >
                                             {
                                                 item?.staked_till_now === 0 ? (
                                                     <>

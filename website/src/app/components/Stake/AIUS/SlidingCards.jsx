@@ -616,7 +616,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address })
 
 
 
-function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, walletBalance}) {
+function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, walletBalance, isLoading}) {
     const [showPopUp, setShowPopUp] = useState(false)
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");

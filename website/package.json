@@ -29,6 +29,7 @@
     "eslint-config-next": "13.2.3",
     "ethers": "^5",
     "graphql": "^16.8.1",
+    "lottie-react": "^2.4.0",
     "next": "13.2.3",
     "next-themes": "^0.2.1",
     "nightwind": "^1.1.13",
