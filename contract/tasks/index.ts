@@ -822,6 +822,52 @@ task("modeltoken:deployModel", "Deploy model")
 });
 
 
+task("modeltoken:info", "Get model info")
+.addOptionalParam("address", "Model token address")
+.addOptionalParam("model", "Model id")
+.setAction(async ({ address, model }, hre) => {
+  if (!address && !model) {
+    console.error('address or model is required');
+    process.exit(1);
+  }
+
+  let modelTokenAddress = address; // address could be undefined here
+  if (model) {
+    const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
+    const engine = await Engine.attach(Config.v4_engineAddress);
+
+    const { addr, fee, cid } = await engine.models(model);
+    console.log(`Model ${model}`);
+    console.log(`  addr: ${addr}`);
+    console.log(`  fee: ${hre.ethers.utils.formatEther(fee)}`);
+    console.log(`  cid: ${cid}`);
+
+    modelTokenAddress = addr;
+  }
+
+  const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
+  const modelToken = await ModelToken.attach(modelTokenAddress);
+
+  console.log(``);
+  console.log(`ModelToken ${modelTokenAddress}`);
+  console.log(`  public syncing: ${await modelToken.publicSyncingEnabled(model)}`);
+  console.log(`  pricing token: ${await modelToken.pricingToken(model)}`);
+  console.log(`  pricing decimals: ${await modelToken.pricingTokenDecimals(model)}`);
+  console.log(`  target price: ${hre.ethers.utils.formatEther(await modelToken.targetPrice(model))}`);
+  console.log(`  tax enabled: ${await modelToken.taxEnabled()}`);
+  console.log(`  reward divisor: ${hre.ethers.utils.formatEther(await modelToken.rewardDivisor())}`);
+  console.log(`  tax divisor: ${hre.ethers.utils.formatEther(await modelToken.taxDivisor())}`);
+  console.log(`  liquidity divisor: ${hre.ethers.utils.formatEther(await modelToken.liquidityDivisor())}`);
+
+  console.log(`  treasury: ${await modelToken.treasury()}`);
+  console.log(`  arbius: ${await modelToken.arbius()}`);
+  console.log(`  aius: ${await modelToken.arbiusToken()}`);
+  console.log(`  arbius treasury: ${await modelToken.arbiusTreasury()}`);
+  console.log(`  router: ${await modelToken.router()}`);
+  console.log(`  swap receiver: ${await modelToken.swapReceiver()}`);
+});
+
+
 task("modeltoken:setPublicSyncingEnabled", "Enable public syncing for model")
 .addParam("address", "Model token address")
 .addParam("model", "Model id")
