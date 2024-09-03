@@ -395,12 +395,12 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                             type="button"
                                 onClick={async()=>{
                                     if(!stakeIsPending && !stakeError){
-                                        if(Number(amount) && Number(amount) < walletBalance && (duration.months || duration.weeks)){
+                                        if(Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks)){
                                             await handleStake()
                                         }
                                     }
                                 }}
-                            className={`relative justify-center py-2 group bg-black-background ${Number(amount) && Number(amount) < walletBalance && (duration.months || duration.weeks) ? "" : "opacity-40" } py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
+                            className={`relative justify-center py-2 group bg-black-background ${Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks) ? "" : "opacity-40" } py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
                         >
                             <div class="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div className="lato-bold relative z-10 text-original-white lg:text-[15px]">

@@ -42,7 +42,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
         functionName: 'increase_amount',
         args: [
             Number(selectedStake),
-            (aiusToStake * AIUS_wei).toString()
+            Number(walletBalance) >= Number(aiusToStake) && (aiusToStake * AIUS_wei).toString()
         ],
         enabled: Boolean(aiusToStake)
     });
@@ -196,14 +196,16 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                     <div className='flex justify-end'>
                         <button
                             type="button"
-                            className="relative group bg-black-background py-1 px-7 rounded-full flex items-center gap-3"
+                            className={`relative group bg-black-background ${ Number(walletBalance) >= Number(aiusToStake) ? "" : "opacity-40"} py-1 px-7 rounded-full flex items-center gap-3`}
                             onClick={() => {
-                                addAIUS?.()
-                                setShowPopUp("add/2")
+                                if(Number(walletBalance) >= Number(aiusToStake)){
+                                    addAIUS?.()
+                                    setShowPopUp("add/2")
+                                }
                             }}
                         >
                             <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="lato-bold  relative z-10 text-original-white lg:text-[100%] mb-[1px]">
+                            <div className="lato-bold relative z-10 text-original-white lg:text-[100%] mb-[1px]">
                                 Add
                             </div>
                         </button>
