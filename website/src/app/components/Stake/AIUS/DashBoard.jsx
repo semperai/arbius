@@ -77,114 +77,124 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     useEffect(() => {
         const f = async () => {
             setLoading(true);
-            const web3 = new Web3(window.ethereum);
-            const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
-            const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
 
-            const _rewardRate = await veStakingContract.methods.rewardRate().call()
-            const _totalSupply = await veStakingContract.methods.totalSupply().call()
-            const _veSupplyData = await votingEscrowContract.methods.supply().call()
+            try {
 
+                const web3 = new Web3(window.ethereum);
+                const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+                const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
 
-
-            setRewardRate(_rewardRate / AIUS_wei)
-            setTotalSupply(_totalSupply / AIUS_wei)
-            setVESupplyData(_veSupplyData)
+                const _rewardRate = await veStakingContract.methods.rewardRate().call()
+                const _totalSupply = await veStakingContract.methods.totalSupply().call()
+                const _veSupplyData = await votingEscrowContract.methods.supply().call()
 
 
-            // prepiing sliding cards and ganttChart
-            const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
-            setEscrowBalanceData(_escrowBalanceData);
-            let tokens = await getTokenIDs(address, _escrowBalanceData);
+
+                setRewardRate(_rewardRate / AIUS_wei)
+                setTotalSupply(_totalSupply / AIUS_wei)
+                setVESupplyData(_veSupplyData)
 
 
-            console.log(tokens, "TTSSTAKES SSS")
+                // prepiing sliding cards and ganttChart
+                const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
+                setEscrowBalanceData(_escrowBalanceData);
+                let tokens = await getTokenIDs(address, _escrowBalanceData);
 
-            // ganttChart
-            let mergedTokensData = {
-                "slidingCards": {},
-                "ganttChart": {}
-            }
-            let finalStakingData = {
 
-                "firstUnlockDate": 0,
-                "totalStaked": 0,
-                "totalGovernancePower": 0,
-                "allStakes": []
-            }
-            let lastDate = 0;
-            let earliestDate = 0;
-            tokens.forEach(token => {
-                if (Number(token?.locked__end) > lastDate) {
-                    lastDate = Number(token?.locked__end)
-                    console.log(lastDate, "LAST DATE")
+                console.log(tokens, "TTSSTAKES SSS")
 
+                // ganttChart
+                let mergedTokensData = {
+                    "slidingCards": {},
+                    "ganttChart": {}
                 }
-                if (Number(token?.user_point_history__ts) < earliestDate || earliestDate === 0) {
-                    earliestDate = Number(token?.user_point_history__ts)
+                let finalStakingData = {
+
+                    "firstUnlockDate": 0,
+                    "totalStaked": 0,
+                    "totalGovernancePower": 0,
+                    "allStakes": []
                 }
+                let lastDate = 0;
+                let earliestDate = 0;
+                tokens.forEach(token => {
+                    if (Number(token?.locked__end) > lastDate) {
+                        lastDate = Number(token?.locked__end)
+                        console.log(lastDate, "LAST DATE")
 
-            })
-            if (earliestDate && lastDate) {
-                console.log("HERE");
+                    }
+                    if (Number(token?.user_point_history__ts) < earliestDate || earliestDate === 0) {
+                        earliestDate = Number(token?.user_point_history__ts)
+                    }
 
-                earliestDate = new Date(earliestDate * 1000);
-                console.log(earliestDate, "EARLIEST DATE HERE")
+                })
+                if (earliestDate && lastDate) {
+                    console.log("HERE");
 
-                lastDate = new Date(lastDate * 1000)
-                setWindowStartDate(earliestDate);
-                setWindowEndDate(lastDate);
-                setNoCols((lastDate.getFullYear() - earliestDate.getFullYear()) * 12 + lastDate.getMonth() - earliestDate.getMonth() + 2)
-            }
-            // console.log(earliestDate, "EARLIEST DATE")
+                    earliestDate = new Date(earliestDate * 1000);
+                    console.log(earliestDate, "EARLIEST DATE HERE")
 
-            tokens.forEach(token => {
-
-                finalStakingData["totalStaked"] = finalStakingData["totalStaked"] + Number(token?.locked.amount) / AIUS_wei;
-                finalStakingData["totalGovernancePower"] = finalStakingData["totalGovernancePower"] + Number(token?.balanceOfNFT) / AIUS_wei;
-
-                if (finalStakingData["firstUnlockDate"] == 0 || finalStakingData["firstUnlockDate"] > Number(token?.locked__end)) {
-
-
-                    finalStakingData["firstUnlockDate"] = Number(token?.locked__end)
-                    console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime())
-                    // console.log();
-
+                    lastDate = new Date(lastDate * 1000)
+                    setWindowStartDate(earliestDate);
+                    setWindowEndDate(lastDate);
+                    setNoCols((lastDate.getFullYear() - earliestDate.getFullYear()) * 12 + lastDate.getMonth() - earliestDate.getMonth() + 2)
                 }
-                console.log({ earliestDate });
-                console.log("LOCKED DOt end", token.locked.end);
+                // console.log(earliestDate, "EARLIEST DATE")
 
-                finalStakingData["allStakes"].push({
-                    "staked": Number(token?.locked.amount) / AIUS_wei,
-                    "lockedEndDate": new Date(Number(token?.locked__end) * 1000).toLocaleDateString('en-US'),
+                tokens.forEach(token => {
 
-                    "lockedStartDate": new Date(Number(token?.user_point_history__ts) * 1000).toLocaleDateString('en-US'),
-                    "currentDate": new Date().toLocaleDateString('en-US'),
-                    "governancePower": Number(token?.balanceOfNFT) / AIUS_wei,
-                    "veAIUSBalance": veAIUSBalance(
-                        Number(token?.locked.amount) / AIUS_wei,
-                        Number(token?.user_point_history__ts),
-                        Number(token?.locked__end)
-                    ),
+                    finalStakingData["totalStaked"] = finalStakingData["totalStaked"] + Number(token?.locked.amount) / AIUS_wei;
+                    finalStakingData["totalGovernancePower"] = finalStakingData["totalGovernancePower"] + Number(token?.balanceOfNFT) / AIUS_wei;
+
+                    if (finalStakingData["firstUnlockDate"] == 0 || finalStakingData["firstUnlockDate"] > Number(token?.locked__end)) {
 
 
-                    "stake_start": getMonthDifference(new Date(Number(token?.user_point_history__ts) * 1000), earliestDate),
-                    "staked_till_now": getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date(Number(token?.user_point_history__ts) * 1000)) > 0 ? getMonthDifference(new Date(), new Date(Number(token?.user_point_history__ts) * 1000)) : 0,
-                    "stake_completion": getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date()) > 0 ? getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date()) : 0
+                        finalStakingData["firstUnlockDate"] = Number(token?.locked__end)
+                        console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime())
+                        // console.log();
+
+                    }
+                    console.log({ earliestDate });
+                    console.log("LOCKED DOt end", token.locked.end);
+
+                    finalStakingData["allStakes"].push({
+                        "staked": Number(token?.locked.amount) / AIUS_wei,
+                        "lockedEndDate": new Date(Number(token?.locked__end) * 1000).toLocaleDateString('en-US'),
+
+                        "lockedStartDate": new Date(Number(token?.user_point_history__ts) * 1000).toLocaleDateString('en-US'),
+                        "currentDate": new Date().toLocaleDateString('en-US'),
+                        "governancePower": Number(token?.balanceOfNFT) / AIUS_wei,
+                        "veAIUSBalance": veAIUSBalance(
+                            Number(token?.locked.amount) / AIUS_wei,
+                            Number(token?.user_point_history__ts),
+                            Number(token?.locked__end)
+                        ),
+
+
+                        "stake_start": getMonthDifference(new Date(Number(token?.user_point_history__ts) * 1000), earliestDate),
+                        "staked_till_now": getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date(Number(token?.user_point_history__ts) * 1000)) > 0 ? getMonthDifference(new Date(), new Date(Number(token?.user_point_history__ts) * 1000)) : 0,
+                        "stake_completion": getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date()) > 0 ? getMonthDifference(new Date(Number(token?.locked__end) * 1000), new Date()) : 0
+                    })
+
+                    // console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime(), "DIFF", finalStakingData["firstUnlockDate"] * 1000 - new Date().getTime())
                 })
 
-                // console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime(), "DIFF", finalStakingData["firstUnlockDate"] * 1000 - new Date().getTime())
-            })
-            
-            finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
-            // earliestDate = new Date(earliestDate * 1000);
-            finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
-            console.log(finalStakingData["firstUnlockDate"], "FUND")
+                finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
+                // earliestDate = new Date(earliestDate * 1000);
+                finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
+                console.log(finalStakingData["firstUnlockDate"], "FUND")
 
-            mergedTokensData["ganttChart"] = finalStakingData;
-            mergedTokensData["slidingCards"] = tokens;
-            setTokenIDs(mergedTokensData);
-            setLoading(false);
+                mergedTokensData["ganttChart"] = finalStakingData;
+                mergedTokensData["slidingCards"] = tokens;
+                setTokenIDs(mergedTokensData);
+                setLoading(false);
+
+            } catch (e) {
+
+                console.log(e)
+                setLoading(false);
+            }
+
         }
         if (address) {
 
@@ -254,7 +264,12 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     <div className=''>
                         {loading ? <div className='h-[300px] pl-2'>
                             <Loader />
-                        </div> : <SlidingCards isLoading={isLoading} totalEscrowBalance={escrowBalanceData} tokenIDs={tokenIDs?.slidingCards} rewardRate={rewardRate} totalSupply={totalSupply} walletBalance={walletBalance} />}
+                        </div> : (tokenIDs?.slidingCards && tokenIDs?.slidingCards.length > 0) ? <SlidingCards isLoading={isLoading} totalEscrowBalance={escrowBalanceData} tokenIDs={tokenIDs?.slidingCards} rewardRate={rewardRate} totalSupply={totalSupply} walletBalance={walletBalance} /> : <div className='h-[300px] flex justify-center items-center pl-2'>
+                            <div className=' bg-[#fff] rounded-2xl w-full h-full flex justify-center items-center'>
+                                <h1 className='text-[#4A28FF] text-[20px] font-semibold'>No Stakes Yet</h1>
+
+                            </div>
+                        </div>}
 
                     </div>
                 </div>
@@ -298,9 +313,14 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 </div>
                 <div className='hidden xl:block col-span-2 pl-2 h-full'>
                     {
-                        loading ? <div className='h-[300px] pl-2'>
+                        loading ? <div className='h-[300px]'>
                             <Loader />
-                        </div> : <GanttChart isLoading={loading} allStakingData={tokenIDs?.ganttChart} noCols={noCols} windowStartDate={windowStartDate} windowEndDate={windowEndDate} />
+                        </div> : (tokenIDs?.ganttChart && tokenIDs?.ganttChart.allStakes && tokenIDs?.ganttChart.allStakes.length > 0) ? <GanttChart isLoading={loading} allStakingData={tokenIDs?.ganttChart} noCols={noCols} windowStartDate={windowStartDate} windowEndDate={windowEndDate} /> : <div className='h-[300px] flex justify-center items-center'>
+                            <div className=' bg-[#fff] rounded-2xl w-full h-full flex justify-center items-center'>
+                                <h1 className='text-[#4A28FF] text-[20px] font-semibold'>No Stakes Yet</h1>
+
+                            </div>
+                        </div>
                     }
                 </div>
             </div>
