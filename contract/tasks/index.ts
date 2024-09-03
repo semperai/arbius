@@ -899,8 +899,12 @@ task("modeltoken:setTargetPrice", "Set target price for model")
 .setAction(async ({ address, model, price }, hre) => {
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
   const modelToken = await ModelToken.attach(address);
-  const tx = await modelToken.setTargetPrice(model, hre.ethers.utils.parseEther(price));
+
+  let priceParsed = hre.ethers.utils.parseEther(price);
+
+  const tx = await modelToken.setTargetPrice(model, priceParsed);
   await tx.wait();
+
   console.log(`Target price for model ${model} is now ${price}`);
 });
 
@@ -910,7 +914,7 @@ task("modeltoken:setRewardDivisor", "Set reward divisor for model token")
 .setAction(async ({ address, divisor }, hre) => {
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
   const modelToken = await ModelToken.attach(address);
-  const tx = await modelToken.setRewardDivisor(divisor);
+  const tx = await modelToken.setRewardDivisor(hre.ethers.utils.parseEther(divisor));
   await tx.wait();
   console.log(`Reward divisor is now ${divisor}`);
 });
@@ -921,7 +925,7 @@ task("modeltoken:setTaxDivisor", "Set tax divisor for model token")
 .setAction(async ({ address, model, divisor }, hre) => {
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
   const modelToken = await ModelToken.attach(address);
-  const tx = await modelToken.setTaxDivisor(divisor);
+  const tx = await modelToken.setTaxDivisor(hre.ethers.utils.parseEther(divisor));
   await tx.wait();
   console.log(`Tax divisor is now ${divisor}`);
 });
@@ -932,7 +936,7 @@ task("modeltoken:setLiquidityDivisor", "Set liquidity divisor for model token")
 .setAction(async ({ address, divisor }, hre) => {
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
   const modelToken = await ModelToken.attach(address);
-  const tx = await modelToken.setLiquidityDivisor(divisor);
+  const tx = await modelToken.setLiquidityDivisor(hre.ethers.utils.parseEther(divisor));
   await tx.wait();
   console.log(`Liquidity divisor is now ${divisor}`);
 });
@@ -943,8 +947,8 @@ task("modeltoken:liquidate", "Liquidate model token")
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
   const modelToken = await ModelToken.attach(address);
   const tx = await modelToken.liquidate();
-  await tx.wait();
-  console.log(`Model token liquidated`);
+  const receipt = await tx.wait();
+  console.log(`Model token liquidated in ${receipt.transactionHash}`);
 });
 
 task("modeltoken:withdrawArbius", "Withdraw arbius from model token")
@@ -953,29 +957,38 @@ task("modeltoken:withdrawArbius", "Withdraw arbius from model token")
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
   const modelToken = await ModelToken.attach(address);
   const tx = await modelToken.withdrawArbius();
-  await tx.wait();
-  console.log(`Arbius withdrawn`);
+  const receipt = await tx.wait();
+  console.log(`Arbius withdrawn in ${receipt.transactionHash}`);
 });
 
 task("modeltoken:updateModelFee", "Update fee for model")
-.addParam("address", "Model token address")
 .addParam("model", "Model id")
 .addParam("fee", "Fee")
 .setAction(async ({ address, model, fee }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
+  const engine = await Engine.attach(Config.v4_engineAddress);
+
+  const { addr: modelTokenAddress } = await engine.models(model);
+
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
-  const modelToken = await ModelToken.attach(address);
+  const modelToken = await ModelToken.attach(modelTokenAddress);
+
   const tx = await modelToken.updateModelFee(model, fee);
-  await tx.wait();
-  console.log(`Model fee for model ${model} is now ${fee}`);
+  const receipt = await tx.wait();
+  console.log(`Model fee for model ${model} is now ${fee} in ${receipt.transactionHash}`);
 });
 
 task("modeltoken:updateModelAddr", "Update model address for model")
-.addParam("address", "Model token address")
 .addParam("model", "Model id")
 .addParam("addr", "Address")
 .setAction(async ({ address, model, addr }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
+  const engine = await Engine.attach(Config.v4_engineAddress);
+
+  const { addr: modelTokenAddress } = await engine.models(model);
+
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
-  const modelToken = await ModelToken.attach(address);
+  const modelToken = await ModelToken.attach(modelTokenAddress);
   const tx = await modelToken.updateModelAddr(model, addr);
   await tx.wait();
   console.log(`Model address for model ${model} is now ${addr}`);
