@@ -792,6 +792,18 @@ task("modeltoken:deployModel", "Deploy model")
   const engine = await Engine.attach(Config.v4_engineAddress);
 
   const templateBuf = fs.readFileSync(template);
+  if (templateBuf.length > 262144) {
+    console.error('error: template file bigger than 262144 bytes');
+    process.exit(1);
+  }
+  if (templateBuf.length === 0) {
+    console.error('error: template file is empty');
+    process.exit(1);
+  }
+  if (! JSON.parse(templateBuf.toString())) {
+    console.error('error: template file is not valid json');
+    process.exit(1);
+  }
 
   const cid = await engine.generateIPFSCID(templateBuf);
   console.log('model cid is', cid);
