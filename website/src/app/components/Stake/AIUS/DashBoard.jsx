@@ -19,6 +19,7 @@ import Web3 from 'web3';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions'
 import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 import Loader from '../Loader/Index'
+import Gantt from './GanttChartTest'
 
 function DashBoard({ data, isLoading, isError, protocolData }) {
     const { address, isConnected } = useAccount()
@@ -159,9 +160,9 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
                     finalStakingData["allStakes"].push({
                         "staked": Number(token?.locked.amount) / AIUS_wei,
-                        "lockedEndDate": new Date(Number(token?.locked__end) * 1000).toLocaleDateString('en-US'),
+                        "endDate": new Date(Number(token?.locked__end) * 1000).toISOString().split('T')[0],
 
-                        "lockedStartDate": new Date(Number(token?.user_point_history__ts) * 1000).toLocaleDateString('en-US'),
+                        "startDate": new Date(Number(token?.user_point_history__ts) * 1000).toISOString().split('T')[0],
                         "currentDate": new Date().toLocaleDateString('en-US'),
                         "governancePower": Number(token?.balanceOfNFT) / AIUS_wei,
                         "veAIUSBalance": veAIUSBalance(
@@ -312,10 +313,11 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     </div>
                 </div>
                 <div className='hidden xl:block col-span-2 pl-2 h-full'>
+                {/* <GanttChart isLoading={loading} allStakingData={tokenIDs?.ganttChart} noCols={noCols} windowStartDate={windowStartDate} windowEndDate={windowEndDate} />  */}
                     {
                         loading ? <div className='h-[300px]'>
                             <Loader />
-                        </div> : (tokenIDs?.ganttChart && tokenIDs?.ganttChart.allStakes && tokenIDs?.ganttChart.allStakes.length > 0) ? <GanttChart isLoading={loading} allStakingData={tokenIDs?.ganttChart} noCols={noCols} windowStartDate={windowStartDate} windowEndDate={windowEndDate} /> : <div className='h-[300px] flex justify-center items-center'>
+                        </div> : (tokenIDs?.ganttChart && tokenIDs?.ganttChart.allStakes && tokenIDs?.ganttChart.allStakes.length > 0) ? <Gantt allStakingData={tokenIDs?.ganttChart} />: <div className='h-[300px] flex justify-center items-center'>
                             <div className=' bg-[#fff] rounded-2xl w-full h-full flex justify-center items-center'>
                                 <h1 className='text-[#4A28FF] text-[20px] font-semibold'>No Stakes Found</h1>
 

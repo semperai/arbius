@@ -1,0 +1,206 @@
+
+"use client"
+import React, { useState, useEffect } from 'react'
+import Image from 'next/image';
+import info_icon from "../../../assets/images/info_icon.png"
+import votingEscrow from "../../../abis/votingEscrow.json"
+// import config from "../../../../sepolia_config.json"
+import loadConfig from './loadConfig';
+import { useAccount, useContractRead, useContractReads } from 'wagmi';
+
+import { getTokenIDs, getTotalEscrowBalance, init } from '../../../Utils/gantChart/contractInteractions';
+const CustomGanttChart = ({ allStakingData }) => {
+    //   const tasks = [
+    //   { name: 'Task 1', startDate: '2024-09-01', endDate: '2025-03-15' },
+    //   { name: 'Task 2', startDate: '2024-09-02', endDate: '2024-09-25' },
+    //   { name: 'Task 3', startDate: '2024-09-03', endDate: '2024-10-05' },
+    // ];
+    const tasks = allStakingData?.allStakes;
+    const today = new Date();
+    const earliestStart = new Date(Math.min(...tasks.map(task => new Date(task.startDate))));
+    const latestEnd = new Date(Math.max(...tasks.map(task => new Date(task.endDate))));
+    const totalDays = (latestEnd - earliestStart) / (1000 * 60 * 60 * 24);
+    const getElapsedAndRemainingPercentages = (start, end) => {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const totalDuration = endDate - startDate;
+        const elapsedDuration = Math.max(0, Math.min(today - startDate, totalDuration));
+        const remainingDuration = Math.max(0, totalDuration - elapsedDuration);
+        return {
+            elapsed: (elapsedDuration / totalDuration) * 100,
+            remaining: (remainingDuration / totalDuration) * 100
+        };
+    };
+    const getPositionAndWidth = (start, end) => {
+        const startPosition = (new Date(start) - earliestStart) / (1000 * 60 * 60 * 24);
+        const width = (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24);
+        return {
+            left: `${(startPosition / totalDays) * 100}%`,
+            width: `${(width / totalDays) * 100}%`,
+        };
+    };
+    const generateMonthTimeline = () => {
+        const months = [];
+        let currentDate = new Date(earliestStart);
+        currentDate.setDate(1); // Start from the first day of the month
+        while (currentDate <= latestEnd) {
+            months.push(new Date(currentDate));
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        }
+        return months.map((month, index) => {
+            const position = (month - earliestStart) / (1000 * 60 * 60 * 24);
+            const width = (index === months.length - 1 ? totalDays - position : 30) / totalDays * 100;
+            return (
+                <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color:"#4A28FF" }}>
+                    {month.toLocaleString('default', { month: 'short', year: 'numeric' })}
+                </div>
+            );
+        });
+    };
+    return (
+
+        <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow '>
+            <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
+            <div className='flex justify-between items-center mt-6 mb-3'>
+                <div>
+                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">First unlock in</h2>
+                    <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate ? allStakingData?.firstUnlockDate : "0"} days</h2>
+
+                </div>
+                <div>
+                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Total Staked</h2>
+                    <h2 className='text-[16px] font-semibold'>{allStakingData?.totalStaked ? allStakingData?.totalStaked?.toFixed(2) : "0"} <span className="text-[11px] font-medium">AIUS</span></h2>
+
+                </div>
+                <div className='relative'>
+                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Governance Power</h2>
+                    <div className='flex justify-start items-center gap-1'>
+
+                        <h2 className='text-[16px] font-semibold'>{allStakingData?.totalGovernancePower ? allStakingData?.totalGovernancePower?.toFixed(2) : "0"}</h2>
+                        <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100' onMouseOver={() => {
+                            document.getElementById("info").style.display = "flex"
+                        }}
+                            onMouseLeave={() => {
+                                document.getElementById("info").style.display = "none"
+                            }}
+                        >
+                            <Image src={info_icon} height={13} width={13} />
+                        </div>
+                    </div>
+
+                    <div id='info' className='hidden absolute top-12 left-0  bg-white-background stake-box-shadow p-2 rounded-xl z-40 w-[150px]'>
+                        <h1 className='text-[.6rem] opacity-60'>As your stake(s) age, this value decays from the original veAIUS balance. To increase this value, extend your stake(s). </h1>
+                    </div>
+
+
+
+                </div>
+
+
+            </div>
+
+            <div className='max-h-[156px]  py-2 overflow-y-auto mb-2 ' id="gantt-chart">
+
+                <div className="gantt-chart">
+                    
+                    {tasks.map((task, index) => {
+                        const { elapsed, remaining } = getElapsedAndRemainingPercentages(task.startDate, task.endDate);
+                        return (
+                            <div key={index} className="task-row">
+                                <div className="task-info">
+                                    {/* <span className="task-name">{task.name}</span>
+                                    <span className="task-dates">
+                                        {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
+                                    </span> */}
+                                </div>
+                                <div className="task-bar-container">
+                                    <div
+                                        className="task-bar"
+                                        style={getPositionAndWidth(task.startDate, task.endDate)}
+                                    >
+                                        <div className="task-progress-elapsed" style={{ width: `${elapsed}%` }} />
+                                        <div className="task-progress-remaining" style={{ width: `${remaining}%` }} />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                    <div className="timeline">
+                        {generateMonthTimeline()}
+                    </div>
+                    <style jsx>{`
+        .gantt-chart {
+          font-family: Arial, sans-serif;
+          width: 100%;
+          padding-top: 30px;
+          
+        }
+        .timeline {
+          position: absolute;
+          bottom: 0;
+          padding-left: 2.5rem;
+
+          left: 0;
+          right: 0;
+          height: 30px;
+          display: flex;
+        }
+        .month-marker {
+          position: absolute;
+          height: 100%;
+          border-left: 1px solid #ccc;
+          padding-left: 5px;
+          font-size: 0.8em;
+          color: #4A28FF;
+          
+        }
+        .task-row {
+          display: flex;
+          margin-bottom: 10px;
+          align-items: center;
+        }
+        .task-info {
+          
+        }
+        .task-name {
+          font-weight: bold;
+          display: block;
+        }
+        .task-dates {
+          font-size: 0.8em;
+          color: #666;
+        }
+        .task-bar-container {
+          flex-grow: 1;
+          height: .4rem;
+          border-radius: 4rem;
+          background-color: #fff;
+          position: relative;
+        }
+        .task-bar {
+          position: absolute;
+          height: 100%;
+          border-radius: 4rem;
+          display: flex;
+        }
+        .task-progress-elapsed {
+          height: 100%;
+          background-color: #4A28FF;
+          border-radius: 4rem;
+        }
+        .task-progress-remaining {
+          height: 100%;
+          background-color: #eeeeee;
+          border-radius: 4rem;
+        }
+      `}</style>
+                </div>
+
+            </div>
+
+
+        </div>
+
+    );
+};
+export default CustomGanttChart;
