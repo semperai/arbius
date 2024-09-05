@@ -103,7 +103,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
         onSuccess(data) {
             console.log('approve tx successful data ', data);
             setShowPopUp("add/Success")
-            window.location.reload()
+            window.location.reload(true)
         },
         onError(err) {
             console.log('approve tx error data ', err);
@@ -305,7 +305,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
         onSuccess(data) {
             console.log('approve tx successful data ', data);
             setShowPopUp("extend/Success")
-            window.location.reload()
+            window.location.reload(true)
         },
         onError(err) {
             console.log('approve tx error data ', err);
@@ -506,7 +506,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address })
         onSuccess(data) {
             console.log('approve tx successful data ', data);
             setShowPopUp("claim/Success")
-            window.location.reload()
+            window.location.reload(true)
         },
         onError(err) {
             console.log('approve tx error data ', err);

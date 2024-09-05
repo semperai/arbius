@@ -161,7 +161,7 @@ const CustomGanttChart = ({ allStakingData }) => {
                     <style jsx>{`
         .gantt-chart {
           width: 100%;
-          padding-top: 30px;
+          padding-top: 10px;
         }
         .timeline {
           position: relative;
@@ -181,7 +181,7 @@ const CustomGanttChart = ({ allStakingData }) => {
         }
         .task-row {
           display: flex;
-          margin-bottom: 10px;
+          margin-bottom: 20px;
           align-items: center;
         }
         .task-info {
