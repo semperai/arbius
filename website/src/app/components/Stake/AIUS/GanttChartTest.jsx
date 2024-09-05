@@ -15,7 +15,7 @@ const CustomGanttChart = ({ allStakingData }) => {
     //   { name: 'Task 2', startDate: '2024-09-02', endDate: '2024-09-25' },
     //   { name: 'Task 3', startDate: '2024-09-03', endDate: '2024-10-05' },
     // ];
-    const tasks = allStakingData?.allStakes;
+    const tasks = allStakingData?.allStakes ? allStakingData?.allStakes : [];
     const today = new Date();
     const earliestStart = new Date(Math.min(...tasks.map(task => new Date(task.startDate))));
     const latestEnd = new Date(Math.max(...tasks.map(task => new Date(task.endDate))));
@@ -221,7 +221,11 @@ const CustomGanttChart = ({ allStakingData }) => {
                 </div>
 
             </div>
-
+            { tasks?.length == 0 ? <div className='flex justify-center items-center'>
+                <div className=' bg-[#fff] rounded-2xl w-full h-full flex justify-center items-center'>
+                    <h1 className='text-[#4A28FF] text-[20px] font-semibold'>No Stakes Found</h1>
+                </div>
+            </div> : null }
 
         </div>
 

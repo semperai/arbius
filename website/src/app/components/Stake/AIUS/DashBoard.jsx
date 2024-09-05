@@ -315,14 +315,19 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 <div className='hidden xl:block col-span-2 pl-2 h-full'>
                 {/* <GanttChart isLoading={loading} allStakingData={tokenIDs?.ganttChart} noCols={noCols} windowStartDate={windowStartDate} windowEndDate={windowEndDate} />  */}
                     {
-                        loading ? <div className='h-[300px]'>
-                            <Loader />
-                        </div> : (tokenIDs?.ganttChart && tokenIDs?.ganttChart.allStakes && tokenIDs?.ganttChart.allStakes.length > 0) ? <Gantt allStakingData={tokenIDs?.ganttChart} />: <div className='h-[300px] flex justify-center items-center'>
+                        loading ?
+                            <div className='h-[300px]'>
+                                <Loader />
+                            </div>
+                        : <Gantt allStakingData={ (tokenIDs?.ganttChart && tokenIDs?.ganttChart.allStakes && tokenIDs?.ganttChart.allStakes.length > 0) ?
+                                    tokenIDs?.ganttChart
+                                    : []
+                                } />
+                        /*: <div className='h-[300px] flex justify-center items-center'>
                             <div className=' bg-[#fff] rounded-2xl w-full h-full flex justify-center items-center'>
                                 <h1 className='text-[#4A28FF] text-[20px] font-semibold'>No Stakes Found</h1>
-
                             </div>
-                        </div>
+                        </div>*/
                     }
                 </div>
             </div>
