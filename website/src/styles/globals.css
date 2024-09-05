@@ -660,3 +660,11 @@ input[type="number"]::-ms-reveal {
 .animate-spin-loader {
     animation: loader_spin 2s linear infinite;
 }
+
+
+.month-marker {
+    position: absolute;
+    height: 100%;
+    font-size: 0.8em;
+    color: #4A28FF;
+}

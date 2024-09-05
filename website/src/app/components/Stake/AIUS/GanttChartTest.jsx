@@ -50,8 +50,9 @@ const CustomGanttChart = ({ allStakingData }) => {
         return months.map((month, index) => {
             const position = (month - earliestStart) / (1000 * 60 * 60 * 24);
             const width = (index === months.length - 1 ? totalDays - position : 30) / totalDays * 100;
+            console.log(position, width, month, index, "ALL LIS")
             return (
-                <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color: "#4A28FF" }}>
+                <div key={month.toISOString()} className={`month-marker ${index === months.length - 1 ? "hidden" : ""}`} style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color: "#4A28FF" }}>
                     {month.toLocaleString('default', { month: 'short', year: 'numeric' })}
                 </div>
             );
@@ -81,7 +82,6 @@ const CustomGanttChart = ({ allStakingData }) => {
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">First unlock in</h2>
                     <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate ? allStakingData?.firstUnlockDate : "0"} days</h2>
-
                 </div>
                 <div>
                     <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Total Staked</h2>
@@ -157,29 +157,26 @@ const CustomGanttChart = ({ allStakingData }) => {
                     </div>
                     <style jsx>{`
         .gantt-chart {
-        
           width: 100%;
           padding-top: 30px;
-          
         }
         .timeline {
+          width: 95%;
           position: absolute;
           bottom: 0;
-          padding-left: 2.5rem;
-
+          transform: translateX(2.5rem);
+          font-size: 0.65rem;
           left: 0;
           right: 0;
           height: 30px;
           display: flex;
         }
         .month-marker {
-          position: absolute;
           height: 100%;
           border-left: 1px solid #ccc;
           padding-left: 5px;
           font-size: 0.8em;
           color: #4A28FF;
-          
         }
         .task-row {
           display: flex;
