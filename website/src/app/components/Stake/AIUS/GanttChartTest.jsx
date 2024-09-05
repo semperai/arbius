@@ -51,12 +51,28 @@ const CustomGanttChart = ({ allStakingData }) => {
             const position = (month - earliestStart) / (1000 * 60 * 60 * 24);
             const width = (index === months.length - 1 ? totalDays - position : 30) / totalDays * 100;
             return (
-                <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color:"#4A28FF" }}>
+                <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color: "#4A28FF" }}>
                     {month.toLocaleString('default', { month: 'short', year: 'numeric' })}
                 </div>
             );
         });
     };
+
+    function convertToUSDate(dateString) {
+        const date = new Date(dateString);
+        
+        // Get month, day, and year
+        const month = date.getMonth() + 1; // getMonth() returns 0-11
+        const day = date.getDate();
+        const year = date.getFullYear();
+      
+        // Pad month and day with leading zeros if necessary
+        const formattedMonth = month.toString().padStart(2, '0');
+        const formattedDay = day.toString().padStart(2, '0');
+      
+        // Return the formatted date string
+        return `${formattedMonth}/${formattedDay}/${year}`;
+      }
     return (
 
         <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow '>
@@ -102,7 +118,7 @@ const CustomGanttChart = ({ allStakingData }) => {
             <div className='max-h-[156px]  py-2 overflow-y-auto mb-2 ' id="gantt-chart">
 
                 <div className="gantt-chart">
-                    
+
                     {tasks.map((task, index) => {
                         const { elapsed, remaining } = getElapsedAndRemainingPercentages(task.startDate, task.endDate);
                         return (
@@ -113,14 +129,25 @@ const CustomGanttChart = ({ allStakingData }) => {
                                         {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
                                     </span> */}
                                 </div>
-                                <div className="task-bar-container">
+                                <div className="task-bar-container my-4">
                                     <div
                                         className="task-bar"
                                         style={getPositionAndWidth(task.startDate, task.endDate)}
                                     >
                                         <div className="task-progress-elapsed" style={{ width: `${elapsed}%` }} />
                                         <div className="task-progress-remaining" style={{ width: `${remaining}%` }} />
+
                                     </div>
+                                    <div className='absolute bottom-[8px]  ' style={getPositionAndWidth(task.startDate, task.endDate)} >
+                                        <h1 className='  text-[.65rem] font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{convertToUSDate(task?.endDate)}</span></h1>
+
+                                    </div>
+                                    <div className='absolute top-[8px] flex justify-between min-w-[160px] ' style={getPositionAndWidth(task.startDate, task.endDate)} >
+                                        <h1 className='  text-[.65rem] opacity-80 font-semibold text-[#4A28FF] w-[100px] whitespace-pre'>{task?.staked} AIUS Staked</h1>
+                                        <h1 className={` text-end text-[.7rem] font-semibold text-[#4A28FF] w-[80px] whitespace-pre`}>{task?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+                                        
+                                    </div>
+
                                 </div>
                             </div>
                         );
@@ -130,7 +157,7 @@ const CustomGanttChart = ({ allStakingData }) => {
                     </div>
                     <style jsx>{`
         .gantt-chart {
-          font-family: Arial, sans-serif;
+        
           width: 100%;
           padding-top: 30px;
           
