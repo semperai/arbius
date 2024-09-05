@@ -79,7 +79,7 @@ const CustomGanttChart = ({ allStakingData }) => {
       }
     return (
 
-        <div className='rounded-2xl p-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow '>
+        <div className='rounded-2xl pt-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow '>
             <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
             <div className='flex justify-between items-center mt-6 mb-3'>
                 <div>
@@ -118,7 +118,7 @@ const CustomGanttChart = ({ allStakingData }) => {
 
             </div>
 
-            <div className='py-2 mb-2' id="gantt-chart">
+            <div className='pt-2' id="gantt-chart">
 
                 <div className="gantt-chart">
 
@@ -142,12 +142,12 @@ const CustomGanttChart = ({ allStakingData }) => {
 
                                     </div>
                                     <div className='absolute bottom-[8px]  ' style={getPositionAndWidth(task.startDate, task.endDate)} >
-                                        <h1 className='  text-[.65rem] font-semibold w-max'><span className='opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{convertToUSDate(task?.endDate)}</span></h1>
+                                        <h1 className='text-[.65rem] w-max'><span className='font-semibold opacity-60'>Locked Until</span>  <span className='opacity-100 ml-1'>{convertToUSDate(task?.endDate)}</span></h1>
 
                                     </div>
                                     <div className='absolute top-[8px] flex justify-between min-w-[160px] ' style={getPositionAndWidth(task.startDate, task.endDate)} >
-                                        <h1 className='  text-[.65rem] opacity-80 font-semibold text-[#4A28FF] w-[100px] whitespace-pre'>{task?.staked} AIUS Staked</h1>
-                                        <h1 className={` text-end text-[.7rem] font-semibold text-[#4A28FF] w-[80px] whitespace-pre`}>{task?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+                                        <h1 className='text-[.65rem] opacity-80 font-semibold text-[#4A28FF] whitespace-pre'>{task?.staked} AIUS Staked</h1>
+                                        <h1 className={` text-[.65rem] font-semibold text-[#4A28FF] whitespace-pre`}>{task?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
                                         
                                     </div>
 
@@ -169,7 +169,7 @@ const CustomGanttChart = ({ allStakingData }) => {
           font-size: 0.65rem;
           left: 0;
           right: 0;
-          height: 30px;
+          height: 20px;
           display: flex;
         }
         .month-marker {
