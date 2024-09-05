@@ -78,7 +78,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     useEffect(() => {
         const f = async () => {
             setLoading(true);
-            alert("Address changed calling again" + address)
+            //alert("Address changed calling again" + address)
             try {
 
                 const web3 = new Web3(window.ethereum);
