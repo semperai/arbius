@@ -663,7 +663,12 @@ input[type="number"]::-ms-reveal {
 
 
 .month-marker {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
     position: absolute;
+    border-left: 0.1px solid #c2c2c2;
+    padding-left: 5px;
     height: 100%;
     font-size: 0.8em;
     color: #4A28FF;

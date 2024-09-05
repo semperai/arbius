@@ -50,10 +50,13 @@ const CustomGanttChart = ({ allStakingData }) => {
         return months.map((month, index) => {
             const position = (month - earliestStart) / (1000 * 60 * 60 * 24);
             const width = (index === months.length - 1 ? totalDays - position : 30) / totalDays * 100;
-            console.log(position, width, month, index, "ALL LIS")
             return (
-                <div key={month.toISOString()} className={`month-marker ${index === months.length - 1 ? "hidden" : ""}`} style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color: "#4A28FF" }}>
-                    {month.toLocaleString('default', { month: 'short', year: 'numeric' })}
+                <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color: "#4A28FF" }}>
+                    {/*month.toLocaleString('default', { month: 'short', year: 'numeric' })*/}
+                    { index % 4 == 0 ?
+                        new Intl.DateTimeFormat('en', { year: '2-digit', month: 'short' }).format(month)
+                        : ""
+                    }
                 </div>
             );
         });
@@ -115,7 +118,7 @@ const CustomGanttChart = ({ allStakingData }) => {
 
             </div>
 
-            <div className='max-h-[156px]  py-2 overflow-y-auto mb-2 ' id="gantt-chart">
+            <div className='py-2 mb-2' id="gantt-chart">
 
                 <div className="gantt-chart">
 
@@ -161,10 +164,8 @@ const CustomGanttChart = ({ allStakingData }) => {
           padding-top: 30px;
         }
         .timeline {
-          width: 95%;
-          position: absolute;
+          position: relative;
           bottom: 0;
-          transform: translateX(2.5rem);
           font-size: 0.65rem;
           left: 0;
           right: 0;
@@ -215,7 +216,10 @@ const CustomGanttChart = ({ allStakingData }) => {
         .task-progress-remaining {
           height: 100%;
           background-color: #eeeeee;
-          border-radius: 4rem;
+          border-top-right-radius: 4rem;
+          border-bottom-right-radius: 4rem;
+          position: relative;
+          left: -2px;
         }
       `}</style>
                 </div>
