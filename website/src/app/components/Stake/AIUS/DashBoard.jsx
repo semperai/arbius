@@ -78,7 +78,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     useEffect(() => {
         const f = async () => {
             setLoading(true);
-
+            alert("Address changed calling again" + address)
             try {
 
                 const web3 = new Web3(window.ethereum);
@@ -179,14 +179,15 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
                     // console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime(), "DIFF", finalStakingData["firstUnlockDate"] * 1000 - new Date().getTime())
                 })
+                if(earliestDate){
+                    finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
+                    // earliestDate = new Date(earliestDate * 1000);
+                    finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
+                    console.log(finalStakingData["firstUnlockDate"], "FUND")
 
-                finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
-                // earliestDate = new Date(earliestDate * 1000);
-                finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
-                console.log(finalStakingData["firstUnlockDate"], "FUND")
-
-                mergedTokensData["ganttChart"] = finalStakingData;
-                mergedTokensData["slidingCards"] = tokens;
+                    mergedTokensData["ganttChart"] = finalStakingData;
+                    mergedTokensData["slidingCards"] = tokens;
+                }
                 setTokenIDs(mergedTokensData);
                 setLoading(false);
 
