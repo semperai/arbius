@@ -82,14 +82,18 @@ const CustomGanttChart = ({ allStakingData }) => {
     }
 
     function getMonthsLength() {
-        const gantt = document.getElementsByClassName("gantt-chart")[0]
-        if(months.length < 5){
-            gantt.style.width = "70%";
-            gatt.style.paddingLeft = "5%";
-        }else{
-            gantt.style.width = "100%";
+        try{
+            const gantt = document.getElementsByClassName("gantt-chart")[0]
+            if(months.length < 5){
+                gantt.style.width = "70%";
+                gatt.style.paddingLeft = "5%";
+            }else{
+                gantt.style.width = "100%";
+            }
+            return months.length;
+        }catch(err){
+            return 0;
         }
-        return months.length;
     }
     return (
 
