@@ -314,7 +314,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                         </div>
                     </div>
                     <div>
-                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1 && duration.weeks !== 0) ? "week" : "weeks"}`} for {(getAIUSVotingPower(amount * AIUS_wei, sliderValue) / AIUS_wei).toFixed(2)} AIUS voting power.</p>
+                        <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1 && duration.weeks !== 0) ? "week" : "weeks"}`} for {(getAIUSVotingPower(amount * AIUS_wei, sliderValue) / AIUS_wei).toFixed(2)} veAIUS.</p>
                         <div className="mb-10">
                             <div className="mb-8">
                                 <ReactSlider
