@@ -110,12 +110,13 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     "ganttChart": {}
                 }
                 let finalStakingData = {
-
                     "firstUnlockDate": 0,
                     "totalStaked": 0,
                     "totalGovernancePower": 0,
                     "allStakes": []
                 }
+                console.log(mergedTokensData, finalStakingData, "CONSOLEing")
+
                 let lastDate = 0;
                 let earliestDate = 0;
                 tokens.forEach(token => {

@@ -23,6 +23,8 @@ import error_stake from "../../../assets/images/error_stake.png"
 import success_stake from "../../../assets/images/success_stake.png"
 import { ethers } from 'ethers';
 import loadConfig from "./loadConfig"
+import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
+
 export default function Stake({ selectedtab, setSelectedTab, data, isLoading, isError }) {
 
     const [sliderValue, setSliderValue] = useState(0)
@@ -189,9 +191,9 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         onSuccess(data) {
             console.log('approve tx successful data 2', data);
             setShowPopUp("Success")
-            setTimeout(function(){
+            getTransactionReceiptData(stakeData?.hash).then(function(){
                 window.location.reload(true)
-            },10000)
+            })
         },
         onError(err) {
             console.log('approve tx error data 2', err);
@@ -255,9 +257,9 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 console.log('Second transaction confirmed');
                 setShowPopUp("Success")
                 console.log('Both transactions completed successfully');
-                setTimeout(function(){
+                getTransactionReceiptData(tx2.hash).then(function(){
                     window.location.reload(true)
-                },10000)
+                })
             } catch (error) {
                 setShowPopUp("Error")
             }

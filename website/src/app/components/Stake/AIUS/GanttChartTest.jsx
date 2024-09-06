@@ -243,11 +243,11 @@ const CustomGanttChart = ({ allStakingData }) => {
                 </div>
 
             </div>
-            { tasks?.length == 0 ? <div className='flex justify-center items-center'>
+            {/* tasks?.length == 0 ? <div className='flex justify-center items-center'>
                 <div className=' bg-[#fff] rounded-2xl w-full h-full flex justify-center items-center'>
                     <h1 className='text-[#4A28FF] text-[20px] font-semibold'>No Stakes Found</h1>
                 </div>
-            </div> : null }
+            </div> : null */}
 
         </div>
 

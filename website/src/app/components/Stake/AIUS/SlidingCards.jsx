@@ -26,7 +26,7 @@ import error_stake from "../../../assets/images/error_stake.png"
 import success_stake from "../../../assets/images/success_stake.png"
 import loadConfig from './loadConfig';
 import Web3 from 'web3';
-
+import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
 
 const config = loadConfig();
 const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalance, totalSupply, rewardRate, getAPR, address }) => {
@@ -103,9 +103,9 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
         onSuccess(data) {
             console.log('approve tx successful data ', data);
             setShowPopUp("add/Success")
-            setTimeout(function(){
-                window.location.reload(true)                
-            },5000)
+            getTransactionReceiptData(addAIUSData?.hash).then(function(){
+                window.location.reload(true)
+            })
         },
         onError(err) {
             console.log('approve tx error data ', err);
@@ -166,7 +166,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                             <input className="w-[100%] border-0 outline-none rounded-r-3xl p-1 px-2 lato-bold text-[15px] border-none focus:ring-0 " type="number" placeholder="0.0" value={aiusToStake} onChange={(e) => setAIUSToStake(e.target.value)} />
                         </div>
                     </div>
-                    <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS {walletBalance.toString()}</h1>
+                    <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS {Number(walletBalance?.toFixed(2)).toString()}</h1>
                 </div>
                 <div className='flex justify-center gap-2 items-center'>
                     <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
@@ -307,9 +307,9 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
         onSuccess(data) {
             console.log('approve tx successful data ', data);
             setShowPopUp("extend/Success")
-            setTimeout(function(){
-                window.location.reload(true)                
-            },5000)
+            getTransactionReceiptData(addAIUSData?.hash).then(function(){
+                window.location.reload(true)
+            })
         },
         onError(err) {
             console.log('approve tx error data ', err);
@@ -510,9 +510,9 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address })
         onSuccess(data) {
             console.log('approve tx successful data ', data);
             setShowPopUp("claim/Success")
-            setTimeout(function(){
-                window.location.reload(true)                
-            },5000)
+            getTransactionReceiptData(addAIUSData?.hash).then(function(){
+                window.location.reload(true)
+            })
         },
         onError(err) {
             console.log('approve tx error data ', err);
