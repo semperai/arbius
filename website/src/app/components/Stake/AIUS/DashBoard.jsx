@@ -102,7 +102,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 let tokens = await getTokenIDs(address, _escrowBalanceData);
 
 
-                console.log(tokens, "TTSSTAKES SSS")
+                console.log(_escrowBalanceData, tokens, "TTSSTAKES SSS")
 
                 // ganttChart
                 let mergedTokensData = {
@@ -284,7 +284,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                             <div className='flex flex-col gap-8  justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">AIUS Staked</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{veSupplyData ? (Number(veSupplyData) / AIUS_wei).toString()?.toLocaleString() : 0}</h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{veSupplyData ? (Number(veSupplyData) / AIUS_wei).toFixed(2) : 0}</h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-[#8D8D8D] font-semibold">Total Supply</h2>

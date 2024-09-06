@@ -20,6 +20,8 @@ const CustomGanttChart = ({ allStakingData }) => {
     const earliestStart = new Date(Math.min(...tasks.map(task => new Date(task.startDate))));
     const latestEnd = new Date(Math.max(...tasks.map(task => new Date(task.endDate))));
     const totalDays = (latestEnd - earliestStart) / (1000 * 60 * 60 * 24);
+    const months = [];
+
     const getElapsedAndRemainingPercentages = (start, end) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
@@ -40,7 +42,7 @@ const CustomGanttChart = ({ allStakingData }) => {
         };
     };
     const generateMonthTimeline = () => {
-        const months = [];
+        //const months = [];
         let currentDate = new Date(earliestStart);
         currentDate.setDate(1); // Start from the first day of the month
         while (currentDate <= latestEnd) {
@@ -50,10 +52,11 @@ const CustomGanttChart = ({ allStakingData }) => {
         return months.map((month, index) => {
             const position = (month - earliestStart) / (1000 * 60 * 60 * 24);
             const width = (index === months.length - 1 ? totalDays - position : 30) / totalDays * 100;
+            console.log(month, index, "MI")
             return (
                 <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color: "#4A28FF" }}>
                     {/*month.toLocaleString('default', { month: 'short', year: 'numeric' })*/}
-                    { index % 4 == 0 ?
+                    { months.length < 5 || index % 4 === 0 ?
                         new Intl.DateTimeFormat('en', { year: '2-digit', month: 'short' }).format(month)
                         : ""
                     }
@@ -76,7 +79,18 @@ const CustomGanttChart = ({ allStakingData }) => {
       
         // Return the formatted date string
         return `${formattedMonth}/${formattedDay}/${year}`;
-      }
+    }
+
+    function getMonthsLength() {
+        const gantt = document.getElementsByClassName("gantt-chart")[0]
+        if(months.length < 5){
+            gantt.style.width = "70%";
+            gatt.style.paddingLeft = "5%";
+        }else{
+            gantt.style.width = "100%";
+        }
+        return months.length;
+    }
     return (
 
         <div className='rounded-2xl pt-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow '>
@@ -157,10 +171,10 @@ const CustomGanttChart = ({ allStakingData }) => {
                     })}
                     <div className="timeline">
                         {generateMonthTimeline()}
+                        {console.log(getMonthsLength(), "IN JSX LENGTH")}
                     </div>
                     <style jsx>{`
         .gantt-chart {
-          width: 100%;
           padding-top: 10px;
         }
         .timeline {
