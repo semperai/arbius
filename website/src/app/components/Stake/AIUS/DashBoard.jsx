@@ -101,7 +101,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 setEscrowBalanceData(_escrowBalanceData);
                 let tokens = await getTokenIDs(address, _escrowBalanceData);
 
-
+                //alert(_escrowBalanceData.toString() + "and" + tokens.length?.toString())
                 console.log(_escrowBalanceData, tokens, "TTSSTAKES SSS")
 
                 // ganttChart

@@ -199,7 +199,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         }
     });
 
-    useEffect(() => {
+    /*useEffect(() => {
         console.log(allowance, amount)
         if(allowance > amount && showPopUp === 1){
             console.log("running")
@@ -210,7 +210,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 stakeWrite()
             },2000)
         }
-    },[allowance])
+    },[allowance])*/
 
     const handleStake = async()=>{
         console.log({stakeData});
