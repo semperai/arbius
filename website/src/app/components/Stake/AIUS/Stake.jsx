@@ -159,7 +159,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const { data: approveData, error: approveError, isPending: approvePending, write: approveWrite } = useContractWrite(approveConfig)
     console.log({ approveData, approveError, approvePending, allowance });*/
 
-    const { config: stakeConfig } = usePrepareContractWrite({
+    /*const { config: stakeConfig } = usePrepareContractWrite({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
         functionName: 'create_lock',
@@ -168,10 +168,10 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
         ],
         enabled: allowance >= amount,
-    });
+    });*/
     console.log(allowance, amount, "ALLOW AMOUNT")
-    const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
-    console.log({stakeData, stakeError,stakeWrite})
+    //const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
+    //console.log({stakeData, stakeError,stakeWrite})
 
     /*const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
         hash: approveData?.hash,
@@ -185,7 +185,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         }
     });*/
 
-    const { data: approveTx2, isError: txError2, isLoading: txLoading2 } = useWaitForTransaction({
+    /*const { data: approveTx2, isError: txError2, isLoading: txLoading2 } = useWaitForTransaction({
         hash: stakeData?.hash,
         confirmations: 3,
         onSuccess(data) {
@@ -199,7 +199,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             console.log('approve tx error data 2', err);
             setShowPopUp("Error")
         }
-    });
+    });*/
 
     /*useEffect(() => {
         console.log(allowance, amount)
@@ -215,7 +215,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     },[allowance])*/
 
     const handleStake = async()=>{
-        console.log({stakeData});
+        //console.log({stakeData});
         console.log(amount, allowance, "AMT-ALL");
 
         if(amount > allowance || allowance === 0){
@@ -264,12 +264,37 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 setShowPopUp("Error")
             }
         }else{
-            if(amount && (duration.months || duration.weeks)){
-                // setShowPopUp(2)
-                setShowPopUp(3)
-                stakeWrite?.();
-            }else{
-                //alert("Please enter the amount and duration to stake!")
+            try{
+                console.log("in else", amount, duration.months, duration.weeks)
+                if(amount && (duration.months || duration.weeks)){
+                    // setShowPopUp(2)
+                    setShowPopUp(3)
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                    // Create a provider
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+                    // Get the signer
+                    const signer = provider.getSigner();
+
+                    const stakeContract = new ethers.Contract(VOTING_ESCROW_ADDRESS, votingEscrow.abi, signer)
+                    const tx2 = await stakeContract.create_lock(
+                                                        (amount * AIUS_wei).toString(),
+                                                        (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
+                                                    )
+                    console.log('Second transaction hash:', tx2.hash);
+                    await tx2.wait(); // Wait for the transaction to be mined
+                    console.log('Second transaction confirmed');
+                    setShowPopUp("Success")
+                    console.log('Both transactions completed successfully');
+                    getTransactionReceiptData(tx2.hash).then(function(){
+                        window.location.reload(true)
+                    })
+                }else{
+                    //alert("Please enter the amount and duration to stake!")
+                }
+            }catch(err){
+                setShowPopUp("Error")
             }
         }
     }
@@ -284,9 +309,9 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             {
                 showPopUp !== false && (
                     <PopUp setShowPopUp={setShowPopUp}>
-                        {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={stakeError} noChildren={false} repeat={false} valueStart={0} valueEnd={50} />}
-                        {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={stakeError} noChildren={false} repeat={false} valueStart={50} valueEnd={100} />}
-                        {showPopUp === 3 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={stakeError} noChildren={true} repeat={true} valueStart={0} valueEnd={100} />}
+                        {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={false} noChildren={false} repeat={false} valueStart={0} valueEnd={50} />}
+                        {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={false} repeat={false} valueStart={50} valueEnd={100} />}
+                        {showPopUp === 3 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={true} valueStart={0} valueEnd={100} />}
                         {showPopUp === "Success" && <SuccessChildren setShowPopUp={setShowPopUp} />}
                         {showPopUp === "Error" && <ErrorPopUpChildren setShowPopUp={setShowPopUp} />}
                     </PopUp>
@@ -400,10 +425,9 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                         <button
                             type="button"
                                 onClick={async()=>{
-                                    if(!stakeIsPending && !stakeError){
-                                        if(Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks)){
-                                            await handleStake()
-                                        }
+                                    console.log(amount, walletBalance, duration)
+                                    if(Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks)){
+                                        await handleStake()
                                     }
                                 }}
                             className={`relative justify-center py-2 group bg-black-background ${Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks) ? "" : "opacity-40" } py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
@@ -527,7 +551,7 @@ const ErrorPopUpChildren = ({ setShowPopUp }) => {
             <div className="my-12">
                 <div className="flex justify-center items-center">
                     <div className="w-40 h-40 flex justify-center items-center relative bg-[#FCFCFC] rounded-full">
-                        <Image src={success_stake} className=" w-12" alt="error_stake" />
+                        <Image src={error_stake} className=" w-12" alt="error_stake" />
 
                     </div>
                 </div>
