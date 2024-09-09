@@ -5,7 +5,7 @@ import Image from 'next/image'
 import aius_icon from "../../../assets/images/aius_icon.png"
 import gysr_logo_wallet from "../../../assets/images/gysr_logo_wallet.png"
 import GanttChart from './GanttChart'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount, useContractRead, useNetwork } from 'wagmi'
 // import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
@@ -23,6 +23,8 @@ import Gantt from './GanttChartTest'
 
 function DashBoard({ data, isLoading, isError, protocolData }) {
     const { address, isConnected } = useAccount()
+    const { chain, chains } = useNetwork()
+    console.log(chain, "CONNECT chain")
     console.log(isConnected, "IS CONNECT")
     const config = loadConfig();
     const VE_STAKING_ADDRESS = config.veStakingAddress;
@@ -78,7 +80,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     useEffect(() => {
         const f = async () => {
             setLoading(true);
-            //alert("Address changed calling again" + address)
+            alert("Address changed calling again" + address)
             try {
 
                 const web3 = new Web3(window.ethereum);
@@ -203,7 +205,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
             f();
         }
-    }, [address])
+    }, [address, chain?.id])
     /* DASHBOARD CALLS ENDS HERE */
 
 
