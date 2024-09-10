@@ -98,19 +98,19 @@ const CustomGanttChart = ({ allStakingData }) => {
     return (
 
         <div className='rounded-2xl pt-8 px-10 bg-white-background stake-box-shadow relative h-full stake-box-shadow '>
-            <h1 className='text-[#4A28FF] text-[20px] font-semibold'>Staking</h1>
+            <h1 className='text-purple-text text-[20px] font-semibold'>Staking</h1>
             <div className='flex justify-between items-center mt-6 mb-3'>
                 <div>
-                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">First unlock in</h2>
+                    <h2 className="text-[14px] text-aius-tabs-gray font-semibold">First unlock in</h2>
                     <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate ? allStakingData?.firstUnlockDate : "0"} days</h2>
                 </div>
                 <div>
-                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Total Staked</h2>
+                    <h2 className="text-[14px] text-aius-tabs-gray font-semibold">Total Staked</h2>
                     <h2 className='text-[16px] font-semibold'>{allStakingData?.totalStaked ? allStakingData?.totalStaked?.toFixed(2) : "0"} <span className="text-[11px] font-medium">AIUS</span></h2>
 
                 </div>
                 <div className='relative'>
-                    <h2 className="text-[14px] text-[#8D8D8D] font-semibold">Governance Power</h2>
+                    <h2 className="text-[14px] text-aius-tabs-gray font-semibold">Governance Power</h2>
                     <div className='flex justify-start items-center gap-1'>
 
                         <h2 className='text-[16px] font-semibold'>{allStakingData?.totalGovernancePower ? allStakingData?.totalGovernancePower?.toFixed(2) : "0"}</h2>
@@ -164,8 +164,8 @@ const CustomGanttChart = ({ allStakingData }) => {
 
                                     </div>
                                     <div className='absolute top-[8px] flex justify-between min-w-[160px] ' style={getPositionAndWidth(task.startDate, task.endDate)} >
-                                        <h1 className='text-[.65rem] opacity-80 font-semibold text-[#4A28FF] whitespace-pre'>{task?.staked} AIUS Staked</h1>
-                                        <h1 className={` text-[.65rem] font-semibold text-[#4A28FF] whitespace-pre`}>{task?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
+                                        <h1 className='text-[.65rem] opacity-80 font-semibold text-purple-text whitespace-pre'>{task?.staked} AIUS Staked</h1>
+                                        <h1 className={` text-[.65rem] font-semibold text-purple-text whitespace-pre`}>{task?.veAIUSBalance?.toFixed(2)} veAIUS</h1>
                                         
                                     </div>
 

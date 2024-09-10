@@ -47,7 +47,8 @@ module.exports = {
         'stake':"#1A1A1A",
         'available':'#5B5B5B',
         'aius':'#0E0E0E',
-        'gray-text': '#F3F3F3'
+        'gray-text': '#F3F3F3',
+        'aius-tabs-gray': '#8D8D8D'
        },
        fontFamily: {
           "Sequel-Sans-Light-Body":["Sequel-Sans-Light-Body"],
@@ -102,6 +103,9 @@ module.exports = {
         'tick-bacground':'#DFECFF',
         "black-background":"#000000",
         'purple-background':"#4A28FF",
+        'light-purple-background': '#ECE4FF',
+        'light-purple-background-2': '#EEEAFF',
+        'light-gray-background': '#F1F0F3',
         'hamburger-background': "#333333",
         'stake-input':"#E6DFFF",
         

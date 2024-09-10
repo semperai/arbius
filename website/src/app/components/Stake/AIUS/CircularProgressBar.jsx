@@ -12,9 +12,9 @@ function CircularProgressBar({ valueStart, valueEnd, duration, text, setShowPopU
                     value={70}
 
                     styles={buildStyles({ pathTransition: "none", trailColor: "#f3f3fb", pathColor: "#4A28FF" })}
-                    className="w-full h-full text-[#000]"
+                    className="w-full h-full text-original-black"
                 >
-                    <div className={!noChildren ? "flex justify-center items-center text-[#000]" : "hidden"}>
+                    <div className={!noChildren ? "flex justify-center items-center text-original-black" : "hidden"}>
                         <div>
                             <h1 className="text-base opacity-40 my-0 text-center">Step</h1>
                             <h1 className="text-[40px] font-semibold  text-center">{text}</h1>
@@ -45,9 +45,9 @@ function CircularProgressBar({ valueStart, valueEnd, duration, text, setShowPopU
                         value={value}
 
                         styles={buildStyles({ pathTransition: "none", trailColor: "#f3f3fb", pathColor: "#4A28FF" })}
-                        className="w-full h-full text-[#000]"
+                        className="w-full h-full text-original-black"
                     >
-                        <div className={!noChildren ? "flex justify-center items-center text-[#000]" : "hidden"}>
+                        <div className={!noChildren ? "flex justify-center items-center text-original-black" : "hidden"}>
                             <div>
                                 <h1 className="text-base opacity-40 my-0 text-center">Step</h1>
                                 <h1 className="text-[40px] font-semibold  text-center">{text}</h1>

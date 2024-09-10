@@ -111,7 +111,7 @@ function Gauge() {
                         <>
                             <div className='flex justify-between items-center my-2'>
                                 <div className='flex justify-start items-center gap-3'>
-                                    <div className='bg-[#4A28FF] p-3  rounded-full '>
+                                    <div className='bg-purple-background p-3  rounded-full '>
                                         <Image src={selectedModel?.icon} className='w-[14px] h-[14px]' />
 
                                     </div>
@@ -200,7 +200,7 @@ function Gauge() {
 
             <div className='hidden lg:flex justify-between items-center w-full '>
                 <div className='flex justify-start items-center gap-4 w-full h-auto'>
-                    <h1 className='text-[40px] text-[#4A28FF] mb-2 lato-bold'>Gauge</h1>
+                    <h1 className='text-[40px] text-purple-text mb-2 lato-bold'>Gauge</h1>
                     <div className='rounded-md bg-white-background flex  items-center px-2 pr-3 justify-between h-auto w-[70%] stake-box-shadow'>
                         <input placeholder='Search Model name or ID' className='bg-transparent px-3 p-2 py-3 h-full w-full border-0 focus:outline-none ' value={searchText} onChange={(e) => {
                             handleSearch(e)
@@ -209,7 +209,7 @@ function Gauge() {
                     </div>
                 </div>
 
-                <div className='text-[#4A28FF] text-[14px] w-[30%] gap-2 text-end font-semibold flex justify-end items-center'>
+                <div className='text-purple-text text-[14px] w-[30%] gap-2 text-end font-semibold flex justify-end items-center'>
                     <Image src={clock_icon} className='h-4 w-4' /> 
                     {/* <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1> */}
 
@@ -222,8 +222,8 @@ function Gauge() {
 
             </div>
             <div className='flex flex-col items-start mb-2 um:mb-0 um:flex-row lg:hidden justify-between um:items-center font-semibold'>
-                <h1 className='text-[40px] text-[#4A28FF] mb-2  lato-bold'>Gauge</h1>
-                <div className='text-[#4A28FF] text-[.85rem]  text-end flex gap-2 justify-end items-center'>
+                <h1 className='text-[40px] text-purple-text mb-2  lato-bold'>Gauge</h1>
+                <div className='text-purple-text text-[.85rem]  text-end flex gap-2 justify-end items-center'>
                   <Image src={clock_icon} className='h-4 w-4' />
                     {/* <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1> */}
                     <div className='flex justify-start items-center gap-2'>
@@ -265,14 +265,14 @@ function Gauge() {
                         <div className='gauge-table-item rounded-lg px-5 pt-4 pb-4 lg:px-10 flex justify-between gap-8 items-center bg-white-background my-3 relative min-w-[1000px] font-semibold ' key={key}>
                             <div className='flex hidden justify-start items-center absolute left-[-125px]  top-[10%] z-20 ' id={key}>
                                 <div className='bg-white-background w-auto p-3 rounded-xl w-[108px]'>
-                                    <h1 className='text-[.6rem] mb-1 text-[#8D8D8D]'>Model ID</h1>
+                                    <h1 className='text-[.6rem] mb-1 text-aius-tabs-gray'>Model ID</h1>
                                     <p className='text-[.6rem]'>{item?.model_id}</p>
                                 </div>
                                 <Image src={polygon} className='-ml-2' />
 
                             </div>
                             <div className='w-[25%] flex justify-start gap-2 items-center'>
-                                <div className="flex items-center justify-center w-[28px] h-[28px] rounded-full bg-[#4A28FF]">
+                                <div className="flex items-center justify-center w-[28px] h-[28px] rounded-full bg-purple-background">
                                     <div className="relative w-[16px] h-[16px] flex items-center justify-center">
                                         <Image src={item?.icon}  fill className='w-full h-full object-contain' />
                                     </div>

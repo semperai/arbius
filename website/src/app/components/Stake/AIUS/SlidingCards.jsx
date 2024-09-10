@@ -168,12 +168,12 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                     <h1 className='text-[0.6rem] opacity-50 my-1'>Available AIUS {Number(walletBalance?.toFixed(2)).toString()}</h1>
                 </div>
                 <div className='flex justify-center gap-2 items-center'>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
+                    <div className='w-full bg-light-purple-background-2 p-3 py-6 rounded-2xl'>
 
                         <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{estBalance?.toFixed(2).toString()}</span> veAIUS</h1>
                         <h1 className='text-[.6rem]'>Est. veAIUS balance</h1>
                     </div>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-6 rounded-2xl'>
+                    <div className='w-full bg-light-purple-background-2 p-3 py-6 rounded-2xl'>
 
                         <h1 className='text-xs'><span className='text-[20px] text-purple-text'>{totalSupply && rewardRate ? getAPR(rewardRate, totalSupply).toFixed(2) : 0}</span>%</h1>
                         <h1 className='text-[0.6rem]'>APR</h1>
@@ -185,7 +185,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
                 <div className='flex justify-end gap-2 mt-16'>
                     <button
                         type="button"
-                        className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                        className="relative group bg-light-gray-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
                         onClick={() => setShowPopUp(false)}
                     >
                         <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -400,13 +400,13 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
 
                 </div>
                 <div className='flex justify-center gap-2 items-center mt-20'>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
+                    <div className='w-full bg-light-purple-background-2 p-3 py-4 rounded-md'>
                         {/*console.log(currentEndDate, "EXTSTART")*/}
 
                         <h1 className='text-xs text-purple-text font-semibold'>{currentEndDate?.getMonth() + 1}/{currentEndDate?.getDate()}/{currentEndDate?.getFullYear()}</h1>
                         <h1 className='text-[.6rem]'>Current Stake ends at</h1>
                     </div>
-                    <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
+                    <div className='w-full bg-light-purple-background-2 p-3 py-4 rounded-md'>
 
                         <h1 className='text-xs text-purple-text font-semibold'>{` ${extendEndDate > 0 ? (extendEndDate?.getMonth() + 1).toString() + "/" + (extendEndDate?.getDate()).toString() + "/" + (extendEndDate?.getFullYear()).toString() : "-/-/-"} `}</h1>
                         <h1 className='text-[.6rem]'>Stake extended till</h1>
@@ -422,7 +422,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
                 <div className='flex justify-end gap-2 mt-4'>
                     <button
                         type="button"
-                        className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                        className="relative group bg-light-gray-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
                         onClick={() => setShowPopUp(false)}
                     >
                         <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -557,7 +557,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address })
 
 
             <div className='flex justify-center gap-2 items-center mt-6'>
-                <div className='w-full bg-[#EEEAFF] text-center p-3 py-6 rounded-md'>
+                <div className='w-full bg-light-purple-background-2 text-center p-3 py-6 rounded-md'>
                     <h1 className='text-xs '><span className='text-purple-text font-semibold text-[30px]'>{earned ? (Number(earned) / AIUS_wei).toFixed(2).toString() : 0}</span> AIUS</h1>
                     <h1 className='text-[.6rem] mt-2'>Claimable AIUS</h1>
                 </div>
@@ -574,7 +574,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address })
 
                 <button
                     type="button"
-                    className="relative group bg-[#F1F0F3] py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
+                    className="relative group bg-light-gray-background py-1 px-3 lg:px-5 rounded-full flex items-center gap-3 "
                     onClick={() => setShowPopUp(false)}
                 >
                     <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -881,8 +881,8 @@ const StepTwoChildren = ({ setShowPopUp, isError, noChildren, repeat = true }) =
                     </div>
 
                 </div>
-                <h1 className="text-[20px] mt-4 text-[#000] text-center">Pending transaction confirmation!</h1>
-                <h1 className="text-[12px] text-[#8C8C8C] text-center">Confirm this transaction in your wallet.</h1>
+                <h1 className="text-[20px] mt-4 text-original-black text-center">Pending transaction confirmation!</h1>
+                <h1 className="text-[12px] text-aius-tabs-gray text-center">Confirm this transaction in your wallet.</h1>
 
 
             </div>
@@ -906,14 +906,14 @@ const SuccessChildren = ({ setShowPopUp }) => {
             </div>
             <div className="my-12">
                 <div className="flex justify-center items-center">
-                    <div className="w-40 h-40 flex justify-center items-center relative bg-[#FCFCFC] rounded-full">
+                    <div className="w-40 h-40 flex justify-center items-center relative bg-white-background rounded-full">
                         <Image src={success_stake} className=" w-12" alt="error_stake" />
 
                     </div>
                 </div>
 
-                <h1 className="text-[20px] mt-4 text-[#000] text-center">Congrats!</h1>
-                <h1 className="text-[12px] text-[#8C8C8C] text-center">Transaction Completed.</h1>
+                <h1 className="text-[20px] mt-4 text-original-black text-center">Congrats!</h1>
+                <h1 className="text-[12px] text-aius-tabs-gray text-center">Transaction Completed.</h1>
 
 
             </div>
@@ -937,13 +937,13 @@ const ErrorPopUpChildren = ({ setShowPopUp }) => {
             </div>
             <div className="my-12">
                 <div className="flex justify-center items-center">
-                    <div className="w-40 h-40 flex justify-center items-center relative bg-[#FCFCFC] rounded-full">
+                    <div className="w-40 h-40 flex justify-center items-center relative bg-white-background rounded-full">
                         <Image src={error_stake} className=" w-40" alt="error_stake" />
 
                     </div>
                 </div>
-                <h1 className="text-[20px] mt-4 text-[#000] text-center">Error!</h1>
-                <h1 className="text-[12px] text-[#8C8C8C] text-center">Please try again.</h1>
+                <h1 className="text-[20px] mt-4 text-original-black text-center">Error!</h1>
+                <h1 className="text-[12px] text-aius-tabs-gray text-center">Please try again.</h1>
 
                 <div className="flex justify-center items-center">
                     <button
