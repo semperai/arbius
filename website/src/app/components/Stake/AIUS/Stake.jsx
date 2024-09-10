@@ -102,11 +102,11 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         }
     }, [tokenIDs, tokenIDsIsLoading, tokenIDsIsError]);
 
-    console.log(veAIUSBalancesContracts, "BALANCE CONTRACTS")
+    //console.log(veAIUSBalancesContracts, "stake")
     const { data: veAIUSBalances, isLoading: veAIUSBalancesIsLoading, isError: veAIUSBalancesIsError } = useContractReads({
         contracts: veAIUSBalancesContracts,
     });
-    console.log(veAIUSBalances, "BALANCES")
+    console.log(veAIUSBalances, "Stake data")
     const { data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError, refetch: refetchAllowance } = useContractRead({
         address: BASETOKEN_ADDRESS_V1,
         abi: baseTokenV1.abi,
@@ -117,7 +117,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         ],
         enabled: isConnected
     })
-    console.log(checkAllowance, "TO CHECK")
+    //console.log(checkAllowance, "TO CHECK ALLOWANCE")
     useEffect(() => {
         console.log(veAIUSBalances, "veAIUSBalances")
         let sum = 0
@@ -129,7 +129,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         setVeAIUSBalance(sum);
     }, [veAIUSBalances])
 
-    console.log(escrowBalanceData, "ESCROW _ B")
+    console.log(escrowBalanceData, "ESCROW BALANCE DATA")
     useEffect(() => {
         console.log(escrowBalanceData, "escrowBalanceData")
         if (escrowBalanceData) {
@@ -138,7 +138,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     }, [escrowBalanceData])
 
     useEffect(() => {
-        console.log(checkAllowance, "CHECK ALLOW")
+        console.log(checkAllowance, "CHECK ALLOWANCE")
         if (checkAllowance) {
             const val = Number(checkAllowance?._hex) / AIUS_wei
             setAllowance(val)
@@ -169,7 +169,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         ],
         enabled: allowance >= amount,
     });*/
-    console.log(allowance, amount, "ALLOW AMOUNT")
+    console.log(allowance, amount, "ALLOWANCE AND AMOUNT")
     //const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
     //console.log({stakeData, stakeError,stakeWrite})
 
@@ -216,7 +216,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
     const handleStake = async()=>{
         //console.log({stakeData});
-        console.log(amount, allowance, "AMT-ALL");
+        console.log(amount, allowance, "ALLOWANCE AND AMOUNT before staking");
 
         if(amount > allowance || allowance === 0){
             /*if(amount && (duration.months || duration.weeks)){
@@ -265,7 +265,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             }
         }else{
             try{
-                console.log("in else", amount, duration.months, duration.weeks)
+                console.log("Second step if allowance is set, values -> : amount, months and weeks", amount, duration.months, duration.weeks)
                 if(amount && (duration.months || duration.weeks)){
                     // setShowPopUp(2)
                     setShowPopUp(3)
@@ -353,7 +353,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                                     defaultValue={0}
                                     value={sliderValue}
                                     onChange={(value) => {
-                                        console.log(value);
+                                        console.log("Slider on change value: ",value);
                                         if (value < 1) {
                                             setDuration({ ...duration, months: 0, weeks: 4 * value })
                                         } else {
@@ -425,7 +425,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                         <button
                             type="button"
                                 onClick={async()=>{
-                                    console.log(amount, walletBalance, duration)
+                                    //console.log(amount, walletBalance, duration)
                                     if(Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks)){
                                         await handleStake()
                                     }

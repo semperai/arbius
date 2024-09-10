@@ -24,8 +24,8 @@ import Gantt from './GanttChartTest'
 function DashBoard({ data, isLoading, isError, protocolData }) {
     const { address, isConnected } = useAccount()
     const { chain, chains } = useNetwork()
-    console.log(chain, "CONNECT chain")
-    console.log(isConnected, "IS CONNECT")
+    console.log(chain, "CONNECTed chain")
+    console.log("IS CONNECTed?", isConnected)
     const config = loadConfig();
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
@@ -47,7 +47,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
         return a_b * (t / t_max);
     }
     const getMonthDifference = (startDate, endDate) => {
-        console.log(startDate, "STARTDATE", startDate.getMonth(), endDate)
+        //console.log(startDate, "STARTDATE", startDate.getMonth(), endDate)
         let diff = (startDate.getFullYear() * 12 + startDate.getMonth()) - (endDate.getFullYear() * 12 + endDate.getMonth())
         return diff
     }
@@ -104,7 +104,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 let tokens = await getTokenIDs(address, _escrowBalanceData);
 
                 //alert(_escrowBalanceData.toString() + "and" + tokens.length?.toString())
-                console.log(_escrowBalanceData, tokens, "TTSSTAKES SSS")
+                console.log(_escrowBalanceData, tokens, "escrowBalance and tokens")
 
                 // ganttChart
                 let mergedTokensData = {
@@ -117,14 +117,14 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     "totalGovernancePower": 0,
                     "allStakes": []
                 }
-                console.log(mergedTokensData, finalStakingData, "CONSOLEing")
+                console.log(mergedTokensData, finalStakingData, "stake cards and gantt chart data, All stake data")
 
                 let lastDate = 0;
                 let earliestDate = 0;
                 tokens.forEach(token => {
                     if (Number(token?.locked__end) > lastDate) {
                         lastDate = Number(token?.locked__end)
-                        console.log(lastDate, "LAST DATE")
+                        //console.log(lastDate, "LAST DATE")
 
                     }
                     if (Number(token?.user_point_history__ts) < earliestDate || earliestDate === 0) {
@@ -133,10 +133,10 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
                 })
                 if (earliestDate && lastDate) {
-                    console.log("HERE");
+                    //console.log("HERE");
 
                     earliestDate = new Date(earliestDate * 1000);
-                    console.log(earliestDate, "EARLIEST DATE HERE")
+                    console.log(earliestDate, "EARLIEST DATE for ganttChart")
 
                     lastDate = new Date(lastDate * 1000)
                     setWindowStartDate(earliestDate);
@@ -154,12 +154,12 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
 
                         finalStakingData["firstUnlockDate"] = Number(token?.locked__end)
-                        console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime())
+                        console.log(finalStakingData["firstUnlockDate"], "first unlock Date and current date time", new Date().getTime())
                         // console.log();
 
                     }
-                    console.log({ earliestDate });
-                    console.log("LOCKED DOt end", token.locked.end);
+                    //console.log({ earliestDate });
+                    console.log("token locked__end", token.locked.end);
 
                     finalStakingData["allStakes"].push({
                         "staked": Number(token?.locked.amount) / AIUS_wei,
@@ -186,7 +186,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
                     // earliestDate = new Date(earliestDate * 1000);
                     finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
-                    console.log(finalStakingData["firstUnlockDate"], "FUND")
+                    console.log(finalStakingData["firstUnlockDate"], "First unlock date")
 
                     mergedTokensData["ganttChart"] = finalStakingData;
                     mergedTokensData["slidingCards"] = tokens;
@@ -209,7 +209,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
     /* DASHBOARD CALLS ENDS HERE */
 
 
-    console.log(tokenIDs, "TOKEN IDS")
+    console.log(tokenIDs, "TOKENS")
 
 
 

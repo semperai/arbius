@@ -35,7 +35,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
     const [estBalance, setEstBalance] = useState(0);
 
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-    console.log(Number(selectedStake), "SELC")
+    console.log(Number(selectedStake), "selected Stake")
     const { config: addAIUSConfig } = usePrepareContractWrite({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
@@ -90,7 +90,6 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
 
     useEffect(() => {
         if (totalStaked && endDate && stakedOn) {
-            console.log(Number(endDate), "YOLO")
             const t = (Number(endDate) - Number(stakedOn));
             const a_b = (Number(totalStaked?.amount) / AIUS_wei) + Number(aiusToStake)
             setEstBalance(a_b * (t / t_max));
@@ -271,10 +270,11 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
     datePlus24Months.setMonth(datePlus24Months.getMonth() + 24);
     const currentlyEndingDate = new Date(currentlyEndingAt)
     const numberOfMonths = (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 + (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
-    console.log(numberOfMonths, "NO OF")
+    console.log(numberOfMonths, "MAX NO OF months")
     const [extendEndDate, setExtendEndDate] = useState(new Date(currentlyEndingAt))
-    console.log(sliderValue, "SLIDER VAL", {extendEndDate}, getCurrentTimeInMSeconds()  ,((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
-    console.log(extendEndDate, "EXTEND END DATE")
+    console.log(sliderValue, "SLIDER VALUE and dates check", {extendEndDate}, getCurrentTimeInMSeconds()  ,((extendEndDate - getCurrentTimeInMSeconds()) / 1000))
+    console.log(extendEndDate, "EXTENDED END DATE")
+    console.log("Below: Difference in time in seconds of extended date and current time")
     console.log(parseInt((extendEndDate.getTime() - getCurrentTimeInMSeconds()) / 1000).toString());
     
     console.log({currentlyEndingAt});
@@ -370,7 +370,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
                         defaultValue={0}
                         value={sliderValue}
                         onChange={(value) => {
-                            console.log(value, "VALUE")
+                            console.log(value, "Slider on change: VALUE")
                             if (value < 1) {
                                 setDuration({ ...duration, months: 0, weeks: 4 * value })
                             } else {
@@ -401,7 +401,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
                 </div>
                 <div className='flex justify-center gap-2 items-center mt-20'>
                     <div className='w-full bg-[#EEEAFF] p-3 py-4 rounded-md'>
-                        {console.log(currentEndDate, "EXTSTART")}
+                        {/*console.log(currentEndDate, "EXTSTART")*/}
 
                         <h1 className='text-xs text-purple-text font-semibold'>{currentEndDate?.getMonth() + 1}/{currentEndDate?.getDate()}/{currentEndDate?.getFullYear()}</h1>
                         <h1 className='text-[.6rem]'>Current Stake ends at</h1>
@@ -779,7 +779,7 @@ function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, wa
 
 
     useEffect(() => {
-        console.log(direction, "direction")
+        console.log("direction of movement of cards: ", direction)
         const elements = document.querySelectorAll('.slick-list');
         if (tokenIDs?.length > 2) {
             elements.forEach(element => {

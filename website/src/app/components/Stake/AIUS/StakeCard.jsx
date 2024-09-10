@@ -14,7 +14,7 @@ import info_icon from '@/app/assets/images/info_icon_white.png'
 import Web3 from 'web3';
 
 function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp }) {
-    console.log(token, "TOKEN ID")
+    console.log(token, "TOKEN in individual card")
     const { address, isConnected } = useAccount();
     const config = loadConfig();
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
@@ -88,8 +88,8 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
 
 
     // withdraw
-    console.log(Number(endDate) * 1000, "current")
-    console.log("current Date", Date.now())
+    //console.log(Number(endDate) * 1000, "current")
+    //console.log("current Date", Date.now())
     const { config: withdrawAIUSConfig } = usePrepareContractWrite({
         address: VOTING_ESCROW_ADDRESS,
         abi: votingEscrow.abi,
@@ -125,7 +125,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     });
 
     const handleWithdraw = (lockedEndDate)=>{
-        console.log(lockedEndDate, Date.now(), "times")
+        console.log(lockedEndDate, Date.now(), "locked end date and current date comparison")
         if(lockedEndDate > Date.now()){
             return 
         }

@@ -52,7 +52,7 @@ const CustomGanttChart = ({ allStakingData }) => {
         return months.map((month, index) => {
             const position = (month - earliestStart) / (1000 * 60 * 60 * 24);
             const width = (index === months.length - 1 ? totalDays - position : 30) / totalDays * 100;
-            console.log(month, index, "MI")
+            //console.log(month, index, "MI")
             return (
                 <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%`, color: "#4A28FF" }}>
                     {/*month.toLocaleString('default', { month: 'short', year: 'numeric' })*/}
@@ -121,7 +121,7 @@ const CustomGanttChart = ({ allStakingData }) => {
                                 document.getElementById("info").style.display = "none"
                             }}
                         >
-                            <Image src={info_icon} height={13} width={13} />
+                            <Image src={info_icon} height={13} width={13} alt="" />
                         </div>
                     </div>
 
@@ -175,7 +175,7 @@ const CustomGanttChart = ({ allStakingData }) => {
                     })}
                     <div className="timeline">
                         {generateMonthTimeline()}
-                        {console.log(getMonthsLength(), "IN JSX LENGTH")}
+                        {console.log(getMonthsLength(), "gantt chart months length")}
                     </div>
                     <style jsx>{`
         .gantt-chart {
