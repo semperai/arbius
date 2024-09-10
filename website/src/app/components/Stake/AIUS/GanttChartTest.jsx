@@ -102,7 +102,19 @@ const CustomGanttChart = ({ allStakingData }) => {
             <div className='flex justify-between items-center mt-6 mb-3'>
                 <div>
                     <h2 className="text-[14px] text-aius-tabs-gray font-semibold">First unlock in</h2>
-                    <h2 className='text-[16px] font-semibold'>{allStakingData?.firstUnlockDate ? allStakingData?.firstUnlockDate : "0"} days</h2>
+                    <h2 className='text-[16px] font-semibold'>{
+                        allStakingData?.firstUnlockDateMinutes && allStakingData?.firstUnlockDateMinutes > 0 ?
+                            allStakingData?.firstUnlockDateMinutes + " minutes"
+
+                        : allStakingData?.firstUnlockDateHours && allStakingData?.firstUnlockDateHours > 0 ?
+                            allStakingData?.firstUnlockDateHours + " hours"
+
+                        : allStakingData?.firstUnlockDate ?
+                            allStakingData?.firstUnlockDate == 1 ? "1 day" : allStakingData?.firstUnlockDate+" days"
+                        
+                        : "0 days"
+                    }
+                    </h2>
                 </div>
                 <div>
                     <h2 className="text-[14px] text-aius-tabs-gray font-semibold">Total Staked</h2>

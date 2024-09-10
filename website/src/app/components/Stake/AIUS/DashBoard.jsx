@@ -113,6 +113,8 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 }
                 let finalStakingData = {
                     "firstUnlockDate": 0,
+                    "firstUnlockDateHours": 0,
+                    "firstUnlockDateMinutes": 0,
                     "totalStaked": 0,
                     "totalGovernancePower": 0,
                     "allStakes": []
@@ -132,6 +134,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     }
 
                 })
+
                 if (earliestDate && lastDate) {
                     //console.log("HERE");
 
@@ -183,7 +186,22 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                     // console.log(finalStakingData["firstUnlockDate"], "FINAL", new Date().getTime(), "DIFF", finalStakingData["firstUnlockDate"] * 1000 - new Date().getTime())
                 })
                 if(earliestDate){
-                    finalStakingData["firstUnlockDate"] = parseInt((Math.abs(new Date(finalStakingData["firstUnlockDate"] * 1000) - new Date().getTime()) / 1000) / 86400)
+                    let earlyDate = finalStakingData["firstUnlockDate"];
+                    let tempDifferenceValue = Math.abs(new Date(earlyDate * 1000) - new Date().getTime()) / 1000
+
+                    finalStakingData["firstUnlockDate"] = parseInt(tempDifferenceValue / 86400)
+
+                    if(finalStakingData["firstUnlockDate"] == 0){
+                        if(tempDifferenceValue < 3600){
+                            finalStakingData["firstUnlockDateMinutes"] = parseInt(tempDifferenceValue / 60)
+                        }
+                    }
+                    if(finalStakingData["firstUnlockDateMinutes"] == 0){
+                        if(tempDifferenceValue < 86400){
+                            finalStakingData["firstUnlockDateHours"] = parseInt(tempDifferenceValue / 3600)
+                        }
+                    }
+
                     // earliestDate = new Date(earliestDate * 1000);
                     finalStakingData["stake_start_date"] = `${earliestDate.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${earliestDate.getFullYear().toString().slice(-2)}`
                     console.log(finalStakingData["firstUnlockDate"], "First unlock date")

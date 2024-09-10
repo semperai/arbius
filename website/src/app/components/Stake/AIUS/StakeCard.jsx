@@ -14,7 +14,7 @@ import info_icon from '@/app/assets/images/info_icon_white.png'
 import Web3 from 'web3';
 
 function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp }) {
-    console.log(token, "TOKEN in individual card")
+    //console.log(token, "TOKEN in individual card")
     const { address, isConnected } = useAccount();
     const config = loadConfig();
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
@@ -108,7 +108,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
         write: withdrawAIUS
     } = useContractWrite(withdrawAIUSConfig)
 
-    console.log({ withdrawAIUSData })
+    //console.log({ withdrawAIUSData })
 
     const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
         hash: withdrawAIUSData?.hash,
