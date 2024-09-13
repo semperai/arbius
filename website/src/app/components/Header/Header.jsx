@@ -328,10 +328,10 @@ export default function Header() {
               <button
                 type="button"
                 className="m-[auto] relative group bg-black-background lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
+                onClick={clickConnect}
               >
                 <div className="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white flex flex-row gap-2 items-center"
-                  onClick={clickConnect}
                 >
                   {
                     walletConnected ? <Image className="h-[10px] w-[auto] mt-[1px]" style={{filter:'invert(1)'}} src={arbiusBWlogo} height={20} alt="connected"/>:null

@@ -388,6 +388,14 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address, 
                                 }
                                 date = new Date(currentEndDate?.getFullYear(), currentEndDate?.getMonth(), currentEndDate?.getDate() + 30 * value + additional_day);
                             }
+                            const WEEK = 7 * 24 * 60 * 60; // Assuming WEEK is defined in seconds
+                            const MAXTIME = 2 * 365 * 24 * 60 * 60; // Assuming MAXTIME is 2 years in seconds
+
+                            let lockDuration = parseInt((date - getCurrentTimeInMSeconds()) / 1000)
+                            let currentTimestamp = getCurrentTimeInMSeconds() / 1000
+                            const unlockTime = Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
+                            console.log(unlockTime, "UNLOCK TIME and", date)
+                            date = new Date(unlockTime * 1000)
                             setExtendEndDate(date)
                             setSliderValue(value)
                         }}

@@ -229,8 +229,12 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
 
         }
         if (address) {
-
             f();
+        }else{
+            setTokenIDs({
+                    "slidingCards": {},
+                    "ganttChart": {}
+                });
         }
     }, [address, chain?.id, updateValue])
     /* DASHBOARD CALLS ENDS HERE */

@@ -46,7 +46,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const [totalSupply, setTotalSupply] = useState(0);
     const [escrowBalanceData, setEscrowBalanceData] = useState(0);
 
-    console.log(veAiusBalance, allowance, walletBalance, rewardRate, totalSupply, escrowBalanceData, "ALL VALUES IN STAKE COMP")
+    //console.log(veAiusBalance, allowance, walletBalance, rewardRate, totalSupply, escrowBalanceData, "ALL VALUES IN STAKE COMP")
 
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
