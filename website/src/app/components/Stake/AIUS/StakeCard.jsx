@@ -12,8 +12,9 @@ import Link from "next/link"
 import loadConfig from './loadConfig'
 import info_icon from '@/app/assets/images/info_icon_white.png'
 import Web3 from 'web3';
+import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
 
-function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp }) {
+function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp, updateValue, setUpdateValue }) {
     //console.log(token, "TOKEN in individual card")
     const { address, isConnected } = useAccount();
     const config = loadConfig();
@@ -116,7 +117,10 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
         onSuccess(data) {
             console.log('approve tx successful data ', data);
             setShowPopUp("withdraw/Success")
-            window.location.reload()
+            getTransactionReceiptData(withdrawAIUSData?.hash).then(function(){
+                //window.location.reload(true)
+                setUpdateValue(prevValue => prevValue + 1)
+            })
         },
         onError(err) {
             console.log('approve tx error data ', err);

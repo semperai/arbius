@@ -24,28 +24,35 @@ import success_stake from "../../../assets/images/success_stake.png"
 import { ethers } from 'ethers';
 import loadConfig from "./loadConfig"
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
+import Web3 from 'web3';
 
-export default function Stake({ selectedtab, setSelectedTab, data, isLoading, isError }) {
+export default function Stake({ selectedtab, setSelectedTab, data, isLoading, isError, updateValue, setUpdateValue }) {
 
     const [sliderValue, setSliderValue] = useState(0)
     const { address, isConnected } = useAccount()
-    const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
+    //const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
     const [veAiusBalance, setVeAIUSBalance] = useState(0)
     const [allowance, setAllowance] = useState(0)
-    const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
+    //const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
     const config = loadConfig();
     const [duration, setDuration] = useState({
         months: 0,
         weeks: 0
     })
     const [amount, setAmount] = useState(0)
-    const walletBalance = data && !isLoading ? Number(data._hex) / AIUS_wei : 0;
+    //const walletBalance = data && !isLoading ? Number(data._hex) / AIUS_wei : 0;
+    const [walletBalance, setWalletBalance] = useState(0);
+    const [rewardRate, setRewardRate] = useState(0);
+    const [totalSupply, setTotalSupply] = useState(0);
+    const [escrowBalanceData, setEscrowBalanceData] = useState(0);
+
+    console.log(veAiusBalance, allowance, walletBalance, rewardRate, totalSupply, escrowBalanceData, "ALL VALUES IN STAKE COMP")
 
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 
-    const rewardRate = useContractRead({
+    /*const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
         functionName: 'rewardRate',
@@ -86,9 +93,9 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 ]
             }
         }) : null,
-    });
+    });*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (tokenIDs && tokenIDs.length > 0 && !tokenIDsIsLoading && !tokenIDsIsError) {
             const contracts = tokenIDs?.map((tokenID) => ({
                 address: VE_STAKING_ADDRESS,
@@ -213,6 +220,53 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             },2000)
         }
     },[allowance])*/
+    // Use effect to fetch all values
+    useEffect(() => {
+        const f = async() => {
+
+            try {
+                const web3 = new Web3(window.ethereum);
+                const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+                const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+                const baseTokenContract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
+
+                const wBal = await baseTokenContract.methods.balanceOf(address).call()
+                setWalletBalance(wBal / AIUS_wei);
+
+                const _rewardRate = await veStakingContract.methods.rewardRate().call()
+                setRewardRate(_rewardRate)
+
+                const _totalSupply = await veStakingContract.methods.totalSupply().call()
+                setTotalSupply(_totalSupply)
+
+                const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
+                setEscrowBalanceData(_escrowBalanceData)
+
+                const _tokenIDs = []
+                for(let i=0; i<_escrowBalanceData; i++){
+                    _tokenIDs.push(
+                        await votingEscrowContract.methods.tokenOfOwnerByIndex(address, i).call()
+                    )
+                }
+
+                let _veAIUSBalance = 0;
+                for(let i=0; i<_tokenIDs.length; i++){
+                    _veAIUSBalance = _veAIUSBalance + await veStakingContract.methods.balanceOf(_tokenIDs[i]).call() / AIUS_wei
+                }
+                setVeAIUSBalance(_veAIUSBalance);
+
+                const _checkAllowance = await baseTokenContract.methods.allowance(address, VOTING_ESCROW_ADDRESS).call()
+                setAllowance(_checkAllowance)
+
+            }catch(err){
+                console.log(err)
+            }
+        }
+        if(address){
+            f();
+        }
+    },[address, updateValue])
+
 
     const handleStake = async()=>{
         //console.log({stakeData});
@@ -258,7 +312,8 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 setShowPopUp("Success")
                 console.log('Both transactions completed successfully');
                 getTransactionReceiptData(tx2.hash).then(function(){
-                    window.location.reload(true)
+                    //window.location.reload(true)
+                    setUpdateValue(prevValue => prevValue + 1)
                 })
             } catch (error) {
                 setShowPopUp("Error")
@@ -288,7 +343,8 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     setShowPopUp("Success")
                     console.log('Both transactions completed successfully');
                     getTransactionReceiptData(tx2.hash).then(function(){
-                        window.location.reload(true)
+                        //window.location.reload(true)
+                        setUpdateValue(prevValue => prevValue + 1)
                     })
                 }else{
                     //alert("Please enter the amount and duration to stake!")
@@ -322,7 +378,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-stake lato-bold text-[18px]">Amount to lock</p>
-                            <p className="text-available lato-regular text-[15px]">Available {walletBalance?.toFixed(4).toString()} AIUS</p>
+                            <p className="text-available lato-regular text-[15px]">Available {Number(walletBalance)?.toFixed(4).toString()} AIUS</p>
                         </div>
                         <div>
                             <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
@@ -387,7 +443,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
                         </div>
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">APR</p>
-                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{totalSupply.data?._hex && rewardRate.data?._hex ? getAPR(rewardRate.data?._hex, totalSupply.data?._hex).toFixed(2) : 0}%</p>
+                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{totalSupply && rewardRate ? getAPR(rewardRate, totalSupply).toFixed(2) : 0}%</p>
                     </div>
                     <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border relative">
                         <div className="right-3 top-3 absolute group cursor-pointer">
@@ -399,7 +455,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
                         </div>
                         <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">veAIUS Balance</p>
-                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{veAiusBalance?.toFixed(2)} <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
+                        <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{Number(veAiusBalance)?.toFixed(2)} <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
                     </div>
                 </div>
 

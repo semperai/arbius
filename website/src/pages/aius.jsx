@@ -18,6 +18,8 @@ export default function AIUS({protocolData}) {
     const [selectedtab, setSelectedTab] = useState("Dashboard")
     const { address, isConnected } = useAccount();
     const config = loadConfig();
+    const [updateValue, setUpdateValue] = useState(0);
+
     const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
     console.log({address});
     console.log({isConnected});
@@ -32,12 +34,12 @@ export default function AIUS({protocolData}) {
         ],
         enabled: isConnected
     })
-    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev" ? 421614: 42161;
+    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev" ? 421614 : 42161;
     const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
         chainId:CHAIN ,
       });
 
-      useEffect(() => {
+    useEffect(() => {
         console.log("switch");
         const f = async() => {
             try {
@@ -51,7 +53,7 @@ export default function AIUS({protocolData}) {
 
         f();
         switchNetworkArbitrum?.();
-      },[switchNetworkArbitrum])
+    },[switchNetworkArbitrum])
 
     return (
         <RootLayout>
@@ -77,7 +79,7 @@ export default function AIUS({protocolData}) {
                             </div>
                             <div className="flex lg:flex-row flex-col lg:gap-0 gap-4 justify-between">
                                 <div className="lg:w-[48%] w-[100%]">
-                                    <Stake selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} />
+                                    <Stake selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} updateValue={updateValue} setUpdateValue={setUpdateValue} />
                                 </div>
                                 <div className="lg:w-[48%] w-[100%]">
                                     <div className="mb-4">
@@ -94,7 +96,7 @@ export default function AIUS({protocolData}) {
 
                 <Notifications />
                 {/* tabs */}
-                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} protocolData={protocolData} />
+                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} protocolData={protocolData} updateValue={updateValue} setUpdateValue={setUpdateValue} />
 
             </div>
 

@@ -9,6 +9,8 @@ import { useAccount, useContractRead, useNetwork } from 'wagmi'
 // import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
+import baseTokenV1 from "../../../abis/baseTokenV1.json"
+
 import { getAPR } from "../../../Utils/getAPR"
 // import { walletBalance } from '../../../Utils/getAiusBalance'
 import loadConfig from './loadConfig'
@@ -21,16 +23,19 @@ import { AIUS_wei, t_max } from "../../../Utils/constantValues";
 import Loader from '../Loader/Index'
 import Gantt from './GanttChartTest'
 
-function DashBoard({ data, isLoading, isError, protocolData }) {
+function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpdateValue }) {
     const { address, isConnected } = useAccount()
     const { chain, chains } = useNetwork()
+    console.log(updateValue, "value updated in DashBoard")
     console.log(chain, "CONNECTed chain")
     console.log("IS CONNECTed?", isConnected)
     const config = loadConfig();
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+    const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 
-    const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    //const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    const [walletBalance, setWalletBalance] = useState(0);
     const [rewardRate, setRewardRate] = useState(0);
     const [totalSupply, setTotalSupply] = useState(0);
     const [veSupplyData, setVESupplyData] = useState(0);
@@ -86,6 +91,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 const web3 = new Web3(window.ethereum);
                 const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
                 const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+                const baseTokenContract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
 
                 const _rewardRate = await veStakingContract.methods.rewardRate().call()
                 const _totalSupply = await veStakingContract.methods.totalSupply().call()
@@ -97,6 +103,9 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                 setTotalSupply(_totalSupply / AIUS_wei)
                 setVESupplyData(_veSupplyData)
 
+                // Getting user wallet balance
+                const wBal = await baseTokenContract.methods.balanceOf(address).call()
+                setWalletBalance(wBal / AIUS_wei);
 
                 // prepiing sliding cards and ganttChart
                 const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
@@ -223,7 +232,7 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
 
             f();
         }
-    }, [address, chain?.id])
+    }, [address, chain?.id, updateValue])
     /* DASHBOARD CALLS ENDS HERE */
 
 
@@ -285,15 +294,18 @@ function DashBoard({ data, isLoading, isError, protocolData }) {
                         </div>
                     </div>
                     <div className=''>
-                        {loading ? <div className='h-[300px] pl-2'>
-                            <Loader />
-                        </div> : (tokenIDs?.slidingCards && tokenIDs?.slidingCards.length > 0) ? <SlidingCards isLoading={isLoading} totalEscrowBalance={escrowBalanceData} tokenIDs={tokenIDs?.slidingCards} rewardRate={rewardRate} totalSupply={totalSupply} walletBalance={walletBalance} /> : <div className='h-[300px] flex justify-center items-center pl-2'>
-                            <div className=' bg-white-background rounded-2xl w-full h-full flex justify-center items-center'>
-                                <h1 className='text-purple-text text-[20px] font-semibold'>No Stakes Found</h1>
-
+                        {loading ?
+                            <div className='h-[300px] pl-2'>
+                                <Loader />
                             </div>
-                        </div>}
-
+                            : (tokenIDs?.slidingCards && tokenIDs?.slidingCards.length > 0) ?
+                                    <SlidingCards isLoading={isLoading} totalEscrowBalance={escrowBalanceData} tokenIDs={tokenIDs?.slidingCards} rewardRate={rewardRate} totalSupply={totalSupply} walletBalance={walletBalance} updateValue={updateValue} setUpdateValue={setUpdateValue} />
+                                : <div className='h-[300px] flex justify-center items-center pl-2'>
+                                    <div className=' bg-white-background rounded-2xl w-full h-full flex justify-center items-center'>
+                                        <h1 className='text-purple-text text-[20px] font-semibold'>No Stakes Found</h1>
+                                    </div>
+                                </div>
+                        }
                     </div>
                 </div>
             </div>

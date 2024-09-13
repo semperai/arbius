@@ -29,11 +29,10 @@ import Web3 from 'web3';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
 
 const config = loadConfig();
-const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalance, totalSupply, rewardRate, getAPR, address }) => {
+const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalance, totalSupply, rewardRate, getAPR, address, updateValue, setUpdateValue }) => {
 
     const [aiusToStake, setAIUSToStake] = useState(0);
     const [estBalance, setEstBalance] = useState(0);
-
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     console.log(Number(selectedStake), "selected Stake")
     const { config: addAIUSConfig } = usePrepareContractWrite({
@@ -103,7 +102,8 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
             console.log('approve tx successful data ', data);
             setShowPopUp("add/Success")
             getTransactionReceiptData(addAIUSData?.hash).then(function(){
-                window.location.reload(true)
+                //window.location.reload(true)
+                setUpdateValue(prevValue => prevValue + 1)
             })
         },
         onError(err) {
@@ -234,7 +234,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
     )
 }
 
-const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }) => {
+const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address, updateValue, setUpdateValue }) => {
     const [sliderValue, setSliderValue] = useState(0)
     const [duration, setDuration] = useState({
         months: 0,
@@ -308,7 +308,8 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
             console.log('approve tx successful data ', data);
             setShowPopUp("extend/Success")
             getTransactionReceiptData(addAIUSData?.hash).then(function(){
-                window.location.reload(true)
+                //window.location.reload(true)
+                setUpdateValue(prevValue => prevValue + 1)
             })
         },
         onError(err) {
@@ -470,7 +471,7 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }
 }
 
 
-const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address }) => {
+const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address, updateValue, setUpdateValue }) => {
 
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const [earned, setEarned] = useState(0);
@@ -511,7 +512,8 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address })
             console.log('approve tx successful data ', data);
             setShowPopUp("claim/Success")
             getTransactionReceiptData(addAIUSData?.hash).then(function(){
-                window.location.reload(true)
+                //window.location.reload(true)
+                setUpdateValue(prevValue => prevValue + 1)
             })
         },
         onError(err) {
@@ -624,7 +626,7 @@ const ClaimPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address })
 
 
 
-function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, walletBalance, isLoading}) {
+function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, walletBalance, isLoading, updateValue, setUpdateValue}) {
     const [showPopUp, setShowPopUp] = useState(false)
     const sliderRef = useRef()
     const [direction, setDirection] = useState("");
@@ -831,29 +833,21 @@ function SlidingCards({totalEscrowBalance, tokenIDs, rewardRate, totalSupply, wa
         <div>
             {showPopUp !== false && (
                 <>
-
-
                     <PopUp setShowPopUp={setShowPopUp} >
-                        {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} address={address} />}
-                        {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} address={address} />}
-                        {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} address={address} />}
+                        {showPopUp.startsWith("add") && <AddPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} walletBalance={walletBalance} totalSupply={totalSupply} rewardRate={rewardRate} getAPR={getAPR} setSelectedStake={setSelectedStake} address={address} updateValue={updateValue} setUpdateValue={setUpdateValue} />}
+                        {showPopUp.startsWith("claim") && <ClaimPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} address={address} updateValue={updateValue} setUpdateValue={setUpdateValue} />}
+                        {showPopUp.startsWith("extend") && <ExtendPopUpChildren setShowPopUp={setShowPopUp} showPopUp={showPopUp} selectedStake={selectedStake} address={address} updateValue={updateValue} setUpdateValue={setUpdateValue}/>}
                         {showPopUp === ("withdraw/Success") && (<SuccessChildren setShowPopUp={setShowPopUp} />)}
                         {showPopUp ===("withdraw/Error") && (<ErrorPopUpChildren setShowPopUp={setShowPopUp} />)}
                         {showPopUp ===("withdraw/2") && (<StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={false} />)}
-
                     </PopUp>
-
-
                 </>
-
-
-
             )}
             <div className='relative'>
                 <div className='  pl-2  w-full flex justify-start  items-center  relative ' ref={sliderRef}>
                     <Slider {...settings}>
                         {tokenIDs?.map((item, key) => (
-                            <StakeCard token={item} rewardRate={rewardRate} totalSupply={totalSupply} getAPR={getAPR} key={key} setSelectedStake={setSelectedStake} setShowPopUp={setShowPopUp} />
+                            <StakeCard token={item} rewardRate={rewardRate} totalSupply={totalSupply} getAPR={getAPR} key={key} setSelectedStake={setSelectedStake} setShowPopUp={setShowPopUp} updateValue={updateValue} setUpdateValue={setUpdateValue} />
                         ))}
                     </Slider>
                 </div>
