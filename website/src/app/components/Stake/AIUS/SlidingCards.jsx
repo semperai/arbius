@@ -399,6 +399,9 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address, 
                             if(date <= currentEndDate){
                                 return;
                             }
+                            if (unlockTime > currentTimestamp + MAXTIME) {
+                                return;
+                            }
 
                             setExtendEndDate(date)
                             setSliderValue(value)
