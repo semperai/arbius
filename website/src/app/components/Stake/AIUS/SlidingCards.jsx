@@ -396,6 +396,10 @@ const ExtendPopUpChildren = ({ setShowPopUp, showPopUp, selectedStake, address, 
                             const unlockTime = Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
                             console.log(unlockTime, "UNLOCK TIME and", date)
                             date = new Date(unlockTime * 1000)
+                            if(date <= currentEndDate){
+                                return;
+                            }
+
                             setExtendEndDate(date)
                             setSliderValue(value)
                         }}
