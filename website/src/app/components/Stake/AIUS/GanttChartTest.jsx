@@ -19,7 +19,18 @@ const CustomGanttChart = ({ allStakingData }) => {
     const today = new Date();
     const earliestStart = new Date(Math.min(...tasks.map(task => new Date(task.startDate))));
     const latestEnd = new Date(Math.max(...tasks.map(task => new Date(task.endDate))));
-    const totalDays = (latestEnd - earliestStart) / (1000 * 60 * 60 * 24);
+
+    // Calculate the actual number of months
+    const monthDiff = (latestEnd.getFullYear() - earliestStart.getFullYear()) * 12 + latestEnd.getMonth() - earliestStart.getMonth();
+
+    // Adjust the end date only if the span is less than 5 months
+    const adjustedLatestEnd = monthDiff < 8 ? new Date(new Date(earliestStart).setMonth(earliestStart.getMonth() + 8)) : latestEnd;
+
+    //const minEndDate = new Date(earliestStart);
+    //minEndDate.setMonth(minEndDate.getMonth() + 8);
+    //const adjustedLatestEnd = latestEnd > minEndDate ? latestEnd : minEndDate;
+
+    const totalDays = (adjustedLatestEnd - earliestStart) / (1000 * 60 * 60 * 24);
     const months = [];
 
     const getElapsedAndRemainingPercentages = (start, end) => {
@@ -45,7 +56,7 @@ const CustomGanttChart = ({ allStakingData }) => {
         //const months = [];
         let currentDate = new Date(earliestStart);
         currentDate.setDate(1); // Start from the first day of the month
-        while (currentDate <= latestEnd) {
+        while (currentDate <= adjustedLatestEnd) {
             months.push(new Date(currentDate));
             currentDate.setMonth(currentDate.getMonth() + 1);
         }
