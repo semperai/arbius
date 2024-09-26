@@ -28,7 +28,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .sub(ethConverterBalance)
     .sub(novaConverterBalance)
     .sub(daoBalance)
-    .sub(gysrBalance);
+    .sub(gysrBalance)
+    .sub(ethers.utils.parseEther('630392'));
 
   try {
     res.status(200).send(ethers.utils.formatEther(unlocked))
