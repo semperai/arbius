@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {
     ERC20Permit
 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -37,7 +38,8 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     mapping(bytes32 => bool) public publicSyncingEnabled;
 
     // pricing token for syncing
-    mapping(bytes32 => IERC20) public pricingToken;
+    mapping(bytes32 => IERC20Metadata) public pricingToken;
+    mapping(bytes32 => uint256) public pricingTokenDecimals;
 
     // target price for syncing
     mapping(bytes32 => uint256) public targetPrice;
@@ -127,7 +129,8 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     /// @param _model the model to set the pricing token for
     /// @param _addr the address of the pricing token
     function setPricingToken(bytes32 _model, address _addr) public onlyOwner {
-        pricingToken[_model] = IERC20(_addr);
+        pricingToken[_model] = IERC20Metadata(_addr);
+        pricingTokenDecimals[_model] = pricingToken[_model].decimals();
         emit PricingTokenSet(_model, _addr);
     }
 
@@ -307,9 +310,9 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
         path[1] = router.WETH();
         path[2] = address(arbiusToken);
 
-        uint256[] memory out = router.getAmountsOut(1 ether, path);
+        uint256[] memory out = router.getAmountsOut(10 ** pricingTokenDecimals[_model], path);
 
-        uint256 fee = (out[2] * targetPrice[_model]) / 1e18;
+        uint256 fee = out[2] * targetPrice[_model] / 1e18;
 
         arbius.setModelFee(_model, fee);
 
