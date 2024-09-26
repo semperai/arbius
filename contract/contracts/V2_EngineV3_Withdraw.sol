@@ -233,11 +233,6 @@ contract V2_EngineV3_Withdraw is OwnableUpgradeable {
     function initialize() public reinitializer(4) {
     }
 
-    function withdrawAiusToOwner() external onlyOwner {
-        uint256 bal = baseToken.balanceOf(address(this)) - totalHeld;
-        baseToken.transfer(owner(), bal);
-    }
-
     /// @notice Transfer ownership
     /// @param to_ Address to transfer ownership to
     function transferOwnership(
@@ -466,6 +461,11 @@ contract V2_EngineV3_Withdraw is OwnableUpgradeable {
         baseToken.transfer(treasury, accruedFees);
         totalHeld -= accruedFees; // v3
         accruedFees = 0;
+    }
+
+    function withdrawAiusToTreasury() external onlyOwner {
+        uint256 bal = baseToken.balanceOf(address(this)) - totalHeld;
+        baseToken.transfer(treasury, bal);
     }
 
     /// @notice Registers a new model
