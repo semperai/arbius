@@ -163,7 +163,7 @@
         @apply w-[20px] h-[auto] lg:h-[10px] lg:w-[auto] ml-[3px];
     }
     .link-with-image .staking{
-        @apply gap-[10px] absolute /*ml-[-50%]*/;
+        @apply gap-[10px] absolute ml-[-50%];
     }
     .link-with-image .staking-block{
         @apply flex flex-col gap-[50px] items-start lg:bg-[white] w-[170px] h-[250px] p-[30px_10px] lg:hover-bg-image drop-shadow-xl box-border;
