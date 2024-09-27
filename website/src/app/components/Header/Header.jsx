@@ -185,6 +185,11 @@ export default function Header() {
                 </div>
               </AnimateHeight>
             </div>
+
+            <Link href={"https://heyamica.com/"} target="_blank">
+              <div className="item hover:text-purple-text">Amica</div>
+            </Link>
+
             <div className="relative group link-with-image ">
               <div
                 className="link hover:!text-purple-text "
@@ -215,7 +220,7 @@ export default function Header() {
                       <div>Image Generation</div>
                     </div>
                   </Link>
-                  <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
+                  {/*<Link target="_blank" href={"https://t.me/kasumi2_beta"}>
                     <div className="staking-block">
                       <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
                         <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
@@ -228,8 +233,8 @@ export default function Header() {
                       <div>Kasumi 2</div>
                       <div>Telegram Integrated Mining Agent & Image Generator</div>
                     </div>
-                  </Link>
-                  <Link target="_blank" href={"https://amica.arbius.ai/"}>
+                  </Link>*/}
+                  {/*<Link target="_blank" href={"https://amica.arbius.ai/"}>
                     <div className="staking-block">
                       <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
                         <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
@@ -242,7 +247,7 @@ export default function Header() {
                       <div>Amica</div>
                       <div>AI persona</div>
                     </div>
-                  </Link>
+                  </Link>*/}
                 </div>
               </AnimateHeight>
             </div>
