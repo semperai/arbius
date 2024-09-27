@@ -66,10 +66,6 @@ export default function Header() {
   }, [lastScrollTop]);
 
 
-
-
-
-  // MAIN ARBIUS AI CODE
   const {
     isConnected,
     isConnecting,
@@ -92,10 +88,6 @@ export default function Header() {
     }
     f();
   }
-  // MAIN ARBIUS AI CODE
-
-
-
 
   return (
     <div
