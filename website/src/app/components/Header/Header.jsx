@@ -224,7 +224,7 @@ export default function Header() {
                         alt=""
                       />
                       <div>Llama 3.1 405B</div>
-                      <div>State-of-the-art Performance</div>
+                      <div>Text Generation</div>
                     </div>
                   </Link>
                   <Link href={"#"}>
@@ -238,7 +238,7 @@ export default function Header() {
                         alt=""
                       />
                       <div>Llama 3.2 90B</div>
-                      <div>Efficient Natural Language Processor</div>
+                      <div>Multi-modal</div>
                     </div>
                   </Link>
                 </div>
