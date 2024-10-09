@@ -20,26 +20,31 @@ contract VotingEscrowTest is BaseTest {
     }
 
     function testOnlyOwner() public {
+        // should be correct owner
         assertEq(votingEscrow.owner(), address(this));
 
+        // setArtProxy
         votingEscrow.setArtProxy(address(1));
         assertEq(votingEscrow.artProxy(), address(1));
-
-        votingEscrow.setVeStaking(address(1));
-        assertEq(votingEscrow.veStaking(), address(1));
-
-        votingEscrow.setVoter(address(1));
-        assertEq(votingEscrow.voter(), address(1));
-    }
-
-    function testFailOnlyOwner() public {
+        // setArtProxyFail
         vm.prank(alice);
+        vm.expectRevert();
         votingEscrow.setArtProxy(address(0));
 
+        // setVeStaking
+        votingEscrow.setVeStaking(address(1));
+        assertEq(votingEscrow.veStaking(), address(1));
+        // setVeStakingFail
         vm.prank(alice);
+        vm.expectRevert();
         votingEscrow.setVeStaking(address(0));
 
+        // setVoter
+        votingEscrow.setVoter(address(1));
+        assertEq(votingEscrow.voter(), address(1));
+        // setVoterFail
         vm.prank(alice);
+        vm.expectRevert();
         votingEscrow.setVoter(address(0));
     }
 
@@ -376,4 +381,6 @@ contract VotingEscrowTest is BaseTest {
         bytes4 ERC721_FAKE = 0x780e9d61;
         assertFalse(votingEscrow.supportsInterface(ERC721_FAKE));
     }
+
+    // todo: add tests for voted, e.g. no withdraw possible when active vote etc.
 }
