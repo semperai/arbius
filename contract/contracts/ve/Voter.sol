@@ -6,35 +6,32 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 import {IVoter} from "contracts/interfaces/IVoter.sol";
 
-contract Voter is IVoter, Ownable {
+import "forge-std/Test.sol";
+import "forge-std/console2.sol";
+
+contract Voter is IVoter, Ownable, Test {
     address public immutable votingEscrow; // the ve token that governs these contracts
 
     uint internal constant DURATION = 7 days; // voting duration per epoch
 
     uint public totalWeight; // total voting weight
-    mapping(address => uint256) public weights; // pool => weight
+    mapping(bytes32 => uint256) public weights; // model => weight
 
-    address[] public pools; // all pools viable for incentives
-    mapping(address => address) public gauges; // pool => gauge
-    mapping(address => address) public poolForGauge; // gauge => pool
-    mapping(uint => mapping(address => uint256)) public votes; // nft => pool => votes
-    mapping(uint => address[]) public poolVote; // nft => pools
+    bytes32[] public models; // all models viable for incentives
+    mapping(bytes32 => bool) public isGauge; // model => isGauge
+    mapping(uint => mapping(bytes32 => uint256)) public votes; // nft => model => votes
+    mapping(uint => bytes32[]) public modelVote; // nft => models
     mapping(uint => uint) public usedWeights; // nft => total voting weight of user
     mapping(uint => uint) public lastVoted; // nft => timestamp of last vote, to ensure one vote per epoch
-    mapping(address => bool) public isGauge;
-    mapping(address => bool) public isWhitelisted;
-    mapping(address => bool) public isAlive;
+    mapping(bytes32 => bool) public isWhitelisted;
+    mapping(bytes32 => bool) public isAlive;
 
-    event GaugeCreated(
-        address indexed gauge,
-        address creator,
-        address indexed pool
-    );
-    event GaugeKilled(address indexed gauge);
-    event GaugeRevived(address indexed gauge);
+    event GaugeCreated(address creator, bytes32 indexed model);
+    event GaugeKilled(bytes32 indexed model);
+    event GaugeRevived(bytes32 indexed model);
     event Voted(address indexed voter, uint tokenId, uint256 weight);
     event Abstained(uint tokenId, uint256 weight);
-    event Whitelisted(address indexed whitelister, address indexed token);
+    event Whitelisted(address indexed whitelister, bytes32 indexed model);
 
     constructor(address _votingEscrow) Ownable() {
         votingEscrow = _votingEscrow;
@@ -62,17 +59,17 @@ contract Voter is IVoter, Ownable {
     }
 
     function _reset(uint _tokenId) internal {
-        address[] storage _poolVote = poolVote[_tokenId];
-        uint _poolVoteCnt = _poolVote.length;
+        bytes32[] storage _modelVote = modelVote[_tokenId];
+        uint _modelVoteCnt = _modelVote.length;
         uint256 _totalWeight = 0;
 
-        for (uint i = 0; i < _poolVoteCnt; i++) {
-            address _pool = _poolVote[i];
-            uint256 _votes = votes[_tokenId][_pool];
+        for (uint i = 0; i < _modelVoteCnt; i++) {
+            bytes32 _model = _modelVote[i];
+            uint256 _votes = votes[_tokenId][_model];
 
             if (_votes != 0) {
-                weights[_pool] -= _votes;
-                votes[_tokenId][_pool] -= _votes;
+                weights[_model] -= _votes;
+                votes[_tokenId][_model] -= _votes;
                 if (_votes > 0) {
                     _totalWeight += _votes;
                 } else {
@@ -83,57 +80,75 @@ contract Voter is IVoter, Ownable {
         }
         totalWeight -= uint256(_totalWeight);
         usedWeights[_tokenId] = 0;
-        delete poolVote[_tokenId];
+        delete modelVote[_tokenId];
     }
 
     /// @notice Called by users to update voting balances in voting rewards contracts.
     /// @param _tokenId Id of veNFT whose balance you wish to update.
     function poke(uint _tokenId) external {
-        address[] memory _poolVote = poolVote[_tokenId];
-        uint _poolCnt = _poolVote.length;
-        uint256[] memory _weights = new uint256[](_poolCnt);
+        bytes32[] memory _modelVote = modelVote[_tokenId];
+        uint _modelCnt = _modelVote.length;
+        uint256[] memory _weights = new uint256[](_modelCnt);
 
-        for (uint i = 0; i < _poolCnt; i++) {
-            _weights[i] = votes[_tokenId][_poolVote[i]];
+        for (uint i = 0; i < _modelCnt; i++) {
+            _weights[i] = votes[_tokenId][_modelVote[i]];
         }
 
-        _vote(_tokenId, _poolVote, _weights);
+        _vote(_tokenId, _modelVote, _weights);
+    }
+
+    /// @notice Called by users to vote for models. Votes distributed proportionally based on weights.
+    /// @dev Weights are distributed proportional to the sum of the weights in the array.
+    /// @param tokenId      Id of veNFT you are voting with.
+    /// @param _modelVote   Array of models you are voting for.
+    /// @param _weights     Weights of models.
+    function vote(
+        uint tokenId,
+        bytes32[] calldata _modelVote,
+        uint256[] calldata _weights
+    ) external onlyNewEpoch(tokenId) {
+        require(
+            IVotingEscrow(votingEscrow).isApprovedOrOwner(msg.sender, tokenId)
+        );
+        require(_modelVote.length == _weights.length);
+        lastVoted[tokenId] = block.timestamp;
+        _vote(tokenId, _modelVote, _weights);
     }
 
     function _vote(
         uint _tokenId,
-        address[] memory _poolVote,
+        bytes32[] memory _modelVote,
         uint256[] memory _weights
     ) internal {
         _reset(_tokenId);
-        uint _poolCnt = _poolVote.length;
+        uint _modelCnt = _modelVote.length;
         uint256 _weight = IVotingEscrow(votingEscrow).balanceOfNFT(_tokenId);
         uint256 _totalVoteWeight = 0;
         uint256 _totalWeight = 0;
         uint256 _usedWeight = 0;
 
-        for (uint i = 0; i < _poolCnt; i++) {
+        for (uint i = 0; i < _modelCnt; i++) {
             _totalVoteWeight += _weights[i];
         }
 
-        for (uint i = 0; i < _poolCnt; i++) {
-            address _pool = _poolVote[i];
-            address _gauge = gauges[_pool];
+        for (uint i = 0; i < _modelCnt; i++) {
+            bytes32 _model = _modelVote[i];
 
-            if (isGauge[_gauge]) {
-                uint256 _poolWeight = (_weights[i] * _weight) /
+            if (isGauge[_model] && isAlive[_model]) {
+                uint256 _modelWeight = (_weights[i] * _weight) /
                     _totalVoteWeight;
-                require(votes[_tokenId][_pool] == 0);
-                require(_poolWeight != 0);
+                require(votes[_tokenId][_model] == 0);
+                require(_modelWeight != 0);
 
-                poolVote[_tokenId].push(_pool);
+                modelVote[_tokenId].push(_model);
 
-                weights[_pool] += _poolWeight;
-                votes[_tokenId][_pool] += _poolWeight;
+                weights[_model] += _modelWeight;
+                votes[_tokenId][_model] += _modelWeight;
 
-                _usedWeight += _poolWeight;
-                _totalWeight += _poolWeight;
-                emit Voted(msg.sender, _tokenId, _poolWeight);
+                _usedWeight += _modelWeight;
+                _totalWeight += _modelWeight;
+
+                emit Voted(msg.sender, _tokenId, _modelWeight);
             }
         }
         if (_usedWeight > 0) IVotingEscrow(votingEscrow).voting(_tokenId);
@@ -141,75 +156,49 @@ contract Voter is IVoter, Ownable {
         usedWeights[_tokenId] = uint256(_usedWeight);
     }
 
-    /// @notice Called by users to vote for pools. Votes distributed proportionally based on weights.
-    /// @dev Weights are distributed proportional to the sum of the weights in the array.
-    /// @param tokenId     Id of veNFT you are voting with.
-    /// @param _poolVote    Array of pools you are voting for.
-    /// @param _weights     Weights of pools.
-    function vote(
-        uint tokenId,
-        address[] calldata _poolVote,
-        uint256[] calldata _weights
-    ) external onlyNewEpoch(tokenId) {
-        require(
-            IVotingEscrow(votingEscrow).isApprovedOrOwner(msg.sender, tokenId)
-        );
-        require(_poolVote.length == _weights.length);
-        lastVoted[tokenId] = block.timestamp;
-        _vote(tokenId, _poolVote, _weights);
+    function whitelist(bytes32 _model) external onlyOwner {
+        require(!isWhitelisted[_model], "whitelisted");
+        isWhitelisted[_model] = true;
+        emit Whitelisted(msg.sender, _model);
     }
 
-    function whitelist(address _token) public onlyOwner {
-        require(!isWhitelisted[_token]);
-        isWhitelisted[_token] = true;
-        emit Whitelisted(msg.sender, _token);
-    }
+    /// @notice Create a new gauge for a model.
+    /// @dev Governor can create a new gauge for a non-whitelisted model
+    function createGauge(bytes32 _model) external {
+        require(isGauge[_model] == false, "exists");
 
-    /// @notice Create a new gauge
-    /// @dev Governor can create a new gauge for a pool with any address.
-    /// @param _pool .
-    function createGauge(address _pool) external returns (address) {
-        require(gauges[_pool] == address(0x0), "exists");
-
+        // only owner can create a gauge for a non-whitelisted model
         if (msg.sender != owner()) {
-            // gov can create for any pool, even non-Velodrome pairs
-            require(isWhitelisted[_pool], "!whitelisted");
+            require(isWhitelisted[_model], "!whitelisted");
         }
 
-        // todo: redo this logic
-        address _gauge = _pool;
-
-        gauges[_pool] = _gauge;
-        poolForGauge[_gauge] = _pool;
-        isGauge[_gauge] = true;
-        isAlive[_gauge] = true;
-        pools.push(_pool);
-        emit GaugeCreated(_gauge, msg.sender, _pool);
-        return _gauge;
+        isAlive[_model] = true;
+        isGauge[_model] = true;
+        models.push(_model);
+        emit GaugeCreated(msg.sender, _model);
     }
 
-    /// @notice Kills a gauge. The gauge will not receive any new emissions and cannot be deposited into.
-    ///         Can still withdraw from gauge.
-    /// @dev Throws if not called by emergency council.
+    /// @notice Kills a gauge. It can not receive any more votes.
+    /// @dev Throws if not called by owner/governance.
     ///      Throws if gauge already killed.
-    /// @param _gauge .
-    function killGauge(address _gauge) external onlyOwner {
-        require(isAlive[_gauge], "gauge already dead");
-        isAlive[_gauge] = false;
-        emit GaugeKilled(_gauge);
+    function killGauge(bytes32 _model) external onlyOwner {
+        require(isAlive[_model], "gauge already dead");
+        isAlive[_model] = false;
+        emit GaugeKilled(_model);
     }
 
-    /// @notice Revives a killed gauge. Gauge will can receive emissions and deposits again.
-    /// @dev Throws if not called by emergency council.
-    ///      Throws if gauge is not killed.
-    /// @param _gauge .
-    function reviveGauge(address _gauge) external onlyOwner {
-        require(!isAlive[_gauge], "gauge already alive");
-        isAlive[_gauge] = true;
-        emit GaugeRevived(_gauge);
+    /// @notice Revives a killed gauge
+    /// @dev Throws if not called by owner/governance.
+    ///      Throws if gauge is not killed or does not exist.
+    /// @param _model Model to revive
+    function reviveGauge(bytes32 _model) external onlyOwner {
+        require(isGauge[_model], "not a gauge");
+        require(!isAlive[_model], "gauge already alive");
+        isAlive[_model] = true;
+        emit GaugeRevived(_model);
     }
 
     function length() external view returns (uint) {
-        return pools.length;
+        return models.length;
     }
 }
