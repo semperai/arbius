@@ -8,6 +8,7 @@ import "./utils/MockERC20.sol";
 import "contracts/ve/VotingEscrow.sol";
 import "contracts/ve/VeNFTRender.sol";
 import "contracts/ve/VeStaking.sol";
+import "contracts/ve/Voter.sol";
 
 /**
  * @dev Base test contract used for testing VeStaking.sol and VotingEscrow.sol
@@ -18,6 +19,7 @@ contract BaseTest is Test {
     MockERC20 public mockToken;
     VotingEscrow public votingEscrow;
     VeStaking public veStaking;
+    Voter public voter;
     VeNFTRender public veNFTRender;
 
     // time
@@ -40,17 +42,23 @@ contract BaseTest is Test {
 
         // deploy NFT render contract
         veNFTRender = new VeNFTRender();
+
         // deploy VotingEscrow contract
         votingEscrow = new VotingEscrow(
             address(AIUS),
             address(veNFTRender),
             address(0)
         );
+
         // deploy VeStaking contract
         veStaking = new VeStaking(address(AIUS), address(votingEscrow));
-
         // set veStaking in escrow
         votingEscrow.setVeStaking(address(veStaking));
+
+        // deploy Voter contract
+        voter = new Voter(address(votingEscrow));
+        // set voter in escrow
+        votingEscrow.setVoter(address(voter));
     }
 
     function mintTestAius() public {
