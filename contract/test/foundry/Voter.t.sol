@@ -139,6 +139,11 @@ contract VoterTest is BaseTest {
         votingEscrow.create_lock(100 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
 
+        // create lock for bob
+        vm.prank(bob);
+        votingEscrow.create_lock(100 ether, YEAR);
+        assertEq(votingEscrow.ownerOf(2), bob);
+
         // create gauge for MODEL_1 and MODEL_2
         voter.createGauge(MODEL_1);
         voter.createGauge(MODEL_2);
@@ -155,10 +160,155 @@ contract VoterTest is BaseTest {
         vm.prank(alice);
         voter.vote(1, modelVote, weights);
 
-        // check weights
-        uint256 balance = votingEscrow.balanceOfNFT(1);
-        assertEq(voter.totalWeight(), balance);
-        assertEq(voter.weights(MODEL_2), (balance * 4) / 5);
-        assertEq(voter.weights(MODEL_1), balance / 5);
+        // check weights and other values
+        uint256 balance1 = votingEscrow.balanceOfNFT(1);
+        assertEq(voter.totalWeight(), balance1);
+        assertEq(voter.weights(MODEL_2), (balance1 * 4) / 5);
+        assertEq(voter.weights(MODEL_1), balance1 / 5);
+        assertEq(voter.votes(1, MODEL_2), (balance1 * 4) / 5);
+        assertEq(voter.votes(1, MODEL_1), balance1 / 5);
+        assertEq(voter.usedWeights(1), balance1);
+        assertEq(voter.lastVoted(1), block.timestamp);
+
+        // bob votes for MODEL_1
+        modelVote = new bytes32[](1);
+        weights = new uint256[](1);
+        modelVote[0] = MODEL_1;
+        weights[0] = 100;
+
+        vm.prank(bob);
+        voter.vote(2, modelVote, weights);
+
+        // check weights and other values
+        uint256 balance2 = votingEscrow.balanceOfNFT(2);
+        assertEq(voter.totalWeight(), balance1 + balance2);
+        assertEq(voter.weights(MODEL_2), (balance1 * 4) / 5);
+        assertEq(voter.weights(MODEL_1), (balance1 / 5) + balance2);
+        assertEq(voter.votes(2, MODEL_1), balance2);
+        assertEq(voter.usedWeights(2), balance2);
+        assertEq(voter.lastVoted(2), block.timestamp);
+    }
+
+    function testCannotChangeVoteOrResetInSameEpoch() public {
+        // create lock for alice
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
+
+        // create gauge for MODEL_1 and MODEL_2
+        voter.createGauge(MODEL_1);
+        voter.createGauge(MODEL_2);
+
+        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        bytes32[] memory modelVote = new bytes32[](2);
+        uint256[] memory weights = new uint256[](2);
+        modelVote[0] = MODEL_1;
+        weights[0] = 100;
+        modelVote[1] = MODEL_2;
+        weights[1] = 400;
+        
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        // vote again
+        vm.expectRevert(abi.encodePacked("only new epoch"));
+        voter.vote(1, modelVote, weights);
+
+        // reset should fail as well
+        vm.expectRevert(abi.encodePacked("only new epoch"));
+        voter.reset(1);
+    }
+
+    function testCanChangeVoteOrResetInNextEpoch() public {
+        // create lock for alice
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
+
+        // create gauge for MODEL_1 and MODEL_2
+        voter.createGauge(MODEL_1);
+        voter.createGauge(MODEL_2);
+
+        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        bytes32[] memory modelVote = new bytes32[](2);
+        uint256[] memory weights = new uint256[](2);
+        modelVote[0] = MODEL_1;
+        weights[0] = 100;
+        modelVote[1] = MODEL_2;
+        weights[1] = 400;
+        
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        // warp to next epoch
+        skip(1 weeks);
+
+        // vote again
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        // warp to next epoch
+        skip(1 weeks);
+
+        // reset should work as well
+        vm.prank(alice);
+        voter.reset(1);
+    }
+
+    function testReset() public {
+        // create lock for alice
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
+
+        // create gauge for MODEL_1 and MODEL_2
+        voter.createGauge(MODEL_1);
+        voter.createGauge(MODEL_2);
+
+        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        bytes32[] memory modelVote = new bytes32[](2);
+        uint256[] memory weights = new uint256[](2);
+        modelVote[0] = MODEL_1;
+        weights[0] = 100;
+        modelVote[1] = MODEL_2;
+        weights[1] = 400;
+        
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        skip(1 weeks);
+
+        // reset
+        vm.prank(alice);
+        voter.reset(1);
+
+        // check weights and other values
+        assertEq(voter.totalWeight(), 0);
+        assertEq(voter.weights(MODEL_2), 0);
+        assertEq(voter.weights(MODEL_1), 0);
+        assertEq(voter.votes(1, MODEL_2), 0);
+        assertEq(voter.votes(1, MODEL_1), 0);
+        assertEq(voter.usedWeights(1), 0);
+    }
+
+    function testEpochDuration(uint256 warp) public {
+        // warp should be less than 100 years
+        vm.assume(warp <= 3155760000);
+
+        // call notifyRewardAmount so rewardDuration starts
+        veStaking.notifyRewardAmount(0);
+
+        // epochVoteEnd should be identical to periodFinish
+        assertEq(voter.epochVoteEnd(), veStaking.periodFinish());
+
+        // fast forward a random amount of time
+        skip(warp);
+
+        // epochVoteEnd should still be identical to periodFinish
+        veStaking.notifyRewardAmount(0);
+        assertEq(voter.epochVoteEnd(), veStaking.periodFinish());
     }
 }
