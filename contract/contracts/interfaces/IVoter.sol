@@ -4,6 +4,8 @@ pragma solidity ^0.8.19;
 interface IVoter {
     function createGauge(bytes32 _model) external;
 
+    function epochVoteEnd() external view returns (uint256);
+
     function isAlive(bytes32) external view returns (bool);
 
     function isWhitelisted(bytes32) external view returns (bool);
