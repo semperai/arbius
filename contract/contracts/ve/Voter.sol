@@ -23,8 +23,8 @@ contract Voter is IVoter, Ownable, Test {
     mapping(uint256 => bytes32[]) public modelVote; // nft => models
     mapping(uint256 => uint) public usedWeights; // nft => total voting weight of user
     mapping(uint256 => uint) public lastVoted; // nft => timestamp of last vote, to ensure one vote per epoch
-    mapping(bytes32 => bool) public isWhitelisted;
-    mapping(bytes32 => bool) public isAlive;
+    mapping(bytes32 => bool) public isWhitelisted; // model => isWhitelisted
+    mapping(bytes32 => bool) public isAlive; // model => isAlive
 
     event GaugeCreated(address creator, bytes32 indexed model);
     event GaugeKilled(bytes32 indexed model);
@@ -53,6 +53,10 @@ contract Voter is IVoter, Ownable, Test {
 
     function epochVoteEnd() external view returns (uint256) {
         return ((block.timestamp / DURATION) * DURATION) + DURATION;
+    }
+
+    function getGaugeMultiplier(bytes32 _model) external view returns (uint256) {
+        return (weights[_model] * 1e18) / totalWeight;
     }
 
     /// @notice Called by users to reset voting state.

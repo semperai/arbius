@@ -6,7 +6,11 @@ interface IVoter {
 
     function epochVoteEnd() external view returns (uint256);
 
+    function getGaugeMultiplier(bytes32 _model) external view returns (uint256);
+
     function isAlive(bytes32) external view returns (bool);
+
+    function isGauge(bytes32) external view returns (bool);
 
     function isWhitelisted(bytes32) external view returns (bool);
 
