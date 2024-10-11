@@ -9,6 +9,7 @@ import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
 import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
+import {IVoter} from "contracts/interfaces/IVoter.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
@@ -150,8 +151,9 @@ contract V2_EngineV4 is OwnableUpgradeable {
 
     address public veStaking; // v4
     uint256 public veRewards; // v4
+    address public voter; // v5
 
-    uint256[38] __gap; // upgradeable gap
+    uint256[37] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
     event ValidatorDeposit(
@@ -237,7 +239,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public reinitializer(4) {}
+    function initialize() public reinitializer(5) {}
 
     /// @notice Transfer ownership
     /// @param to_ Address to transfer ownership to
@@ -301,6 +303,13 @@ contract V2_EngineV4 is OwnableUpgradeable {
     /// @param veStaking_ veStaking address
     function setVeStaking(address veStaking_) external onlyOwner {
         veStaking = veStaking_;
+    }
+
+    /// @notice Set voter address
+    /// @dev introduced in v5
+    /// @param voter_ voter address
+    function setVoter(address voter_) external onlyOwner {
+        voter = voter_;
     }
 
     /// @notice Get slash amount
@@ -802,7 +811,8 @@ contract V2_EngineV4 is OwnableUpgradeable {
      * and contestationVoteFinish (for failed contestations)
      */
     function _claimSolutionFeesAndReward(bytes32 taskid_) internal {
-        uint256 modelFee = models[tasks[taskid_].model].fee;
+        bytes32 _model = tasks[taskid_].model;
+        uint256 modelFee = models[_model].fee;
 
         // This is necessary in case model changes fee to prevent drain
         // note: currently it is not possible for a model to change fee
@@ -810,7 +820,7 @@ contract V2_EngineV4 is OwnableUpgradeable {
             modelFee = 0;
         }
         if (modelFee > 0) {
-            baseToken.transfer(models[tasks[taskid_].model].addr, modelFee);
+            baseToken.transfer(models[_model].addr, modelFee);
         }
 
         uint256 remainingFee = tasks[taskid_].fee - modelFee;
@@ -836,10 +846,23 @@ contract V2_EngineV4 is OwnableUpgradeable {
             veRewards = 0;
         }
 
-        uint256 modelRate = models[tasks[taskid_].model].rate;
-        if (modelRate > 0) {
-            // half of emissions are distributed to veStaking
-            uint256 total = (getReward() * modelRate) / 2e18;
+        uint256 modelRate = models[_model].rate;
+        uint256 gaugeMultiplier = 1e18; // default to 1e18, so contract still works even if voter is not set
+        if (voter != address(0)) {
+            // v5
+            // check if model can be voted on
+            if (IVoter(voter).isAlive(_model)) {
+                // update gaugeMultiplier based on received votes in Voter.sol
+                gaugeMultiplier = IVoter(voter).getGaugeMultiplier(_model);
+            } else {
+                // if model cant be voted on, set gaugeMultiplier to 0
+                gaugeMultiplier = 0;
+            }
+        }
+        if (modelRate > 0 && gaugeMultiplier > 0) {
+            // half of emissions are distributed to veStaking, divide by 1e18 due to modelRate and gaugeMultiplier, respectively
+            uint256 total = (getReward() * modelRate * gaugeMultiplier) /
+                (2 * 1e18 * 1e18);
             veRewards += total; // v4
 
             if (total > 0) {
