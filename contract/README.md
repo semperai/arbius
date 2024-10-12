@@ -7,7 +7,7 @@ To install dependencies and compile contracts:
 ```bash
 git clone https://github.com/semperai/arbius
 cd arbius/contract/
-npm i --legacy-peer-deps
+npm i
 ```
 
 Create a skeleton `config.local.json` file:
@@ -21,7 +21,7 @@ Insert an empty json object:
 {}
 ```
 
-Then, run `npm run compile`. 
+Create a .env file according to the example file, then, run `npm run compile`. 
 
 ## Tests
 
