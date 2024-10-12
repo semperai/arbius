@@ -19,81 +19,141 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface IVoterInterface extends utils.Interface {
   functions: {
-    "_ve()": FunctionFragment;
-    "attachTokenToGauge(uint256,address)": FunctionFragment;
-    "detachTokenFromGauge(uint256,address)": FunctionFragment;
-    "distribute(address)": FunctionFragment;
-    "emergencyCouncil()": FunctionFragment;
-    "emitDeposit(uint256,address,uint256)": FunctionFragment;
-    "emitWithdraw(uint256,address,uint256)": FunctionFragment;
-    "governor()": FunctionFragment;
-    "isWhitelisted(address)": FunctionFragment;
-    "notifyRewardAmount(uint256)": FunctionFragment;
+    "createGauge(bytes32)": FunctionFragment;
+    "epochVoteEnd()": FunctionFragment;
+    "getGaugeMultiplier(bytes32)": FunctionFragment;
+    "isAlive(bytes32)": FunctionFragment;
+    "isGauge(bytes32)": FunctionFragment;
+    "isWhitelisted(bytes32)": FunctionFragment;
+    "killGauge(bytes32)": FunctionFragment;
+    "lastVoted(uint256)": FunctionFragment;
+    "length()": FunctionFragment;
+    "modelVote(uint256,uint256)": FunctionFragment;
+    "models(uint256)": FunctionFragment;
+    "poke(uint256)": FunctionFragment;
+    "reset(uint256)": FunctionFragment;
+    "reviveGauge(bytes32)": FunctionFragment;
+    "totalWeight()": FunctionFragment;
+    "usedWeights(uint256)": FunctionFragment;
+    "vote(uint256,bytes32[],uint256[])": FunctionFragment;
+    "votes(uint256,bytes32)": FunctionFragment;
+    "votingEscrow()": FunctionFragment;
+    "weights(bytes32)": FunctionFragment;
+    "whitelist(bytes32)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "_ve", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "attachTokenToGauge",
-    values: [BigNumberish, string]
+    functionFragment: "createGauge",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "detachTokenFromGauge",
-    values: [BigNumberish, string]
-  ): string;
-  encodeFunctionData(functionFragment: "distribute", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "emergencyCouncil",
+    functionFragment: "epochVoteEnd",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "emitDeposit",
-    values: [BigNumberish, string, BigNumberish]
+    functionFragment: "getGaugeMultiplier",
+    values: [BytesLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "emitWithdraw",
-    values: [BigNumberish, string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "governor", values?: undefined): string;
+  encodeFunctionData(functionFragment: "isAlive", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "isGauge", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "isWhitelisted",
-    values: [string]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "notifyRewardAmount",
+    functionFragment: "killGauge",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastVoted",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "length", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "modelVote",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "models",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "poke", values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: "reset", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "reviveGauge",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalWeight",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "usedWeights",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "vote",
+    values: [BigNumberish, BytesLike[], BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "votes",
+    values: [BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "votingEscrow",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "weights", values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: "whitelist",
+    values: [BytesLike]
+  ): string;
 
-  decodeFunctionResult(functionFragment: "_ve", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "attachTokenToGauge",
+    functionFragment: "createGauge",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "detachTokenFromGauge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "distribute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "emergencyCouncil",
+    functionFragment: "epochVoteEnd",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "emitDeposit",
+    functionFragment: "getGaugeMultiplier",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "emitWithdraw",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isAlive", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isGauge", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isWhitelisted",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "killGauge", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "lastVoted", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "length", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "modelVote", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "models", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "poke", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "reset", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "notifyRewardAmount",
+    functionFragment: "reviveGauge",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalWeight",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "usedWeights",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "votes", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "votingEscrow",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "weights", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "whitelist", data: BytesLike): Result;
 
   events: {};
 }
@@ -125,231 +185,421 @@ export interface IVoter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    _ve(overrides?: CallOverrides): Promise<[string]>;
+    createGauge(
+      _model: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
-    attachTokenToGauge(
+    epochVoteEnd(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getGaugeMultiplier(
+      _model: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    isAlive(arg0: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
+
+    isGauge(arg0: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
+
+    isWhitelisted(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    killGauge(
+      _model: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    lastVoted(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    length(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    modelVote(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    models(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
+
+    poke(
       _tokenId: BigNumberish,
-      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    detachTokenFromGauge(
+    reset(
       _tokenId: BigNumberish,
-      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    distribute(
-      _gauge: string,
+    reviveGauge(
+      _model: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    emergencyCouncil(overrides?: CallOverrides): Promise<[string]>;
+    totalWeight(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    emitDeposit(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
+    usedWeights(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    vote(
+      tokenId: BigNumberish,
+      _modelVote: BytesLike[],
+      _weights: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    emitWithdraw(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    votes(
+      arg0: BigNumberish,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
-    governor(overrides?: CallOverrides): Promise<[string]>;
+    votingEscrow(overrides?: CallOverrides): Promise<[string]>;
 
-    isWhitelisted(token: string, overrides?: CallOverrides): Promise<[boolean]>;
+    weights(arg0: BytesLike, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    notifyRewardAmount(
-      amount: BigNumberish,
+    whitelist(
+      _model: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  _ve(overrides?: CallOverrides): Promise<string>;
+  createGauge(
+    _model: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
-  attachTokenToGauge(
+  epochVoteEnd(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getGaugeMultiplier(
+    _model: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  isAlive(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+  isGauge(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+  isWhitelisted(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+  killGauge(
+    _model: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  lastVoted(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+  length(overrides?: CallOverrides): Promise<BigNumber>;
+
+  modelVote(
+    arg0: BigNumberish,
+    arg1: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  models(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  poke(
     _tokenId: BigNumberish,
-    account: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  detachTokenFromGauge(
+  reset(
     _tokenId: BigNumberish,
-    account: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  distribute(
-    _gauge: string,
+  reviveGauge(
+    _model: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  emergencyCouncil(overrides?: CallOverrides): Promise<string>;
+  totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
 
-  emitDeposit(
-    _tokenId: BigNumberish,
-    account: string,
-    amount: BigNumberish,
+  usedWeights(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  vote(
+    tokenId: BigNumberish,
+    _modelVote: BytesLike[],
+    _weights: BigNumberish[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  emitWithdraw(
-    _tokenId: BigNumberish,
-    account: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  votes(
+    arg0: BigNumberish,
+    arg1: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
-  governor(overrides?: CallOverrides): Promise<string>;
+  votingEscrow(overrides?: CallOverrides): Promise<string>;
 
-  isWhitelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
+  weights(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-  notifyRewardAmount(
-    amount: BigNumberish,
+  whitelist(
+    _model: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    _ve(overrides?: CallOverrides): Promise<string>;
+    createGauge(_model: BytesLike, overrides?: CallOverrides): Promise<void>;
 
-    attachTokenToGauge(
-      _tokenId: BigNumberish,
-      account: string,
+    epochVoteEnd(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getGaugeMultiplier(
+      _model: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isAlive(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+    isGauge(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+    isWhitelisted(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+    killGauge(_model: BytesLike, overrides?: CallOverrides): Promise<void>;
+
+    lastVoted(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    length(overrides?: CallOverrides): Promise<BigNumber>;
+
+    modelVote(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    models(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+    poke(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    reset(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    reviveGauge(_model: BytesLike, overrides?: CallOverrides): Promise<void>;
+
+    totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
+
+    usedWeights(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    vote(
+      tokenId: BigNumberish,
+      _modelVote: BytesLike[],
+      _weights: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    detachTokenFromGauge(
-      _tokenId: BigNumberish,
-      account: string,
+    votes(
+      arg0: BigNumberish,
+      arg1: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
-    distribute(_gauge: string, overrides?: CallOverrides): Promise<void>;
+    votingEscrow(overrides?: CallOverrides): Promise<string>;
 
-    emergencyCouncil(overrides?: CallOverrides): Promise<string>;
+    weights(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    emitDeposit(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    emitWithdraw(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    governor(overrides?: CallOverrides): Promise<string>;
-
-    isWhitelisted(token: string, overrides?: CallOverrides): Promise<boolean>;
-
-    notifyRewardAmount(
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    whitelist(_model: BytesLike, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    _ve(overrides?: CallOverrides): Promise<BigNumber>;
+    createGauge(
+      _model: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
-    attachTokenToGauge(
+    epochVoteEnd(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getGaugeMultiplier(
+      _model: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isAlive(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    isGauge(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    isWhitelisted(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    killGauge(
+      _model: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    lastVoted(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    length(overrides?: CallOverrides): Promise<BigNumber>;
+
+    modelVote(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    models(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+    poke(
       _tokenId: BigNumberish,
-      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    detachTokenFromGauge(
+    reset(
       _tokenId: BigNumberish,
-      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    distribute(
-      _gauge: string,
+    reviveGauge(
+      _model: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    emergencyCouncil(overrides?: CallOverrides): Promise<BigNumber>;
+    totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
 
-    emitDeposit(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
+    usedWeights(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    vote(
+      tokenId: BigNumberish,
+      _modelVote: BytesLike[],
+      _weights: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    emitWithdraw(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    votes(
+      arg0: BigNumberish,
+      arg1: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    governor(overrides?: CallOverrides): Promise<BigNumber>;
+    votingEscrow(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isWhitelisted(token: string, overrides?: CallOverrides): Promise<BigNumber>;
+    weights(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
-    notifyRewardAmount(
-      amount: BigNumberish,
+    whitelist(
+      _model: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    _ve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    attachTokenToGauge(
-      _tokenId: BigNumberish,
-      account: string,
+    createGauge(
+      _model: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    detachTokenFromGauge(
-      _tokenId: BigNumberish,
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    epochVoteEnd(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    distribute(
-      _gauge: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    emergencyCouncil(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    emitDeposit(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    emitWithdraw(
-      _tokenId: BigNumberish,
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    governor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    isWhitelisted(
-      token: string,
+    getGaugeMultiplier(
+      _model: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    notifyRewardAmount(
-      amount: BigNumberish,
+    isAlive(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isGauge(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isWhitelisted(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    killGauge(
+      _model: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    lastVoted(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    length(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    modelVote(
+      arg0: BigNumberish,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    models(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    poke(
+      _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    reset(
+      _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    reviveGauge(
+      _model: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    totalWeight(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    usedWeights(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    vote(
+      tokenId: BigNumberish,
+      _modelVote: BytesLike[],
+      _weights: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    votes(
+      arg0: BigNumberish,
+      arg1: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    votingEscrow(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    weights(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    whitelist(
+      _model: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

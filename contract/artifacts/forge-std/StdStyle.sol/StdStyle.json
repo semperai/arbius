@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "StdStyle",
+  "sourceName": "forge-std/StdStyle.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220303e8cd65e73b5ddbcb59e15cd2be11ab49d8ae04c59bacf4108da506dda3e6664736f6c63430008130033",
+  "deployedBytecode": "0x600080fdfea2646970667358221220303e8cd65e73b5ddbcb59e15cd2be11ab49d8ae04c59bacf4108da506dda3e6664736f6c63430008130033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

@@ -1,0 +1,61 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "stdStorageSafe",
+  "sourceName": "forge-std/StdStorage.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes4",
+          "name": "fsig",
+          "type": "bytes4"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "keysHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "slot",
+          "type": "uint256"
+        }
+      ],
+      "name": "SlotFound",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "who",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "slot",
+          "type": "uint256"
+        }
+      ],
+      "name": "WARNING_UninitedSlot",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220def1d8ffd7767cd1e5b976d32ba2b91d186277aa21c2e3c9c2b0398f9d7537da64736f6c63430008130033",
+  "deployedBytecode": "0x600080fdfea2646970667358221220def1d8ffd7767cd1e5b976d32ba2b91d186277aa21c2e3c9c2b0398f9d7537da64736f6c63430008130033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

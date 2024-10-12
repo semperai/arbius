@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "stdToml",
+  "sourceName": "forge-std/StdToml.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea26469706673582212209300ee2dc61294bebafa0e18802b1879efb2b93a353620d6761382ed924916bb64736f6c63430008130033",
+  "deployedBytecode": "0x600080fdfea26469706673582212209300ee2dc61294bebafa0e18802b1879efb2b93a353620d6761382ed924916bb64736f6c63430008130033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
