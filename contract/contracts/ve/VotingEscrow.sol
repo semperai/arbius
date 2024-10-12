@@ -1155,7 +1155,6 @@ contract VotingEscrow is IERC721, IERC721Metadata, IVotes, Ownable {
     /// @notice Set the address of Voter.sol
     /// @param _voter Address of the voter contract
     function setVoter(address _voter) external onlyOwner {
-        require(msg.sender == voter);
         voter = _voter;
     }
 
