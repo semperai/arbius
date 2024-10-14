@@ -55,7 +55,9 @@ contract Voter is IVoter, Ownable, Test {
         return ((block.timestamp / DURATION) * DURATION) + DURATION;
     }
 
-    function getGaugeMultiplier(bytes32 _model) external view returns (uint256) {
+    function getGaugeMultiplier(
+        bytes32 _model
+    ) external view returns (uint256) {
         return (weights[_model] * 1e18) / totalWeight;
     }
 

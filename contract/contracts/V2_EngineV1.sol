@@ -263,14 +263,19 @@ contract V2_EngineV1 is OwnableUpgradeable {
     /// @dev This is used to migrate validators from EngineV1 to V2_EngineV1
     /// @param engine_ Address of engine
     /// @param validator_ Address of validator
-    function migrateValidator(address engine_, address validator_) external onlyOwner {
+    function migrateValidator(
+        address engine_,
+        address validator_
+    ) external onlyOwner {
         V2_EngineV1 old = V2_EngineV1(engine_);
 
-        (uint256 staked, uint256 since, address addr) = old.validators(validator_);
+        (uint256 staked, uint256 since, address addr) = old.validators(
+            validator_
+        );
         validators[validator_] = Validator({
             staked: staked,
-            since:  since,
-            addr:   addr
+            since: since,
+            addr: addr
         });
 
         // we will ignore pending withdrawals to simplify migration

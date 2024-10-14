@@ -8,7 +8,6 @@ import "./BaseTest.sol";
  * @dev Can be run with `forge test --mc VoterTest`
  */
 contract VoterTest is BaseTest {
-
     // sample model hashes for testing
     bytes32 constant MODEL_1 = keccak256("model1");
     bytes32 constant MODEL_2 = keccak256("model2");
@@ -96,7 +95,6 @@ contract VoterTest is BaseTest {
         voter.killGauge(MODEL_1);
     }
 
-
     function testReviveGauge() public {
         // create gauge for MODEL_1
         voter.createGauge(MODEL_1);
@@ -155,7 +153,7 @@ contract VoterTest is BaseTest {
         weights[0] = 500;
         modelVote[1] = MODEL_2;
         weights[1] = 500;
-        
+
         // alice votes for MODEL_1 and MODEL_2
         vm.prank(alice);
         voter.vote(1, modelVote, weights);
@@ -186,7 +184,7 @@ contract VoterTest is BaseTest {
         // check weights and other values
         assertEq(voter.totalWeight(), 2 * balance);
         assertEq(voter.weights(MODEL_2), balance / 2);
-        assertEq(voter.weights(MODEL_1),  balance / 2 + balance);
+        assertEq(voter.weights(MODEL_1), balance / 2 + balance);
         assertEq(voter.votes(2, MODEL_1), balance);
         assertEq(voter.usedWeights(2), balance);
         assertEq(voter.lastVoted(2), block.timestamp);
@@ -213,7 +211,7 @@ contract VoterTest is BaseTest {
         weights[0] = 100;
         modelVote[1] = MODEL_2;
         weights[1] = 400;
-        
+
         // alice votes for MODEL_1 and MODEL_2
         vm.prank(alice);
         voter.vote(1, modelVote, weights);
@@ -244,7 +242,7 @@ contract VoterTest is BaseTest {
         weights[0] = 100;
         modelVote[1] = MODEL_2;
         weights[1] = 400;
-        
+
         // alice votes for MODEL_1 and MODEL_2
         vm.prank(alice);
         voter.vote(1, modelVote, weights);
@@ -281,7 +279,7 @@ contract VoterTest is BaseTest {
         weights[0] = 100;
         modelVote[1] = MODEL_2;
         weights[1] = 400;
-        
+
         // alice votes for MODEL_1 and MODEL_2
         vm.prank(alice);
         voter.vote(1, modelVote, weights);
@@ -322,7 +320,11 @@ contract VoterTest is BaseTest {
         assertEq(voter.epochVoteEnd(), veStaking.periodFinish());
     }
 
-    function testGaugeMultiplier(uint256 weight1, uint256 weight2, uint256 weight3) public {
+    function testGaugeMultiplier(
+        uint256 weight1,
+        uint256 weight2,
+        uint256 weight3
+    ) public {
         vm.assume(weight1 <= 1e18 && weight1 > 0);
         vm.assume(weight2 <= 1e18 && weight2 > 0);
         vm.assume(weight3 <= 1e18 && weight3 > 0);
@@ -351,7 +353,7 @@ contract VoterTest is BaseTest {
         weights[1] = weight2;
         modelVote[2] = MODEL_3;
         weights[2] = weight3;
-        
+
         // alice votes for MODEL_1 and MODEL_2 and MODEL_3
         vm.prank(alice);
         voter.vote(1, modelVote, weights);
@@ -360,7 +362,13 @@ contract VoterTest is BaseTest {
         assertLt(voter.getGaugeMultiplier(MODEL_1), 1e18);
         assertLt(voter.getGaugeMultiplier(MODEL_2), 1e18);
         assertLt(voter.getGaugeMultiplier(MODEL_3), 1e18);
-        assertApproxEqAbs(voter.getGaugeMultiplier(MODEL_1) + voter.getGaugeMultiplier(MODEL_2) + voter.getGaugeMultiplier(MODEL_3), 1e18, 100);
+        assertApproxEqAbs(
+            voter.getGaugeMultiplier(MODEL_1) +
+                voter.getGaugeMultiplier(MODEL_2) +
+                voter.getGaugeMultiplier(MODEL_3),
+            1e18,
+            100
+        );
 
         // bob votes for MODEL_1 and MODEL_2 and MODEL_3
         // we randomize votes with mulmod
@@ -380,6 +388,12 @@ contract VoterTest is BaseTest {
         assertLt(voter.getGaugeMultiplier(MODEL_1), 1e18);
         assertLt(voter.getGaugeMultiplier(MODEL_2), 1e18);
         assertLt(voter.getGaugeMultiplier(MODEL_3), 1e18);
-        assertApproxEqAbs(voter.getGaugeMultiplier(MODEL_1) + voter.getGaugeMultiplier(MODEL_2) + voter.getGaugeMultiplier(MODEL_3), 1e18, 100);
+        assertApproxEqAbs(
+            voter.getGaugeMultiplier(MODEL_1) +
+                voter.getGaugeMultiplier(MODEL_2) +
+                voter.getGaugeMultiplier(MODEL_3),
+            1e18,
+            100
+        );
     }
 }
