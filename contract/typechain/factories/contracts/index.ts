@@ -3,7 +3,6 @@
 /* eslint-disable */
 export * as example from "./Example";
 export * as l1TokenSol from "./L1Token.sol";
-export * as v2EngineV5Sol from "./V2_EngineV5.sol";
 export * as governance from "./governance";
 export * as interfaces from "./interfaces";
 export * as ve from "./ve";
@@ -18,3 +17,4 @@ export { V2_EngineV1__factory } from "./V2_EngineV1__factory";
 export { V2_EngineV2__factory } from "./V2_EngineV2__factory";
 export { V2_EngineV3__factory } from "./V2_EngineV3__factory";
 export { V2_EngineV4__factory } from "./V2_EngineV4__factory";
+export { V2_EngineV5__factory } from "./V2_EngineV5__factory";
