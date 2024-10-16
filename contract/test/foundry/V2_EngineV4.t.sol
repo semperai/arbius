@@ -185,6 +185,8 @@ contract EngineV4Test is Test {
     function testSetPaused() public {
         vm.prank(deployer);
         engine.setPaused(true);
+
+        assertEq(engine.paused(), true);
     }
 
     function testSubmitUncontestedSolution() public {
