@@ -58,6 +58,8 @@ contract Voter is IVoter, Ownable, Test {
     function getGaugeMultiplier(
         bytes32 _model
     ) external view returns (uint256) {
+        require(totalWeight > 0, "no votes");
+        
         return (weights[_model] * 1e18) / totalWeight;
     }
 
