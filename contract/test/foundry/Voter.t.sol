@@ -344,7 +344,7 @@ contract VoterTest is BaseTest {
         votingEscrow.create_lock(100 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(2), bob);
 
-        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        // vote for MODEL_1, MODEL_2 and MODEL_3
         bytes32[] memory modelVote = new bytes32[](3);
         uint256[] memory weights = new uint256[](3);
         modelVote[0] = MODEL_1;
