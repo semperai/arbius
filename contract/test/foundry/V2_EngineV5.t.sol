@@ -87,9 +87,9 @@ contract EngineV5Test is Test {
         engine.setVoter(address(voter));
 
         // set up models
-        MODEL_1 = deployBootstrapModelWithAddr(modelOwner1);
-        MODEL_2 = deployBootstrapModelWithAddr(modelOwner2);
-        MODEL_3 = deployBootstrapModelWithAddr(modelOwner3);
+        MODEL_1 = deployBootstrapModel(modelOwner1);
+        MODEL_2 = deployBootstrapModel(modelOwner2);
+        MODEL_3 = deployBootstrapModel(modelOwner3);
 
         // create gauges
         voter.createGauge(MODEL_1);
@@ -259,15 +259,155 @@ contract EngineV5Test is Test {
         );
     }
 
+    function testRewardDistNoGauge() public {
+        // create model with no gauge
+        bytes32 MODEL_4 = deployBootstrapModel(deployer);
+
+        // get veRewards up until now
+        uint256 veRewards = engine.veRewards();
+
+        bytes32 taskid = deployBootstrapTask(MODEL_4, user1, 0);
+
+        
+        bytes32 commitment = engine.generateCommitment(
+            validator1,
+            taskid,
+            TESTCID
+        );
+
+        vm.prank(validator1);
+        engine.signalCommitment(commitment);
+
+        // skip 12s and 1 block
+        skip(12);
+        vm.roll(block.number + 1);
+
+        (uint256 staked, , ) = engine.validators(validator1);
+
+        vm.prank(validator1);
+        engine.submitSolution(taskid, TESTCID);
+
+        (uint256 stakedAfter, , ) = engine.validators(validator1);
+        // solution stake amount should be reserved
+        uint256 solutionsStakeAmount = engine.solutionsStakeAmount();
+        assertEq(staked - stakedAfter, solutionsStakeAmount);
+        
+        /* claim */
+
+        // fast forward `minClaimSolutionTime`
+        skip(engine.minClaimSolutionTime() + 1);
+        vm.roll(block.number + 1);
+        
+        uint256 taskOwnerBalanceBefore = baseToken.balanceOf(deployer);
+        uint256 validatorBalanceBefore = baseToken.balanceOf(validator1);
+        uint256 treasuryBalanceBefore = baseToken.balanceOf(treasury);
+
+        vm.prank(validator1);
+        engine.claimSolution(taskid);
+
+        assertEq(
+            baseToken.balanceOf(treasury) - treasuryBalanceBefore,
+            0
+        );
+        assertEq(
+            baseToken.balanceOf(deployer) - taskOwnerBalanceBefore,
+            0
+        );   
+        assertEq(
+            baseToken.balanceOf(validator1) - validatorBalanceBefore,
+            0
+        );
+
+        // no rewards should be distributed
+        assertEq(engine.veRewards() - veRewards, 0);   
+        (uint256 stakedFinal, , ) = engine.validators(validator1);
+        // solution stake amount should be released
+        assertEq(stakedFinal - staked, 0);
+    }
+
+    function testFeeDistribution() public {
+        // transfer some AIUS from deployer to user1 for fees
+        vm.prank(deployer);
+        baseToken.transfer(user1, 100e18);
+
+        // deploy model with a fee of 1 AIUS
+        bytes32 modelid = deployBootstrapFeeModel(modelOwner1);
+
+        // get totalHeld before submitting / claiming task
+        uint256 totalHeldBefore = engine.totalHeld();
+
+        /* submit task, set fee to 2 AIUS (1 AIUS to model owner, rest as tip to treasury&validator) */
+        bytes32 taskid = deployBootstrapTask(modelid, user1, 2e18);
+
+        /* signal commitment and submit solution */
+        bytes32 commitment = engine.generateCommitment(
+            validator1,
+            taskid,
+            TESTCID
+        );
+
+        vm.prank(validator1);
+        engine.signalCommitment(commitment);
+
+        // commitment must be in the past -> skip 12s and 1 block
+        skip(12);
+        vm.roll(block.number + 1);
+
+        vm.prank(validator1);
+        engine.submitSolution(taskid, TESTCID);
+
+        /* claim rewards */
+
+        uint256 remainingFee = 1 ether; // taskfee - modelfee
+
+        // get treasuryFee
+        uint256 solutionFeePercentage = engine.solutionFeePercentage();
+        uint256 treasuryFee = remainingFee -
+            ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
+
+        // get validatorFee
+        uint256 validatorFee = remainingFee - treasuryFee;
+
+        // get balance before claiming
+        uint256 modelOwnerBalanceBefore = baseToken.balanceOf(modelOwner1);
+
+        // fast forward `minClaimSolutionTime` and `minClaimSolutionTime/12` blocks
+        uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
+        skip(minClaimSolutionTime + 1);
+        vm.roll(block.number + minClaimSolutionTime / 12);
+
+        // expect transfer of `validatorFee` to validator1
+        vm.expectEmit();
+        emit IERC20Upgradeable.Transfer(
+            address(engine),
+            validator1,
+            validatorFee
+        );
+        vm.prank(validator1);
+        engine.claimSolution(taskid);
+
+        // get balance after claiming
+        uint256 modelOwnerBalanceAfter = baseToken.balanceOf(modelOwner1);
+
+        // modelOwner should receive 1 ether
+        assertEq(modelOwnerBalanceAfter - modelOwnerBalanceBefore, 1 ether);
+
+        // get totalHeld after claiming
+        uint256 totalHeldAfter = engine.totalHeld();
+        assertEq(totalHeldAfter, totalHeldBefore + treasuryFee);
+    }
+
     function testSimulateUsage() public {
         _simulateUsage();
     }
 
-    /* Helper functions */ 
-    
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*                       HELPER FUNCS                         */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
     // early txs need 0 model fees and 0 task fees so they can mine tokens
     // later tests will cover fees
-    function deployBootstrapModelWithAddr(address _addr) public returns (bytes32 modelid) {
+    function deployBootstrapModel(address _addr) public returns (bytes32 modelid) {
         uint256 fee = 0;
 
         vm.prank(_addr);
@@ -278,37 +418,15 @@ contract EngineV5Test is Test {
         engine.setSolutionMineableRate(modelid, 1e18);
     }
 
-    function deployBootstrapFeeModel() public returns (bytes32 modelid) {
-        address addr = modelOwner1;
-        uint256 fee = 1 ether;
+    function deployBootstrapFeeModel(address _addr) public returns (bytes32 modelid) {
+        uint256 fee = 1e18; // 1 AIUS
 
-        vm.prank(addr);
-        modelid = engine.registerModel(addr, fee, TESTBUF);
+        vm.prank(_addr);
+        modelid = engine.registerModel(_addr, fee, TESTBUF);
 
         // set model.rate so we can test reward emissions
         vm.prank(deployer);
         engine.setSolutionMineableRate(modelid, 1e18);
-    }
-
-    function bootstrapTaskParams(
-        bytes32 modelid,
-        uint256 feeEth
-    )
-        public
-        view
-        returns (
-            uint8 version,
-            bytes32 model,
-            uint256 fee,
-            bytes memory input,
-            bytes memory cid
-        )
-    {
-        version = 0;
-        model = modelid;
-        fee = feeEth;
-        input = TESTBUF; // normally this would be json but it doesnt matter for testing
-        cid = getIPFSCIDMemory(TESTBUF);
     }
 
     function deployBootstrapTask(
@@ -332,7 +450,7 @@ contract EngineV5Test is Test {
             uint256 fee,
             bytes memory input,
             bytes memory cid
-        ) = bootstrapTaskParams(modelid, feeEth);
+        ) = _bootstrapTaskParams(modelid, feeEth);
 
         Task memory t = Task(
             model,
@@ -350,7 +468,28 @@ contract EngineV5Test is Test {
         engine.submitTask(version, submitter, model, fee, input);
     }
 
-    function _createTestLocks() public {
+    function _bootstrapTaskParams(
+        bytes32 modelid,
+        uint256 feeEth
+    )
+        internal
+        view
+        returns (
+            uint8 version,
+            bytes32 model,
+            uint256 fee,
+            bytes memory input,
+            bytes memory cid
+        )
+    {
+        version = 0;
+        model = modelid;
+        fee = feeEth;
+        input = TESTBUF; // normally this would be json but it doesnt matter for testing
+        cid = getIPFSCIDMemory(TESTBUF);
+    }
+
+    function _createTestLocks() internal {
         // transfer some AIUS 
         vm.prank(deployer);
         baseToken.transfer(user1, 100 ether);
@@ -374,7 +513,7 @@ contract EngineV5Test is Test {
         assertEq(votingEscrow.ownerOf(2), user2);
     }
 
-    function _voteForGauges() public {
+    function _voteForGauges() internal {
         // user1 votes for MODEL_2 and MODEL_3
         bytes32[] memory modelVote = new bytes32[](2);
         uint256[] memory weights = new uint256[](2);
@@ -394,9 +533,14 @@ contract EngineV5Test is Test {
 
         vm.prank(user2);
         voter.vote(2, modelVote, weights);
+
+        // MODEL_1 receives 50% of total emissions, MODEL_2 and MODEL_3 25% each
+        assertEq(voter.getGaugeMultiplier(MODEL_1), 50e16);
+        assertEq(voter.getGaugeMultiplier(MODEL_2), 25e16);
+        assertEq(voter.getGaugeMultiplier(MODEL_3), 25e16);
     }
 
-    function _simulateUsage() public {
+    function _simulateUsage() internal {
         // call notifyRewardAmount so rewardDuration starts
         veStaking.notifyRewardAmount(0);
 
