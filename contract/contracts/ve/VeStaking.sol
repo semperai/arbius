@@ -202,21 +202,6 @@ contract VeStaking is IVeStaking, Ownable {
         emit Recovered(tokenAddress, tokenAmount);
     }
 
-    /// @notice Removes excess `rewardsToken` due to rounding errors
-    function skim() external onlyOwner {
-        uint256 excess;
-        if (periodFinish > block.timestamp) {
-            uint256 remaining = periodFinish - block.timestamp;
-            uint256 remainingRewards = rewardRate * remaining;
-            excess = rewardsToken.balanceOf(address(this)) - remainingRewards;
-        } else {
-            // period has ended, so safe to transfer all remaining tokens
-            excess = rewardsToken.balanceOf(address(this));
-        }
-
-        rewardsToken.safeTransfer(msg.sender, excess);
-    }
-
     /// @notice Sets the duration of the rewards period
     /// @param _rewardsDuration Duration of the rewards period in seconds
     function setRewardsDuration(uint256 _rewardsDuration) external onlyOwner {

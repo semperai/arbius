@@ -48,10 +48,6 @@ contract VeStakingTest is BaseTest {
         vm.prank(alice);
         vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
         veStaking.recoverERC20(address(mockToken), 10 ether);
-
-        vm.prank(alice);
-        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
-        veStaking.skim();
     }
 
     function testOnlyVotingEscrow() public {
@@ -102,37 +98,6 @@ contract VeStakingTest is BaseTest {
         assertEq(
             AIUS.balanceOf(address(veStaking)),
             100 ether,
-            "!balanceOf(veStaking)"
-        );
-    }
-
-    function testSkimRewardsToken() public {
-        AIUS.transfer(address(veStaking), 100 ether);
-        veStaking.notifyRewardAmount(100 ether);
-
-        // get reward for duration
-        uint256 rewardForDuration = veStaking.getRewardForDuration();
-
-        // call skim
-        veStaking.skim();
-
-        // make sure that balance is >= rewardForDuration
-        assertGe(
-            AIUS.balanceOf(address(veStaking)),
-            rewardForDuration,
-            "!balanceOf(veStaking)"
-        );
-
-        // skip to end of rewards period
-        skip(1 weeks);
-
-        // call skim again
-        veStaking.skim();
-
-        // rewards should be transferred out
-        assertEq(
-            AIUS.balanceOf(address(veStaking)),
-            0,
             "!balanceOf(veStaking)"
         );
     }
@@ -450,8 +415,8 @@ contract VeStakingTest is BaseTest {
         // since rewardsDuration has passed before creating the lock, no rewards should be earned
         assertEq(veStaking.earned(1), 0, "!earned");
 
-        // at this point unclaimed rewards can either be distributed in the next period by calling `notifyRewardAmount`
-        // or they can be withdrawn from the staking contract by the owner via `skim`
+        // at this point unclaimed rewards can be distributed in the next period by calling 
+        // `notifyRewardAmount(uint256 amountOfUnclaimedRewards)`
     }
 
     function testGetReward() public {
