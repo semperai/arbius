@@ -415,7 +415,7 @@ contract VeStakingTest is BaseTest {
         // since rewardsDuration has passed before creating the lock, no rewards should be earned
         assertEq(veStaking.earned(1), 0, "!earned");
 
-        // at this point unclaimed rewards can be distributed in the next period by calling 
+        // at this point unclaimed rewards can be distributed in the next period by calling
         // `notifyRewardAmount(uint256 amountOfUnclaimedRewards)`
     }
 

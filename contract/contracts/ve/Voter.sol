@@ -8,7 +8,6 @@ import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 import {IVoter} from "contracts/interfaces/IVoter.sol";
 
 contract Voter is IVoter, Ownable {
-
     /* ========== STATE VARIABLES ========== */
 
     address public immutable votingEscrow; // the ve token that governs these contracts
@@ -223,10 +222,10 @@ contract Voter is IVoter, Ownable {
         bytes32 _model
     ) external view returns (uint256) {
         // if no votes return default value of 1e18
-        if(totalWeight == 0) {
+        if (totalWeight == 0) {
             return 1e18;
         }
-        
+
         return (weights[_model] * 1e18) / totalWeight;
     }
 }

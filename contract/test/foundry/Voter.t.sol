@@ -342,7 +342,7 @@ contract VoterTest is BaseTest {
         assertEq(voter.weights(MODEL_1), 0);
         assertEq(voter.weights(MODEL_2), balance - balance / 5);
     }
-    
+
     function testAlignedEpochDuration(uint256 warp) public {
         // warp should be less than 100 years
         vm.assume(warp <= 3155760000);

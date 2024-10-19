@@ -137,7 +137,12 @@ contract EngineV5Test is Test {
         uint256 gaugeMultiplierModel1 = voter.getGaugeMultiplier(MODEL_1);
         uint256 gaugeMultiplierModel2 = voter.getGaugeMultiplier(MODEL_2);
         uint256 gaugeMultiplierModel3 = voter.getGaugeMultiplier(MODEL_3);
-        assertEq(gaugeMultiplierModel1 + gaugeMultiplierModel2 + gaugeMultiplierModel3, 1e18);
+        assertEq(
+            gaugeMultiplierModel1 +
+                gaugeMultiplierModel2 +
+                gaugeMultiplierModel3,
+            1e18
+        );
 
         // simulate usage bc the first few reward emissions have high fluctuations
         _simulateUsage();
@@ -148,7 +153,7 @@ contract EngineV5Test is Test {
         bytes32 taskid1 = deployBootstrapTask(MODEL_1, deployer, 0);
         bytes32 taskid2 = deployBootstrapTask(MODEL_2, user1, 0);
         bytes32 taskid3 = deployBootstrapTask(MODEL_3, user2, 0);
-        
+
         bytes32 commitment1 = engine.generateCommitment(
             validator1,
             taskid1,
@@ -188,10 +193,11 @@ contract EngineV5Test is Test {
         // fast forward `minClaimSolutionTime`
         skip(engine.minClaimSolutionTime() + 1);
         vm.roll(block.number + 1);
-        
-        // reward * modelRate (1e18) * gaugeMultiplier / (2 * 1e18 * 1e18) 
+
+        // reward * modelRate (1e18) * gaugeMultiplier / (2 * 1e18 * 1e18)
         uint256 reward = engine.getReward();
-        uint256 total = reward * 1e18 * gaugeMultiplierModel1 / (2 * 1e18 * 1e18);
+        uint256 total = (reward * 1e18 * gaugeMultiplierModel1) /
+            (2 * 1e18 * 1e18);
 
         uint256 treasuryRewardPercentage = engine.treasuryRewardPercentage();
         uint256 taskOwnerRewardPercentage = engine.taskOwnerRewardPercentage();
@@ -222,7 +228,7 @@ contract EngineV5Test is Test {
         assertEq(
             baseToken.balanceOf(deployer) - taskOwnerBalanceBefore,
             taskOwnerReward
-        );   
+        );
 
         assertEq(
             baseToken.balanceOf(validator1) - validatorBalanceBefore1,
@@ -231,17 +237,19 @@ contract EngineV5Test is Test {
 
         // get new reward after first is claimed
         reward = engine.getReward();
-        uint256 total2 = reward * 1e18 * gaugeMultiplierModel2 / (2 * 1e18 * 1e18);
+        uint256 total2 = (reward * 1e18 * gaugeMultiplierModel2) /
+            (2 * 1e18 * 1e18);
 
         vm.prank(validator2);
         engine.claimSolution(taskid2);
 
         reward = engine.getReward();
-        uint256 total3 = reward * 1e18 * gaugeMultiplierModel3 / (2 * 1e18 * 1e18);
+        uint256 total3 = (reward * 1e18 * gaugeMultiplierModel3) /
+            (2 * 1e18 * 1e18);
 
         vm.prank(validator3);
         engine.claimSolution(taskid3);
-        
+
         // other half of emissions should be distributed to veAIUS holders
         assertEq(engine.veRewards() - veRewards, (total + total2 + total3));
 
@@ -268,7 +276,6 @@ contract EngineV5Test is Test {
 
         bytes32 taskid = deployBootstrapTask(MODEL_4, user1, 0);
 
-        
         bytes32 commitment = engine.generateCommitment(
             validator1,
             taskid,
@@ -291,13 +298,13 @@ contract EngineV5Test is Test {
         // solution stake amount should be reserved
         uint256 solutionsStakeAmount = engine.solutionsStakeAmount();
         assertEq(staked - stakedAfter, solutionsStakeAmount);
-        
+
         /* claim */
 
         // fast forward `minClaimSolutionTime`
         skip(engine.minClaimSolutionTime() + 1);
         vm.roll(block.number + 1);
-        
+
         uint256 taskOwnerBalanceBefore = baseToken.balanceOf(deployer);
         uint256 validatorBalanceBefore = baseToken.balanceOf(validator1);
         uint256 treasuryBalanceBefore = baseToken.balanceOf(treasury);
@@ -305,21 +312,12 @@ contract EngineV5Test is Test {
         vm.prank(validator1);
         engine.claimSolution(taskid);
 
-        assertEq(
-            baseToken.balanceOf(treasury) - treasuryBalanceBefore,
-            0
-        );
-        assertEq(
-            baseToken.balanceOf(deployer) - taskOwnerBalanceBefore,
-            0
-        );   
-        assertEq(
-            baseToken.balanceOf(validator1) - validatorBalanceBefore,
-            0
-        );
+        assertEq(baseToken.balanceOf(treasury) - treasuryBalanceBefore, 0);
+        assertEq(baseToken.balanceOf(deployer) - taskOwnerBalanceBefore, 0);
+        assertEq(baseToken.balanceOf(validator1) - validatorBalanceBefore, 0);
 
         // no rewards should be distributed
-        assertEq(engine.veRewards() - veRewards, 0);   
+        assertEq(engine.veRewards() - veRewards, 0);
         (uint256 stakedFinal, , ) = engine.validators(validator1);
         // solution stake amount should be released
         assertEq(stakedFinal - staked, 0);
@@ -407,7 +405,9 @@ contract EngineV5Test is Test {
 
     // early txs need 0 model fees and 0 task fees so they can mine tokens
     // later tests will cover fees
-    function deployBootstrapModel(address _addr) public returns (bytes32 modelid) {
+    function deployBootstrapModel(
+        address _addr
+    ) public returns (bytes32 modelid) {
         uint256 fee = 0;
 
         vm.prank(_addr);
@@ -418,7 +418,9 @@ contract EngineV5Test is Test {
         engine.setSolutionMineableRate(modelid, 1e18);
     }
 
-    function deployBootstrapFeeModel(address _addr) public returns (bytes32 modelid) {
+    function deployBootstrapFeeModel(
+        address _addr
+    ) public returns (bytes32 modelid) {
         uint256 fee = 1e18; // 1 AIUS
 
         vm.prank(_addr);
@@ -490,12 +492,12 @@ contract EngineV5Test is Test {
     }
 
     function _createTestLocks() internal {
-        // transfer some AIUS 
+        // transfer some AIUS
         vm.prank(deployer);
         baseToken.transfer(user1, 100 ether);
         vm.prank(deployer);
         baseToken.transfer(user2, 100 ether);
-        
+
         // approve AIUS to votingEscrow
         vm.prank(user1);
         baseToken.approve(address(votingEscrow), 100 ether);
@@ -593,13 +595,13 @@ contract EngineV5Test is Test {
                     block.timestamp + 1 weeks - (block.timestamp % 1 weeks)
                 );
 
-                // veRewards should be distributed, set to current reward 
-                veRewardsSum = reward * gaugeMultiplier  / (2 * 1e18);
+                // veRewards should be distributed, set to current reward
+                veRewardsSum = (reward * gaugeMultiplier) / (2 * 1e18);
             } else {
                 vm.prank(validator1);
                 engine.claimSolution(taskid);
 
-                veRewardsSum += reward * gaugeMultiplier  / (2 * 1e18);
+                veRewardsSum += (reward * gaugeMultiplier) / (2 * 1e18);
             }
 
             assertEq(engine.veRewards(), veRewardsSum);
