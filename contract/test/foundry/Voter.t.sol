@@ -302,6 +302,47 @@ contract VoterTest is BaseTest {
         assertEq(votingEscrow.voted(1), false);
     }
 
+    function testVoteForKilledGauge() public {
+        // create lock for alice
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
+
+        // create gauge for MODEL_1 and MODEL_2
+        voter.createGauge(MODEL_1);
+        voter.createGauge(MODEL_2);
+
+        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        bytes32[] memory modelVote = new bytes32[](2);
+        uint256[] memory weights = new uint256[](2);
+        modelVote[0] = MODEL_1;
+        weights[0] = 100;
+        modelVote[1] = MODEL_2;
+        weights[1] = 400;
+
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        uint256 balance = votingEscrow.balanceOfNFT(1);
+        assertEq(voter.weights(MODEL_1), balance / 5);
+        assertEq(voter.weights(MODEL_2), balance - balance / 5);
+
+        // kill gauge
+        voter.killGauge(MODEL_1);
+        // skip to new voting epoch
+        skip(1 weeks);
+
+        // vote again
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        // MODEL_1 should be skipped and votes set to zero
+        balance = votingEscrow.balanceOfNFT(1);
+        assertEq(voter.weights(MODEL_1), 0);
+        assertEq(voter.weights(MODEL_2), balance - balance / 5);
+    }
+    
     function testAlignedEpochDuration(uint256 warp) public {
         // warp should be less than 100 years
         vm.assume(warp <= 3155760000);

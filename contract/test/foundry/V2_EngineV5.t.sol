@@ -547,8 +547,8 @@ contract EngineV5Test is Test {
         uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
         uint256 veRewardsSum;
 
-        // submit task and claim solution every hour for one day
-        for (uint256 i = 0; i < 24; i++) {
+        // submit task and claim solution every hour for one week
+        for (uint256 i = 0; i < 168; i++) {
             /* submit task */
             bytes32 taskid = deployBootstrapTask(MODEL_1, user1, 0);
             uint256 gaugeMultiplier = voter.getGaugeMultiplier(MODEL_1);
@@ -595,14 +595,14 @@ contract EngineV5Test is Test {
 
                 // veRewards should be distributed, set to current reward 
                 veRewardsSum = reward * gaugeMultiplier  / (2 * 1e18);
-
-                assertEq(engine.veRewards(), veRewardsSum);
             } else {
                 vm.prank(validator1);
                 engine.claimSolution(taskid);
 
-                veRewardsSum += reward * 1e18 / (2 * gaugeMultiplier);
+                veRewardsSum += reward * gaugeMultiplier  / (2 * 1e18);
             }
+
+            assertEq(engine.veRewards(), veRewardsSum);
 
             //uint256 psuedoTotalSupply = engine.getPsuedoTotalSupply();
             //console2.log("psuedoTotalSupply", psuedoTotalSupply);
