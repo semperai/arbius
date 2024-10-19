@@ -850,8 +850,8 @@ contract V2_EngineV5 is OwnableUpgradeable {
         uint256 gaugeMultiplier = 1e18; // default to 1e18, so contract still works even if voter is not set
         if (voter != address(0)) {
             // v5
-            // check if model can be voted on
-            if (IVoter(voter).isAlive(_model)) {
+            // check if model has a gauge assigned
+            if (IVoter(voter).isGauge(_model)) {
                 // update gaugeMultiplier based on received votes in Voter.sol
                 gaugeMultiplier = IVoter(voter).getGaugeMultiplier(_model);
             } else {
