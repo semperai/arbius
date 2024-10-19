@@ -51,7 +51,6 @@ export interface VeStakingInterface extends utils.Interface {
     "rewardsDuration()": FunctionFragment;
     "rewardsToken()": FunctionFragment;
     "setRewardsDuration(uint256)": FunctionFragment;
-    "skim()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "votingEscrow()": FunctionFragment;
@@ -81,7 +80,6 @@ export interface VeStakingInterface extends utils.Interface {
       | "rewardsDuration"
       | "rewardsToken"
       | "setRewardsDuration"
-      | "skim"
       | "totalSupply"
       | "transferOwnership"
       | "votingEscrow"
@@ -172,7 +170,6 @@ export interface VeStakingInterface extends utils.Interface {
     functionFragment: "setRewardsDuration",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "skim", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -250,7 +247,6 @@ export interface VeStakingInterface extends utils.Interface {
     functionFragment: "setRewardsDuration",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "skim", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -477,10 +473,6 @@ export interface VeStaking extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    skim(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferOwnership(
@@ -573,10 +565,6 @@ export interface VeStaking extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  skim(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   transferOwnership(
@@ -666,8 +654,6 @@ export interface VeStaking extends BaseContract {
       _rewardsDuration: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    skim(overrides?: CallOverrides): Promise<void>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -827,10 +813,6 @@ export interface VeStaking extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    skim(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
@@ -927,10 +909,6 @@ export interface VeStaking extends BaseContract {
 
     setRewardsDuration(
       _rewardsDuration: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    skim(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
