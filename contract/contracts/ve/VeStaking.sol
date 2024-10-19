@@ -6,6 +6,7 @@ import {
     IERC20
 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
 import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 
@@ -33,6 +34,20 @@ contract VeStaking is IVeStaking, Ownable {
     uint256 private _totalSupply;
     mapping(uint256 => uint256) private _balances;
 
+    /* ========== EVENTS ========== */
+
+    event RewardAdded(uint256 reward);
+    event Staked(uint256 indexed tokenId, uint256 amount);
+    event Withdrawn(uint256 indexed tokenId, uint256 amount);
+    event BalanceUpdated(
+        uint256 indexed tokenId,
+        uint256 oldAmount,
+        uint256 newAmount
+    );
+    event RewardPaid(address indexed tokenId, uint256 reward);
+    event RewardsDurationUpdated(uint256 newDuration);
+    event Recovered(address token, uint256 amount);
+
     /* ========== CONSTRUCTOR ========== */
 
     constructor(address _rewardsToken, address _votingEscrow) Ownable() {
@@ -41,54 +56,24 @@ contract VeStaking is IVeStaking, Ownable {
         votingEscrow = IVotingEscrow(_votingEscrow);
     }
 
-    /* ========== VIEWS ========== */
+    /* ========== MODIFIERS ========== */
 
-    /// @notice Returns the total supply
-    function totalSupply() external view returns (uint256) {
-        return _totalSupply;
+    modifier onlyVotingEscrow() {
+        require(
+            msg.sender == address(votingEscrow),
+            "Caller is not VotingEscrow contract"
+        );
+        _;
     }
 
-    /// @notice Returns the veStaking balance of `tokenId`
-    /// @param tokenId ID of the veNFT
-    /// @dev The veStaking balance is the initial veNFT balance at time of staking
-    /// @dev It is not decaying over time, unlike the veToken balance
-    function balanceOf(uint256 tokenId) external view returns (uint256) {
-        return _balances[tokenId];
-    }
-
-    /// @notice Returns the last time rewards were applicable
-    function lastTimeRewardApplicable() public view returns (uint256) {
-        return block.timestamp < periodFinish ? block.timestamp : periodFinish;
-    }
-
-    /// @notice Returns the reward per token
-    function rewardPerToken() public view returns (uint256) {
-        if (_totalSupply == 0) {
-            return rewardPerTokenStored;
+    modifier updateReward(uint256 tokenId) {
+        rewardPerTokenStored = rewardPerToken();
+        lastUpdateTime = lastTimeRewardApplicable();
+        if (tokenId != 0) {
+            rewards[tokenId] = earned(tokenId);
+            rewardPerTokenPaid[tokenId] = rewardPerTokenStored;
         }
-        return
-            rewardPerTokenStored +
-            (rewardRate *
-                (lastTimeRewardApplicable() - lastUpdateTime) *
-                1e18) /
-            _totalSupply;
-    }
-
-    /// @notice Returns earned rewards for `tokenId`
-    function earned(uint256 tokenId) public view returns (uint256) {
-        return
-            ((_balances[tokenId] *
-                (rewardPerToken() - rewardPerTokenPaid[tokenId])) / 1e18) +
-            rewards[tokenId];
-    }
-
-    /// @notice Returns remaining rewards for the current period
-    function getRewardForDuration() external view returns (uint256) {
-        if (block.timestamp >= periodFinish) {
-            return 0;
-        } else {
-            return rewardRate * (periodFinish - block.timestamp);
-        }
+        _;
     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
@@ -127,6 +112,19 @@ contract VeStaking is IVeStaking, Ownable {
         );
 
         emit RewardAdded(reward);
+    }
+
+    /// @notice Claim rewards for `tokenId`
+    /// @param tokenId ID of the veNFT
+    function getReward(uint256 tokenId) external updateReward(tokenId) {
+        address tokenOwner = votingEscrow.ownerOf(tokenId);
+
+        uint256 reward = rewards[tokenId];
+        if (reward > 0) {
+            rewards[tokenId] = 0;
+            rewardsToken.safeTransfer(tokenOwner, reward);
+            emit RewardPaid(tokenOwner, reward);
+        }
     }
 
     /// @notice Stakes `amount` for `tokenId`
@@ -172,19 +170,6 @@ contract VeStaking is IVeStaking, Ownable {
         emit BalanceUpdated(tokenId, amount, newAmount);
     }
 
-    /// @notice Claim rewards for `tokenId`
-    /// @param tokenId ID of the veNFT
-    function getReward(uint256 tokenId) external updateReward(tokenId) {
-        address tokenOwner = votingEscrow.ownerOf(tokenId);
-
-        uint256 reward = rewards[tokenId];
-        if (reward > 0) {
-            rewards[tokenId] = 0;
-            rewardsToken.safeTransfer(tokenOwner, reward);
-            emit RewardPaid(tokenOwner, reward);
-        }
-    }
-
     /* ========== RESTRICTED FUNCTIONS ========== */
 
     /// @notice Recover tokens that are accidentally sent to the contract
@@ -213,37 +198,53 @@ contract VeStaking is IVeStaking, Ownable {
         emit RewardsDurationUpdated(rewardsDuration);
     }
 
-    /* ========== MODIFIERS ========== */
+    /* ========== VIEWS ========== */
 
-    modifier onlyVotingEscrow() {
-        require(
-            msg.sender == address(votingEscrow),
-            "Caller is not VotingEscrow contract"
-        );
-        _;
+    /// @notice Returns the total supply
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
     }
 
-    modifier updateReward(uint256 tokenId) {
-        rewardPerTokenStored = rewardPerToken();
-        lastUpdateTime = lastTimeRewardApplicable();
-        if (tokenId != 0) {
-            rewards[tokenId] = earned(tokenId);
-            rewardPerTokenPaid[tokenId] = rewardPerTokenStored;
+    /// @notice Returns the veStaking balance of `tokenId`
+    /// @param tokenId ID of the veNFT
+    /// @dev The veStaking balance is the initial veNFT balance at time of staking
+    /// @dev It is not decaying over time, unlike the veToken balance
+    function balanceOf(uint256 tokenId) external view returns (uint256) {
+        return _balances[tokenId];
+    }
+
+    /// @notice Returns remaining rewards for the current period
+    function getRewardForDuration() external view returns (uint256) {
+        if (block.timestamp >= periodFinish) {
+            return 0;
+        } else {
+            return rewardRate * (periodFinish - block.timestamp);
         }
-        _;
     }
 
-    /* ========== EVENTS ========== */
+    /// @notice Returns the last time rewards were applicable
+    function lastTimeRewardApplicable() public view returns (uint256) {
+        return block.timestamp < periodFinish ? block.timestamp : periodFinish;
+    }
 
-    event RewardAdded(uint256 reward);
-    event Staked(uint256 indexed tokenId, uint256 amount);
-    event Withdrawn(uint256 indexed tokenId, uint256 amount);
-    event BalanceUpdated(
-        uint256 indexed tokenId,
-        uint256 oldAmount,
-        uint256 newAmount
-    );
-    event RewardPaid(address indexed tokenId, uint256 reward);
-    event RewardsDurationUpdated(uint256 newDuration);
-    event Recovered(address token, uint256 amount);
+    /// @notice Returns the reward per token
+    function rewardPerToken() public view returns (uint256) {
+        if (_totalSupply == 0) {
+            return rewardPerTokenStored;
+        }
+        return
+            rewardPerTokenStored +
+            (rewardRate *
+                (lastTimeRewardApplicable() - lastUpdateTime) *
+                1e18) /
+            _totalSupply;
+    }
+
+    /// @notice Returns earned rewards for `tokenId`
+    function earned(uint256 tokenId) public view returns (uint256) {
+        return
+            ((_balances[tokenId] *
+                (rewardPerToken() - rewardPerTokenPaid[tokenId])) / 1e18) +
+            rewards[tokenId];
+    }
 }

@@ -3,13 +3,14 @@ pragma solidity ^0.8.19;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import {IVotingEscrow} from "contracts/interfaces/IVotingEscrow.sol";
 import {IVoter} from "contracts/interfaces/IVoter.sol";
 
-import "forge-std/Test.sol";
-import "forge-std/console2.sol";
+contract Voter is IVoter, Ownable {
 
-contract Voter is IVoter, Ownable, Test {
+    /* ========== STATE VARIABLES ========== */
+
     address public immutable votingEscrow; // the ve token that governs these contracts
 
     uint256 internal constant DURATION = 1 weeks; // voting duration per epoch
@@ -26,6 +27,8 @@ contract Voter is IVoter, Ownable, Test {
     mapping(bytes32 => bool) public isWhitelisted; // model => isWhitelisted
     mapping(bytes32 => bool) public isAlive; // model => isAlive
 
+    /* ========== EVENTS ========== */
+
     event GaugeCreated(address creator, bytes32 indexed model);
     event GaugeKilled(bytes32 indexed model);
     event GaugeRevived(bytes32 indexed model);
@@ -38,9 +41,13 @@ contract Voter is IVoter, Ownable, Test {
     event Abstained(uint256 tokenId, uint256 weight);
     event Whitelisted(address indexed whitelister, bytes32 indexed model);
 
+    /* ========== CONSTRUCTOR ========== */
+
     constructor(address _votingEscrow) Ownable() {
         votingEscrow = _votingEscrow;
     }
+
+    /* ========== MODIFIERS ========== */
 
     modifier onlyNewEpoch(uint256 _tokenId) {
         // ensure new epoch since last vote
@@ -51,49 +58,7 @@ contract Voter is IVoter, Ownable, Test {
         _;
     }
 
-    function epochVoteEnd() external view returns (uint256) {
-        return ((block.timestamp / DURATION) * DURATION) + DURATION;
-    }
-
-    function getGaugeMultiplier(
-        bytes32 _model
-    ) external view returns (uint256) {
-        require(totalWeight > 0, "no votes");
-        
-        return (weights[_model] * 1e18) / totalWeight;
-    }
-
-    /// @notice Called by users to reset voting state.
-    /// @param _tokenId Id of veNFT you are reseting.
-    function reset(uint256 _tokenId) external onlyNewEpoch(_tokenId) {
-        require(
-            IVotingEscrow(votingEscrow).isApprovedOrOwner(msg.sender, _tokenId)
-        );
-        _reset(_tokenId);
-    }
-
-    function _reset(uint256 _tokenId) internal {
-        bytes32[] storage _modelVote = modelVote[_tokenId];
-        uint256 _modelVoteCnt = _modelVote.length;
-        uint256 _totalWeight = 0;
-
-        for (uint256 i = 0; i < _modelVoteCnt; i++) {
-            bytes32 _model = _modelVote[i];
-            uint256 _votes = votes[_tokenId][_model];
-
-            if (_votes != 0) {
-                weights[_model] -= _votes;
-                //votes[_tokenId][_model] -= _votes;
-                delete votes[_tokenId][_model];
-                _totalWeight += _votes;
-                emit Abstained(_tokenId, _votes);
-            }
-        }
-        IVotingEscrow(votingEscrow).abstain(_tokenId);
-        totalWeight -= _totalWeight;
-        usedWeights[_tokenId] = 0;
-        delete modelVote[_tokenId];
-    }
+    /* ========== MUTATIVE FUNCTIONS ========== */
 
     /// @notice Called by users to update voting balances in voting rewards contracts.
     /// @param _tokenId Id of veNFT whose balance you wish to update.
@@ -168,10 +133,36 @@ contract Voter is IVoter, Ownable, Test {
         usedWeights[_tokenId] = _usedWeight;
     }
 
-    function whitelist(bytes32 _model) external onlyOwner {
-        require(!isWhitelisted[_model], "whitelisted");
-        isWhitelisted[_model] = true;
-        emit Whitelisted(msg.sender, _model);
+    /// @notice Called by users to reset voting state.
+    /// @param _tokenId Id of veNFT you are reseting.
+    function reset(uint256 _tokenId) external onlyNewEpoch(_tokenId) {
+        require(
+            IVotingEscrow(votingEscrow).isApprovedOrOwner(msg.sender, _tokenId)
+        );
+        _reset(_tokenId);
+    }
+
+    function _reset(uint256 _tokenId) internal {
+        bytes32[] storage _modelVote = modelVote[_tokenId];
+        uint256 _modelVoteCnt = _modelVote.length;
+        uint256 _totalWeight = 0;
+
+        for (uint256 i = 0; i < _modelVoteCnt; i++) {
+            bytes32 _model = _modelVote[i];
+            uint256 _votes = votes[_tokenId][_model];
+
+            if (_votes != 0) {
+                weights[_model] -= _votes;
+                //votes[_tokenId][_model] -= _votes;
+                delete votes[_tokenId][_model];
+                _totalWeight += _votes;
+                emit Abstained(_tokenId, _votes);
+            }
+        }
+        IVotingEscrow(votingEscrow).abstain(_tokenId);
+        totalWeight -= _totalWeight;
+        usedWeights[_tokenId] = 0;
+        delete modelVote[_tokenId];
     }
 
     /// @notice Create a new gauge for a model.
@@ -188,6 +179,14 @@ contract Voter is IVoter, Ownable, Test {
         isGauge[_model] = true;
         models.push(_model);
         emit GaugeCreated(msg.sender, _model);
+    }
+
+    /* ========== RESTRICTED FUNCTIONS ========== */
+
+    function whitelist(bytes32 _model) external onlyOwner {
+        require(!isWhitelisted[_model], "whitelisted");
+        isWhitelisted[_model] = true;
+        emit Whitelisted(msg.sender, _model);
     }
 
     /// @notice Kills a gauge. It can not receive any more votes.
@@ -210,7 +209,21 @@ contract Voter is IVoter, Ownable, Test {
         emit GaugeRevived(_model);
     }
 
+    /* ========== VIEWS ========== */
+
     function length() external view returns (uint) {
         return models.length;
+    }
+
+    function epochVoteEnd() external view returns (uint256) {
+        return ((block.timestamp / DURATION) * DURATION) + DURATION;
+    }
+
+    function getGaugeMultiplier(
+        bytes32 _model
+    ) external view returns (uint256) {
+        require(totalWeight > 0, "no votes");
+        
+        return (weights[_model] * 1e18) / totalWeight;
     }
 }
