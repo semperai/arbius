@@ -78,7 +78,7 @@ describe("EngineV5 SetUp", () => {
     })) as V2EngineV4 as any;
     engine = (await upgrades.upgradeProxy(engine.address, V2_EngineV5, {
       call: "initialize",
-    })) as V2EngineV5 as any;
+    })) as V2EngineV5;
 
     // for testing transfer from here
     // NOTE this disables rewards unless waiting a long time
