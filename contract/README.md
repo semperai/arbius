@@ -68,13 +68,13 @@ Set the required environment variables in the .env file, e.g. `ARBSEPOLIA_PRIVAT
 Example command to deploy on Arbitrum Sepolia:
 
 ```
-npx hardhat run scripts/deploy-sepolia-v4.ts --network arbsepolia
+npx hardhat run scripts/deploy-sepolia-v5.ts --network arbsepolia
 ```
 
 To verify contracts `ETHERSCAN_API_KEY` must be set in .env
 
 ```
-npx hardhat verify <contract-address> --network arbsepolia
+npx hardhat verify <contract-address> --network arbsepolia "constructor argument 1"
 ```
 
 ## Other
