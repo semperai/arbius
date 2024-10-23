@@ -76,6 +76,14 @@ const config: HardhatUserConfig = {
           browserURL: "https://nova.arbiscan.io",
         },
       },
+      {
+        network: "arbsepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io/",
+        },
+      }
     ],
   },
   sourcify: {
