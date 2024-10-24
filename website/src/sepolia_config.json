@@ -1,9 +1,10 @@
 {
-    "v2_baseTokenAddress": "0xc7d1060DbaacE328133E4FD8047098F727992A8A",
-    "v2_enginev4Address": "0x7488804D0ad08E0980157B50a9F0314F301f4554",
-    "veNFTRenderAddress": "0x937040c85cEd3EF45E64Be858D3A033F9b9DD377",
-    "votingEscrowAddress": "0x8ba1009559a877AD9d561DFA3B728bC995b8C215",
-    "veStakingAddress": "0x327f927EB866cba32DF1F8a4B2D957FC94aC7712",
-    "timelockAddress": "0x5d564f0EE2e3b2a7466C41CCc51f7b6729E4e889",
-    "governorAddress": "0xF3dbAA6166565Fcecc4C43Bbd46d1fA515777377"
-  }
+    "v2_baseTokenAddress": "0xBAF7D68028CFdf79646293A36d3315CCd3eDedD4",
+    "v2_enginev4Address": "0xba99C579e675788C809708fCb7D4d68d95054316",
+    "veNFTRenderAddress": "0x59Cd5f06eAA32715670a163e6cf32f938Eb0Bd03",
+    "votingEscrowAddress": "0x400D7738782c7e7fdde45eB0A0fA6C1e713B20b3",
+    "veStakingAddress": "0x6618c117B68d92cB7C3cEd53982eB88164ae99e1",
+    "timelockAddress": "0xB44fb7d006d3D0B48395B923dE4A6e45ef0d4B82",
+    "governorAddress": "0x7943f9A81418626CB61A36c6a128c1d4F95c7D26",
+    "voterAddress": "0xD73ecE3d24d3E5c6FF35C430B30866528BE19118"
+}
