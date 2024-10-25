@@ -3,11 +3,12 @@ import React, { useState, useEffect } from "react";
 import ArbiusLogo from "../../assets/images/arbius_logo.png";
 import external_link from "../../assets/images/external_link.png";
 import down_arrow from "../../assets/images/down_arrow.png";
-import amica_l from "../../assets/images/amica_l.png";
-import kasumi_l from "../../assets/images/kasumi_l.png";
+//import amica_l from "../../assets/images/amica_l.png";
+//import kasumi_l from "../../assets/images/kasumi_l.png";
 import arbius from "../../assets/images/arbius_logo_without_name.png";
 import gysr from "../../assets/images/gysr_logo_without_name.png";
 import kandinsky from "../../assets/images/kandinsky.png";
+
 import Image from "next/image";
 import arbiusBWlogo from "../../assets/images/connect_logo.png"
 import { usePathname, useRouter } from "next/navigation";
@@ -74,10 +75,6 @@ export default function Header() {
   }, [lastScrollTop]);
 
 
-
-
-
-  // MAIN ARBIUS AI CODE
   const {
     isConnected,
     isConnecting,
@@ -112,6 +109,7 @@ export default function Header() {
     }
     f();
   }
+
   // MAIN ARBIUS AI CODE
 
  
@@ -147,7 +145,6 @@ export default function Header() {
 
     let walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
     walletBalance = checkNumber(walletBalance)
-
 
   return (
     <div
@@ -237,6 +234,11 @@ export default function Header() {
                 </div>
               </AnimateHeight>
             </div>
+
+            <Link href={"https://heyamica.com/"} target="_blank">
+              <div className="item hover:text-purple-text">Amica</div>
+            </Link>
+
             <div className="relative group link-with-image ">
               <div
                 className="link hover:!text-purple-text "
@@ -267,32 +269,32 @@ export default function Header() {
                       <div>Image Generation</div>
                     </div>
                   </Link>
-                  <Link target="_blank" href={"https://t.me/kasumi2_beta"}>
+                  <Link href={"#"}>
                     <div className="staking-block">
                       <div className="absolute top-2  lg:block hidden p-2 right-2 bg-[#f0efff]  rounded-2xl badge">
-                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Paused</p>
+                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Coming Soon</p>
                       </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]]"
-                        src={kasumi_l}
+                        src={kandinsky}
                         alt=""
                       />
-                      <div>Kasumi 2</div>
-                      <div>Telegram Integrated Mining Agent & Image Generator</div>
+                      <div>Llama 3.1 405B</div>
+                      <div>Text Generation</div>
                     </div>
                   </Link>
-                  <Link target="_blank" href={"https://amica.arbius.ai/"}>
+                  <Link href={"#"}>
                     <div className="staking-block">
-                      <div className="absolute top-2 opacity-0 lg:block hidden p-2 right-2 bg-[#FBFBFB1A]  rounded-2xl">
-                        <p className="text-original-white lato-regular text-[12px]">Coming Soon</p>
+                      <div className="absolute top-2 lg:block hidden p-2 right-2 bg-[#f0efff] rounded-2xl badge">
+                        <p className="text-[#4A28FF] lato-regular text-[12px] badge-text">Coming Soon</p>
                       </div>
                       <Image
                         className="w-[20px] h-[auto] lg:h-[20px] lg:w-[auto]"
-                        src={amica_l}
+                        src={kandinsky}
                         alt=""
                       />
-                      <div>Amica</div>
-                      <div>AI persona</div>
+                      <div>Llama 3.2 90B</div>
+                      <div>Multi-modal</div>
                     </div>
                   </Link>
                 </div>
