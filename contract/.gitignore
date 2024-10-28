@@ -116,3 +116,15 @@ venv
 
 artifacts/build-info*
 artifacts/hardhat
+
+
+# VScode
+.vscode
+__pycache__
+
+#foundry test compilation files
+cache
+out
+
+#foundry script run output files
+broadcast/

@@ -9,6 +9,10 @@ interface IConfig {
     provider_url: string;
     private_key: string;
   };
+  arbitrum: {
+    provider_url: string;
+    private_key: string;
+  };
   goerli: {
     provider_url: string;
     private_key: string;
@@ -56,6 +60,10 @@ export const envconfig: IConfig = {
   mainnet: {
     provider_url: getEnv("MAINNET_PROVIDER_URL", ""),
     private_key:  getEnv("MAINNET_PRIVATE_KEY", ""),
+  },
+  arbitrum: {
+    provider_url: getEnv("ARBITRUM_PROVIDER_URL", ""),
+    private_key:  getEnv("ARBITRUM_PRIVATE_KEY", ""),
   },
   goerli: {
     provider_url: getEnv("GOERLI_PROVIDER_URL", ""),

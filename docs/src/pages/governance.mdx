@@ -3,52 +3,58 @@ export const description =
 
 # Governance
 
-<Note>Governance will be deployed on the Arbius Protocol in the future once there is sufficient coin distribution. This document describes the future governance system.</Note>
+<Note>Arbius’s DAO Phase 1 is currently deployed on Snapshot for ecosystem funding proposals. For a full description to what phase 1 entails [read our Medium blog post here.](https://medium.com/@arbius_ai/introducing-arbius-dao-phase-1-ad68b017e523)</Note>
 
-The Arbius token is used for governance, conferring voting rights over future protocol upgrades and control of the Arbius treasury.
+Arbius employs its native token for governance purposes, granting holders the authority to vote on crucial protocol developments and treasury management decisions. Governance starts with Snapshot voting and eventually moves to being entirely on-chain.
 
-Governance is done on-chain, we utilize IPFS to store the description text reducing our reliance on centralized indexers.
+Subsequent phases will introduce technology and economic proposals, on-chain governance, and finally, the relinquishment of control by the team, paving the way for a truly autonomous entity.
 
-All of the following parameters may be updated using future governance proposals. The launch parameters are intended to be conservative.
+This guide serves as an introduction to our approach to governance, which is pivotal for the evolution of the Arbius into a fully autonomously governed in the future.
 
-## Delegation
+**Phase 1:** Funding Proposals (Deployed)
+**Phase 2:** Technology & Economic Proposals (Not Yet Deployed) 
+**Phase 3:** On-Chain Governance (Not Yet Deployed) (On-Chain)
+**Phase 4:** Fully Autonomous Network (Not Yet Deployed) (On-Chain)
 
-Users can delegate their voting rights to another address on the governance page. You can also of course delegate to yourself to participate in voting.
+## DAO Phase 1’s Voting Parameters
 
-## Voting Delay
+DAO Phase 1’s parameters are intended to be conservative, and currently phase 1 uses a combination of forum, submission procedures and Snapshot to achieve its goals.
+
+All of the following parameters are subject to change via future governance updates implemented in subsequent phases as the DAO evolves.
+
+### Proposing
+
+If you are considering submitting a funding proposal to Arbius’s DAO, [please read the guidelines and procedure](https://forum.arbius.ai/t/read-first-proposal-guidelines-and-procedures/29). 
+
+### Delegation
+
+For AIUS holders on ETH, holders must go to Snapshot page and delegate to yourself or someone else to get their balance counted. This also counts LP on GYSR, LP on Uniswap V3 and his or her ETH token balance.
+
+For Arbitrum Nova AIUS holders you cannot delegate, instead your staked amount in miner and your balance on Nova can be used for voting.
+
+### Voting Delay
 
 Users have `3` days to prepare their Arbius for voting once a proposal has been submitted. No voting may take place during this period.
 
-## Voting Period
+### Voting Period
 
 Users have `3` days to vote on a proposal. We use Bravo style voting which allows for "For", "Against", and "Abstain" choices.
 
-## Proposal Threshold
+### Proposal Threshold
 
-We require a minimum of `1000` Arbius (or 0.1% of complete total supply) for creating a proposal.
+You must have staked the required minimum for being a miner on Arbitrum Nova, or have a miner sponsor do this for you.
+(Check this amount on the [Arbius explorer page](https://arbius.ai/explorer), as it is constantly rising).
 
-## Quorum
+### Quorum
 
-Arbius requires a 4% quorum of "For" votes to pass a proposal.
+Arbius requires a 2000 AIUS token quorum of "For" votes to pass a proposal.
 
-## Timelock Queue
+### Timelock Queue
 
-Once a proposal passes, there is a `1` day period where people may pull their funds from Arbius if they are unhappy with the results of the vote.
-
-## Proposing
-
-If you have at least the minimum threshold of tokens delegated to you, you may propose new actions.
-
-You will want to edit the `governance:propose` task in `/arbius/contract/task/index.ts` and create a markdown file that describes your proposal.
-
-Then, once everything is ready run:
-
-```bash
-npx hardhat --network nova governance:propose -f DESCRIPTION.md
-```
-
-This task will show you your proposal id. Miners will automatically mirror the proposal description on their IPFS servers. 
+There is no time lock currently. In the future, we will add timelock in later phases.
 
 ## Final thoughts
 
 Governance is best done in the open. Please communicate any proposals and gain community support before proposing any transaction.
+
+

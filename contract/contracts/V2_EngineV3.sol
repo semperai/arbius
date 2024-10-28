@@ -12,7 +12,8 @@ import "hardhat/console.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant RESERVED_ENGINE_TOKEN_AMOUNT = 300_000e18;
-uint256 constant EMISSION_ENGINE_TOKEN_AMOUNT = STARTING_ENGINE_TOKEN_AMOUNT - RESERVED_ENGINE_TOKEN_AMOUNT;
+uint256 constant EMISSION_ENGINE_TOKEN_AMOUNT = STARTING_ENGINE_TOKEN_AMOUNT -
+    RESERVED_ENGINE_TOKEN_AMOUNT;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
@@ -213,9 +214,9 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @param addr Address to check
     /// @return Whether address is a validator
     function _onlyValidator(address addr) internal view returns (bool) {
-        return validators[addr].staked -
-                validatorWithdrawPendingAmount[addr] >=
-                getValidatorMinimum();
+        return
+            validators[addr].staked - validatorWithdrawPendingAmount[addr] >=
+            getValidatorMinimum();
     }
 
     /// @notice Modifier to restrict to only validators
@@ -421,7 +422,8 @@ contract V2_EngineV3 is OwnableUpgradeable {
         return
             (((EMISSION_ENGINE_TOKEN_AMOUNT - ts) *
                 BASE_TOKEN_STARTING_REWARD) * diffMul(t, ts)) /
-            EMISSION_ENGINE_TOKEN_AMOUNT / 2 /
+            EMISSION_ENGINE_TOKEN_AMOUNT /
+            2 /
             1e18;
     }
 
@@ -667,8 +669,8 @@ contract V2_EngineV3 is OwnableUpgradeable {
             addTask(version_, owner_, model_, fee_, cid);
         }
 
-        baseToken.transferFrom(msg.sender, address(this), fee_*n_);
-        totalHeld += fee_*n_; // v3
+        baseToken.transferFrom(msg.sender, address(this), fee_ * n_);
+        totalHeld += fee_ * n_; // v3
     }
 
     /// @notice Get block number (on both arbitrum and l1)
@@ -707,10 +709,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @dev this implements the core logic for submitting a solution. make sure to call _submitSolutionCommon before this
     /// @param taskid_ Task hash
     /// @param cid_ IPFS cid of solution
-    function _submitSolution(
-        bytes32 taskid_,
-        bytes calldata cid_
-    ) internal {
+    function _submitSolution(bytes32 taskid_, bytes calldata cid_) internal {
         require(tasks[taskid_].model != bytes32(0x0), "task does not exist");
         require(
             solutions[taskid_].validator == address(0x0),
@@ -758,7 +757,7 @@ contract V2_EngineV3 is OwnableUpgradeable {
         // in sequential blocks having the same timestamp
         require(
             block.timestamp - lastSolutionSubmission[msg.sender] >
-                solutionRateLimit * n_ / 1e18,
+                (solutionRateLimit * n_) / 1e18,
             "solution rate limit"
         );
         lastSolutionSubmission[msg.sender] = block.timestamp;
@@ -767,7 +766,6 @@ contract V2_EngineV3 is OwnableUpgradeable {
         // move onlyValidator check here to avoid duplicate work for bulkSubmitSolution
         require(_onlyValidator(msg.sender), "min staked too low");
     }
-
 
     /// @notice Submit a solution
     /// @dev this is not onlyValidator as that is checked in _submitSolution
@@ -958,11 +956,14 @@ contract V2_EngineV3 is OwnableUpgradeable {
     /// @param taskid_ Task hash
     /// @return Whether contestation voting period ended
     function votingPeriodEnded(bytes32 taskid_) public view returns (bool) {
-        return block.timestamp >
+        return
+            block.timestamp >
             contestations[taskid_].blocktime +
-            minContestationVotePeriodTime +
-            // v3
-            ((contestationVoteYeas[taskid_].length + contestationVoteNays[taskid_].length) * contestationVoteExtensionTime);
+                minContestationVotePeriodTime +
+                // v3
+                ((contestationVoteYeas[taskid_].length +
+                    contestationVoteNays[taskid_].length) *
+                    contestationVoteExtensionTime);
     }
 
     /// @notice Check if validator can vote on a contestation

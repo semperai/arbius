@@ -101,14 +101,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GovernorTimelockControl__factory>;
     getContractFactory(
-      name: "GovernorVotes",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GovernorVotes__factory>;
-    getContractFactory(
-      name: "GovernorVotesQuorumFraction",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GovernorVotesQuorumFraction__factory>;
-    getContractFactory(
       name: "IGovernorTimelock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IGovernorTimelock__factory>;
@@ -152,6 +144,10 @@ declare module "hardhat/types/runtime" {
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Metadata__factory>;
+    getContractFactory(
+      name: "IERC20Permit",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Permit__factory>;
     getContractFactory(
       name: "IERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -265,6 +261,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VoteOnContestation__factory>;
     getContractFactory(
+      name: "VeGovernorVotes",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VeGovernorVotes__factory>;
+    getContractFactory(
+      name: "VeGovernorVotesQuorumFraction",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VeGovernorVotesQuorumFraction__factory>;
+    getContractFactory(
       name: "GovernorV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GovernorV1__factory>;
@@ -337,6 +341,22 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniswapV3Staker__factory>;
     getContractFactory(
+      name: "IVeNFTRender",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IVeNFTRender__factory>;
+    getContractFactory(
+      name: "IVeStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IVeStaking__factory>;
+    getContractFactory(
+      name: "IVoter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IVoter__factory>;
+    getContractFactory(
+      name: "IVotingEscrow",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IVotingEscrow__factory>;
+    getContractFactory(
       name: "IUniswapV3PoolActions",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniswapV3PoolActions__factory>;
@@ -385,17 +405,41 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TimelockV1__factory>;
     getContractFactory(
-      name: "V2EngineV1",
+      name: "V2_EngineV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2EngineV1__factory>;
+    ): Promise<Contracts.V2_EngineV1__factory>;
     getContractFactory(
-      name: "V2EngineV2",
+      name: "V2_EngineV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2EngineV2__factory>;
+    ): Promise<Contracts.V2_EngineV2__factory>;
     getContractFactory(
-      name: "V2EngineV3",
+      name: "V2_EngineV3",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2EngineV3__factory>;
+    ): Promise<Contracts.V2_EngineV3__factory>;
+    getContractFactory(
+      name: "V2_EngineV4",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2_EngineV4__factory>;
+    getContractFactory(
+      name: "V2_EngineV5",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2_EngineV5__factory>;
+    getContractFactory(
+      name: "VeNFTRender",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VeNFTRender__factory>;
+    getContractFactory(
+      name: "VeStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VeStaking__factory>;
+    getContractFactory(
+      name: "Voter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Voter__factory>;
+    getContractFactory(
+      name: "VotingEscrow",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VotingEscrow__factory>;
 
     getContractAt(
       name: "ArbSys",
@@ -508,16 +552,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.GovernorTimelockControl>;
     getContractAt(
-      name: "GovernorVotes",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GovernorVotes>;
-    getContractAt(
-      name: "GovernorVotesQuorumFraction",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GovernorVotesQuorumFraction>;
-    getContractAt(
       name: "IGovernorTimelock",
       address: string,
       signer?: ethers.Signer
@@ -572,6 +606,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20Metadata>;
+    getContractAt(
+      name: "IERC20Permit",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Permit>;
     getContractAt(
       name: "IERC20",
       address: string,
@@ -713,6 +752,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.VoteOnContestation>;
     getContractAt(
+      name: "VeGovernorVotes",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VeGovernorVotes>;
+    getContractAt(
+      name: "VeGovernorVotesQuorumFraction",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VeGovernorVotesQuorumFraction>;
+    getContractAt(
       name: "GovernorV1",
       address: string,
       signer?: ethers.Signer
@@ -803,6 +852,26 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IUniswapV3Staker>;
     getContractAt(
+      name: "IVeNFTRender",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVeNFTRender>;
+    getContractAt(
+      name: "IVeStaking",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVeStaking>;
+    getContractAt(
+      name: "IVoter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVoter>;
+    getContractAt(
+      name: "IVotingEscrow",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVotingEscrow>;
+    getContractAt(
       name: "IUniswapV3PoolActions",
       address: string,
       signer?: ethers.Signer
@@ -863,20 +932,50 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TimelockV1>;
     getContractAt(
-      name: "V2EngineV1",
+      name: "V2_EngineV1",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2EngineV1>;
+    ): Promise<Contracts.V2_EngineV1>;
     getContractAt(
-      name: "V2EngineV2",
+      name: "V2_EngineV2",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2EngineV2>;
+    ): Promise<Contracts.V2_EngineV2>;
     getContractAt(
-      name: "V2EngineV3",
+      name: "V2_EngineV3",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2EngineV3>;
+    ): Promise<Contracts.V2_EngineV3>;
+    getContractAt(
+      name: "V2_EngineV4",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2_EngineV4>;
+    getContractAt(
+      name: "V2_EngineV5",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2_EngineV5>;
+    getContractAt(
+      name: "VeNFTRender",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VeNFTRender>;
+    getContractAt(
+      name: "VeStaking",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VeStaking>;
+    getContractAt(
+      name: "Voter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Voter>;
+    getContractAt(
+      name: "VotingEscrow",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VotingEscrow>;
 
     // default types
     getContractFactory(
