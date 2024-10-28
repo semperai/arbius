@@ -19,6 +19,14 @@ const models = [
     cid: Config.models.kandinsky2.params.cid,
     contracts: Config.models.kandinsky2.contracts,
   },
+  {
+    name: 'Stable Video Diffusion',
+    role: 'Image to Video Generation',
+    description: 'Takes in a still image as a conditioning frame, and generates a video from it',
+    imageUrl: '/models/stable_video_diffusion.jpg',
+    cid: Config.models.stable_video_diffusion.params.cid,
+    contracts: Config.models.stable_video_diffusion.contracts,
+  },
   /*
   {
     name: 'Anything V3',

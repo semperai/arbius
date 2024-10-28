@@ -5,10 +5,12 @@ import Config from '@/config.json';
 // import AnythingV3Template from '@/templates/anythingv3.json';
 // import ZeroscopeTemplate from '@/templates/zeroscopev2xl.json';
 import Kandinsky2Template from '@/templates/kandinsky2.json';
+import StableVideoDiffusionTemplate from '@/templates/stable_video_diffusion.json';
 
 
 export const models = [
   [Config.models.kandinsky2.id, 'Kandinsky2'],
+  [Config.models.stable_video_diffusion.id, 'stable_video_diffusion'],
 //  [Config.models.anythingv3.id, 'AnythingV3'],
 // [Config.models.zeroscopev2xl.id, 'Zeroscope V2 XL'],
 ];
@@ -19,6 +21,8 @@ export function getModelTemplate(modelid: string): any {
     //  return AnythingV3Template;
     // case Config.models.zeroscopev2xl.id:
     //   return ZeroscopeTemplate;
+    case Config.models.stable_video_diffusion.id:
+      return StableVideoDiffusionTemplate;
     case Config.models.kandinsky2.id:
       return Kandinsky2Template;
   }
