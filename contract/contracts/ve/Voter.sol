@@ -48,8 +48,8 @@ contract Voter is IVoter, Ownable {
 
     /* ========== MODIFIERS ========== */
 
+    /// @dev ensure new epoch since last vote
     modifier onlyNewEpoch(uint256 _tokenId) {
-        // ensure new epoch since last vote
         require(
             (block.timestamp / DURATION) * DURATION > lastVoted[_tokenId],
             "only new epoch"
@@ -182,6 +182,8 @@ contract Voter is IVoter, Ownable {
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
+    /// @notice Whitelist a model
+    /// @param _model Model to whitelist
     function whitelist(bytes32 _model) external onlyOwner {
         require(!isWhitelisted[_model], "whitelisted");
         isWhitelisted[_model] = true;
@@ -210,14 +212,18 @@ contract Voter is IVoter, Ownable {
 
     /* ========== VIEWS ========== */
 
+    /// @notice Returns the amount of models a gauge was created for
     function length() external view returns (uint) {
         return models.length;
     }
 
+    /// @notice Returns the end date of the current epoch (unix timestamp)
     function epochVoteEnd() external view returns (uint256) {
         return ((block.timestamp / DURATION) * DURATION) + DURATION;
     }
 
+    /// @notice Returns the multiplier for reward emissions
+    /// @dev The maximum multiplier, if a gauge receives 100% of all votes, is 1e18
     function getGaugeMultiplier(
         bytes32 _model
     ) external view returns (uint256) {
