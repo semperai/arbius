@@ -2,23 +2,49 @@
 pragma solidity ^0.8.19;
 
 interface IVoter {
-    function _ve() external view returns (address);
+    function createGauge(bytes32 _model) external;
 
-    function governor() external view returns (address);
+    function epochVoteEnd() external view returns (uint256);
 
-    function emergencyCouncil() external view returns (address);
+    function getGaugeMultiplier(bytes32 _model) external view returns (uint256);
 
-    function attachTokenToGauge(uint _tokenId, address account) external;
+    function isAlive(bytes32) external view returns (bool);
 
-    function detachTokenFromGauge(uint _tokenId, address account) external;
+    function isGauge(bytes32) external view returns (bool);
 
-    function emitDeposit(uint _tokenId, address account, uint amount) external;
+    function isWhitelisted(bytes32) external view returns (bool);
 
-    function emitWithdraw(uint _tokenId, address account, uint amount) external;
+    function killGauge(bytes32 _model) external;
 
-    function isWhitelisted(address token) external view returns (bool);
+    function lastVoted(uint256) external view returns (uint256);
 
-    function notifyRewardAmount(uint amount) external;
+    function length() external view returns (uint256);
 
-    function distribute(address _gauge) external;
+    function modelVote(uint256, uint256) external view returns (bytes32);
+
+    function models(uint256) external view returns (bytes32);
+
+    function poke(uint256 _tokenId) external;
+
+    function reset(uint256 _tokenId) external;
+
+    function reviveGauge(bytes32 _model) external;
+
+    function totalWeight() external view returns (uint256);
+
+    function usedWeights(uint256) external view returns (uint256);
+
+    function vote(
+        uint256 tokenId,
+        bytes32[] memory _modelVote,
+        uint256[] memory _weights
+    ) external;
+
+    function votes(uint256, bytes32) external view returns (uint256);
+
+    function votingEscrow() external view returns (address);
+
+    function weights(bytes32) external view returns (uint256);
+
+    function whitelist(bytes32 _model) external;
 }
