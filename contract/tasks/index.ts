@@ -18,6 +18,39 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+task("info", "Gets all info about contract")
+.setAction(async ({}, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
+  const engine = await Engine.attach(Config.v4_engineAddress);
+
+  console.log("baseToken", await engine.baseToken());
+  console.log("treasury", await engine.treasury());
+  console.log("pauser", await engine.pauser());
+  console.log("paused", await engine.paused());
+  console.log("accruedFees", await engine.accruedFees());
+  console.log("prevhash", await engine.prevhash());
+  console.log("startBlockTime", await engine.startBlockTime());
+  console.log("version", await engine.version());
+  console.log("validatorMinimumPercentage", await engine.validatorMinimumPercentage());
+  console.log("slashAmountPercentage", await engine.slashAmountPercentage());
+  console.log("solutionFeePercentage", await engine.solutionFeePercentage());
+  console.log("retractionFeePercentage", await engine.retractionFeePercentage());
+  console.log("treasuryRewardPercentage", await engine.treasuryRewardPercentage());
+  console.log("minClaimSolutionTime", await engine.minClaimSolutionTime());
+  console.log("minRetractionWaitTime", await engine.minRetractionWaitTime());
+  console.log("minContestationVotePeriodTime", await engine.minContestationVotePeriodTime());
+  console.log("maxContestationValidatorStakeSince", await engine.maxContestationValidatorStakeSince());
+  console.log("exitValidatorMinUnlockTime", await engine.exitValidatorMinUnlockTime());
+  console.log("solutionsStakeAmount", await engine.solutionsStakeAmount());
+  console.log("totalHeld", await engine.totalHeld());
+  console.log("solutionRateLimit", await engine.solutionRateLimit());
+
+  console.log("taskOwnerRewardPercentage", await engine.taskOwnerRewardPercentage());
+  console.log("contestationVoteExtensionTime", await engine.contestationVoteExtensionTime());
+
+  console.log("veStaking", await engine.veStaking());
+  console.log("veRewards", await engine.veRewards());
+});
 
 
 task("bulk:submit", "Helper to submit multiple tasks at once")
