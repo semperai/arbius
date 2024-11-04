@@ -125,6 +125,7 @@ __pycache__
 #foundry test compilation files
 cache
 out
+cache_forge
 
 #foundry script run output files
 broadcast/

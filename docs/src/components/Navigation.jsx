@@ -190,6 +190,7 @@ export const navigation = [
       { title: 'Introduction', href: '/' },
       { title: 'Quickstart', href: '/quickstart' },
       { title: 'Register Model', href: '/register-model' },
+      { title: 'Model Tokens', href: '/model-tokens' },
       { title: 'Mining', href: '/mining' },
       { title: 'Tokenomics', href: '/tokenomics' },
       { title: 'Governance', href: '/governance' },

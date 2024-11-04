@@ -1,0 +1,2516 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x5080a6A0F0b0E21A895841456e5Ed77d26332262",
+    "txHash": "0x2e805649ec932dd033f89282c04290ee6f73110975d809a2bf46175c8ee1a5b4"
+  },
+  "proxies": [
+    {
+      "address": "0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66",
+      "txHash": "0xcc3975fd25e9cb0850be521cb6b1276cadb6d7315c8cf896daceb0fb1dad0e20",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "e2f472983c208e36aa51c8b249871369cfe12379b3a73b42836f7faf8b4d37e4": {
+      "address": "0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852",
+      "txHash": "0xf16ad996bc7c93a75f1e6d61dd3af00ed88fdcff267aa10a7ebd123640995426",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "baseToken",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IBaseToken)47048",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:70"
+          },
+          {
+            "label": "treasury",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:72"
+          },
+          {
+            "label": "pauser",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:74"
+          },
+          {
+            "label": "paused",
+            "offset": 20,
+            "slot": "103",
+            "type": "t_bool",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:76"
+          },
+          {
+            "label": "accruedFees",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:78"
+          },
+          {
+            "label": "prevhash",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_bytes32",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:80"
+          },
+          {
+            "label": "startBlockTime",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_uint64",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:82"
+          },
+          {
+            "label": "version",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:84"
+          },
+          {
+            "label": "validatorMinimumPercentage",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:86"
+          },
+          {
+            "label": "slashAmountPercentage",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:88"
+          },
+          {
+            "label": "solutionFeePercentage",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:90"
+          },
+          {
+            "label": "retractionFeePercentage",
+            "offset": 0,
+            "slot": "111",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:92"
+          },
+          {
+            "label": "treasuryRewardPercentage",
+            "offset": 0,
+            "slot": "112",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:94"
+          },
+          {
+            "label": "minClaimSolutionTime",
+            "offset": 0,
+            "slot": "113",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:96"
+          },
+          {
+            "label": "minRetractionWaitTime",
+            "offset": 0,
+            "slot": "114",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:98"
+          },
+          {
+            "label": "minContestationVotePeriodTime",
+            "offset": 0,
+            "slot": "115",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:100"
+          },
+          {
+            "label": "maxContestationValidatorStakeSince",
+            "offset": 0,
+            "slot": "116",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:101"
+          },
+          {
+            "label": "exitValidatorMinUnlockTime",
+            "offset": 0,
+            "slot": "117",
+            "type": "t_uint256",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:103"
+          },
+          {
+            "label": "models",
+            "offset": 0,
+            "slot": "118",
+            "type": "t_mapping(t_bytes32,t_struct(Model)31478_storage)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:106"
+          },
+          {
+            "label": "validators",
+            "offset": 0,
+            "slot": "119",
+            "type": "t_mapping(t_address,t_struct(Validator)31485_storage)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:108"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequestsCount",
+            "offset": 0,
+            "slot": "120",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:111"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequests",
+            "offset": 0,
+            "slot": "121",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)31490_storage))",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:114"
+          },
+          {
+            "label": "validatorWithdrawPendingAmount",
+            "offset": 0,
+            "slot": "122",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:119"
+          },
+          {
+            "label": "tasks",
+            "offset": 0,
+            "slot": "123",
+            "type": "t_mapping(t_bytes32,t_struct(Task)31503_storage)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:122"
+          },
+          {
+            "label": "commitments",
+            "offset": 0,
+            "slot": "124",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:126"
+          },
+          {
+            "label": "solutions",
+            "offset": 0,
+            "slot": "125",
+            "type": "t_mapping(t_bytes32,t_struct(Solution)31512_storage)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:129"
+          },
+          {
+            "label": "contestations",
+            "offset": 0,
+            "slot": "126",
+            "type": "t_mapping(t_bytes32,t_struct(Contestation)31521_storage)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:132"
+          },
+          {
+            "label": "contestationVoted",
+            "offset": 0,
+            "slot": "127",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_bool))",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:134"
+          },
+          {
+            "label": "contestationVotedIndex",
+            "offset": 0,
+            "slot": "128",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:135"
+          },
+          {
+            "label": "contestationVoteYeas",
+            "offset": 0,
+            "slot": "129",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:136"
+          },
+          {
+            "label": "contestationVoteNays",
+            "offset": 0,
+            "slot": "130",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:137"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "131",
+            "type": "t_array(t_uint256)48_storage",
+            "contract": "V2_EngineV1",
+            "src": "contracts/V2_EngineV1.sol:139"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)48_storage": {
+            "label": "uint256[48]",
+            "numberOfBytes": "1536"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_bytes_storage": {
+            "label": "bytes",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBaseToken)47048": {
+            "label": "contract IBaseToken",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)31490_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct PendingValidatorWithdrawRequest))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Validator)31485_storage)": {
+            "label": "mapping(address => struct Validator)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_array(t_address)dyn_storage)": {
+            "label": "mapping(bytes32 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_mapping(t_address,t_bool))": {
+            "label": "mapping(bytes32 => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Contestation)31521_storage)": {
+            "label": "mapping(bytes32 => struct Contestation)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Model)31478_storage)": {
+            "label": "mapping(bytes32 => struct Model)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Solution)31512_storage)": {
+            "label": "mapping(bytes32 => struct Solution)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Task)31503_storage)": {
+            "label": "mapping(bytes32 => struct Task)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)31490_storage)": {
+            "label": "mapping(uint256 => struct PendingValidatorWithdrawRequest)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Contestation)31521_storage": {
+            "label": "struct Contestation",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "finish_start_index",
+                "type": "t_uint32",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "slashAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Model)31478_storage": {
+            "label": "struct Model",
+            "members": [
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(PendingValidatorWithdrawRequest)31490_storage": {
+            "label": "struct PendingValidatorWithdrawRequest",
+            "members": [
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Solution)31512_storage": {
+            "label": "struct Solution",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "claimed",
+                "type": "t_bool",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Task)31503_storage": {
+            "label": "struct Task",
+            "members": [
+              {
+                "label": "model",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "2"
+              },
+              {
+                "label": "version",
+                "type": "t_uint8",
+                "offset": 28,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(Validator)31485_storage": {
+            "label": "struct Validator",
+            "members": [
+              {
+                "label": "staked",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "since",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "82b9892b2a85ef0d127bb1aa2b91e7699ce6b1935549003d69a3fa26129efb5c": {
+      "address": "0x3BF6050327Fa280Ee1B5F3e8Fd5EA2EfE8A6472a",
+      "txHash": "0x9d04c600884a37cee0f7953de28cc7edeec88d194c613a0c22768d6d784fd422",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "baseToken",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IBaseToken)47048",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:70"
+          },
+          {
+            "label": "treasury",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:72"
+          },
+          {
+            "label": "pauser",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:74"
+          },
+          {
+            "label": "paused",
+            "offset": 20,
+            "slot": "103",
+            "type": "t_bool",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:76"
+          },
+          {
+            "label": "accruedFees",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:78"
+          },
+          {
+            "label": "prevhash",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_bytes32",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:80"
+          },
+          {
+            "label": "startBlockTime",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_uint64",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:82"
+          },
+          {
+            "label": "version",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:84"
+          },
+          {
+            "label": "validatorMinimumPercentage",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:86"
+          },
+          {
+            "label": "slashAmountPercentage",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:88"
+          },
+          {
+            "label": "solutionFeePercentage",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:90"
+          },
+          {
+            "label": "retractionFeePercentage",
+            "offset": 0,
+            "slot": "111",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:92"
+          },
+          {
+            "label": "treasuryRewardPercentage",
+            "offset": 0,
+            "slot": "112",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:94"
+          },
+          {
+            "label": "minClaimSolutionTime",
+            "offset": 0,
+            "slot": "113",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:96"
+          },
+          {
+            "label": "minRetractionWaitTime",
+            "offset": 0,
+            "slot": "114",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:98"
+          },
+          {
+            "label": "minContestationVotePeriodTime",
+            "offset": 0,
+            "slot": "115",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:100"
+          },
+          {
+            "label": "maxContestationValidatorStakeSince",
+            "offset": 0,
+            "slot": "116",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:101"
+          },
+          {
+            "label": "exitValidatorMinUnlockTime",
+            "offset": 0,
+            "slot": "117",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:103"
+          },
+          {
+            "label": "models",
+            "offset": 0,
+            "slot": "118",
+            "type": "t_mapping(t_bytes32,t_struct(Model)34319_storage)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:106"
+          },
+          {
+            "label": "validators",
+            "offset": 0,
+            "slot": "119",
+            "type": "t_mapping(t_address,t_struct(Validator)34326_storage)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:108"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequestsCount",
+            "offset": 0,
+            "slot": "120",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:111"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequests",
+            "offset": 0,
+            "slot": "121",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)34331_storage))",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:114"
+          },
+          {
+            "label": "validatorWithdrawPendingAmount",
+            "offset": 0,
+            "slot": "122",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:119"
+          },
+          {
+            "label": "tasks",
+            "offset": 0,
+            "slot": "123",
+            "type": "t_mapping(t_bytes32,t_struct(Task)34344_storage)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:122"
+          },
+          {
+            "label": "commitments",
+            "offset": 0,
+            "slot": "124",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:126"
+          },
+          {
+            "label": "solutions",
+            "offset": 0,
+            "slot": "125",
+            "type": "t_mapping(t_bytes32,t_struct(Solution)34353_storage)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:129"
+          },
+          {
+            "label": "contestations",
+            "offset": 0,
+            "slot": "126",
+            "type": "t_mapping(t_bytes32,t_struct(Contestation)34362_storage)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:132"
+          },
+          {
+            "label": "contestationVoted",
+            "offset": 0,
+            "slot": "127",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_bool))",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:134"
+          },
+          {
+            "label": "contestationVotedIndex",
+            "offset": 0,
+            "slot": "128",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:135"
+          },
+          {
+            "label": "contestationVoteYeas",
+            "offset": 0,
+            "slot": "129",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:136"
+          },
+          {
+            "label": "contestationVoteNays",
+            "offset": 0,
+            "slot": "130",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:137"
+          },
+          {
+            "label": "solutionsStake",
+            "offset": 0,
+            "slot": "131",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:139"
+          },
+          {
+            "label": "solutionsStakeAmount",
+            "offset": 0,
+            "slot": "132",
+            "type": "t_uint256",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:140"
+          },
+          {
+            "label": "lastContestationLossTime",
+            "offset": 0,
+            "slot": "133",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:141"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "134",
+            "type": "t_array(t_uint256)45_storage",
+            "contract": "V2_EngineV2",
+            "src": "contracts/V2_EngineV2.sol:143"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)45_storage": {
+            "label": "uint256[45]",
+            "numberOfBytes": "1440"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_bytes_storage": {
+            "label": "bytes",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBaseToken)47048": {
+            "label": "contract IBaseToken",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)34331_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct PendingValidatorWithdrawRequest))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Validator)34326_storage)": {
+            "label": "mapping(address => struct Validator)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_array(t_address)dyn_storage)": {
+            "label": "mapping(bytes32 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_mapping(t_address,t_bool))": {
+            "label": "mapping(bytes32 => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Contestation)34362_storage)": {
+            "label": "mapping(bytes32 => struct Contestation)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Model)34319_storage)": {
+            "label": "mapping(bytes32 => struct Model)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Solution)34353_storage)": {
+            "label": "mapping(bytes32 => struct Solution)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Task)34344_storage)": {
+            "label": "mapping(bytes32 => struct Task)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)34331_storage)": {
+            "label": "mapping(uint256 => struct PendingValidatorWithdrawRequest)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Contestation)34362_storage": {
+            "label": "struct Contestation",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "finish_start_index",
+                "type": "t_uint32",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "slashAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Model)34319_storage": {
+            "label": "struct Model",
+            "members": [
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(PendingValidatorWithdrawRequest)34331_storage": {
+            "label": "struct PendingValidatorWithdrawRequest",
+            "members": [
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Solution)34353_storage": {
+            "label": "struct Solution",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "claimed",
+                "type": "t_bool",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Task)34344_storage": {
+            "label": "struct Task",
+            "members": [
+              {
+                "label": "model",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "2"
+              },
+              {
+                "label": "version",
+                "type": "t_uint8",
+                "offset": 28,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(Validator)34326_storage": {
+            "label": "struct Validator",
+            "members": [
+              {
+                "label": "staked",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "since",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "e495d3fc1116426addf80f5d3327fa0b6965d758d6e844c1c9aef53c17e5b5c1": {
+      "address": "0xb2f35f2363089eb9850F8496bd52e2A02F0d68E3",
+      "txHash": "0xc525aaf7f6e69a11f8dd417e668bc41491bbf282d1be3849dc6b8ec707bede15",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "baseToken",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IBaseToken)47048",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:66"
+          },
+          {
+            "label": "treasury",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:68"
+          },
+          {
+            "label": "pauser",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:70"
+          },
+          {
+            "label": "paused",
+            "offset": 20,
+            "slot": "103",
+            "type": "t_bool",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:72"
+          },
+          {
+            "label": "accruedFees",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:74"
+          },
+          {
+            "label": "prevhash",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_bytes32",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:76"
+          },
+          {
+            "label": "startBlockTime",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_uint64",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:78"
+          },
+          {
+            "label": "version",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:80"
+          },
+          {
+            "label": "validatorMinimumPercentage",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:82"
+          },
+          {
+            "label": "slashAmountPercentage",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:84"
+          },
+          {
+            "label": "solutionFeePercentage",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:86"
+          },
+          {
+            "label": "retractionFeePercentage",
+            "offset": 0,
+            "slot": "111",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:88"
+          },
+          {
+            "label": "treasuryRewardPercentage",
+            "offset": 0,
+            "slot": "112",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:90"
+          },
+          {
+            "label": "minClaimSolutionTime",
+            "offset": 0,
+            "slot": "113",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:92"
+          },
+          {
+            "label": "minRetractionWaitTime",
+            "offset": 0,
+            "slot": "114",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:94"
+          },
+          {
+            "label": "minContestationVotePeriodTime",
+            "offset": 0,
+            "slot": "115",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:96"
+          },
+          {
+            "label": "maxContestationValidatorStakeSince",
+            "offset": 0,
+            "slot": "116",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:97"
+          },
+          {
+            "label": "exitValidatorMinUnlockTime",
+            "offset": 0,
+            "slot": "117",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:99"
+          },
+          {
+            "label": "models",
+            "offset": 0,
+            "slot": "118",
+            "type": "t_mapping(t_bytes32,t_struct(Model)37278_storage)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:102"
+          },
+          {
+            "label": "validators",
+            "offset": 0,
+            "slot": "119",
+            "type": "t_mapping(t_address,t_struct(Validator)37285_storage)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:104"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequestsCount",
+            "offset": 0,
+            "slot": "120",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:107"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequests",
+            "offset": 0,
+            "slot": "121",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)37290_storage))",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:110"
+          },
+          {
+            "label": "validatorWithdrawPendingAmount",
+            "offset": 0,
+            "slot": "122",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:115"
+          },
+          {
+            "label": "tasks",
+            "offset": 0,
+            "slot": "123",
+            "type": "t_mapping(t_bytes32,t_struct(Task)37303_storage)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:118"
+          },
+          {
+            "label": "commitments",
+            "offset": 0,
+            "slot": "124",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:122"
+          },
+          {
+            "label": "solutions",
+            "offset": 0,
+            "slot": "125",
+            "type": "t_mapping(t_bytes32,t_struct(Solution)37312_storage)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:125"
+          },
+          {
+            "label": "contestations",
+            "offset": 0,
+            "slot": "126",
+            "type": "t_mapping(t_bytes32,t_struct(Contestation)37321_storage)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:128"
+          },
+          {
+            "label": "contestationVoted",
+            "offset": 0,
+            "slot": "127",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_bool))",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:130"
+          },
+          {
+            "label": "contestationVotedIndex",
+            "offset": 0,
+            "slot": "128",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:131"
+          },
+          {
+            "label": "contestationVoteYeas",
+            "offset": 0,
+            "slot": "129",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:132"
+          },
+          {
+            "label": "contestationVoteNays",
+            "offset": 0,
+            "slot": "130",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:133"
+          },
+          {
+            "label": "solutionsStake",
+            "offset": 0,
+            "slot": "131",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:135"
+          },
+          {
+            "label": "solutionsStakeAmount",
+            "offset": 0,
+            "slot": "132",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:136"
+          },
+          {
+            "label": "lastContestationLossTime",
+            "offset": 0,
+            "slot": "133",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:137"
+          },
+          {
+            "label": "totalHeld",
+            "offset": 0,
+            "slot": "134",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:139"
+          },
+          {
+            "label": "solutionRateLimit",
+            "offset": 0,
+            "slot": "135",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:140"
+          },
+          {
+            "label": "lastSolutionSubmission",
+            "offset": 0,
+            "slot": "136",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:141"
+          },
+          {
+            "label": "taskOwnerRewardPercentage",
+            "offset": 0,
+            "slot": "137",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:142"
+          },
+          {
+            "label": "contestationVoteExtensionTime",
+            "offset": 0,
+            "slot": "138",
+            "type": "t_uint256",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:143"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "139",
+            "type": "t_array(t_uint256)40_storage",
+            "contract": "V2_EngineV3",
+            "src": "contracts/V2_EngineV3.sol:145"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)40_storage": {
+            "label": "uint256[40]",
+            "numberOfBytes": "1280"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_bytes_storage": {
+            "label": "bytes",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBaseToken)47048": {
+            "label": "contract IBaseToken",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)37290_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct PendingValidatorWithdrawRequest))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Validator)37285_storage)": {
+            "label": "mapping(address => struct Validator)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_array(t_address)dyn_storage)": {
+            "label": "mapping(bytes32 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_mapping(t_address,t_bool))": {
+            "label": "mapping(bytes32 => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Contestation)37321_storage)": {
+            "label": "mapping(bytes32 => struct Contestation)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Model)37278_storage)": {
+            "label": "mapping(bytes32 => struct Model)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Solution)37312_storage)": {
+            "label": "mapping(bytes32 => struct Solution)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Task)37303_storage)": {
+            "label": "mapping(bytes32 => struct Task)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)37290_storage)": {
+            "label": "mapping(uint256 => struct PendingValidatorWithdrawRequest)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Contestation)37321_storage": {
+            "label": "struct Contestation",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "finish_start_index",
+                "type": "t_uint32",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "slashAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Model)37278_storage": {
+            "label": "struct Model",
+            "members": [
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(PendingValidatorWithdrawRequest)37290_storage": {
+            "label": "struct PendingValidatorWithdrawRequest",
+            "members": [
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Solution)37312_storage": {
+            "label": "struct Solution",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "claimed",
+                "type": "t_bool",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Task)37303_storage": {
+            "label": "struct Task",
+            "members": [
+              {
+                "label": "model",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "2"
+              },
+              {
+                "label": "version",
+                "type": "t_uint8",
+                "offset": 28,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(Validator)37285_storage": {
+            "label": "struct Validator",
+            "members": [
+              {
+                "label": "staked",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "since",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    },
+    "4a6e47fd4d35d2604709bcb8fc34f34cfdd74c6e2fe183ded67384fc160d7351": {
+      "address": "0x417d1ba48017839fb869dd90dCB9b1988E1BbDA4",
+      "txHash": "0x2c21eee910db9fde0935c7f2e428a94fef38aa5d71c27cba53d507116d1eb5a1",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:40"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "baseToken",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IBaseToken)10891",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:66"
+          },
+          {
+            "label": "treasury",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_address",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:69"
+          },
+          {
+            "label": "pauser",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_address",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:72"
+          },
+          {
+            "label": "paused",
+            "offset": 20,
+            "slot": "103",
+            "type": "t_bool",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:74"
+          },
+          {
+            "label": "accruedFees",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:77"
+          },
+          {
+            "label": "prevhash",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_bytes32",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:79"
+          },
+          {
+            "label": "startBlockTime",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_uint64",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:81"
+          },
+          {
+            "label": "version",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:83"
+          },
+          {
+            "label": "validatorMinimumPercentage",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:86"
+          },
+          {
+            "label": "slashAmountPercentage",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:88"
+          },
+          {
+            "label": "solutionFeePercentage",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:90"
+          },
+          {
+            "label": "retractionFeePercentage",
+            "offset": 0,
+            "slot": "111",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:92"
+          },
+          {
+            "label": "treasuryRewardPercentage",
+            "offset": 0,
+            "slot": "112",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:94"
+          },
+          {
+            "label": "minClaimSolutionTime",
+            "offset": 0,
+            "slot": "113",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:97"
+          },
+          {
+            "label": "minRetractionWaitTime",
+            "offset": 0,
+            "slot": "114",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:99"
+          },
+          {
+            "label": "minContestationVotePeriodTime",
+            "offset": 0,
+            "slot": "115",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:101"
+          },
+          {
+            "label": "maxContestationValidatorStakeSince",
+            "offset": 0,
+            "slot": "116",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:103"
+          },
+          {
+            "label": "exitValidatorMinUnlockTime",
+            "offset": 0,
+            "slot": "117",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:105"
+          },
+          {
+            "label": "models",
+            "offset": 0,
+            "slot": "118",
+            "type": "t_mapping(t_bytes32,t_struct(Model)7857_storage)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:108"
+          },
+          {
+            "label": "validators",
+            "offset": 0,
+            "slot": "119",
+            "type": "t_mapping(t_address,t_struct(Validator)7864_storage)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:111"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequestsCount",
+            "offset": 0,
+            "slot": "120",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:114"
+          },
+          {
+            "label": "pendingValidatorWithdrawRequests",
+            "offset": 0,
+            "slot": "121",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)7869_storage))",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:117"
+          },
+          {
+            "label": "validatorWithdrawPendingAmount",
+            "offset": 0,
+            "slot": "122",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:122"
+          },
+          {
+            "label": "tasks",
+            "offset": 0,
+            "slot": "123",
+            "type": "t_mapping(t_bytes32,t_struct(Task)7882_storage)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:125"
+          },
+          {
+            "label": "commitments",
+            "offset": 0,
+            "slot": "124",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:129"
+          },
+          {
+            "label": "solutions",
+            "offset": 0,
+            "slot": "125",
+            "type": "t_mapping(t_bytes32,t_struct(Solution)7891_storage)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:132"
+          },
+          {
+            "label": "contestations",
+            "offset": 0,
+            "slot": "126",
+            "type": "t_mapping(t_bytes32,t_struct(Contestation)7900_storage)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:135"
+          },
+          {
+            "label": "contestationVoted",
+            "offset": 0,
+            "slot": "127",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_bool))",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:137"
+          },
+          {
+            "label": "contestationVotedIndex",
+            "offset": 0,
+            "slot": "128",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:138"
+          },
+          {
+            "label": "contestationVoteYeas",
+            "offset": 0,
+            "slot": "129",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:139"
+          },
+          {
+            "label": "contestationVoteNays",
+            "offset": 0,
+            "slot": "130",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:140"
+          },
+          {
+            "label": "solutionsStake",
+            "offset": 0,
+            "slot": "131",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:142"
+          },
+          {
+            "label": "solutionsStakeAmount",
+            "offset": 0,
+            "slot": "132",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:143"
+          },
+          {
+            "label": "lastContestationLossTime",
+            "offset": 0,
+            "slot": "133",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:144"
+          },
+          {
+            "label": "totalHeld",
+            "offset": 0,
+            "slot": "134",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:146"
+          },
+          {
+            "label": "solutionRateLimit",
+            "offset": 0,
+            "slot": "135",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:147"
+          },
+          {
+            "label": "lastSolutionSubmission",
+            "offset": 0,
+            "slot": "136",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:148"
+          },
+          {
+            "label": "taskOwnerRewardPercentage",
+            "offset": 0,
+            "slot": "137",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:149"
+          },
+          {
+            "label": "contestationVoteExtensionTime",
+            "offset": 0,
+            "slot": "138",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:150"
+          },
+          {
+            "label": "veStaking",
+            "offset": 0,
+            "slot": "139",
+            "type": "t_address",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:152"
+          },
+          {
+            "label": "veRewards",
+            "offset": 0,
+            "slot": "140",
+            "type": "t_uint256",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:153"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "141",
+            "type": "t_array(t_uint256)38_storage",
+            "contract": "V2_EngineV4",
+            "src": "contracts/V2_EngineV4.sol:155"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)38_storage": {
+            "label": "uint256[38]",
+            "numberOfBytes": "1216"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_bytes_storage": {
+            "label": "bytes",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IBaseToken)10891": {
+            "label": "contract IBaseToken",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)7869_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct PendingValidatorWithdrawRequest))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Validator)7864_storage)": {
+            "label": "mapping(address => struct Validator)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_array(t_address)dyn_storage)": {
+            "label": "mapping(bytes32 => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_mapping(t_address,t_bool))": {
+            "label": "mapping(bytes32 => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Contestation)7900_storage)": {
+            "label": "mapping(bytes32 => struct Contestation)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Model)7857_storage)": {
+            "label": "mapping(bytes32 => struct Model)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Solution)7891_storage)": {
+            "label": "mapping(bytes32 => struct Solution)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(Task)7882_storage)": {
+            "label": "mapping(bytes32 => struct Task)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(PendingValidatorWithdrawRequest)7869_storage)": {
+            "label": "mapping(uint256 => struct PendingValidatorWithdrawRequest)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Contestation)7900_storage": {
+            "label": "struct Contestation",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "finish_start_index",
+                "type": "t_uint32",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "slashAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Model)7857_storage": {
+            "label": "struct Model",
+            "members": [
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(PendingValidatorWithdrawRequest)7869_storage": {
+            "label": "struct PendingValidatorWithdrawRequest",
+            "members": [
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Solution)7891_storage": {
+            "label": "struct Solution",
+            "members": [
+              {
+                "label": "validator",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "claimed",
+                "type": "t_bool",
+                "offset": 28,
+                "slot": "0"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Task)7882_storage": {
+            "label": "struct Task",
+            "members": [
+              {
+                "label": "model",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "fee",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "blocktime",
+                "type": "t_uint64",
+                "offset": 20,
+                "slot": "2"
+              },
+              {
+                "label": "version",
+                "type": "t_uint8",
+                "offset": 28,
+                "slot": "2"
+              },
+              {
+                "label": "cid",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(Validator)7864_storage": {
+            "label": "struct Validator",
+            "members": [
+              {
+                "label": "staked",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "since",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "addr",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    }
+  }
+}
