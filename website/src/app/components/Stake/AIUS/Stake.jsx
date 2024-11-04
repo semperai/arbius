@@ -407,7 +407,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-stake lato-bold text-[18px]">Amount to lock</p>
-                            <p className="text-available lato-regular text-[15px]">Available {Number(walletBalance)?.toFixed(4).toString()} AIUS</p>
+                            <p className="text-available lato-regular text-[15px]">Available {Number(walletBalance)?.toFixed(2).toString()} AIUS</p>
                         </div>
                         <div>
                             <div className="border border-[#2F2F2F] rounded-3xl flex items-center">

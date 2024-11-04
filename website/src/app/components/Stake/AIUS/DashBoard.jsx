@@ -325,7 +325,7 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
                                 </div>
                                 <div>
                                     <h2 className="text-[14px]  text-aius-tabs-gray font-semibold">Total Supply</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{protocolData?.data?.AIUS?.total_supply.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>1,000,000<span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                             </div>
                             <div className='flex flex-col gap-8  justify-center items-start'>
