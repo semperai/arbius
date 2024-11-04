@@ -49,7 +49,7 @@ export default function Footer() {
         {
             id: "5",
             name: "veAIUS",
-            link: "/stake/aius"
+            link: "/aius"
         },
         {
             id: "6",

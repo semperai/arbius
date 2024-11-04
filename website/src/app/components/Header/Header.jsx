@@ -10,7 +10,6 @@ import gysr from "../../assets/images/gysr_logo_without_name.png";
 import kandinsky from "../../assets/images/kandinsky.png";
 
 import Image from "next/image";
-// import { useRouter } from 'next/router';
 import { usePathname, useRouter } from "next/navigation";
 import AnimateHeight from "react-animate-height";
 import Link from "next/link";
@@ -116,7 +115,7 @@ export default function Header() {
 
             <div className="link-with-image relative group w-[auto]">
               <div
-                className={`link lg:block ${activeLink == 'stake/aius' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
+                className={`link lg:block ${activeLink == 'aius' ? '!text-purple-text' : 'hover:!text-purple-text'}`}
                 onClick={() => setStakingOpen(!stakingOpen)}
               >
                 Staking
@@ -136,10 +135,10 @@ export default function Header() {
               <AnimateHeight height={stakingOpen ? "auto" : 0}>
                 <div className="lg:staking lg:translate-x-[-30%] lg:translate-y-[25px] lg:hidden lg:group-hover:flex ">
                   <Link
-                    href={
-                      "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
-                    }
-                    target="_blank"
+                    href={"https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"}
+                    onClick={() => {
+                      setHeaderOpen(!headerOpen)
+                    }}
                   >
 
                     <div className="staking-block relative">
@@ -156,7 +155,7 @@ export default function Header() {
                     </div>
                   </Link>
                   <Link
-                    href={"/stake/aius"}
+                    href={"/aius"}
                     onClick={() => {
                       setHeaderOpen(!headerOpen)
                     }}
