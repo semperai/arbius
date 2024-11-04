@@ -465,6 +465,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VeStaking__factory>;
     getContractFactory(
+      name: "Voter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Voter__factory>;
+    getContractFactory(
       name: "VotingEscrow",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VotingEscrow__factory>;
@@ -1034,6 +1038,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.VeStaking>;
+    getContractAt(
+      name: "Voter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Voter>;
     getContractAt(
       name: "VotingEscrow",
       address: string,

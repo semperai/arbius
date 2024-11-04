@@ -112,6 +112,7 @@ export type { V2EngineV3 } from "./V2EngineV3";
 export type { V2EngineV4 } from "./V2EngineV4";
 export type { VeNFTRender } from "./VeNFTRender";
 export type { VeStaking } from "./VeStaking";
+export type { Voter } from "./Voter";
 export type { VotingEscrow } from "./VotingEscrow";
 
 export { ArbSys__factory } from "./factories/ArbSys__factory";
@@ -225,4 +226,5 @@ export { V2EngineV3__factory } from "./factories/V2EngineV3__factory";
 export { V2EngineV4__factory } from "./factories/V2EngineV4__factory";
 export { VeNFTRender__factory } from "./factories/VeNFTRender__factory";
 export { VeStaking__factory } from "./factories/VeStaking__factory";
+export { Voter__factory } from "./factories/Voter__factory";
 export { VotingEscrow__factory } from "./factories/VotingEscrow__factory";

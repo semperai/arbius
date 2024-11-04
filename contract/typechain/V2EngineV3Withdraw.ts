@@ -135,7 +135,7 @@ export interface V2EngineV3WithdrawInterface extends utils.Interface {
     "voteOnContestation(bytes32,bool)": FunctionFragment;
     "votingPeriodEnded(bytes32)": FunctionFragment;
     "withdrawAccruedFees()": FunctionFragment;
-    "withdrawAiusToOwner()": FunctionFragment;
+    "withdrawAiusToTreasury()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -415,7 +415,7 @@ export interface V2EngineV3WithdrawInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawAiusToOwner",
+    functionFragment: "withdrawAiusToTreasury",
     values?: undefined
   ): string;
 
@@ -662,7 +662,7 @@ export interface V2EngineV3WithdrawInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawAiusToOwner",
+    functionFragment: "withdrawAiusToTreasury",
     data: BytesLike
   ): Result;
 
@@ -1246,7 +1246,7 @@ export interface V2EngineV3Withdraw extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    withdrawAiusToOwner(
+    withdrawAiusToTreasury(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1613,7 +1613,7 @@ export interface V2EngineV3Withdraw extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  withdrawAiusToOwner(
+  withdrawAiusToTreasury(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1963,7 +1963,7 @@ export interface V2EngineV3Withdraw extends BaseContract {
 
     withdrawAccruedFees(overrides?: CallOverrides): Promise<void>;
 
-    withdrawAiusToOwner(overrides?: CallOverrides): Promise<void>;
+    withdrawAiusToTreasury(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -2451,7 +2451,7 @@ export interface V2EngineV3Withdraw extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    withdrawAiusToOwner(
+    withdrawAiusToTreasury(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -2815,7 +2815,7 @@ export interface V2EngineV3Withdraw extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    withdrawAiusToOwner(
+    withdrawAiusToTreasury(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -13,11 +13,11 @@ import {
   Signer,
   utils,
 } from "ethers";
-import { FunctionFragment, Result } from "@ethersproject/abi";
+import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface IVoterInterface extends utils.Interface {
+export interface VoterInterface extends utils.Interface {
   functions: {
     "createGauge(bytes32)": FunctionFragment;
     "epochVoteEnd()": FunctionFragment;
@@ -30,10 +30,13 @@ export interface IVoterInterface extends utils.Interface {
     "length()": FunctionFragment;
     "modelVote(uint256,uint256)": FunctionFragment;
     "models(uint256)": FunctionFragment;
+    "owner()": FunctionFragment;
     "poke(uint256)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "reset(uint256)": FunctionFragment;
     "reviveGauge(bytes32)": FunctionFragment;
     "totalWeight()": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
     "usedWeights(uint256)": FunctionFragment;
     "vote(uint256,bytes32[],uint256[])": FunctionFragment;
     "votes(uint256,bytes32)": FunctionFragment;
@@ -77,7 +80,12 @@ export interface IVoterInterface extends utils.Interface {
     functionFragment: "models",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "poke", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "reset", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "reviveGauge",
@@ -86,6 +94,10 @@ export interface IVoterInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "totalWeight",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "usedWeights",
@@ -132,7 +144,12 @@ export interface IVoterInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "length", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "modelVote", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "models", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "poke", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "reset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reviveGauge",
@@ -140,6 +157,10 @@ export interface IVoterInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "totalWeight",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -155,15 +176,75 @@ export interface IVoterInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "weights", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "whitelist", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "Abstained(uint256,uint256)": EventFragment;
+    "GaugeCreated(address,bytes32)": EventFragment;
+    "GaugeKilled(bytes32)": EventFragment;
+    "GaugeRevived(bytes32)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
+    "Voted(address,uint256,bytes32,uint256)": EventFragment;
+    "Whitelisted(address,bytes32)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Abstained"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GaugeCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GaugeKilled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GaugeRevived"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Voted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Whitelisted"): EventFragment;
 }
 
-export interface IVoter extends BaseContract {
+export type AbstainedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  { tokenId: BigNumber; weight: BigNumber }
+>;
+
+export type AbstainedEventFilter = TypedEventFilter<AbstainedEvent>;
+
+export type GaugeCreatedEvent = TypedEvent<
+  [string, string],
+  { creator: string; model: string }
+>;
+
+export type GaugeCreatedEventFilter = TypedEventFilter<GaugeCreatedEvent>;
+
+export type GaugeKilledEvent = TypedEvent<[string], { model: string }>;
+
+export type GaugeKilledEventFilter = TypedEventFilter<GaugeKilledEvent>;
+
+export type GaugeRevivedEvent = TypedEvent<[string], { model: string }>;
+
+export type GaugeRevivedEventFilter = TypedEventFilter<GaugeRevivedEvent>;
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  { previousOwner: string; newOwner: string }
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
+
+export type VotedEvent = TypedEvent<
+  [string, BigNumber, string, BigNumber],
+  { voter: string; tokenId: BigNumber; model: string; weight: BigNumber }
+>;
+
+export type VotedEventFilter = TypedEventFilter<VotedEvent>;
+
+export type WhitelistedEvent = TypedEvent<
+  [string, string],
+  { whitelister: string; model: string }
+>;
+
+export type WhitelistedEventFilter = TypedEventFilter<WhitelistedEvent>;
+
+export interface Voter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IVoterInterface;
+  interface: VoterInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -226,8 +307,14 @@ export interface IVoter extends BaseContract {
 
     models(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
 
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
     poke(
       _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -242,6 +329,11 @@ export interface IVoter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     totalWeight(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     usedWeights(
       arg0: BigNumberish,
@@ -306,8 +398,14 @@ export interface IVoter extends BaseContract {
 
   models(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
+  owner(overrides?: CallOverrides): Promise<string>;
+
   poke(
     _tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -322,6 +420,11 @@ export interface IVoter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
+
+  transferOwnership(
+    newOwner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   usedWeights(
     arg0: BigNumberish,
@@ -383,13 +486,22 @@ export interface IVoter extends BaseContract {
 
     models(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
+    owner(overrides?: CallOverrides): Promise<string>;
+
     poke(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     reset(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     reviveGauge(_model: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     usedWeights(
       arg0: BigNumberish,
@@ -416,7 +528,59 @@ export interface IVoter extends BaseContract {
     whitelist(_model: BytesLike, overrides?: CallOverrides): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "Abstained(uint256,uint256)"(
+      tokenId?: null,
+      weight?: null
+    ): AbstainedEventFilter;
+    Abstained(tokenId?: null, weight?: null): AbstainedEventFilter;
+
+    "GaugeCreated(address,bytes32)"(
+      creator?: null,
+      model?: BytesLike | null
+    ): GaugeCreatedEventFilter;
+    GaugeCreated(
+      creator?: null,
+      model?: BytesLike | null
+    ): GaugeCreatedEventFilter;
+
+    "GaugeKilled(bytes32)"(model?: BytesLike | null): GaugeKilledEventFilter;
+    GaugeKilled(model?: BytesLike | null): GaugeKilledEventFilter;
+
+    "GaugeRevived(bytes32)"(model?: BytesLike | null): GaugeRevivedEventFilter;
+    GaugeRevived(model?: BytesLike | null): GaugeRevivedEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): OwnershipTransferredEventFilter;
+
+    "Voted(address,uint256,bytes32,uint256)"(
+      voter?: string | null,
+      tokenId?: null,
+      model?: null,
+      weight?: null
+    ): VotedEventFilter;
+    Voted(
+      voter?: string | null,
+      tokenId?: null,
+      model?: null,
+      weight?: null
+    ): VotedEventFilter;
+
+    "Whitelisted(address,bytes32)"(
+      whitelister?: string | null,
+      model?: BytesLike | null
+    ): WhitelistedEventFilter;
+    Whitelisted(
+      whitelister?: string | null,
+      model?: BytesLike | null
+    ): WhitelistedEventFilter;
+  };
 
   estimateGas: {
     createGauge(
@@ -460,8 +624,14 @@ export interface IVoter extends BaseContract {
 
     models(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
     poke(
       _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -476,6 +646,11 @@ export interface IVoter extends BaseContract {
     ): Promise<BigNumber>;
 
     totalWeight(overrides?: CallOverrides): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     usedWeights(
       arg0: BigNumberish,
@@ -556,8 +731,14 @@ export interface IVoter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     poke(
       _tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -572,6 +753,11 @@ export interface IVoter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     totalWeight(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     usedWeights(
       arg0: BigNumberish,

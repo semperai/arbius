@@ -55,6 +55,7 @@ export interface ModelTokenV1Interface extends utils.Interface {
     "owner()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "pricingToken(bytes32)": FunctionFragment;
+    "pricingTokenDecimals(bytes32)": FunctionFragment;
     "publicSyncingEnabled(bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rewardDivisor()": FunctionFragment;
@@ -175,6 +176,10 @@ export interface ModelTokenV1Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "pricingToken",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pricingTokenDecimals",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -332,6 +337,10 @@ export interface ModelTokenV1Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pricingToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "pricingTokenDecimals",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -714,6 +723,11 @@ export interface ModelTokenV1 extends BaseContract {
 
     pricingToken(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
+    pricingTokenDecimals(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     publicSyncingEnabled(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -943,6 +957,11 @@ export interface ModelTokenV1 extends BaseContract {
 
   pricingToken(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
+  pricingTokenDecimals(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   publicSyncingEnabled(
     arg0: BytesLike,
     overrides?: CallOverrides
@@ -1161,6 +1180,11 @@ export interface ModelTokenV1 extends BaseContract {
     ): Promise<void>;
 
     pricingToken(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    pricingTokenDecimals(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     publicSyncingEnabled(
       arg0: BytesLike,
@@ -1492,6 +1516,11 @@ export interface ModelTokenV1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    pricingTokenDecimals(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     publicSyncingEnabled(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1721,6 +1750,11 @@ export interface ModelTokenV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     pricingToken(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    pricingTokenDecimals(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
