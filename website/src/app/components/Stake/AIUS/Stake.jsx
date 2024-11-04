@@ -51,6 +51,11 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const VE_STAKING_ADDRESS = config.veStakingAddress;
     const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
+    const FAUCET_ADDRESS = "0x9a2aef1a0fc09d22f0703decd5bf19dc4214e52a";
+
+    const faucetABI = [{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"faucet","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}]
+
+    const [faucetCalled, setFaucetCalled] = useState(false);
 
     /*const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
@@ -221,6 +226,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         }
     },[allowance])*/
     // Use effect to fetch all values
+
     useEffect(() => {
         const f = async() => {
 
@@ -257,6 +263,12 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
                 const _checkAllowance = await baseTokenContract.methods.allowance(address, VOTING_ESCROW_ADDRESS).call()
                 setAllowance(_checkAllowance)
+
+                if(localStorage.getItem("faucetCalled")){
+                    setFaucetCalled(true);
+                }else{
+                    setFaucetCalled(false)
+                }
 
             }catch(err){
                 console.log(err)
@@ -355,6 +367,22 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         }
     }
 
+
+    const getFaucet = async() => {
+        try{
+            setShowPopUp(3)
+            const web3 = new Web3(window.ethereum);
+            const faucetContract = new web3.eth.Contract(faucetABI, FAUCET_ADDRESS);
+            const res = await faucetContract.methods.faucet().send({from: address})
+            setFaucetCalled(true)
+            localStorage.setItem("faucetCalled", true)
+            setShowPopUp("Success")
+        }catch(err){
+            console.log(err);
+            setShowPopUp("Error")
+            setFaucetCalled(false)
+        }
+    }
 
     // console.log({veAIUSBalances})
     const [showPopUp, setShowPopUp] = useState(false)
@@ -460,7 +488,24 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 </div>
 
                 <div className="flex justify-end gap-2 mb-4">
+                    <div className=' mt-6'>
+                        <button
+                            type="button"
+                            className={`relative justify-center py-2 group ${faucetCalled ? "bg-light-gray-background": "bg-black-background"} py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
+                            onClick={async()=>{
+                                    if(!faucetCalled){
+                                        await getFaucet()
+                                    }
+                            }}
+                        >
+                            <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className={`lato-bold  relative z-10  ${faucetCalled ? "text-original-black opacity-40": "text-original-white opacity-100"} group-hover:text-original-white group-hover:opacity-100 lg:text-[15px]`}>
+                                AIUS Faucet
+                            </div>
 
+                        </button>
+
+                    </div>
                     <div className=' mt-6'>
                         <Link href={"#dashboard"} onClick={() => setSelectedTab("Dashboard")}>
                             <button
