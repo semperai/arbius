@@ -11,6 +11,7 @@ export { EngineUtilsV1__factory } from "./EngineUtilsV1__factory";
 export { EngineV1__factory } from "./EngineV1__factory";
 export { GovernorV1__factory } from "./GovernorV1__factory";
 export { OneToOneConvert__factory } from "./OneToOneConvert__factory";
+export { TestnetFaucet__factory } from "./TestnetFaucet__factory";
 export { TestnetToken__factory } from "./TestnetToken__factory";
 export { TimelockV1__factory } from "./TimelockV1__factory";
 export { V2_EngineV1__factory } from "./V2_EngineV1__factory";

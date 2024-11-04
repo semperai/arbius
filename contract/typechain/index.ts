@@ -200,6 +200,8 @@ export type { L1Token } from "./contracts/L1Token.sol/L1Token";
 export { L1Token__factory } from "./factories/contracts/L1Token.sol/L1Token__factory";
 export type { OneToOneConvert } from "./contracts/OneToOneConvert";
 export { OneToOneConvert__factory } from "./factories/contracts/OneToOneConvert__factory";
+export type { TestnetFaucet } from "./contracts/TestnetFaucet";
+export { TestnetFaucet__factory } from "./factories/contracts/TestnetFaucet__factory";
 export type { TestnetToken } from "./contracts/TestnetToken";
 export { TestnetToken__factory } from "./factories/contracts/TestnetToken__factory";
 export type { TimelockV1 } from "./contracts/TimelockV1";

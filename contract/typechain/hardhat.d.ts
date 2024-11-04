@@ -397,6 +397,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OneToOneConvert__factory>;
     getContractFactory(
+      name: "TestnetFaucet",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TestnetFaucet__factory>;
+    getContractFactory(
       name: "TestnetToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TestnetToken__factory>;
@@ -921,6 +925,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OneToOneConvert>;
+    getContractAt(
+      name: "TestnetFaucet",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestnetFaucet>;
     getContractAt(
       name: "TestnetToken",
       address: string,
