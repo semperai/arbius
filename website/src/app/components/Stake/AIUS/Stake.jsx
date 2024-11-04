@@ -377,6 +377,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             setFaucetCalled(true)
             localStorage.setItem("faucetCalled", true)
             setShowPopUp("Success")
+            setUpdateValue(prevValue => prevValue + 1)
         }catch(err){
             console.log(err);
             setShowPopUp("Error")
@@ -491,7 +492,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     <div className=' mt-6'>
                         <button
                             type="button"
-                            className={`relative justify-center py-2 group ${faucetCalled ? "bg-light-gray-background": "bg-black-background"} py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
+                            className={`relative justify-center py-2 group ${faucetCalled ? "hidden bg-light-gray-background": "bg-black-background"} py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
                             onClick={async()=>{
                                     if(!faucetCalled){
                                         await getFaucet()
