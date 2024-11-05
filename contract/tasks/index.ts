@@ -19,34 +19,39 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 
-const bulkSubmitterAddress = '0x4f87C8fe7f4b719b45229d8EC87aDe8c5e9d0137';
 
-task("bulk:task", "")
-.setAction(async ({ }, hre) => {
-  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
-  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
-  const tx = await bulkSubmitter.bulkTask();
-  const receipt = await tx.wait();
-  console.log(receipt);
-});
+task("bulk:submit", "Helper to submit multiple tasks at once")
+.addOptionalParam("v", "Version of task", "0")
+.addParam("owner", "Owner of task")
+.addParam("model", "Model id")
+.addOptionalParam("fee", "Fee", "0")
+.addParam("input", "Input")
+.addOptionalParam("n", "Number of tasks", "10")
+.addOptionalParam("gas", "Gas limit per task", "250000")
+.setAction(async ({
+  v,
+  owner,
+  model,
+  fee,
+  input,
+  n,
+  gas,
+}, hre) => {
+  // TODO move this to config
+  const bulkSubmitterAddress = '0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc';
 
-task("bulk:deposit", "")
-.addParam("amount", "amount")
-.setAction(async ({ amount }, hre) => {
-  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
-  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
-  const tx = await bulkSubmitter.deposit(hre.ethers.utils.parseEther(amount));
-  const receipt = await tx.wait();
-  console.log(receipt);
-});
+  const BulkSubmitTask = await hre.ethers.getContractFactory("BulkSubmitTask");
+  const bulkSubmitTask = await BulkSubmitTask.attach(bulkSubmitterAddress);
 
-task("bulk:solution", "")
-.setAction(async ({ amount }, hre) => {
-  const BulkSubmitter = await hre.ethers.getContractFactory("BulkSubmitter");
-  const bulkSubmitter = await BulkSubmitter.attach(bulkSubmitterAddress);
-  const tx = await bulkSubmitter.bulkSolution([
-    // taskids
-  ]);
+  const tx = await bulkSubmitTask.submitTaskBulk(
+    v,
+    owner,
+    model,
+    fee,
+    hre.ethers.utils.hexlify(hre.ethers.utils.toUtf8Bytes(input)),
+    n,
+    gas,
+  );
   const receipt = await tx.wait();
   console.log(receipt);
 });
@@ -75,6 +80,17 @@ task("local:mint", "Mint tokens")
     const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
     const baseToken = await BaseToken.attach(LocalConfig.v2_baseTokenAddress);
     const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
+    await tx.wait();
+    console.log(`minted ${amount} tokens to ${to}`);
+});
+
+task("test:mint", "Mint tokens")
+.addParam("to", "address")
+.addParam("amount", "amount")
+.setAction(async ({ to, amount }, hre) => {
+    const TestnetToken = await hre.ethers.getContractFactory("TestnetToken");
+    const testnetToken = await TestnetToken.attach(Config.v2_baseTokenAddress);
+    const tx = await testnetToken.mint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
 });
@@ -271,6 +287,21 @@ task("engine:setSolutionMineableStatus", "Allow a model to receive rewards for t
   console.log(`${model} mineable status set to ${enabled}`);
 });
 
+task("v2:engine:setSolutionMineableRate", "Allow a model to receive rewards for tasks completed")
+.addParam("model", "Model id")
+.addParam("rate", "Rate in eth rate")
+.setAction(async ({ model, rate }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const tx = await engine.setSolutionMineableRate(model, rate);
+  await tx.wait();
+
+  const data = await engine.models(model);
+  console.log(data);
+
+  console.log(`${model} mineable rate set to ${rate}`);
+});
+
 task("engine:isPaused", "Check if engine is paused")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
@@ -320,12 +351,105 @@ task("engine:setVersion", "Set engine version for miner check")
   console.log(`Engine is now version ${versionNow}`);
 });
 
-task("engine:version", "Set engine version for miner check")
+task("v2:engine:setVersion", "Set engine version for miner check")
+.addParam("n", "Version Number")
+.setAction(async ({ n }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const tx = await engine.setVersion(n);
+  await tx.wait();
+  const versionNow = await engine.version();
+  console.log(`Engine is now version ${versionNow}`);
+});
+
+task("engine:version", "Get engine version for miner check")
 .setAction(async ({ }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
   const engine = await Engine.attach(Config.engineAddress);
   const versionNow = await engine.version();
   console.log(`Engine is now version ${versionNow}`);
+});
+
+task("v2:engine:version", "Get engine version for miner check")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const versionNow = await engine.version();
+  console.log(`Engine is now version ${versionNow}`);
+});
+
+task("v2:engine:reward", "Check reward calculation")
+.addParam("t", "Time")
+.addParam("ts", "Total supply")
+.setAction(async ({ t, ts }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const reward = await engine.reward(t, hre.ethers.utils.parseEther(ts));
+  console.log(hre.ethers.utils.formatEther(reward));
+});
+
+task("v2:engine:getPsuedoTotalSupply", "Call getPsuedoTotalSupply")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+  const ts = await engine.getPsuedoTotalSupply();
+  console.log(hre.ethers.utils.formatEther(ts));
+});
+
+task("v2:engine:targetTs", "Call targetTs")
+.addOptionalParam("t", "Time")
+.setAction(async ({ t }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  if (typeof t === 'undefined') {
+    const startBlockTime = await engine.startBlockTime();
+    const now = Math.floor(Date.now() / 1000);
+    t = now - startBlockTime.toNumber();
+  }
+
+  const ts = await engine.targetTs(t);
+  console.log(hre.ethers.utils.formatEther(ts));
+});
+
+task("v2:engine:getReward", "Call getReward")
+.setAction(async ({ t }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const r = await engine.getReward();
+  console.log(hre.ethers.utils.formatEther(r));
+});
+
+task("v2:engine:setStartBlockTime", "Set startBlockTime")
+.addParam("t", "Time")
+.setAction(async ({ t }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV2");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const tx = await engine.setStartBlockTime(t);
+  await tx.wait();
+  const startBlockTime = await engine.startBlockTime();
+  console.log(`Engine is now startBlockTime ${startBlockTime}`);
+});
+
+task("v2:engine:minClaimSolutionTime", "Get minClaimSolutionTime")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV3");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const m = await engine.minClaimSolutionTime();
+  console.log(`Engine minClaimSolutionTime is ${m}`);
+});
+
+task("v2:engine:initialize", "")
+.setAction(async ({ }, hre) => {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV3");
+  const engine = await Engine.attach(Config.v2_engineAddress);
+
+  const tx = await engine.initialize();
+  await tx.wait();
+  console.log(`Engine initialized`);
 });
 
 task("engine:setMinClaimSolutionTime", "set min claim solution time")

@@ -1,9 +1,15 @@
 {
+  "//": "where to store the log file",
   "log_path": "log.txt",
+  "//": "where to store the database",
   "db_path": "db.sqlite",
+  "//": "set this to a new folder to run multiple instances",
   "cache_path": "cache",
+  "//": "how much buffer to keep in stake, for submitting solutions and votes",
   "stake_buffer_percent": 20,
+  "//": "when the buffer is below this percent, top it up",
   "stake_buffer_topup_percent": 1,
+  "//": "use for local testing, always keep false for mainnet",
   "evilmode": false,
   "//": "do not make transactions, only read from the blockchain",
   "read_only": false,
@@ -23,10 +29,15 @@
   "automine": {
     "//": "set to true to enable automining",
     "enabled": false,
+    "//": "how many second delay between each new tx",
     "delay": 60,
+    "//": "do not change this, for future transaction types",
     "version": 0,
+    "//": "set to model you want to create tasks for",
     "model": "0x98617a8cd4a11db63100ad44bea4e5e296aecfd78b2ef06aee3e364c7307f212",
+    "//": "what fee to attach to the task, usually 0",
     "fee": "0",
+    "//": "object containing the input prompt for the task",
     "input": {
       "prompt": "CHANGEME to a unique prompt",
       "negative_prompt": "noisy, washed out, ugly, distorted, broken"
@@ -65,5 +76,8 @@
     "contestation_submitted": 1.0,
     "solution_submitted": 0.01,
     "task_retracted": 1.0
-  }
+  },
+
+  "//": "add additional voting keys to the miner",
+  "additional_voting_keys": []
 }

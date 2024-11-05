@@ -1,3 +1,4 @@
+ignore.json
 MiningConfig.*.json
 !MiningConfig.example.json
 

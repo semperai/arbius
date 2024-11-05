@@ -1,11 +1,13 @@
 import * as fs from 'fs';
 import { Readable } from 'stream';
 import { ethers, Contract, Wallet, BigNumber } from 'ethers';
-import { base64 } from '@scure/base';
+import { base58, base64 } from '@scure/base';
 import axios from 'axios';
 import * as http_client from 'ipfs-http-client';
 import Config from './config.json';
 import { log } from './log';
+import EngineArtifact from './artifacts/contracts/V2_EngineV2.sol/V2_EngineV2.json';
+import BaseTokenArtifact from './artifacts/contracts/BaseTokenV1.sol/BaseTokenV1.json';
 import {
   dbGarbageCollect,
   dbGetJobs,
@@ -31,8 +33,6 @@ import {
 } from './db';
 
 import {
-  // AnythingV3Model,
-  // ZeroscopeModel,
   Kandinsky2Model,
   getModelById,
   checkModelFilter,
@@ -75,9 +75,6 @@ import {
   token,
   // governor,
   solver,
-  getBlockNumber,
-  depositForValidator,
-  getValidatorStaked,
 } from './blockchain';
 
 // type interfaces;
@@ -96,71 +93,9 @@ interface SolutionDetails {
 
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
 
-const minerVersion = BigNumber.from('2');
+const minerVersion = BigNumber.from('3');
 
 const EnabledModels = [
-  /*
-  {
-    ...AnythingV3Model,
-    filters: [
-      {
-        minfee: ethers.utils.parseEther('0'),
-        mintime: 0,
-      },
-    ],
-    getfiles: async (m: Model, taskid: string, input: any) => {
-      return await mlStrategyReplicate(m, taskid, input, async (output) => {
-        const url = output![0];
-        const res = await expretry(async () => await axios.get(url, {
-          responseType: 'arraybuffer'
-        }));
-
-        if (! res) {
-          throw new Error('unable to getfiles');
-        }
-
-        const path = 'out-1.png';
-        fs.writeFileSync(`${__dirname}/../cache/${path}`, res.data);
-
-        return [path];
-      });
-    },
-  },
-  */
-  /*
-  {
-    ...ZeroscopeModel,
-    filters: [
-      {
-        minfee: ethers.utils.parseEther('0'),
-        mintime: 0,
-      },
-    ],
-    getfiles: async (m: Model, taskid: string, input: any) => {
-      const url = 'http://192.9.239.212:8001/predictions';
-      const res = await axios.post(url, { timeout: 120_000, input });
-
-      if (! res) {
-        throw new Error('unable to getfiles');
-      }
-
-      if (res.data.output.length != 1) {
-        throw new Error('unable to getfiles -- data.output length not 1');
-      }
-
-      // slice off
-      // data:image/png;base64,
-      const b64data = res.data.output[0];
-      const data = b64data.replace(/^data:\w+\/\w+;base64,/, "");
-      const buf = Buffer.from(data, 'base64');
-
-      const path = 'out-1.mp4';
-      fs.writeFileSync(`${__dirname}/../cache/${path}`, buf);
-
-      return [path];
-    },
-  },
-  */
   {
     ...Kandinsky2Model,
     filters: [
@@ -328,8 +263,8 @@ async function eventHandlerTaskSubmitted(
   // log.debug(evt);
 
   if (alreadySeenTaskTx.has(evt.transactionHash)) {
-    log.error("alreadySeenTaskTx", evt.transactionHash);
-    log.error("taskid", taskid);
+    log.debug("alreadySeenTaskTx", evt.transactionHash);
+    log.debug("taskid", taskid);
     return;
   } else {
     alreadySeenTaskTx.add(evt.transactionHash);
@@ -391,8 +326,8 @@ async function eventHandlerSolutionSubmitted(taskid: string, evt: ethers.Event) 
   log.debug('Event.SolutionSubmitted', taskid);
 
   if (alreadySeenSolutionTx.has(evt.transactionHash)) {
-    log.error("alreadySeenSolutionTx", evt.transactionHash);
-    log.error("taskid", taskid);
+    log.debug("alreadySeenSolutionTx", evt.transactionHash);
+    log.debug("taskid", taskid);
     return;
   } else {
     alreadySeenSolutionTx.add(evt.transactionHash);
@@ -473,50 +408,6 @@ async function eventHandlerContestationVote(
   });
 }
 
-/*
-async function eventHandlerGovernanceProposalCreated(
-  proposalId: string,
-  evt: ethers.Event,
-) {
-  log.debug('Event.ProposalCreated', proposalId);
-  const txid = evt.transactionHash;
-
-  const tx = await expretry(async () => await governor.provider.getTransaction(txid));
-  if (! tx) {
-    throw new Error('unable to retrieve tx');
-  }
-  const parsed = governor.interface.parseTransaction(tx);
-  log.debug('parsed', parsed);
-
-  const description = parsed.args[3];
-  log.debug('description', description);
-
-  await dbQueueJob({
-    method: 'pinGovernanceProposal',
-    priority: 100,
-    waituntil: 0,
-    concurrent: true,
-    data: {
-      proposalId,
-      description,
-    },
-  });
-}
-
-async function processPinGovernanceProposal(
-  proposalId: string,
-  description: string,
-) {
-  const cid = await expretry(async () => await pinFileToIPFS(
-    c,
-    Buffer.from(description, 'utf-8'),
-    `proposal-${proposalId}.md`,
-  ));
-
-  log.debug(`Governance proposal ${proposalId} pinned with ${cid}`);
-}
-*/
-
 async function processPinTaskInput(
   taskid: string,
   input: string,
@@ -555,18 +446,61 @@ async function processValidatorStake() {
     log.info(`[processValidatorStake] Read only mode, not checking stake`);
     return;
   }
-  const etherBalance = await arbius.provider.getBalance(wallet.address);
-  log.debug(`[processValidatorStake] Ether balance: ${ethers.utils.formatEther(etherBalance)}`);
-
-  if (etherBalance.lt(ethers.utils.parseEther("0.01"))) {
-    log.warn(`[processValidatorStake] Low Ether balance`);
-  }
-
-  const staked = await getValidatorStaked();
-  log.debug(`[processValidatorStake] AIUS Staked: ${ethers.utils.formatEther(staked)}`);
 
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
   log.debug(`[processValidatorStake] Validator Minimum: ${ethers.utils.formatEther(validatorMinimum)}`);
+
+  const minWithBuffer = validatorMinimum
+    .mul(100)
+    .div(100 - c.stake_buffer_percent);
+
+  const minWithTopupBuffer = validatorMinimum
+    .mul(100)
+    .div(100 - c.stake_buffer_topup_percent);
+
+  const provider = new ethers.providers.JsonRpcProvider(c.blockchain.rpc_url!);
+  const keys = [c.blockchain.private_key, ...c.additional_voting_keys];
+
+  for (const key of keys) {
+    const wallet = new Wallet(key, provider);
+    const arbius = new Contract(Config.v2_engineAddress, EngineArtifact.abi,    wallet);
+    const token  = new Contract(Config.v2_baseTokenAddress, BaseTokenArtifact.abi, wallet);
+
+    const etherBalance = await expretry(async () => await arbius.provider.getBalance(wallet.address));
+    log.debug(`[processValidatorStake] ${wallet.address} Ether balance: ${ethers.utils.formatEther(etherBalance!)}`);
+
+    if (etherBalance!.lt(ethers.utils.parseEther("0.01"))) {
+      log.warn(`[processValidatorStake] ${wallet.address} Low Ether balance`);
+    }
+
+    const staked = await expretry(async () => (await arbius.validators(wallet.address)).staked);
+    log.debug(`[processValidatorStake] ${wallet.address} AIUS Staked: ${ethers.utils.formatEther(staked)}`);
+
+    if (staked.gte(minWithTopupBuffer)) {
+      log.debug(`[processValidatorStake] ${wallet.address} Have sufficient stake`);
+      continue;
+    }
+
+    const depositAmount = minWithBuffer.sub(staked);
+    log.debug(`[processValidatorStake] ${wallet.address} Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
+
+
+    const balance = await expretry(async () => await token.balanceOf(wallet.address));
+    if (balance.lt(depositAmount)) {
+      log.error(`[processValidatorStake] Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
+      throw new Error('[processValidatorStake[ unable to stake required balance');
+    }
+
+    log.debug(`[processValidatorStake] ${wallet.address} Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
+    await expretry(async () => {
+      const tx = await solver.validatorDeposit(wallet.address, depositAmount);
+      const receipt = await tx.wait();
+      log.info(`[processValidatorStake] ${wallet.address} Deposited in ${receipt.transactionHash}`);
+    });
+
+    const postDepositStaked = await expretry(async () => (await arbius.validators(wallet.address)).staked);
+    log.debug(`[processValidatorStake] Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
+  }
 
   // schedule checking every 2 mins
   await dbQueueJob({
@@ -578,57 +512,6 @@ async function processValidatorStake() {
       validatorMinimum,
     },
   });
-
-  const minWithTopupBuffer = validatorMinimum
-    .mul(100)
-    .div(100 - c.stake_buffer_topup_percent);
-
-  if (staked.gte(minWithTopupBuffer)) {
-    log.debug(`[processValidatorStake] Have sufficient stake`);
-    return;
-  }
-
-  const minWithBuffer = validatorMinimum
-    .mul(100)
-    .div(100 - c.stake_buffer_percent);
-
-  const depositAmount = minWithBuffer.sub(staked);
-  log.debug(`[processValidatorStake] Deposit Amount ${ethers.utils.formatEther(depositAmount)}`);
-
-  const balance = await expretry(async () => await token.balanceOf(wallet.address));
-  if (balance.lt(depositAmount)) {
-    log.error(`[processValidatorStake] Balance ${ethers.utils.formatEther(balance)} less than deposit amount ${ethers.utils.formatEther(depositAmount)}`);
-    throw new Error('[processValidatorStake[ unable to stake required balance');
-  }
-
-  const allowance = await expretry(async () => await token.allowance(
-    wallet.address,
-    solver.address, // could be engine or delegated validator
-  ));
-  log.debug(`[processValidatorStake] Allowance Amount ${ethers.utils.formatEther(allowance)}`);
-
-  if (allowance.lt(balance)) {
-    const allowanceAmount = ethers.constants.MaxUint256.sub(allowance);
-
-    log.debug(`[processValidatorStake] Increasing allowance`);
-    await expretry(async () => {
-      const tx = await expretry(async () => await token.approve(
-        solver.address,
-        allowanceAmount,
-      ));
-      const receipt = await tx.wait();
-      log.info(`[processValidatorStake] Allowance increased in ${receipt.transactionHash}`);
-    });
-  }
-
-  log.debug(`[processValidatorStake] Depositing for validator stake ${ethers.utils.formatEther(depositAmount)}`);
-  await expretry(async () => {
-    const receipt = await depositForValidator(depositAmount);
-    log.info(`[processValidatorStake] Deposited in ${receipt.transactionHash}`);
-  });
-
-  const postDepositStaked = await getValidatorStaked();
-  log.debug(`[processValidatorStake] Post staked: ${ethers.utils.formatEther(postDepositStaked)}`);
 }
 
 async function processAutomine() {
@@ -637,12 +520,36 @@ async function processAutomine() {
       log.info(`[processAutomine] Read only mode, not automining`);
       return;
     } else {
+      const modelid = c.automine.model;
+      const fee = BigNumber.from(c.automine.fee);
+      const owner = wallet.address;
+      const version = c.automine.version;
+      const input = c.automine.input;
+      const stringifiedInput = JSON.stringify(input);
+
+      const m = getModelById(EnabledModels, modelid);
+      if (m === null) {
+        log.error(`[processAutomine] Task could not find model (${modelid})`);
+        process.exit(1);
+      }
+
+      const hydrated = hydrateInput(input, m.template);
+      if (hydrated.err) {
+        log.warn(`[processAutomine] hydration error ${hydrated.errmsg}`);
+        process.exit(1);
+        return;
+      }
+
       const tx = await solver.submitTask(
-        c.automine.version,
-        wallet.address,
-        c.automine.model,
-        BigNumber.from(c.automine.fee),
-        ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JSON.stringify(c.automine.input))),
+        version,
+        owner,
+        modelid,
+        fee,
+        ethers.utils.hexlify(
+          ethers.utils.toUtf8Bytes(
+            stringifiedInput
+          )
+        ),
         {
           gasLimit: 2_500_000,
         }
@@ -650,9 +557,56 @@ async function processAutomine() {
 
       const receipt = await tx.wait();
       log.info(`[processAutomine] submitTask ${receipt.transactionHash}`);
+      alreadySeenTaskTx.add(receipt.transactionHash);
+
+      const taskid = receipt.events[0].args.id;
+      hydrated.input.seed = taskid2Seed(taskid);
+
+      const solutionCid = await m.getcid(c, m, taskid, hydrated.input);
+      log.info(`[processAutomine] Task (${taskid}) CID (${solutionCid}) generated`);
+
+      if (! solutionCid) {
+        log.error(`[processAutomine] Task (${taskid}) CID could not be generated`);
+        return;
+      }
+
+      if (await checkForExistingSolution(taskid, solutionCid)) return;
+      const commitment = generateCommitment(wallet.address, taskid, solutionCid);
+      {
+        log.info(`[processAutomine] Submitting commitment`);
+        const tx = await arbius.signalCommitment(commitment, {
+          gasLimit: 450_000,
+        });
+        // const receipt = await tx.wait(); // we dont wait here to be faster
+        log.info(`[processAutomine] Commitment signalled in ${tx.hash}`);
+      }
+
+      if (await checkForExistingSolution(taskid, solutionCid)) return;
+      log.debug(`[processAutomine] Submitting solution ${taskid} ${solutionCid}`);
+      try {
+        const tx = await solver.submitSolution(taskid, solutionCid, {
+          gasLimit: 500_000,
+        });
+        const receipt = await tx.wait();
+        log.info(`[processAutomine] Solution submitted in ${receipt.transactionHash}`);
+        alreadySeenSolutionTx.add(receipt.transactionHash);
+
+        await dbQueueJob({
+          method: "claim",
+          priority: 50,
+          waituntil: now() + 3600 + 120, // 2 min buffer to avoid time drift claim issues
+          concurrent: false,
+          data: {
+            taskid,
+          },
+        });
+      } catch (e) {
+        log.info(`[processAutomine] Solution submission failed ${JSON.stringify(e)}`);
+        if (await checkForExistingSolution(taskid, solutionCid)) return;
+      }
     }
   } catch (e) {
-    log.error(`[processAutomine] submitTask failed ${JSON.stringify(e)}`);
+    log.error(`[processAutomine] failed to mine ${JSON.stringify(e)}`);
   }
 
   if (c.automine.enabled) {
@@ -665,6 +619,31 @@ async function processAutomine() {
       },
     });
   }
+}
+
+// returns true if there is an existing solution
+// checks to contest if the solution is not same as ours
+// if return true - return
+async function checkForExistingSolution(taskid: string, solutionCid: string) {
+  if (alreadySeenSolution.has(taskid)) {
+    const {
+      validator: existingSolutionValidator,
+      blocktime: existingSolutionBlocktime,
+      claimed: existingSolutionClaimed,
+      cid: existingSolutionCid,
+    } = await expretry(async () => await arbius.solutions(taskid));
+
+    if (existingSolutionCid === solutionCid) {
+      log.info(`[checkForExistingSolution] Solution found for ${taskid} matches our cid ${solutionCid}, skipping commit and submit solution`);
+      return true;
+    }
+
+    log.info(`[checkForExistingSolution] Solution found with cid ${existingSolutionCid} does not match ours ${solutionCid}`);
+    await contestSolution(taskid);
+    return true;
+  }
+
+  return false;
 }
 
 async function processTask(
@@ -729,40 +708,13 @@ async function processTask(
     }
 
     const solutionCid = await m.getcid(c, m, taskid, input);
-    log.info(`[processTask] Task (${taskid}) CID (${solutionCid}) generated`);
-
     if (! solutionCid) {
       log.error(`[processTask] Task (${taskid}) CID could not be generated`);
       return;
     }
     log.info(`[processTask] Task (${taskid}) CID (${solutionCid}) generated`);
 
-    // returns true if there is an existing solution
-    // checks to contest if the solution is not same as ours
-    // if return true - return
-    async function checkForExistingSolution() {
-      if (alreadySeenSolution.has(taskid)) {
-        const {
-          validator: existingSolutionValidator,
-          blocktime: existingSolutionBlocktime,
-          claimed: existingSolutionClaimed,
-          cid: existingSolutionCid,
-        } = await expretry(async () => await arbius.solutions(taskid));
-
-        if (existingSolutionCid === solutionCid) {
-          log.info(`[processTask] Solution found for ${taskid} matches our cid ${solutionCid}, skipping commit and submit solution`);
-          return true;
-        }
-
-        log.info(`[processTask] Solution found with cid ${existingSolutionCid} does not match ours ${solutionCid}`);
-        await contestSolution(taskid);
-        return true;
-      }
-
-      return false;
-    }
-
-    if (await checkForExistingSolution()) return;
+    if (await checkForExistingSolution(taskid, solutionCid)) return;
     const commitment = generateCommitment(wallet.address, taskid, solutionCid);
 
     try {
@@ -780,13 +732,9 @@ async function processTask(
       return;
     }
 
-    // wait a bit to hope commitment is mined
-    await sleep(300 + (Math.random() * 200));
-
-
     // we will retry in case we didnt wait long enough for commitment
     // if this fails otherwise, it could be because another submitted solution
-    if (await checkForExistingSolution()) return;
+    if (await checkForExistingSolution(taskid, solutionCid)) return;
     await expretry(
       async () => {
         try {
@@ -811,7 +759,7 @@ async function processTask(
             },
           });
         } catch (e) {
-          if (await checkForExistingSolution()) return;
+          if (await checkForExistingSolution(taskid, solutionCid)) return;
           log.error(`[processTask] Solution submission failed ${JSON.stringify(e)}`);
         }
       },
@@ -972,7 +920,7 @@ async function contestSolution(taskid: string) {
   try {
     log.info(`[contestSolution] Attempt to contest ${taskid} solution`);
 
-    const validatorStake = await getValidatorStaked();
+    const validatorStake = await expretry(async () => (await arbius.validators(wallet.address)).staked);
     const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
     if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
       log.info("[contestSolution] Validator stake is less than 110% of minimum, not contesting");
@@ -1040,7 +988,7 @@ async function voteOnContestation(taskid: string, yea: boolean) {
     return;
   }
 
-  const validatorStake = await getValidatorStaked();
+  const validatorStake = await expretry(async () => (await arbius.validators(wallet.address)).staked);
   const validatorMinimum = await expretry(async () => await arbius.getValidatorMinimum());
   if (validatorStake.lt(validatorMinimum.mul(110).div(100))) {
     log.info("[voteOnContestation] Validator stake is less than 110% of minimum, not voting");
@@ -1178,32 +1126,23 @@ export async function processJobs(jobs: DBJob[]) {
         return () => processSolution(decoded.taskid);
       case 'claim':
         return () => processClaim(decoded.taskid);
-        break;
       case 'garbageCollect':
         return () => processGarbageCollect();
-        break;
-      /*
-      case 'pinGovernanceProposal':
-        return () => processPinGovernanceProposal(
-          decoded.proposalId,
-          decoded.description,
-        );
-      */
       case 'pinTaskInput':
         return () => processPinTaskInput(
           decoded.taskid,
           decoded.input,
         );
-        break;
       case 'contestation':
         return () => processContestation(decoded.validator, decoded.taskid);
-        break;
       case 'contestationVoteFinish':
         return () => processContestationVoteFinish(decoded.taskid);
-        break;
+
+      case 'solve':
+        return async () => { log.debug(`[processJobs] Job ${job.method} no longer`); }
 
       default:
-        log.error(`Job (${job.id}) method (${job.method}) has no implementation`);
+        log.error(`[processJobs] Job (${job.id}) method (${job.method}) has no implementation`);
         process.exit(1);
     }
   }
@@ -1303,6 +1242,41 @@ export async function main() {
     }
   }
 
+  log.info("Checking allowance");
+  {
+    const provider = new ethers.providers.JsonRpcProvider(c.blockchain.rpc_url!);
+    const minimumAllowance = ethers.constants.MaxUint256.div(100).mul(99);
+
+    const keys = [c.blockchain.private_key, ...c.additional_voting_keys];
+    for (const key of keys) {
+      const wallet = new Wallet(key, provider);
+      const token  = new Contract(Config.v2_baseTokenAddress, BaseTokenArtifact.abi, wallet);
+
+      const allowance = await expretry(async () => await token.allowance(
+        wallet.address,
+        solver.address, // could be engine or delegated validator
+      ));
+      log.debug(`[checkAllowance] ${wallet.address} Allowance Amount ${ethers.utils.formatEther(allowance)}`);
+
+      if (allowance.lt(minimumAllowance)) {
+        const allowanceAmount = ethers.constants.MaxUint256;
+
+        log.debug(`[checkAllowance] ${wallet.address} Increasing allowance`);
+        await expretry(async () => {
+          const tx = await expretry(async () => await token.approve(
+            solver.address,
+            allowanceAmount,
+          ));
+          const receipt = await tx.wait();
+          log.info(`[checkAllowance] ${wallet.address} Allowance increased in ${receipt.transactionHash}`);
+        });
+      } else {
+        log.debug(`[checkAllowance] ${wallet.address} Allowance is sufficient`);
+      }
+    }
+  }
+
+
   await dbQueueJob({
     method: 'validatorStake',
     priority: 1000,
@@ -1320,6 +1294,17 @@ export async function main() {
   });
 
   if (c.automine.enabled) {
+    await dbQueueJob({
+      method: 'pinTaskInput',
+      priority: 10,
+      waituntil: now(),
+      concurrent: false,
+      data: {
+        input: JSON.stringify(c.automine.input),
+        taskid: 'automine',
+      },
+    });
+
     await dbQueueJob({
       method: 'automine',
       priority: 5,
@@ -1369,21 +1354,6 @@ export async function main() {
     yea:       boolean,
     evt:       ethers.Event,
   ) => eventHandlerContestationVote(validator, taskid, yea, evt));
-
-  /*
-  governor.on('ProposalCreated', (
-    proposalId:  string,
-    proposer:    string,
-    targets:     string,
-    values:      string,
-    signatures:  string,
-    calldatas:   string,
-    voteStart:   BigNumber,
-    voteEnd:     BigNumber,
-    description: string,
-    evt:         ethers.Event,
-  ) => eventHandlerGovernanceProposalCreated(proposalId, evt));
-  */
 
   // job processor / main loop
   while (true) {

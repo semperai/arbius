@@ -6,7 +6,7 @@ import { initializeBlockchain, wallet, arbius } from "./blockchain";
 
 const maxBlocks = 10_000;
 
-const getLogs = async (startBlock: number, endBlock: number) => {
+const getLogs = async (address: string|undefined, startBlock: number, endBlock: number) => {
   const unclaimedTasks: string[] = [];
 
   let fromBlock = startBlock;
@@ -15,18 +15,33 @@ const getLogs = async (startBlock: number, endBlock: number) => {
   while (toBlock <= endBlock) {
     log.debug(`Processing block [${fromBlock.toString()} to ${toBlock.toString()}]`);
 
-    const events = await arbius.provider.getLogs({
-      address: arbius.address,
-      topics: [
-        [
-          arbius.interface.getEventTopic("SolutionSubmitted"),
-          arbius.interface.getEventTopic("SolutionClaimed"),
+    let events;
+    if (address) {
+      events = await arbius.provider.getLogs({
+        address: arbius.address,
+        topics: [
+          [
+            arbius.interface.getEventTopic("SolutionSubmitted"),
+            arbius.interface.getEventTopic("SolutionClaimed"),
+          ],
+          ethers.utils.hexZeroPad(address, 32),
         ],
-        ethers.utils.hexZeroPad(wallet.address, 32),
-      ],
-      fromBlock,
-      toBlock,
-    });
+        fromBlock,
+        toBlock,
+      });
+    } else {
+      events = await arbius.provider.getLogs({
+        address: arbius.address,
+        topics: [
+          [
+            arbius.interface.getEventTopic("SolutionSubmitted"),
+            arbius.interface.getEventTopic("SolutionClaimed"),
+          ],
+        ],
+        fromBlock,
+        toBlock,
+      });
+    }
 
     events.map((event) => {
       const parsedLog = arbius.interface.parseLog(event);
@@ -55,7 +70,7 @@ const getLogs = async (startBlock: number, endBlock: number) => {
   return unclaimedTasks;
 };
 
-async function main(configPath: string, startBlock?: string, endBlock?: string) {
+async function main(configPath: string, address?: string, startBlock?: string, endBlock?: string) {
   try {
     const mconf = JSON.parse(readFileSync(configPath, "utf8"));
     initializeMiningConfig(mconf);
@@ -68,21 +83,27 @@ async function main(configPath: string, startBlock?: string, endBlock?: string) 
 
   await initializeBlockchain();
 
+  if (address && ! address.startsWith("0x")) {
+    endBlock = startBlock;
+    startBlock = address;
+    address = undefined;
+  }
+
   if (! startBlock) {
     startBlock = '51380392';
   }
   if (! endBlock) {
     endBlock = ""+(await wallet.provider.getBlockNumber());
   }
-  const unclaimedTasks = await getLogs(Number(startBlock), Number(endBlock));
+  const unclaimedTasks = await getLogs(address, Number(startBlock), Number(endBlock));
 
   log.debug(`${unclaimedTasks.length} unclaimed tasks found for ${wallet.address}`);
   writeFileSync("unclaimed.json", JSON.stringify(unclaimedTasks));
 }
 
 if (process.argv.length < 3) {
-  log.error("usage: yarn scan:unclaimed MiningConfig.json [startBlock] [endBlock]");
+  log.error("usage: yarn scan:unclaimed MiningConfig.json [address] [startBlock] [endBlock]");
   process.exit(1);
 }
 
-main(process.argv[2], process.argv[3], process.argv[4]);
+main(process.argv[2], process.argv[3], process.argv[4], process.argv[5]);

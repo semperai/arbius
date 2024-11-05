@@ -6,8 +6,6 @@ import {
   BigNumber,
   BytesLike,
   CallOverrides,
-  ContractTransaction,
-  Overrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -16,30 +14,27 @@ import { FunctionFragment, Result } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface RetractTaskInterface extends utils.Interface {
+export interface IsMinerInterface extends utils.Interface {
   functions: {
-    "retractTask(bytes32)": FunctionFragment;
+    "engine()": FunctionFragment;
+    "isMiner(address)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "retractTask",
-    values: [BytesLike]
-  ): string;
+  encodeFunctionData(functionFragment: "engine", values?: undefined): string;
+  encodeFunctionData(functionFragment: "isMiner", values: [string]): string;
 
-  decodeFunctionResult(
-    functionFragment: "retractTask",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "engine", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isMiner", data: BytesLike): Result;
 
   events: {};
 }
 
-export interface RetractTask extends BaseContract {
+export interface IsMiner extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: RetractTaskInterface;
+  interface: IsMinerInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -61,34 +56,35 @@ export interface RetractTask extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    retractTask(
-      _taskid: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    engine(overrides?: CallOverrides): Promise<[string]>;
+
+    isMiner(addr_: string, overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
-  retractTask(
-    _taskid: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  engine(overrides?: CallOverrides): Promise<string>;
+
+  isMiner(addr_: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    retractTask(_taskid: BytesLike, overrides?: CallOverrides): Promise<void>;
+    engine(overrides?: CallOverrides): Promise<string>;
+
+    isMiner(addr_: string, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
-    retractTask(
-      _taskid: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    engine(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isMiner(addr_: string, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    retractTask(
-      _taskid: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+    engine(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isMiner(
+      addr_: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

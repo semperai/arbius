@@ -56,13 +56,16 @@ export type TaskStructOutput = [
   cid: string;
 };
 
-export interface EngineV2Interface extends utils.Interface {
+export interface V2EngineV3Interface extends utils.Interface {
   functions: {
     "accruedFees()": FunctionFragment;
     "baseToken()": FunctionFragment;
+    "bulkSubmitSolution(bytes32[],bytes[])": FunctionFragment;
+    "bulkSubmitTask(uint8,address,bytes32,uint256,bytes,uint256)": FunctionFragment;
     "cancelValidatorWithdraw(uint256)": FunctionFragment;
     "claimSolution(bytes32)": FunctionFragment;
     "commitments(bytes32)": FunctionFragment;
+    "contestationVoteExtensionTime()": FunctionFragment;
     "contestationVoteFinish(bytes32,uint32)": FunctionFragment;
     "contestationVoteNays(bytes32,uint256)": FunctionFragment;
     "contestationVoteYeas(bytes32,uint256)": FunctionFragment;
@@ -79,9 +82,10 @@ export interface EngineV2Interface extends utils.Interface {
     "getValidatorMinimum()": FunctionFragment;
     "hashModel((uint256,address,uint256,bytes),address)": FunctionFragment;
     "hashTask((bytes32,uint256,address,uint64,uint8,bytes),address,bytes32)": FunctionFragment;
-    "initialize(address,address)": FunctionFragment;
+    "initialize()": FunctionFragment;
     "initiateValidatorWithdraw(uint256)": FunctionFragment;
     "lastContestationLossTime(address)": FunctionFragment;
+    "lastSolutionSubmission(address)": FunctionFragment;
     "maxContestationValidatorStakeSince()": FunctionFragment;
     "minClaimSolutionTime()": FunctionFragment;
     "minContestationVotePeriodTime()": FunctionFragment;
@@ -95,28 +99,16 @@ export interface EngineV2Interface extends utils.Interface {
     "prevhash()": FunctionFragment;
     "registerModel(address,uint256,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "retractTask(bytes32)": FunctionFragment;
     "retractionFeePercentage()": FunctionFragment;
     "reward(uint256,uint256)": FunctionFragment;
-    "setExitValidatorMinUnlockTime(uint256)": FunctionFragment;
-    "setMaxContestationValidatorStakeSince(uint256)": FunctionFragment;
-    "setMinClaimSolutionTime(uint256)": FunctionFragment;
-    "setMinContestationVotePeriodTime(uint256)": FunctionFragment;
-    "setMinRetractionWaitTime(uint256)": FunctionFragment;
     "setPaused(bool)": FunctionFragment;
-    "setRetractionFeePercentage(uint256)": FunctionFragment;
-    "setSlashAmountPercentage(uint256)": FunctionFragment;
-    "setSolutionFeePercentage(uint256)": FunctionFragment;
     "setSolutionMineableRate(bytes32,uint256)": FunctionFragment;
-    "setSolutionStakeAmount(uint256)": FunctionFragment;
     "setStartBlockTime(uint64)": FunctionFragment;
-    "setTreasuryRewardPercentage(uint256)": FunctionFragment;
-    "setValidatorMinimumPercentage(uint256)": FunctionFragment;
     "setVersion(uint256)": FunctionFragment;
     "signalCommitment(bytes32)": FunctionFragment;
-    "signalSupport(bytes32,bool)": FunctionFragment;
     "slashAmountPercentage()": FunctionFragment;
     "solutionFeePercentage()": FunctionFragment;
+    "solutionRateLimit()": FunctionFragment;
     "solutions(bytes32)": FunctionFragment;
     "solutionsStake(bytes32)": FunctionFragment;
     "solutionsStakeAmount()": FunctionFragment;
@@ -125,7 +117,9 @@ export interface EngineV2Interface extends utils.Interface {
     "submitSolution(bytes32,bytes)": FunctionFragment;
     "submitTask(uint8,address,bytes32,uint256,bytes)": FunctionFragment;
     "targetTs(uint256)": FunctionFragment;
+    "taskOwnerRewardPercentage()": FunctionFragment;
     "tasks(bytes32)": FunctionFragment;
+    "totalHeld()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "transferPauser(address)": FunctionFragment;
     "transferTreasury(address)": FunctionFragment;
@@ -139,6 +133,7 @@ export interface EngineV2Interface extends utils.Interface {
     "validators(address)": FunctionFragment;
     "version()": FunctionFragment;
     "voteOnContestation(bytes32,bool)": FunctionFragment;
+    "votingPeriodEnded(bytes32)": FunctionFragment;
     "withdrawAccruedFees()": FunctionFragment;
   };
 
@@ -147,6 +142,21 @@ export interface EngineV2Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "baseToken", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "bulkSubmitSolution",
+    values: [BytesLike[], BytesLike[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "bulkSubmitTask",
+    values: [
+      BigNumberish,
+      string,
+      BytesLike,
+      BigNumberish,
+      BytesLike,
+      BigNumberish
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "cancelValidatorWithdraw",
     values: [BigNumberish]
@@ -158,6 +168,10 @@ export interface EngineV2Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "commitments",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contestationVoteExtensionTime",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "contestationVoteFinish",
@@ -222,7 +236,7 @@ export interface EngineV2Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [string, string]
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "initiateValidatorWithdraw",
@@ -230,6 +244,10 @@ export interface EngineV2Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "lastContestationLossTime",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastSolutionSubmission",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -270,10 +288,6 @@ export interface EngineV2Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "retractTask",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "retractionFeePercentage",
     values?: undefined
   ): string;
@@ -281,57 +295,13 @@ export interface EngineV2Interface extends utils.Interface {
     functionFragment: "reward",
     values: [BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setExitValidatorMinUnlockTime",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxContestationValidatorStakeSince",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMinClaimSolutionTime",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMinContestationVotePeriodTime",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMinRetractionWaitTime",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "setPaused", values: [boolean]): string;
-  encodeFunctionData(
-    functionFragment: "setRetractionFeePercentage",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSlashAmountPercentage",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSolutionFeePercentage",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "setSolutionMineableRate",
     values: [BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSolutionStakeAmount",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setStartBlockTime",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTreasuryRewardPercentage",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setValidatorMinimumPercentage",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -343,15 +313,15 @@ export interface EngineV2Interface extends utils.Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "signalSupport",
-    values: [BytesLike, boolean]
-  ): string;
-  encodeFunctionData(
     functionFragment: "slashAmountPercentage",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "solutionFeePercentage",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "solutionRateLimit",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -386,7 +356,12 @@ export interface EngineV2Interface extends utils.Interface {
     functionFragment: "targetTs",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "taskOwnerRewardPercentage",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "tasks", values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: "totalHeld", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
@@ -431,6 +406,10 @@ export interface EngineV2Interface extends utils.Interface {
     values: [BytesLike, boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "votingPeriodEnded",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawAccruedFees",
     values?: undefined
   ): string;
@@ -441,6 +420,14 @@ export interface EngineV2Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "bulkSubmitSolution",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "bulkSubmitTask",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "cancelValidatorWithdraw",
     data: BytesLike
   ): Result;
@@ -450,6 +437,10 @@ export interface EngineV2Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "commitments",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contestationVoteExtensionTime",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -514,6 +505,10 @@ export interface EngineV2Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "lastSolutionSubmission",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "maxContestationValidatorStakeSince",
     data: BytesLike
   ): Result;
@@ -551,65 +546,17 @@ export interface EngineV2Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "retractTask",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "retractionFeePercentage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "reward", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setExitValidatorMinUnlockTime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxContestationValidatorStakeSince",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMinClaimSolutionTime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMinContestationVotePeriodTime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMinRetractionWaitTime",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setRetractionFeePercentage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSlashAmountPercentage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSolutionFeePercentage",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setSolutionMineableRate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setSolutionStakeAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setStartBlockTime",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTreasuryRewardPercentage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setValidatorMinimumPercentage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setVersion", data: BytesLike): Result;
@@ -618,15 +565,15 @@ export interface EngineV2Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "signalSupport",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "slashAmountPercentage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "solutionFeePercentage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "solutionRateLimit",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "solutions", data: BytesLike): Result;
@@ -652,7 +599,12 @@ export interface EngineV2Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "submitTask", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "targetTs", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "taskOwnerRewardPercentage",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "tasks", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "totalHeld", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -697,6 +649,10 @@ export interface EngineV2Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "votingPeriodEnded",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "withdrawAccruedFees",
     data: BytesLike
   ): Result;
@@ -705,32 +661,19 @@ export interface EngineV2Interface extends utils.Interface {
     "ContestationSubmitted(address,bytes32)": EventFragment;
     "ContestationVote(address,bytes32,bool)": EventFragment;
     "ContestationVoteFinish(bytes32,uint32,uint32)": EventFragment;
-    "ExitValidatorMinUnlockTimeChanged(uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
-    "MaxContestationValidatorStakeSinceChanged(uint256)": EventFragment;
-    "MinClaimSolutionTimeChanged(uint256)": EventFragment;
-    "MinContestationVotePeriodTimeChanged(uint256)": EventFragment;
-    "MinRetractionWaitTimeChanged(uint256)": EventFragment;
     "ModelRegistered(bytes32)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PausedChanged(bool)": EventFragment;
     "PauserTransferred(address)": EventFragment;
-    "RetractionFeePercentageChanged(uint256)": EventFragment;
     "SignalCommitment(address,bytes32)": EventFragment;
-    "SignalSupport(address,bytes32,bool)": EventFragment;
-    "SlashAmountPercentageChanged(uint256)": EventFragment;
     "SolutionClaimed(address,bytes32)": EventFragment;
-    "SolutionFeePercentageChanged(uint256)": EventFragment;
     "SolutionMineableRateChange(bytes32,uint256)": EventFragment;
-    "SolutionStakeAmountChanged(uint256)": EventFragment;
     "SolutionSubmitted(address,bytes32)": EventFragment;
     "StartBlockTimeChanged(uint64)": EventFragment;
-    "TaskRetracted(bytes32)": EventFragment;
     "TaskSubmitted(bytes32,bytes32,uint256,address)": EventFragment;
-    "TreasuryRewardPercentageChanged(uint256)": EventFragment;
     "TreasuryTransferred(address)": EventFragment;
     "ValidatorDeposit(address,address,uint256)": EventFragment;
-    "ValidatorMinimumPercentageChanged(uint256)": EventFragment;
     "ValidatorWithdraw(address,address,uint256,uint256)": EventFragment;
     "ValidatorWithdrawCancelled(address,uint256)": EventFragment;
     "ValidatorWithdrawInitiated(address,uint256,uint256,uint256)": EventFragment;
@@ -740,52 +683,19 @@ export interface EngineV2Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ContestationSubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContestationVote"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContestationVoteFinish"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ExitValidatorMinUnlockTimeChanged"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "MaxContestationValidatorStakeSinceChanged"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "MinClaimSolutionTimeChanged"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "MinContestationVotePeriodTimeChanged"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "MinRetractionWaitTimeChanged"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModelRegistered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PausedChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PauserTransferred"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RetractionFeePercentageChanged"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SignalCommitment"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SignalSupport"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "SlashAmountPercentageChanged"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SolutionClaimed"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "SolutionFeePercentageChanged"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SolutionMineableRateChange"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SolutionStakeAmountChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SolutionSubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StartBlockTimeChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TaskRetracted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TaskSubmitted"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "TreasuryRewardPercentageChanged"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TreasuryTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ValidatorDeposit"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ValidatorMinimumPercentageChanged"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ValidatorWithdraw"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ValidatorWithdrawCancelled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ValidatorWithdrawInitiated"): EventFragment;
@@ -816,49 +726,9 @@ export type ContestationVoteFinishEvent = TypedEvent<
 export type ContestationVoteFinishEventFilter =
   TypedEventFilter<ContestationVoteFinishEvent>;
 
-export type ExitValidatorMinUnlockTimeChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type ExitValidatorMinUnlockTimeChangedEventFilter =
-  TypedEventFilter<ExitValidatorMinUnlockTimeChangedEvent>;
-
 export type InitializedEvent = TypedEvent<[number], { version: number }>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export type MaxContestationValidatorStakeSinceChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type MaxContestationValidatorStakeSinceChangedEventFilter =
-  TypedEventFilter<MaxContestationValidatorStakeSinceChangedEvent>;
-
-export type MinClaimSolutionTimeChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type MinClaimSolutionTimeChangedEventFilter =
-  TypedEventFilter<MinClaimSolutionTimeChangedEvent>;
-
-export type MinContestationVotePeriodTimeChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type MinContestationVotePeriodTimeChangedEventFilter =
-  TypedEventFilter<MinContestationVotePeriodTimeChangedEvent>;
-
-export type MinRetractionWaitTimeChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type MinRetractionWaitTimeChangedEventFilter =
-  TypedEventFilter<MinRetractionWaitTimeChangedEvent>;
 
 export type ModelRegisteredEvent = TypedEvent<[string], { id: string }>;
 
@@ -881,14 +751,6 @@ export type PauserTransferredEvent = TypedEvent<[string], { to: string }>;
 export type PauserTransferredEventFilter =
   TypedEventFilter<PauserTransferredEvent>;
 
-export type RetractionFeePercentageChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type RetractionFeePercentageChangedEventFilter =
-  TypedEventFilter<RetractionFeePercentageChangedEvent>;
-
 export type SignalCommitmentEvent = TypedEvent<
   [string, string],
   { addr: string; commitment: string }
@@ -897,35 +759,12 @@ export type SignalCommitmentEvent = TypedEvent<
 export type SignalCommitmentEventFilter =
   TypedEventFilter<SignalCommitmentEvent>;
 
-export type SignalSupportEvent = TypedEvent<
-  [string, string, boolean],
-  { addr: string; model: string; supported: boolean }
->;
-
-export type SignalSupportEventFilter = TypedEventFilter<SignalSupportEvent>;
-
-export type SlashAmountPercentageChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type SlashAmountPercentageChangedEventFilter =
-  TypedEventFilter<SlashAmountPercentageChangedEvent>;
-
 export type SolutionClaimedEvent = TypedEvent<
   [string, string],
   { addr: string; task: string }
 >;
 
 export type SolutionClaimedEventFilter = TypedEventFilter<SolutionClaimedEvent>;
-
-export type SolutionFeePercentageChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type SolutionFeePercentageChangedEventFilter =
-  TypedEventFilter<SolutionFeePercentageChangedEvent>;
 
 export type SolutionMineableRateChangeEvent = TypedEvent<
   [string, BigNumber],
@@ -934,14 +773,6 @@ export type SolutionMineableRateChangeEvent = TypedEvent<
 
 export type SolutionMineableRateChangeEventFilter =
   TypedEventFilter<SolutionMineableRateChangeEvent>;
-
-export type SolutionStakeAmountChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type SolutionStakeAmountChangedEventFilter =
-  TypedEventFilter<SolutionStakeAmountChangedEvent>;
 
 export type SolutionSubmittedEvent = TypedEvent<
   [string, string],
@@ -959,24 +790,12 @@ export type StartBlockTimeChangedEvent = TypedEvent<
 export type StartBlockTimeChangedEventFilter =
   TypedEventFilter<StartBlockTimeChangedEvent>;
 
-export type TaskRetractedEvent = TypedEvent<[string], { id: string }>;
-
-export type TaskRetractedEventFilter = TypedEventFilter<TaskRetractedEvent>;
-
 export type TaskSubmittedEvent = TypedEvent<
   [string, string, BigNumber, string],
   { id: string; model: string; fee: BigNumber; sender: string }
 >;
 
 export type TaskSubmittedEventFilter = TypedEventFilter<TaskSubmittedEvent>;
-
-export type TreasuryRewardPercentageChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type TreasuryRewardPercentageChangedEventFilter =
-  TypedEventFilter<TreasuryRewardPercentageChangedEvent>;
 
 export type TreasuryTransferredEvent = TypedEvent<[string], { to: string }>;
 
@@ -990,14 +809,6 @@ export type ValidatorDepositEvent = TypedEvent<
 
 export type ValidatorDepositEventFilter =
   TypedEventFilter<ValidatorDepositEvent>;
-
-export type ValidatorMinimumPercentageChangedEvent = TypedEvent<
-  [BigNumber],
-  { amount: BigNumber }
->;
-
-export type ValidatorMinimumPercentageChangedEventFilter =
-  TypedEventFilter<ValidatorMinimumPercentageChangedEvent>;
 
 export type ValidatorWithdrawEvent = TypedEvent<
   [string, string, BigNumber, BigNumber],
@@ -1030,12 +841,12 @@ export type VersionChangedEvent = TypedEvent<
 
 export type VersionChangedEventFilter = TypedEventFilter<VersionChangedEvent>;
 
-export interface EngineV2 extends BaseContract {
+export interface V2EngineV3 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: EngineV2Interface;
+  interface: V2EngineV3Interface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -1061,6 +872,22 @@ export interface EngineV2 extends BaseContract {
 
     baseToken(overrides?: CallOverrides): Promise<[string]>;
 
+    bulkSubmitSolution(
+      taskids_: BytesLike[],
+      cids_: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    bulkSubmitTask(
+      version_: BigNumberish,
+      owner_: string,
+      model_: BytesLike,
+      fee_: BigNumberish,
+      input_: BytesLike,
+      n_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     cancelValidatorWithdraw(
       count_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1073,6 +900,10 @@ export interface EngineV2 extends BaseContract {
 
     commitments(
       arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    contestationVoteExtensionTime(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -1159,8 +990,6 @@ export interface EngineV2 extends BaseContract {
     ): Promise<[string]>;
 
     initialize(
-      baseToken_: string,
-      treasury_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1170,6 +999,11 @@ export interface EngineV2 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     lastContestationLossTime(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    lastSolutionSubmission(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -1230,11 +1064,6 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    retractTask(
-      taskid_: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     retractionFeePercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     reward(
@@ -1243,48 +1072,8 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    setExitValidatorMinUnlockTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMaxContestationValidatorStakeSince(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMinClaimSolutionTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMinContestationVotePeriodTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMinRetractionWaitTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setPaused(
       paused_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setRetractionFeePercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setSlashAmountPercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setSolutionFeePercentage(
-      amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1294,23 +1083,8 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setSolutionStakeAmount(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setStartBlockTime(
       startBlockTime_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTreasuryRewardPercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setValidatorMinimumPercentage(
-      amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -1324,15 +1098,11 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    signalSupport(
-      model_: BytesLike,
-      support_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     slashAmountPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     solutionFeePercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    solutionRateLimit(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     solutions(
       arg0: BytesLike,
@@ -1377,6 +1147,8 @@ export interface EngineV2 extends BaseContract {
 
     targetTs(t: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    taskOwnerRewardPercentage(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     tasks(
       arg0: BytesLike,
       overrides?: CallOverrides
@@ -1390,6 +1162,8 @@ export interface EngineV2 extends BaseContract {
         cid: string;
       }
     >;
+
+    totalHeld(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferOwnership(
       to_: string,
@@ -1454,6 +1228,11 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    votingPeriodEnded(
+      taskid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     withdrawAccruedFees(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -1462,6 +1241,22 @@ export interface EngineV2 extends BaseContract {
   accruedFees(overrides?: CallOverrides): Promise<BigNumber>;
 
   baseToken(overrides?: CallOverrides): Promise<string>;
+
+  bulkSubmitSolution(
+    taskids_: BytesLike[],
+    cids_: BytesLike[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  bulkSubmitTask(
+    version_: BigNumberish,
+    owner_: string,
+    model_: BytesLike,
+    fee_: BigNumberish,
+    input_: BytesLike,
+    n_: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   cancelValidatorWithdraw(
     count_: BigNumberish,
@@ -1474,6 +1269,8 @@ export interface EngineV2 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   commitments(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+  contestationVoteExtensionTime(overrides?: CallOverrides): Promise<BigNumber>;
 
   contestationVoteFinish(
     taskid_: BytesLike,
@@ -1558,8 +1355,6 @@ export interface EngineV2 extends BaseContract {
   ): Promise<string>;
 
   initialize(
-    baseToken_: string,
-    treasury_: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1569,6 +1364,11 @@ export interface EngineV2 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   lastContestationLossTime(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  lastSolutionSubmission(
     arg0: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -1627,11 +1427,6 @@ export interface EngineV2 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  retractTask(
-    taskid_: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   retractionFeePercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
   reward(
@@ -1640,48 +1435,8 @@ export interface EngineV2 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  setExitValidatorMinUnlockTime(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMaxContestationValidatorStakeSince(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMinClaimSolutionTime(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMinContestationVotePeriodTime(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMinRetractionWaitTime(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setPaused(
     paused_: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setRetractionFeePercentage(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSlashAmountPercentage(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSolutionFeePercentage(
-    amount_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1691,23 +1446,8 @@ export interface EngineV2 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setSolutionStakeAmount(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setStartBlockTime(
     startBlockTime_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTreasuryRewardPercentage(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setValidatorMinimumPercentage(
-    amount_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1721,15 +1461,11 @@ export interface EngineV2 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  signalSupport(
-    model_: BytesLike,
-    support_: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   slashAmountPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
   solutionFeePercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
+  solutionRateLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
   solutions(
     arg0: BytesLike,
@@ -1774,6 +1510,8 @@ export interface EngineV2 extends BaseContract {
 
   targetTs(t: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
+  taskOwnerRewardPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
   tasks(
     arg0: BytesLike,
     overrides?: CallOverrides
@@ -1787,6 +1525,8 @@ export interface EngineV2 extends BaseContract {
       cid: string;
     }
   >;
+
+  totalHeld(overrides?: CallOverrides): Promise<BigNumber>;
 
   transferOwnership(
     to_: string,
@@ -1851,6 +1591,11 @@ export interface EngineV2 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  votingPeriodEnded(
+    taskid_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   withdrawAccruedFees(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1860,6 +1605,22 @@ export interface EngineV2 extends BaseContract {
 
     baseToken(overrides?: CallOverrides): Promise<string>;
 
+    bulkSubmitSolution(
+      taskids_: BytesLike[],
+      cids_: BytesLike[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    bulkSubmitTask(
+      version_: BigNumberish,
+      owner_: string,
+      model_: BytesLike,
+      fee_: BigNumberish,
+      input_: BytesLike,
+      n_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     cancelValidatorWithdraw(
       count_: BigNumberish,
       overrides?: CallOverrides
@@ -1868,6 +1629,10 @@ export interface EngineV2 extends BaseContract {
     claimSolution(taskid_: BytesLike, overrides?: CallOverrides): Promise<void>;
 
     commitments(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    contestationVoteExtensionTime(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     contestationVoteFinish(
       taskid_: BytesLike,
@@ -1951,11 +1716,7 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    initialize(
-      baseToken_: string,
-      treasury_: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    initialize(overrides?: CallOverrides): Promise<void>;
 
     initiateValidatorWithdraw(
       amount_: BigNumberish,
@@ -1963,6 +1724,11 @@ export interface EngineV2 extends BaseContract {
     ): Promise<BigNumber>;
 
     lastContestationLossTime(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    lastSolutionSubmission(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -2021,8 +1787,6 @@ export interface EngineV2 extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    retractTask(taskid_: BytesLike, overrides?: CallOverrides): Promise<void>;
-
     retractionFeePercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
     reward(
@@ -2031,47 +1795,7 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setExitValidatorMinUnlockTime(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMaxContestationValidatorStakeSince(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMinClaimSolutionTime(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMinContestationVotePeriodTime(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMinRetractionWaitTime(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setPaused(paused_: boolean, overrides?: CallOverrides): Promise<void>;
-
-    setRetractionFeePercentage(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSlashAmountPercentage(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSolutionFeePercentage(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     setSolutionMineableRate(
       model_: BytesLike,
@@ -2079,23 +1803,8 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setSolutionStakeAmount(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setStartBlockTime(
       startBlockTime_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setTreasuryRewardPercentage(
-      amount_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setValidatorMinimumPercentage(
-      amount_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2109,15 +1818,11 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    signalSupport(
-      model_: BytesLike,
-      support_: boolean,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     slashAmountPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
     solutionFeePercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
+    solutionRateLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
     solutions(
       arg0: BytesLike,
@@ -2158,9 +1863,11 @@ export interface EngineV2 extends BaseContract {
       fee_: BigNumberish,
       input_: BytesLike,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
 
     targetTs(t: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+    taskOwnerRewardPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
     tasks(
       arg0: BytesLike,
@@ -2175,6 +1882,8 @@ export interface EngineV2 extends BaseContract {
         cid: string;
       }
     >;
+
+    totalHeld(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(to_: string, overrides?: CallOverrides): Promise<void>;
 
@@ -2230,6 +1939,11 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    votingPeriodEnded(
+      taskid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     withdrawAccruedFees(overrides?: CallOverrides): Promise<void>;
   };
 
@@ -2265,43 +1979,8 @@ export interface EngineV2 extends BaseContract {
       end_idx?: null
     ): ContestationVoteFinishEventFilter;
 
-    "ExitValidatorMinUnlockTimeChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): ExitValidatorMinUnlockTimeChangedEventFilter;
-    ExitValidatorMinUnlockTimeChanged(
-      amount?: BigNumberish | null
-    ): ExitValidatorMinUnlockTimeChangedEventFilter;
-
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
-
-    "MaxContestationValidatorStakeSinceChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): MaxContestationValidatorStakeSinceChangedEventFilter;
-    MaxContestationValidatorStakeSinceChanged(
-      amount?: BigNumberish | null
-    ): MaxContestationValidatorStakeSinceChangedEventFilter;
-
-    "MinClaimSolutionTimeChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): MinClaimSolutionTimeChangedEventFilter;
-    MinClaimSolutionTimeChanged(
-      amount?: BigNumberish | null
-    ): MinClaimSolutionTimeChangedEventFilter;
-
-    "MinContestationVotePeriodTimeChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): MinContestationVotePeriodTimeChangedEventFilter;
-    MinContestationVotePeriodTimeChanged(
-      amount?: BigNumberish | null
-    ): MinContestationVotePeriodTimeChangedEventFilter;
-
-    "MinRetractionWaitTimeChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): MinRetractionWaitTimeChangedEventFilter;
-    MinRetractionWaitTimeChanged(
-      amount?: BigNumberish | null
-    ): MinRetractionWaitTimeChangedEventFilter;
 
     "ModelRegistered(bytes32)"(
       id?: BytesLike | null
@@ -2325,13 +2004,6 @@ export interface EngineV2 extends BaseContract {
     ): PauserTransferredEventFilter;
     PauserTransferred(to?: string | null): PauserTransferredEventFilter;
 
-    "RetractionFeePercentageChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): RetractionFeePercentageChangedEventFilter;
-    RetractionFeePercentageChanged(
-      amount?: BigNumberish | null
-    ): RetractionFeePercentageChangedEventFilter;
-
     "SignalCommitment(address,bytes32)"(
       addr?: string | null,
       commitment?: BytesLike | null
@@ -2340,24 +2012,6 @@ export interface EngineV2 extends BaseContract {
       addr?: string | null,
       commitment?: BytesLike | null
     ): SignalCommitmentEventFilter;
-
-    "SignalSupport(address,bytes32,bool)"(
-      addr?: string | null,
-      model?: BytesLike | null,
-      supported?: null
-    ): SignalSupportEventFilter;
-    SignalSupport(
-      addr?: string | null,
-      model?: BytesLike | null,
-      supported?: null
-    ): SignalSupportEventFilter;
-
-    "SlashAmountPercentageChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): SlashAmountPercentageChangedEventFilter;
-    SlashAmountPercentageChanged(
-      amount?: BigNumberish | null
-    ): SlashAmountPercentageChangedEventFilter;
 
     "SolutionClaimed(address,bytes32)"(
       addr?: string | null,
@@ -2368,13 +2022,6 @@ export interface EngineV2 extends BaseContract {
       task?: BytesLike | null
     ): SolutionClaimedEventFilter;
 
-    "SolutionFeePercentageChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): SolutionFeePercentageChangedEventFilter;
-    SolutionFeePercentageChanged(
-      amount?: BigNumberish | null
-    ): SolutionFeePercentageChangedEventFilter;
-
     "SolutionMineableRateChange(bytes32,uint256)"(
       id?: BytesLike | null,
       rate?: null
@@ -2383,13 +2030,6 @@ export interface EngineV2 extends BaseContract {
       id?: BytesLike | null,
       rate?: null
     ): SolutionMineableRateChangeEventFilter;
-
-    "SolutionStakeAmountChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): SolutionStakeAmountChangedEventFilter;
-    SolutionStakeAmountChanged(
-      amount?: BigNumberish | null
-    ): SolutionStakeAmountChangedEventFilter;
 
     "SolutionSubmitted(address,bytes32)"(
       addr?: string | null,
@@ -2407,9 +2047,6 @@ export interface EngineV2 extends BaseContract {
       startBlockTime?: BigNumberish | null
     ): StartBlockTimeChangedEventFilter;
 
-    "TaskRetracted(bytes32)"(id?: BytesLike | null): TaskRetractedEventFilter;
-    TaskRetracted(id?: BytesLike | null): TaskRetractedEventFilter;
-
     "TaskSubmitted(bytes32,bytes32,uint256,address)"(
       id?: BytesLike | null,
       model?: BytesLike | null,
@@ -2422,13 +2059,6 @@ export interface EngineV2 extends BaseContract {
       fee?: null,
       sender?: string | null
     ): TaskSubmittedEventFilter;
-
-    "TreasuryRewardPercentageChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): TreasuryRewardPercentageChangedEventFilter;
-    TreasuryRewardPercentageChanged(
-      amount?: BigNumberish | null
-    ): TreasuryRewardPercentageChangedEventFilter;
 
     "TreasuryTransferred(address)"(
       to?: string | null
@@ -2445,13 +2075,6 @@ export interface EngineV2 extends BaseContract {
       validator?: string | null,
       amount?: null
     ): ValidatorDepositEventFilter;
-
-    "ValidatorMinimumPercentageChanged(uint256)"(
-      amount?: BigNumberish | null
-    ): ValidatorMinimumPercentageChangedEventFilter;
-    ValidatorMinimumPercentageChanged(
-      amount?: BigNumberish | null
-    ): ValidatorMinimumPercentageChangedEventFilter;
 
     "ValidatorWithdraw(address,address,uint256,uint256)"(
       addr?: string | null,
@@ -2497,6 +2120,22 @@ export interface EngineV2 extends BaseContract {
 
     baseToken(overrides?: CallOverrides): Promise<BigNumber>;
 
+    bulkSubmitSolution(
+      taskids_: BytesLike[],
+      cids_: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    bulkSubmitTask(
+      version_: BigNumberish,
+      owner_: string,
+      model_: BytesLike,
+      fee_: BigNumberish,
+      input_: BytesLike,
+      n_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     cancelValidatorWithdraw(
       count_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2508,6 +2147,10 @@ export interface EngineV2 extends BaseContract {
     ): Promise<BigNumber>;
 
     commitments(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    contestationVoteExtensionTime(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     contestationVoteFinish(
       taskid_: BytesLike,
@@ -2585,8 +2228,6 @@ export interface EngineV2 extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      baseToken_: string,
-      treasury_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2596,6 +2237,11 @@ export interface EngineV2 extends BaseContract {
     ): Promise<BigNumber>;
 
     lastContestationLossTime(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    lastSolutionSubmission(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -2644,11 +2290,6 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    retractTask(
-      taskid_: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     retractionFeePercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
     reward(
@@ -2657,48 +2298,8 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setExitValidatorMinUnlockTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMaxContestationValidatorStakeSince(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMinClaimSolutionTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMinContestationVotePeriodTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMinRetractionWaitTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setPaused(
       paused_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setRetractionFeePercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSlashAmountPercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSolutionFeePercentage(
-      amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2708,23 +2309,8 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setSolutionStakeAmount(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setStartBlockTime(
       startBlockTime_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTreasuryRewardPercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setValidatorMinimumPercentage(
-      amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -2738,15 +2324,11 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    signalSupport(
-      model_: BytesLike,
-      support_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     slashAmountPercentage(overrides?: CallOverrides): Promise<BigNumber>;
 
     solutionFeePercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
+    solutionRateLimit(overrides?: CallOverrides): Promise<BigNumber>;
 
     solutions(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2781,7 +2363,11 @@ export interface EngineV2 extends BaseContract {
 
     targetTs(t: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
+    taskOwnerRewardPercentage(overrides?: CallOverrides): Promise<BigNumber>;
+
     tasks(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalHeld(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       to_: string,
@@ -2837,6 +2423,11 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    votingPeriodEnded(
+      taskid_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     withdrawAccruedFees(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -2846,6 +2437,22 @@ export interface EngineV2 extends BaseContract {
     accruedFees(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     baseToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    bulkSubmitSolution(
+      taskids_: BytesLike[],
+      cids_: BytesLike[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    bulkSubmitTask(
+      version_: BigNumberish,
+      owner_: string,
+      model_: BytesLike,
+      fee_: BigNumberish,
+      input_: BytesLike,
+      n_: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     cancelValidatorWithdraw(
       count_: BigNumberish,
@@ -2859,6 +2466,10 @@ export interface EngineV2 extends BaseContract {
 
     commitments(
       arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    contestationVoteExtensionTime(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2944,8 +2555,6 @@ export interface EngineV2 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      baseToken_: string,
-      treasury_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2955,6 +2564,11 @@ export interface EngineV2 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     lastContestationLossTime(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    lastSolutionSubmission(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -3010,11 +2624,6 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    retractTask(
-      taskid_: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     retractionFeePercentage(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -3025,48 +2634,8 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setExitValidatorMinUnlockTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMaxContestationValidatorStakeSince(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMinClaimSolutionTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMinContestationVotePeriodTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMinRetractionWaitTime(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     setPaused(
       paused_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setRetractionFeePercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSlashAmountPercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSolutionFeePercentage(
-      amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -3076,23 +2645,8 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setSolutionStakeAmount(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     setStartBlockTime(
       startBlockTime_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTreasuryRewardPercentage(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setValidatorMinimumPercentage(
-      amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -3106,12 +2660,6 @@ export interface EngineV2 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    signalSupport(
-      model_: BytesLike,
-      support_: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     slashAmountPercentage(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -3119,6 +2667,8 @@ export interface EngineV2 extends BaseContract {
     solutionFeePercentage(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    solutionRateLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     solutions(
       arg0: BytesLike,
@@ -3161,10 +2711,16 @@ export interface EngineV2 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    taskOwnerRewardPercentage(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     tasks(
       arg0: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    totalHeld(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
       to_: string,
@@ -3225,6 +2781,11 @@ export interface EngineV2 extends BaseContract {
       taskid_: BytesLike,
       yea_: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    votingPeriodEnded(
+      taskid_: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     withdrawAccruedFees(

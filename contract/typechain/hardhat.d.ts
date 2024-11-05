@@ -205,9 +205,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EngineV1__factory>;
     getContractFactory(
-      name: "BulkSubmitter",
+      name: "BulkClaimSolution",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.BulkSubmitter__factory>;
+    ): Promise<Contracts.BulkClaimSolution__factory>;
+    getContractFactory(
+      name: "BulkSubmitTask",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BulkSubmitTask__factory>;
     getContractFactory(
       name: "ClaimSolution",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -216,6 +220,10 @@ declare module "hardhat/types/runtime" {
       name: "FinishContestationVote",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FinishContestationVote__factory>;
+    getContractFactory(
+      name: "IsMiner",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IsMiner__factory>;
     getContractFactory(
       name: "LookupContestationValidator",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -240,10 +248,6 @@ declare module "hardhat/types/runtime" {
       name: "RegisterModel",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RegisterModel__factory>;
-    getContractFactory(
-      name: "RetractTask",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RetractTask__factory>;
     getContractFactory(
       name: "SubmitContestation",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -388,6 +392,10 @@ declare module "hardhat/types/runtime" {
       name: "V2EngineV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.V2EngineV2__factory>;
+    getContractFactory(
+      name: "V2EngineV3",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2EngineV3__factory>;
 
     getContractAt(
       name: "ArbSys",
@@ -630,10 +638,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.EngineV1>;
     getContractAt(
-      name: "BulkSubmitter",
+      name: "BulkClaimSolution",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.BulkSubmitter>;
+    ): Promise<Contracts.BulkClaimSolution>;
+    getContractAt(
+      name: "BulkSubmitTask",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BulkSubmitTask>;
     getContractAt(
       name: "ClaimSolution",
       address: string,
@@ -644,6 +657,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.FinishContestationVote>;
+    getContractAt(
+      name: "IsMiner",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IsMiner>;
     getContractAt(
       name: "LookupContestationValidator",
       address: string,
@@ -674,11 +692,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.RegisterModel>;
-    getContractAt(
-      name: "RetractTask",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.RetractTask>;
     getContractAt(
       name: "SubmitContestation",
       address: string,
@@ -859,6 +872,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.V2EngineV2>;
+    getContractAt(
+      name: "V2EngineV3",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2EngineV3>;
 
     // default types
     getContractFactory(

@@ -34,11 +34,10 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
   const provider = useProvider();
   const engine = new ethers.Contract(Config.v2_engineAddress, EngineArtifact.abi, provider);
 
-  const [watchTaskid, setWatchTaskid] = useState();
+  const [taskid, setTaskid] = useState<string>();
   const [cid, setCid] = useState<string>();
   const [validator, setValidator] = useState('');
   const [blocktime, setBlocktime] = useState(ethers.BigNumber.from(0));
-  const [receipt, setReceipt] = useState<ethers.providers.TransactionReceipt>();
 
   const { config: submitTaskConfig } = usePrepareContractWrite({
     address: cid ? undefined : Config.v2_engineAddress as `0x${string}`,
@@ -71,77 +70,58 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
     hash: cid ? undefined : submitTaskData?.hash,
   })
 
-  useEffect(() => {
-    if (! receipt && submitTaskTxData) {
-      setReceipt(submitTaskTxData);
-    }
-  }, [submitTaskTxData]);
+  let watchTaskid: string|null = null;
+  console.log('submitTaskTxData', submitTaskTxData);
+  if (submitTaskTxData) {
+    for (const log of submitTaskTxData.logs) {
+      let parsedLog;
 
-  /*
-  const { config: retractTaskConfig } = usePrepareContractWrite({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    functionName: 'retractTask',
-    args: [
-      watchTaskid,
-    ],
-    enabled: Boolean(watchTaskid && !responseCid),
-  });
-
-  const {
-    data: retractTaskData,
-    isIdle: retractTaskIsIdle,
-    isError: retractTaskIsError,
-    isLoading: retractTaskIsLoading,
-    isSuccess: retractTaskIsSuccess,
-    write: retractTaskWrite
-  } = useContractWrite(retractTaskConfig)
-
-  const {
-    data: retractTaskTxData,
-    isError: retractTaskTxIsError,
-    isLoading: retractTaskTxIsLoading,
-  } = useWaitForTransaction({
-    hash: retractTaskData?.hash,
-  })
-  */
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'SolutionSubmitted',
-    listener(sender, taskid) {
-      console.debug('Event.SolutionSubmitted', sender, taskid)
-
-      async function f(tries: number = 0) {
-        if (cid) {
-          return;
-        }
-
-        console.debug(`Event.SolutionSubmitted try ${tries}`);
-        if (tries > 10) {
-          console.debug('tried too many times');
-          return;
-        }
-
-        if (! watchTaskid) {
-          await sleep(1000);
-          f(tries + 1);
-          return;
-        }
-
-        if (taskid === watchTaskid) {
-          const solution = await engine.solutions(watchTaskid)
-          const { validator, blocktime, cid: responseCid } = solution;
-          setValidator(validator);
-          setBlocktime(blocktime);
-          setCid(base58.encode(ethers.utils.arrayify(responseCid)));
-        }
+      try {
+        parsedLog = engine.interface.parseLog(log);
+      } catch (e) {
+        continue;
       }
 
-      f();
-    },
-  })
+      if (parsedLog.name === 'TaskSubmitted') {
+        const {id: taskid, fee, model, sender } = parsedLog.args;
+        watchTaskid = taskid;
+      }
+    }
+  }
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      async function f() {
+        const solution = await engine.solutions(watchTaskid)
+
+        const { validator, blocktime, cid: responseCid } = solution;
+
+        if (validator == ethers.constants.AddressZero) {
+          return;
+        }
+
+        if (responseCid === ethers.constants.HashZero) {
+          return;
+        }
+
+        setValidator(validator);
+        setBlocktime(blocktime);
+        setCid(base58.encode(ethers.utils.arrayify(responseCid)));
+        setTaskid(watchTaskid!);
+
+        clearInterval(interval);
+      }
+
+      if (submitTaskTxData && !cid) {
+        if (watchTaskid) {
+          f();
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [submitTaskTxData, submitTaskTxIsLoading]);
 
   useEffect(() => {
     if (submitTaskIsIdle
@@ -151,35 +131,12 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
     ) {
       submitTaskWrite?.();
     }
-    if (!watchTaskid && submitTaskTxData) {
-      console.debug('submitTaskTxData', submitTaskTxData);
-      for (const log of submitTaskTxData.logs) {
-        let parsedLog;
-        try {
-          parsedLog = engine.interface.parseLog(log);
-          console.debug('parsedLog', parsedLog);
-        } catch (e) {
-          console.debug('parsedLog failed', JSON.stringify(e));
-          continue;
-        }
-
-        if (parsedLog.name === 'TaskSubmitted') {
-          const {id: taskid, fee, model, sender } = parsedLog.args;
-          setWatchTaskid(taskid);
-        }
-      }
-    }
-  });
-
-  /*
-  function retractTask() {
-    async function f() {
-      retractTaskWrite?.();
-    }
-
-    f();
-  }
-  */
+  }, [
+    submitTaskIsIdle,
+    submitTaskIsLoading,
+    submitTaskIsError,
+    submitTaskIsSuccess,
+  ]);
 
   return (
     <>
@@ -190,13 +147,13 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
             <div>
               <JSONTree
                 data={{
-                  taskid: watchTaskid,
+                  taskid,
                   request: {
                     input: JSON.parse(input),
                     fee: fee.toString(),
                     modelid,
                     version,
-                    txReceipt: receipt,
+                    txReceipt: submitTaskTxData,
                   },
                   response: {
                     validator,
@@ -212,13 +169,7 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
               />
             </div>
           </>
-        )/* : retractTaskTxData ? (
-          <>
-            <div className="p-2">
-              <p>Task retracted</p>
-            </div>
-          </>
-        )*/ : (
+        ) : (
           <>
             <div className="max-w-[90vw]">
               <div className="flex flex-row justify-left">
@@ -231,17 +182,6 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
                   { submitTaskIsLoading ? 'Please confirm in wallet' : '' }
                   { submitTaskIsSuccess ? `Waiting for task to be mined` : '' }
                 </p>
-
-                {/*
-                <div className={submitTaskIsSuccess ? '' : 'hidden'}>
-                  <button
-                    className="rounded-md bg-slate-500 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600 disabled:opacity-25 m-2"
-                    onClick={retractTask}
-                  >
-                    Cancel <small>(10% fee applies)</small>
-                  </button>
-                </div>
-                */}
               </div>
               <div className="overflow-x-auto">
                 { (submitTaskIsSuccess && watchTaskid) ? (

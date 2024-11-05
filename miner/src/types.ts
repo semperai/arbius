@@ -61,6 +61,8 @@ export interface MiningConfig {
     solution_submitted: number;
     task_retracted: number;
   }
+
+  additional_voting_keys: string[];
 }
 
 export interface Task {

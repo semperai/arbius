@@ -3,13 +3,12 @@ import { getL2Network } from '@arbitrum/sdk';
 import { EngineV1 } from '../typechain/EngineV1';
 import { V2EngineV2 as EngineV2 } from '../typechain/V2EngineV2';
 import * as fs from 'fs'
-import Config from './config.json';
 import 'dotenv/config';
 
 
 async function main() {
   const signers = await ethers.getSigners();
-  const deployer   = signers[0];
+  const deployer = signers[0];
 
   console.log("Deploying contracts with the account:", deployer.address);
 
@@ -17,7 +16,7 @@ async function main() {
   // const mirrorEngine = await ethers.getContractAt('V2EngineV2', Config.v2_engineAddress);
   // const mirrorL2Token = await ethers.getContractAt('BaseTokenV1', Config.v2_l1TokenAddress);
   // const mirrorEngineBalance = await mirrorL2Token.balanceOf(mirrorEngine.address);
-  const mirrorEngineBalance = ethers.utils.parseEther('578000');
+  const mirrorEngineBalance = ethers.utils.parseEther('479655');
   // const solutionStakeAmount = await mirrorEngine.solutionsStakeAmount();
   const solutionStakeAmount = ethers.utils.parseEther('0.001');
   // const startTime = await mirrorEngine.startBlockTime();
