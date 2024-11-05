@@ -93,7 +93,7 @@ const AddPopUpChildren = ({ setShowPopUp, selectedStake, showPopUp, walletBalanc
             const a_b = (Number(totalStaked?.amount) / AIUS_wei) + Number(aiusToStake)
             setEstBalance(a_b * (t / t_max));
         }
-    }, [aiusToStake])
+    }, [aiusToStake, totalStaked, endDate, stakedOn])
 
     const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
         hash: addAIUSData?.hash,
