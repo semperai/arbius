@@ -10,7 +10,7 @@ import {
 import {
     ERC20Votes
 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
-import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Router02.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IArbius} from "./../interfaces/IArbius.sol";
 
@@ -99,6 +99,7 @@ contract AmicaModelToken is ERC20, ERC20Permit, ERC20Votes, Ownable {
     }
 
     /// @notice Withdraws tokens from the contract to the arbiusTreasury
+    /// @param _token the token to withdraw
     function withdraw(address _token) public {
         IERC20 token = IERC20(_token);
         uint256 balance = token.balanceOf(address(this));
@@ -108,8 +109,8 @@ contract AmicaModelToken is ERC20, ERC20Permit, ERC20Votes, Ownable {
 
 
     /// @notice Updates the whitelist
-    /// @param addr the address to update
-    /// @param whitelisted the new value
+    /// @param _addr the address to update
+    /// @param _whitelisted the new value
     function updateWhitelist(address _addr, bool _whitelisted) public onlyOwner {
         whitelist[_addr] = _whitelisted;
         emit WhitelistUpdated(_addr, _whitelisted);
