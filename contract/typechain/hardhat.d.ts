@@ -141,6 +141,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
     getContractFactory(
+      name: "ERC20Permit",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Permit__factory>;
+    getContractFactory(
+      name: "ERC20Votes",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Votes__factory>;
+    getContractFactory(
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Metadata__factory>;
@@ -188,6 +196,14 @@ declare module "hardhat/types/runtime" {
       name: "DoubleEndedQueue",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DoubleEndedQueue__factory>;
+    getContractFactory(
+      name: "IUniswapV2Router01",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniswapV2Router01__factory>;
+    getContractFactory(
+      name: "IUniswapV2Router02",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniswapV2Router02__factory>;
     getContractFactory(
       name: "BaseTokenV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -329,6 +345,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IPoolInitializer__factory>;
     getContractFactory(
+      name: "IUniswapV2Router01",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniswapV2Router01__factory>;
+    getContractFactory(
+      name: "IUniswapV2Router02",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniswapV2Router02__factory>;
+    getContractFactory(
       name: "IUniswapV3Factory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniswapV3Factory__factory>;
@@ -393,6 +417,18 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.L1Token__factory>;
     getContractFactory(
+      name: "AmicaModelToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AmicaModelToken__factory>;
+    getContractFactory(
+      name: "ModelTokenSwapReceiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ModelTokenSwapReceiver__factory>;
+    getContractFactory(
+      name: "ModelTokenV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ModelTokenV1__factory>;
+    getContractFactory(
       name: "OneToOneConvert",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OneToOneConvert__factory>;
@@ -405,25 +441,37 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TimelockV1__factory>;
     getContractFactory(
-      name: "V2_EngineV1",
+      name: "V2EngineV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2_EngineV1__factory>;
+    ): Promise<Contracts.V2EngineV1__factory>;
     getContractFactory(
-      name: "V2_EngineV2",
+      name: "V2EngineV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2_EngineV2__factory>;
+    ): Promise<Contracts.V2EngineV2__factory>;
     getContractFactory(
-      name: "V2_EngineV3",
+      name: "V2EngineV3Withdraw",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2_EngineV3__factory>;
+    ): Promise<Contracts.V2EngineV3Withdraw__factory>;
     getContractFactory(
-      name: "V2_EngineV4",
+      name: "V2EngineV3",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2_EngineV4__factory>;
+    ): Promise<Contracts.V2EngineV3__factory>;
     getContractFactory(
-      name: "V2_EngineV5",
+      name: "V2EngineV41",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.V2_EngineV5__factory>;
+    ): Promise<Contracts.V2EngineV41__factory>;
+    getContractFactory(
+      name: "V2EngineV4",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2EngineV4__factory>;
+    getContractFactory(
+      name: "V2EngineV4",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2EngineV4__factory>;
+    getContractFactory(
+      name: "V2EngineV5",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2EngineV5__factory>;
     getContractFactory(
       name: "VeNFTRender",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -602,6 +650,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20>;
     getContractAt(
+      name: "ERC20Permit",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Permit>;
+    getContractAt(
+      name: "ERC20Votes",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Votes>;
+    getContractAt(
       name: "IERC20Metadata",
       address: string,
       signer?: ethers.Signer
@@ -661,6 +719,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DoubleEndedQueue>;
+    getContractAt(
+      name: "IUniswapV2Router01",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV2Router01>;
+    getContractAt(
+      name: "IUniswapV2Router02",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV2Router02>;
     getContractAt(
       name: "BaseTokenV1",
       address: string,
@@ -837,6 +905,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IPoolInitializer>;
     getContractAt(
+      name: "IUniswapV2Router01",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV2Router01>;
+    getContractAt(
+      name: "IUniswapV2Router02",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV2Router02>;
+    getContractAt(
       name: "IUniswapV3Factory",
       address: string,
       signer?: ethers.Signer
@@ -917,6 +995,21 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.L1Token>;
     getContractAt(
+      name: "AmicaModelToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AmicaModelToken>;
+    getContractAt(
+      name: "ModelTokenSwapReceiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ModelTokenSwapReceiver>;
+    getContractAt(
+      name: "ModelTokenV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ModelTokenV1>;
+    getContractAt(
       name: "OneToOneConvert",
       address: string,
       signer?: ethers.Signer
@@ -932,30 +1025,45 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TimelockV1>;
     getContractAt(
-      name: "V2_EngineV1",
+      name: "V2EngineV1",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2_EngineV1>;
+    ): Promise<Contracts.V2EngineV1>;
     getContractAt(
-      name: "V2_EngineV2",
+      name: "V2EngineV2",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2_EngineV2>;
+    ): Promise<Contracts.V2EngineV2>;
     getContractAt(
-      name: "V2_EngineV3",
+      name: "V2EngineV3Withdraw",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2_EngineV3>;
+    ): Promise<Contracts.V2EngineV3Withdraw>;
     getContractAt(
-      name: "V2_EngineV4",
+      name: "V2EngineV3",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2_EngineV4>;
+    ): Promise<Contracts.V2EngineV3>;
     getContractAt(
-      name: "V2_EngineV5",
+      name: "V2EngineV41",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.V2_EngineV5>;
+    ): Promise<Contracts.V2EngineV41>;
+    getContractAt(
+      name: "V2EngineV4",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2EngineV4>;
+    getContractAt(
+      name: "V2EngineV4",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2EngineV4>;
+    getContractAt(
+      name: "V2EngineV5",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2EngineV5>;
     getContractAt(
       name: "VeNFTRender",
       address: string,
