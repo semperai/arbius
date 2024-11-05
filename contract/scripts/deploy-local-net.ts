@@ -3,6 +3,7 @@ import { getL2Network } from '@arbitrum/sdk';
 import { EngineV1 } from '../typechain/EngineV1';
 import { V2EngineV2 as EngineV2 } from '../typechain/V2EngineV2';
 import { V2EngineV3 as EngineV3 } from '../typechain/V2EngineV3';
+import { V2EngineV4 as EngineV4 } from '../typechain/V2EngineV4';
 import * as fs from 'fs'
 import 'dotenv/config';
 
@@ -30,6 +31,8 @@ async function main() {
 
   const EngineV1 = await ethers.getContractFactory("EngineV1");
   const EngineV2 = await ethers.getContractFactory("V2_EngineV2");
+  const EngineV3 = await ethers.getContractFactory("V2_EngineV3");
+  const EngineV4 = await ethers.getContractFactory("V2_EngineV4_1");
 
   let engine = await upgrades.deployProxy(EngineV1, [
     l2Token.address,
@@ -40,9 +43,6 @@ async function main() {
 
   engine = await upgrades.upgradeProxy(engine.address, EngineV2);
   console.log("Engine upgraded to V2");
-
-  engine = await upgrades.upgradeProxy(engine.address, EngineV3);
-  console.log("Engine upgraded to V3");
 
   await (await engine
     .connect(deployer)
@@ -56,11 +56,24 @@ async function main() {
   ).wait();
   console.log(`Start block time set to ${new Date((startTime) * 1000).toString()}`);
 
+  engine = await upgrades.upgradeProxy(engine.address, EngineV3, {
+    call: "initialize",
+  });
+  console.log("Engine upgraded to V3");
+
+  engine = await upgrades.upgradeProxy(engine.address, EngineV4, {
+    call: "initialize",
+  });
+  console.log("Engine upgraded to V4");
+
+
+  /*
   await (await l2Token
     .connect(deployer)
     .bridgeMint(engine.address, mirrorEngineBalance)
   ).wait();
   console.log(`Minted to mirror engine: ${mirrorEngineBalance}`);
+  */
   
   for (const signer of signers) {
     await (await l2Token
@@ -81,8 +94,8 @@ async function main() {
   // SAVE CONFIG
   const configPath = __dirname + '/config.local.json';
   fs.writeFileSync(configPath, JSON.stringify({
-    v2_baseTokenAddress: l2Token.address,
-    v2_engineAddress: engine.address,
+    v4_baseTokenAddress: l2Token.address,
+    v4_engineAddress: engine.address,
     models: {
       kandinsky2: {
         id: kandinsky2ModelId,
