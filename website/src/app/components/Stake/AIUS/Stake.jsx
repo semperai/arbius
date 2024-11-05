@@ -56,7 +56,6 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const faucetABI = [{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"faucet","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}]
 
     const [faucetCalled, setFaucetCalled] = useState(false);
-
     /*const rewardRate = useContractRead({
         address: VE_STAKING_ADDRESS,
         abi: veStaking.abi,
@@ -265,7 +264,11 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                 setAllowance(_checkAllowance)
 
                 if(localStorage.getItem("faucetCalled")){
-                    setFaucetCalled(true);
+                    if(Array.isArray(JSON.parse(localStorage.getItem("faucetCalled"))) && JSON.parse(localStorage.getItem("faucetCalled")).includes(address)){
+                        setFaucetCalled(true);
+                    }else{
+                        setFaucetCalled(false);
+                    }
                 }else{
                     setFaucetCalled(false)
                 }
@@ -374,8 +377,15 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
             const web3 = new Web3(window.ethereum);
             const faucetContract = new web3.eth.Contract(faucetABI, FAUCET_ADDRESS);
             const res = await faucetContract.methods.faucet().send({from: address})
+            let getFaucetAddresses = localStorage.getItem("faucetCalled")
+            if(getFaucetAddresses && Array.isArray(JSON.parse(getFaucetAddresses))){
+                getFaucetAddresses = JSON.parse(getFaucetAddresses)
+                getFaucetAddresses.push(address)
+                localStorage.setItem("faucetCalled", JSON.stringify(getFaucetAddresses))
+            }else{
+                localStorage.setItem("faucetCalled", JSON.stringify([address]))
+            }
             setFaucetCalled(true)
-            localStorage.setItem("faucetCalled", true)
             setShowPopUp("Success")
             setUpdateValue(prevValue => prevValue + 1)
         }catch(err){
@@ -402,7 +412,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     </PopUp>
                 )
             }
-            <div className="bg-white-background 2xl:h-[530px] lg:h-[535px] h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border flex flex-col justify-between">
+            <div className="bg-white-background h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border flex flex-col justify-between">{/*2xl:h-[530px] lg:h-[535px]*/}
                 <div>
                     <div>
                         <div className="flex justify-between items-center mb-4">
@@ -503,9 +513,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                             <div className={`lato-bold  relative z-10  ${faucetCalled ? "text-original-black opacity-40": "text-original-white opacity-100"} group-hover:text-original-white group-hover:opacity-100 lg:text-[15px]`}>
                                 AIUS Faucet
                             </div>
-
                         </button>
-
                     </div>
                     <div className=' mt-6'>
                         <Link href={"#dashboard"} onClick={() => setSelectedTab("Dashboard")}>
@@ -521,7 +529,6 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
                             </button>
                         </Link>
-
                     </div>
                     <div className=' mt-6'>
                         <button
@@ -538,10 +545,12 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                             <div className="lato-bold relative z-10 text-original-white lg:text-[15px]">
                                 Stake
                             </div>
-
                         </button>
                     </div>
                 </div>
+                {   !faucetCalled ?
+                    <div className="text-black-text text-[9px] whitespace-nowrap text-center">Wallet needs Arbitrum Sepolia ETH to prevent transaction failure.</div>
+                    : null }
             </div>
         </div>
         </>
