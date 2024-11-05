@@ -1,13 +1,54 @@
 import * as fs from 'fs';
 import ProxyAdminArtifact from '@openzeppelin/upgrades-core/artifacts/@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol/ProxyAdmin.json';
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { task } from "hardhat/config";
+import { task, types } from "hardhat/config";
 import Config from '../scripts/config.one.json';
 import LocalConfig from '../scripts/config.local.json';
 
 async function getMinerAddress(hre: HardhatRuntimeEnvironment) {
   const accounts = await hre.ethers.getSigners();
   return accounts[0].address;
+}
+
+async function getEngine(hre: HardhatRuntimeEnvironment) {
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+    
+  if (hre.network.name === 'localhost') {
+    const engine = await Engine.attach(LocalConfig.v4_engineAddress);
+    return engine;
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    const engine = await Engine.attach(Config.v4_engineAddress);
+    return engine;
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+async function getBaseToken(hre: HardhatRuntimeEnvironment) {
+  const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    const baseToken = await BaseToken.attach(LocalConfig.v4_baseTokenAddress);
+    return baseToken;
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    const baseToken = await BaseToken.attach(Config.v4_baseTokenAddress);
+    return baseToken;
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
 }
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -161,8 +202,7 @@ task("send-eth", "Send ether")
 
 task("mining:balance", "Get miners token balance")
 .setAction(async ({ }, hre) => {
-  const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-  const baseToken = await BaseToken.attach(Config.v4_baseTokenAddress);
+  const baseToken = await getBaseToken(hre);
   const minerAddress = await getMinerAddress(hre);
   const bal = await baseToken.balanceOf(minerAddress);
   console.log(`balance ${hre.ethers.utils.formatEther(bal)}`);
@@ -172,151 +212,134 @@ task("mining:transfer", "Transfer mining rewards to new address")
 .addParam("address", "Receiver address")
 .addParam("amount", "In token value")
 .setAction(async ({ address, amount }, hre) => {
-  const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-  const baseToken = await BaseToken.attach(Config.v4_baseTokenAddress);
+  const baseToken = await getBaseToken(hre);
   const tx = await baseToken.transfer(address, hre.ethers.utils.parseEther(amount));
   await tx.wait();
   console.log(`sent ${amount} tokens to ${address}`);
 });
 
-task("mining:claimSolution", "Claim past task")
-.addParam("taskid", "Task id")
-.setAction(async ({ taskid }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-  const tx = await engine.claimSolution(taskid);
+task("mining:allowance", "Set allowance for miner")
+.setAction(async ({ }, hre) => {
+  const baseToken = await getBaseToken(hre);
+  const minerAddress = await getMinerAddress(hre);
+  const tx = await baseToken.approve(Config.v4_engineAddress, hre.ethers.constants.MaxUint256);
   await tx.wait();
+  const allowance = await baseToken.allowance(minerAddress, Config.v4_engineAddress);
+  console.log(`allowance ${hre.ethers.utils.formatEther(allowance)}`);
 });
 
-task("mining:signalSupport", "Signal mining support for model")
+task("mining:submitTask", "Helper to submit task")
+.addOptionalParam("v", "Version of task", "0")
+.addOptionalParam("owner", "Owner of task")
 .addParam("model", "Model id")
-.addParam("support", "Whether supported or not")
-.setAction(async ({ model, support }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-  const tx = await engine.signalSupport(model, support);
-  await tx.wait();
+.addOptionalParam("fee", "Fee", "0")
+.addParam("input", "Input")
+.setAction(async ({ v, owner, model, fee, input }, hre) => {
+  owner = owner || await getMinerAddress(hre);
+
+  const engine = await getEngine(hre);
+  const tx = await engine.submitTask(
+    v,
+    owner,
+    model,
+    hre.ethers.utils.parseEther(fee),
+    hre.ethers.utils.hexlify(hre.ethers.utils.toUtf8Bytes(input))
+  );
+  const receipt = await tx.wait();
+  console.log(receipt.events[0].args.id);
 });
 
-task("model:register", "Register new model")
-.addParam("address", "Address for fees for model")
-.addParam("fee", "Flat fee to set")
-.addParam("template", "Model schema")
-.setAction(async ({ address, fee, template }, hre) => {
-  // The template file is loaded and submitted as calldata
-  const tdata = fs.readFileSync(template);
-  if (tdata.length > 262144) {
-    console.error('error: template file bigger than 262144 bytes');
-    process.exit(1);
-  }
-
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.engineAddress);
-  const tx = await engine.registerModel(address, fee, tdata);
+task("mining:signalCommitment", "Helper to submit commitment")
+.addParam("task", "Task id")
+.addOptionalParam("cid", "Solution cid", "0x12206666666666666666666666666666666666666666666666666666666666666666")
+.setAction(async ({ task, cid }, hre) => {
+  const engine = await getEngine(hre);
+  const sender = await getMinerAddress(hre);
+  const commitment = await engine.generateCommitment(sender, task, cid);
+  console.log(`Commitment: ${commitment}`);
+  const tx = await engine.signalCommitment(commitment);
   const receipt = await tx.wait();
+  console.log(`Commitment signaled for task ${task} in ${receipt.transactionHash}`);
+});
 
-  const modelid = receipt.events[0].args.id;
+task("mining:submitSolution", "Helper to submit solution")
+.addParam("task", "Task id")
+.addOptionalParam("cid", "Solution cid", "0x12206666666666666666666666666666666666666666666666666666666666666666")
+.addOptionalParam("commit", "Send commitment", true, types.boolean)
+.setAction(async ({ task, cid, commit }, hre) => {
+  const engine = await getEngine(hre);
 
-  const { cid } = await engine.models(modelid);
+  if (commit) {
+    const sender = await getMinerAddress(hre);
+    const commitment = await engine.generateCommitment(sender, task, cid);
+    console.log(`Commitment: ${commitment}`);
+    const tx = await engine.signalCommitment(commitment);
+    const receipt = await tx.wait();
+    console.log(`Commitment signaled for task ${task} in ${receipt.transactionHash}`);
+  }
+  {
+    const tx = await engine.submitSolution(
+      task,
+      cid,
+    );
+    const receipt = await tx.wait();
+    console.log(`Solution submitted for task ${task} in ${receipt.transactionHash}`);
+  }
+});
+  
 
-  console.log(`Model registered: ${modelid}`);
-  console.log();
-  console.log(`Add the following to arbius/contract/scripts/config.json in the "models" section:`);
-  console.log();
-  console.log(JSON.stringify({
-    "<your-model-name>": {
-      id: modelid,
-      mineable: false,
-      contracts: {},
-      params: {
-        addr: address,
-        fee,
-        cid,
-      },
-    },
-  }, null, 2));
+task("mining:claimSolution", "Claim past task")
+.addParam("task", "Task id")
+.setAction(async ({ task }, hre) => {
+  const engine = await getEngine(hre);
+  const tx = await engine.claimSolution(task);
+  await tx.wait();
 });
 
 task("validator:lookup", "Query validator")
-.addParam("address", "Address")
+.addOptionalParam("address", "Address")
 .setAction(async ({ address }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4")
-  const engine = await Engine.attach(Config.v4_engineAddress);
-
+  address = address || await getMinerAddress(hre);
+  const engine = await getEngine(hre);
   const validator = await engine.validators(address);
   console.log(validator);
 
 });
 
 task("validator:stake", "Become a validator")
-.setAction(async ({ }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+.addOptionalParam("address", "Address")
+.addOptionalParam("amount", "Amount")
+.setAction(async ({ address, amount }, hre) => {
+  address = address || await getMinerAddress(hre);
+  const engine = await getEngine(hre);
 
-  const minimum = await engine.getValidatorMinimum();
-  const minimumWithBuffer = minimum.mul(1200).div(1000);
+  if (! amount) {
+    const minimum = await engine.getValidatorMinimum();
+    const minimumWithBuffer = minimum.mul(1200).div(1000);
+    console.log(`No amount specified, using minimum ${hre.ethers.utils.formatEther(minimumWithBuffer)}`);
+    amount = hre.ethers.utils.formatEther(minimumWithBuffer);
+  }
 
-  const tx = await engine.validatorDeposit(await getMinerAddress(), minimumWithBuffer);
+  const tx = await engine.validatorDeposit(address, hre.ethers.utils.parseEther(amount));
   await tx.wait();
 
-  console.log(`${await getMinerAddress(hre)} is now a validator`);
+  const validator = await engine.validators(address);
+  const staked = hre.ethers.utils.formatEther(validator.staked);
+
+  console.log(`${await getMinerAddress(hre)} is now a validator with stake ${staked}`);
 });
-
-task("validator:deploy-delegation", "Create delegated validator")
-.addVariadicPositionalParam("modelIds")
-.setAction(async ({ modelIds }, hre) => {
-  const DelegatedValidatorDeployer = await hre.ethers.getContractFactory("DelegatedValidatorDeployerV1");
-  const delegatedValidatorDeployer = await DelegatedValidatorDeployer.attach(Config.delegatedValidatorDeployerAddress);
-
-  const tx = await delegatedValidatorDeployer.deploy(
-    modelIds,
-  );
-  const receipt = await tx.wait();
-  for (const e of receipt.events) {
-    if (! e.event === 'Deploy') {
-      continue;
-    }
-
-    if (typeof e.args === 'undefined') {
-      continue;
-    }
-
-    console.log(`new delegated validator deployed to ${e.args.del}`);
-    break;
-  }
-});
-// TODO add delegation utilities
-// TODO setting delegate for delegatedValidator
-// TODO submit solutions and vote etc
 
 task("engine:transferOwnership", "Transfer admin ownership of Engine")
 .addParam("address", "To who?")
 .setAction(async ({ address }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const tx = await engine.transferOwnership(address);
   await tx.wait();
 });
 
-task("engine:setSolutionMineableRate", "Allow a model to receive rewards for tasks completed")
-.addParam("model", "Model id")
-.addParam("rate", "Rate in eth rate")
-.setAction(async ({ model, rate }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-  const tx = await engine.setSolutionMineableRate(model, rate);
-  await tx.wait();
-
-  const data = await engine.models(model);
-  console.log(data);
-
-  console.log(`${model} mineable rate set to ${rate}`);
-});
-
 task("engine:isPaused", "Check if engine is paused")
 .setAction(async ({ }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const paused = await engine.paused();
   console.log(`Engine is paused: ${paused}`);
 });
@@ -324,8 +347,7 @@ task("engine:isPaused", "Check if engine is paused")
 task("engine:pause", "Pause engine")
 .addParam("pause", "Pause/Unpause")
 .setAction(async ({ pause }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const tx = await engine.setPaused(pause === 'true');
   await tx.wait();
   const paused = await engine.paused();
@@ -335,8 +357,7 @@ task("engine:pause", "Pause engine")
 task("engine:setVersion", "Set engine version for miner check")
 .addParam("n", "Version Number")
 .setAction(async ({ n }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const tx = await engine.setVersion(n);
   await tx.wait();
   const versionNow = await engine.version();
@@ -345,8 +366,7 @@ task("engine:setVersion", "Set engine version for miner check")
 
 task("engine:version", "Get engine version for miner check")
 .setAction(async ({ }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const versionNow = await engine.version();
   console.log(`Engine is now version ${versionNow}`);
 });
@@ -355,16 +375,14 @@ task("engine:reward", "Check reward calculation")
 .addParam("t", "Time")
 .addParam("ts", "Total supply")
 .setAction(async ({ t, ts }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const reward = await engine.reward(t, hre.ethers.utils.parseEther(ts));
   console.log(hre.ethers.utils.formatEther(reward));
 });
 
 task("engine:getPsuedoTotalSupply", "Call getPsuedoTotalSupply")
 .setAction(async ({ }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const ts = await engine.getPsuedoTotalSupply();
   console.log(hre.ethers.utils.formatEther(ts));
 });
@@ -372,8 +390,7 @@ task("engine:getPsuedoTotalSupply", "Call getPsuedoTotalSupply")
 task("engine:targetTs", "Call targetTs")
 .addOptionalParam("t", "Time")
 .setAction(async ({ t }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
 
   if (typeof t === 'undefined') {
     const startBlockTime = await engine.startBlockTime();
@@ -387,9 +404,7 @@ task("engine:targetTs", "Call targetTs")
 
 task("engine:getReward", "Call getReward")
 .setAction(async ({ t }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-
+  const engine = await getEngine(hre);
   const r = await engine.getReward();
   console.log(hre.ethers.utils.formatEther(r));
 });
@@ -397,9 +412,7 @@ task("engine:getReward", "Call getReward")
 task("engine:setStartBlockTime", "Set startBlockTime")
 .addParam("t", "Time")
 .setAction(async ({ t }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-
+  const engine = await getEngine(hre);
   const tx = await engine.setStartBlockTime(t);
   await tx.wait();
   const startBlockTime = await engine.startBlockTime();
@@ -408,266 +421,18 @@ task("engine:setStartBlockTime", "Set startBlockTime")
 
 task("engine:minClaimSolutionTime", "Get minClaimSolutionTime")
 .setAction(async ({ }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-
+  const engine = await getEngine(hre);
   const m = await engine.minClaimSolutionTime();
   console.log(`Engine minClaimSolutionTime is ${m}`);
 });
 
 task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
 .setAction(async ({ }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
   const tx = await engine.withdrawAccruedFees();
   await tx.wait();
   console.log('Fees withdrawn');
 });
-
-/*
-task("engine:utils:staked", "Check staked amount")
-.addParam("address", "Address")
-.setAction(async ({ address }, hre) => {
-  const Utils = await hre.ethers.getContractFactory("EngineUtilsV1");
-  const utils = await Utils.attach(Config.engineUtilsAddress);
-  const staked = await utils.staked(address);
-  console.log(`Staked: ${hre.ethers.utils.formatEther(staked)}`);
-});
-
-task("governance:delegate", "Delegate your tokens")
-.addParam("address", "To who? (can be yourself)")
-.setAction(async ({ address }, hre) => {
-  const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-  const baseToken = await BaseToken.attach(Config.baseTokenAddress);
-  const tx = await baseToken.delegate(address);
-  await tx.wait();
-  console.log(`Delegated voting rights to ${address}`);
-});
-
-task("governance:propose", "Propose a vote")
-.addParam("f", "Filename of proposal markdown file")
-.setAction(async ({ f }, hre) => {
-  const description = fs.readFileSync(f, 'utf8');
-  const descriptionHash = hre.ethers.utils.id(description);
-
-  const Governor  = await hre.ethers.getContractFactory("GovernorV1");
-  const governor  = await Governor.attach(Config.governorAddress);
-
-  const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-  const baseToken = await BaseToken.attach(Config.baseTokenAddress);
-
-  const targets = [
-    Config.baseTokenAddress,
-  ];
-  const values = [
-    0,
-  ];
-  const calldatas = [
-    baseToken.interface.encodeFunctionData('transfer', [
-      '0x1A320E53A25f518B893F286f3600cc204c181a8E',
-      hre.ethers.utils.parseEther("1.000012"),
-    ]),
-  ];
-
-  const tx = await governor['propose(address[],uint256[],bytes[],string)'](
-    targets,
-    values,
-    calldatas,
-    description,
-  );
-  const receipt = await tx.wait();
-
-  const proposalId = await governor.hashProposal(
-    targets,
-    values,
-    calldatas,
-    descriptionHash,
-  );
-  console.log('Proposal submitted', proposalId.toHexString());
-  console.log(receipt);
-});
-
-task("governance:vote", "Vote on a proposal")
-.addParam("proposal", "Proposal id")
-.addParam("vote", "0=against, 1=for, 2=abstain")
-.setAction(async ({ proposal, vote }, hre) => {
-  const Governor  = await hre.ethers.getContractFactory("GovernorV1");
-  const governor  = await Governor.attach(Config.governorAddress);
-
-  // 0 = Against, 1 = For, 2 = Abstain,
-  const tx = await governor.castVote(proposal, vote);
-  const receipt = await tx.wait();
-  console.log('Vote cast');
-});
-
-task("governance:cancel", "Cancel a proposal")
-.addParam("proposal", "Proposal id")
-.setAction(async ({ proposal }, hre) => {
-  const Governor  = await hre.ethers.getContractFactory("GovernorV1");
-  const governor  = await Governor.attach(Config.governorAddress);
-
-  const tx = await governor.cancel(proposal);
-  const receipt = await tx.wait();
-  console.log('Proposal canceled');
-});
-
-task("governance:queue", "Queue a proposal")
-.addParam("proposal", "Proposal id")
-.setAction(async ({ proposal }, hre) => {
-  const Governor  = await hre.ethers.getContractFactory("GovernorV1");
-  const governor  = await Governor.attach(Config.governorAddress);
-
-  const [
-    targets,
-    values,
-    signatures,
-    calldatas,
-  ] = await governor.getActions(proposal);
-
-  const descriptionHash = await governor.descriptionHashes(proposal);
-
-  const tx = await governor['queue(address[],uint256[],bytes[],bytes32)'](
-    targets,
-    values,
-    calldatas,
-    descriptionHash,
-  );
-  const receipt = await tx.wait();
-  console.log('Proposal queued');
-});
-
-task("governance:execute", "Execute a proposal")
-.addParam("proposal", "Proposal id")
-.setAction(async ({ proposal }, hre) => {
-  const Governor  = await hre.ethers.getContractFactory("GovernorV1");
-  const governor  = await Governor.attach(Config.governorAddress);
-
-  const [
-    targets,
-    values,
-    signatures,
-    calldatas,
-  ] = await governor.getActions(proposal);
-
-  const descriptionHash = await governor.descriptionHashes(proposal);
-
-  const tx = await governor['execute(address[],uint256[],bytes[],bytes32)'](
-    targets,
-    values,
-    calldatas,
-    descriptionHash,
-  );
-  const receipt = await tx.wait();
-  console.log('Proposal executed');
-  console.log(receipt);
-});
-
-task("governance:proposal", "Look up proposal info")
-.addParam("proposal", "Proposal id")
-.setAction(async ({ proposal }, hre) => {
-  const Governor  = await hre.ethers.getContractFactory("GovernorV1");
-  const governor  = await Governor.attach(Config.governorAddress);
-
-  const {
-    id,
-    proposer,
-    eta,
-    startBlock,
-    endBlock,
-    forVotes,
-    againstVotes,
-    abstainVotes,
-    canceled,
-    executed,
-  } = await governor.proposals(proposal);
-
-  console.log('id',           id.toHexString());
-  console.log('proposer',     proposer);
-  console.log('eta',          eta.toString());
-  console.log('startBlock',   startBlock.toString());
-  console.log('endBlock',     endBlock.toString());
-  console.log('forVotes',     ethers.utils.formatEther(forVotes));
-  console.log('againstVotes', ethers.utils.formatEther(againstVotes));
-  console.log('abstainVotes', ethers.utils.formatEther(abstainVotes));
-  console.log('canceled',     canceled);
-  console.log('executed',     executed);
-
-  console.log();
-
-  const [
-    targets,
-    values,
-    signatures,
-    calldatas,
-  ] = await governor.getActions(proposal);
-
-  console.log('targets',     targets);
-  console.log('values',      values.map((v) => ethers.utils.formatEther(v.toString())));
-  console.log('signatures',  signatures);
-  console.log('calldatas',   calldatas);
-
-  for (let i=0; i<targets.length; ++i) {
-    console.log();
-    console.log(`target ${i}`);
-    const target = targets[i];
-    const calldata = calldatas[i];
-
-    let iface = null;
-    if (target === Config.baseTokenAddress) {
-      const Contract = await hre.ethers.getContractFactory("BaseTokenV1");
-      const contract = await Contract.attach(Config.baseTokenAddress);
-      iface = contract.interface; 
-    }
-    else if (target === Config.engineAddress) {
-      const Contract = await hre.ethers.getContractFactory("EngineV1");
-      const contract = await Contract.attach(Config.engineAddress);
-      iface = baseToken.interface; 
-    }
-    else if (target === Config.lpStakingRewardAddress) {
-      const Contract = await hre.ethers.getContractFactory("LPStakingRewardV1");
-      const contract = await Contract.attach(Config.lpStakingRewardAddress);
-      iface = contract.interface; 
-    }
-    else if (target === Config.timelockAddress) {
-      const Contract = await hre.ethers.getContractFactory("TimelockV1");
-      const contract = await Contract.attach(Config.timelockAddress);
-      iface = baseToken.interface; 
-    }
-    else if (target === Config.governorAddress) {
-      const Contract = await hre.ethers.getContractFactory("GovernorV1");
-      const contract = await Contract.attach(Config.governorAddress);
-      iface = contract.interface; 
-    }
-    else if (target === Config.delegatedValidatorDeployerAddress) {
-      const Contract = await hre.ethers.getContractFactory("DelegatedValidatorDeployerV1");
-      const contract = await Contract.attach(Config.delegatedValidatorDeployerAddress);
-      iface = contract.interface; 
-    }
-    // TODO add additional interface lookups here
-    else if (target === Config.proxyAdminAddress) {
-      // special handling needed for proxy admin
-      const contract = new ethers.Contract(Config.proxyAdminAddress, ProxyAdminArtifact.abi);
-      iface = contract.interface;
-    }
-
-    if (iface === null) {
-      console.log(`cannot decode (do not know target ${target})`);
-      continue;
-    }
-
-    const { args, name, signature, value, functionFragment } = iface.parseTransaction({
-      data: calldata,
-    });
-
-    for (let input_idx=0; input_idx<functionFragment.inputs.length; ++input_idx) {
-      const input = functionFragment.inputs[input_idx];
-      const arg = args[input_idx];
-      console.log(`${input.name}(${input.type}) ${arg}`);
-    }
-  }
-});
-*/
-
 
 task("modeltoken:deploy", "Create new model token")
 .addParam("name", "Name of token (e.g. 'LLaMa')")
@@ -731,8 +496,7 @@ task("modeltoken:deployModel", "Deploy model")
 .addParam("fee", "Fee")
 .addParam("template", "Template")
 .setAction(async ({ address, fee, template }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("EngineV1");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
 
   const templateBuf = fs.readFileSync(template);
   if (templateBuf.length > 262144) {
@@ -776,8 +540,7 @@ task("modeltoken:info", "Get model info")
 
   let modelTokenAddress = address; // address could be undefined here
   if (model) {
-    const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-    const engine = await Engine.attach(Config.v4_engineAddress);
+    const engine = await getEngine(hre);
 
     const { addr, fee, cid } = await engine.models(model);
     console.log(`Model ${model}`);
@@ -908,9 +671,7 @@ task("modeltoken:updateModelFee", "Update fee for model")
 .addParam("model", "Model id")
 .addParam("fee", "Fee")
 .setAction(async ({ address, model, fee }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-
+  const engine = await getEngine(hre);
   const { addr: modelTokenAddress } = await engine.models(model);
 
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
@@ -925,9 +686,7 @@ task("modeltoken:updateModelAddr", "Update model address for model")
 .addParam("model", "Model id")
 .addParam("addr", "Address")
 .setAction(async ({ address, model, addr }, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
-
+  const engine = await getEngine(hre);
   const { addr: modelTokenAddress } = await engine.models(model);
 
   const ModelToken = await hre.ethers.getContractFactory("ModelTokenV1");
@@ -957,4 +716,15 @@ task("modeltoken:transferOwnership", "Transfer ownership of model token")
   const tx = await modelToken.transferOwnership(to);
   await tx.wait();
   console.log(`Ownership transferred to ${to}`);
+});
+
+task("amica:setTax")
+.addParam("address", "Model token address")
+.addParam("tax", "Tax")
+.setAction(async ({ address, tax }, hre) => {
+  const Amica = await hre.ethers.getContractFactory("AmicaModelToken");
+  const amica = await Amica.attach(address);
+  const tx = await amica.setTax(hre.ethers.utils.parseEther(tax));
+  await tx.wait();
+  console.log(`Tax set to ${tax}`);
 });
