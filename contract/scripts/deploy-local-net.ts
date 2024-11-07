@@ -32,7 +32,7 @@ async function main() {
   const EngineV1 = await ethers.getContractFactory("EngineV1");
   const EngineV2 = await ethers.getContractFactory("V2_EngineV2");
   const EngineV3 = await ethers.getContractFactory("V2_EngineV3");
-  const EngineV4 = await ethers.getContractFactory("V2_EngineV4_1");
+  const EngineV4 = await ethers.getContractFactory("V2_EngineV4");
 
   let engine = await upgrades.deployProxy(EngineV1, [
     l2Token.address,
@@ -65,6 +65,30 @@ async function main() {
     call: "initialize",
   });
   console.log("Engine upgraded to V4");
+
+
+  const VeNFTRender = await ethers.getContractFactory("VeNFTRender");
+  const VotingEscrow = await ethers.getContractFactory("VotingEscrow");
+  const VeStaking = await ethers.getContractFactory("VeStaking");
+
+  const veNFTRender = await VeNFTRender.deploy();
+  console.log("VeNFTRender deployed to:", veNFTRender.address);
+  const votingEscrow = await VotingEscrow.deploy(
+    l2Token.address,
+    veNFTRender.address,
+    ethers.constants.AddressZero // vestaking not deployed yet
+  );
+ const veStaking = await VeStaking.deploy(
+   l2Token.address,
+   votingEscrow.address
+ );
+ console.log("VeStaking deployed to:", veStaking.address);
+
+ await (await votingEscrow.setVeStaking(veStaking.address)).wait();
+ console.log("VeStaking set in VotingEscrow");
+
+ await (await engine.setVeStaking(veStaking.address)).wait();
+ console.log("VeStaking set in EngineV4");
 
 
   /*
