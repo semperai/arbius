@@ -1,5 +1,6 @@
 "use client"
 import React from "react"
+import { StaticImageData } from "next/image"
 import github from '@/app/assets/images/github.png'
 import discord from '@/app/assets/images/discord.png'
 import telegram from '@/app/assets/images/telegram.png'
@@ -10,79 +11,99 @@ import { Fade } from "react-awesome-reveal"
 import arbius_logo from '@/app/assets/images/arbius_logo.png'
 import small_arrow from '@/app/assets/images/small_arrow.png'
 
+type FooterLink = {
+  name: string;
+  link: string;
+  id: number;
+};
+
+const footerLinks: FooterLink[] = [
+  /*
+  {
+    name: "Generate",
+    link: "/generate"
+  },
+  */
+  {
+    name: "Upgrade",
+    link: "/upgrade"
+  },
+  {
+    name: "Media",
+    link: "/media"
+  },
+  // {
+  //   name: "Staking",
+  //   link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
+  // }, //commenting for mobile footer
+  {
+    name: "Docs",
+    link: "https://docs.arbius.ai/"
+  },
+  {
+    name: "Models",
+    link: "/models"
+  },
+  {
+    name: "Explorer",
+    link: "/explorer"
+  },
+  {
+    name: "veAIUS",
+    link: "/aius"
+  },
+  {
+    name: "GYSR",
+    link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
+  },
+  {
+    name: "Blog",
+    link: "https://blog.arbius.ai/"
+  }
+].map((o, id) => ({ ...o, id }));
+
+type SocialIcon = {
+  image: StaticImageData;
+  link: string;
+  alt: string;
+  id: number;
+};
+
+const socialIcons: SocialIcon[] = [
+  {
+    image: github,
+    link: "https://github.com/semperai/arbius",
+    alt: "Github"
+  },
+  {
+    image: twitter,
+    link: "https://x.com/arbius_ai",
+    alt: "X"
+  },
+  {
+    image: telegram,
+    link: "https://t.me/arbius_ai",
+    alt: "Telegram"
+  },
+  {
+    image: discord,
+    link: "https://discord.com/invite/eXxXMRCMzZ",
+    alt: "Discord"
+  }
+].map((o, id) => ({ ...o, id }));
+
+
+function FLink(link: FooterLink) {
+  return (
+    <Link href={link.link} target="_blank" key={link.id}>
+      <div>
+        <p className="text-[#393939] hover:text-purple-text lato-regular text-right font-medium text-[16px]">{link.name}</p>
+      </div>
+    </Link>
+  );
+}
+
 export default function Footer() {
-  const footerLinks = [
-    /*
-    {
-      name: "Generate",
-      link: "/generate"
-    },
-    */
-    {
-      name: "Upgrade",
-      link: "/upgrade"
-    },
-    {
-      name: "Media",
-      link: "/media"
-    },
-    // {
-    //   name: "Staking",
-    //   link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
-    // }, //commenting for mobile footer
-    {
-      name: "Docs",
-      link: "https://docs.arbius.ai/"
-    },
-    {
-      name: "Models",
-      link: "/models"
-    },
-    {
-      name: "Explorer",
-      link: "/explorer"
-    },
-    {
-      name: "veAIUS",
-      link: "/aius"
-    },
-    {
-      name: "GYSR",
-      link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
-    },
-    {
-      name: "Blog",
-      link: "https://blog.arbius.ai/"
-    }
-  ];
-
-  const socialIcons = [
-    {
-      id: "1",
-      image: github,
-      link: "https://github.com/semperai/arbius",
-      alt: "Github"
-    },
-    {
-      id: "2",
-      image: twitter,
-      link: "https://x.com/arbius_ai",
-      alt: "X"
-    },
-    {
-      id: "3",
-      image: telegram,
-      link: "https://t.me/arbius_ai",
-      alt: "Telegram"
-    },
-    {
-      id: "4",
-      image: discord,
-      link: "https://discord.com/invite/eXxXMRCMzZ",
-      alt: "Discord"
-    }
-  ];
-
   const scrollTop = () => {
     window.scrollTo({
       top: 0,
@@ -118,46 +139,9 @@ export default function Footer() {
                 </div>
 
               </div>
-              <div>
-                {
-                  footerLinks.slice(0, 3).map((link, idx) => {
-                    return (
-                      <Link href={link.link} target="_blank" key={link.name}>
-                        <div>
-                          <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
-                        </div>
-                      </Link>
-                    )
-                  })
-                }
-              </div>
-              <div>
-                {
-                  footerLinks.slice(-5, -2).map((link) => {
-                    return (
-                      <Link href={link.link} target="_blank" key={link.name}>
-                        <div>
-                          <p className="text-[#393939]  hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
-                        </div>
-                      </Link>
-                    )
-                  })
-                }
-
-              </div>
-              <div>
-                {
-                  footerLinks.slice(-2).map((link) => {
-                    return (
-                      <Link href={link.link} key={link.name} target="_blank">
-                        <div>
-                          <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
-                        </div>
-                      </Link>
-                    )
-                  })
-                }
-              </div>
+              <div>{footerLinks.slice(0, 3).map(FLink)}</div>
+              <div>{footerLinks.slice(-5, -2).map(FLink)}</div>
+              <div>{footerLinks.slice(-2).map(FLink)}</div>
               <div>
                 <div className="flex items-center gap-4 cursor-pointer group" onClick={scrollTop}>
                   <p className="text-[#393939] lato-regular text-[14px] group-hover:text-purple-text">Back to top</p>
@@ -196,30 +180,10 @@ export default function Footer() {
               </div>
               <div className="flex justify-between flex-row">
                 <div className="flex flex-col lg:flex-row items-start  lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
-                  {
-                    footerLinks.slice(0, 4).map((link) => {
-                      return (
-                        <Link href={link.link} target="_blank" key={link.name}>
-                          <div>
-                            <p className="text-[#393939] hover:text-purple-text lato-regular text-right font-medium text-[16px]">{link.name}</p>
-                          </div>
-                        </Link>
-                      )
-                    })
-                  }
+                  {footerLinks.slice(0, 4).map(FLink)}
                 </div>
                 <div className="flex flex-col lg:flex-row items-start  lm:gap-0 gap-4 lm:mt-0 mt-4 flex-wrap">
-                  {
-                    footerLinks.slice(-4).map((link) => {
-                      return (
-                        <Link href={link.link} target="_blank" key={link.name}>
-                          <div>
-                            <p className="text-[#393939] hover:text-purple-text lato-regular text-right font-medium text-[16px]">{link.name}</p>
-                          </div>
-                        </Link>
-                      )
-                    })
-                  }
+                  {footerLinks.slice(-4).map(FLink)}
                 </div>
               </div>
             </div>
