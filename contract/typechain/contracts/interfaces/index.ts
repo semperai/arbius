@@ -15,6 +15,8 @@ export type { INonfungiblePositionManager } from "./INonfungiblePositionManager"
 export type { IPeripheryImmutableState } from "./IPeripheryImmutableState";
 export type { IPeripheryPayments } from "./IPeripheryPayments";
 export type { IPoolInitializer } from "./IPoolInitializer";
+export type { IUniswapV2Router01 } from "./IUniswapV2Router01";
+export type { IUniswapV2Router02 } from "./IUniswapV2Router02";
 export type { IUniswapV3Factory } from "./IUniswapV3Factory";
 export type { IUniswapV3Pool } from "./IUniswapV3Pool";
 export type { IUniswapV3Staker } from "./IUniswapV3Staker";
