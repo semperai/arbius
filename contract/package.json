@@ -24,6 +24,7 @@
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
     "@nomicfoundation/hardhat-foundry": "^1.1.2",
+    "@nomicfoundation/hardhat-verify": "^2.0.11",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@openzeppelin/contracts": "^4.9.3",
     "@openzeppelin/contracts-upgradeable": "^4.9.5",

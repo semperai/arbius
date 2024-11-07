@@ -4,6 +4,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@openzeppelin/hardhat-upgrades";
+import "@nomicfoundation/hardhat-verify";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
