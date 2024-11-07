@@ -61,8 +61,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 task("info", "Gets all info about contract")
 .setAction(async ({}, hre) => {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await getEngine(hre);
 
   console.log("baseToken", await engine.baseToken());
   console.log("treasury", await engine.treasury());
