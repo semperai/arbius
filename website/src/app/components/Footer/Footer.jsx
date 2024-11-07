@@ -11,60 +11,48 @@ import arbius_logo from '@/app/assets/images/arbius_logo.png'
 import small_arrow from '@/app/assets/images/small_arrow.png'
 export default function Footer() {
     const footerLinks = [
+        /*
         {
-            id: "1",
             name: "Generate",
             link: "/generate"
         },
+        */
         {
-            id: "5",
             name: "Upgrade",
             link: "/upgrade"
         },
         {
-            id: "6",
             name: "Media",
             link: "/media"
         },
         // {
-        //     id: "2",
         //     name: "Staking",
         //     link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
         // }, //commenting for mobile footer
         {
-            id: "6",
             name: "Docs",
             link: "https://docs.arbius.ai/"
         },
         {
-            id: "3",
             name: "Models",
             link: "/models"
         },
         {
-            id: "4",
             name: "Explorer",
             link: "/explorer"
         },
         {
-            id: "5",
             name: "veAIUS",
             link: "/aius"
         },
         {
-            id: "6",
             name: "GYSR",
             link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
         },
         {
-            id: "7",
             name: "Blog",
             link: "https://blog.arbius.ai/"
         }
-
-
-
-
     ]
     const socialIcons = [
         {
@@ -128,9 +116,9 @@ export default function Footer() {
                             </div>
                             <div>
                                 {
-                                    footerLinks.slice(0, 3).map((link) => {
+                                    footerLinks.slice(0, 3).map((link, idx) => {
                                         return (
-                                            <Link href={link.link} target="_blank" key={link.id}>
+                                            <Link href={link.link} target="_blank" key={link.name}>
                                                 <div>
                                                     <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                                 </div>
@@ -143,7 +131,7 @@ export default function Footer() {
                                 {
                                     footerLinks.slice(-5, -2).map((link) => {
                                         return (
-                                            <Link href={link.link} target="_blank" key={link.id}>
+                                            <Link href={link.link} target="_blank" key={link.name}>
                                                 <div>
                                                     <p className="text-[#393939]  hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                                 </div>
@@ -157,7 +145,7 @@ export default function Footer() {
                                 {
                                     footerLinks.slice(-2).map((link) => {
                                         return (
-                                            <Link href={link.link} key={link.id} target="_blank">
+                                            <Link href={link.link} key={link.name} target="_blank">
                                                 <div>
                                                     <p className="text-[#393939] hover:text-purple-text lato-regular text-[14px] mb-4">{link.name}</p>
                                                 </div>
