@@ -336,6 +336,14 @@ task("engine:transferOwnership", "Transfer admin ownership of Engine")
   await tx.wait();
 });
 
+task("engine:transferTreasury", "Transfer treasury of Engine")
+.addParam("address", "To who?")
+.setAction(async ({ address }, hre) => {
+  const engine = await getEngine(hre);
+  const tx = await engine.transferTreasury(address);
+  await tx.wait();
+});
+
 task("engine:isPaused", "Check if engine is paused")
 .setAction(async ({ }, hre) => {
   const engine = await getEngine(hre);
