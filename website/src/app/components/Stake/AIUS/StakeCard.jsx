@@ -182,11 +182,11 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
                 <div className='flex flex-col gap-3 justify-center items-start'>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Total Staked</h2>
-                        <h2 className='text-[15px] font-semibold'>{totalStaked?.amount ? (Number(totalStaked.amount) / AIUS_wei).toLocaleString() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
+                        <h2 className='text-[15px] font-semibold'>{totalStaked?.amount ? (Number(totalStaked.amount) / AIUS_wei)?.toFixed(2).toString() : 0} <span className="text-[11px] font-medium">AIUS</span></h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Initial Balance</h2>
-                        <h2 className='text-[15px] font-semibold'>{initialBalance ? (Number(initialBalance) / AIUS_wei).toLocaleString() : 0} <span className="text-[11px] font-medium">veAIUS</span></h2>
+                        <h2 className='text-[15px] font-semibold'>{initialBalance ? (Number(initialBalance) / AIUS_wei)?.toFixed(2).toString() : 0} <span className="text-[11px] font-medium">veAIUS</span></h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Staked on</h2>
@@ -196,14 +196,11 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
                 <div className='flex flex-col gap-3 justify-center items-start'>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Governance Power</h2>
-                        <h2 className='text-[15px] font-semibold'>{governancePower ? (Number(governancePower) / AIUS_wei)?.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }) : 0}</h2>
+                        <h2 className='text-[15px] font-semibold'>{governancePower ? (Number(governancePower) / AIUS_wei)?.toFixed(2).toString() : 0}</h2>
                     </div>
                     <div>
                         <h2 className="text-[12px] text-[#8D8D8D] font-semibold">Rewards</h2>
-                        <h2 className='text-[15px] font-semibold'>{earned ? (Number(earned) / AIUS_wei).toFixed(2).toString() : 0} AIUS</h2>
+                        <h2 className='text-[15px] font-semibold'>{earned ? (Number(earned) / AIUS_wei)?.toFixed(2).toString() : 0} AIUS</h2>
                     </div>
                     <div>
                         <div>

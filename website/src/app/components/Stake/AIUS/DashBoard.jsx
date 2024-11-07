@@ -263,7 +263,7 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
                             <div className='flex flex-col gap-8 justify-center items-start'>
                                 <div>
                                     <h2 className="text-[14px]  text-aius-tabs-gray font-semibold">Balance</h2>
-                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{walletBalance?.toLocaleString()} <span className="text-[11px] font-medium">AIUS</span></h2>
+                                    <h2 className='text-[16px] 2xl:text-[18px] font-semibold mt-[2px]'>{walletBalance?.toFixed(2).toString()} <span className="text-[11px] font-medium">AIUS</span></h2>
                                 </div>
                                 <div>
                                     <h2 className="text-[14px] text-aius-tabs-gray font-semibold">Historical LP Profit</h2>
