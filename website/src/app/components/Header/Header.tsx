@@ -101,9 +101,11 @@ export default function Header() {
             } flex lg:items-center lg:no-fixed-element fixed-element overflow-auto lg:overflow-visible flex-col lg:flex-row`}
         >
           <div className="links-parent mt-[30px] text-[24px] text-[original-black] w-[100%] m-[auto] flex-col items-start flex justify-between lg:w-[auto] lg:flex-row lg:items-center gap-[40px] link-block lg:m-[auto] lg:text-[16px] lg:text-[gray]">
+            {/*
             <Link href={"/generate"} target="_blank">
               <div className="item hover:text-purple-text">Generate</div>
             </Link>
+            */}
 
             <div className="link-with-image relative group w-[auto]">
               <div
