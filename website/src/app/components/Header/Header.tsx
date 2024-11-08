@@ -53,10 +53,10 @@ export default function Header() {
 
       let st = window.pageYOffset || document.documentElement.scrollTop;
       if (st > lastScrollTop && !headerOpen) {
-        header.style.opacity = 0
+        if (header) header.style.opacity = '0';
       } else {
         // setOpacity(1);  // scrolling up, show header
-        header.style.opacity = 1;
+        if (header) header.style.opacity = '1';
       }
       setLastScrollTop(st <= 0 ? 0 : st);
     }
@@ -274,7 +274,7 @@ export default function Header() {
                 type="button"
                 className="m-[auto] relative group bg-black-background lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
               >
-                <div class="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white"
                   onClick={clickConnect}
                 >
