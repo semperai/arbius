@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ArbiusLogo from "../../assets/images/arbius_logo.png";
 import external_link from "../../assets/images/external_link.png";
 import down_arrow from "../../assets/images/down_arrow.png";
@@ -27,44 +27,36 @@ export default function Header() {
   const [modelsOpen, setModelsOpen] = useState(true);
   const [activeLink, setActiveLink] = useState("")
   const [lastScrollTop, setLastScrollTop] = useState(0);
+  const headerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname()
   const route = pathname.replace("/", "")
+
   useEffect(() => {
     if (window.innerWidth < 1024) {
       setStakingOpen(false);
       setModelsOpen(false);
     }
   }, []);
-  useEffect(()=>{
-    if (typeof window !== 'undefined') {
-        if(route){
-            // setActiveLink(route)
-        }
-  }
-  return()=>{
-       
-  }
-  },[route])
 
   useEffect(() => {
     function handleScroll() {
-      var header = document.getElementById('headerId');
+      const st = window.pageYOffset || document.documentElement.scrollTop;
 
-      let st = window.pageYOffset || document.documentElement.scrollTop;
-      if (st > lastScrollTop && !headerOpen) {
-        if (header) header.style.opacity = '0';
-      } else {
-        // setOpacity(1);  // scrolling up, show header
-        if (header) header.style.opacity = '1';
+      if (headerRef.current) {
+        if (st > lastScrollTop && !headerOpen) {
+          headerRef.current.style.opacity = '0';
+        } else {
+          headerRef.current.style.opacity = '1';
+        }
       }
+
       setLastScrollTop(st <= 0 ? 0 : st);
     }
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollTop]);
-
 
   const {
     isConnected,
@@ -92,7 +84,7 @@ export default function Header() {
   return (
     <div
       className={`bg-[white] z-[9999] fixed top-0 w-[100%] transition-all duration-300`}
-      id="headerId"
+      ref={headerRef}
     >
       <div className="flex justify-between py-4 w-[90%] m-auto max-w-center-width">
         <div className="flex items-center">
