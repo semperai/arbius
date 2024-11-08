@@ -29,7 +29,8 @@ const GET_RECENT_CONTESTATIONS = gql`
 
 export default function ContestationsPage() {
   const { address } = useAccount()
-
+  console.log({address});
+  
   const [walletConnected, setWalletConnected] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(ethers.BigNumber.from(0));
 

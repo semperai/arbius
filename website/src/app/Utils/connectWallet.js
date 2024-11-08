@@ -1,4 +1,5 @@
 import Web3 from "web3";
+import getGYSRBalance from "./aggregatedWalletBalance";
 
 export const connectWalletHandler = async () => {
     if (typeof window !== "undefined") {
@@ -7,7 +8,7 @@ export const connectWalletHandler = async () => {
             try {
                 await window.ethereum.enable();
                 localStorage.setItem("walletConnected", "true");
-                
+                getGYSRBalance()
                 return true;
             } catch (error) {
                 console.error("User denied account access");

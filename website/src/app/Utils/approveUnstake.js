@@ -26,12 +26,12 @@ export const approveUnstake = async (amt) => {
             // Call the approve function
             
 
-            alert('unstake approved successfully!');
+            //alert('unstake approved successfully!');
         } catch (error) {
             console.error('Approval failed', error);
-            alert('Approval failed');
+            //alert('Approval failed');
         }
     } else {
-        alert('Please install MetaMask!');
+        //alert('Please install MetaMask!');
     }
 };

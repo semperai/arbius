@@ -29,15 +29,15 @@ export const approveUNIV2 = async (amt) => {
             const result = await uniV2Contract.methods.approve(GYSR_STAKING_CONTRACT_ADDRESS, amount).send({ from:account  });
 
             // Call the approve function
-            alert('UNI-V2 approved successfully!');
+            //alert('UNI-V2 approved successfully!');
             return true;
 
             
         } catch (error) {
             console.error('Approval failed', error);
-            alert('Approval failed');
+            //alert('Approval failed');
         }
     } else {
-        alert('Please install MetaMask!');
+        //alert('Please install MetaMask!');
     }
 };

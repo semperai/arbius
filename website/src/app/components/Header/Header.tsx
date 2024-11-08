@@ -10,6 +10,7 @@ import gysr from "../../assets/images/gysr_logo_without_name.png";
 import kandinsky from "../../assets/images/kandinsky.png";
 
 import Image from "next/image";
+import arbiusBWlogo from "../../assets/images/connect_logo.png"
 import { usePathname, useRouter } from "next/navigation";
 import AnimateHeight from "react-animate-height";
 import Link from "next/link";
@@ -18,9 +19,15 @@ import ConnectWallet from '@/components/ConnectWallet'; // main arbius component
 import { useWeb3Modal } from '@web3modal/react'; // main arbius component
 import {
   useAccount,
+  useContractRead,
 } from 'wagmi';  // main arbius component
-
-
+// import config from "../../../sepolia_config.json"
+// const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
+import baseTokenV1 from "../../abis/baseTokenV1.json"
+import getAIUSBalance from "../../Utils/aiusWalletBalance";
+import { BigNumber } from 'ethers';
+import { AIUS_wei } from "../../Utils/constantValues";
+import loadConfig from "../Stake/AIUS/loadConfig";
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [stakingOpen, setStakingOpen] = useState(true);
@@ -31,7 +38,8 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname()
   const route = pathname.replace("/", "")
-
+  const config = loadConfig();
+  const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
   useEffect(() => {
     if (window.innerWidth < 1024) {
       setStakingOpen(false);
@@ -62,24 +70,71 @@ export default function Header() {
     isConnected,
     isConnecting,
     isDisconnected,
+    address
+
   } = useAccount()
   const { open: openWeb3Modal } = useWeb3Modal()
 
   const [walletConnected, setWalletConnected] = useState(false);
+  // const [walletBalance, setWalletBalance] = useState(0);
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
 
   useEffect(() => {
-    setWalletConnected(isConnected);
+    
+    // if(localStorage.getItem('aiusBalance')){
+    //   const wallet=getAIUSBalance()
+    //   // setWalletBalance(localStorage.getItem('aiusBalance'))
+    //   setWalletConnected(true);
+    // }
+    // else{
+      setWalletConnected(isConnected);
+    // }
   }, [isConnected]);
 
   function clickConnect() {
     async function f() {
       setLoadingWeb3Modal(true);
+      // getAIUSBalance()
       await openWeb3Modal();
       setLoadingWeb3Modal(false)
     }
     f();
   }
+  // MAIN ARBIUS AI CODE
+
+ 
+    //console.log({address});
+    //console.log({isConnected});
+    const {
+        data, isError, isLoading
+    } = useContractRead({
+        address: BASETOKEN_ADDRESS_V1,
+        abi: baseTokenV1.abi,
+        functionName: 'balanceOf',
+        args: [
+            address
+        ],
+        enabled: isConnected
+    })
+
+    function checkNumber(num) {
+        // Check if the number is a whole number
+        if (Number.isInteger(num)) {
+            let numStr = num.toString();
+            numStr = numStr.split('.')[0];
+            return numStr;
+        } else {
+            let numStr = num.toString().split('.')[0];
+            if(numStr.length < 3){
+              return num.toFixed(2)
+            }else{
+              return numStr;
+            }
+        }
+    }
+
+    let walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
+    walletBalance = checkNumber(walletBalance)
 
   return (
     <div
@@ -267,12 +322,15 @@ export default function Header() {
               <button
                 type="button"
                 className="m-[auto] relative group bg-black-background lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full flex items-center gap-3"
+                onClick={clickConnect}
               >
                 <div className="absolute w-[100%] h-[100%] left-0 z-0 lm:p-[7px_150px] lg:py-2 lg:px-8 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white"
-                  onClick={clickConnect}
+                <div className="lato-bold relative mt-[-1.5px] z-10 text-original-white flex flex-row gap-2 items-center"
                 >
-                  { walletConnected ? "Connected" : "Connect" }
+                  {
+                    walletConnected ? <Image className="h-[10px] w-[auto] mt-[1px]" style={{filter:'invert(1)'}} src={arbiusBWlogo} height={20} alt="connected"/>:null
+                  }
+                  { walletConnected ? walletBalance :  "Connect" }
                 </div>
               </button>
             </div>

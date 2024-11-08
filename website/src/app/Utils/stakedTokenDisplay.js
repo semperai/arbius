@@ -15,6 +15,6 @@ export const updateStakedTokensDisplay = async () => {
         document.getElementById('staked-tokens').innerText = `Staked Tokens: ${stakedBalance}`;
     } catch (error) {
         console.error("Failed to fetch staked tokens", error);
-        alert("Failed to fetch staked tokens");
+        //alert("Failed to fetch staked tokens");
     }
 };

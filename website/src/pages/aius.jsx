@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import Stake from "../app/components/Stake/AIUS/Stake"
 import Steps from "../app/components/Stake/AIUS/Steps"
 import Process from "../app/components/Stake/AIUS/Process"
@@ -7,9 +7,54 @@ import { Fade } from "react-awesome-reveal"
 import RootLayout from "@/app/layout";
 import Tabs from "../app/components/Stake/AIUS/Tabs"
 import Notifications from "../app/components/Stake/AIUS/Notifications"
-
-export default function AIUS() {
+import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi'
+// import config from "../sepolia_config.json"
+// const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
+import baseTokenV1 from "../app/abis/baseTokenV1.json"
+import { fetchArbiusData } from "../app/Utils/getArbiusData"
+import { BigNumber } from 'ethers';
+import loadConfig from "../app/components/Stake/AIUS/loadConfig"
+export default function AIUS({protocolData}) {
     const [selectedtab, setSelectedTab] = useState("Dashboard")
+    const { address, isConnected } = useAccount();
+    const config = loadConfig();
+    const [updateValue, setUpdateValue] = useState(0);
+
+    const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
+    console.log({address});
+    console.log({isConnected});
+    const {
+        data, isError, isLoading
+    } = useContractRead({
+        address: BASETOKEN_ADDRESS_V1,
+        abi: baseTokenV1.abi,
+        functionName: 'balanceOf',
+        args: [
+            address
+        ],
+        enabled: isConnected
+    })
+    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev" ? 421614 : 42161;
+    const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
+        chainId:CHAIN ,
+      });
+
+    useEffect(() => {
+        console.log("switch");
+        const f = async() => {
+            try {
+                const check = await window.ethereum.request({ method: 'eth_accounts' }); // Request account access if needed
+                if(check.length){
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                }
+            } catch (error) {
+            }
+        }
+
+        f();
+        switchNetworkArbitrum?.();
+    },[switchNetworkArbitrum])
+
     return (
         <RootLayout>
             <div className="">
@@ -34,7 +79,7 @@ export default function AIUS() {
                             </div>
                             <div className="flex lg:flex-row flex-col lg:gap-0 gap-4 justify-between">
                                 <div className="lg:w-[48%] w-[100%]">
-                                    <Stake selectedtab={selectedtab} setSelectedTab={setSelectedTab} />
+                                    <Stake selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} updateValue={updateValue} setUpdateValue={setUpdateValue} />
                                 </div>
                                 <div className="lg:w-[48%] w-[100%]">
                                     <div className="mb-4">
@@ -51,10 +96,20 @@ export default function AIUS() {
 
                 <Notifications />
                 {/* tabs */}
-                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} />
+                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} protocolData={protocolData} updateValue={updateValue} setUpdateValue={setUpdateValue} />
 
             </div>
 
         </RootLayout>
     )
+}
+
+export async function getServerSideProps(context) {
+    const data = await fetchArbiusData();
+    console.log(data, "ARBIUS DATA");
+    return {
+        props: {
+            protocolData: data,
+        }
+    }
 }

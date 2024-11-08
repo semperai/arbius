@@ -1,7 +1,7 @@
 // graphqlApi.js
 import axios from 'axios';
 
-const fetchData = async (apiKey, query) => {
+export const fetchData = async (apiKey, query) => {
   const url = `https://gateway-arbitrum.network.thegraph.com/api/3cf022c3bc3bb0a1c88c5439792c82c4/subgraphs/id/Bmkv8LV6Jxau2sdpDWPQAQ87QgNMgAW6wYhDeq1kDP8y`;
 
   try {
