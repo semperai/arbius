@@ -1,9 +1,0 @@
-{
-    "v2_baseTokenAddress": "0xc7d1060DbaacE328133E4FD8047098F727992A8A",
-    "v2_enginev4Address": "0x7488804D0ad08E0980157B50a9F0314F301f4554",
-    "veNFTRenderAddress": "0x937040c85cEd3EF45E64Be858D3A033F9b9DD377",
-    "votingEscrowAddress": "0x8ba1009559a877AD9d561DFA3B728bC995b8C215",
-    "veStakingAddress": "0x327f927EB866cba32DF1F8a4B2D957FC94aC7712",
-    "timelockAddress": "0x5d564f0EE2e3b2a7466C41CCc51f7b6729E4e889",
-    "governorAddress": "0xF3dbAA6166565Fcecc4C43Bbd46d1fA515777377"
-}

@@ -22,18 +22,34 @@ import cross from "../../../assets/images/cross.png"
 import error_stake from "../../../assets/images/error_stake.png"
 import success_stake from "../../../assets/images/success_stake.png"
 import { ethers } from 'ethers';
-import loadConfig from "./loadConfig"
+import Config from "@/config.one.json"
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
 import Web3 from 'web3';
 
-export default function Stake({ selectedtab, setSelectedTab, data, isLoading, isError, updateValue, setUpdateValue }) {
+type StakeProps = {
+  selectedtab: string,
+  setSelectedTab: Function,
+  data: any,
+  isLoading: boolean,
+  isError: any,
+  updateValue: number,
+  setUpdateValue: Function
+}
+
+export default function Stake({
+  selectedtab,
+  setSelectedTab,
+  data, isLoading,
+  isError,
+  updateValue,
+  setUpdateValue
+}: StakeProps) {
   const [sliderValue, setSliderValue] = useState(0)
   const { address, isConnected } = useAccount()
   //const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
   const [veAiusBalance, setVeAIUSBalance] = useState(0)
   const [allowance, setAllowance] = useState(0)
   //const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
-  const config = loadConfig();
   const [duration, setDuration] = useState({
     months: 0,
     weeks: 0
@@ -47,16 +63,13 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
   //console.log(veAiusBalance, allowance, walletBalance, rewardRate, totalSupply, escrowBalanceData, "ALL VALUES IN STAKE COMP")
 
-  const VE_STAKING_ADDRESS = config.veStakingAddress;
-  const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-  const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
   const FAUCET_ADDRESS = "0x9a2aef1a0fc09d22f0703decd5bf19dc4214e52a";
 
   const faucetABI = [{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"faucet","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}]
 
   const [faucetCalled, setFaucetCalled] = useState(false);
   /*const rewardRate = useContractRead({
-    address: VE_STAKING_ADDRESS,
+    address: Config.v4_veStakingAddress,
     abi: veStaking.abi,
     functionName: 'rewardRate',
     args: [
@@ -66,7 +79,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
   })
 
   const totalSupply = useContractRead({
-    address: VE_STAKING_ADDRESS,
+    address: Config.v4_veStakingAddress,
     abi: veStaking.abi,
     functionName: 'totalSupply',
     args: [
@@ -75,7 +88,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     enabled: isConnected
   })
   const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
-    address: VOTING_ESCROW_ADDRESS,
+    address: Config.v4_votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'balanceOf',
     args: [
@@ -87,7 +100,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
   const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
     contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
       return {
-        address: VOTING_ESCROW_ADDRESS,
+        address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'tokenOfOwnerByIndex',
         args: [
@@ -101,7 +114,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
   /*useEffect(() => {
     if (tokenIDs && tokenIDs.length > 0 && !tokenIDsIsLoading && !tokenIDsIsError) {
       const contracts = tokenIDs?.map((tokenID) => ({
-        address: VE_STAKING_ADDRESS,
+        address: Config.v4_veStakingAddress,
         abi: veStaking.abi,
         functionName: 'balanceOf',
         args: [
@@ -118,12 +131,12 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
   });
   console.log(veAIUSBalances, "Stake data")
   const { data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError, refetch: refetchAllowance } = useContractRead({
-    address: BASETOKEN_ADDRESS_V1,
+    address: Config.v4_baseTokenAddress,
     abi: baseTokenV1.abi,
     functionName: 'allowance',
     args: [
       address,
-      VOTING_ESCROW_ADDRESS
+      Config.v4_votingEscrowAddress,
     ],
     enabled: isConnected
   })
@@ -156,11 +169,11 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
   },[checkAllowance?._hex])
 
   /*const { config: approveConfig } = usePrepareContractWrite({
-    address: BASETOKEN_ADDRESS_V1,
+    address: Config.v4_baseTokenAddress,
     abi: baseTokenV1.abi,
     functionName: 'approve',
     args: [
-      VOTING_ESCROW_ADDRESS,
+      Config.v4_votingEscrowAddress,
       defaultApproveAmount
       //(amount * AIUS_wei).toString()
     ]
@@ -170,7 +183,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
   console.log({ approveData, approveError, approvePending, allowance });*/
 
   /*const { config: stakeConfig } = usePrepareContractWrite({
-    address: VOTING_ESCROW_ADDRESS,
+    address: Config.v4_votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'create_lock',
     args: [
@@ -229,10 +242,15 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
     const f = async() => {
 
       try {
+        // TODO move to wagmi&ethers
+        // @ts-ignore
         const web3 = new Web3(window.ethereum);
-        const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
-        const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
-        const baseTokenContract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
+        // @ts-ignore
+        const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
+        // @ts-ignore
+        const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
+        // @ts-ignore
+        const baseTokenContract = new web3.eth.Contract(baseTokenV1.abi, Config.v4_baseTokenAddress);
 
         const wBal = await baseTokenContract.methods.balanceOf(address).call()
         setWalletBalance(wBal / AIUS_wei);
@@ -259,10 +277,11 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         }
         setVeAIUSBalance(_veAIUSBalance);
 
-        const _checkAllowance = await baseTokenContract.methods.allowance(address, VOTING_ESCROW_ADDRESS).call()
+        const _checkAllowance = await baseTokenContract.methods.allowance(address, Config.v4_votingEscrowAddress).call()
         setAllowance(_checkAllowance)
 
         if(localStorage.getItem("faucetCalled")){
+          // @ts-ignore
           if(Array.isArray(JSON.parse(localStorage.getItem("faucetCalled"))) && JSON.parse(localStorage.getItem("faucetCalled")).includes(address)){
             setFaucetCalled(true);
           }else{
@@ -294,27 +313,32 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         //alert("Please enter the amount and duration to stake!")
       }*/
       try {
+        // TODO why is this sometimes boolean, sometimes number, sometimes string?
+        // @ts-ignore
         setShowPopUp(1);
         // Request account access
+        // @ts-ignore
         await window.ethereum.request({ method: 'eth_requestAccounts' });
 
         // Create a provider
+        // @ts-ignore
         const provider = new ethers.providers.Web3Provider(window.ethereum);
 
         // Get the signer
         const signer = provider.getSigner();
 
-        const approveContract = new ethers.Contract(BASETOKEN_ADDRESS_V1, baseTokenV1.abi, signer)
+        const approveContract = new ethers.Contract(Config.v4_baseTokenAddress, baseTokenV1.abi, signer)
 
-        const tx1 = await approveContract.approve(VOTING_ESCROW_ADDRESS, defaultApproveAmount)
+        const tx1 = await approveContract.approve(Config.v4_votingEscrowAddress, defaultApproveAmount)
         
         await tx1.wait();
         
         console.log('First transaction confirmed');
 
+        // @ts-ignore
         setShowPopUp(2);
 
-        const stakeContract = new ethers.Contract(VOTING_ESCROW_ADDRESS, votingEscrow.abi, signer)
+        const stakeContract = new ethers.Contract(Config.v4_votingEscrowAddress, votingEscrow.abi, signer)
 
         const tx2 = await stakeContract.create_lock(
                           (amount * AIUS_wei).toString(),
@@ -323,13 +347,16 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         console.log('Second transaction hash:', tx2.hash);
         await tx2.wait(); // Wait for the transaction to be mined
         console.log('Second transaction confirmed');
+        // @ts-ignore
         setShowPopUp("Success")
         console.log('Both transactions completed successfully');
         getTransactionReceiptData(tx2.hash).then(function(){
           //window.location.reload(true)
+          // @ts-ignore
           setUpdateValue(prevValue => prevValue + 1)
         })
       } catch (error) {
+        // @ts-ignore
         setShowPopUp("Error")
       }
     }else{
@@ -337,16 +364,19 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
         console.log("Second step if allowance is set, values -> : amount, months and weeks", amount, duration.months, duration.weeks)
         if(amount && (duration.months || duration.weeks)){
           // setShowPopUp(2)
+          // @ts-ignore
           setShowPopUp(3)
+          // @ts-ignore
           await window.ethereum.request({ method: 'eth_requestAccounts' });
 
           // Create a provider
+          // @ts-ignore
           const provider = new ethers.providers.Web3Provider(window.ethereum);
 
           // Get the signer
           const signer = provider.getSigner();
 
-          const stakeContract = new ethers.Contract(VOTING_ESCROW_ADDRESS, votingEscrow.abi, signer)
+          const stakeContract = new ethers.Contract(Config.v4_votingEscrowAddress, votingEscrow.abi, signer)
           const tx2 = await stakeContract.create_lock(
                             (amount * AIUS_wei).toString(),
                             (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
@@ -354,16 +384,19 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
           console.log('Second transaction hash:', tx2.hash);
           await tx2.wait(); // Wait for the transaction to be mined
           console.log('Second transaction confirmed');
+          // @ts-ignore
           setShowPopUp("Success")
           console.log('Both transactions completed successfully');
           getTransactionReceiptData(tx2.hash).then(function(){
             //window.location.reload(true)
+            // @ts-ignore
             setUpdateValue(prevValue => prevValue + 1)
           })
-        }else{
+        } else {
           //alert("Please enter the amount and duration to stake!")
         }
-      }catch(err){
+      } catch(err) {
+        // @ts-ignore
         setShowPopUp("Error")
       }
     }
@@ -371,6 +404,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
 
 
   const getFaucet = async() => {
+    /*
     try{
       setShowPopUp(3)
       const web3 = new Web3(window.ethereum);
@@ -392,6 +426,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
       setShowPopUp("Error")
       setFaucetCalled(false)
     }
+    */
   }
 
   // console.log({veAIUSBalances})
@@ -403,10 +438,16 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
       {
         showPopUp !== false && (
           <PopUp setShowPopUp={setShowPopUp}>
+            {/* TODO fix showPopUp types*/}
+            {/* @ts-ignore */}
             {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={false} noChildren={false} repeat={false} valueStart={0} valueEnd={50} />}
+            {/* @ts-ignore */}
             {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={false} repeat={false} valueStart={50} valueEnd={100} />}
+            {/* @ts-ignore */}
             {showPopUp === 3 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={true} valueStart={0} valueEnd={100} />}
+            {/* @ts-ignore */}
             {showPopUp === "Success" && <SuccessChildren setShowPopUp={setShowPopUp} />}
+            {/* @ts-ignore */}
             {showPopUp === "Error" && <ErrorPopUpChildren setShowPopUp={setShowPopUp} />}
           </PopUp>
         )
@@ -427,6 +468,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                   <p className="pr- text-aius lato-bold text-[15px]">AIUS</p>
                 </div>
                 <div className="w-[94%]">
+                  {/* @ts-ignore */}
                   <input className="w-[100%] border-0 rounded-r-3xl p-2 lato-bold text-[15px] text-black-text border-none focus:ring-0 " id="outline-none" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
                 </div>
               </div>
@@ -456,6 +498,7 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
                     setSliderValue(value)
                   }}
                   renderMark={(props) => {
+                    // @ts-ignore
                     const isSingleDigit = props.key.toString().length === 1;
                     props.className = `customSlider-mark customSlider-mark-before text-[16px] text-start w-[16.66%]  ${isSingleDigit ? '!ml-[4px]' : '!ml-[0px]'}`;
                     return <span {...props}  >
@@ -555,8 +598,16 @@ export default function Stake({ selectedtab, setSelectedTab, data, isLoading, is
   )
 }
 
+type StepOneChildrenProps = {
+  setShowPopUp: Function,
+  isError: boolean,
+  noChildren: boolean,
+  repeat: boolean,
+  valueStart: number,
+  valueEnd: number
+}
 
-const StepOneChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart, valueEnd }) => {
+const StepOneChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart, valueEnd }: StepOneChildrenProps) => {
   return (
     <div>
       <div className="flex justify-end mt-4">
@@ -586,7 +637,17 @@ const StepOneChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart
 
   )
 }
-const StepTwoChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart, valueEnd }) => {
+
+type StepTwoChildrenProps = {
+  setShowPopUp: Function,
+  isError: boolean,
+  noChildren: boolean,
+  repeat: boolean,
+  valueStart: number,
+  valueEnd: number
+}
+
+const StepTwoChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart, valueEnd }: StepTwoChildrenProps) => {
   return (
     <div>
       <div className="flex justify-end mt-4">
@@ -616,8 +677,11 @@ const StepTwoChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart
   )
 }
 
-const SuccessChildren = ({ setShowPopUp }) => {
+type SuccessChildrenProps = {
+  setShowPopUp: Function
+}
 
+const SuccessChildren = ({ setShowPopUp }: SuccessChildrenProps) => {
   return (
     <div>
       <div className="flex justify-end mt-4">
@@ -645,10 +709,13 @@ const SuccessChildren = ({ setShowPopUp }) => {
       </div>
     </div>
   )
-
 }
 
-const ErrorPopUpChildren = ({ setShowPopUp }) => {
+type ErrorPopUpChildrenProps = {
+  setShowPopUp: Function
+}
+
+const ErrorPopUpChildren = ({ setShowPopUp }: ErrorPopUpChildrenProps) => {
   return (
     <div>
       <div className="flex justify-end mt-4">

@@ -6,14 +6,13 @@ import aius_icon from "../../../assets/images/aius_icon.png"
 import gysr_logo_wallet from "../../../assets/images/gysr_logo_wallet.png"
 import GanttChart from './GanttChart'
 import { useAccount, useContractRead, useNetwork } from 'wagmi'
-// import config from "../../../../sepolia_config.json"
 import veStaking from "../../../abis/veStaking.json"
 import votingEscrow from "../../../abis/votingEscrow.json"
 import baseTokenV1 from "../../../abis/baseTokenV1.json"
+import Config from "@/config.one.json";
 
 import { getAPR } from "../../../Utils/getAPR"
 // import { walletBalance } from '../../../Utils/getAiusBalance'
-import loadConfig from './loadConfig'
 import { BigNumber } from 'ethers';
 import { fetchArbiusData } from '../../../Utils/getArbiusData'
 // import { AIUS_wei } from "../../../Utils/constantValues";
@@ -29,10 +28,6 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
     console.log(updateValue, "value updated in DashBoard")
     console.log(chain, "CONNECTed chain")
     console.log("IS CONNECTed?", isConnected)
-    const config = loadConfig();
-    const VE_STAKING_ADDRESS = config.veStakingAddress;
-    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-    const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 
     //const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
     const [walletBalance, setWalletBalance] = useState(0);
@@ -59,7 +54,7 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
     // const [walletBalance, setWalletBalance] = useState(0);
     // const [protocolData, setProtocolData] = useState([]);
     /*const rewardRate = useContractRead({
-        address: VE_STAKING_ADDRESS,
+        address: Config.v4_veStakingAddress,
         abi: veStaking.abi,
         functionName: 'rewardRate',
         args: [],
@@ -67,7 +62,7 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
     })
 
     const totalSupply = useContractRead({
-        address: VE_STAKING_ADDRESS,
+        address: Config.v4_veStakingAddress,
         abi: veStaking.abi,
         functionName: 'totalSupply',
         args: [],
@@ -75,7 +70,7 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
     })
 
     const { data: veSupplyData, isLoading: veSupplyIsLoading, isError: veSupplyIsError } = useContractRead({
-        address: VOTING_ESCROW_ADDRESS,
+        address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'supply',
         args: [],
@@ -89,9 +84,9 @@ function DashBoard({ data, isLoading, isError, protocolData, updateValue, setUpd
             try {
 
                 const web3 = new Web3(window.ethereum);
-                const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
-                const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
-                const baseTokenContract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
+                const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
+                const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
+                const baseTokenContract = new web3.eth.Contract(baseTokenV1.abi, Config.v4_baseTokenAddress);
 
                 const _rewardRate = await veStakingContract.methods.rewardRate().call()
                 const _totalSupply = await veStakingContract.methods.totalSupply().call()

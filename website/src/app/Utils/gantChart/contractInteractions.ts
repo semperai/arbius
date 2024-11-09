@@ -1,30 +1,31 @@
-import loadConfig from "../../components/Stake/AIUS/loadConfig";
 import votingEscrow from "../../abis/votingEscrow.json";
 import veStaking from "../../abis/veStaking.json";
 import Web3 from "web3";
+import Config from '@/config.one.json';
+
 const init = async () => {
-    const config = loadConfig();
-    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
+    // @ts-ignore
     const web3 = new Web3(window.ethereum);
-    const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
+    // @ts-ignore
+    const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
     return votingEscrowContract;
-    
+
 }
 
+// @ts-ignore
 const getTotalEscrowBalance = async (contract, address) => {
-    console.log(contract, "CONTRACT")
-    
     const totalEscrowBalance = await contract.methods.balanceOf(address).call();
     return totalEscrowBalance;
 }
 
-const getTokenIDs = async ( address, totalEscrowBalance) => {
-    const config = loadConfig();
-    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-    const VESTACKING_ADDRESS = config.veStakingAddress;
+// @ts-ignore
+const getTokenIDs = async (address: string, totalEscrowBalance) => {
+    // @ts-ignore
     const web3 = new Web3(window.ethereum);
-    const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
-    const veStakingContract = new web3.eth.Contract(veStaking.abi, VESTACKING_ADDRESS);
+    // @ts-ignore
+    const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
+    // @ts-ignore
+    const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
     const tokenIDs =[];
     for (let i = 0; i < totalEscrowBalance; i++) {
         const tokenID = await votingEscrowContract.methods.tokenOfOwnerByIndex(address, i).call();
@@ -55,6 +56,3 @@ const getTokenIDs = async ( address, totalEscrowBalance) => {
 }
 
 export { getTotalEscrowBalance, getTokenIDs, init };
-
-
-

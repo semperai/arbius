@@ -9,7 +9,6 @@ import Image from "next/image"
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png'
 import { AIUS_wei } from "../../../Utils/constantValues";
 import Link from "next/link"
-import loadConfig from './loadConfig'
 import info_icon from '@/app/assets/images/info_icon_white.png'
 import Web3 from 'web3';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
@@ -17,9 +16,6 @@ import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptD
 function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedStake, setShowPopUp, updateValue, setUpdateValue }) {
     //console.log(token, "TOKEN in individual card")
     const { address, isConnected } = useAccount();
-    const config = loadConfig();
-    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
-    const VE_STAKING_ADDRESS = config.veStakingAddress;
 
     const [totalStaked, setTotalStaked] = useState(token?.locked);
     const [endDate, setEndDate] = useState(token?.locked__end);
@@ -29,7 +25,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     const [earned, setEarned] = useState(token?.earned);
 
     /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
-        address: VOTING_ESCROW_ADDRESS,
+        address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'locked',
         args: [
@@ -39,7 +35,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     })
     console.log(totalStaked, "ttsake")
     const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
-        address: VOTING_ESCROW_ADDRESS,
+        address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
         args: [
@@ -49,7 +45,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     })
     console.log(Number(endDate?._hex), "endDate")
     const { data: stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError } = useContractRead({
-        address: VOTING_ESCROW_ADDRESS,
+        address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'user_point_history__ts',
         args: [
@@ -60,7 +56,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     })
     console.log(stakedOn, "stakedOn")
     const { data: governancePower, isLoading: governancePowerIsLoading, isError: governancePowerIsError } = useContractRead({
-        address: VOTING_ESCROW_ADDRESS,
+        address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'balanceOfNFT',
         args: [
@@ -70,7 +66,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     })
 
     const { data: initialBalance, isLoading: initialBalanceIsLoading, isError: initialBalanceIsError } = useContractRead({
-        address: VE_STAKING_ADDRESS,
+        address: Config.v4_veStakingAddress,
         abi: veStaking.abi,
         functionName: 'balanceOf',
         args: [
@@ -79,7 +75,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
         enabled: isConnected
     })
     const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
-        address: VE_STAKING_ADDRESS,
+        address: Config.v4_veStakingAddress,
         abi: veStaking.abi,
         functionName: 'earned',
         args: [
@@ -92,7 +88,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     //console.log(Number(endDate) * 1000, "current")
     //console.log("current Date", Date.now())
     const { config: withdrawAIUSConfig } = usePrepareContractWrite({
-        address: VOTING_ESCROW_ADDRESS,
+        address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'withdraw',
         args: [
@@ -149,8 +145,8 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     // useEffect(() => {
     //     const f = async() => {
     //         const web3 = new Web3(window.ethereum);
-    //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, VOTING_ESCROW_ADDRESS);
-    //         const veStakingContract = new web3.eth.Contract(veStaking.abi, VE_STAKING_ADDRESS);
+    //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
+    //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
 
     //         const _totalStaked = await votingEscrowContract.methods.locked(tokenID).call()
     //         const _endDate = await votingEscrowContract.methods.locked__end(tokenID).call()
@@ -175,7 +171,7 @@ function StakeCard({ idx, token, getAPR, rewardRate, totalSupply, setSelectedSta
     const openseaLink = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev" ? "https://testnets.opensea.io/assets/arbitrum-sepolia/" : "https://opensea.io/assets/arbitrum-one/"
     return (
         <div className='rounded-2xl px-8 py-6  bg-white-background relative'>
-            <Link href={`${openseaLink}${VOTING_ESCROW_ADDRESS}/${Number(token?.tokenID)}`} target="_blank">
+            <Link href={`${openseaLink}${Config.v4_votingEscrowAddress}/${Number(token?.tokenID)}`} target="_blank">
                 <Image src={arbius_logo_slider} className='absolute top-2 right-2 w-[36px] h-[36px] z-20 cursor-pointer' alt="" />
             </Link>
             <div className='flex justify-start gap-8 items-start'>

@@ -3,21 +3,18 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import info_icon from "../../../assets/images/info_icon.png"
 import votingEscrow from "../../../abis/votingEscrow.json"
-// import config from "../../../../sepolia_config.json"
-import loadConfig from './loadConfig';
 import { useAccount, useContractRead, useContractReads } from 'wagmi';
 
 import { getTokenIDs, getTotalEscrowBalance, init } from '../../../Utils/gantChart/contractInteractions';
 
+
+// TODO types later
+// @ts-ignore
 function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) {
-
-
     const [markedMonths, setMarkedMonths] = useState([])
     console.log({ noCols }, windowStartDate, windowEndDate)
-    const config = loadConfig();
 
     const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
-    const VOTING_ESCROW_ADDRESS = config.votingEscrowAddress;
     const { address, isConnected } = useAccount()
     // const [allStakingData, setAllStakingData] = useState({});
     const [contract, setContract] = useState(null);
@@ -42,7 +39,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
     // ]
 
     // const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
-    //     address: VOTING_ESCROW_ADDRESS,
+    //     address: Config.v4_votingEscrowAddress,
     //     abi: votingEscrow.abi,
     //     functionName: 'balanceOf',
     //     args: [
@@ -56,7 +53,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
     //     contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
     //         console.log("the loop", i, totalEscrowBalance)
     //         return {
-    //             address: VOTING_ESCROW_ADDRESS,
+    //             address: Config.v4_votingEscrowAddress,
     //             abi: votingEscrow.abi,
     //             functionName: 'tokenOfOwnerByIndex',
     //             args: [
@@ -172,7 +169,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
     //     contracts: (tokenIDs) ? tokenIDs.flatMap(tokenId => {
     //         return [
     //             {
-    //                 address: VOTING_ESCROW_ADDRESS,
+    //                 address: Config.v4_votingEscrowAddress,
     //                 abi: votingEscrow.abi,
     //                 functionName: 'locked',
     //                 args: [
@@ -181,7 +178,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
     //                 enabled: isConnected
     //             },
     //             {
-    //                 address: VOTING_ESCROW_ADDRESS,
+    //                 address: Config.v4_votingEscrowAddress,
     //                 abi: votingEscrow.abi,
     //                 functionName: 'locked__end',
     //                 args: [
@@ -190,7 +187,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
     //                 enabled: isConnected
     //             },
     //             {
-    //                 address: VOTING_ESCROW_ADDRESS,
+    //                 address: Config.v4_votingEscrowAddress,
     //                 abi: votingEscrow.abi,
     //                 functionName: 'user_point_history__ts',
     //                 args: [
@@ -200,7 +197,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
     //                 enabled: isConnected
     //             },
     //             {
-    //                 address: VOTING_ESCROW_ADDRESS,
+    //                 address: Config.v4_votingEscrowAddress,
     //                 abi: votingEscrow.abi,
     //                 functionName: 'balanceOfNFT',
     //                 args: [
@@ -311,6 +308,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
         }
         console.log(marked, "MARKED")
 
+        // @ts-ignore
         setMarkedMonths(marked)
 
     }, [noCols, windowStartDate, windowEndDate])
@@ -337,13 +335,17 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
 
                         <h2 className='text-[16px] font-semibold'>{allStakingData?.totalGovernancePower ? allStakingData?.totalGovernancePower?.toFixed(2) : "0"}</h2>
                         <div className=' cursor-pointer grayscale-[1] opacity-30 hover:grayscale-0 hover:opacity-100' onMouseOver={() => {
+                            // useRef
+                            // @ts-ignore
                             document.getElementById("info").style.display = "flex"
                         }}
                             onMouseLeave={() => {
-                                document.getElementById("info").style.display = "none"
+                              // useRef
+                              // @ts-ignore
+                              document.getElementById("info").style.display = "none"
                             }}
                         >
-                            <Image src={info_icon} height={13} width={13} />
+                            <Image src={info_icon} alt="governance power" height={13} width={13} />
                         </div>
                     </div>
 
@@ -361,6 +363,7 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
             <div className='max-h-[156px]  py-2 overflow-y-auto mb-2 relative' id="gantt-chart">
 
                 {
+                    // @ts-ignore
                     allStakingData?.allStakes?.map((item, key) => {
                         return <div className='py-2' key={key}>
                             <div className='item-grid' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr) ` }}>
@@ -436,11 +439,14 @@ function GanttChart({ allStakingData, windowStartDate, windowEndDate, noCols }) 
             <div className='item-grid absolute bottom-[1.25rem] px-[2.7rem] right-0 left-0' style={{ display: 'grid', gridTemplateColumns: `repeat(${noCols}, 1fr)` }}>
                 {allStakingData?.allStakes?.length ?
                     Array(noCols).fill(null).map((item, key) => {
+                        // @ts-ignore
                         let containsStakeStart = markedMonths?.findIndex(item => item?.key === key);
                         // console.log({ containsStakeStart });
                         if (containsStakeStart !== -1)
                             return (
+                                // @ts-ignore
                                 <div className={markedMonths[containsStakeStart].key === noCols - 1 ? `text-end text-[.55rem] text-[#4A28FF]` : 'text-start text-[.55rem] text-[#4A28FF]'} key={key}>
+                                    {/* @ts-ignore */}
                                     <h1>{`${new Date(markedMonths[containsStakeStart]?.month)?.toLocaleString('en-us', { month: 'short', year: 'numeric' }).toString().slice(0, 3)},${new Date(markedMonths[containsStakeStart]?.month).getFullYear().toString().slice(-2)}`}</h1>
                                 </div>
                             )

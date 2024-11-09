@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { ethers } from "ethers";
 import ArbiusLogo from "../../assets/images/arbius_logo.png";
 import external_link from "../../assets/images/external_link.png";
 import down_arrow from "../../assets/images/down_arrow.png";
@@ -21,13 +22,12 @@ import {
   useAccount,
   useContractRead,
 } from 'wagmi';  // main arbius component
-// import config from "../../../sepolia_config.json"
-// const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 import baseTokenV1 from "../../abis/baseTokenV1.json"
 import getAIUSBalance from "../../Utils/aiusWalletBalance";
 import { BigNumber } from 'ethers';
 import { AIUS_wei } from "../../Utils/constantValues";
-import loadConfig from "../Stake/AIUS/loadConfig";
+import Config from "@/config.one.json";
+
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
   const [stakingOpen, setStakingOpen] = useState(true);
@@ -38,8 +38,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname()
   const route = pathname.replace("/", "")
-  const config = loadConfig();
-  const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
+
   useEffect(() => {
     if (window.innerWidth < 1024) {
       setStakingOpen(false);
@@ -92,49 +91,40 @@ export default function Header() {
   }, [isConnected]);
 
   function clickConnect() {
-    async function f() {
+    (async () => {
       setLoadingWeb3Modal(true);
-      // getAIUSBalance()
       await openWeb3Modal();
       setLoadingWeb3Modal(false)
-    }
-    f();
+    })();
   }
-  // MAIN ARBIUS AI CODE
-
  
-    //console.log({address});
-    //console.log({isConnected});
-    const {
-        data, isError, isLoading
-    } = useContractRead({
-        address: BASETOKEN_ADDRESS_V1,
-        abi: baseTokenV1.abi,
-        functionName: 'balanceOf',
-        args: [
-            address
-        ],
-        enabled: isConnected
-    })
+  const {
+    data,
+    isError,
+    isLoading
+  } = useContractRead({
+    address: Config.v4_baseTokenAddress as `0x${string}`,
+    abi: baseTokenV1.abi,
+    functionName: 'balanceOf',
+    args: [
+      address
+    ],
+    enabled: isConnected
+  })
 
-    function checkNumber(num) {
-        // Check if the number is a whole number
-        if (Number.isInteger(num)) {
-            let numStr = num.toString();
-            numStr = numStr.split('.')[0];
-            return numStr;
-        } else {
-            let numStr = num.toString().split('.')[0];
-            if(numStr.length < 3){
-              return num.toFixed(2)
-            }else{
-              return numStr;
-            }
-        }
+  function formatBalance(num: string) {
+    if (Number.isInteger(num)) {
+      return num.toString().split('.')[0];
+    } else {
+      const numStr = num.toString().split('.')[0];
+      return numStr.length < 3 ? Number(num).toFixed(2) : numStr;
     }
+  }
 
-    let walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
-    walletBalance = checkNumber(walletBalance)
+  let walletBalance = '0';
+  if (data && !isLoading) {
+    walletBalance = formatBalance(ethers.utils.formatEther(data as BigNumber));
+  }
 
   return (
     <div

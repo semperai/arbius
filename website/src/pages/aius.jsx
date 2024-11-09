@@ -8,25 +8,21 @@ import RootLayout from "@/app/layout";
 import Tabs from "../app/components/Stake/AIUS/Tabs"
 import Notifications from "../app/components/Stake/AIUS/Notifications"
 import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi'
-// import config from "../sepolia_config.json"
-// const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 import baseTokenV1 from "../app/abis/baseTokenV1.json"
 import { fetchArbiusData } from "../app/Utils/getArbiusData"
 import { BigNumber } from 'ethers';
-import loadConfig from "../app/components/Stake/AIUS/loadConfig"
+
 export default function AIUS({protocolData}) {
     const [selectedtab, setSelectedTab] = useState("Dashboard")
     const { address, isConnected } = useAccount();
-    const config = loadConfig();
     const [updateValue, setUpdateValue] = useState(0);
 
-    const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
     console.log({address});
     console.log({isConnected});
     const {
         data, isError, isLoading
     } = useContractRead({
-        address: BASETOKEN_ADDRESS_V1,
+        address: Config.v4_baseTokenAddress,
         abi: baseTokenV1.abi,
         functionName: 'balanceOf',
         args: [
