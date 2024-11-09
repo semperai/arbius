@@ -7,8 +7,8 @@ import {
   useContractWrite,
   useContractEvent,
   useProvider,
-} from 'wagmi'
-import { ethers } from 'ethers'
+} from 'wagmi';
+import { ethers } from 'ethers';
 import Config from '@/config.json';
 import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
 import { JSONTree } from 'react-json-tree';
@@ -20,7 +20,6 @@ import { Template, TemplateInput, TemplateOutput } from '@/types/Template';
 import { jsonTheme } from '@/constants';
 import { sleep } from '@/utils';
 
-
 interface Props {
   input: string;
   fee: ethers.BigNumber;
@@ -29,10 +28,20 @@ interface Props {
   template: Template;
 }
 
-export default function TaskLoader({ input, fee, modelid, version, template }: Props) {
-  const { address } = useAccount()
+export default function TaskLoader({
+  input,
+  fee,
+  modelid,
+  version,
+  template,
+}: Props) {
+  const { address } = useAccount();
   const provider = useProvider();
-  const engine = new ethers.Contract(Config.v2_engineAddress, EngineArtifact.abi, provider);
+  const engine = new ethers.Contract(
+    Config.v2_engineAddress,
+    EngineArtifact.abi,
+    provider
+  );
 
   const [taskid, setTaskid] = useState<string>();
   const [cid, setCid] = useState<string>();
@@ -40,7 +49,7 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
   const [blocktime, setBlocktime] = useState(ethers.BigNumber.from(0));
 
   const { config: submitTaskConfig } = usePrepareContractWrite({
-    address: cid ? undefined : Config.v2_engineAddress as `0x${string}`,
+    address: cid ? undefined : (Config.v2_engineAddress as `0x${string}`),
     abi: EngineArtifact.abi,
     functionName: 'submitTask',
     args: [
@@ -59,8 +68,8 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
     isError: submitTaskIsError,
     isLoading: submitTaskIsLoading,
     isSuccess: submitTaskIsSuccess,
-    write: submitTaskWrite
-  } = useContractWrite(submitTaskConfig)
+    write: submitTaskWrite,
+  } = useContractWrite(submitTaskConfig);
 
   const {
     data: submitTaskTxData,
@@ -68,9 +77,9 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
     isLoading: submitTaskTxIsLoading,
   } = useWaitForTransaction({
     hash: cid ? undefined : submitTaskData?.hash,
-  })
+  });
 
-  let watchTaskid: string|null = null;
+  let watchTaskid: string | null = null;
   console.log('submitTaskTxData', submitTaskTxData);
   if (submitTaskTxData) {
     for (const log of submitTaskTxData.logs) {
@@ -83,17 +92,16 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
       }
 
       if (parsedLog.name === 'TaskSubmitted') {
-        const {id: taskid, fee, model, sender } = parsedLog.args;
+        const { id: taskid, fee, model, sender } = parsedLog.args;
         watchTaskid = taskid;
       }
     }
   }
 
-
   useEffect(() => {
     const interval = setInterval(() => {
       async function f() {
-        const solution = await engine.solutions(watchTaskid)
+        const solution = await engine.solutions(watchTaskid);
 
         const { validator, blocktime, cid: responseCid } = solution;
 
@@ -124,10 +132,11 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
   }, [submitTaskTxData, submitTaskTxIsLoading]);
 
   useEffect(() => {
-    if (submitTaskIsIdle
-    && !submitTaskIsLoading
-    && !submitTaskIsError
-    && !submitTaskIsSuccess
+    if (
+      submitTaskIsIdle &&
+      !submitTaskIsLoading &&
+      !submitTaskIsError &&
+      !submitTaskIsSuccess
     ) {
       submitTaskWrite?.();
     }
@@ -140,8 +149,8 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
 
   return (
     <>
-      <div className='max-w shadow-sm ring-1 ring-gray-200 m-auto'>
-        { cid ? (
+      <div className='max-w m-auto shadow-sm ring-1 ring-gray-200'>
+        {cid ? (
           <>
             <RenderSolution template={template} cid={cid} />
             <div>
@@ -171,28 +180,32 @@ export default function TaskLoader({ input, fee, modelid, version, template }: P
           </>
         ) : (
           <>
-            <div className="max-w-[90vw]">
-              <div className="flex flex-row justify-left">
-                <div className="bg-slate-50 p-3 rounded-md">
+            <div className='max-w-[90vw]'>
+              <div className='justify-left flex flex-row'>
+                <div className='bg-slate-50 rounded-md p-3'>
                   Fee: {ethers.utils.formatEther(fee)}
                 </div>
 
-                <p className="p-3">
-                  { submitTaskIsError ? 'Error occurred, (did you reject tx?), please try again' : '' }
-                  { submitTaskIsLoading ? 'Please confirm in wallet' : '' }
-                  { submitTaskIsSuccess ? `Waiting for task to be mined` : '' }
+                <p className='p-3'>
+                  {submitTaskIsError
+                    ? 'Error occurred, (did you reject tx?), please try again'
+                    : ''}
+                  {submitTaskIsLoading ? 'Please confirm in wallet' : ''}
+                  {submitTaskIsSuccess ? `Waiting for task to be mined` : ''}
                 </p>
               </div>
-              <div className="overflow-x-auto">
-                { (submitTaskIsSuccess && watchTaskid) ? (
-                    <Link
-                      href={`/task/${watchTaskid}`}
-                      target="_blank"
-                      className="text-xs"
-                    >
-                      {watchTaskid}
-                    </Link>
-                ) : '' }
+              <div className='overflow-x-auto'>
+                {submitTaskIsSuccess && watchTaskid ? (
+                  <Link
+                    href={`/task/${watchTaskid}`}
+                    target='_blank'
+                    className='text-xs'
+                  >
+                    {watchTaskid}
+                  </Link>
+                ) : (
+                  ''
+                )}
               </div>
             </div>
           </>

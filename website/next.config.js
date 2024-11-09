@@ -8,6 +8,6 @@ const nextConfig = {
       'gray-electric-panther-526.mypinata.cloud',
     ],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

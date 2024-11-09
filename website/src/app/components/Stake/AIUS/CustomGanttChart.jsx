@@ -2,30 +2,38 @@ import React from 'react';
 
 const CustomGanttChart = () => {
   const tasks = [
-  { name: 'Task 1', startDate: '2024-09-01', endDate: '2025-03-15' },
-  { name: 'Task 2', startDate: '2024-09-02', endDate: '2024-09-25' },
-  { name: 'Task 3', startDate: '2024-09-03', endDate: '2024-10-05' },
-];
+    { name: 'Task 1', startDate: '2024-09-01', endDate: '2025-03-15' },
+    { name: 'Task 2', startDate: '2024-09-02', endDate: '2024-09-25' },
+    { name: 'Task 3', startDate: '2024-09-03', endDate: '2024-10-05' },
+  ];
   const today = new Date();
-  const earliestStart = new Date(Math.min(...tasks.map(task => new Date(task.startDate))));
-  const latestEnd = new Date(Math.max(...tasks.map(task => new Date(task.endDate))));
+  const earliestStart = new Date(
+    Math.min(...tasks.map((task) => new Date(task.startDate)))
+  );
+  const latestEnd = new Date(
+    Math.max(...tasks.map((task) => new Date(task.endDate)))
+  );
   const totalDays = (latestEnd - earliestStart) / (1000 * 60 * 60 * 24);
 
   const getElapsedAndRemainingPercentages = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     const totalDuration = endDate - startDate;
-    const elapsedDuration = Math.max(0, Math.min(today - startDate, totalDuration));
+    const elapsedDuration = Math.max(
+      0,
+      Math.min(today - startDate, totalDuration)
+    );
     const remainingDuration = Math.max(0, totalDuration - elapsedDuration);
 
     return {
       elapsed: (elapsedDuration / totalDuration) * 100,
-      remaining: (remainingDuration / totalDuration) * 100
+      remaining: (remainingDuration / totalDuration) * 100,
     };
   };
 
   const getPositionAndWidth = (start, end) => {
-    const startPosition = (new Date(start) - earliestStart) / (1000 * 60 * 60 * 24);
+    const startPosition =
+      (new Date(start) - earliestStart) / (1000 * 60 * 60 * 24);
     const width = (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24);
     return {
       left: `${(startPosition / totalDays) * 100}%`,
@@ -45,9 +53,19 @@ const CustomGanttChart = () => {
 
     return months.map((month, index) => {
       const position = (month - earliestStart) / (1000 * 60 * 60 * 24);
-      const width = (index === months.length - 1 ? totalDays - position : 30) / totalDays * 100;
+      const width =
+        ((index === months.length - 1 ? totalDays - position : 30) /
+          totalDays) *
+        100;
       return (
-        <div key={month.toISOString()} className="month-marker" style={{ left: `${(position / totalDays) * 100}%`, width: `${width}%` }}>
+        <div
+          key={month.toISOString()}
+          className='month-marker'
+          style={{
+            left: `${(position / totalDays) * 100}%`,
+            width: `${width}%`,
+          }}
+        >
           {month.toLocaleString('default', { month: 'short', year: 'numeric' })}
         </div>
       );
@@ -55,27 +73,35 @@ const CustomGanttChart = () => {
   };
 
   return (
-    <div className="gantt-chart">
-      <div className="timeline">
-        {generateMonthTimeline()}
-      </div>
+    <div className='gantt-chart'>
+      <div className='timeline'>{generateMonthTimeline()}</div>
       {tasks.map((task, index) => {
-        const { elapsed, remaining } = getElapsedAndRemainingPercentages(task.startDate, task.endDate);
+        const { elapsed, remaining } = getElapsedAndRemainingPercentages(
+          task.startDate,
+          task.endDate
+        );
         return (
-          <div key={index} className="task-row">
-            <div className="task-info">
-              <span className="task-name">{task.name}</span>
-              <span className="task-dates">
-                {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
+          <div key={index} className='task-row'>
+            <div className='task-info'>
+              <span className='task-name'>{task.name}</span>
+              <span className='task-dates'>
+                {new Date(task.startDate).toLocaleDateString()} -{' '}
+                {new Date(task.endDate).toLocaleDateString()}
               </span>
             </div>
-            <div className="task-bar-container">
+            <div className='task-bar-container'>
               <div
-                className="task-bar"
+                className='task-bar'
                 style={getPositionAndWidth(task.startDate, task.endDate)}
               >
-                <div className="task-progress-elapsed" style={{ width: `${elapsed}%` }} />
-                <div className="task-progress-remaining" style={{ width: `${remaining}%` }} />
+                <div
+                  className='task-progress-elapsed'
+                  style={{ width: `${elapsed}%` }}
+                />
+                <div
+                  className='task-progress-remaining'
+                  style={{ width: `${remaining}%` }}
+                />
               </div>
             </div>
           </div>
@@ -134,11 +160,11 @@ const CustomGanttChart = () => {
         }
         .task-progress-elapsed {
           height: 100%;
-          background-color: #4CAF50;
+          background-color: #4caf50;
         }
         .task-progress-remaining {
           height: 100%;
-          background-color: #FF5252;
+          background-color: #ff5252;
         }
       `}</style>
     </div>

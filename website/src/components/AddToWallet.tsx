@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Image from 'next/image'
+import Image from 'next/image';
 import MetamaskImg from '@/../public/metamask-logo.svg';
 import MetamaskGrayscaleImg from '@/../public/metamask-grayscale-logo.svg';
 
@@ -13,7 +13,7 @@ export default function AddToWallet() {
   const onMouseLeave = () => setIsHovered(false);
 
   function click() {
-    if (! activeConnector) {
+    if (!activeConnector) {
       return;
     }
 
@@ -29,14 +29,14 @@ export default function AddToWallet() {
     <div
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="hover:cursor-pointer"
+      className='hover:cursor-pointer'
       onClick={click}
     >
       <Image
         src={isHovering ? MetamaskImg : MetamaskGrayscaleImg}
-        alt="Add to wallet"
+        alt='Add to wallet'
         width={16}
-        />
+      />
     </div>
   );
 }

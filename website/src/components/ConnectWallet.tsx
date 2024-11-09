@@ -1,22 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useWeb3Modal } from '@web3modal/react'
-import {
-  useAccount,
-} from 'wagmi';
+import { useWeb3Modal } from '@web3modal/react';
+import { useAccount } from 'wagmi';
 
-const buttonClassName = "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+const buttonClassName =
+  'inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50';
 
 interface Props {
   update: (a: boolean) => void;
 }
 
 export default function ConnectWallet({ update }: Props) {
-  const {
-    isConnected,
-    isConnecting,
-    isDisconnected,
-  } = useAccount()
-  const { open: openWeb3Modal } = useWeb3Modal()
+  const { isConnected, isConnecting, isDisconnected } = useAccount();
+  const { open: openWeb3Modal } = useWeb3Modal();
 
   const [walletConnected, setWalletConnected] = useState(false);
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
@@ -30,16 +25,16 @@ export default function ConnectWallet({ update }: Props) {
     async function f() {
       setLoadingWeb3Modal(true);
       await openWeb3Modal();
-      setLoadingWeb3Modal(false)
+      setLoadingWeb3Modal(false);
     }
 
     f();
   }
 
   return (
-    <div className={(walletConnected) ? 'hidden' : ''}>
+    <div className={walletConnected ? 'hidden' : ''}>
       <button
-        type="button"
+        type='button'
         onClick={clickConnect}
         className={buttonClassName}
         disabled={loadingWeb3Modal}

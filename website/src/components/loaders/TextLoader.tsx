@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown from 'react-markdown';
 
 interface Props {
   src: string;
@@ -7,7 +7,7 @@ interface Props {
 
 export default function TextLoader({ src }: Props) {
   const [text, setText] = useState('');
-  
+
   useEffect(() => {
     if (text) {
       return;
@@ -22,7 +22,5 @@ export default function TextLoader({ src }: Props) {
     f();
   });
 
-  return (
-    <ReactMarkdown>{text}</ReactMarkdown>
-  );
+  return <ReactMarkdown>{text}</ReactMarkdown>;
 }

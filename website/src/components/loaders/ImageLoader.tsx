@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import Image from 'next/image';
 
 interface Props {
   src: string;
@@ -9,12 +9,12 @@ export default function ImageLoader({ src, alt }: Props) {
   return (
     <Image
       src={src}
-      loader={({src, width, quality}) => src}
+      loader={({ src, width, quality }) => src}
       crossOrigin='anonymous'
       unoptimized
       width={512}
       height={512}
       alt={alt}
     />
-  )
+  );
 }

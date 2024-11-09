@@ -1,5 +1,5 @@
-import Web3 from "web3";
-import contractABI from '../abis/aiusBalance.json'
+import Web3 from 'web3';
+import contractABI from '../abis/aiusBalance.json';
 export default async function getAIUSBalance() {
   // Connect to MetaMask
   if (window.ethereum) {
@@ -16,9 +16,9 @@ export default async function getAIUSBalance() {
 
       // Convert the balance from Wei to the token's decimal format (assuming GYSR has 18 decimals)
       const decimals = 18;
-      const adjustedBalance = balance / (10 ** decimals);
+      const adjustedBalance = balance / 10 ** decimals;
 
-      localStorage.setItem("aiusBalance",adjustedBalance);
+      localStorage.setItem('aiusBalance', adjustedBalance);
       return adjustedBalance;
     } catch (error) {
       console.error('Error fetching GYSR balance:', error);

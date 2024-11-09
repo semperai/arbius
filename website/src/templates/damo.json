@@ -1,1 +1,46 @@
-{"meta":{"title":"Damo text-to-video ms-1.7b","description":"Multi-stage text-to-video generation","git":"https://github.com/chenxwh/cog-damo-text2video/tree/7d17f6b77fc48939ac85fe4c6192f94bd3220fc6","docker":"https://r8.im/cjwbw/damo-text-to-video@sha256:1e205ea73084bd17a0a3b43396e49ba0d6bc2e754e9283b2df49fad2dcf95755","version":1},"input":[{"variable":"prompt","type":"string","required":true,"default":"","description":"Input prompt"},{"variable":"num_frames","type":"int","required":false,"min":1,"max":500,"default":16,"description":"Number of denoising steps"},{"variable":"num_inference_steps","type":"int","required":false,"min":1,"max":500,"default":50,"description":"Number of denoising steps"},{"variable":"fps","type":"int","required":false,"min":1,"max":64,"default":8,"description":"Number of denoising steps"}],"output":[{"filename":"out-1.mp4","type":"video"}]}
+{
+  "meta": {
+    "title": "Damo text-to-video ms-1.7b",
+    "description": "Multi-stage text-to-video generation",
+    "git": "https://github.com/chenxwh/cog-damo-text2video/tree/7d17f6b77fc48939ac85fe4c6192f94bd3220fc6",
+    "docker": "https://r8.im/cjwbw/damo-text-to-video@sha256:1e205ea73084bd17a0a3b43396e49ba0d6bc2e754e9283b2df49fad2dcf95755",
+    "version": 1
+  },
+  "input": [
+    {
+      "variable": "prompt",
+      "type": "string",
+      "required": true,
+      "default": "",
+      "description": "Input prompt"
+    },
+    {
+      "variable": "num_frames",
+      "type": "int",
+      "required": false,
+      "min": 1,
+      "max": 500,
+      "default": 16,
+      "description": "Number of denoising steps"
+    },
+    {
+      "variable": "num_inference_steps",
+      "type": "int",
+      "required": false,
+      "min": 1,
+      "max": 500,
+      "default": 50,
+      "description": "Number of denoising steps"
+    },
+    {
+      "variable": "fps",
+      "type": "int",
+      "required": false,
+      "min": 1,
+      "max": 64,
+      "default": 8,
+      "description": "Number of denoising steps"
+    }
+  ],
+  "output": [{ "filename": "out-1.mp4", "type": "video" }]
+}

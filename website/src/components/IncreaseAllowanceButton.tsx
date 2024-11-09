@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWeb3Modal } from '@web3modal/react'
+import { useWeb3Modal } from '@web3modal/react';
 import {
   useAccount,
   useContractRead,
@@ -7,11 +7,12 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { ethers } from 'ethers'
+import { ethers } from 'ethers';
 import Config from '@/config.json';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 
-const buttonClassName = "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+const buttonClassName =
+  'inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50';
 
 interface Props {
   token: `0x${string}`;
@@ -19,10 +20,15 @@ interface Props {
   updateNeedsAllowance: (a: boolean) => void;
 }
 
-export default function IncreaseAllowanceButton({ token, to, updateNeedsAllowance }: Props) {
-  const { address } = useAccount()
+export default function IncreaseAllowanceButton({
+  token,
+  to,
+  updateNeedsAllowance,
+}: Props) {
+  const { address } = useAccount();
   const [showAllowanceIncrease, setShowAllowanceIncrease] = useState(false);
-  const [increaseAllowanceButtonDisabled, setIncreaseAllowanceButtonDisabled] = useState(false);
+  const [increaseAllowanceButtonDisabled, setIncreaseAllowanceButtonDisabled] =
+    useState(false);
 
   const {
     data: allowanceData,
@@ -32,10 +38,7 @@ export default function IncreaseAllowanceButton({ token, to, updateNeedsAllowanc
     address: token,
     abi: BaseTokenArtifact.abi,
     functionName: 'allowance',
-    args: [
-      address,
-      to,
-    ],
+    args: [address, to],
   });
 
   const { config: increaseAllowanceConfig } = usePrepareContractWrite({
@@ -46,15 +49,17 @@ export default function IncreaseAllowanceButton({ token, to, updateNeedsAllowanc
       to,
       ethers.constants.MaxUint256, // max allowance
     ],
-    enabled: (allowanceData as ethers.BigNumber)?.lt(ethers.utils.parseUnits('5', 18)),
+    enabled: (allowanceData as ethers.BigNumber)?.lt(
+      ethers.utils.parseUnits('5', 18)
+    ),
   });
 
   const {
     data: increaseAllowanceData,
     isLoading: increaseAllowanceIsLoading,
     isSuccess: increaseAllowanceIsSuccess,
-    write: increaseAllowanceWrite
-  } = useContractWrite(increaseAllowanceConfig)
+    write: increaseAllowanceWrite,
+  } = useContractWrite(increaseAllowanceConfig);
 
   const {
     data: increaseAllowanceTxData,
@@ -62,13 +67,13 @@ export default function IncreaseAllowanceButton({ token, to, updateNeedsAllowanc
     isLoading: increaseAllowanceTxIsLoading,
   } = useWaitForTransaction({
     hash: increaseAllowanceData?.hash,
-  })
+  });
 
   function clickIncreaseAllowance() {
     async function f() {
       setIncreaseAllowanceButtonDisabled(true);
       increaseAllowanceWrite?.();
-      setIncreaseAllowanceButtonDisabled(false)
+      setIncreaseAllowanceButtonDisabled(false);
     }
 
     f();
@@ -81,7 +86,10 @@ export default function IncreaseAllowanceButton({ token, to, updateNeedsAllowanc
       return;
     }
 
-    if (allowanceData && (allowanceData as ethers.BigNumber).lt(ethers.utils.parseUnits('5', 18))) {
+    if (
+      allowanceData &&
+      (allowanceData as ethers.BigNumber).lt(ethers.utils.parseUnits('5', 18))
+    ) {
       setShowAllowanceIncrease(true);
       updateNeedsAllowance(true);
     } else {
@@ -90,20 +98,24 @@ export default function IncreaseAllowanceButton({ token, to, updateNeedsAllowanc
     }
   });
 
-
   return (
-    <div className={(! showAllowanceIncrease) ? 'hidden' : ''}>
+    <div className={!showAllowanceIncrease ? 'hidden' : ''}>
       <button
-        className={(increaseAllowanceButtonDisabled ? 'opacity-25 hover:cursor-default ' : 'opacity-95 hover:opacity-100 ') + "relative inline-flex items-center justify-center inline-block px-3 py-2 overflow-hidden font-semibold text-indigo-600 rounded-lg group text-sm hover:shadow w-28 border-slate-200 border transition ease-out nightwind-prevent-block"}
+        className={
+          (increaseAllowanceButtonDisabled
+            ? 'opacity-25 hover:cursor-default '
+            : 'opacity-95 hover:opacity-100 ') +
+          'group nightwind-prevent-block text-indigo-600 border-slate-200 relative inline-block inline-flex w-28 items-center justify-center overflow-hidden rounded-lg border px-3 py-2 text-sm font-semibold transition ease-out hover:shadow'
+        }
         disabled={increaseAllowanceButtonDisabled}
         onClick={clickIncreaseAllowance}
-        >
-        <span className="absolute top-0 left-0 w-40 h-40 -mt-10 -ml-3 transition-all duration-700 bg-violet-500 rounded-full blur-md ease"></span>
-        <span className="absolute inset-0 w-full h-full transition duration-700 group-hover:rotate-180 ease">
-        <span className="absolute bottom-0 left-0 w-24 h-24 -ml-10 bg-purple-500 rounded-full blur-md"></span>
-        <span className="absolute bottom-0 right-0 w-24 h-24 -mr-10 bg-fuchsia-500 rounded-full blur-md"></span>
+      >
+        <span className='ease bg-violet-500 absolute left-0 top-0 -ml-3 -mt-10 h-40 w-40 rounded-full blur-md transition-all duration-700'></span>
+        <span className='ease absolute inset-0 h-full w-full transition duration-700 group-hover:rotate-180'>
+          <span className='bg-purple-500 absolute bottom-0 left-0 -ml-10 h-24 w-24 rounded-full blur-md'></span>
+          <span className='bg-fuchsia-500 absolute bottom-0 right-0 -mr-10 h-24 w-24 rounded-full blur-md'></span>
         </span>
-        <span className="relative text-white">
+        <span className='text-white relative'>
           {increaseAllowanceIsLoading ? 'Waiting...' : 'Approve'}
         </span>
       </button>

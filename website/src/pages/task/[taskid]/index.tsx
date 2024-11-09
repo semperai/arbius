@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
 import {
   useNetwork,
   useContractRead,
   useAccount,
   useContractEvent,
-} from 'wagmi'
-import { ethers } from 'ethers'
+} from 'wagmi';
+import { ethers } from 'ethers';
 import { useQuery, gql } from '@apollo/client';
 import Layout from '@/components/Layout';
 import RenderSolution from '@/components/RenderSolution';
@@ -51,7 +51,7 @@ interface Model {
 
 const GET_CONTESTATION_VOTES = gql`
   query GetContestationVotes($id: String!) {
-    contestationVotes(where: { taskID_eq: $id, network_eq: "nova"}) {
+    contestationVotes(where: { taskID_eq: $id, network_eq: "nova" }) {
       id
       address
       yea
@@ -62,19 +62,19 @@ const GET_CONTESTATION_VOTES = gql`
 `;
 
 export default function TaskPage() {
-  const { address } = useAccount()
+  const { address } = useAccount();
 
   const [walletConnected, setWalletConnected] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(ethers.BigNumber.from(0));
   const [template, setTemplate] = useState(Kandinsky2Template);
 
-  const router = useRouter()
-  const { taskid } = router.query
+  const router = useRouter();
+  const { taskid } = router.query;
 
   const {
     loading: contestationVotesLoading,
-    error:   contestationVotesError,
-    data:    contestationVotesData,
+    error: contestationVotesError,
+    data: contestationVotesData,
   } = useQuery(GET_CONTESTATION_VOTES, {
     variables: { id: taskid },
   });
@@ -87,9 +87,7 @@ export default function TaskPage() {
     address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'tasks',
-    args: [
-      taskid,
-    ],
+    args: [taskid],
   });
 
   const {
@@ -100,9 +98,7 @@ export default function TaskPage() {
     address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'solutions',
-    args: [
-      taskid,
-    ],
+    args: [taskid],
   });
 
   const {
@@ -113,9 +109,7 @@ export default function TaskPage() {
     address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'contestations',
-    args: [
-      taskid,
-    ],
+    args: [taskid],
   });
 
   const {
@@ -126,13 +120,11 @@ export default function TaskPage() {
     address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     functionName: 'models',
-    args: [
-      (taskData as Task)?.model,
-    ],
+    args: [(taskData as Task)?.model],
   });
 
   useEffect(() => {
-    if (! taskData) {
+    if (!taskData) {
       return;
     }
 
@@ -140,93 +132,121 @@ export default function TaskPage() {
     setTemplate(template);
   }, [taskData]);
 
-
   return (
-    <Layout title="Task">
+    <Layout title='Task'>
       <main>
-        <div className="sm:rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="mx-auto max-w-7xl">
-              <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+        <div className='sm:rounded-lg'>
+          <div className='px-4 py-5 sm:p-6'>
+            <div className='mx-auto max-w-7xl'>
+              <h1 className='text-gray-900 text-3xl font-bold leading-tight tracking-tight'>
                 Task Information
               </h1>
             </div>
-            <h2 className="text-base font-normal leading-6 text-gray-400 mt-3">
+            <h2 className='text-gray-400 mt-3 text-base font-normal leading-6'>
               {taskid}
             </h2>
 
             <div>
-              {(template && solutionData && (solutionData as Solution).cid !== '0x') ? (
-                <div className="my-8">
+              {template &&
+              solutionData &&
+              (solutionData as Solution).cid !== '0x' ? (
+                <div className='my-8'>
                   <RenderSolution
                     template={template as Template}
                     cid={cidify((solutionData as Solution)?.cid)}
                   />
                 </div>
-              ) : ''}
+              ) : (
+                ''
+              )}
             </div>
 
-            <div className="mt-5">
-              <table className="min-w-full divide-y divide-gray-300">
+            <div className='mt-5'>
+              <table className='min-w-full divide-y divide-gray-300'>
                 <thead>
                   <tr>
-                    <th scope="col" className="px-3 py-3.5 text-left text-md font-semibold text-gray-900">
+                    <th
+                      scope='col'
+                      className='text-md text-gray-900 px-3 py-3.5 text-left font-semibold'
+                    >
                       <strong>Task</strong>
-                      <p className={(! taskData || (taskData as Task).model === ethers.constants.HashZero  ? '' : 'hidden ') + "text-sm font-normal text-gray-400"}>
+                      <p
+                        className={
+                          (!taskData ||
+                          (taskData as Task).model === ethers.constants.HashZero
+                            ? ''
+                            : 'hidden ') + 'text-gray-400 text-sm font-normal'
+                        }
+                      >
                         No task found.
                       </p>
                     </th>
                   </tr>
                 </thead>
-                <tbody className={(! taskData || (taskData as Task).model === ethers.constants.HashZero  ? 'hidden ' : '') + "divide-y divide-gray-200"}>
+                <tbody
+                  className={
+                    (!taskData ||
+                    (taskData as Task).model === ethers.constants.HashZero
+                      ? 'hidden '
+                      : '') + 'divide-y divide-gray-200'
+                  }
+                >
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>model</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
                       {(taskData as Task)?.model}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>fee</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
                       {ethers.utils.formatEther((taskData as Task)?.fee || '0')}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>owner</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
-                      <a target="_blank" href={`https://nova.arbiscan.io/address/${(taskData as Task)?.owner}`}>{(taskData as Task)?.owner}</a>
+                    <td className='text-cyan-600 whitespace-nowrap px-3 py-4 text-sm'>
+                      <a
+                        target='_blank'
+                        href={`https://nova.arbiscan.io/address/${(taskData as Task)?.owner}`}
+                      >
+                        {(taskData as Task)?.owner}
+                      </a>
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>blocktime</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
                       {renderBlocktime((taskData as Task)?.blocktime)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>version</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
                       {(taskData as Task)?.version}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>cid</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
+                    <td className='text-cyan-600 whitespace-nowrap px-3 py-4 text-sm'>
                       <a
-                        target="_blank"
-                        href={process.env.NEXT_PUBLIC_IPFS_GATEWAY_CSTR!.replace('%C', cidify((taskData as Task)?.cid))}
+                        target='_blank'
+                        href={process.env.NEXT_PUBLIC_IPFS_GATEWAY_CSTR!.replace(
+                          '%C',
+                          cidify((taskData as Task)?.cid)
+                        )}
                       >
                         {cidify((taskData as Task)?.cid)}
                       </a>
@@ -235,50 +255,76 @@ export default function TaskPage() {
                 </tbody>
               </table>
 
-              <table className="min-w-full divide-y divide-gray-300 mt-10">
+              <table className='mt-10 min-w-full divide-y divide-gray-300'>
                 <thead>
                   <tr>
-                    <th scope="col" className="px-3 py-3.5 text-left text-md font-semibold text-gray-900">
+                    <th
+                      scope='col'
+                      className='text-md text-gray-900 px-3 py-3.5 text-left font-semibold'
+                    >
                       <strong>Solution</strong>
-                      <p className={(! solutionData || (solutionData as Solution).validator === ethers.constants.AddressZero  ? '' : 'hidden ') + "text-sm font-normal text-gray-400"}>
+                      <p
+                        className={
+                          (!solutionData ||
+                          (solutionData as Solution).validator ===
+                            ethers.constants.AddressZero
+                            ? ''
+                            : 'hidden ') + 'text-gray-400 text-sm font-normal'
+                        }
+                      >
                         No solution found.
                       </p>
                     </th>
                   </tr>
                 </thead>
-                <tbody className={(! solutionData || (solutionData as Solution).validator === ethers.constants.AddressZero  ? 'hidden ' : '') + "divide-y divide-gray-200"}>
+                <tbody
+                  className={
+                    (!solutionData ||
+                    (solutionData as Solution).validator ===
+                      ethers.constants.AddressZero
+                      ? 'hidden '
+                      : '') + 'divide-y divide-gray-200'
+                  }
+                >
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>validator</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
-                      <a href={`/validator/${(solutionData as Solution)?.validator}`}>{(solutionData as Solution)?.validator}</a>
+                    <td className='text-cyan-600 whitespace-nowrap px-3 py-4 text-sm'>
+                      <a
+                        href={`/validator/${(solutionData as Solution)?.validator}`}
+                      >
+                        {(solutionData as Solution)?.validator}
+                      </a>
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>blocktime</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
                       {renderBlocktime((solutionData as Solution)?.blocktime)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>claimed</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
                       {(solutionData as Solution)?.claimed ? 'true' : 'false'}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>cid</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
+                    <td className='text-cyan-600 whitespace-nowrap px-3 py-4 text-sm'>
                       <a
-                        target="_blank"
-                        href={process.env.NEXT_PUBLIC_IPFS_GATEWAY_CSTR!.replace('%C', cidify((solutionData as Solution)?.cid))}
+                        target='_blank'
+                        href={process.env.NEXT_PUBLIC_IPFS_GATEWAY_CSTR!.replace(
+                          '%C',
+                          cidify((solutionData as Solution)?.cid)
+                        )}
                       >
                         {cidify((solutionData as Solution)?.cid)}
                       </a>
@@ -287,117 +333,194 @@ export default function TaskPage() {
                 </tbody>
               </table>
 
-              <table className="min-w-full divide-y divide-gray-300 mt-10">
+              <table className='mt-10 min-w-full divide-y divide-gray-300'>
                 <thead>
                   <tr>
-                    <th scope="col" className="px-3 py-3.5 text-left text-md font-semibold text-gray-900">
+                    <th
+                      scope='col'
+                      className='text-md text-gray-900 px-3 py-3.5 text-left font-semibold'
+                    >
                       <strong>Contestation</strong>
-                      <p className={(! contestationData || (contestationData as Contestation).validator === ethers.constants.AddressZero  ? '' : 'hidden ') + "text-sm font-normal text-gray-400"}>
+                      <p
+                        className={
+                          (!contestationData ||
+                          (contestationData as Contestation).validator ===
+                            ethers.constants.AddressZero
+                            ? ''
+                            : 'hidden ') + 'text-gray-400 text-sm font-normal'
+                        }
+                      >
                         No contestation found.
                       </p>
                     </th>
                   </tr>
                 </thead>
-                <tbody className={(! contestationData || (contestationData as Contestation).validator === ethers.constants.AddressZero  ? 'hidden ' : '') + "divide-y divide-gray-200"}>
+                <tbody
+                  className={
+                    (!contestationData ||
+                    (contestationData as Contestation).validator ===
+                      ethers.constants.AddressZero
+                      ? 'hidden '
+                      : '') + 'divide-y divide-gray-200'
+                  }
+                >
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>validator</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
-                      <a href={`/validator/${(contestationData as Contestation)?.validator}`}>{(contestationData as Contestation)?.validator}</a>
+                    <td className='text-cyan-600 whitespace-nowrap px-3 py-4 text-sm'>
+                      <a
+                        href={`/validator/${(contestationData as Contestation)?.validator}`}
+                      >
+                        {(contestationData as Contestation)?.validator}
+                      </a>
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>blocktime</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {renderBlocktime((contestationData as Contestation)?.blocktime)}
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
+                      {renderBlocktime(
+                        (contestationData as Contestation)?.blocktime
+                      )}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>finish_start_index</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
                       {(contestationData as Contestation)?.finish_start_index}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>slashAmount</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {ethers.utils.formatEther((contestationData as Contestation)?.slashAmount || '0')}
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
+                      {ethers.utils.formatEther(
+                        (contestationData as Contestation)?.slashAmount || '0'
+                      )}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>votes</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {contestationVotesLoading && 'Loading...'}                    {contestationVotesError && `Error! ${contestationVotesError.message}`}
-                      {contestationVotesData && contestationVotesData?.contestationVotes.length === 0 && 'No votes found.'}
-                      {contestationVotesData && contestationVotesData?.contestationVotes.length > 0 && contestationVotesData?.contestationVotes.filter((vote: any) => vote.yea).length} yea, {contestationVotesData && contestationVotesData?.contestationVotes.filter((vote: any) => !vote.yea).length} nay
-
-                      {contestationVotesData && contestationVotesData?.contestationVotes.map((vote: any) => (
-                        <div key={vote.id} className="whitespace-nowrap py-1 text-sm text-cyan-600">
-                          <a href={`/validator/${vote.address}`}>
-                            {vote.yea ? '👍' : '👎'} - {vote.address}
-                            <br />
-                            <small>{vote.timestamp}</small>
-                          </a>
-                        </div>
-                      ))}
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
+                      {contestationVotesLoading && 'Loading...'}{' '}
+                      {contestationVotesError &&
+                        `Error! ${contestationVotesError.message}`}
+                      {contestationVotesData &&
+                        contestationVotesData?.contestationVotes.length === 0 &&
+                        'No votes found.'}
+                      {contestationVotesData &&
+                        contestationVotesData?.contestationVotes.length > 0 &&
+                        contestationVotesData?.contestationVotes.filter(
+                          (vote: any) => vote.yea
+                        ).length}{' '}
+                      yea,{' '}
+                      {contestationVotesData &&
+                        contestationVotesData?.contestationVotes.filter(
+                          (vote: any) => !vote.yea
+                        ).length}{' '}
+                      nay
+                      {contestationVotesData &&
+                        contestationVotesData?.contestationVotes.map(
+                          (vote: any) => (
+                            <div
+                              key={vote.id}
+                              className='text-cyan-600 whitespace-nowrap py-1 text-sm'
+                            >
+                              <a href={`/validator/${vote.address}`}>
+                                {vote.yea ? '👍' : '👎'} - {vote.address}
+                                <br />
+                                <small>{vote.timestamp}</small>
+                              </a>
+                            </div>
+                          )
+                        )}
                     </td>
                   </tr>
                 </tbody>
               </table>
 
-              <table className="min-w-full divide-y divide-gray-300 mt-10">
+              <table className='mt-10 min-w-full divide-y divide-gray-300'>
                 <thead>
                   <tr>
-                    <th scope="col" className="px-3 py-3.5 text-left text-md font-semibold text-gray-900">
+                    <th
+                      scope='col'
+                      className='text-md text-gray-900 px-3 py-3.5 text-left font-semibold'
+                    >
                       <strong>Model</strong>
-                      <p className={(! modelData || (modelData as Model).addr === ethers.constants.AddressZero  ? '' : 'hidden ') + "text-sm font-normal text-gray-400"}>
+                      <p
+                        className={
+                          (!modelData ||
+                          (modelData as Model).addr ===
+                            ethers.constants.AddressZero
+                            ? ''
+                            : 'hidden ') + 'text-gray-400 text-sm font-normal'
+                        }
+                      >
                         No contestation found.
                       </p>
                     </th>
                   </tr>
                 </thead>
-                <tbody className={(! modelData || (modelData as Model).addr === ethers.constants.AddressZero  ? 'hidden ' : '') + "divide-y divide-gray-200"}>
+                <tbody
+                  className={
+                    (!modelData ||
+                    (modelData as Model).addr === ethers.constants.AddressZero
+                      ? 'hidden '
+                      : '') + 'divide-y divide-gray-200'
+                  }
+                >
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>fee</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {ethers.utils.formatEther((modelData as Model)?.fee || '0')}
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
+                      {ethers.utils.formatEther(
+                        (modelData as Model)?.fee || '0'
+                      )}
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>addr</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
-                      <a target="_blank" href={`https://nova.arbiscan.io/address/${(modelData as Model)?.addr}`}>{(modelData as Model)?.addr}</a>
+                    <td className='text-cyan-600 whitespace-nowrap px-3 py-4 text-sm'>
+                      <a
+                        target='_blank'
+                        href={`https://nova.arbiscan.io/address/${(modelData as Model)?.addr}`}
+                      >
+                        {(modelData as Model)?.addr}
+                      </a>
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>rate</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {ethers.utils.formatEther((modelData as Model)?.rate || '0')}x
+                    <td className='text-gray-500 whitespace-nowrap px-3 py-4 text-sm'>
+                      {ethers.utils.formatEther(
+                        (modelData as Model)?.rate || '0'
+                      )}
+                      x
                     </td>
                   </tr>
                   <tr>
-                    <td className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    <td className='text-gray-900 px-3 py-3.5 text-left text-sm font-semibold'>
                       <strong>cid</strong>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-cyan-600">
+                    <td className='text-cyan-600 whitespace-nowrap px-3 py-4 text-sm'>
                       <a
-                        target="_blank"
-                        href={process.env.NEXT_PUBLIC_IPFS_GATEWAY_CSTR!.replace('%C', cidify((modelData as Model)?.cid))}
+                        target='_blank'
+                        href={process.env.NEXT_PUBLIC_IPFS_GATEWAY_CSTR!.replace(
+                          '%C',
+                          cidify((modelData as Model)?.cid)
+                        )}
                       >
                         {cidify((modelData as Model)?.cid)}
                       </a>
@@ -406,10 +529,9 @@ export default function TaskPage() {
                 </tbody>
               </table>
             </div>
-
           </div>
         </div>
       </main>
     </Layout>
-  )
+  );
 }

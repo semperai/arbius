@@ -1,111 +1,120 @@
-"use client"
-import React, { useEffect, useState } from "react"
-import Stake from "../app/components/Stake/AIUS/Stake"
-import Steps from "../app/components/Stake/AIUS/Steps"
-import Process from "../app/components/Stake/AIUS/Process"
-import { Fade } from "react-awesome-reveal"
-import RootLayout from "@/app/layout";
-import Tabs from "../app/components/Stake/AIUS/Tabs"
-import Notifications from "../app/components/Stake/AIUS/Notifications"
-import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi'
-import baseTokenV1 from "../app/abis/baseTokenV1.json"
-import { fetchArbiusData } from "../app/Utils/getArbiusData"
+'use client';
+import React, { useEffect, useState } from 'react';
+import Stake from '../app/components/Stake/AIUS/Stake';
+import Steps from '../app/components/Stake/AIUS/Steps';
+import Process from '../app/components/Stake/AIUS/Process';
+import { Fade } from 'react-awesome-reveal';
+import RootLayout from '@/app/layout';
+import Tabs from '../app/components/Stake/AIUS/Tabs';
+import Notifications from '../app/components/Stake/AIUS/Notifications';
+import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi';
+import baseTokenV1 from '../app/abis/baseTokenV1.json';
+import { fetchArbiusData } from '../app/Utils/getArbiusData';
 import { BigNumber } from 'ethers';
 
-export default function AIUS({protocolData}) {
-    const [selectedtab, setSelectedTab] = useState("Dashboard")
-    const { address, isConnected } = useAccount();
-    const [updateValue, setUpdateValue] = useState(0);
+export default function AIUS({ protocolData }) {
+  const [selectedtab, setSelectedTab] = useState('Dashboard');
+  const { address, isConnected } = useAccount();
+  const [updateValue, setUpdateValue] = useState(0);
 
-    console.log({address});
-    console.log({isConnected});
-    const {
-        data, isError, isLoading
-    } = useContractRead({
-        address: Config.v4_baseTokenAddress,
-        abi: baseTokenV1.abi,
-        functionName: 'balanceOf',
-        args: [
-            address
-        ],
-        enabled: isConnected
-    })
-    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === "dev" ? 421614 : 42161;
-    const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
-        chainId:CHAIN ,
-      });
+  console.log({ address });
+  console.log({ isConnected });
+  const { data, isError, isLoading } = useContractRead({
+    address: Config.v4_baseTokenAddress,
+    abi: baseTokenV1.abi,
+    functionName: 'balanceOf',
+    args: [address],
+    enabled: isConnected,
+  });
+  const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 421614 : 42161;
+  const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
+    chainId: CHAIN,
+  });
 
-    useEffect(() => {
-        console.log("switch");
-        const f = async() => {
-            try {
-                const check = await window.ethereum.request({ method: 'eth_accounts' }); // Request account access if needed
-                if(check.length){
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                }
-            } catch (error) {
-            }
+  useEffect(() => {
+    console.log('switch');
+    const f = async () => {
+      try {
+        const check = await window.ethereum.request({ method: 'eth_accounts' }); // Request account access if needed
+        if (check.length) {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
         }
+      } catch (error) {}
+    };
 
-        f();
-        switchNetworkArbitrum?.();
-    },[switchNetworkArbitrum])
+    f();
+    switchNetworkArbitrum?.();
+  }, [switchNetworkArbitrum]);
 
-    return (
-        <RootLayout>
-            <div className="">
-                <div className=" pt-24 xl:pb-24 pb-8">
-                    <div className="lg:w-section-width w-mobile-section-width mx-auto max-w-center-width">
-                        <div>
-                            <div className="flex items-center gap-2">
+  return (
+    <RootLayout>
+      <div className=''>
+        <div className='pb-8 pt-24 xl:pb-24'>
+          <div className='mx-auto w-mobile-section-width max-w-center-width lg:w-section-width'>
+            <div>
+              <div className='flex items-center gap-2'>
+                <h2 className='lato-bold mb-4 text-[8vw] text-black-text lg:text-header 2xl:text-header-2xl'>
+                  <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+                    veAIUS Staking
+                  </Fade>
+                </h2>
 
-                                <h2 className="lato-bold text-[8vw] lg:text-header 2xl:text-header-2xl  text-black-text mb-4">
-                                    <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
-                                        veAIUS Staking
-                                    </Fade>
-                                </h2>
-
-                                <Fade direction="up" triggerOnce={true}>
-                                    <div className="bg-[#ece9fe] inline-block py-2 px-3 rounded-2xl mb-4 lg:mb-0">
-                                        <p className="text-[#4A28FF] bg-[#ece9fe] text-[8px]  lg:text-[14px] lato-regular">Coming Soon!</p>
-                                    </div>
-
-                                </Fade>
-
-                            </div>
-                            <div className="flex lg:flex-row flex-col lg:gap-0 gap-4 justify-between">
-                                <div className="lg:w-[48%] w-[100%]">
-                                    <Stake selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} updateValue={updateValue} setUpdateValue={setUpdateValue} />
-                                </div>
-                                <div className="lg:w-[48%] w-[100%]">
-                                    <div className="mb-4">
-                                        <Steps />
-                                    </div>
-                                    <div>
-                                        <Process />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <Fade direction='up' triggerOnce={true}>
+                  <div className='mb-4 inline-block rounded-2xl bg-[#ece9fe] px-3 py-2 lg:mb-0'>
+                    <p className='lato-regular bg-[#ece9fe] text-[8px] text-[#4A28FF] lg:text-[14px]'>
+                      Coming Soon!
+                    </p>
+                  </div>
+                </Fade>
+              </div>
+              <div className='flex flex-col justify-between gap-4 lg:flex-row lg:gap-0'>
+                <div className='w-[100%] lg:w-[48%]'>
+                  <Stake
+                    selectedtab={selectedtab}
+                    setSelectedTab={setSelectedTab}
+                    data={data}
+                    isLoading={isLoading}
+                    isError={isError}
+                    updateValue={updateValue}
+                    setUpdateValue={setUpdateValue}
+                  />
                 </div>
-
-                <Notifications />
-                {/* tabs */}
-                <Tabs selectedtab={selectedtab} setSelectedTab={setSelectedTab} data={data} isLoading={isLoading} isError={isError} protocolData={protocolData} updateValue={updateValue} setUpdateValue={setUpdateValue} />
-
+                <div className='w-[100%] lg:w-[48%]'>
+                  <div className='mb-4'>
+                    <Steps />
+                  </div>
+                  <div>
+                    <Process />
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-        </RootLayout>
-    )
+        <Notifications />
+        {/* tabs */}
+        <Tabs
+          selectedtab={selectedtab}
+          setSelectedTab={setSelectedTab}
+          data={data}
+          isLoading={isLoading}
+          isError={isError}
+          protocolData={protocolData}
+          updateValue={updateValue}
+          setUpdateValue={setUpdateValue}
+        />
+      </div>
+    </RootLayout>
+  );
 }
 
 export async function getServerSideProps(context) {
-    const data = await fetchArbiusData();
-    console.log(data, "ARBIUS DATA");
-    return {
-        props: {
-            protocolData: data,
-        }
-    }
+  const data = await fetchArbiusData();
+  console.log(data, 'ARBIUS DATA');
+  return {
+    props: {
+      protocolData: data,
+    },
+  };
 }

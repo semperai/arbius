@@ -1,11 +1,11 @@
 export interface TemplateInput {
   variable: string;
-  type: "string"|"string_enum"|"int"|"int_enum"|"decimal";
+  type: 'string' | 'string_enum' | 'int' | 'int_enum' | 'decimal';
   required: boolean;
   min?: number;
   max?: number;
-  choices?: string[]|number[];
-  default: string|number;
+  choices?: string[] | number[];
+  default: string | number;
   description: string;
 }
 
@@ -20,7 +20,7 @@ export interface Template {
     description: string;
     git: string;
     docker: string;
-  }
+  };
   input: TemplateInput[];
   output: TemplateOutput[];
 }

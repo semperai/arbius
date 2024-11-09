@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import {
-  useContractRead,
-} from 'wagmi';
+import { useContractRead } from 'wagmi';
 import Config from '@/config.json';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 import { formatBalance } from '@/utils';
 
-import { ethers } from 'ethers'
+import { ethers } from 'ethers';
 
 export default function TotalSupply() {
   const [totalSupply, setTotalSupply] = useState(ethers.constants.Zero);

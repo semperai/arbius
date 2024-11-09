@@ -1,60 +1,68 @@
-"use client"
-import React, { useEffect, useState } from "react"
-import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png'
-import info_icon from '@/app/assets/images/info_icon_white.png'
-import Image from "next/image"
-import ReactSlider from 'react-slider'
-import Link from "next/link"
-import { relative } from "path"
-import { BigNumber } from "ethers"
-import { getAIUSVotingPower } from "../../../Utils/getAIUSVotingPower"
-import { getAPR } from "../../../Utils/getAPR"
-import { useContractRead , useAccount, useContractWrite, usePrepareContractWrite, useContractReads, useWaitForTransaction} from 'wagmi'
+'use client';
+import React, { useEffect, useState } from 'react';
+import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png';
+import info_icon from '@/app/assets/images/info_icon_white.png';
+import Image from 'next/image';
+import ReactSlider from 'react-slider';
+import Link from 'next/link';
+import { relative } from 'path';
+import { BigNumber } from 'ethers';
+import { getAIUSVotingPower } from '../../../Utils/getAIUSVotingPower';
+import { getAPR } from '../../../Utils/getAPR';
+import {
+  useContractRead,
+  useAccount,
+  useContractWrite,
+  usePrepareContractWrite,
+  useContractReads,
+  useWaitForTransaction,
+} from 'wagmi';
 // import config from "../../../../sepolia_config.json"
-import votingEscrow from "../../../abis/votingEscrow.json"
-import veStaking from "../../../abis/veStaking.json"
-import baseTokenV1 from "../../../abis/baseTokenV1.json"
-import { AIUS_wei, defaultApproveAmount } from "../../../Utils/constantValues";
-import PopUp from "./PopUp"
-import CircularProgressBar from "./CircularProgressBar"
-import powered_by from "../../../assets/images/powered_by.png"
-import cross from "../../../assets/images/cross.png"
-import error_stake from "../../../assets/images/error_stake.png"
-import success_stake from "../../../assets/images/success_stake.png"
+import votingEscrow from '../../../abis/votingEscrow.json';
+import veStaking from '../../../abis/veStaking.json';
+import baseTokenV1 from '../../../abis/baseTokenV1.json';
+import { AIUS_wei, defaultApproveAmount } from '../../../Utils/constantValues';
+import PopUp from './PopUp';
+import CircularProgressBar from './CircularProgressBar';
+import powered_by from '../../../assets/images/powered_by.png';
+import cross from '../../../assets/images/cross.png';
+import error_stake from '../../../assets/images/error_stake.png';
+import success_stake from '../../../assets/images/success_stake.png';
 import { ethers } from 'ethers';
-import Config from "@/config.one.json"
-import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData'
+import Config from '@/config.one.json';
+import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 import Web3 from 'web3';
 
 type StakeProps = {
-  selectedtab: string,
-  setSelectedTab: Function,
-  data: any,
-  isLoading: boolean,
-  isError: any,
-  updateValue: number,
-  setUpdateValue: Function
-}
+  selectedtab: string;
+  setSelectedTab: Function;
+  data: any;
+  isLoading: boolean;
+  isError: any;
+  updateValue: number;
+  setUpdateValue: Function;
+};
 
 export default function Stake({
   selectedtab,
   setSelectedTab,
-  data, isLoading,
+  data,
+  isLoading,
   isError,
   updateValue,
-  setUpdateValue
+  setUpdateValue,
 }: StakeProps) {
-  const [sliderValue, setSliderValue] = useState(0)
-  const { address, isConnected } = useAccount()
+  const [sliderValue, setSliderValue] = useState(0);
+  const { address, isConnected } = useAccount();
   //const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
-  const [veAiusBalance, setVeAIUSBalance] = useState(0)
-  const [allowance, setAllowance] = useState(0)
+  const [veAiusBalance, setVeAIUSBalance] = useState(0);
+  const [allowance, setAllowance] = useState(0);
   //const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
   const [duration, setDuration] = useState({
     months: 0,
-    weeks: 0
-  })
-  const [amount, setAmount] = useState(0)
+    weeks: 0,
+  });
+  const [amount, setAmount] = useState(0);
   //const walletBalance = data && !isLoading ? Number(data._hex) / AIUS_wei : 0;
   const [walletBalance, setWalletBalance] = useState(0);
   const [rewardRate, setRewardRate] = useState(0);
@@ -63,9 +71,31 @@ export default function Stake({
 
   //console.log(veAiusBalance, allowance, walletBalance, rewardRate, totalSupply, escrowBalanceData, "ALL VALUES IN STAKE COMP")
 
-  const FAUCET_ADDRESS = "0x9a2aef1a0fc09d22f0703decd5bf19dc4214e52a";
+  const FAUCET_ADDRESS = '0x9a2aef1a0fc09d22f0703decd5bf19dc4214e52a';
 
-  const faucetABI = [{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"faucet","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}]
+  const faucetABI = [
+    {
+      inputs: [
+        { internalType: 'address', name: 'tokenAddress', type: 'address' },
+      ],
+      stateMutability: 'nonpayable',
+      type: 'constructor',
+    },
+    {
+      inputs: [],
+      name: 'faucet',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'token',
+      outputs: [{ internalType: 'contract IERC20', name: '', type: 'address' }],
+      stateMutability: 'view',
+      type: 'function',
+    },
+  ];
 
   const [faucetCalled, setFaucetCalled] = useState(false);
   /*const rewardRate = useContractRead({
@@ -192,7 +222,7 @@ export default function Stake({
     ],
     enabled: allowance >= amount,
   });*/
-  console.log(allowance, amount, "ALLOWANCE AND AMOUNT")
+  console.log(allowance, amount, 'ALLOWANCE AND AMOUNT');
   //const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
   //console.log({stakeData, stakeError,stakeWrite})
 
@@ -239,73 +269,94 @@ export default function Stake({
   // Use effect to fetch all values
 
   useEffect(() => {
-    const f = async() => {
-
+    const f = async () => {
       try {
         // TODO move to wagmi&ethers
         // @ts-ignore
         const web3 = new Web3(window.ethereum);
-        // @ts-ignore
-        const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
-        // @ts-ignore
-        const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
-        // @ts-ignore
-        const baseTokenContract = new web3.eth.Contract(baseTokenV1.abi, Config.v4_baseTokenAddress);
+        const votingEscrowContract = new web3.eth.Contract(
+          // @ts-ignore
+          votingEscrow.abi,
+          Config.v4_votingEscrowAddress
+        );
+        const veStakingContract = new web3.eth.Contract(
+          // @ts-ignore
+          veStaking.abi,
+          Config.v4_veStakingAddress
+        );
+        const baseTokenContract = new web3.eth.Contract(
+          // @ts-ignore
+          baseTokenV1.abi,
+          Config.v4_baseTokenAddress
+        );
 
-        const wBal = await baseTokenContract.methods.balanceOf(address).call()
+        const wBal = await baseTokenContract.methods.balanceOf(address).call();
         setWalletBalance(wBal / AIUS_wei);
 
-        const _rewardRate = await veStakingContract.methods.rewardRate().call()
-        setRewardRate(_rewardRate)
+        const _rewardRate = await veStakingContract.methods.rewardRate().call();
+        setRewardRate(_rewardRate);
 
-        const _totalSupply = await veStakingContract.methods.totalSupply().call()
-        setTotalSupply(_totalSupply)
+        const _totalSupply = await veStakingContract.methods
+          .totalSupply()
+          .call();
+        setTotalSupply(_totalSupply);
 
-        const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
-        setEscrowBalanceData(_escrowBalanceData)
+        const _escrowBalanceData = await votingEscrowContract.methods
+          .balanceOf(address)
+          .call();
+        setEscrowBalanceData(_escrowBalanceData);
 
-        const _tokenIDs = []
-        for(let i=0; i<_escrowBalanceData; i++){
+        const _tokenIDs = [];
+        for (let i = 0; i < _escrowBalanceData; i++) {
           _tokenIDs.push(
-            await votingEscrowContract.methods.tokenOfOwnerByIndex(address, i).call()
-          )
+            await votingEscrowContract.methods
+              .tokenOfOwnerByIndex(address, i)
+              .call()
+          );
         }
 
         let _veAIUSBalance = 0;
-        for(let i=0; i<_tokenIDs.length; i++){
-          _veAIUSBalance = _veAIUSBalance + await veStakingContract.methods.balanceOf(_tokenIDs[i]).call() / AIUS_wei
+        for (let i = 0; i < _tokenIDs.length; i++) {
+          _veAIUSBalance =
+            _veAIUSBalance +
+            (await veStakingContract.methods.balanceOf(_tokenIDs[i]).call()) /
+              AIUS_wei;
         }
         setVeAIUSBalance(_veAIUSBalance);
 
-        const _checkAllowance = await baseTokenContract.methods.allowance(address, Config.v4_votingEscrowAddress).call()
-        setAllowance(_checkAllowance)
+        const _checkAllowance = await baseTokenContract.methods
+          .allowance(address, Config.v4_votingEscrowAddress)
+          .call();
+        setAllowance(_checkAllowance);
 
-        if(localStorage.getItem("faucetCalled")){
-          // @ts-ignore
-          if(Array.isArray(JSON.parse(localStorage.getItem("faucetCalled"))) && JSON.parse(localStorage.getItem("faucetCalled")).includes(address)){
+        if (localStorage.getItem('faucetCalled')) {
+          if (
+            // @ts-ignore
+            Array.isArray(JSON.parse(localStorage.getItem('faucetCalled'))) &&
+            // @ts-ignore
+            JSON.parse(localStorage.getItem('faucetCalled')).includes(address)
+          ) {
             setFaucetCalled(true);
-          }else{
+          } else {
             setFaucetCalled(false);
           }
-        }else{
-          setFaucetCalled(false)
+        } else {
+          setFaucetCalled(false);
         }
-
-      }catch(err){
-        console.log(err)
+      } catch (err) {
+        console.log(err);
       }
-    }
-    if(address){
+    };
+    if (address) {
       f();
     }
-  },[address, updateValue])
+  }, [address, updateValue]);
 
-
-  const handleStake = async()=>{
+  const handleStake = async () => {
     //console.log({stakeData});
-    console.log(amount, allowance, "ALLOWANCE AND AMOUNT before staking");
+    console.log(amount, allowance, 'ALLOWANCE AND AMOUNT before staking');
 
-    if(amount > allowance || allowance === 0){
+    if (amount > allowance || allowance === 0) {
       /*if(amount && (duration.months || duration.weeks)){
         setShowPopUp(1)
         approveWrite?.()
@@ -327,45 +378,67 @@ export default function Stake({
         // Get the signer
         const signer = provider.getSigner();
 
-        const approveContract = new ethers.Contract(Config.v4_baseTokenAddress, baseTokenV1.abi, signer)
+        const approveContract = new ethers.Contract(
+          Config.v4_baseTokenAddress,
+          baseTokenV1.abi,
+          signer
+        );
 
-        const tx1 = await approveContract.approve(Config.v4_votingEscrowAddress, defaultApproveAmount)
-        
+        const tx1 = await approveContract.approve(
+          Config.v4_votingEscrowAddress,
+          defaultApproveAmount
+        );
+
         await tx1.wait();
-        
+
         console.log('First transaction confirmed');
 
         // @ts-ignore
         setShowPopUp(2);
 
-        const stakeContract = new ethers.Contract(Config.v4_votingEscrowAddress, votingEscrow.abi, signer)
+        const stakeContract = new ethers.Contract(
+          Config.v4_votingEscrowAddress,
+          votingEscrow.abi,
+          signer
+        );
 
         const tx2 = await stakeContract.create_lock(
-                          (amount * AIUS_wei).toString(),
-                          (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
-                        )
+          (amount * AIUS_wei).toString(),
+          (duration.months !== 0
+            ? duration.months * (52 / 12)
+            : duration.weeks) *
+            7 *
+            24 *
+            60 *
+            60
+        );
         console.log('Second transaction hash:', tx2.hash);
         await tx2.wait(); // Wait for the transaction to be mined
         console.log('Second transaction confirmed');
         // @ts-ignore
-        setShowPopUp("Success")
+        setShowPopUp('Success');
         console.log('Both transactions completed successfully');
-        getTransactionReceiptData(tx2.hash).then(function(){
+        getTransactionReceiptData(tx2.hash).then(function () {
           //window.location.reload(true)
           // @ts-ignore
-          setUpdateValue(prevValue => prevValue + 1)
-        })
+          setUpdateValue((prevValue) => prevValue + 1);
+        });
       } catch (error) {
         // @ts-ignore
-        setShowPopUp("Error")
+        setShowPopUp('Error');
       }
-    }else{
-      try{
-        console.log("Second step if allowance is set, values -> : amount, months and weeks", amount, duration.months, duration.weeks)
-        if(amount && (duration.months || duration.weeks)){
+    } else {
+      try {
+        console.log(
+          'Second step if allowance is set, values -> : amount, months and weeks',
+          amount,
+          duration.months,
+          duration.weeks
+        );
+        if (amount && (duration.months || duration.weeks)) {
           // setShowPopUp(2)
           // @ts-ignore
-          setShowPopUp(3)
+          setShowPopUp(3);
           // @ts-ignore
           await window.ethereum.request({ method: 'eth_requestAccounts' });
 
@@ -376,34 +449,43 @@ export default function Stake({
           // Get the signer
           const signer = provider.getSigner();
 
-          const stakeContract = new ethers.Contract(Config.v4_votingEscrowAddress, votingEscrow.abi, signer)
+          const stakeContract = new ethers.Contract(
+            Config.v4_votingEscrowAddress,
+            votingEscrow.abi,
+            signer
+          );
           const tx2 = await stakeContract.create_lock(
-                            (amount * AIUS_wei).toString(),
-                            (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
-                          )
+            (amount * AIUS_wei).toString(),
+            (duration.months !== 0
+              ? duration.months * (52 / 12)
+              : duration.weeks) *
+              7 *
+              24 *
+              60 *
+              60
+          );
           console.log('Second transaction hash:', tx2.hash);
           await tx2.wait(); // Wait for the transaction to be mined
           console.log('Second transaction confirmed');
           // @ts-ignore
-          setShowPopUp("Success")
+          setShowPopUp('Success');
           console.log('Both transactions completed successfully');
-          getTransactionReceiptData(tx2.hash).then(function(){
+          getTransactionReceiptData(tx2.hash).then(function () {
             //window.location.reload(true)
             // @ts-ignore
-            setUpdateValue(prevValue => prevValue + 1)
-          })
+            setUpdateValue((prevValue) => prevValue + 1);
+          });
         } else {
           //alert("Please enter the amount and duration to stake!")
         }
-      } catch(err) {
+      } catch (err) {
         // @ts-ignore
-        setShowPopUp("Error")
+        setShowPopUp('Error');
       }
     }
-  }
+  };
 
-
-  const getFaucet = async() => {
+  const getFaucet = async () => {
     /*
     try{
       setShowPopUp(3)
@@ -427,331 +509,448 @@ export default function Stake({
       setFaucetCalled(false)
     }
     */
-  }
+  };
 
   // console.log({veAIUSBalances})
-  const [showPopUp, setShowPopUp] = useState(false)
+  const [showPopUp, setShowPopUp] = useState(false);
 
   return (
     <>
-    <div>
-      {
-        showPopUp !== false && (
+      <div>
+        {showPopUp !== false && (
           <PopUp setShowPopUp={setShowPopUp}>
             {/* TODO fix showPopUp types*/}
             {/* @ts-ignore */}
-            {showPopUp === 1 && <StepOneChildren setShowPopUp={setShowPopUp} isError={false} noChildren={false} repeat={false} valueStart={0} valueEnd={50} />}
+            {showPopUp === 1 && (
+              <StepOneChildren
+                setShowPopUp={setShowPopUp}
+                isError={false}
+                noChildren={false}
+                repeat={false}
+                valueStart={0}
+                valueEnd={50}
+              />
+            )}
             {/* @ts-ignore */}
-            {showPopUp === 2 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={false} repeat={false} valueStart={50} valueEnd={100} />}
+            {showPopUp === 2 && (
+              <StepTwoChildren
+                setShowPopUp={setShowPopUp}
+                isError={false}
+                noChildren={false}
+                repeat={false}
+                valueStart={50}
+                valueEnd={100}
+              />
+            )}
             {/* @ts-ignore */}
-            {showPopUp === 3 && <StepTwoChildren setShowPopUp={setShowPopUp} isError={false} noChildren={true} repeat={true} valueStart={0} valueEnd={100} />}
+            {showPopUp === 3 && (
+              <StepTwoChildren
+                setShowPopUp={setShowPopUp}
+                isError={false}
+                noChildren={true}
+                repeat={true}
+                valueStart={0}
+                valueEnd={100}
+              />
+            )}
             {/* @ts-ignore */}
-            {showPopUp === "Success" && <SuccessChildren setShowPopUp={setShowPopUp} />}
+            {showPopUp === 'Success' && (
+              <SuccessChildren setShowPopUp={setShowPopUp} />
+            )}
             {/* @ts-ignore */}
-            {showPopUp === "Error" && <ErrorPopUpChildren setShowPopUp={setShowPopUp} />}
+            {showPopUp === 'Error' && (
+              <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
+            )}
           </PopUp>
-        )
-      }
-      <div className="bg-white-background h-auto stake-box-shadow rounded-2xl px-8 2xl:pt-10 lg:pt-14 pb-8 pt-8 box-border flex flex-col justify-between">{/*2xl:h-[530px] lg:h-[535px]*/}
-        <div>
+        )}
+        <div className='stake-box-shadow box-border flex h-auto flex-col justify-between rounded-2xl bg-white-background px-8 pb-8 pt-8 lg:pt-14 2xl:pt-10'>
+          {/*2xl:h-[530px] lg:h-[535px]*/}
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-stake lato-bold text-[18px]">Amount to lock</p>
-              <p className="text-available lato-regular text-[15px]">Available {Number(walletBalance)?.toFixed(2).toString()} AIUS</p>
+            <div>
+              <div className='mb-4 flex items-center justify-between'>
+                <p className='lato-bold text-[18px] text-stake'>
+                  Amount to lock
+                </p>
+                <p className='lato-regular text-[15px] text-available'>
+                  Available {Number(walletBalance)?.toFixed(2).toString()} AIUS
+                </p>
+              </div>
+              <div>
+                <div className='flex items-center rounded-3xl border border-[#2F2F2F]'>
+                  <div className='box-border flex items-center justify-center gap-2 rounded-l-3xl bg-stake-input p-2'>
+                    <div className='flex h-[30px] w-[30px] items-center justify-center rounded-[50%] bg-white-background'>
+                      <Image
+                        src={arbius_logo_without_name}
+                        width={15}
+                        alt='arbius'
+                      />
+                    </div>
+                    <p className='pr- lato-bold text-[15px] text-aius'>AIUS</p>
+                  </div>
+                  <div className='w-[94%]'>
+                    {/* @ts-ignore */}
+                    <input
+                      className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-2 text-[15px] text-black-text focus:ring-0'
+                      id='outline-none'
+                      type='number'
+                      placeholder='0'
+                      value={amount}
+                      // @ts-ignore
+                      onChange={(e) => setAmount(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
             <div>
-              <div className="border border-[#2F2F2F] rounded-3xl flex items-center">
-                <div className="bg-stake-input flex items-center gap-2 justify-center rounded-l-3xl  p-2 box-border">
-                  <div className="bg-white-background w-[30px] h-[30px] rounded-[50%] flex items-center justify-center ">
-                    <Image src={arbius_logo_without_name} width={15} alt="arbius" />
-                  </div>
-                  <p className="pr- text-aius lato-bold text-[15px]">AIUS</p>
-                </div>
-                <div className="w-[94%]">
-                  {/* @ts-ignore */}
-                  <input className="w-[100%] border-0 rounded-r-3xl p-2 lato-bold text-[15px] text-black-text border-none focus:ring-0 " id="outline-none" type="number" placeholder="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <p className='lato-bold mb-8 mt-8 h-12 text-[15px] text-stake lg:text-[20px]'>
+                Locking for{' '}
+                {duration.months !== 0
+                  ? `${duration.months} ${duration.months === 1 ? 'month' : 'months'} `
+                  : `${duration.weeks} ${duration.weeks <= 1 && duration.weeks !== 0 ? 'week' : 'weeks'}`}{' '}
+                for{' '}
+                {(
+                  getAIUSVotingPower(amount * AIUS_wei, sliderValue) / AIUS_wei
+                ).toFixed(2)}{' '}
+                veAIUS.
+              </p>
+              <div className='mb-10'>
+                <div className='mb-8'>
+                  <ReactSlider
+                    className='rounded-2xl border-4 border-b border-[#ECECEC] text-original-white'
+                    thumbClassName=' w-[28px] h-[28px] ml-[-5px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none'
+                    markClassName='customSlider-mark'
+                    marks={4}
+                    min={0}
+                    step={0.25}
+                    max={24}
+                    defaultValue={0}
+                    value={sliderValue}
+                    onChange={(value) => {
+                      console.log('Slider on change value: ', value);
+                      if (value < 1) {
+                        setDuration({
+                          ...duration,
+                          months: 0,
+                          weeks: 4 * value,
+                        });
+                      } else {
+                        setDuration({ ...duration, months: value, weeks: 0 });
+                      }
+                      setSliderValue(value);
+                    }}
+                    renderMark={(props) => {
+                      // @ts-ignore
+                      const isSingleDigit = props.key.toString().length === 1;
+                      props.className = `customSlider-mark customSlider-mark-before text-[16px] text-start w-[16.66%]  ${isSingleDigit ? '!ml-[4px]' : '!ml-[0px]'}`;
+                      return (
+                        <span {...props}>
+                          <h1>{props.key}</h1>
+                        </span>
+                      );
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
-          <div>
-            <p className="mt-8 mb-8 text-[15px] lg:text-[20px] lato-bold  text-stake h-12">Locking for {duration.months !== 0 ? `${duration.months} ${duration.months === 1 ? "month" : "months"} ` : `${duration.weeks} ${(duration.weeks <= 1 && duration.weeks !== 0) ? "week" : "weeks"}`} for {(getAIUSVotingPower(amount * AIUS_wei, sliderValue) / AIUS_wei).toFixed(2)} veAIUS.</p>
-            <div className="mb-10">
-              <div className="mb-8">
-                <ReactSlider
-                  className=" text-original-white border-b border-4 border-[#ECECEC] rounded-2xl"
-                  thumbClassName=" w-[28px] h-[28px] ml-[-5px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none"
-                  markClassName="customSlider-mark"
-                  marks={4}
-                  min={0}
-                  step={.25}
-                  max={24}
-                  defaultValue={0}
-                  value={sliderValue}
-                  onChange={(value) => {
-                    console.log("Slider on change value: ",value);
-                    if (value < 1) {
-                      setDuration({ ...duration, months: 0, weeks: 4 * value })
-                    } else {
-                      setDuration({ ...duration, months: value, weeks: 0 })
-                    }
-                    setSliderValue(value)
-                  }}
-                  renderMark={(props) => {
-                    // @ts-ignore
-                    const isSingleDigit = props.key.toString().length === 1;
-                    props.className = `customSlider-mark customSlider-mark-before text-[16px] text-start w-[16.66%]  ${isSingleDigit ? '!ml-[4px]' : '!ml-[0px]'}`;
-                    return <span {...props}  >
-                      <h1>{props.key}</h1>
-                    </span>;
-                  }}
+          <div className='mt-8 flex items-center justify-between'>
+            <div className='relative box-border w-[48%] rounded-2xl bg-apr px-4 py-4'>
+              <div className='group absolute right-3 top-3 cursor-pointer'>
+                <Image src={info_icon} width={20} height={20} alt='info' />
+                <div className='lato-bold absolute right-6 top-0 hidden rounded-md bg-white-background p-2 text-center text-[.7rem] text-black-text group-hover:block xl:w-[110px]'>
+                  2-Year APR Est.
+                </div>
+              </div>
+              <p className='lato-regular mb-4 text-[12px] text-original-white md:text-[16px]'>
+                APR
+              </p>
+              <p className='lato-bold text-[16px] text-original-white md:text-[28px]'>
+                {totalSupply && rewardRate
+                  ? getAPR(rewardRate, totalSupply).toFixed(2)
+                  : 0}
+                %
+              </p>
+            </div>
+            <div className='relative box-border w-[48%] rounded-2xl bg-apr px-4 py-4'>
+              <div className='group absolute right-3 top-3 cursor-pointer'>
+                <Image
+                  src={info_icon}
+                  width={20}
+                  height={20}
+                  alt='info'
+                  className=''
                 />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center justify-between mt-8 ">
-
-
-          <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border relative">
-            <div className="right-3 top-3 absolute group cursor-pointer">
-              <Image src={info_icon} width={20} height={20} alt="info" />
-              <div className="absolute hidden group-hover:block right-6 xl:w-[110px] top-0 text-[.7rem] lato-bold bg-white-background text-black-text p-2 rounded-md text-center">
-                2-Year APR Est.
-
-              </div>
-
-            </div>
-            <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">APR</p>
-            <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{totalSupply && rewardRate ? getAPR(rewardRate, totalSupply).toFixed(2) : 0}%</p>
-          </div>
-          <div className="bg-apr rounded-2xl w-[48%] py-4 px-4 box-border relative">
-            <div className="right-3 top-3 absolute group cursor-pointer">
-              <Image src={info_icon} width={20} height={20} alt="info" className="" />
-              <div className="absolute hidden group-hover:block right-6 xl:w-[160px] top-0 text-[.7rem] lato-bold bg-white-background text-black-text p-2 rounded-md text-left">
-                Total veAIUS staked by user
-
-              </div>
-
-            </div>
-            <p className="md:text-[16px] text-[12px] lato-regular mb-4 text-original-white">veAIUS Balance</p>
-            <p className="md:text-[28px] text-[16px] lato-bold text-original-white">{Number(veAiusBalance)?.toFixed(2)} <span className="md:text-[20px] text-[12px] lato-regular">veAIUS</span></p>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 mb-4">
-          <div className=' mt-6'>
-            <button
-              type="button"
-              className={`relative justify-center py-2 group ${faucetCalled ? "hidden bg-light-gray-background": "bg-black-background"} py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
-              onClick={async()=>{
-                  if(!faucetCalled){
-                    await getFaucet()
-                  }
-              }}
-            >
-              <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className={`lato-bold  relative z-10  ${faucetCalled ? "text-original-black opacity-40": "text-original-white opacity-100"} group-hover:text-original-white group-hover:opacity-100 lg:text-[15px]`}>
-                AIUS Faucet
-              </div>
-            </button>
-          </div>
-          <div className=' mt-6'>
-            <Link href={"#dashboard"} onClick={() => setSelectedTab("Dashboard")}>
-              <button
-                type="button"
-
-                className="relative justify-center py-2 group bg-light-gray-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full"
-              >
-                <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="lato-bold  relative z-10  text-black-text group-hover:text-original-white opacity-40 group-hover:opacity-100 lg:text-[15px]">
-                  Manage
+                <div className='lato-bold absolute right-6 top-0 hidden rounded-md bg-white-background p-2 text-left text-[.7rem] text-black-text group-hover:block xl:w-[160px]'>
+                  Total veAIUS staked by user
                 </div>
-
-              </button>
-            </Link>
+              </div>
+              <p className='lato-regular mb-4 text-[12px] text-original-white md:text-[16px]'>
+                veAIUS Balance
+              </p>
+              <p className='lato-bold text-[16px] text-original-white md:text-[28px]'>
+                {Number(veAiusBalance)?.toFixed(2)}{' '}
+                <span className='lato-regular text-[12px] md:text-[20px]'>
+                  veAIUS
+                </span>
+              </p>
+            </div>
           </div>
-          <div className=' mt-6'>
-            <button
-              type="button"
-                onClick={async()=>{
-                  //console.log(amount, walletBalance, duration)
-                  if(Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks)){
-                    await handleStake()
+
+          <div className='mb-4 flex justify-end gap-2'>
+            <div className='mt-6'>
+              <button
+                type='button'
+                className={`group relative justify-center py-2 ${faucetCalled ? 'hidden bg-light-gray-background' : 'bg-black-background'} flex w-full items-center gap-3 rounded-full px-6 py-1 lg:px-10`}
+                onClick={async () => {
+                  if (!faucetCalled) {
+                    await getFaucet();
                   }
                 }}
-              className={`relative justify-center py-2 group bg-black-background ${Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks) ? "" : "opacity-40" } py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 w-full`}
-            >
-              <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="lato-bold relative z-10 text-original-white lg:text-[15px]">
-                Stake
-              </div>
-            </button>
+              >
+                <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+                <div
+                  className={`lato-bold relative z-10 ${faucetCalled ? 'text-original-black opacity-40' : 'text-original-white opacity-100'} group-hover:text-original-white group-hover:opacity-100 lg:text-[15px]`}
+                >
+                  AIUS Faucet
+                </div>
+              </button>
+            </div>
+            <div className='mt-6'>
+              <Link
+                href={'#dashboard'}
+                onClick={() => setSelectedTab('Dashboard')}
+              >
+                <button
+                  type='button'
+                  className='group relative flex w-full items-center justify-center gap-3 rounded-full bg-light-gray-background px-6 py-1 py-2 lg:px-10'
+                >
+                  <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+                  <div className='lato-bold relative z-10 text-black-text opacity-40 group-hover:text-original-white group-hover:opacity-100 lg:text-[15px]'>
+                    Manage
+                  </div>
+                </button>
+              </Link>
+            </div>
+            <div className='mt-6'>
+              <button
+                type='button'
+                onClick={async () => {
+                  //console.log(amount, walletBalance, duration)
+                  if (
+                    Number(amount) &&
+                    Number(amount) <= Number(walletBalance) &&
+                    (duration.months || duration.weeks)
+                  ) {
+                    await handleStake();
+                  }
+                }}
+                className={`group relative justify-center bg-black-background py-2 ${Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks) ? '' : 'opacity-40'} flex w-full items-center gap-3 rounded-full px-6 py-1 lg:px-10`}
+              >
+                <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+                <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
+                  Stake
+                </div>
+              </button>
+            </div>
           </div>
+          {!faucetCalled ? (
+            <div className='whitespace-nowrap text-center text-[9px] text-black-text'>
+              Wallet needs Arbitrum Sepolia ETH to prevent transaction failure.
+            </div>
+          ) : null}
         </div>
-        {   !faucetCalled ?
-          <div className="text-black-text text-[9px] whitespace-nowrap text-center">Wallet needs Arbitrum Sepolia ETH to prevent transaction failure.</div>
-          : null }
       </div>
-    </div>
     </>
-  )
+  );
 }
 
 type StepOneChildrenProps = {
-  setShowPopUp: Function,
-  isError: boolean,
-  noChildren: boolean,
-  repeat: boolean,
-  valueStart: number,
-  valueEnd: number
-}
+  setShowPopUp: Function;
+  isError: boolean;
+  noChildren: boolean;
+  repeat: boolean;
+  valueStart: number;
+  valueEnd: number;
+};
 
-const StepOneChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart, valueEnd }: StepOneChildrenProps) => {
+const StepOneChildren = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat,
+  valueStart,
+  valueEnd,
+}: StepOneChildrenProps) => {
   return (
     <div>
-      <div className="flex justify-end mt-4">
-        <button className="cursor-pointer" onClick={() => setShowPopUp(false)}>
-          <Image src={cross} className="w-[10px]" alt="cross" />
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
         </button>
-
       </div>
-      <div className="my-12">
-
-        <div className="flex justify-center items-center">
-          <div className="w-40 h-40">
-            <CircularProgressBar valueStart={valueStart} valueEnd={valueEnd} duration={4} text={"1/2"} setShowPopUp={setShowPopUp} step={1} isError={isError} noChildren={noChildren} repeat={repeat} />
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={valueStart}
+              valueEnd={valueEnd}
+              duration={4}
+              text={'1/2'}
+              setShowPopUp={setShowPopUp}
+              step={1}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={repeat}
+            />
           </div>
-
         </div>
-        <h1 className="text-[20px] mt-4 text-original-black text-center">Approve AIUS Spending Limit!</h1>
-        <h1 className="text-[12px] text-aius-tabs-gray text-center">Confirm this transaction in your wallet.</h1>
-
-
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Approve AIUS Spending Limit!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Confirm this transaction in your wallet.
+        </h1>
       </div>
 
-      <div className="flex justify-center items-center">
-        <Image src={powered_by} className="w-auto h-4" alt="powered_by" />
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
       </div>
     </div>
-
-  )
-}
+  );
+};
 
 type StepTwoChildrenProps = {
-  setShowPopUp: Function,
-  isError: boolean,
-  noChildren: boolean,
-  repeat: boolean,
-  valueStart: number,
-  valueEnd: number
-}
+  setShowPopUp: Function;
+  isError: boolean;
+  noChildren: boolean;
+  repeat: boolean;
+  valueStart: number;
+  valueEnd: number;
+};
 
-const StepTwoChildren = ({ setShowPopUp, isError, noChildren, repeat, valueStart, valueEnd }: StepTwoChildrenProps) => {
+const StepTwoChildren = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat,
+  valueStart,
+  valueEnd,
+}: StepTwoChildrenProps) => {
   return (
     <div>
-      <div className="flex justify-end mt-4">
-        <button className="cursor-pointer" onClick={() => setShowPopUp(false)}>
-          <Image src={cross} className="w-[10px]" alt="cross" />
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
         </button>
-
       </div>
-      <div className="my-12">
-
-        <div className="flex justify-center items-center">
-          <div className="w-40 h-40">
-            <CircularProgressBar valueStart={valueStart} valueEnd={valueEnd} duration={4} text={"2/2"} setShowPopUp={setShowPopUp} step={2} isError={isError} noChildren={noChildren} repeat={repeat} />
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={valueStart}
+              valueEnd={valueEnd}
+              duration={4}
+              text={'2/2'}
+              setShowPopUp={setShowPopUp}
+              step={2}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={repeat}
+            />
           </div>
-
         </div>
-        <h1 className="text-[20px] mt-4 text-original-black text-center">Pending transaction confirmation!</h1>
-        <h1 className="text-[12px] text-aius-tabs-gray text-center">Confirm this transaction in your wallet.</h1>
-
-
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Pending transaction confirmation!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Confirm this transaction in your wallet.
+        </h1>
       </div>
 
-      <div className="flex justify-center items-center">
-        <Image src={powered_by} className="w-auto h-4" alt="powered_by" />
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
       </div>
     </div>
-  )
-}
+  );
+};
 
 type SuccessChildrenProps = {
-  setShowPopUp: Function
-}
+  setShowPopUp: Function;
+};
 
 const SuccessChildren = ({ setShowPopUp }: SuccessChildrenProps) => {
   return (
     <div>
-      <div className="flex justify-end mt-4">
-        <button className="cursor-pointer" onClick={() => setShowPopUp(false)}>
-          <Image src={cross} className="w-[10px]" alt="cross" />
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
         </button>
-
       </div>
-      <div className="my-12">
-        <div className="flex justify-center items-center">
-          <div className="w-40 h-40 flex justify-center items-center relative bg-white-background rounded-full">
-            <Image src={success_stake} className=" w-12" alt="error_stake" />
-
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='relative flex h-40 w-40 items-center justify-center rounded-full bg-white-background'>
+            <Image src={success_stake} className='w-12' alt='error_stake' />
           </div>
         </div>
 
-        <h1 className="text-[20px] mt-4 text-original-black text-center">Congrats!</h1>
-        <h1 className="text-[12px] text-aius-tabs-gray text-center">Transaction Completed.</h1>
-
-
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Congrats!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Transaction Completed.
+        </h1>
       </div>
 
-      <div className="flex justify-center items-center">
-        <Image src={powered_by} className="w-auto h-4" alt="powered_by" />
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
       </div>
     </div>
-  )
-}
+  );
+};
 
 type ErrorPopUpChildrenProps = {
-  setShowPopUp: Function
-}
+  setShowPopUp: Function;
+};
 
 const ErrorPopUpChildren = ({ setShowPopUp }: ErrorPopUpChildrenProps) => {
   return (
     <div>
-      <div className="flex justify-end mt-4">
-        <button className="cursor-pointer" onClick={() => setShowPopUp(false)}>
-          <Image src={cross} className="w-[10px]" alt="cross" />
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
         </button>
-
       </div>
-      <div className="my-12">
-        <div className="flex justify-center items-center">
-          <div className="w-40 h-40 flex justify-center items-center relative bg-white-background rounded-full">
-            <Image src={error_stake} className=" w-12" alt="error_stake" />
-
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='relative flex h-40 w-40 items-center justify-center rounded-full bg-white-background'>
+            <Image src={error_stake} className='w-12' alt='error_stake' />
           </div>
         </div>
-        <h1 className="text-[20px] mt-4 text-original-black text-center">Error!</h1>
-        <h1 className="text-[12px] text-aius-tabs-gray text-center">Please try again.</h1>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Error!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Please try again.
+        </h1>
 
-        <div className="flex justify-center items-center">
+        <div className='flex items-center justify-center'>
           <button
             onClick={() => setShowPopUp(false)}
-            type="button"
-            className="relative justify-center mt-2 py-2 group bg-black-background py-1 px-6 lg:px-10 rounded-full flex items-center gap-3 "
+            type='button'
+            className='group relative mt-2 flex items-center justify-center gap-3 rounded-full bg-black-background px-6 py-1 py-2 lg:px-10'
           >
-            <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-4 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="lato-bold  relative z-10 text-original-white lg:text-[15px]">
+            <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+            <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
               Continue
             </div>
-
           </button>
         </div>
       </div>
 
-      <div className="flex justify-center items-center">
-        <Image src={powered_by} className="w-auto h-4" alt="powered_by" />
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
       </div>
     </div>
-  )
-}
+  );
+};

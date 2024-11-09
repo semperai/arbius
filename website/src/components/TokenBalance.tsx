@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import { ethers } from 'ethers'
+import { ethers } from 'ethers';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 import Config from '@/config.json';
 import { formatBalance } from '@/utils';
 
-import {
-  useAccount,
-  useContractRead,
-} from 'wagmi';
+import { useAccount, useContractRead } from 'wagmi';
 
 interface Props {
   show: boolean;
@@ -16,7 +13,7 @@ interface Props {
 }
 
 export default function TokenBalance({ show, update, token }: Props) {
-  const { address } = useAccount()
+  const { address } = useAccount();
 
   const {
     data: tokenBalance,
@@ -36,14 +33,17 @@ export default function TokenBalance({ show, update, token }: Props) {
   useEffect(() => {
     if (tokenBalanceError) {
       setTokenBalanceString('RPC_ERROR');
-    }
-    else if(tokenBalanceLoading || !tokenBalance) {
+    } else if (tokenBalanceLoading || !tokenBalance) {
       setTokenBalanceString('loading...');
     } else {
       setTokenBalanceString(formatBalance(tokenBalance as ethers.BigNumber));
     }
 
-    update(tokenBalance ? (tokenBalance as ethers.BigNumber): ethers.BigNumber.from('0'));
+    update(
+      tokenBalance
+        ? (tokenBalance as ethers.BigNumber)
+        : ethers.BigNumber.from('0')
+    );
   }, [tokenBalance, tokenBalanceError, tokenBalanceLoading]);
 
   useEffect(() => {
@@ -53,10 +53,5 @@ export default function TokenBalance({ show, update, token }: Props) {
     return () => clearInterval(interval);
   }, []);
 
-
-  return (
-    <div className={(! show) ? 'hidden' : ''}>
-      {tokenBalanceString}
-    </div>
-  );
+  return <div className={!show ? 'hidden' : ''}>{tokenBalanceString}</div>;
 }

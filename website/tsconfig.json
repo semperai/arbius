@@ -17,9 +17,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "typeRoots": [
-      "typings"
-    ]
+    "typeRoots": ["typings"]
   },
   "include": ["nightwind.d.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

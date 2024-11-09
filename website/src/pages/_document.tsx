@@ -1,9 +1,9 @@
-import { Html, Head, Main, NextScript } from 'next/document'
-import { GA_TRACKING_ID } from "@/gtag";
+import { Html, Head, Main, NextScript } from 'next/document';
+import { GA_TRACKING_ID } from '@/gtag';
 
 export default function Document() {
   return (
-    <Html lang="en" className="h-full">
+    <Html lang='en' className='h-full'>
       <Head>
         {process.env.NODE_ENV === 'production' && (
           <>
@@ -27,10 +27,10 @@ export default function Document() {
           </>
         )}
       </Head>
-      <body className="h-full">
+      <body className='h-full'>
         <Main />
         <NextScript />
       </body>
     </Html>
-  )
+  );
 }

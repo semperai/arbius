@@ -13,29 +13,23 @@ export default function RenderSolution({ template, cid }: Props) {
   const items = [];
 
   for (let row of template.output) {
-    const src = process.env.NEXT_PUBLIC_IPFS_GATEWAY_FSTR!
-      .replace('%C', cid)
+    const src = process.env
+      .NEXT_PUBLIC_IPFS_GATEWAY_FSTR!.replace('%C', cid)
       .replace('%F', row.filename);
 
     items.push(
-      <div key={`${cid}.${row.filename}.${row.type}`} className="flex justify-center">
-        { row.type === 'image' && (
+      <div
+        key={`${cid}.${row.filename}.${row.type}`}
+        className='flex justify-center'
+      >
+        {row.type === 'image' && (
           <ImageLoader src={src} alt='Generated Image' />
-        ) }
-        { row.type === 'text' && (
-          <TextLoader src={src} />
-        ) }
-        { row.type === 'video' && (
-          <VideoLoader src={src} />
-        ) }
+        )}
+        {row.type === 'text' && <TextLoader src={src} />}
+        {row.type === 'video' && <VideoLoader src={src} />}
       </div>
     );
   }
 
-  return (
-    <>
-      {items}
-    </>
-  );
+  return <>{items}</>;
 }
-
