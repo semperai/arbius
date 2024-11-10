@@ -4,6 +4,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { task, types } from "hardhat/config";
 import Config from '../scripts/config.one.json';
 import LocalConfig from '../scripts/config.local.json';
+import ArbSepoliaConfig from '../scripts/config.sepolia.json';
 
 async function getMinerAddress(hre: HardhatRuntimeEnvironment) {
   const accounts = await hre.ethers.getSigners();
@@ -27,9 +28,15 @@ async function getEngine(hre: HardhatRuntimeEnvironment) {
     return engine;
   }
 
-  console.log('Unknown network');
+  if (hre.network.name === 'arbsepolia') {
+    const engine = await Engine.attach(ArbSepoliaConfig.v4_engineAddress);
+    return engine;
+  }
+
+  console.log(`Unknown network ${hre.network.name}`);
   process.exit(1);
 }
+
 async function getBaseToken(hre: HardhatRuntimeEnvironment) {
   const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
   if (hre.network.name === 'hardhat') {
@@ -47,6 +54,34 @@ async function getBaseToken(hre: HardhatRuntimeEnvironment) {
     return baseToken;
   }
 
+  if (hre.network.name === 'arbsepolia') {
+    const baseToken = await BaseToken.attach(ArbSepoliaConfig.v4_baseTokenAddress);
+    return baseToken;
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+
+async function getVeStaking(hre: HardhatRuntimeEnvironment) {
+  const VeStaking = await hre.ethers.getContractFactory("VeStaking");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    return await VeStaking.attach(LocalConfig.v4_veStakingAddress);
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    return await VeStaking.attach(Config.v4_veStakingAddress);
+  }
+
+  if (hre.network.name === 'arbsepolia') {
+    return await VeStaking.attach(ArbSepoliaConfig.v4_veStakingAddress);
+  }
+
   console.log('Unknown network');
   process.exit(1);
 }
@@ -59,7 +94,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
-task("info", "Gets all info about contract")
+task("info:engine", "Gets all info about engine contract")
 .setAction(async ({}, hre) => {
   const engine = await getEngine(hre);
 
@@ -90,6 +125,25 @@ task("info", "Gets all info about contract")
 
   console.log("veStaking", await engine.veStaking());
   console.log("veRewards", await engine.veRewards());
+});
+
+task("info:veStaking", "Gets all info about contract")
+.setAction(async ({}, hre) => {
+  const veStaking = await getVeStaking(hre);
+  console.log('veStaking', veStaking.address);
+
+  console.log("getRewardForDuration", await veStaking.getRewardForDuration());
+  console.log("lastTimeRewardApplicable", await veStaking.lastTimeRewardApplicable());
+  console.log("lastUpdateTime", await veStaking.lastUpdateTime());
+  console.log("owner", await veStaking.owner());
+  console.log("periodFinish", await veStaking.periodFinish());
+  console.log("rewardPerToken", await veStaking.rewardPerToken());
+  console.log("rewardPerTokenStored", await veStaking.rewardPerTokenStored());
+  console.log("rewardRate", await veStaking.rewardRate());
+  console.log("rewardsDuration", await veStaking.rewardsDuration());
+  console.log("rewardsToken", await veStaking.rewardsToken());
+  console.log("totalSupply", await veStaking.totalSupply());
+  console.log("votingEscrow", await veStaking.votingEscrow());
 });
 
 
