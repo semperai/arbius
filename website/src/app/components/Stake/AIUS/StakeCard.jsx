@@ -18,6 +18,7 @@ import Link from 'next/link';
 import info_icon from '@/app/assets/images/info_icon_white.png';
 import Web3 from 'web3';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
+import Config from '@/config.one.json';
 
 function StakeCard({
   idx,
