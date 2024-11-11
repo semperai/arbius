@@ -79,7 +79,7 @@ export default function RootLayout({ children }) {
           crossOrigin='anonymous'
         />
       </Head>
-      <body class='bg-white-background'>
+      <body className='bg-white-background'>
         <Header />
         {children}
         <Footer />

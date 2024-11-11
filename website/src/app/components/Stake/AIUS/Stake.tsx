@@ -698,6 +698,7 @@ export default function Stake({
           </div>
 
           <div className='mb-4 flex justify-end gap-2'>
+            {/*
             <div className='mt-6'>
               <button
                 type='button'
@@ -716,6 +717,7 @@ export default function Stake({
                 </div>
               </button>
             </div>
+            */}
             <div className='mt-6'>
               <Link
                 href={'#dashboard'}
@@ -754,11 +756,13 @@ export default function Stake({
               </button>
             </div>
           </div>
+          {/*
           {!faucetCalled ? (
             <div className='whitespace-nowrap text-center text-[9px] text-black-text'>
               Wallet needs Arbitrum Sepolia ETH to prevent transaction failure.
             </div>
           ) : null}
+          */}
         </div>
       </div>
     </>

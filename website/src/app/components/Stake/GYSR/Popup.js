@@ -58,7 +58,7 @@ function Popup({ isPopupOpen, setIsPopupOpen }) {
             className='group relative flex w-[100%] items-center gap-3 rounded-full bg-black-background px-8 py-2 lg:w-[100%]'
             onClick={() => setIsStakeClicked(true)}
           >
-            <div class='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+            <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
             <p className='relative z-10 mb-1 w-[100%] text-original-white lg:w-[100%]'>
               Claim
             </p>

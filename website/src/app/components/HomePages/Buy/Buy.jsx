@@ -6,6 +6,7 @@ import tick from '@/app/assets/images/tick.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Fade } from 'react-awesome-reveal';
+
 export default function Buy() {
   const info = [
     'Pay for AI generations',
@@ -15,6 +16,7 @@ export default function Buy() {
     'Earn via proof of useful work',
     'Promote free and open AI',
   ];
+
   return (
     <div className="bg-white-background bg-[url('../app/assets/images/buy_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
       <div className='mx-auto w-mobile-section-width max-w-center-width lg:w-section-width'>
@@ -68,7 +70,7 @@ export default function Buy() {
                     type='button'
                     className='group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2'
                   >
-                    <div class='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+                    <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
                     <p className='lato-bold relative z-10 text-original-white'>
                       Buy on Uniswap
                     </p>

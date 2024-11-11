@@ -32,6 +32,7 @@ import error_stake from '../../../assets/images/error_stake.png';
 import success_stake from '../../../assets/images/success_stake.png';
 import Web3 from 'web3';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
+import Config from '@/config.one.json';
 
 const AddPopUpChildren = ({
   setShowPopUp,
@@ -736,7 +737,6 @@ function SlidingCards({
   const [direction, setDirection] = useState('');
   const [selectedStake, setSelectedStake] = useState({});
   const [windowWidth, setWindowWidth] = useState(null);
-  const BASETOKEN_ADDRESS_V1 = config.v2_baseTokenAddress;
 
   const { address, isConnected } = useAccount();
 
@@ -748,7 +748,7 @@ function SlidingCards({
   /*const {
         data, isError, isLoading
     } = useContractRead({
-        address: BASETOKEN_ADDRESS_V1,
+        address: Config.v4_baseTokenAddress,
         abi: baseTokenV1.abi,
         functionName: 'balanceOf',
         args: [
@@ -906,7 +906,7 @@ function SlidingCards({
   //         const web3 = new Web3(window.ethereum);
   //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
   //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
-  //         const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, BASETOKEN_ADDRESS_V1);
+  //         const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, Config.v4_baseTokenAddress);
 
   //         const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
   //         const _rewardRate = await veStakingContract.methods.rewardRate().call()
@@ -1116,7 +1116,7 @@ const ErrorPopUpChildren = ({ setShowPopUp }) => {
             type='button'
             className='group relative mt-2 flex items-center justify-center gap-3 rounded-full bg-black-background px-6 py-1 py-2 lg:px-10'
           >
-            <div class='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+            <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
             <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
               Continue
             </div>

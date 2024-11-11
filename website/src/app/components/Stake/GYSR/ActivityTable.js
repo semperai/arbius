@@ -116,17 +116,17 @@ function ActivityTable() {
 
   return (
     <div className=''>
-      <div class='table-gysr flex flex-col bg-white-background px-6 py-4 text-[#101010]'>
-        <div class='overflow-x-auto'>
-          <div class='inline-block min-w-full p-1.5 align-middle'>
-            <div class='overflow-hidden'>
+      <div className='table-gysr flex flex-col bg-white-background px-6 py-4 text-[#101010]'>
+        <div className='overflow-x-auto'>
+          <div className='inline-block min-w-full p-1.5 align-middle'>
+            <div className='overflow-hidden'>
               {data ? (
-                <table class='min-w-full'>
+                <table className='min-w-full'>
                   <thead>
                     <tr>
                       <th
                         scope='col'
-                        class='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
+                        className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
                           <Image width={15} height={15} src={sort_icon} />
@@ -136,7 +136,7 @@ function ActivityTable() {
                       </th>
                       <th
                         scope='col'
-                        class='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
+                        className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
                           <Image width={15} height={15} src={up_icon} />
@@ -146,7 +146,7 @@ function ActivityTable() {
                       </th>
                       <th
                         scope='col'
-                        class='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
+                        className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
                           <Image width={15} height={15} src={gift_icon} />
@@ -156,7 +156,7 @@ function ActivityTable() {
                       </th>
                       <th
                         scope='col'
-                        class='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
+                        className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
                           <Image
@@ -171,7 +171,7 @@ function ActivityTable() {
                       </th>
                       <th
                         scope='col'
-                        class='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
+                        className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
                           <Image
@@ -186,7 +186,7 @@ function ActivityTable() {
                       </th>
                       <th
                         scope='col'
-                        class='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
+                        className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
                           <Image width={15} height={15} src={time_icon} />
@@ -202,18 +202,18 @@ function ActivityTable() {
                           return (
                             <>
                               <tr key={key} className='text-[#101010]'>
-                                <td class='whitespace-nowrap px-6 py-4 text-center text-[12px] font-medium text-[#101010] lg:text-[15px]'>
+                                <td className='whitespace-nowrap px-6 py-4 text-center text-[12px] font-medium text-[#101010] lg:text-[15px]'>
                                   {item?.functionName}
                                 </td>
-                                <td class='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
+                                <td className='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
                                   {parseFloat(item?.amount).toFixed(2)} UNI-V2
                                 </td>
-                                <td class='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
+                                <td className='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
                                   {parseFloat(item?.reward).toFixed(2) == '0.00'
                                     ? '-'
                                     : `${parseFloat(item?.reward).toFixed(2)} AIUS`}{' '}
                                 </td>
-                                <td class='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
+                                <td className='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
                                   {hexToDecimal(
                                     item?.decodedParams.rewarddata
                                   ) == '-'
@@ -221,7 +221,7 @@ function ActivityTable() {
                                     : `${hexToDecimal(item?.decodedParams.rewarddata)} GYSR`}
                                 </td>
 
-                                <td class='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
+                                <td className='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
                                   <a
                                     target='_blank'
                                     href={`https://etherscan.io/tx/${item.blockHash}`}
@@ -230,7 +230,7 @@ function ActivityTable() {
                                   </a>
                                 </td>
 
-                                <td class='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
+                                <td className='whitespace-nowrap px-6 py-4 text-center text-[12px] text-[#101010] lg:text-[15px]'>
                                   {timeSince(item?.timestamp)}
                                 </td>
                               </tr>

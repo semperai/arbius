@@ -109,7 +109,7 @@ export default function Community() {
                             type='button'
                             className='group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2'
                           >
-                            <div class='md:group-hover:none absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 lg:group-hover:opacity-100'></div>
+                            <div className='md:group-hover:none absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 lg:group-hover:opacity-100'></div>
                             <p className='lato-bold relative z-10 text-original-white'>
                               {platform.buttonText}
                             </p>
