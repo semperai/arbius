@@ -660,7 +660,7 @@ const ClaimPopUpChildren = ({
           <div className='w-full rounded-md bg-light-purple-background-2 p-3 py-6 text-center'>
             <h1 className='text-xs'>
               <span className='text-[30px] font-semibold text-purple-text'>
-                {earned ? (Number(earned) / AIUS_wei).toFixed(2).toString() : 0}
+                {earned ? (Number(earned) / AIUS_wei).toString() : 0}
               </span>{' '}
               AIUS
             </h1>
