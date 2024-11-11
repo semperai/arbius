@@ -341,9 +341,10 @@ function DashBoard({
                 </div>
                 <div>
                   <h2 className='text-[14px] font-semibold text-aius-tabs-gray'>
-                    Historical LP Profit
+                    {/*Historical LP Profit*/}
                   </h2>
                   <div className='mt-[2px] flex items-center justify-start gap-2'>
+                    {/*
                     {' '}
                     <h2 className='text-[16px] font-semibold 2xl:text-[18px]'>
                       0 %
@@ -354,6 +355,7 @@ function DashBoard({
                       height={22}
                       alt=''
                     />
+                    */}
                   </div>
                 </div>
               </div>
