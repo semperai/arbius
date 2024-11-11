@@ -191,7 +191,7 @@ function StakeCard({
   const openseaLink =
     process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev'
       ? 'https://testnets.opensea.io/assets/arbitrum-sepolia/'
-      : 'https://opensea.io/assets/arbitrum-one/';
+      : 'https://opensea.io/assets/arbitrum/';
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
       <Link
