@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS failed_jobs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    method TEXT,
-    data TEXT
-);
