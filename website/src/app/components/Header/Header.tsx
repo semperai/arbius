@@ -190,7 +190,7 @@ export default function Header() {
                     target='_blank'
                   >
                     <div className='staking-block relative'>
-                      <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
+                      <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block opacity-0'>
                         <p className='lato-regular badge-text text-[12px] text-[#4A28FF]'>
                           Coming Soon
                         </p>
