@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import { Fade } from 'react-awesome-reveal';
 import Link from 'next/link';
 import arrow from '../assets/images/right_arrow.png';
@@ -16,7 +16,15 @@ import amica_token_launch from '../assets/images/amica_token_launch.jpg';
 import pre_launch from '../assets/images/pre_launch.jpg';
 import VideoThumbnail from '../components/VideoComponent/videoThumbnail';
 
-const posts = [
+type Post = {
+  title: string;
+  description: string;
+  date: string;
+  image: StaticImageData;
+  url: string;
+};
+
+const posts: Post[] = [
   {
     title: 'Introducing AIUS Staking',
     description:
@@ -92,7 +100,7 @@ export default function ArbiusMedia() {
                   type='button'
                   className='group relative flex items-center gap-3 rounded-full border-[1px] border-original-black bg-white-background px-8 py-2 hover:border-original-white'
                 >
-                  <div class='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+                  <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
                   <p className='lato-bold relative z-10 text-original-black group-hover:text-original-white'>
                     View more
                   </p>

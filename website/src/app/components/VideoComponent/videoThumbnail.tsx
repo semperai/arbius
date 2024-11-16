@@ -1,8 +1,18 @@
 'use client';
 import React, { useState } from 'react';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 
-const VideoThumbnail = ({ thumbnailSrc, altText, url }) => {
+type VideoThumbnailProps = {
+  thumbnailSrc: StaticImageData;
+  altText: string;
+  url: string;
+}
+
+export default function VideoThumbnail({
+  thumbnailSrc,
+  altText,
+  url,
+}: VideoThumbnailProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -25,5 +35,3 @@ const VideoThumbnail = ({ thumbnailSrc, altText, url }) => {
     </div>
   );
 };
-
-export default VideoThumbnail;

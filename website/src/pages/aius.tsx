@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { GetServerSideProps } from 'next';
 import Stake from '../app/components/Stake/AIUS/Stake';
 import Steps from '../app/components/Stake/AIUS/Steps';
 import Process from '../app/components/Stake/AIUS/Process';
@@ -13,7 +14,27 @@ import { fetchArbiusData } from '../app/Utils/getArbiusData';
 import { BigNumber } from 'ethers';
 import Config from '@/config.one.json';
 
-export default function AIUS({ protocolData }) {
+type AIUSProps = {
+  protocolData: {
+    totalStaked: BigNumber;
+    totalStakers: BigNumber;
+    totalRewards: BigNumber;
+    totalStakedUSD: BigNumber;
+    totalRewardsUSD: BigNumber;
+    totalStakedUSDString: string;
+    totalRewardsUSDString: string;
+    totalStakedString: string;
+    totalRewardsString: string;
+    apy: BigNumber;
+    apyString: string;
+    totalStakedApy: BigNumber;
+    totalStakedApyString: string;
+    totalStakedApyUSD: BigNumber;
+    totalStakedApyUSDString: string;
+  };
+};
+
+export default function AIUS({ protocolData }: AIUSProps) {
   const [selectedtab, setSelectedTab] = useState('Dashboard');
   const { address, isConnected } = useAccount();
   const [updateValue, setUpdateValue] = useState(0);
@@ -21,7 +42,7 @@ export default function AIUS({ protocolData }) {
   console.log({ address });
   console.log({ isConnected });
   const { data, isError, isLoading } = useContractRead({
-    address: Config.v4_baseTokenAddress,
+    address: Config.v4_baseTokenAddress as `0x${string}`,
     abi: baseTokenV1.abi,
     functionName: 'balanceOf',
     args: [address],
@@ -36,9 +57,9 @@ export default function AIUS({ protocolData }) {
     console.log('switch');
     const f = async () => {
       try {
-        const check = await window.ethereum.request({ method: 'eth_accounts' }); // Request account access if needed
-        if (check.length) {
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const check = await window.ethereum?.request({ method: 'eth_accounts' }); // Request account access if needed
+        if (check?.length) {
+          await window.ethereum?.request({ method: 'eth_requestAccounts' });
         }
       } catch (error) {}
     };
@@ -112,7 +133,7 @@ export default function AIUS({ protocolData }) {
   );
 }
 
-export async function getServerSideProps(context) {
+export const getServerSideProps: GetServerSideProps<AIUSProps> = async (context) => {
   const data = await fetchArbiusData();
   console.log(data, 'ARBIUS DATA');
   return {

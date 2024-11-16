@@ -4,8 +4,8 @@ import RootLayout from '@/app/layout';
 
 export default function Home() {
   useEffect(() => {
-    var htmlElement = document.documentElement;
-    htmlElement.classList.add('bg-white-background');
+    // TODO why is this here?
+    document.documentElement.classList.add('bg-white-background');
   }, []);
 
   return (
