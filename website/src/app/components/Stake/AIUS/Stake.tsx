@@ -12,6 +12,7 @@ import { getAPR } from '../../../Utils/getAPR';
 import {
   useContractRead,
   useAccount,
+  useNetwork,
   useContractWrite,
   usePrepareContractWrite,
   useContractReads,
@@ -54,6 +55,7 @@ export default function Stake({
 }: StakeProps) {
   const [sliderValue, setSliderValue] = useState(0);
   const { address, isConnected } = useAccount();
+  const { chain, chains } = useNetwork()
   //const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
   const [veAiusBalance, setVeAIUSBalance] = useState(0);
   const [allowance, setAllowance] = useState(0);
@@ -365,8 +367,18 @@ export default function Stake({
 
     if (address) {
       f();
+    }else{
+      setDuration({
+          months: 0,
+          weeks: 0
+      })
+      setAmount(0)
+      setWalletBalance(0)
+      setEscrowBalanceData(0)
+      setVeAIUSBalance(0)
+      setAllowance(0)
     }
-  }, [address, updateValue]);
+  }, [address, chain?.id, updateValue]);
 
   const handleStake = async () => {
     //console.log({stakeData});
