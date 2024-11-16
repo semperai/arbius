@@ -4,6 +4,7 @@ import right_arrow from '../../../assets/images/arrow.png';
 import Image from 'next/image';
 import { Fade } from 'react-awesome-reveal';
 import Link from 'next/link';
+
 export default function MachineLearningSection() {
   return (
     <div className="lato-bold mt-[72px] bg-[url('../app/assets/images/peer_background.jpg')] bg-cover lg:flex lg:h-[75vh] lg:items-center">

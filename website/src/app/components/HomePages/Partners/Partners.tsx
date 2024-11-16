@@ -1,4 +1,5 @@
 import React from 'react';
+import { StaticImageData } from 'next/image';
 import weboasis from '../../../assets/images/weboasis.png';
 import poloniex from '../../../assets/images/poloniex.png';
 import coinex from '../../../assets/images/coinex.png';
@@ -9,47 +10,53 @@ import arbitrum from '../../../assets/images/arbitrum.png';
 import unicrow from '../../../assets/images/unicrow_logo.png';
 import Image from 'next/image';
 
-export default function Partners() {
-  const partnersData = {
-    arbitrum: {
-      image: arbitrum,
-      url: 'https://arbitrum.io/',
-    },
-    labs: {
-      image: labs,
-      url: 'https://alignmentlab.ai/',
-    },
-    nosana: {
-      image: nosana,
-      url: 'https://nosana.io/',
-    },
-    poloniex: {
-      image: poloniex,
-      url: 'https://poloniex.com/',
-    },
-    coinex: {
-      image: coinex,
-      url: 'https://www.coinex.com/en',
-    },
-    exabits: {
-      image: exabits,
-      url: 'https://www.exabits.ai/',
-    },
-    weboasis: {
-      image: weboasis,
-      url: 'https://weboasis.io/',
-    },
-    Unicrow: {
-      image: unicrow,
-      url: 'https://unicrow.io/',
-    },
-  };
+type Partner = {
+  image: StaticImageData;
+  url: string;
+}
 
+const partnersData: Record<string, Partner> = {
+  arbitrum: {
+    image: arbitrum,
+    url: 'https://arbitrum.io/',
+  },
+  labs: {
+    image: labs,
+    url: 'https://alignmentlab.ai/',
+  },
+  nosana: {
+    image: nosana,
+    url: 'https://nosana.io/',
+  },
+  poloniex: {
+    image: poloniex,
+    url: 'https://poloniex.com/',
+  },
+  coinex: {
+    image: coinex,
+    url: 'https://www.coinex.com/en',
+  },
+  exabits: {
+    image: exabits,
+    url: 'https://www.exabits.ai/',
+  },
+  weboasis: {
+    image: weboasis,
+    url: 'https://weboasis.io/',
+  },
+  Unicrow: {
+    image: unicrow,
+    url: 'https://unicrow.io/',
+  },
+};
+
+
+export default function Partners() {
   return (
     <div className='relative'>
       <div className='CollaboratorsMarquee'>
         <div className='ArbiusPartners MarqueeContainer PartnersMarqueeContainer flex items-center justify-around pb-[40px] pt-[40px]'>
-          {Object.keys(partnersData).map(function (partner, index) {
+          {Object.keys(partnersData).map((partner, index) => {
             return (
               <div className='px-8' key={index}>
                 <a href={partnersData[partner].url} target='_blank'>
@@ -68,7 +75,7 @@ export default function Partners() {
           className='ArbiusPartners MarqueeContainer PartnersMarqueeContainer flex items-center justify-around pb-[40px] pt-[40px]'
           aria-hidden='true'
         >
-          {Object.keys(partnersData).map(function (partner, index) {
+          {Object.keys(partnersData).map((partner, index) => {
             return (
               <div className='px-8' key={index}>
                 <a href={partnersData[partner].url} target='_blank'>

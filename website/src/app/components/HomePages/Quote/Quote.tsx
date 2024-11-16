@@ -4,6 +4,7 @@ import quote from '@/app/assets/images/quote.png';
 import quote_two from '@/app/assets/images/quote_two.png';
 import Image from 'next/image';
 import { Fade } from 'react-awesome-reveal';
+
 export default function Quote() {
   return (
     <div className='bg-white-background pb-20 pt-10 lg:pb-24 lg:pt-24'>

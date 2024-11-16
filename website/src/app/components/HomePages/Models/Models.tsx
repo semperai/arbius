@@ -1,6 +1,7 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
+import { StaticImageData } from "next/image"
 import amica from '../../../assets/images/amica.png';
 import generativeAI from '../../../assets/images/ai_generation.png';
 import marketplace from '../../../assets/images/marketplace.png';
@@ -12,6 +13,37 @@ import right_arrow from '../../../assets/images/arrow.png';
 import arbius_logo_round from '../../../assets/images/arbius_logo_round.png';
 import { Fade } from 'react-awesome-reveal';
 import Link from 'next/link';
+
+type Model = {
+  text: string;
+  image: StaticImageData;
+  mobile_image: StaticImageData;
+  background: string;
+  link?: string;
+};
+
+const AllModels: Record<string, Model> = {
+  'Generative AI': {
+    text: 'Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.',
+    image: generativeAI,
+    mobile_image: generativeAI_mobile,
+    background: 'bg-ai-gradient',
+  },
+  Amica: {
+    text: 'Amica is an open source AI persona chatbot interface that provides emotion, bi-directional text to speech, audial interpretation, and visual recognition based interactions.',
+    image: amica,
+    mobile_image: amica_mobile,
+    background: 'bg-ai-gradient',
+    link: 'https://amica.arbius.ai/',
+  },
+  Marketplace: {
+    text: 'Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here! Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.',
+    image: marketplace,
+    mobile_image: marketplace_mobile,
+    background: 'bg-ai-gradient',
+  },
+};
+
 export default function Models() {
   const [selectedModel, setSelectedModel] = useState('Generative AI');
   const [stopEffect, setStopEffect] = useState(false);
@@ -19,49 +51,19 @@ export default function Models() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [index, setActiveIndex] = useState(0);
   const [modelFadeIn, setModelFadeIn] = useState(true);
-  const AllModels = {
-    'Generative AI': {
-      text: 'Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.',
-      image: generativeAI,
-      mobile_image: generativeAI_mobile,
-      background: 'bg-ai-gradient',
-    },
-    Amica: {
-      text: 'Amica is an open source AI persona chatbot interface that provides emotion, bi-directional text to speech, audial interpretation, and visual recognition based interactions.',
-      image: amica,
-      mobile_image: amica_mobile,
-      background: 'bg-ai-gradient',
-      link: 'https://amica.arbius.ai/',
-    },
-    Marketplace: {
-      text: 'Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here! Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.',
-      image: marketplace,
-      mobile_image: marketplace_mobile,
-      background: 'bg-ai-gradient',
-    },
-  };
+  const imageParentRef = useRef<HTMLDivElement>(null);
   const [background, setBackground] = useState(
     AllModels['Generative AI'].background
   );
-  const toggleBackground = (add) => {
+  const toggleBackground = (add: boolean) => {
     if (add) {
-      document
-        .getElementById('image-parent')
-        .classList.add('model-image-gradient');
+      imageParentRef.current?.classList.add('model-image-gradient');
     } else {
-      document
-        .getElementById('image-parent')
-        .classList.remove('model-image-gradient');
+      imageParentRef.current?.classList.remove('model-image-gradient');
     }
   };
-  const prefetchImages = (imageUrls) => {
-    imageUrls.forEach((url) => {
-      const img = new Image();
-      img.src = url;
-    });
-  };
 
-  const renderModel = (item, index) => {
+  const renderModel = (key: string, index: number) => {
     setStopEffect(false);
     setModelFadeIn(false);
     setOpacity(false);
@@ -70,9 +72,9 @@ export default function Models() {
       setModelFadeIn(true);
       setOpacity(true);
       setStopEffect(true);
-      setSelectedModel(item);
+      setSelectedModel(key);
     }, 500);
-    setBackground(AllModels[item].background);
+    setBackground(AllModels[key].background);
   };
 
   useEffect(() => {
@@ -94,6 +96,7 @@ export default function Models() {
       clearInterval(interval);
     };
   }, [index, stopEffect, AllModels]);
+
   useEffect(() => {
     if (modelFadeIn && !stopEffect) {
       const timer = setTimeout(() => {
@@ -147,7 +150,7 @@ export default function Models() {
                   );
                 })}
               </div>
-              <Fade direction='top' triggerOnce={true}>
+              <Fade direction='up' triggerOnce={true}>
                 <div className='mt-[30px]'>
                   <div
                     className={`{/*Gradient-transparent-text bg-background-gradient-txt*/} model-container text-[28px] font-medium text-blue-text ${modelFadeIn || stopEffect ? 'fade-in' : ''} ${opacity ? '!opacity-100' : 'opacity-0'}`}
@@ -191,7 +194,7 @@ export default function Models() {
           <div className=''>
             {/*"xl:ml-[20%]"*/}
             <div
-              id='image-parent'
+              ref={imageParentRef}
               className={`relative ml-[auto] hidden h-[500px] w-[320px] items-center justify-center rounded-[50px] border-[transparent] lg:flex`}
             >
               {Object.keys(AllModels).map((model, index) => (

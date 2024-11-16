@@ -1,6 +1,22 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 
+type HintBoxProps = {
+  content: string;
+  customStyle: {
+    marginBottom?: string;
+    arrowLeft?: string;
+  };
+  link?: string;
+  boxStyle?: {
+    width: string;
+    zIndex: number;
+  };
+  hoverId: string;
+  currentHoverId: string|null;
+  setCurrentHoverId: (id: string|null) => void;
+};
+
 const HintBox = ({
   content,
   customStyle,
@@ -9,9 +25,9 @@ const HintBox = ({
   hoverId,
   currentHoverId,
   setCurrentHoverId,
-}) => {
+}: HintBoxProps) => {
   const isHovered = currentHoverId === hoverId;
-  let editRef = useRef(null);
+  let editRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const hoverElement = document.getElementById(hoverId);
@@ -22,8 +38,8 @@ const HintBox = ({
     }
 
     const handleMouseEnter = () => setCurrentHoverId(hoverId);
-    const handleMouseLeave = (e) => {
-      if (!editRef.current.contains(e.relatedTarget)) {
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (!editRef.current?.contains(e.relatedTarget as Node)) {
         setCurrentHoverId(null);
       }
     };

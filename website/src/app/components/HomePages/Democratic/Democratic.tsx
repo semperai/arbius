@@ -6,6 +6,7 @@ import code from '@/app/assets/images/code.png';
 import Image from 'next/image';
 import { Fade } from 'react-awesome-reveal';
 import Carousel from './Carousel';
+
 export default function Democratic() {
   const cardsData = [
     {

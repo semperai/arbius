@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
+import { StaticImageData } from 'next/image';
 import Image from 'next/image';
 import small_arrow from '@/app/assets/images/small_arrow.png';
-export default function Carousel({ cardsData }) {
+
+type Card = {
+  id: string;
+  icon: StaticImageData;
+  title: string;
+  content: string;
+  background: string;
+};
+
+type CarouselProps = {
+  cardsData: Card[];
+};
+
+export default function Carousel({ cardsData }: CarouselProps) {
   const [current, setCurrent] = useState(0);
   const length = cardsData.length;
   const nextSlide = () => {

@@ -6,6 +6,7 @@ import arrow from '@/app/assets/images/arrow.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Fade } from 'react-awesome-reveal';
+
 export default function Community() {
   const platforms = [
     {
@@ -29,6 +30,7 @@ export default function Community() {
       background: "bg-[url('../app/assets/images/swap_market_background.png')]",
     },
   ];
+
   return (
     <div className="bg-[url('../app/assets/images/buy_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
       <div className='mx-auto box-border w-mobile-section-width max-w-center-width bg-white-background py-10 lg:w-section-width'>
