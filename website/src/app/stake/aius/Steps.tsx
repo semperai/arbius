@@ -1,4 +1,5 @@
 import React from 'react';
+
 export default function Steps() {
   const steps = [
     'Select the amount of AIUS you want to lock.',
@@ -6,6 +7,7 @@ export default function Steps() {
     'Confirm the lock duration.',
     'Details about your lock will be available inside the dashboard.',
   ];
+
   return (
     <div className='stake-box-shadow box-border flex h-auto items-start justify-start rounded-2xl bg-white-background p-8 lg:h-[270px]'>
       <div className='container mt-2'>

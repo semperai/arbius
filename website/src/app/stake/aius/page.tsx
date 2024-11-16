@@ -4,6 +4,7 @@ import Stake from './Stake';
 import Steps from './Steps';
 import Process from './Process';
 import { Fade } from 'react-awesome-reveal';
+
 export default function AIUS() {
   return (
     <div className='bg-aius-stake py-24'>
