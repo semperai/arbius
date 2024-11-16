@@ -329,7 +329,7 @@ function DashBoard({
               Wallet
             </h1>
             <div className='mb-10 mt-6 grid grid-cols-2 gap-[1vw] xl:mt-8 2xl:gap-[2vw]'>
-              <div className='flex flex-col items-start justify-center gap-8'>
+              <div className='flex flex-col items-start justify-start gap-8'>
                 <div>
                   <h2 className='text-[14px] font-semibold text-aius-tabs-gray'>
                     Balance
