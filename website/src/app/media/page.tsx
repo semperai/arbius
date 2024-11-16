@@ -63,6 +63,7 @@ const posts = [
     url: 'https://x.com/arbius_ai/status/1753478542497607913/video/1',
   },
 ];
+
 export default function ArbiusMedia() {
   return (
     <div className='h-[100%] w-[100%] bg-media-gradient py-20'>
