@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png';
 import Image from 'next/image';
 import ReactSlider from 'react-slider';
+
 export default function Stake() {
   const [sliderValue, setSliderValue] = useState(0);
   const [duration, setDuration] = useState({
     months: 0,
     weeks: 0,
   });
+
   return (
     <div>
       <div className='stake-box-shadow box-border flex h-auto flex-col justify-between rounded-2xl bg-white-background px-8 pb-8 pt-8 lg:h-[535px] lg:pt-14 2xl:h-[480px] 2xl:pt-10'>
