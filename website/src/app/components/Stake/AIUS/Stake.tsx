@@ -12,6 +12,7 @@ import { getAPR } from '../../../Utils/getAPR';
 import {
   useContractRead,
   useAccount,
+  useNetwork,
   useContractWrite,
   usePrepareContractWrite,
   useContractReads,
@@ -21,7 +22,7 @@ import {
 import votingEscrow from '../../../abis/votingEscrow.json';
 import veStaking from '../../../abis/veStaking.json';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
-import { AIUS_wei, defaultApproveAmount } from '../../../Utils/constantValues';
+import { AIUS_wei, defaultApproveAmount, infuraUrl } from '../../../Utils/constantValues';
 import PopUp from './PopUp';
 import CircularProgressBar from './CircularProgressBar';
 import powered_by from '../../../assets/images/powered_by.png';
@@ -54,6 +55,7 @@ export default function Stake({
 }: StakeProps) {
   const [sliderValue, setSliderValue] = useState(0);
   const { address, isConnected } = useAccount();
+  const { chain, chains } = useNetwork()
   //const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
   const [veAiusBalance, setVeAIUSBalance] = useState(0);
   const [allowance, setAllowance] = useState(0);
@@ -269,6 +271,27 @@ export default function Stake({
   // Use effect to fetch all values
 
   useEffect(() => {
+
+    const f1 = async () => {
+      try{
+        const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+        const veStakingContract = new web3.eth.Contract(
+          veStaking.abi,
+          Config.v4_veStakingAddress
+        );
+
+        console.log("calling f1", veStakingContract)
+        const _rewardRate = await veStakingContract.methods.rewardRate().call();
+        const _totalSupply = await veStakingContract.methods.totalSupply().call();
+
+        console.log(_rewardRate, _totalSupply, "RRTT1")
+        setRewardRate(_rewardRate / AIUS_wei);
+        setTotalSupply(_totalSupply / AIUS_wei);
+      }catch(e){
+        console.log("F1 error", e)
+      }
+    }
+
     const f = async () => {
       try {
         // TODO move to wagmi&ethers
@@ -292,14 +315,6 @@ export default function Stake({
 
         const wBal = await baseTokenContract.methods.balanceOf(address).call();
         setWalletBalance(wBal / AIUS_wei);
-
-        const _rewardRate = await veStakingContract.methods.rewardRate().call();
-        setRewardRate(_rewardRate);
-
-        const _totalSupply = await veStakingContract.methods
-          .totalSupply()
-          .call();
-        setTotalSupply(_totalSupply);
 
         const _escrowBalanceData = await votingEscrowContract.methods
           .balanceOf(address)
@@ -347,10 +362,23 @@ export default function Stake({
         console.log(err);
       }
     };
+
+    f1();
+
     if (address) {
       f();
+    }else{
+      setDuration({
+          months: 0,
+          weeks: 0
+      })
+      setAmount(0)
+      setWalletBalance(0)
+      setEscrowBalanceData(0)
+      setVeAIUSBalance(0)
+      setAllowance(0)
     }
-  }, [address, updateValue]);
+  }, [address, chain?.id, updateValue]);
 
   const handleStake = async () => {
     //console.log({stakeData});

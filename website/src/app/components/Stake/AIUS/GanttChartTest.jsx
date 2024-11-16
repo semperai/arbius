@@ -95,12 +95,11 @@ const CustomGanttChart = ({ allStakingData }) => {
           }}
         >
           {/*month.toLocaleString('default', { month: 'short', year: 'numeric' })*/}
-          {months.length < 5 || index % 4 === 0
-            ? new Intl.DateTimeFormat('en', {
-                year: '2-digit',
-                month: 'short',
-              }).format(month)
-            : ''}
+            { months.length < 5 || index % 3 === 0 ?
+                  index == months.length - 1 ? ""
+                  : new Intl.DateTimeFormat('en', { year: '2-digit', month: 'short' }).format(month)
+              : ""
+            }
         </div>
       );
     });
@@ -212,7 +211,7 @@ const CustomGanttChart = ({ allStakingData }) => {
               task.endDate
             );
             return (
-              <div key={index} className='task-row'>
+              <div key={index} className={`task-row ${tasks?.length == 1 ? "mb-[80px]" : "mb-[20px]"}`}>
                 <div className='task-info'>
                   {/* <span className="task-name">{task.name}</span>
                                     <span className="task-dates">
@@ -289,7 +288,6 @@ const CustomGanttChart = ({ allStakingData }) => {
             }
             .task-row {
               display: flex;
-              margin-bottom: 20px;
               align-items: center;
             }
             .task-info {

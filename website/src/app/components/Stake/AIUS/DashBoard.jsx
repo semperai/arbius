@@ -18,7 +18,7 @@ import { fetchArbiusData } from '../../../Utils/getArbiusData';
 // import { AIUS_wei } from "../../../Utils/constantValues";
 import Web3 from 'web3';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
-import { AIUS_wei, t_max } from '../../../Utils/constantValues';
+import { AIUS_wei, t_max, infuraUrl } from '../../../Utils/constantValues';
 import Loader from '../Loader/Index';
 import Gantt from './GanttChartTest';
 
@@ -94,6 +94,27 @@ function DashBoard({
     })*/
 
   useEffect(() => {
+
+    const f1 = async () => {
+      try{
+        const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+        const veStakingContract = new web3.eth.Contract(
+          veStaking.abi,
+          Config.v4_veStakingAddress
+        );
+
+        console.log("calling f1", veStakingContract)
+        const _rewardRate = await veStakingContract.methods.rewardRate().call();
+        const _totalSupply = await veStakingContract.methods.totalSupply().call();
+
+        console.log(_rewardRate, _totalSupply, "RRTT1")
+        setRewardRate(_rewardRate / AIUS_wei);
+        setTotalSupply(_totalSupply / AIUS_wei);
+      }catch(e){
+        console.log("F1 error", e)
+      }
+    }
+
     const f = async () => {
       setLoading(true);
       //alert("Address changed calling again" + address)
@@ -297,6 +318,9 @@ function DashBoard({
         setLoading(false);
       }
     };
+
+    f1();
+
     if (address) {
       f();
     } else {
@@ -329,7 +353,7 @@ function DashBoard({
               Wallet
             </h1>
             <div className='mb-10 mt-6 grid grid-cols-2 gap-[1vw] xl:mt-8 2xl:gap-[2vw]'>
-              <div className='flex flex-col items-start justify-center gap-8'>
+              <div className='flex flex-col items-start justify-start gap-8'>
                 <div>
                   <h2 className='text-[14px] font-semibold text-aius-tabs-gray'>
                     Balance
