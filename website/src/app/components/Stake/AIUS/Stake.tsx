@@ -276,6 +276,7 @@ export default function Stake({
       try{
         const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
         const veStakingContract = new web3.eth.Contract(
+          // @ts-ignore
           veStaking.abi,
           Config.v4_veStakingAddress
         );
