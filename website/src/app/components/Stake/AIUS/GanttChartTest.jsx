@@ -89,7 +89,7 @@ const CustomGanttChart = ({ allStakingData }) => {
           key={month.toISOString()}
           className='month-marker'
           style={{
-            left: `${(position / totalDays) * 100}%`,
+            left: `${(position / totalDays) * 100 < -6 ? -6 : (position / totalDays) * 100}%`,
             width: `${width}%`,
             color: '#4A28FF',
           }}
