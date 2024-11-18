@@ -33,6 +33,7 @@ import { ethers } from 'ethers';
 import Config from '@/config.one.json';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 import Web3 from 'web3';
+import { AbiItem } from 'web3-utils'; // or relevant package
 import Decimal from 'decimal.js';
 
 
@@ -278,7 +279,7 @@ export default function Stake({
       try{
         const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
         const veStakingContract = new web3.eth.Contract(
-          veStaking.abi,
+          veStaking.abi as AbiItem[],
           Config.v4_veStakingAddress
         );
 
@@ -384,11 +385,12 @@ export default function Stake({
 
   const handleStake = async () => {
     //console.log({stakeData});
-    const amountInDec = new Decimal(amount).times(AIUS_wei);
+    let amountInDec = new Decimal(amount).times(AIUS_wei);
+    let allowanceInDec = new Decimal(allowance);
 
-    console.log(amountInDec, allowance, 'ALLOWANCE AND AMOUNT before staking');
+    console.log(amountInDec, allowanceInDec, 'ALLOWANCE AND AMOUNT before staking');
 
-    if (amountInDec > allowance || allowance === 0) {
+    if (amountInDec > allowanceInDec || allowance === 0) {
       /*if(amount && (duration.months || duration.weeks)){
         setShowPopUp(1)
         approveWrite?.()
