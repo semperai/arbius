@@ -33,6 +33,8 @@ import { ethers } from 'ethers';
 import Config from '@/config.one.json';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 import Web3 from 'web3';
+import Decimal from 'decimal.js';
+
 
 type StakeProps = {
   selectedtab: string;
@@ -276,7 +278,6 @@ export default function Stake({
       try{
         const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
         const veStakingContract = new web3.eth.Contract(
-          // @ts-ignore
           veStaking.abi,
           Config.v4_veStakingAddress
         );
@@ -383,9 +384,11 @@ export default function Stake({
 
   const handleStake = async () => {
     //console.log({stakeData});
-    console.log(amount, allowance, 'ALLOWANCE AND AMOUNT before staking');
+    const amountInDec = new Decimal(amount).times(AIUS_wei);
 
-    if (amount * AIUS_wei > allowance || allowance === 0) {
+    console.log(amountInDec, allowance, 'ALLOWANCE AND AMOUNT before staking');
+
+    if (amountInDec > allowance || allowance === 0) {
       /*if(amount && (duration.months || duration.weeks)){
         setShowPopUp(1)
         approveWrite?.()
@@ -432,7 +435,7 @@ export default function Stake({
         );
 
         const tx2 = await stakeContract.create_lock(
-          (amount * AIUS_wei).toString(),
+          amountInDec.toString(),
           (duration.months !== 0
             ? duration.months * (52 / 12)
             : duration.weeks) *
@@ -460,11 +463,11 @@ export default function Stake({
       try {
         console.log(
           'Second step if allowance is set, values -> : amount, months and weeks',
-          amount,
+          amountInDec,
           duration.months,
           duration.weeks
         );
-        if (amount && (duration.months || duration.weeks)) {
+        if (amountInDec && (duration.months || duration.weeks)) {
           // setShowPopUp(2)
           // @ts-ignore
           setShowPopUp(3);
@@ -484,7 +487,7 @@ export default function Stake({
             signer
           );
           const tx2 = await stakeContract.create_lock(
-            (amount * AIUS_wei).toString(),
+            amountInDec.toString(),
             (duration.months !== 0
               ? duration.months * (52 / 12)
               : duration.weeks) *

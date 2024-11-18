@@ -102,14 +102,18 @@ function DashBoard({
           veStaking.abi,
           Config.v4_veStakingAddress
         );
+        const votingEscrowContract = new web3.eth.Contract(
+          votingEscrow.abi,
+          Config.v4_votingEscrowAddress
+        );
 
-        console.log("calling f1", veStakingContract)
         const _rewardRate = await veStakingContract.methods.rewardRate().call();
         const _totalSupply = await veStakingContract.methods.totalSupply().call();
+        const _veSupplyData = await votingEscrowContract.methods.supply().call();
 
-        console.log(_rewardRate, _totalSupply, "RRTT1")
         setRewardRate(_rewardRate / AIUS_wei);
         setTotalSupply(_totalSupply / AIUS_wei);
+        setVESupplyData(_veSupplyData);
       }catch(e){
         console.log("F1 error", e)
       }
@@ -482,7 +486,7 @@ function DashBoard({
                   </h2>
                   <h2 className='mt-[2px] text-[16px] font-semibold 2xl:text-[18px]'>
                     1,000,000
-                    <span className='text-[11px] font-medium'>AIUS</span>
+                    <span className='text-[11px] font-medium'>&nbsp;AIUS</span>
                   </h2>
                 </div>
               </div>
