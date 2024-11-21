@@ -284,10 +284,10 @@ function StakeCard({
                   setShowPopUp('add');
                   setSelectedStake(token?.tokenID);
                 }}
-                className='group relative flex w-full items-center justify-center gap-3 rounded-full bg-[#F3F3F3] px-3 py-1 py-2 lg:px-4'
+                className='group relative flex w-full items-center justify-center gap-3 rounded-full bg-black-background px-3 py-1 py-2 lg:px-4'
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                <div className='lato-bold relative z-10 text-black-text opacity-40 group-hover:text-original-white group-hover:opacity-100 lg:text-[15px]'>
+                <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
                   Add
                 </div>
               </button>
@@ -299,10 +299,10 @@ function StakeCard({
                   setShowPopUp('extend');
                   setSelectedStake(token?.tokenID);
                 }}
-                className='group relative flex w-full items-center justify-center gap-3 rounded-full bg-[#F3F3F3] px-3 py-1 py-2 lg:px-4'
+                className='group relative flex w-full items-center justify-center gap-3 rounded-full bg-black-background px-3 py-1 py-2 lg:px-4'
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                <div className='lato-bold relative z-10 text-black-text opacity-40 group-hover:text-original-white group-hover:opacity-100 lg:text-[15px]'>
+                <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
                   Extend
                 </div>
               </button>
