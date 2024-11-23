@@ -24,15 +24,17 @@ import {
 import { BigNumber } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
 import StakeCard from './StakeCard';
-import { AIUS_wei, t_max } from '../../../Utils/constantValues';
+import { AIUS_wei, t_max, defaultApproveAmount } from '../../../Utils/constantValues';
 import CircularProgressBar from './CircularProgressBar';
 import powered_by from '../../../assets/images/powered_by.png';
 import cross from '../../../assets/images/cross.png';
 import error_stake from '../../../assets/images/error_stake.png';
 import success_stake from '../../../assets/images/success_stake.png';
 import Web3 from 'web3';
+import { ethers } from 'ethers';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 import Config from '@/config.one.json';
+import Decimal from 'decimal.js';
 
 const AddPopUpChildren = ({
   setShowPopUp,
@@ -48,58 +50,116 @@ const AddPopUpChildren = ({
 }) => {
   const [aiusToStake, setAIUSToStake] = useState(0);
   const [estBalance, setEstBalance] = useState(0);
+  const [allowance, setAllowance] = useState(0);
   console.log(Number(selectedStake), 'selected Stake');
-  const { config: addAIUSConfig } = usePrepareContractWrite({
-    address: Config.v4_votingEscrowAddress,
-    abi: votingEscrow.abi,
-    functionName: 'increase_amount',
-    args: [
-      Number(selectedStake),
-      Number(walletBalance) >= Number(aiusToStake) &&
-        (aiusToStake * AIUS_wei).toString(),
-    ],
-    enabled: Boolean(aiusToStake),
-  });
 
   const [endDate, setEndDate] = useState(0);
   const [stakedOn, setStakedOn] = useState(0);
   const [totalStaked, setTotalStaked] = useState(0);
 
-  const {
-    data: addAIUSData,
-    isLoading: addAIUSIsLoading,
-    isSuccess: addAIUSIsSuccess,
-    isError: addAIUSError,
-    write: addAIUS,
-  } = useContractWrite(addAIUSConfig);
+  const handleStake = async () => {
+    let amountInDec = new Decimal(aiusToStake).times(AIUS_wei);
+    let allowanceInDec = new Decimal(allowance);
 
-  /*const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'locked__end',
-        args: [
-            Number(selectedStake)
-        ]
-    })
+    console.log(amountInDec, allowanceInDec, 'ALLOWANCE AND AMOUNT before staking');
 
-    console.log(Number(endDate?._hex), "endDate")
-    const { data: stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'user_point_history__ts',
-        args: [
+    if (amountInDec > allowanceInDec || allowance === 0) {
+      try {
+        // @ts-ignore
+        setShowPopUp('add/s1');
+        // @ts-ignore
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // @ts-ignore
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+        const signer = provider.getSigner();
+
+        const approveContract = new ethers.Contract(
+          Config.v4_baseTokenAddress,
+          baseTokenV1.abi,
+          signer
+        );
+
+        const tx1 = await approveContract.approve(
+          Config.v4_votingEscrowAddress,
+          defaultApproveAmount
+        );
+
+        await tx1.wait();
+
+        console.log('First transaction confirmed');
+
+        // @ts-ignore
+
+        const stakeContract = new ethers.Contract(
+          Config.v4_votingEscrowAddress,
+          votingEscrow.abi,
+          signer
+        );
+        // @ts-ignore
+        setShowPopUp('add/s2');
+        const tx2 = await stakeContract.increase_amount(
+          Number(selectedStake),
+          (aiusToStake * AIUS_wei).toString()
+        );
+        console.log('Second transaction hash:', tx2.hash);
+        await tx2.wait(); // Wait for the transaction to be mined
+        console.log('Second transaction confirmed');
+        // @ts-ignore
+        setShowPopUp('add/Success');
+        console.log('Both transactions completed successfully');
+        getTransactionReceiptData(tx2.hash).then(function () {
+          // @ts-ignore
+          setUpdateValue((prevValue) => prevValue + 1);
+        });
+      } catch (error) {
+        // @ts-ignore
+        console.log(error)
+        setShowPopUp('add/Error');
+      }
+    } else {
+      try {
+        if (amountInDec) {
+          // @ts-ignore
+          setShowPopUp('add/2');
+          // @ts-ignore
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+          // @ts-ignore
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+          const signer = provider.getSigner();
+
+          const stakeContract = new ethers.Contract(
+            Config.v4_votingEscrowAddress,
+            votingEscrow.abi,
+            signer
+          );
+          const tx2 = await stakeContract.increase_amount(
             Number(selectedStake),
-            1
-        ]
-    })
-    const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'locked',
-        args: [
-            Number(selectedStake)
-        ]
-    })*/
+            (aiusToStake * AIUS_wei).toString()
+          );
+          console.log('Second transaction hash:', tx2.hash);
+          await tx2.wait(); // Wait for the transaction to be mined
+          console.log('Second transaction confirmed');
+          // @ts-ignore
+          setShowPopUp('add/Success');
+          console.log('Both transactions completed successfully');
+          getTransactionReceiptData(tx2.hash).then(function () {
+            // @ts-ignore
+            setUpdateValue((prevValue) => prevValue + 1);
+          });
+        } else {
+          console.log("Please enter the amount and duration to stake!");
+        }
+      } catch (err) {
+        // @ts-ignore
+        console.log(err)
+        setShowPopUp('add/Error');
+      }
+    }
+  };
+
 
   useEffect(() => {
     if (totalStaked && endDate && stakedOn) {
@@ -109,39 +169,16 @@ const AddPopUpChildren = ({
     }
   }, [aiusToStake, totalStaked, endDate, stakedOn]);
 
-  const {
-    data: approveTx,
-    isError: txError,
-    isLoading: txLoading,
-  } = useWaitForTransaction({
-    hash: addAIUSData?.hash,
-    confirmations: 3,
-    onSuccess(data) {
-      console.log('approve tx successful data ', data);
-      setShowPopUp('add/Success');
-      getTransactionReceiptData(addAIUSData?.hash).then(function () {
-        //window.location.reload(true)
-        setUpdateValue((prevValue) => prevValue + 1);
-      });
-    },
-    onError(err) {
-      console.log('approve tx error data ', err);
-      setShowPopUp('add/Error');
-    },
-  });
-
-  useEffect(() => {
-    if (addAIUSError) {
-      setShowPopUp('add/Error');
-    }
-  }, [addAIUSError]);
-
   useEffect(() => {
     const f = async () => {
       const web3 = new Web3(window.ethereum);
       const votingEscrowContract = new web3.eth.Contract(
         votingEscrow.abi,
         Config.v4_votingEscrowAddress
+      );
+      const baseTokenContract = new web3.eth.Contract(
+        baseTokenV1.abi,
+        Config.v4_baseTokenAddress
       );
 
       const _totalStaked = await votingEscrowContract.methods
@@ -157,6 +194,9 @@ const AddPopUpChildren = ({
       setTotalStaked(_totalStaked);
       setEndDate(_endDate);
       setStakedOn(_stakedOn);
+
+      const _checkAllowance = await baseTokenContract.methods.allowance(address, Config.v4_votingEscrowAddress).call();
+      setAllowance(_checkAllowance);
     };
     if (address) {
       f();
@@ -235,10 +275,9 @@ const AddPopUpChildren = ({
             <button
               type='button'
               className={`group relative bg-black-background ${Number(walletBalance) >= Number(aiusToStake) ? '' : 'opacity-40'} flex items-center gap-3 rounded-full px-7 py-1`}
-              onClick={() => {
-                if (Number(walletBalance) >= Number(aiusToStake)) {
-                  addAIUS?.();
-                  setShowPopUp('add/2');
+              onClick={async() => {
+                if (Number(aiusToStake) && Number(walletBalance) >= Number(aiusToStake)) {
+                  await handleStake()
                 }
               }}
             >
@@ -257,6 +296,26 @@ const AddPopUpChildren = ({
           isError={false}
           noChildren={true}
           repeat={false}
+        />
+      )}
+      {showPopUp === 'add/s1' && (
+        <StepOneChildren
+          setShowPopUp={setShowPopUp}
+          isError={false}
+          noChildren={false}
+          repeat={false}
+          valueStart={0}
+          valueEnd={50}
+        />
+      )}
+      {showPopUp === 'add/s2' && (
+        <StepTwoChildren12
+          setShowPopUp={setShowPopUp}
+          isError={false}
+          noChildren={false}
+          repeat={false}
+          valueStart={50}
+          valueEnd={100}
         />
       )}
       <div className={showPopUp === 'add/Success' ? 'block' : 'hidden'}>
@@ -936,7 +995,8 @@ function SlidingCards({
       {showPopUp !== false && (
         <>
           <PopUp setShowPopUp={setShowPopUp}>
-            {showPopUp.startsWith('add') && (
+            {
+            showPopUp.startsWith('add') && (
               <AddPopUpChildren
                 setShowPopUp={setShowPopUp}
                 showPopUp={showPopUp}
@@ -1014,6 +1074,99 @@ function SlidingCards({
   );
 }
 export default SlidingCards;
+
+
+const StepOneChildren = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat,
+  valueStart,
+  valueEnd,
+}) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={valueStart}
+              valueEnd={valueEnd}
+              duration={4}
+              text={'1/2'}
+              setShowPopUp={setShowPopUp}
+              step={1}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={repeat}
+            />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Approve AIUS Spending Limit!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Confirm this transaction in your wallet.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
+
+const StepTwoChildren12 = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat,
+  valueStart,
+  valueEnd,
+}) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={valueStart}
+              valueEnd={valueEnd}
+              duration={4}
+              text={'2/2'}
+              setShowPopUp={setShowPopUp}
+              step={2}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={repeat}
+            />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Pending transaction confirmation!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Confirm this transaction in your wallet.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
 
 const StepTwoChildren = ({
   setShowPopUp,
