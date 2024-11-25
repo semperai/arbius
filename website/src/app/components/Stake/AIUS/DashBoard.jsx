@@ -356,7 +356,7 @@ function DashBoard({
             <h1 className='text-[20px] font-semibold text-purple-text'>
               Wallet
             </h1>
-            <div className='mb-10 mt-6 grid grid-cols-2 gap-[1vw] xl:mt-8 2xl:gap-[2vw]'>
+            <div className='mt-6 grid grid-cols-2 gap-[1vw] xl:mt-8 2xl:gap-[2vw]'>
               <div className='flex flex-col items-start justify-start gap-8'>
                 <div>
                   <h2 className='text-[14px] font-semibold text-aius-tabs-gray'>
@@ -387,7 +387,7 @@ function DashBoard({
                   </div>
                 </div>
               </div>
-              <div className='flex flex-col items-start justify-center gap-8'>
+              <div className='flex flex-col items-start justify-start gap-8'>
                 <div>
                   <h2 className='text-[14px] font-semibold text-aius-tabs-gray'>
                     Wallet TVL
@@ -405,7 +405,7 @@ function DashBoard({
                       : 0}
                   </h2>
                 </div>
-                <div>
+                {/*<div>
                   <h2 className='text-[14px] font-semibold text-aius-tabs-gray'>
                     APR
                   </h2>
@@ -421,7 +421,21 @@ function DashBoard({
                       : 0}
                     %
                   </h2>
-                </div>
+                </div>*/}
+              </div>
+            </div>
+            <div className="horizontal-section">
+              <div className="bg-stake-input text-[#404040] p-[8px_25px] text-center rounded-[10px]">
+                APR :  <span className="text-purple-text">{totalSupply && rewardRate
+                      ? getAPR(rewardRate, totalSupply)?.toLocaleString(
+                          'en-US',
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )
+                      : 0}
+                    %</span>
               </div>
             </div>
           </div>
