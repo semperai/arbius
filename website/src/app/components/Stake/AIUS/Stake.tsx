@@ -458,8 +458,8 @@ export default function Stake({
           setUpdateValue((prevValue) => prevValue + 1);
         });
       } catch (error) {
-        // @ts-ignore
         console.log(error)
+        // @ts-ignore
         setShowPopUp('Error');
       }
     } else {
@@ -514,8 +514,8 @@ export default function Stake({
           //alert("Please enter the amount and duration to stake!")
         }
       } catch (err) {
-        // @ts-ignore
         console.log(err)
+        // @ts-ignore
         setShowPopUp('Error');
       }
     }
