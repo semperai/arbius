@@ -61,9 +61,9 @@ const AddPopUpChildren = ({
     let amountInDec = new Decimal(aiusToStake).times(AIUS_wei);
     let allowanceInDec = new Decimal(allowance);
 
-    console.log(amountInDec, allowanceInDec, 'ALLOWANCE AND AMOUNT before staking');
+    console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
 
-    if (amountInDec > allowanceInDec || allowance === 0) {
+    if (amountInDec.comparedTo(allowanceInDec) > 0 || allowance === 0) {
       try {
         // @ts-ignore
         setShowPopUp('add/s1');
