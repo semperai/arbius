@@ -388,9 +388,9 @@ export default function Stake({
     let amountInDec = new Decimal(amount).times(AIUS_wei);
     let allowanceInDec = new Decimal(allowance);
 
-    console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
+    console.log(amountInDec, allowanceInDec, 'ALLOWANCE AND AMOUNT before staking');
 
-    if (amountInDec.comparedTo(allowanceInDec) > 0 || allowance === 0) {
+    if (amountInDec > allowanceInDec || allowance === 0) {
       /*if(amount && (duration.months || duration.weeks)){
         setShowPopUp(1)
         approveWrite?.()
@@ -458,7 +458,6 @@ export default function Stake({
           setUpdateValue((prevValue) => prevValue + 1);
         });
       } catch (error) {
-        console.log(error)
         // @ts-ignore
         setShowPopUp('Error');
       }
@@ -514,7 +513,6 @@ export default function Stake({
           //alert("Please enter the amount and duration to stake!")
         }
       } catch (err) {
-        console.log(err)
         // @ts-ignore
         setShowPopUp('Error');
       }
