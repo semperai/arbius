@@ -274,7 +274,6 @@ export default function Stake({
   // Use effect to fetch all values
 
   const getWeb3 = async() => {
-    let web3 = ""
     return await fetch(infuraUrl, {
         method: 'POST',
         headers: {
@@ -291,17 +290,17 @@ export default function Stake({
         .then(data => {
           if (data.error) {
             console.error("Infura error:", data.error.message);
-            web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
             return web3
           } else {
-            web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
             console.log("Successfully connected. Block number:", data.result);
             return web3
           }
         })
         .catch((err) => {
           console.log("Request failed:", err)
-          web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
           return web3
         });
   }
