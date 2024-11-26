@@ -22,7 +22,7 @@ import {
 import votingEscrow from '../../../abis/votingEscrow.json';
 import veStaking from '../../../abis/veStaking.json';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
-import { AIUS_wei, defaultApproveAmount, infuraUrl } from '../../../Utils/constantValues';
+import { AIUS_wei, defaultApproveAmount, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import PopUp from './PopUp';
 import CircularProgressBar from './CircularProgressBar';
 import powered_by from '../../../assets/images/powered_by.png';
@@ -273,11 +273,45 @@ export default function Stake({
   },[allowance])*/
   // Use effect to fetch all values
 
+  const getWeb3 = async() => {
+    let web3 = ""
+    return await fetch(infuraUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Infura error:", data.error.message);
+            web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            return web3
+          } else {
+            web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            console.log("Successfully connected. Block number:", data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          return web3
+        });
+  }
+
   useEffect(() => {
 
     const f1 = async () => {
       try{
-        const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+        const web3 = await getWeb3()
+
         const veStakingContract = new web3.eth.Contract(
           veStaking.abi as AbiItem[],
           Config.v4_veStakingAddress
