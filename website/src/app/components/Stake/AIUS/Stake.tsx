@@ -469,16 +469,18 @@ export default function Stake({
           votingEscrow.abi,
           signer
         );
+        
+        const durationWeeks = Math.round((duration.months !== 0
+              ? duration.months * (52 / 12)
+              : duration.weeks) *
+              7 *
+              24 *
+              60 *
+              60)
 
         const tx2 = await stakeContract.create_lock(
           amountInDec.toString(),
-          (duration.months !== 0
-            ? duration.months * (52 / 12)
-            : duration.weeks) *
-            7 *
-            24 *
-            60 *
-            60
+          durationWeeks
         );
         console.log('Second transaction hash:', tx2.hash);
         await tx2.wait(); // Wait for the transaction to be mined
@@ -523,15 +525,18 @@ export default function Stake({
             votingEscrow.abi,
             signer
           );
-          const tx2 = await stakeContract.create_lock(
-            amountInDec.toString(),
-            (duration.months !== 0
+
+          const durationWeeks = Math.round((duration.months !== 0
               ? duration.months * (52 / 12)
               : duration.weeks) *
               7 *
               24 *
               60 *
-              60
+              60)
+
+          const tx2 = await stakeContract.create_lock(
+            amountInDec.toString(),
+            durationWeeks
           );
           console.log('Second transaction hash:', tx2.hash);
           await tx2.wait(); // Wait for the transaction to be mined
