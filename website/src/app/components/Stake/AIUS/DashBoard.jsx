@@ -18,7 +18,7 @@ import { fetchArbiusData } from '../../../Utils/getArbiusData';
 // import { AIUS_wei } from "../../../Utils/constantValues";
 import Web3 from 'web3';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
-import { AIUS_wei, t_max, infuraUrl } from '../../../Utils/constantValues';
+import { AIUS_wei, t_max, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import Loader from '../Loader/Index';
 import Gantt from './GanttChartTest';
 
@@ -93,11 +93,44 @@ function DashBoard({
         enabled: isConnected
     })*/
 
+  const getWeb3 = async() => {
+    return await fetch(infuraUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Infura error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            return web3
+          } else {
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            console.log("Successfully connected. Block number:", data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          return web3
+        });
+  }
+
   useEffect(() => {
 
     const f1 = async () => {
       try{
-        const web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+        const web3 = await getWeb3();
+
         const veStakingContract = new web3.eth.Contract(
           veStaking.abi,
           Config.v4_veStakingAddress
