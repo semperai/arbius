@@ -478,7 +478,7 @@ export default function Stake({
               60)
 
         const tx2 = await stakeContract.create_lock(
-          amountInDec.toString(),
+          amountInDec.toFixed(0).toString(),
           durationWeeks
         );
         console.log('Second transaction hash:', tx2.hash);
@@ -534,7 +534,7 @@ export default function Stake({
               60)
 
           const tx2 = await stakeContract.create_lock(
-            amountInDec.toString(),
+            amountInDec.toFixed(0).toString(),
             durationWeeks
           );
           console.log('Second transaction hash:', tx2.hash);

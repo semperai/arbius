@@ -100,7 +100,7 @@ const AddPopUpChildren = ({
         setShowPopUp('add/s2');
         const tx2 = await stakeContract.increase_amount(
           Number(selectedStake),
-          (aiusToStake * AIUS_wei).toString()
+          amountInDec.toFixed(0).toString()
         );
         console.log('Second transaction hash:', tx2.hash);
         await tx2.wait(); // Wait for the transaction to be mined
@@ -137,7 +137,7 @@ const AddPopUpChildren = ({
           );
           const tx2 = await stakeContract.increase_amount(
             Number(selectedStake),
-            (aiusToStake * AIUS_wei).toString()
+            amountInDec.toFixed(0).toString()
           );
           console.log('Second transaction hash:', tx2.hash);
           await tx2.wait(); // Wait for the transaction to be mined

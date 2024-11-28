@@ -298,7 +298,7 @@ function StakeCard({
                 (Number(earned) / AIUS_wei)?.toFixed(11).toString()
                 : "0.00"
               }{' '}
-              <span className='text-[9px] font-medium'>veAIUS</span>
+              <span className='text-[9px] font-medium'>AIUS</span>
             </h2>
           </div>
           <div>
