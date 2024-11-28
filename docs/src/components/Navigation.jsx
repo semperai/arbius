@@ -194,6 +194,7 @@ export const navigation = [
       { title: 'Mining', href: '/mining' },
       { title: 'Tokenomics', href: '/tokenomics' },
       { title: 'Governance', href: '/governance' },
+      { title: 'VeAIUS', href: '/veaius' },
       { title: 'Integration', href: '/integration' },
     ],
   },
