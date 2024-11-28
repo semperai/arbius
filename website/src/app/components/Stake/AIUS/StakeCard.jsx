@@ -40,6 +40,8 @@ function StakeCard({
   const [initialBalance, setInitialBalance] = useState(token?.initialBalance);
   const [governancePower, setGovernancePower] = useState(token?.balanceOfNFT);
   const [earned, setEarned] = useState(token?.earned);
+  const [realtimeInterval, setRealtimeInterval] = useState(null);
+  const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
 
   /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
         address: Config.v4_votingEscrowAddress,
@@ -192,6 +194,45 @@ function StakeCard({
     process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev'
       ? 'https://testnets.opensea.io/assets/arbitrum-sepolia/'
       : 'https://opensea.io/assets/arbitrum/';
+
+
+  //const handleRealtimeClaimableRewards = async (mouseOver) => {
+  useEffect(() => {
+
+    const f = async() => {
+      const web3 = new Web3(window.ethereum);
+
+      const veStakingContract = new web3.eth.Contract(
+        veStaking.abi,
+        Config.v4_veStakingAddress
+      );
+
+
+      if (realtimeInterval) {
+          clearInterval(realtimeInterval);
+      }
+      const _rewardRate = await veStakingContract.methods.rewardRate().call();
+      const _totalSupply = await veStakingContract.methods.totalSupply().call();
+      const _rewardPerveAIUSPerSecond = Number(_rewardRate) / Number(_totalSupply);
+      const _rateOfIncreasePerSecond = Number(_rewardPerveAIUSPerSecond) * Number(initialBalance);
+      setRateOfIncreasePerSecond(_rateOfIncreasePerSecond);
+
+      let newEarned = earned;
+
+      let _interval = setInterval(async() => {
+          newEarned = Number(newEarned) + Number(_rateOfIncreasePerSecond);
+          setEarned(newEarned)
+      }, 1000);
+      setRealtimeInterval(_interval);
+    }
+
+    if (initialBalance) {
+      f();
+    }
+  },[initialBalance])
+  //}
+
+
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
       <Link
@@ -252,9 +293,12 @@ function StakeCard({
             <h2 className='text-[12px] font-semibold text-[#8D8D8D]'>
               Rewards
             </h2>
-            <h2 className='text-[15px] font-semibold'>
-              {earned ? (Number(earned) / AIUS_wei)?.toFixed(2).toString() : 0}{' '}
-              AIUS
+            <h2 className={"text-[12px] font-semibold"} /*onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}*/>
+              { earned ?
+                (Number(earned) / AIUS_wei)?.toFixed(11).toString()
+                : "0.00"
+              }{' '}
+              <span className='text-[9px] font-medium'>veAIUS</span>
             </h2>
           </div>
           <div>
