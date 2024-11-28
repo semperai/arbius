@@ -205,9 +205,7 @@ function StakeCard({
     );
 
     if (!mouseOver) {
-        console.log(mouseOver, veAIUSAmount)
         setRateOfIncreasePerSecond(null);
-        console.log("switching back");
         clearInterval(realtimeInterval);
         setRealtimeInterval(null);
     } else {
@@ -218,13 +216,12 @@ function StakeCard({
         const _totalSupply = await veStakingContract.methods.totalSupply().call();
         const _rewardPerveAIUSPerSecond = Number(_rewardRate) / Number(_totalSupply);
         const _rateOfIncreasePerSecond = Number(_rewardPerveAIUSPerSecond) * Number(veAIUSAmount);
-        console.log(_rateOfIncreasePerSecond, Number(_rewardRate), Number(_totalSupply), _rewardPerveAIUSPerSecond, "PER SE")
         setRateOfIncreasePerSecond(_rateOfIncreasePerSecond);
 
         let newEarned = earned;
 
         let _interval = setInterval(async() => {
-            newEarned = Number(newEarned) + _rateOfIncreasePerSecond;
+            newEarned = Number(newEarned) + Number(_rateOfIncreasePerSecond);
             setEarned(newEarned)
         }, 1000);
         setRealtimeInterval(_interval);
@@ -292,9 +289,9 @@ function StakeCard({
             <h2 className='text-[12px] font-semibold text-[#8D8D8D]'>
               Rewards
             </h2>
-            <h2 className={` ${rateOfIncreasePerSecond ? "text-[9px]" : "text-[15px]"} text-[15px] font-semibold`} onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}>
+            <h2 className={"text-[15px] font-semibold"} onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}>
               { rateOfIncreasePerSecond ?
-                (Number(earned) / AIUS_wei)?.toFixed(20).toString()
+                (Number(earned) / AIUS_wei)?.toFixed(11).toString()
                 : (Number(earned) / AIUS_wei)?.toFixed(2).toString()
               }{' '}
               AIUS
