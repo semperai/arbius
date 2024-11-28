@@ -1,0 +1,78 @@
+export const description =
+  'This guide describes the vote escrow architecture of the Arbius Protocol.'
+
+# Overview
+
+<figure> <img src="/ve-model.jpg" alt="ve-model" width="100%" /> <figcaption>Technical overview of the vote-escrow architecture</figcaption> </figure>
+
+The Vote Escrow (veAIUS) system is designed to align the interests of Arbius' community, including liquidity providers, token holders, and miners, by incentivizing long-term participation. Participants can lock AIUS tokens for up to 2 years, receiving veAIUS represented by veNFTs. This provides dual utility: governance power to influence AI model emissions and staking balance for rewards. The system amplifies rewards and voting power based on lock duration, granting access to multiple revenue streams like AI model fees, protocol-owned liquidity, and effective acceleration marketplace revenue. This mechanism fosters a healthy ecosystem and drives the peer-to-peer machine learning network powering decentralized AI models.
+
+## AIUS Holders 
+
+AIUS holders can lock their tokens for up to 2 years in exchange for a veNFT. The lock duration is rounded down to the nearest whole week using the formula: 
+
+```Lock_end = (lock_expiry/week) * week```
+
+Here, `lock_end` and `lock_expiry` are Unix timestamps, and all locks conclude on a Thursday at 0:00 UTC. Staking involves selecting an AIUS amount and a lock-up period of at least one week. Voting power and staking balance are determined by:
+
+```veAIUS = AIUS * t/max_lock_time```
+
+where `t` is the lock duration in weeks, and `max_lock_time` is 104 weeks. Locking AIUS for 2 years provides close to 1 veAIUS per AIUS locked.
+
+## veAIUS holders
+
+When AIUS is successfully locked, a veNFT is minted to represent the stake. Users can maintain multiple locks, each with its own veNFT, which can be traded on secondary markets like OpenSea.
+
+<figure> <img src="/veNFT.PNG" alt="veNFT" width="60%" /> <figcaption>Example of a vote-escrow NFT</figcaption> </figure>
+
+### Governance power
+
+Governance power (i.e. veAIUS balance), decreases linearly over time:
+
+```veAIUS(t) = initial_balance – initial_balance * t/lock_time```
+
+Here, `t` is the time elapsed in weeks since beginning of the lock, and `lock_time` is the lock duration. As governance power decreases toward the end of a lock, holders are incentivized to either relock or extend their lock.
+
+### Staking rewards
+
+Staking rewards are based on the initial veAIUS balance, which does not decrease over time. Even after governance power reaches zero, staking rewards continue as long as AIUS remains locked. The APR shown on the staking dashboard is calculated for 1 veAIUS (equivalent to locking 1 AIUS for 2 years). Rewards are distributed weekly and can vary based on protocol usage. 
+
+### Lock management options
+
+If you have an active stake, you have several options:
+-	You can `add` more AIUS to your lock to create compounding interest. Adding more AIUS to your lock is like creating a new lock with `amount` of AIUS you want to add and duration being the remaining time of the lock to be added. For example, if you have a stake that is expiring in 1 year and you add 100 AIUS to that stake, it is like creating a new stake with 100 AIUS and end date in 1 year. 
+-	You can `extend` your lock to refresh your governance power. Locks can be extended up to a maximum of 2 years from the current date. 
+-	You can claim accrued rewards. Rewards accrue each second and can be claimed as often as you wish.
+
+Once your stake expires, the `extend` and `add` options are disabled. At this point, you can `withdraw` your stake and/or claim accrued rewards. Withdrawing an expired stake automatically claims all outstanding rewards. 
+
+### Voting for AI models
+
+To vote for an AI model, it must have an assigned gauge. Models without gauges do not receive rewards. Reward emissions are distributed proportionally based on votes. For example, if a model receives 50% of votes, it gets 50% of the rewards. Voters are intuitively incentivized to vote for the models that are generating the most inference fees due to the fact that it increases stakers real yield.
+
+**Voting mechanics** 
+-	Voting occurs once per epoch (7 days), starting every Thursday at 0:00 UTC.
+-	Users can allocate their governance power across multiple gauges per veNFT.
+-	Votes persist across epochs unless changed, so revoting every week is unnecessary.	
+
+---
+
+## FAQ  
+
+- **What is the APR based on?**  
+  The APR is calculated for 1 veAIUS and varies weekly depending on protocol usage.  
+
+- **How often can I claim rewards?**  
+  Rewards accrue every second and can be claimed at any time.  
+  
+- **How often can I vote for AI models?**  
+  You can vote once per epoch (7 days) per veNFT. You can allocate your voting power accross multiple AI models, e.g. 70% to model A and 30% to model B. 
+
+- **What happens after my stake expires?**  
+  Governance power drops to zero, disabling voting and governance participation. However, staking rewards continue as long as AIUS remains locked.  
+
+- **Can I trade or transfer my veNFT?**  
+  Yes, veNFTs can be traded or transferred on secondary markets, such as OpenSea.  
+
+- **What is the maximum lock duration?**  
+  Locks can be extended up to 2 years from the current date. Governance power and staking balance are updated accordingly.  
