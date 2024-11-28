@@ -40,6 +40,8 @@ function StakeCard({
   const [initialBalance, setInitialBalance] = useState(token?.initialBalance);
   const [governancePower, setGovernancePower] = useState(token?.balanceOfNFT);
   const [earned, setEarned] = useState(token?.earned);
+  const [realtimeInterval, setRealtimeInterval] = useState(null);
+  const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
 
   /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
         address: Config.v4_votingEscrowAddress,
@@ -192,6 +194,44 @@ function StakeCard({
     process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev'
       ? 'https://testnets.opensea.io/assets/arbitrum-sepolia/'
       : 'https://opensea.io/assets/arbitrum/';
+
+
+  const handleRealtimeClaimableRewards = async (mouseOver, veAIUSAmount) => {
+    const web3 = new Web3(window.ethereum);
+
+    const veStakingContract = new web3.eth.Contract(
+      veStaking.abi,
+      Config.v4_veStakingAddress
+    );
+
+    if (!mouseOver) {
+        console.log(mouseOver, veAIUSAmount)
+        setRateOfIncreasePerSecond(null);
+        console.log("switching back");
+        clearInterval(realtimeInterval);
+        setRealtimeInterval(null);
+    } else {
+        if (realtimeInterval) {
+            clearInterval(realtimeInterval);
+        }
+        const _rewardRate = await veStakingContract.methods.rewardRate().call();
+        const _totalSupply = await veStakingContract.methods.totalSupply().call();
+        const _rewardPerveAIUSPerSecond = Number(_rewardRate) / Number(_totalSupply);
+        const _rateOfIncreasePerSecond = Number(_rewardPerveAIUSPerSecond) * Number(veAIUSAmount);
+        console.log(_rateOfIncreasePerSecond, Number(_rewardRate), Number(_totalSupply), _rewardPerveAIUSPerSecond, "PER SE")
+        setRateOfIncreasePerSecond(_rateOfIncreasePerSecond);
+
+        let newEarned = earned;
+
+        let _interval = setInterval(async() => {
+            newEarned = Number(newEarned) + _rateOfIncreasePerSecond;
+            setEarned(newEarned)
+        }, 1000);
+        setRealtimeInterval(_interval);
+    }
+  }
+
+
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
       <Link
@@ -252,8 +292,11 @@ function StakeCard({
             <h2 className='text-[12px] font-semibold text-[#8D8D8D]'>
               Rewards
             </h2>
-            <h2 className='text-[15px] font-semibold'>
-              {earned ? (Number(earned) / AIUS_wei)?.toFixed(2).toString() : 0}{' '}
+            <h2 className={` ${rateOfIncreasePerSecond ? "text-[9px]" : "text-[15px]"} text-[15px] font-semibold`} onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}>
+              { rateOfIncreasePerSecond ?
+                (Number(earned) / AIUS_wei)?.toFixed(20).toString()
+                : (Number(earned) / AIUS_wei)?.toFixed(2).toString()
+              }{' '}
               AIUS
             </h2>
           </div>
