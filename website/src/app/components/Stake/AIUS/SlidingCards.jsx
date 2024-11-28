@@ -630,6 +630,7 @@ const ClaimPopUpChildren = ({
   setUpdateValue,
 }) => {
   const [earned, setEarned] = useState(0);
+  const [realtimeInterval, setRealtimeInterval] = useState(null);
 
   /*const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
         address: Config.v4_veStakingAddress,
@@ -638,7 +639,7 @@ const ClaimPopUpChildren = ({
         args: [
             Number(selectedStake)
         ]
-    })*/
+  })*/
 
   const { config: addAIUSConfig } = usePrepareContractWrite({
     address: Config.v4_veStakingAddress,
@@ -684,6 +685,7 @@ const ClaimPopUpChildren = ({
     }
   }, [addAIUSError]);
 
+
   useEffect(() => {
     const f = async () => {
       const web3 = new Web3(window.ethereum);
@@ -697,11 +699,32 @@ const ClaimPopUpChildren = ({
         .call();
 
       setEarned(_earned);
+
+      const initialBalance = await veStakingContract.methods.balanceOf(selectedStake).call();
+
+      if (realtimeInterval) {
+          clearInterval(realtimeInterval);
+      }
+
+      const _rewardRate = await veStakingContract.methods.rewardRate().call();
+      const _totalSupply = await veStakingContract.methods.totalSupply().call();
+      const _rewardPerveAIUSPerSecond = Number(_rewardRate) / Number(_totalSupply);
+      const _rateOfIncreasePerSecond = Number(_rewardPerveAIUSPerSecond) * Number(initialBalance);
+      //setRateOfIncreasePerSecond(_rateOfIncreasePerSecond);
+
+      let newEarned = _earned;
+
+      let _interval = setInterval(async() => {
+          newEarned = Number(newEarned) + Number(_rateOfIncreasePerSecond);
+          setEarned(newEarned)
+      }, 1000);
+      setRealtimeInterval(_interval);
     };
     if (address) {
       f();
     }
   }, [address]);
+
 
   return (
     <>
@@ -719,7 +742,7 @@ const ClaimPopUpChildren = ({
           <div className='w-full rounded-md bg-light-purple-background-2 p-3 py-6 text-center'>
             <h1 className='text-xs'>
               <span className='text-[30px] font-semibold text-purple-text'>
-                {earned ? (Number(earned) / AIUS_wei).toString() : 0}
+                {earned ? (Number(earned) / AIUS_wei).toFixed(11).toString() : 0}
               </span>{' '}
               AIUS
             </h1>
