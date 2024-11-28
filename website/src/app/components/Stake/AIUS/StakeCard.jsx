@@ -289,7 +289,7 @@ function StakeCard({
             <h2 className='text-[12px] font-semibold text-[#8D8D8D]'>
               Rewards
             </h2>
-            <h2 className={"text-[15px] font-semibold"} onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}>
+            <h2 className={`${rateOfIncreasePerSecond ? "text-[12px]" : "text-[15px]"} font-semibold`} onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}>
               { rateOfIncreasePerSecond ?
                 (Number(earned) / AIUS_wei)?.toFixed(11).toString()
                 : (Number(earned) / AIUS_wei)?.toFixed(2).toString()
