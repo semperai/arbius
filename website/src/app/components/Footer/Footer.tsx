@@ -49,16 +49,16 @@ const footerLinks: FooterLink[] = [
     link: '/explorer',
   },
   {
-    name: 'veAIUS',
-    link: '/aius',
+    name: 'Blog',
+    link: 'https://blog.arbius.ai/',
   },
   {
     name: 'GYSR',
     link: 'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum',
   },
   {
-    name: 'Blog',
-    link: 'https://blog.arbius.ai/',
+    name: 'veAIUS',
+    link: '/aius',
   },
   {
     name: "Arbitrum Bridge",
