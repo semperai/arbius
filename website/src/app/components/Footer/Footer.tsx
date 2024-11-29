@@ -60,6 +60,10 @@ const footerLinks: FooterLink[] = [
     name: 'Blog',
     link: 'https://blog.arbius.ai/',
   },
+  {
+    name: "Arbitrum Bridge",
+    link: "https://bridge.arbitrum.io/"
+  }
 ].map((o, id) => ({ ...o, id }));
 
 type SocialIcon = {
@@ -146,8 +150,8 @@ export default function Footer() {
                 </div>
               </div>
               <div>{footerLinks.slice(0, 3).map(FLink)}</div>
-              <div>{footerLinks.slice(-5, -2).map(FLink)}</div>
-              <div>{footerLinks.slice(-2).map(FLink)}</div>
+              <div>{footerLinks.slice(-6, -3).map(FLink)}</div>
+              <div>{footerLinks.slice(-3).map(FLink)}</div>
               <div>
                 <div
                   className='group flex cursor-pointer items-center gap-4'
