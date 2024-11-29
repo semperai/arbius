@@ -223,7 +223,7 @@ const AddPopUpChildren = ({
               </div>
               <p className='pr- lato-bold text-[12px] text-aius'>AIUS</p>
             </div>
-            <div className='w-[94%]'>
+            <div className='w-[94%] flex items-center'>
               <input
                 className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-1 px-2 text-[15px] outline-none focus:ring-0'
                 type='number'
@@ -231,6 +231,10 @@ const AddPopUpChildren = ({
                 value={aiusToStake}
                 onChange={(e) => setAIUSToStake(e.target.value)}
               />
+              <button className="mr-[10px] px-4 py-[4px] rounded-[30px] text-black-text border-1 border-black bg-stake-input"
+                // @ts-ignore
+                onClick={(e) => setAIUSToStake(walletBalance)}
+              >Max</button>
             </div>
           </div>
           <h1 className='my-1 text-[0.6rem] opacity-50'>
