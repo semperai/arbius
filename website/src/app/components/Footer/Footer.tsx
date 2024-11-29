@@ -49,17 +49,21 @@ const footerLinks: FooterLink[] = [
     link: '/explorer',
   },
   {
-    name: 'veAIUS',
-    link: '/aius',
+    name: 'Blog',
+    link: 'https://blog.arbius.ai/',
   },
   {
     name: 'GYSR',
     link: 'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum',
   },
   {
-    name: 'Blog',
-    link: 'https://blog.arbius.ai/',
+    name: 'veAIUS',
+    link: '/aius',
   },
+  {
+    name: "Arbitrum Bridge",
+    link: "https://bridge.arbitrum.io/"
+  }
 ].map((o, id) => ({ ...o, id }));
 
 type SocialIcon = {
@@ -146,8 +150,8 @@ export default function Footer() {
                 </div>
               </div>
               <div>{footerLinks.slice(0, 3).map(FLink)}</div>
-              <div>{footerLinks.slice(-5, -2).map(FLink)}</div>
-              <div>{footerLinks.slice(-2).map(FLink)}</div>
+              <div>{footerLinks.slice(-6, -3).map(FLink)}</div>
+              <div>{footerLinks.slice(-3).map(FLink)}</div>
               <div>
                 <div
                   className='group flex cursor-pointer items-center gap-4'

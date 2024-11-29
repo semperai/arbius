@@ -661,7 +661,7 @@ export default function Stake({
                     </div>
                     <p className='pr- lato-bold text-[15px] text-aius'>AIUS</p>
                   </div>
-                  <div className='w-[94%]'>
+                  <div className='w-[94%] flex items-center'>
                     {/* @ts-ignore */}
                     <input
                       className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-2 text-[15px] text-black-text focus:ring-0'
@@ -672,6 +672,10 @@ export default function Stake({
                       // @ts-ignore
                       onChange={(e) => setAmount(e.target.value)}
                     />
+                    <button className="mr-[10px] px-4 py-[4px] rounded-[30px] text-black-text border-1 border-black bg-stake-input"
+                      // @ts-ignore
+                      onClick={(e) => setAmount(walletBalance)}
+                    >Max</button>
                   </div>
                 </div>
               </div>
