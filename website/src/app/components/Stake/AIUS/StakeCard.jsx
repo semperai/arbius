@@ -42,7 +42,7 @@ function StakeCard({
   const [earned, setEarned] = useState(token?.earned);
   const [realtimeInterval, setRealtimeInterval] = useState(null);
   const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
-
+  const [extendMonths, setExtendMonths] = useState(0);
   /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
         address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
@@ -207,6 +207,24 @@ function StakeCard({
         Config.v4_veStakingAddress
       );
 
+      const votingEscrowContract = new web3.eth.Contract(
+        votingEscrow.abi,
+        Config.v4_votingEscrowAddress
+      );
+
+      const _endDate = await votingEscrowContract.methods.locked__end(token?.tokenID).call();
+
+      let _currentlyEndingAt = new Date(Number(_endDate) * 1000).toLocaleDateString('en-US');
+
+      let datePlus24Months = new Date();
+      datePlus24Months.setMonth(datePlus24Months.getMonth() + 24);
+      const currentlyEndingDate = new Date(_currentlyEndingAt);
+      const numberOfMonths =
+        (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 +
+        (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
+      console.log(numberOfMonths, 'MAX NO OF months in stake card');
+
+      setExtendMonths(numberOfMonths);
 
       if (realtimeInterval) {
           clearInterval(realtimeInterval);
@@ -339,14 +357,14 @@ function StakeCard({
             <div className='w-[32%]'>
               <button
                 type='button'
-                onClick={() => {
+                onClick={extendMonths ? () => {
                   setShowPopUp('extend');
                   setSelectedStake(token?.tokenID);
-                }}
-                className='group relative flex w-full items-center justify-center gap-3 rounded-full bg-black-background px-3 py-1 py-2 lg:px-4'
+                } : null }
+                className={`group relative flex w-full items-center justify-center gap-3 rounded-full ${extendMonths ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 py-2 lg:px-4`}
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
+                <div className={`lato-bold relative z-10 ${extendMonths ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[15px]`}>
                   Extend
                 </div>
               </button>
