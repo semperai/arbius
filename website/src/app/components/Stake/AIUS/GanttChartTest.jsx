@@ -13,11 +13,41 @@ import {
   init,
 } from '../../../Utils/gantChart/contractInteractions';
 const CustomGanttChart = ({ allStakingData }) => {
-  //   const tasks = [
-  //   { name: 'Task 1', startDate: '2024-09-01', endDate: '2025-03-15' },
-  //   { name: 'Task 2', startDate: '2024-09-02', endDate: '2024-09-25' },
-  //   { name: 'Task 3', startDate: '2024-09-03', endDate: '2024-10-05' },
-  // ];
+  /*const tasks = [
+    {
+        "staked": 1.6139999999,
+        "endDate": "2025-03-13",
+        "startDate": "2024-11-18",
+        "currentDate": "12/2/2024",
+        "governancePower": 0.222621759115908,
+        "veAIUSBalance": 0.25429894162420147,
+        "stake_start": 0,
+        "staked_till_now": 1,
+        "stake_completion": 3
+    },
+    {
+        "staked": 0.02,
+        "endDate": "2025-01-16",
+        "startDate": "2024-11-23",
+        "currentDate": "12/2/2024",
+        "governancePower": 0.001224387363584532,
+        "veAIUSBalance": 0.001475163118131868,
+        "stake_start": 0,
+        "staked_till_now": 1,
+        "stake_completion": 1
+    },
+    {
+        "staked": 0.0000001,
+        "endDate": "2025-01-27",
+        "startDate": "2024-11-24",
+        "currentDate": "12/2/2024",
+        "governancePower": 0.01954659436602037,
+        "veAIUSBalance": 0.020525958994708996,
+        "stake_start": 0,
+        "staked_till_now": 1,
+        "stake_completion": 4
+    }
+  ];*/
   const tasks = allStakingData?.allStakes ? allStakingData?.allStakes : [];
   const today = new Date();
   const earliestStart = new Date(
@@ -104,6 +134,18 @@ const CustomGanttChart = ({ allStakingData }) => {
       );
     });
   };
+
+  function getDaysDifference(start, end) {
+    start = new Date(start);
+    end = new Date(end);
+
+    // Calculate the difference in milliseconds
+    const diffInMillis = end - start;
+
+    // Convert milliseconds to days
+    const diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+    return diffInDays;
+  }
 
   function convertToUSDate(dateString) {
     const date = new Date(dateString);
@@ -250,8 +292,12 @@ const CustomGanttChart = ({ allStakingData }) => {
                     style={getPositionAndWidth(task.startDate, task.endDate)}
                   >
                     <h1 className='whitespace-pre text-[.65rem] font-semibold text-purple-text opacity-80'>
-                      {task?.staked} AIUS Staked
+                      {task?.staked < 1 ? task?.staked : task?.staked.toFixed(2)} AIUS Staked
                     </h1>
+                    { getDaysDifference(task?.startDate, task?.endDate) < 70 ?
+                      <span className="text-[.65rem] text-purple-text mx-[5px] mt-[-1.5px]">|</span>
+                      : null
+                    }
                     <h1
                       className={`whitespace-pre text-[.65rem] font-semibold text-purple-text`}
                     >
