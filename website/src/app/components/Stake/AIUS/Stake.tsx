@@ -7,7 +7,7 @@ import ReactSlider from 'react-slider';
 import Link from 'next/link';
 import { relative } from 'path';
 import { BigNumber } from 'ethers';
-import { getAIUSVotingPower } from '../../../Utils/getAIUSVotingPower';
+import { getAIUSVotingPower, calculateSecondsUntilRoundedDate } from '../../../Utils/getAIUSVotingPower';
 import { getAPR } from '../../../Utils/getAPR';
 import {
   useContractRead,
@@ -469,17 +469,18 @@ export default function Stake({
           signer
         );
         
-        const durationWeeks = Math.round((duration.months !== 0
+        /*const durationWeeks = Math.round((duration.months !== 0
               ? duration.months * (52 / 12)
               : duration.weeks) *
               7 *
               24 *
               60 *
-              60)
+              60)*/
+        const durationWeeks = calculateSecondsUntilRoundedDate(sliderValue);
 
         const tx2 = await stakeContract.create_lock(
           amountInDec.toFixed(0).toString(),
-          durationWeeks
+          durationWeeks.secondsUntilRoundedDate
         );
         console.log('Second transaction hash:', tx2.hash);
         await tx2.wait(); // Wait for the transaction to be mined
@@ -525,17 +526,18 @@ export default function Stake({
             signer
           );
 
-          const durationWeeks = Math.round((duration.months !== 0
+          /*const durationWeeks = Math.round((duration.months !== 0
               ? duration.months * (52 / 12)
               : duration.weeks) *
               7 *
               24 *
               60 *
-              60)
+              60)*/
+          const durationWeeks = calculateSecondsUntilRoundedDate(sliderValue);
 
           const tx2 = await stakeContract.create_lock(
             amountInDec.toFixed(0).toString(),
-            durationWeeks
+            durationWeeks.secondsUntilRoundedDate
           );
           console.log('Second transaction hash:', tx2.hash);
           await tx2.wait(); // Wait for the transaction to be mined
