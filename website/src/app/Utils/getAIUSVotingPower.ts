@@ -1,6 +1,6 @@
 import { t_max } from './constantValues';
 
-function calculateSecondsUntilRoundedDate(duration) {
+function calculateSecondsUntilRoundedDate(duration: number) {
     const now = new Date();
 
     // Get current UTC time
