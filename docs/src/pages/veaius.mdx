@@ -17,7 +17,7 @@ Here, `lock_end` and `lock_expiry` are Unix timestamps, and all locks conclude o
 
 ```veAIUS = AIUS * t/max_lock_time```
 
-where `t` is the lock duration in weeks, and `max_lock_time` is 104 weeks. Locking AIUS for 2 years provides close to 1 veAIUS per AIUS locked.
+where `t` is the rounded down lock duration in seconds, and `max_lock_time` is 2 years in seconds (`2 * 365 * 86400`). Locking AIUS for 2 years provides close to 1 veAIUS per AIUS locked.
 
 ## veAIUS holders
 
