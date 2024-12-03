@@ -1,6 +1,6 @@
 import { t_max } from './constantValues';
 
-function calculateDate(duration) {
+function calculateDate(duration: number) {
     const today = new Date();
 
     // Extract months and weeks from the duration

@@ -669,9 +669,9 @@ export default function Stake({
                       type='number'
                       placeholder='0'
                       value={amount}
-                      // @ts-ignore
                       onChange={(e) => {
                         if(Number(e.target.value) >= 0){
+                          // @ts-ignore
                           setAmount(e.target.value)
                         }
                       }}
