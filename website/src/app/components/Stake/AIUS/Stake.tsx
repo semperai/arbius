@@ -670,7 +670,11 @@ export default function Stake({
                       placeholder='0'
                       value={amount}
                       // @ts-ignore
-                      onChange={(e) => setAmount(e.target.value)}
+                      onChange={(e) => {
+                        if(Number(e.target.value) >= 0){
+                          setAmount(e.target.value)
+                        }
+                      }}
                     />
                     <button className="mr-[10px] px-4 py-[4px] rounded-[30px] text-black-text border-1 border-black bg-stake-input"
                       // @ts-ignore
