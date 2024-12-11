@@ -8,6 +8,8 @@ import exabits from '../../../assets/images/exabits.png';
 import nosana from '../../../assets/images/nosana.png';
 import arbitrum from '../../../assets/images/arbitrum.png';
 import unicrow from '../../../assets/images/unicrow_logo.png';
+import independent_ai from '../../../assets/images/independent_ai.jpg';
+import SIX079 from '../../../assets/images/6079.jpg';
 import Image from 'next/image';
 
 type Partner = {
@@ -48,6 +50,14 @@ const partnersData: Record<string, Partner> = {
     image: unicrow,
     url: 'https://unicrow.io/',
   },
+  independent_ai: {
+    image: independent_ai,
+    url: "https://independentai.institute/"
+  },
+  SIX079: {
+    image: SIX079,
+    url: "https://6079.ai/"
+  }
 };
 
 

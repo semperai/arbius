@@ -271,6 +271,9 @@
   .ArbiusPartners div img.Unicrow {
     @apply h-[40px];
   }
+  .ArbiusPartners div img.independent_ai {
+    @apply h-[40px];
+  }
 }
 /* Partners styles */
 
