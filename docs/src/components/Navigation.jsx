@@ -28,7 +28,7 @@ function TopLevelNavItem({ href, children }) {
   )
 }
 
-function NavLink({ href, tag, active, isAnchorLink = false, children }) {
+function NavLink({ href, tag, active, isAnchorLink = false, children, target}) {
   return (
     <Link
       href={href}
@@ -40,6 +40,7 @@ function NavLink({ href, tag, active, isAnchorLink = false, children }) {
           ? 'text-zinc-900 dark:text-white'
           : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'
       )}
+      target={target ? target : '_self'}
     >
       <span className="truncate">{children}</span>
       {tag && (
@@ -144,7 +145,7 @@ function NavigationGroup({ group, className }) {
         <ul role="list" className="border-l border-transparent">
           {group.links.map((link) => (
             <motion.li key={link.href} layout="position" className="relative">
-              <NavLink href={link.href} active={link.href === router.pathname}>
+              <NavLink href={link.href} active={link.href === router.pathname} target={link.target}>
                 {link.title}
               </NavLink>
               <AnimatePresence mode="popLayout" initial={false}>
@@ -187,38 +188,38 @@ export const navigation = [
   {
     title: 'Guides',
     links: [
-      { title: 'Introduction', href: '/' },
-      { title: 'Quickstart', href: '/quickstart' },
-      { title: 'Register Model', href: '/register-model' },
-      { title: 'Model Tokens', href: '/model-tokens' },
-      { title: 'Mining', href: '/mining' },
-      { title: 'Tokenomics', href: '/tokenomics' },
-      { title: 'Governance', href: '/governance' },
-      { title: 'VeAIUS', href: '/veaius' },
-      { title: 'Integration', href: '/integration' },
+      { title: 'Introduction', href: '/', target:'_self' },
+      { title: 'Quickstart', href: '/quickstart', target:'_self' },
+      { title: 'Register Model', href: '/register-model', target:'_self' },
+      { title: 'Model Tokens', href: '/model-tokens', target:'_self' },
+      { title: 'Mining', href: '/mining', target:'_self' },
+      { title: 'Tokenomics', href: '/tokenomics', target:'_self' },
+      { title: 'Governance', href: '/governance', target:'_self' },
+      { title: 'VeAIUS', href: '/veaius', target:'_self' },
+      { title: 'Integration', href: '/integration', target:'_self' },
     ],
   },
   {
     title: 'Contract',
     links: [
-      { title: 'Models', href: '/models' },
-      { title: 'Validators', href: '/validators' },
-      { title: 'Tasks', href: '/tasks' },
-      { title: 'Solutions', href: '/solutions' },
-      { title: 'Contestations', href: '/contestations' },
+      { title: 'Models', href: '/models', target:'_self' },
+      { title: 'Validators', href: '/validators', target:'_self' },
+      { title: 'Tasks', href: '/tasks', target:'_self' },
+      { title: 'Solutions', href: '/solutions', target:'_self' },
+      { title: 'Contestations', href: '/contestations', target:'_self' },
     ],
   },
   {
     title: 'Resources',
     links: [
-      { title: 'Roadmap', href: '/roadmap' },
-      { title: 'Team', href: '/team' },
-      { title: 'Security', href: '/security' },
-      { title: 'Contracts', href: '/ca' },
-      { title: 'Subsquids', href: '/subsquids' },
-      { title: 'Whitepaper', href: 'https://arbius.ai/paper.pdf' },
-      { title: 'Brand Guidelines', href: '/Arbius-Brand-Guidelines.pdf' },
-      { title: 'Logo', href: '/arbius-logo.zip' },
+      { title: 'Roadmap', href: '/roadmap', target:'_self' },
+      { title: 'Team', href: '/team', target:'_self' },
+      { title: 'Security', href: '/security', target:'_self' },
+      { title: 'Contracts', href: '/ca', target:'_self' },
+      { title: 'Subsquids', href: '/subsquids', target:'_self' },
+      { title: 'Whitepaper', href: 'https://arbius.ai/paper.pdf', target:'_blank' },
+      { title: 'Brand Guidelines', href: '/Arbius-Brand-Guidelines.pdf', target:'_self' },
+      { title: 'Logo', href: '/arbius-logo.zip', target:'_self' },
     ],
   },
 ]
