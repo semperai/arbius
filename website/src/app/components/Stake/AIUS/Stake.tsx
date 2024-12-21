@@ -534,7 +534,7 @@ export default function Stake({
               60 *
               60)*/
           const durationWeeks = calculateSecondsUntilRoundedDate(sliderValue);
-          
+
           const tx2 = await stakeContract.create_lock(
             amountInDec.toFixed(0).toString(),
             durationWeeks.secondsUntilRoundedDate
@@ -670,7 +670,7 @@ export default function Stake({
                       id='outline-none'
                       type='number'
                       placeholder='0'
-                      value={Number(amount / AIUS_wei)?.toFixed(2).toString()}
+                      value={amount}
                       onChange={(e) => {
                         if(Number(e.target.value) >= 0){
                           // @ts-ignore

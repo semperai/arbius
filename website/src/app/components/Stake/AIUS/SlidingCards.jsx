@@ -58,7 +58,7 @@ const AddPopUpChildren = ({
   const [totalStaked, setTotalStaked] = useState(0);
 
   const handleStake = async () => {
-    let amountInDec = new Decimal(aiusToStake).times(AIUS_wei);
+    let amountInDec = new Decimal(aiusToStake);
     let allowanceInDec = new Decimal(allowance);
 
     console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
@@ -98,6 +98,7 @@ const AddPopUpChildren = ({
         );
         // @ts-ignore
         setShowPopUp('add/s2');
+
         const tx2 = await stakeContract.increase_amount(
           Number(selectedStake),
           amountInDec.toFixed(0).toString()
@@ -164,8 +165,8 @@ const AddPopUpChildren = ({
   useEffect(() => {
     if (totalStaked && endDate && stakedOn) {
       const t = Number(endDate) - Number(stakedOn);
-      const a_b = Number(totalStaked?.amount) / AIUS_wei + Number(aiusToStake);
-      setEstBalance(a_b * (t / t_max));
+      const a_b = Number(totalStaked?.amount) + Number(aiusToStake);
+      setEstBalance( (a_b * (t / t_max)) / AIUS_wei );
     }
   }, [aiusToStake, totalStaked, endDate, stakedOn]);
 
@@ -238,7 +239,7 @@ const AddPopUpChildren = ({
             </div>
           </div>
           <h1 className='my-1 text-[0.6rem] opacity-50'>
-            Available AIUS {Number(walletBalance?.toFixed(2)).toString()}
+            Available AIUS {Number(walletBalance / AIUS_wei)?.toFixed(2).toString()}
           </h1>
         </div>
         <div className='flex items-center justify-center gap-2'>
