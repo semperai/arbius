@@ -184,7 +184,7 @@ function DashBoard({
 
         // Getting user wallet balance
         const wBal = await baseTokenContract.methods.balanceOf(address).call();
-        setWalletBalance(wBal / AIUS_wei);
+        setWalletBalance(wBal);
 
         // prepiing sliding cards and ganttChart
         const _escrowBalanceData = await votingEscrowContract.methods
@@ -396,7 +396,7 @@ function DashBoard({
                     Balance
                   </h2>
                   <h2 className='mt-[2px] text-[16px] font-semibold 2xl:text-[18px]'>
-                    {walletBalance?.toFixed(2).toString()}{' '}
+                    {Number(walletBalance / AIUS_wei)?.toFixed(2).toString()}{' '}
                     <span className='text-[11px] font-medium'>AIUS</span>
                   </h2>
                 </div>
@@ -430,7 +430,7 @@ function DashBoard({
                     {protocolData?.data?.AIUS?.quote?.USD?.price
                       ? (
                           protocolData?.data?.AIUS?.quote?.USD?.price *
-                          walletBalance
+                          Number(walletBalance / AIUS_wei)
                         )?.toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,

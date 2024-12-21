@@ -350,7 +350,7 @@ export default function Stake({
         );
 
         const wBal = await baseTokenContract.methods.balanceOf(address).call();
-        setWalletBalance(wBal / AIUS_wei);
+        setWalletBalance(wBal);
 
         const _escrowBalanceData = await votingEscrowContract.methods
           .balanceOf(address)
@@ -418,7 +418,7 @@ export default function Stake({
 
   const handleStake = async () => {
     //console.log({stakeData});
-    let amountInDec = new Decimal(amount).times(AIUS_wei);
+    let amountInDec = new Decimal(amount);
     let allowanceInDec = new Decimal(allowance);
 
     console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
@@ -648,7 +648,7 @@ export default function Stake({
                   Amount to lock
                 </p>
                 <p className='lato-regular text-[15px] text-available'>
-                  Available {Number(walletBalance)?.toFixed(2).toString()} AIUS
+                  Available {Number(walletBalance / AIUS_wei)?.toFixed(2).toString()} AIUS
                 </p>
               </div>
               <div>
@@ -666,21 +666,25 @@ export default function Stake({
                   <div className='w-[94%] flex items-center'>
                     {/* @ts-ignore */}
                     <input
-                      className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-2 text-[15px] text-black-text focus:ring-0'
-                      id='outline-none'
+                      className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-2 text-[15px] text-black-text focus:ring-0 outline-none'
+                      id='amount-input'
                       type='number'
                       placeholder='0'
-                      value={amount}
+                      //value={amount}
                       onChange={(e) => {
-                        if(Number(e.target.value) >= 0){
+                        if((Number(e.target.value) >= 0) && e.target.value != ''){
+                          let amountInDec = new Decimal(e.target.value);
                           // @ts-ignore
-                          setAmount(e.target.value)
+                          setAmount(amountInDec.times(AIUS_wei))
+                        }else{
+                          // @ts-ignore
+                          setAmount(0)
                         }
                       }}
                     />
                     <button className="mr-[10px] px-4 py-[4px] rounded-[30px] text-black-text border-1 border-black bg-stake-input"
                       // @ts-ignore
-                      onClick={(e) => setAmount(walletBalance)}
+                      onClick={(e) => {setAmount(walletBalance); document.getElementById("amount-input").value = Number(walletBalance / AIUS_wei)?.toFixed(2).toString(); }}
                     >Max</button>
                   </div>
                 </div>
@@ -694,7 +698,7 @@ export default function Stake({
                   : `${duration.weeks} ${duration.weeks <= 1 && duration.weeks !== 0 ? 'week' : 'weeks'}`}{' '}
                 for{' '}
                 {(
-                  getAIUSVotingPower(amount * AIUS_wei, sliderValue) / AIUS_wei
+                  getAIUSVotingPower(amount, sliderValue) / AIUS_wei
                 ).toFixed(2)}{' '}
                 veAIUS.
               </p>
