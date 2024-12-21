@@ -136,6 +136,7 @@ const AddPopUpChildren = ({
             votingEscrow.abi,
             signer
           );
+          alert(amountInDec.toFixed(0).toString())
           const tx2 = await stakeContract.increase_amount(
             Number(selectedStake),
             amountInDec.toFixed(0).toString()
@@ -227,14 +228,20 @@ const AddPopUpChildren = ({
             <div className='w-[94%] flex items-center'>
               <input
                 className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-1 px-2 text-[15px] outline-none focus:ring-0'
+                id='add-amount-input'
                 type='number'
                 placeholder='0.0'
-                value={aiusToStake}
-                onChange={(e) => setAIUSToStake(e.target.value)}
+                //value={amount}
+                onChange={(e) => {
+                  if(Number(e.target.value) >= 0){
+                    // @ts-ignore
+                    setAIUSToStake(e.target.value * AIUS_wei)
+                  }
+                }}
               />
               <button className="mr-[10px] px-4 py-[4px] rounded-[30px] text-black-text border-1 border-black bg-stake-input"
                 // @ts-ignore
-                onClick={(e) => setAIUSToStake(walletBalance)}
+                onClick={(e) => { setAIUSToStake(walletBalance);  document.getElementById("add-amount-input").value = Number(walletBalance / AIUS_wei)?.toFixed(2).toString(); }}
               >Max</button>
             </div>
           </div>

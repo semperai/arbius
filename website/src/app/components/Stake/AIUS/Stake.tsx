@@ -534,7 +534,7 @@ export default function Stake({
               60 *
               60)*/
           const durationWeeks = calculateSecondsUntilRoundedDate(sliderValue);
-
+          alert(amountInDec.toFixed(0).toString())
           const tx2 = await stakeContract.create_lock(
             amountInDec.toFixed(0).toString(),
             durationWeeks.secondsUntilRoundedDate
@@ -666,21 +666,21 @@ export default function Stake({
                   <div className='w-[94%] flex items-center'>
                     {/* @ts-ignore */}
                     <input
-                      className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-2 text-[15px] text-black-text focus:ring-0'
-                      id='outline-none'
+                      className='lato-bold w-[100%] rounded-r-3xl border-0 border-none p-2 text-[15px] text-black-text focus:ring-0 outline-none'
+                      id='amount-input'
                       type='number'
                       placeholder='0'
-                      value={amount}
+                      //value={amount}
                       onChange={(e) => {
                         if(Number(e.target.value) >= 0){
                           // @ts-ignore
-                          setAmount(e.target.value)
+                          setAmount(e.target.value * AIUS_wei)
                         }
                       }}
                     />
                     <button className="mr-[10px] px-4 py-[4px] rounded-[30px] text-black-text border-1 border-black bg-stake-input"
                       // @ts-ignore
-                      onClick={(e) => setAmount(walletBalance) }
+                      onClick={(e) => {setAmount(walletBalance); document.getElementById("amount-input").value = Number(walletBalance / AIUS_wei)?.toFixed(2).toString(); }}
                     >Max</button>
                   </div>
                 </div>
