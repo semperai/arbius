@@ -136,7 +136,6 @@ const AddPopUpChildren = ({
             votingEscrow.abi,
             signer
           );
-          alert(amountInDec.toFixed(0).toString())
           const tx2 = await stakeContract.increase_amount(
             Number(selectedStake),
             amountInDec.toFixed(0).toString()

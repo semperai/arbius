@@ -534,7 +534,7 @@ export default function Stake({
               60 *
               60)*/
           const durationWeeks = calculateSecondsUntilRoundedDate(sliderValue);
-          alert(amountInDec.toFixed(0).toString())
+
           const tx2 = await stakeContract.create_lock(
             amountInDec.toFixed(0).toString(),
             durationWeeks.secondsUntilRoundedDate
