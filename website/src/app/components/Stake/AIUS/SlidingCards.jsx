@@ -233,9 +233,12 @@ const AddPopUpChildren = ({
                 placeholder='0.0'
                 //value={amount}
                 onChange={(e) => {
-                  if(Number(e.target.value) >= 0){
+                  if((Number(e.target.value) >= 0) && e.target.value != ''){
+                    let amountInDec = new Decimal(e.target.value);
                     // @ts-ignore
-                    setAIUSToStake(e.target.value * AIUS_wei)
+                    setAIUSToStake(amountInDec.times(AIUS_wei))
+                  }else{
+                    setAIUSToStake(0)
                   }
                 }}
               />
