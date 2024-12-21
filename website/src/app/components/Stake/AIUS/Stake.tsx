@@ -677,6 +677,7 @@ export default function Stake({
                           // @ts-ignore
                           setAmount(amountInDec.times(AIUS_wei))
                         }else{
+                          // @ts-ignore
                           setAmount(0)
                         }
                       }}

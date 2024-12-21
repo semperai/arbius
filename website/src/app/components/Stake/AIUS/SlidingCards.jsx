@@ -238,6 +238,7 @@ const AddPopUpChildren = ({
                     // @ts-ignore
                     setAIUSToStake(amountInDec.times(AIUS_wei))
                   }else{
+                    // @ts-ignore
                     setAIUSToStake(0)
                   }
                 }}
