@@ -720,9 +720,9 @@ const ClaimPopUpChildren = ({
       if (realtimeInterval) {
           clearInterval(realtimeInterval);
       }
-      if(Number(_endDate) * 1000 < Date.now()){
-        return; // Not to proceed further for realtime rewards if time has passed
-      }
+      // if(Number(_endDate) * 1000 < Date.now()){
+      //   return; // Not to proceed further for realtime rewards if time has passed
+      // }
 
       const rewardForDuration = await veStakingContract.methods.getRewardForDuration().call();
       if(!(rewardForDuration > 0)){
