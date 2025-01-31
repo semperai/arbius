@@ -111,8 +111,18 @@ contract VeNFTRender {
         uint256 whole = value / 1e18;
         uint256 fraction = (value % 1e18) / 1e14; // Considering 4 decimal places
 
+        string memory fractionStr = toString(fraction);
+
+        // make sure fraction has 4 decimal places and leading zeros are not omitted
+        if (bytes(fractionStr).length < 4) {
+            uint256 padding = 4 - bytes(fractionStr).length;
+            for (uint256 i = 0; i < padding; i++) {
+                fractionStr = string(abi.encodePacked("0", fractionStr));
+            }
+        }
+
         return
-            string(abi.encodePacked(toString(whole), ".", toString(fraction)));
+            string(abi.encodePacked(toString(whole), ".", fractionStr));
     }
 
     function toString(uint256 value) internal pure returns (string memory) {
