@@ -182,14 +182,14 @@ async function main() {
     sepoliaConfigPath,
     JSON.stringify(
       {
-        v2_baseTokenAddress: l2Token.address,
-        v2_enginev5Address: engine.address,
-        veNFTRenderAddress: veNFTRender.address,
-        votingEscrowAddress: votingEscrow.address,
-        veStakingAddress: veStaking.address,
-        voterAddress: voter.address,
-        timelockAddress: timelock.address,
-        governorAddress: governor.address,
+        v5_baseTokenAddress: l2Token.address,
+        v5_engineAddress: engine.address,
+        v5_veNFTRenderAddress: veNFTRender.address,
+        v5_votingEscrowAddress: votingEscrow.address,
+        v5_veStakingAddress: veStaking.address,
+        v5_voterAddress: voter.address,
+        v5_timelockAddress: timelock.address,
+        v5_governorAddress: governor.address,
       },
       null,
       2
