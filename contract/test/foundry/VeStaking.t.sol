@@ -224,7 +224,7 @@ contract VeStakingTest is BaseTest {
         );
     }
 
-    function testAlignedDurations(uint256 time) public {
+    function testFuzz_AlignedDurations(uint256 time) public {
         // bind time to skip to be between 1 week and 10 years
         time = bound(time, 1 weeks, 10 * YEAR);
 
@@ -247,7 +247,7 @@ contract VeStakingTest is BaseTest {
         assertEq(veStaking.periodFinish(), end, "!durations");
     }
 
-    function testNotifyRewardAmount(uint256 reward) public {
+    function testFuzz_NotifyRewardAmount(uint256 reward) public {
         // bind reward to be between 1 and 4999 AIUS
         reward = bound(reward, 1 ether, 4999 ether);
 
@@ -260,7 +260,7 @@ contract VeStakingTest is BaseTest {
         veStaking.notifyRewardAmount(reward - 0.001 ether);
     }
 
-    function testFailNotifyRewardAmount(uint256 reward) public {
+    function testFuzz_FailNotifyRewardAmount(uint256 reward) public {
         // bind reward to be between 1 and 9999 AIUS
         reward = bound(reward, 1 ether, 9999 ether);
 
@@ -508,7 +508,7 @@ contract VeStakingTest is BaseTest {
 
     /* user related tests: staking, increasing amount, increasing duration, merging */
 
-    function testStake(uint256 amount) public {
+    function testFuzz_Stake(uint256 amount) public {
         // bind amount to be between 1 and 999 AIUS
         amount = bound(amount, 1 ether, 999 ether);
 

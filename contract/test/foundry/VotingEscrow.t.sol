@@ -48,7 +48,7 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.setVoter(address(0));
     }
 
-    function testCreateLock(uint256 amount) public {
+    function testFuzz_CreateLock(uint256 amount) public {
         // bind amount to be between 0.0001 AIUS and 1000 AIUS
         amount = bound(amount, 0.0001 ether, 1000 ether);
 
@@ -362,7 +362,7 @@ contract VotingEscrowTest is BaseTest {
         votingEscrow.tokenURI(tokenId);
     }
 
-    function testConfirmSupportsInterfaceWorksWithAssertedInterfaces() public {
+    function testConfirmSupportsInterfaceWorksWithAssertedInterfaces() public view {
         // Check that it supports all the asserted interfaces.
         bytes4 ERC165_INTERFACE_ID = 0x01ffc9a7;
         bytes4 ERC721_INTERFACE_ID = 0x80ac58cd;
@@ -376,7 +376,7 @@ contract VotingEscrowTest is BaseTest {
     }
 
     function testCheckSupportsInterfaceHandlesUnsupportedInterfacesCorrectly()
-        public
+        public view
     {
         bytes4 ERC721_FAKE = 0x780e9d61;
         assertFalse(votingEscrow.supportsInterface(ERC721_FAKE));

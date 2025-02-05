@@ -343,7 +343,7 @@ contract VoterTest is BaseTest {
         assertEq(voter.weights(MODEL_2), balance - balance / 5);
     }
 
-    function testAlignedEpochDuration(uint256 warp) public {
+    function testFuzz_AlignedEpochDuration(uint256 warp) public {
         // warp should be less than 100 years
         vm.assume(warp <= 3155760000);
 
@@ -361,7 +361,7 @@ contract VoterTest is BaseTest {
         assertEq(voter.epochVoteEnd(), veStaking.periodFinish());
     }
 
-    function testGaugeMultiplier(
+    function testFuzz_GaugeMultiplier(
         uint256 weight1,
         uint256 weight2,
         uint256 weight3
