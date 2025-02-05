@@ -2,12 +2,15 @@
 pragma solidity ^0.8.19;
 
 import "./BaseTest.sol";
+import "./handler/Handler.sol";
 
 /**
  * @notice Isolated tests for VotingEscrow.sol, without involvement of engine contract
  * @dev Can be run with `forge test --mc VotingEscrowTest`
  */
 contract VotingEscrowTest is BaseTest {
+    Handler handler;
+
     function setUp() public {
         // set time
         vm.warp((1704067200 / WEEK) * WEEK); // Thu Dec 28 2023 00:00:00 GMT+0000
@@ -17,6 +20,11 @@ contract VotingEscrowTest is BaseTest {
         // mint and approve AIUS
         mintTestAius();
         approveTestAiusToEscrow();
+
+        // deploy handler contract for invariant tests
+        handler = new Handler(votingEscrow, AIUS);
+        // set the handler contract as the target for our test
+        targetContract(address(handler));
     }
 
     function testOnlyOwner() public {
@@ -334,6 +342,14 @@ contract VotingEscrowTest is BaseTest {
 
         // Check that the NFT is burnt
         assertEq(votingEscrow.ownerOf(tokenId), address(0));
+    }
+
+    function invariant_alwaysWithdrawable() public {
+        uint256 deposit = handler.ghost_depositSum();
+        uint256 withdraw = handler.ghost_withdrawSum();
+
+        // AIUS balance in the contract should be always equal to the sum of all deposits - withdrawals
+        assertEq(AIUS.balanceOf(address(votingEscrow)), deposit - withdraw);
     }
 
     function testCheckTokenURICalls() public {
