@@ -194,6 +194,34 @@ contract VoterTest is BaseTest {
         assertEq(voter.getGaugeMultiplier(MODEL_2), 1e18 / 4);
     }
 
+    function testCannotWithdrawWhenActiveVote() public {
+        // create lock for alice
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
+
+        // create gauge for MODEL_1 and MODEL_2
+        voter.createGauge(MODEL_1);
+        voter.createGauge(MODEL_2);
+
+        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        bytes32[] memory modelVote = new bytes32[](2);
+        uint256[] memory weights = new uint256[](2);
+        modelVote[0] = MODEL_1;
+        weights[0] = 100;
+        modelVote[1] = MODEL_2;
+        weights[1] = 400;
+
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        // withdraw should fail
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("voted"));
+        votingEscrow.withdraw(1);
+    }
+
     function testCannotChangeVoteOrResetInSameEpoch() public {
         // create lock for alice
         vm.prank(alice);
