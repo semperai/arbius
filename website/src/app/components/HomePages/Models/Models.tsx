@@ -124,12 +124,7 @@ export default function Models() {
           <Fade direction='up' triggerOnce={true}>
             <div>
               <div className='lato-regular text-para text-subtext-two'>
-                OSS (open source software) models such as Llama 3 and others can
-                now be part of a shared AI economy for all. Arbius handles
-                accelerated compute matchmaking for each request, pairing the
-                best solvers to each task for rewards. Through its utility,
-                ecosystem participants can steer the economy and share in the
-                value generated from&nbsp;AI.&nbsp;
+                OSS (open source software) models such as Llama 3, Deepseek R1 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from AI.
               </div>
             </div>
           </Fade>
