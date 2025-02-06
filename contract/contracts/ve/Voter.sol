@@ -73,6 +73,23 @@ contract Voter is IVoter, Ownable {
         _vote(_tokenId, _modelVote, _weights);
     }
 
+    /// @notice Called by users to vote for models with multiple veNFTs.
+    /// @param tokenIds     Array of veNFTs you are voting with, e.g. [1, 2].
+    /// @param _modelVote   Array of models you are voting for, e.g. [[model1, model2], [model3]].
+    /// @param _weights     Weights of models, e.g. [[70, 30], [100]].
+    function voteMultiple(
+        uint256[] calldata tokenIds,
+        bytes32[][] calldata _modelVote,
+        uint256[][] calldata _weights
+    ) external {
+        require(tokenIds.length == _modelVote.length, "length mismatch");
+        require(tokenIds.length == _weights.length, "length mismatch");
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            vote(tokenIds[i], _modelVote[i], _weights[i]);
+        }
+    }
+
     /// @notice Called by users to vote for models. Votes distributed proportionally based on weights.
     /// @dev Weights are distributed proportional to the sum of the weights in the array.
     /// @param tokenId      Id of veNFT you are voting with.
@@ -82,7 +99,7 @@ contract Voter is IVoter, Ownable {
         uint256 tokenId,
         bytes32[] calldata _modelVote,
         uint256[] calldata _weights
-    ) external onlyNewEpoch(tokenId) {
+    ) public onlyNewEpoch(tokenId) {
         require(
             IVotingEscrow(votingEscrow).isApprovedOrOwner(msg.sender, tokenId)
         );
