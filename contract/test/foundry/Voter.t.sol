@@ -146,7 +146,7 @@ contract VoterTest is BaseTest {
         voter.createGauge(MODEL_1);
         voter.createGauge(MODEL_2);
 
-        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        // vote for MODEL_1 and MODEL_2, with weights 500 and 500 respectively
         bytes32[] memory modelVote = new bytes32[](2);
         uint256[] memory weights = new uint256[](2);
         modelVote[0] = MODEL_1;
