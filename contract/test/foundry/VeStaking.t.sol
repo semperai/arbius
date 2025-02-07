@@ -260,12 +260,13 @@ contract VeStakingTest is BaseTest {
         veStaking.notifyRewardAmount(reward - 0.001 ether);
     }
 
-    function testFuzz_FailNotifyRewardAmount(uint256 reward) public {
+    function testFuzz_RevertNotifyRewardAmount(uint256 reward) public {
         // bind reward to be between 1 and 9999 AIUS
         reward = bound(reward, 1 ether, 9999 ether);
 
         // transfering too little reward should revert
         AIUS.transfer(address(veStaking), reward - 0.001 ether);
+        vm.expectRevert("Provided reward too high");
         veStaking.notifyRewardAmount(reward);
     }
 
