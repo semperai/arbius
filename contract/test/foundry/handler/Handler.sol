@@ -10,7 +10,7 @@ import "contracts/ve/VotingEscrow.sol";
 contract Handler is Test {
     MockERC20 public AIUS;
     VotingEscrow public votingEscrow;
-    
+
     uint256 lockDuration = 1 weeks;
 
     uint256 public ghost_depositSum;
@@ -20,10 +20,10 @@ contract Handler is Test {
         votingEscrow = _votingEscrow;
         AIUS = _AIUS;
     }
-    
+
     function deposit(uint256 amount) public {
         // skip if the caller is the votingEscrow contract
-        if(msg.sender == address(votingEscrow)) {
+        if (msg.sender == address(votingEscrow)) {
             return;
         }
 
@@ -45,11 +45,11 @@ contract Handler is Test {
 
     function increaseUnlockTime(uint256 second) public {
         // limit increase to 1 year
-        second = bound(second, 0, 60*60*24*365);
+        second = bound(second, 0, 60 * 60 * 24 * 365);
 
         // skip if the user has no NFT
-        uint256 id = votingEscrow.tokenOfOwnerByIndex(msg.sender, 0);        
-        if(id == 0) {
+        uint256 id = votingEscrow.tokenOfOwnerByIndex(msg.sender, 0);
+        if (id == 0) {
             return;
         }
 
@@ -62,7 +62,7 @@ contract Handler is Test {
 
     function increaseAmount(uint256 amount) public {
         // skip if the caller is the votingEscrow contract
-        if(msg.sender == address(votingEscrow)) {
+        if (msg.sender == address(votingEscrow)) {
             return;
         }
 
@@ -72,7 +72,7 @@ contract Handler is Test {
 
         // skip if the user has no NFT
         uint256 id = votingEscrow.tokenOfOwnerByIndex(msg.sender, 0);
-        if(id == 0) {
+        if (id == 0) {
             return;
         }
 
@@ -86,15 +86,15 @@ contract Handler is Test {
         uint256 id = votingEscrow.tokenOfOwnerByIndex(msg.sender, 0);
 
         // skip if the user has no NFT
-        if(id == 0) {
+        if (id == 0) {
             return;
         }
 
         (int128 amount, ) = votingEscrow.locked(id);
-        
+
         vm.prank(msg.sender);
         votingEscrow.withdraw(id);
-        
+
         // Check that the NFT is burnt
         assertEq(votingEscrow.ownerOf(id), address(0));
 
