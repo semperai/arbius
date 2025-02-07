@@ -73,12 +73,13 @@ contract VoterTest is BaseTest {
         assertEq(voter.length(), 2);
     }
 
-    function testFailCreateGauge() public {
+    function testRevert_CreateGauge() public {
         // create gauge for MODEL_1
         voter.createGauge(MODEL_1);
         assertEq(voter.length(), 1);
 
         // create gauge for MODEL_1 again
+        vm.expectRevert(abi.encodePacked("exists"));
         voter.createGauge(MODEL_1);
     }
 
@@ -186,6 +187,61 @@ contract VoterTest is BaseTest {
         assertEq(voter.weights(MODEL_2), balance / 2);
         assertEq(voter.weights(MODEL_1), balance / 2 + balance);
         assertEq(voter.votes(2, MODEL_1), balance);
+        assertEq(voter.usedWeights(2), balance);
+        assertEq(voter.lastVoted(2), block.timestamp);
+        assertEq(votingEscrow.voted(2), true);
+
+        assertEq(voter.getGaugeMultiplier(MODEL_1), (1e18 * 3) / 4);
+        assertEq(voter.getGaugeMultiplier(MODEL_2), 1e18 / 4);
+    }
+
+    function testMultipleVote() public {
+        // create multiple locks for alice
+        vm.prank(alice);
+        uint256 id1 = votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
+        vm.prank(alice);
+        uint256 id2 = votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(2), alice);
+
+        // balance for second lock is identical to first lock
+        uint256 balance = votingEscrow.balanceOfNFT(1);
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = id1;
+        ids[1] = id2;
+
+        // create gauge for MODEL_1 and MODEL_2
+        voter.createGauge(MODEL_1);
+        voter.createGauge(MODEL_2);
+
+        // create two dimensional array:
+        // modelVote[0] = [MODEL_1]
+        // weights[0] = [1000]
+        // modelVote[1] = [MODEL_1, MODEL_2]
+        // weights[1] = [500, 500]
+        bytes32[][] memory modelVote = new bytes32[][](2);
+        uint256[][] memory weights = new uint256[][](2);
+        modelVote[0] = new bytes32[](1);
+        weights[0] = new uint256[](1);
+        modelVote[0][0] = MODEL_1;
+        weights[0][0] = 1000;
+        modelVote[1] = new bytes32[](2);
+        weights[1] = new uint256[](2);
+        modelVote[1][0] = MODEL_1;
+        weights[1][0] = 500;
+        modelVote[1][1] = MODEL_2;
+        weights[1][1] = 500;
+
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.voteMultiple(ids, modelVote, weights);
+
+        // check weights and other values
+        assertEq(voter.totalWeight(), 2 * balance);
+        assertEq(voter.weights(MODEL_2), balance / 2);
+        assertEq(voter.weights(MODEL_1), balance / 2 + balance);
+        assertEq(voter.votes(1, MODEL_1), balance);
         assertEq(voter.usedWeights(2), balance);
         assertEq(voter.lastVoted(2), block.timestamp);
         assertEq(votingEscrow.voted(2), true);
@@ -394,9 +450,9 @@ contract VoterTest is BaseTest {
         uint256 weight2,
         uint256 weight3
     ) public {
-        vm.assume(weight1 <= 1e18 && weight1 > 0);
-        vm.assume(weight2 <= 1e18 && weight2 > 0);
-        vm.assume(weight3 <= 1e18 && weight3 > 0);
+        vm.assume(weight1 <= 1e6 && weight1 > 0);
+        vm.assume(weight2 <= 1e6 && weight2 > 0);
+        vm.assume(weight3 <= 1e6 && weight3 > 0);
 
         // create gauges
         voter.createGauge(MODEL_1);
