@@ -475,7 +475,7 @@ function DashBoard({
           </div>
         </div>
         <div className='col-span-2 mt-10 xl:mt-0'>
-          <div className='pl-2'>
+          <div className='xl:pl-2'>
             <div className='stake-box-shadow mb-2 w-full rounded-2xl bg-white-background px-8 py-3'>
               <h1 className='text-[20px] font-semibold text-purple-text'>
                 My Stakes
@@ -484,7 +484,7 @@ function DashBoard({
           </div>
           <div className=''>
             {loading ? (
-              <div className='h-[300px] pl-2'>
+              <div className='h-[300px] xl:pl-2'>
                 <Loader />
               </div>
             ) : tokenIDs?.slidingCards && tokenIDs?.slidingCards.length > 0 ? (
@@ -499,7 +499,7 @@ function DashBoard({
                 setUpdateValue={setUpdateValue}
               />
             ) : (
-              <div className='flex h-[300px] items-center justify-center pl-2'>
+              <div className='flex h-[300px] items-center justify-center xl:pl-2'>
                 <div className='flex h-full w-full items-center justify-center rounded-2xl bg-white-background'>
                   <h1 className='text-[20px] font-semibold text-purple-text'>
                     No Stakes Found
