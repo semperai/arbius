@@ -110,14 +110,9 @@ function Gauge() {
   }, []);
 
   function calculateTimeLeft() {
-    const now = new Date();
-    const dayOfWeek = now.getUTCDay();
-    const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
-    const nextSunday = new Date(now);
-    nextSunday.setUTCDate(now.getUTCDate() + daysUntilSunday);
-    nextSunday.setUTCHours(23, 59, 59, 999); // End of Sunday
-
-    const difference = nextSunday - now;
+    const sundayTimestamp = 1739664000000;// comes from contract call
+    const now = new Date().getTime(); // Current time in milliseconds
+    const difference = sundayTimestamp - now; // Difference between Sunday and now
 
     if (difference <= 0) {
       return { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -130,7 +125,6 @@ function Gauge() {
       seconds: Math.floor((difference / 1000) % 60),
     };
   }
-
 
 
   const updateTimeRemaining = (targetDate) => {
