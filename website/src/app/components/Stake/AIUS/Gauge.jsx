@@ -94,6 +94,7 @@ function Gauge() {
   const [votingPercentage, setVotingPercentage] = useState({});
   const [percentageLeft, setPercentageLeft] = useState(100);
   const [epochTimestamp, setEpochTimestamp] = useState(0);
+  const [lastUserVote, setLastUserVote] = useState(0);
 
   console.log(votingPercentage)
   console.log('filteredData', filteredData);
@@ -263,8 +264,9 @@ function Gauge() {
         //const multi = await voterContract.methods.getGaugeMultiplier("0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b").call()
 
         // CALL THIS TO GET THE LAST VOTE MADE TO A STAKE
-        //const lastVoted = await voterContract.methods.lastVoted('45').call()
-        //console.log(lastVoted, "LVB")
+        const lastVoted = await voterContract.methods.lastVoted(tokens[0]?.tokenID).call()
+        console.log(lastVoted, "LVB")
+        setLastUserVote(lastVoted)
 
         let _totalGovernancePower = 0;
         tokens.forEach((token) => {
@@ -301,7 +303,11 @@ function Gauge() {
 
   const getGPUsed = () => {
     const percentageUsed = 100 - percentageLeft;
-    return (((percentageUsed/100) * totalGovernancePower) / AIUS_wei)?.toFixed(2)
+    if( (((percentageUsed/100) * totalGovernancePower) / AIUS_wei) < 1){
+      return (((percentageUsed/100) * totalGovernancePower) / AIUS_wei)?.toFixed(2)
+    }else{
+      return (((percentageUsed/100) * totalGovernancePower) / AIUS_wei)?.toFixed(0)
+    }
   }
 
   const getGovPowerFormatted = () => {
@@ -328,9 +334,8 @@ function Gauge() {
       }
     })
 
-    console.log(allTokenIDs,
-      Array(allTokenIDs.length).fill().map(() => [...models]),
-      Array(allTokenIDs.length).fill().map(() => [...weights]))
+    const modelArrays = Array(allTokenIDs.length).fill().map(() => [...models])
+    const weightArrays = Array(allTokenIDs.length).fill().map(() => [...weights])
 
     const web3 = new Web3(window.ethereum);
     const voterContract = new web3.eth.Contract(
@@ -338,17 +343,35 @@ function Gauge() {
       Config.v4_voterAddress
     );
     console.log(voterContract)
+    console.log(allTokenIDs, modelArrays, weightArrays)
+
     await voterContract.methods.voteMultiple(
       allTokenIDs,
-      Array(allTokenIDs.length).fill().map(() => [...models]),
-      Array(allTokenIDs.length).fill().map(() => [...weights])
+      modelArrays,
+      weightArrays
     ).send({from: address})
     .then((receipt) => {
       setShowConfirmVote(false)
+      const initialModelPercentages = data.reduce((accumulator, item) => {
+        accumulator[item.model_name] = {
+          "percentage": 0,
+          "error": null
+        };
+        return accumulator;
+      }, {});
+      setVotingPercentage(initialModelPercentages);
     })
     .catch((error) => {
       console.log(error, "ERROR WHILE VOTING")
       setShowConfirmVote(false)
+      const initialModelPercentages = data.reduce((accumulator, item) => {
+        accumulator[item.model_name] = {
+          "percentage": 0,
+          "error": null
+        };
+        return accumulator;
+      }, {});
+      setVotingPercentage(initialModelPercentages);
     });
   }
 
