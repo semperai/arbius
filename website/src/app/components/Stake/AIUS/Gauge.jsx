@@ -26,7 +26,7 @@ import Config from '@/config.one.json';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
 import { useAccount, useNetwork } from 'wagmi';
 import Timer from './Timer';
-import { AIUS_wei } from '../../../Utils/constantValues';
+import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 
 
 const getVoteStartDate = () => {
@@ -123,6 +123,9 @@ function Gauge() {
   }, []);
 
   const updateModelPercentage = (modelName, modelBytes, percentage) => {
+    if(!isConnected){
+      return;
+    }
     percentage = Number(percentage)
 
     if(typeof percentage === 'number' && percentage >= 0 && Number.isInteger(percentage)){
@@ -172,6 +175,39 @@ function Gauge() {
     }
   };
 
+  const getWeb3 = async() => {
+    return await fetch(infuraUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Infura error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            return web3
+          } else {
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            console.log("Successfully connected. Block number:", data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          return web3
+        });
+  }
+
+
   useEffect(() => {
     const initialModelPercentages = data.reduce((accumulator, item) => {
       accumulator[item.model_name] = {
@@ -181,6 +217,25 @@ function Gauge() {
       return accumulator;
     }, {});
     setVotingPercentage(initialModelPercentages);
+
+    const f1 = async () => {
+      try{
+        console.log("0")
+        const web3 = await getWeb3()
+        console.log(web3, "1")
+        const voterContract = new web3.eth.Contract(
+          voter.abi,
+          Config.v4_voterAddress
+        );
+        console.log(Config.v4_voterAddress, voter.abi, "2")
+        const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
+        console.log(_epochVoteEnd, "3")
+        setEpochTimestamp(_epochVoteEnd * 1000)
+      }catch(e){
+        console.log("F1 error", e)
+      }
+    }
+
 
     const f = async () => {
       try{
@@ -194,10 +249,9 @@ function Gauge() {
           voter.abi,
           Config.v4_voterAddress
         );
-
         const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
-        setEpochTimestamp(_epochVoteEnd * 1000)
-
+        console.log(_epochVoteEnd, "3")
+        
         const _escrowBalanceData = await votingEscrowContract.methods
           .balanceOf(address)
           .call();
@@ -224,6 +278,8 @@ function Gauge() {
         console.log("Error at gauge fetch:", err)
       }
     }
+
+    f1();
 
     if (address) {
       f();
