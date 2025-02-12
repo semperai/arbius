@@ -14,7 +14,7 @@ async function main() {
   if (networkName === "arbsepolia") {
     configPath = path.resolve(__dirname, "./config.sepolia.json");
   } else if (networkName === "arbitrum") {
-    configPath = path.resolve(__dirname, "./config.arbitrum.json");
+    configPath = path.resolve(__dirname, "./config.one.json");
   }
   const configFile = fs.readFileSync(configPath, "utf-8");
   const Config = JSON.parse(configFile);
