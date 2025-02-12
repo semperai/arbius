@@ -29,10 +29,10 @@ import Timer from './Timer';
 import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 
 
-const getVoteStartDate = () => {
-  return new Date('08/23/2024');
-};
-function Gauge() {
+function Gauge({
+  updateValue,
+  setUpdateValue,
+}) {
   const { address, isConnected } = useAccount();
   const { chain, chains } = useNetwork();
   const [totalGovernancePower, setTotalGovernancePower] = useState(0);
@@ -95,9 +95,9 @@ function Gauge() {
   const [percentageLeft, setPercentageLeft] = useState(100);
   const [epochTimestamp, setEpochTimestamp] = useState(0);
   const [lastUserVote, setLastUserVote] = useState(0);
-
-  console.log(votingPercentage)
-  console.log('filteredData', filteredData);
+  const [newTokenIDs, setNewTokensIDs] = useState([]);
+  const [newGovernancePower, setNewGovernancePower] = useState(0);
+  console.log(newGovernancePower, newTokenIDs, "YAY")
   const handleSearch = (e) => {
     console.log(e.target.value);
     setSearchText(e.target.value);
@@ -111,17 +111,6 @@ function Gauge() {
       clearTimeout(time);
     }, 300);
   };
-
-  const [timeRemaining, setTimeRemaining] = useState({});
-  useEffect(() => {
-    updateTimeRemaining(getVoteStartDate());
-    const intervalId = setInterval(() => {
-      updateTimeRemaining(getVoteStartDate());
-      console.log('updateTimeRemaining');
-    }, 60000); // Update every minute
-
-    return () => clearInterval(intervalId);
-  }, []);
 
   const updateModelPercentage = (modelName, modelBytes, percentage) => {
     if(!isConnected){
@@ -176,6 +165,27 @@ function Gauge() {
       }));
     }
   };
+
+
+  useEffect(() => {
+    if(Number(lastUserVote) > 0){
+      let newGovPower = 0;
+      let _newTokenIDs = [];
+      // proceed with calculations and setting up things
+      if(Number(lastUserVote) < epochTimestamp){
+        for(let i=0; i<allTokens.length; i++){
+          console.log(Number(allTokens[i]?.stakedOn), lastUserVote, Number(allTokens[i]?.stakedOn) > lastUserVote)
+          if(Number(allTokens[i]?.stakedOn) > lastUserVote){ // check for a new stake
+            newGovPower = newGovPower + allTokens[i]?.balanceOfNFT
+            _newTokenIDs.push(allTokens[i]?.tokenID)
+          }
+        }
+      }
+      setNewGovernancePower(newGovPower);
+      setNewTokensIDs(_newTokenIDs);
+    }
+  },[lastUserVote, updateValue])
+
 
   const getWeb3 = async() => {
     return await fetch(infuraUrl, {
@@ -266,11 +276,11 @@ function Gauge() {
 
         // CALL THIS TO GET THE LAST VOTE MADE TO A STAKE
         const lastVoted = await voterContract.methods.lastVoted(tokens[0]?.tokenID).call()
-        console.log(lastVoted, "LVB")
         setLastUserVote(lastVoted)
 
         let _totalGovernancePower = 0;
         tokens.forEach((token) => {
+          console.log(tokens, "TOKENS")
           _totalGovernancePower = _totalGovernancePower + Number(token?.balanceOfNFT);
         });
 
@@ -288,34 +298,34 @@ function Gauge() {
       f();
     } else {
     }
-  }, [address, chain?.id]);
-
-  const updateTimeRemaining = (targetDate) => {
-    const now = new Date();
-    const target = new Date(targetDate);
-    const difference = target - now;
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    setTimeRemaining({ days, hours, minutes });
-  };
+  }, [address, chain?.id, updateValue]);
 
   const getGPUsed = () => {
+    let _totalGovernancePower = totalGovernancePower;
+
+    if(newGovernancePower > 0){
+      _totalGovernancePower = newGovernancePower;
+    }
+
     const percentageUsed = 100 - percentageLeft;
-    if( (((percentageUsed/100) * totalGovernancePower) / AIUS_wei) < 1){
-      return (((percentageUsed/100) * totalGovernancePower) / AIUS_wei)?.toFixed(2)
+    if( (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei) < 1){
+      return (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2)
     }else{
-      return (((percentageUsed/100) * totalGovernancePower) / AIUS_wei)?.toFixed(0)
+      return (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0)
     }
   }
 
   const getGovPowerFormatted = () => {
-    if( (Number(totalGovernancePower) / AIUS_wei) < 1 ){
-      return (Number(totalGovernancePower) / AIUS_wei)?.toFixed(2)
+    let _totalGovernancePower = totalGovernancePower;
+
+    if(newGovernancePower > 0){
+      _totalGovernancePower = newGovernancePower;
+    }
+
+    if( (Number(_totalGovernancePower) / AIUS_wei) < 1 ){
+      return (Number(_totalGovernancePower) / AIUS_wei)?.toFixed(2)
     }else{
-      return (Number(totalGovernancePower) / AIUS_wei)?.toFixed(0)
+      return (Number(_totalGovernancePower) / AIUS_wei)?.toFixed(0)
     }
   }
 
@@ -323,6 +333,9 @@ function Gauge() {
     let allTokenIDs = []
     for(let i=0; i<allTokens.length; i++){
       allTokenIDs.push(allTokens[i].tokenID)
+    }
+    if(newTokenIDs.length > 0){
+      allTokenIDs = newTokenIDs;
     }
 
     let models = [];
@@ -361,6 +374,8 @@ function Gauge() {
         return accumulator;
       }, {});
       setVotingPercentage(initialModelPercentages);
+      setPercentageLeft(100);
+      setUpdateValue((prevValue) => prevValue + 1);
     })
     .catch((error) => {
       console.log(error, "ERROR WHILE VOTING")
@@ -373,8 +388,10 @@ function Gauge() {
         return accumulator;
       }, {});
       setVotingPercentage(initialModelPercentages);
+      setPercentageLeft(100);
     });
   }
+
 
   return (
     <div className='mx-auto w-mobile-section-width max-w-center-width py-10 text-black-text lg:w-section-width lg:py-16'>
