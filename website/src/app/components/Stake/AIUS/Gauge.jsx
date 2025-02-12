@@ -161,6 +161,7 @@ function Gauge() {
             "error": "You only have "+ Math.min(100, Math.abs(100 - _sum)) +"% left"
           },
         }));
+        setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
         return;
       }
       setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
