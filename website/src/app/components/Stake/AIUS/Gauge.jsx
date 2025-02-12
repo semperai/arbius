@@ -303,7 +303,7 @@ function Gauge() {
                 <div className="flex flex-wrap justify-center mt-4">
                   {
                     filteredData?.map((item, key) => {
-                      return <div className='flex w-[30%] items-center gap-2 bg-[#FAF6FF] p-2 rounded-[10px] mb-2 mr-2'>
+                      return <div className='flex w-[30%] items-center gap-2 bg-[#FAF6FF] p-2 rounded-[10px] mb-2 mr-2' key={key}>
                         <div className='flex h-[28px] w-[28px] items-center justify-center rounded-full bg-purple-background'>
                           <div className='relative flex h-[16px] w-[16px] items-center justify-center'>
                             <Image
