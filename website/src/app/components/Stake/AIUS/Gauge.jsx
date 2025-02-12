@@ -250,7 +250,7 @@ function Gauge() {
           Config.v4_voterAddress
         );
         const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
-        console.log(_epochVoteEnd, "3")
+        setEpochTimestamp(_epochVoteEnd * 1000)
         
         const _escrowBalanceData = await votingEscrowContract.methods
           .balanceOf(address)
@@ -618,7 +618,7 @@ function Gauge() {
         {filteredData?.map((item, key) => {
           return (
             <div
-              className={`gauge-table-item relative my-3 flex min-w-[1000px] items-center justify-between gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 py-5 font-semibold lg:px-10`}
+              className={`gauge-table-item relative my-3 flex min-w-[1000px] items-center justify-between gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false && votingPercentage?.[item?.model_name]?.percentage > 0 ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 py-5 font-semibold lg:px-10`}
               key={key}
             >
               <div
