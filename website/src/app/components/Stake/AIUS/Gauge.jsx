@@ -36,6 +36,7 @@ function Gauge() {
   const { address, isConnected } = useAccount();
   const { chain, chains } = useNetwork();
   const [totalGovernancePower, setTotalGovernancePower] = useState(0);
+  const [allTokens, setAllTokens] = useState([]);
 
   const data = [
     {
@@ -45,6 +46,7 @@ function Gauge() {
       emissions: '40%',
       prompts: '40,304',
       icon: mistral_icon,
+      model_bytes: "0x9d04df3076afee4ab86ac2e30f103ecc9dd5bea9cb70af6881d74f638183e274"
     },
     {
       model_name: 'Nemotron-4-340b',
@@ -53,6 +55,7 @@ function Gauge() {
       emissions: '30%',
       prompts: '38,994',
       icon: nemotron_icon,
+      model_bytes: "0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b"
     },
     {
       model_name: 'Llama-3.1-405b',
@@ -116,7 +119,7 @@ function Gauge() {
     return () => clearInterval(intervalId);
   }, []);
 
-  const updateModelPercentage = (modelName, percentage) => {
+  const updateModelPercentage = (modelName, modelBytes, percentage) => {
     percentage = Number(percentage)
 
     if(typeof percentage === 'number' && percentage >= 0 && Number.isInteger(percentage)){
@@ -159,6 +162,7 @@ function Gauge() {
         ...prevState,
         [modelName]: {
           "percentage": percentage,
+          "model_bytes": modelBytes,
           "error": false
         },
       }));
@@ -196,8 +200,16 @@ function Gauge() {
           .call();
 
         let tokens = await getTokenIDs(address, _escrowBalanceData);
-        let _totalGovernancePower = 0;
+        setAllTokens(tokens);
 
+        // CALL THIS WITH THE LIST OF MODELS
+        //const multi = await voterContract.methods.getGaugeMultiplier("0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b").call()
+
+        // CALL THIS TO GET THE LAST VOTE MADE TO A STAKE
+        //const lastVoted = await voterContract.methods.lastVoted('45').call()
+        //console.log(lastVoted, "LVB")
+
+        let _totalGovernancePower = 0;
         tokens.forEach((token) => {
           _totalGovernancePower = _totalGovernancePower + Number(token?.balanceOfNFT);
         });
@@ -233,12 +245,52 @@ function Gauge() {
     return (((percentageUsed/100) * totalGovernancePower) / AIUS_wei)?.toFixed(2)
   }
 
+  const handleVoting = async() => {
+    let allTokenIDs = []
+    for(let i=0; i<allTokens.length; i++){
+      allTokenIDs.push(allTokens[i].tokenID)
+    }
+
+    let models = [];
+    let weights = [];
+
+    Object.entries(votingPercentage).map(([key, value], index) => {
+      if(value?.percentage > 0){
+        models.push(value?.model_bytes)
+        weights.push(value?.percentage)
+      }
+    })
+
+    console.log(allTokenIDs,
+      Array(allTokenIDs.length).fill().map(() => [...models]),
+      Array(allTokenIDs.length).fill().map(() => [...weights]))
+
+    const web3 = new Web3(window.ethereum);
+    const voterContract = new web3.eth.Contract(
+      voter.abi,
+      Config.v4_voterAddress
+    );
+
+    const makeVote = await voterContract.methods.vote(
+      allTokenIDs[0],
+      models,
+      weights
+    ).send({from: address})
+    .then((receipt) => {
+      setShowConfirmVote(false)
+    })
+    .catch((error) => {
+      console.log(error, "ERROR WHILE VOTING")
+      setShowConfirmVote(false)
+    });
+  }
+
   return (
     <div className='mx-auto w-mobile-section-width max-w-center-width py-10 text-black-text lg:w-section-width lg:py-16'>
       {
         showConfirmVote ?
           <div className="absolute top-0 left-0 w-[100vw] h-[100vh] bg-[#FFFFFFCC] z-[10]">
-            <div className="w-[650px] mt-[10%] mx-auto bg-white-background p-4 shadow-[0px_0px_50px_10px_#2A0FB933] rounded-[15px]">
+            <div className="w-[750px] mt-[10%] mx-auto bg-white-background p-4 shadow-[0px_0px_50px_10px_#2A0FB933] rounded-[15px]">
               <div className="relative">
                 <Image onClick={() => setShowConfirmVote(false)} className="cursor-pointer absolute right-0" src={cross_icon} alt="" />
               </div>
@@ -262,7 +314,7 @@ function Gauge() {
                           </div>
                         </div>
                         <h1 className='text-[0.85rem] 2xl:text-base'>
-                          {item?.model_name}
+                          {item?.model_name} - {votingPercentage?.[item?.model_name].percentage}%
                         </h1>
                       </div>
                     })
@@ -271,7 +323,7 @@ function Gauge() {
                 <div>
                   <div className="flex gap-2 mt-[20px]">
                     <div onClick={() => setShowConfirmVote(false)} className="cursor-pointer px-[30px] py-2 text-aius-tabs-gray bg-[#E8E8E8] rounded-[25px]">Cancel</div>
-                    <div className="px-[30px] py-2 text-[#FFF] bg-[#000000] rounded-[25px] cursor-pointer">Confirm</div>
+                    <div onClick={handleVoting} className="px-[30px] py-2 text-[#FFF] bg-[#000000] rounded-[25px] cursor-pointer">Confirm</div>
                   </div>
                 </div>
               </div>
@@ -444,11 +496,11 @@ function Gauge() {
           </div>
         </div>
         <div className="absolute right-0">
-          <div className={`${ percentageLeft === 0 ? "bg-black-background text-original-white" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[10px_45px] rounded-[25px] cursor-pointer group hidden xl:block`}>
+          <div onClick={percentageLeft === 0 ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 ? "bg-black-background text-original-white" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[10px_45px] rounded-[25px] cursor-pointer group hidden xl:block`}>
             Vote
             <div className="absolute right-[-135px] top-[-42px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 transition-all duration-300">
               <Image src={lightningbulb} alt="" />
-              <div className="text-[12px]">100% of user owned governance power must be contributed before proceeding.</div>
+              <div className="text-[12px] text-aius-tabs-gray">100% of user owned governance power must be contributed before proceeding.</div>
               <div className="absolute left-[-5px] top-[58px] w-0 h-0 border-l-[5px] border-l-transparent border-b-[8px] border-[#FFF] border-r-[5px] border-r-transparent rotate-[32deg]"></div>
             </div>
           </div>
@@ -561,7 +613,7 @@ function Gauge() {
               <div className='flex flex-col justify-end w-[15%]'>
                 <div className={`flex border-[1px] ${ votingPercentage?.[item?.model_name]?.error ? "border-[#C71518]" : "border-purple-text/20"} rounded-[25px]`}>
                   <div className="rounded-l-[20px] p-[6px_10px] bg-purple-text/10">%</div>
-                  <input className={"w-full rounded-r-[25px] bg-white-background w-[70px] focus:outline-none pl-2"} value={votingPercentage?.[item?.model_name]?.percentage} onChange={(e) => updateModelPercentage(item?.model_name, e.target.value)} />
+                  <input className={"w-full rounded-r-[25px] bg-white-background w-[70px] focus:outline-none pl-2"} value={votingPercentage?.[item?.model_name]?.percentage} onChange={(e) => updateModelPercentage(item?.model_name, item?.model_bytes, e.target.value)} />
                 </div>
                 {
                   votingPercentage?.[item?.model_name]?.error ?
