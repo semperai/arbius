@@ -229,6 +229,15 @@ function StakeCard({
       if (realtimeInterval) {
           clearInterval(realtimeInterval);
       }
+      // if(Number(_endDate) * 1000 < Date.now()){
+      //   return; // Not to proceed further for realtime rewards if time has passed
+      // }
+
+      const rewardForDuration = await veStakingContract.methods.getRewardForDuration().call();
+      if(!(rewardForDuration > 0)){
+        return; // No need to calculate realtime rewards if rewards are disabled 
+      }
+
       const _rewardRate = await veStakingContract.methods.rewardRate().call();
       const _totalSupply = await veStakingContract.methods.totalSupply().call();
       const _rewardPerveAIUSPerSecond = Number(_rewardRate) / Number(_totalSupply);
@@ -319,7 +328,7 @@ function StakeCard({
               <span className='text-[9px] font-medium'>AIUS</span>
             </h2>
           </div>
-          <div>
+          <div className='mt-[4px]' /* Extra margin : because rewards has less font size, so to maintain the gap there is mt added */> 
             <div>
               <h2 className='text-[12px] font-semibold text-[#8D8D8D]'>
                 End Date
