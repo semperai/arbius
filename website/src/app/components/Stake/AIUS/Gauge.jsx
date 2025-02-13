@@ -135,8 +135,6 @@ function Gauge({
       }
       // Case where an error has already added but not been corrected yet; so until that is corrected, no other model's percentage will be accepted
 
-
-      console.log(sum, percentage)
       const _sum = sum;
       sum = sum + percentage;
       if( sum > 100 ){
@@ -147,10 +145,25 @@ function Gauge({
             "error": "You only have "+ Math.min(100, Math.abs(100 - _sum)) +"% left"
           },
         }));
-        setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
+
+        if(newGovernancePower){
+          let percentageUsed = ((totalGovernancePower - newGovernancePower)/totalGovernancePower) * 100;
+          let percentageOfLeftGovPower = (newGovernancePower / totalGovernancePower)*100
+          console.log(percentageUsed, percentageOfLeftGovPower, "error")
+          setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
+        }else{
+          setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
+        }
         return;
       }
-      setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
+      if(newGovernancePower){
+        let percentageUsed = ((totalGovernancePower - newGovernancePower)/totalGovernancePower) * 100;
+        let percentageOfLeftGovPower = (newGovernancePower / totalGovernancePower)*100
+        console.log(percentageUsed, percentageOfLeftGovPower, "NO ERROR")
+        setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
+      }else{
+        setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
+      }
 
       setVotingPercentage((prevState) => ({
         ...prevState,
@@ -162,6 +175,12 @@ function Gauge({
       }));
     }
   };
+
+  const calculateNewPercentageLeft = (newGovPower) => {
+    const _percentage = ((totalGovernancePower - newGovPower)/totalGovernancePower) * 100
+    console.log(_percentage, "PPTAGE")
+    setPercentageLeft(100 - _percentage);
+  }
 
   const getTimestamp7DaysEarlier = (timestamp) => {
     const date = new Date(timestamp);
@@ -187,6 +206,10 @@ function Gauge({
       }
       setNewGovernancePower(newGovPower);
       setNewTokensIDs(_newTokenIDs);
+
+      if(Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){
+        calculateNewPercentageLeft(newGovPower);
+      }
     }
   },[lastUserVote])
 
@@ -314,25 +337,27 @@ function Gauge({
 
   const getGPUsed = () => {
     let _totalGovernancePower = totalGovernancePower;
+    let powerUsed = 0;
 
     if(newGovernancePower > 0){
       _totalGovernancePower = newGovernancePower;
+      powerUsed = totalGovernancePower - newGovernancePower;
     }
 
     const percentageUsed = 100 - percentageLeft;
     if( (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei) < 1){
-      return (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2)
+      return Number((powerUsed / AIUS_wei)?.toFixed(2)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2))
     }else{
-      return (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0)
+      return Number((powerUsed / AIUS_wei)?.toFixed(0)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0))
     }
   }
 
   const getGovPowerFormatted = () => {
     let _totalGovernancePower = totalGovernancePower;
 
-    if(newGovernancePower > 0){
-      _totalGovernancePower = newGovernancePower;
-    }
+    // if(newGovernancePower > 0){
+    //   _totalGovernancePower = newGovernancePower;
+    // }
 
     if( (Number(_totalGovernancePower) / AIUS_wei) < 1 ){
       return (Number(_totalGovernancePower) / AIUS_wei)?.toFixed(2)
@@ -388,7 +413,7 @@ function Gauge({
         return accumulator;
       }, {});
       setVotingPercentage(initialModelPercentages);
-      setPercentageLeft(100);
+      setPercentageLeft(0);
       setUpdateValue((prevValue) => prevValue + 1);
     })
     .catch((error) => {
@@ -633,7 +658,7 @@ function Gauge({
           <div className="flex flex-col gap-1 p-2 bg-white-background rounded-md">
             <div className="flex justify-between text-[12px]">
               <div>{getGPUsed()}/{ getGovPowerFormatted() }</div>
-              <div>{percentageLeft}% left</div>
+              <div>{percentageLeft < 1 ? percentageLeft?.toFixed(2) : percentageLeft?.toFixed(0)}% left</div>
             </div>
             <div className="w-[234px] bg-gray-text rounded-full h-2">
               <div className="bg-purple-background h-2 rounded-full" style={{width: (100 - percentageLeft).toString()+"%" }}></div>
