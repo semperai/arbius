@@ -43,7 +43,7 @@ function Gauge({
       model_name: 'Mistral-large-2407',
       model_id: '0x9d04df3076afee4ab86ac2e30f103ecc9dd5bea9cb70af6881d74f638183e274',
       description: 'Text Generator',
-      emissions: '40%',
+      emissions: '0%',
       prompts: '40,304',
       icon: mistral_icon,
       model_bytes: "0x9d04df3076afee4ab86ac2e30f103ecc9dd5bea9cb70af6881d74f638183e274"
@@ -52,7 +52,7 @@ function Gauge({
       model_name: 'Nemotron-4-340b',
       model_id: '0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b',
       description: 'Text Generator',
-      emissions: '30%',
+      emissions: '0%',
       prompts: '38,994',
       icon: nemotron_icon,
       model_bytes: "0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b"
@@ -61,7 +61,7 @@ function Gauge({
       model_name: 'Llama-3.1-405b',
       model_id: '0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64',
       description: 'Text Generator',
-      emissions: '20%',
+      emissions: '0%',
       prompts: '32,945',
       icon: llama_icon,
       model_bytes: "0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64"
@@ -70,7 +70,7 @@ function Gauge({
       model_name: 'Llama-3.1-80b',
       model_id: '0xe6a0efde928efd1b948521b7517888363c4d5d5f1272dd6ba3170726a722afd1',
       description: 'Text Generator',
-      emissions: '10%',
+      emissions: '0%',
       prompts: '10,203',
       icon: llama_icon,
       model_bytes: "0xe6a0efde928efd1b948521b7517888363c4d5d5f1272dd6ba3170726a722afd1"
@@ -79,7 +79,7 @@ function Gauge({
       model_name: 'Deepseek-coder-v2',
       model_id: '0x83da7b4bbec9da6b1664342bae2db3c920d43e4aebe92f9d0e8e5d80492ad68c',
       description: 'Code Generator',
-      emissions: '5%',
+      emissions: '0%',
       prompts: '6049',
       icon: deepseek_icon,
       model_bytes: "0x83da7b4bbec9da6b1664342bae2db3c920d43e4aebe92f9d0e8e5d80492ad68c"
@@ -229,17 +229,24 @@ function Gauge({
 
     const f1 = async () => {
       try{
-        console.log("0")
         const web3 = await getWeb3()
-        console.log(web3, "1")
+
         const voterContract = new web3.eth.Contract(
           voter.abi,
           Config.v4_voterAddress
         );
-        console.log(Config.v4_voterAddress, voter.abi, "2")
+
         const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
-        console.log(_epochVoteEnd, "3")
         setEpochTimestamp(_epochVoteEnd * 1000)
+
+        const _modelData = JSON.parse(JSON.stringify(data));
+
+        for(let i=0; i<_modelData.length; i++){
+          let a = await voterContract.methods.getGaugeMultiplier(_modelData[i]?.model_id).call()
+          _modelData[i]["emissions"] = ((Number(a) / AIUS_wei) * 100).toFixed(1).toString()+"%";
+        }
+        setFilteredData(_modelData)
+
       }catch(e){
         console.log("F1 error", e)
       }
