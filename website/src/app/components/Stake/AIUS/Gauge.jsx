@@ -27,7 +27,12 @@ import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
 import { useAccount, useNetwork } from 'wagmi';
 import Timer from './Timer';
 import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
-
+import CircularProgressBar from './CircularProgressBar';
+import powered_by from '../../../assets/images/powered_by.png';
+import cross from '../../../assets/images/cross.png';
+import error_stake from '../../../assets/images/error_stake.png';
+import success_stake from '../../../assets/images/success_stake.png';
+import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 
 function Gauge({
   updateValue,
@@ -86,7 +91,6 @@ function Gauge({
     },
   ];
 
-  const [selectedModel, setSelectedModel] = useState(null);
   const [showPopUp, setShowPopUp] = useState(false);
   const [filteredData, setFilteredData] = useState(data);
   const [searchText, setSearchText] = useState('');
@@ -309,8 +313,10 @@ function Gauge({
         //const multi = await voterContract.methods.getGaugeMultiplier("0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b").call()
 
         // CALL THIS TO GET THE LAST VOTE MADE TO A STAKE
-        const lastVoted = await voterContract.methods.lastVoted(tokens[0]?.tokenID).call()
-        setLastUserVote(lastVoted)
+        if(tokens?.length){
+          const lastVoted = await voterContract.methods.lastVoted(tokens[tokens.length - 1]?.tokenID).call()
+          setLastUserVote(lastVoted)
+        }
 
         let _totalGovernancePower = 0;
         tokens.forEach((token) => {
@@ -346,9 +352,11 @@ function Gauge({
 
     const percentageUsed = 100 - percentageLeft;
     if( (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei) < 1){
-      return Number((powerUsed / AIUS_wei)?.toFixed(2)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2))
+      let res = Number((powerUsed / AIUS_wei)?.toFixed(2)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2))
+      return res.toFixed(2)
     }else{
-      return Number((powerUsed / AIUS_wei)?.toFixed(0)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0))
+      let res = Number((powerUsed / AIUS_wei)?.toFixed(0)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0))
+      return res.toFixed(0)
     }
   }
 
@@ -367,58 +375,75 @@ function Gauge({
   }
 
   const handleVoting = async() => {
-    let allTokenIDs = []
-    for(let i=0; i<allTokens.length; i++){
-      if( (Number(allTokens[i].locked__end) * 1000) > Date.now()){
-        allTokenIDs.push(allTokens[i].tokenID)
+    try{
+      setShowPopUp("2")
+      let allTokenIDs = []
+      for(let i=0; i<allTokens.length; i++){
+        if( (Number(allTokens[i].locked__end) * 1000) > Date.now()){
+          allTokenIDs.push(allTokens[i].tokenID)
+        }
       }
-    }
-    if(newTokenIDs.length > 0){
-      allTokenIDs = newTokenIDs;
-    }
-
-    let models = [];
-    let weights = [];
-
-    Object.entries(votingPercentage).map(([key, value], index) => {
-      if(value?.percentage > 0){
-        models.push(value?.model_bytes)
-        weights.push(value?.percentage)
+      if(newTokenIDs.length > 0){
+        allTokenIDs = newTokenIDs;
       }
-    })
 
-    const modelArrays = Array(allTokenIDs.length).fill().map(() => [...models])
-    const weightArrays = Array(allTokenIDs.length).fill().map(() => [...weights])
+      let models = [];
+      let weights = [];
 
-    const web3 = new Web3(window.ethereum);
-    const voterContract = new web3.eth.Contract(
-      voter.abi,
-      Config.v4_voterAddress
-    );
-    console.log(voterContract)
-    console.log(allTokenIDs, modelArrays, weightArrays)
+      Object.entries(votingPercentage).map(([key, value], index) => {
+        if(value?.percentage > 0){
+          models.push(value?.model_bytes)
+          weights.push(value?.percentage)
+        }
+      })
 
-    await voterContract.methods.voteMultiple(
-      allTokenIDs,
-      modelArrays,
-      weightArrays
-    ).send({from: address})
-    .then((receipt) => {
+      const modelArrays = Array(allTokenIDs.length).fill().map(() => [...models])
+      const weightArrays = Array(allTokenIDs.length).fill().map(() => [...weights])
+
+      const web3 = new Web3(window.ethereum);
+      const voterContract = new web3.eth.Contract(
+        voter.abi,
+        Config.v4_voterAddress
+      );
+      console.log(allTokenIDs, modelArrays, weightArrays)
+
+      await voterContract.methods.voteMultiple(
+        allTokenIDs,
+        modelArrays,
+        weightArrays
+      ).send({from: address})
+      .then((receipt) => {
+        setShowPopUp('Success');
+        setShowConfirmVote(false)
+        const initialModelPercentages = data.reduce((accumulator, item) => {
+          accumulator[item.model_name] = {
+            "percentage": 0,
+            "error": null
+          };
+          return accumulator;
+        }, {});
+        setVotingPercentage(initialModelPercentages);
+        setPercentageLeft(0);
+        setUpdateValue((prevValue) => prevValue + 1);
+      })
+      .catch((error) => {
+        console.log(error)
+        setShowConfirmVote(false)
+        setShowPopUp('Error');
+        const initialModelPercentages = data.reduce((accumulator, item) => {
+          accumulator[item.model_name] = {
+            "percentage": 0,
+            "error": null
+          };
+          return accumulator;
+        }, {});
+        setVotingPercentage(initialModelPercentages);
+        setPercentageLeft(100);
+      })
+    }catch(err){
+      console.log(err)
       setShowConfirmVote(false)
-      const initialModelPercentages = data.reduce((accumulator, item) => {
-        accumulator[item.model_name] = {
-          "percentage": 0,
-          "error": null
-        };
-        return accumulator;
-      }, {});
-      setVotingPercentage(initialModelPercentages);
-      setPercentageLeft(0);
-      setUpdateValue((prevValue) => prevValue + 1);
-    })
-    .catch((error) => {
-      console.log(error, "ERROR WHILE VOTING")
-      setShowConfirmVote(false)
+      setShowPopUp('Error');
       const initialModelPercentages = data.reduce((accumulator, item) => {
         accumulator[item.model_name] = {
           "percentage": 0,
@@ -428,7 +453,7 @@ function Gauge({
       }, {});
       setVotingPercentage(initialModelPercentages);
       setPercentageLeft(100);
-    });
+    }
   }
 
   const handleFocus = (e) => {
@@ -457,6 +482,26 @@ function Gauge({
 
   return (
     <div className='mx-auto w-mobile-section-width max-w-center-width py-10 text-black-text lg:w-section-width lg:py-16'>
+      {showPopUp !== false && (
+        <>
+          <PopUp setShowPopUp={setShowPopUp}>
+            {showPopUp === 'Success' && (
+              <SuccessChildren setShowPopUp={setShowPopUp} />
+            )}
+            {showPopUp === 'Error' && (
+              <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
+            )}
+            {showPopUp === '2' && (
+              <StepTwoChildren
+                setShowPopUp={setShowPopUp}
+                isError={false}
+                noChildren={true}
+                repeat={false}
+              />
+            )}
+          </PopUp>
+        </>
+      )}
       {
         showConfirmVote ?
           <div className="absolute top-0 left-0 w-[100vw] h-[100vh] bg-[#FFFFFFCC] z-[10]">
@@ -501,126 +546,6 @@ function Gauge({
           </div>
         : null
       }
-      {showPopUp && selectedModel !== null && (
-        <PopUp setShowPopUp={setShowPopUp}>
-          <>
-            <div className='my-2 flex items-center justify-between'>
-              <div className='flex items-center justify-start gap-3'>
-                <div className='rounded-full bg-purple-background p-3'>
-                  <Image
-                    src={selectedModel?.icon}
-                    className='h-[14px] w-[14px]'
-                  />
-                </div>
-                <h1>{selectedModel?.model_name}</h1>
-              </div>
-              <div
-                className='cursor-pointer'
-                onClick={() => setShowPopUp(false)}
-              >
-                <Image src={cross_icon} className='h-[10px] w-[10px]' />
-              </div>
-            </div>
-
-            <p className='mb-6 text-xs opacity-60'>
-              {selectedModel?.description}
-            </p>
-
-            <div className='my-2 flex items-center justify-start gap-10'>
-              <div>
-                <div className='flex items-center justify-start gap-1'>
-                  <Image src={thunder} className='h-[20px] w-[20px]' />
-                  <h3 className='text-xs opacity-50'>Emissions</h3>
-                </div>
-                {/* <h1 className='mt-1'>{selectedModel?.emissions}</h1> */}
-                <Image
-                  src={skeleton}
-                  className='mt-1 h-[20px] w-[100%] rounded-lg'
-                />
-              </div>
-              <div>
-                <div className='flex items-center justify-start gap-1'>
-                  <Image src={governance} className='h-[16px] w-[16px]' />
-                  <h3 className='text-xs opacity-50'>
-                    Alloted Governance Power
-                  </h3>
-                </div>
-                {/* <h1 className='mt-1'>{0}</h1> */}
-                <Image
-                  src={skeleton}
-                  className='mt-1 h-[20px] w-[100%] rounded-lg'
-                />
-              </div>
-            </div>
-            <div className='my-4 flex items-center justify-start gap-10'>
-              <div>
-                <div className='flex items-center justify-start gap-1'>
-                  <Image src={prompts} className='h-[20px] w-[20px]' />
-                  <h3 className='text-xs opacity-50'>
-                    Total Prompts Requested
-                  </h3>
-                </div>
-                {/* <h1 className='mt-1'>{selectedModel?.prompts}</h1> */}
-                <Image
-                  src={skeleton}
-                  className='mt-1 h-[20px] w-[100%] rounded-lg'
-                />
-              </div>
-            </div>
-
-            <div className='my-1 mt-6 flex items-center justify-between'>
-              <h1>Add veAIUS</h1>
-              <p className='text-xs'>Available Governance Power 0</p>
-            </div>
-
-            <div className='my-4'>
-              <div className='flex items-center rounded-3xl border border-[#2F2F2F]'>
-                <div className='box-border flex items-center justify-center gap-2 rounded-l-3xl bg-stake-input p-1 px-2'>
-                  <div className='flex h-[30px] w-[30px] items-center justify-center rounded-[50%] bg-white-background'>
-                    <Image
-                      src={arbius_logo_without_name}
-                      width={15}
-                      alt='arbius'
-                    />
-                  </div>
-                  <p className='pr- lato-bold text-[12px] text-aius'>veAIUS</p>
-                </div>
-                <div className='w-[94%]'>
-                  <input
-                    className='lato-bold w-[100%] rounded-r-3xl border-0 p-1 px-2 text-[15px] outline-none focus:ring-0'
-                    type='number'
-                    placeholder='0.0'
-                  />
-                </div>
-              </div>
-            </div>
-            <div className='flex justify-center'>
-              <div className='w-full rounded-[10px] border-[1.6px] border-[#DB000033] border-opacity-20 bg-[#FF555508] bg-opacity-5 p-3'>
-                <div className='flex items-center justify-between gap-2'>
-                  <Image src={info_red} className='h-[16px] w-[16px]' />
-                  <h1 className='text-center text-[16px] text-[#DB0000]'>
-                    Voting is currently closed!
-                  </h1>
-                  <div></div>
-                </div>
-              </div>
-            </div>
-            {/* <div className='flex justify-end'>
-                                <button
-                                    type="button"
-                                    className="relative group bg-black-background py-[6px] px-8 lg:px-8 rounded-full flex items-center gap-3 "
-                                >
-                                    <div className="absolute w-[100%] h-[100%] left-0 z-0 py-2 px-5 rounded-full bg-buy-hover opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                    <div className="lato-bold  relative z-10 text-original-white mb-[3.3px] lg:mb-0 text-sm lg:text-[90%]">
-                                        Vote
-                                    </div>
-
-                                </button>
-
-                            </div> */}
-          </>
-        </PopUp>
-      )}
 
       <div className='hidden w-full items-center justify-between lg:flex'>
         <div className='flex h-auto w-full items-center justify-start gap-4'>
@@ -810,3 +735,120 @@ function Gauge({
 }
 
 export default Gauge;
+
+
+const StepTwoChildren = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat = true,
+}) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={0}
+              valueEnd={100}
+              duration={4}
+              text={'2/2'}
+              setShowPopUp={setShowPopUp}
+              step={2}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={true}
+            />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Pending transaction confirmation!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Confirm this transaction in your wallet.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
+
+const SuccessChildren = ({ setShowPopUp }) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='relative flex h-40 w-40 items-center justify-center rounded-full bg-white-background'>
+            <Image src={success_stake} className='w-12' alt='error_stake' />
+          </div>
+        </div>
+
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Congrats!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Transaction Completed.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
+
+const ErrorPopUpChildren = ({ setShowPopUp }) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='relative flex h-40 w-40 items-center justify-center rounded-full bg-white-background'>
+            <Image src={error_stake} className='w-40' alt='error_stake' />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Error!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Please try again.
+        </h1>
+
+        <div className='flex items-center justify-center'>
+          <button
+            onClick={() => setShowPopUp(false)}
+            type='button'
+            className='group relative mt-2 flex items-center justify-center gap-3 rounded-full bg-black-background px-6 py-1 py-2 lg:px-10'
+          >
+            <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+            <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
+              Continue
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
