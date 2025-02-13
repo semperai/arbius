@@ -163,25 +163,32 @@ function Gauge({
     }
   };
 
+  const getTimestamp7DaysEarlier = (timestamp) => {
+    const date = new Date(timestamp);
+    const sevenDaysEarlier = date.getTime() - 7 * 24 * 60 * 60 * 1000;
+    return sevenDaysEarlier / 1000;
+  };
 
   useEffect(() => {
     if(Number(lastUserVote) > 0){
       let newGovPower = 0;
       let _newTokenIDs = [];
       // proceed with calculations and setting up things
-      if(Number(lastUserVote) < epochTimestamp){
+      if(Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){ // check if last user vote was this week or last week
         for(let i=0; i<allTokens.length; i++){
           console.log(Number(allTokens[i]?.stakedOn), lastUserVote, Number(allTokens[i]?.stakedOn) > lastUserVote)
           if(Number(allTokens[i]?.stakedOn) > lastUserVote){ // check for a new stake
-            newGovPower = newGovPower + allTokens[i]?.balanceOfNFT
-            _newTokenIDs.push(allTokens[i]?.tokenID)
+            if( (Number(allTokens[i].locked__end) * 1000) > Date.now()){
+              newGovPower = newGovPower + allTokens[i]?.balanceOfNFT
+              _newTokenIDs.push(allTokens[i]?.tokenID)
+            }
           }
         }
       }
       setNewGovernancePower(newGovPower);
       setNewTokensIDs(_newTokenIDs);
     }
-  },[lastUserVote, updateValue])
+  },[lastUserVote])
 
 
   const getWeb3 = async() => {
@@ -284,8 +291,9 @@ function Gauge({
 
         let _totalGovernancePower = 0;
         tokens.forEach((token) => {
-          console.log(tokens, "TOKENS")
-          _totalGovernancePower = _totalGovernancePower + Number(token?.balanceOfNFT);
+          if( (Number(token?.locked__end) * 1000) > Date.now()){
+            _totalGovernancePower = _totalGovernancePower + Number(token?.balanceOfNFT);
+          }
         });
 
         setTotalGovernancePower(_totalGovernancePower)
@@ -336,7 +344,9 @@ function Gauge({
   const handleVoting = async() => {
     let allTokenIDs = []
     for(let i=0; i<allTokens.length; i++){
-      allTokenIDs.push(allTokens[i].tokenID)
+      if( (Number(allTokens[i].locked__end) * 1000) > Date.now()){
+        allTokenIDs.push(allTokens[i].tokenID)
+      }
     }
     if(newTokenIDs.length > 0){
       allTokenIDs = newTokenIDs;
@@ -402,13 +412,23 @@ function Gauge({
     }
   };
 
-  const handleBlur = (e, modelName, modelBytes) => {
+  const handleBlur = (e) => {
     if (e.target.value === "") {
       e.target.value = "0"; // Reset to "0" if the input is empty
     }
-    updateModelPercentage(modelName, modelBytes, e.target.value); // Update the parent state
   };
 
+  const userCanVote = () => {
+    if(Number(lastUserVote) > 0 && Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){
+      if(newGovernancePower > 0){
+        return true;
+      }else{
+        return false;
+      }
+    }else{
+      return true;
+    }
+  }
 
   return (
     <div className='mx-auto w-mobile-section-width max-w-center-width py-10 text-black-text lg:w-section-width lg:py-16'>
@@ -621,11 +641,17 @@ function Gauge({
           </div>
         </div>
         <div className="absolute right-0">
-          <div onClick={percentageLeft === 0 ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group hidden xl:block`}>
+          <div onClick={percentageLeft === 0 && userCanVote() ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 && userCanVote() ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group hidden xl:block`}>
             Vote
             <div className="absolute left-[-10px] top-[-130px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 transition-all duration-300">
               <Image src={lightningbulb} alt="" />
-              <div className="text-[12px] text-aius-tabs-gray">100% of user owned governance power must be contributed before proceeding.</div>
+              <div className="text-[12px] text-aius-tabs-gray">
+                {
+                  userCanVote() ?
+                    "100% of user owned governance power must be contributed before proceeding."
+                  : "You have already voted, create a new stake to vote again with your new balance."
+                }
+              </div>
               <div className="absolute left-[62px] bottom-[-5px] w-0 h-0 border-l-[5px] border-l-transparent border-b-[8px] border-[#FFF] border-r-[5px] border-r-transparent rotate-[60deg]"></div>
             </div>
           </div>
