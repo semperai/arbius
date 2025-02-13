@@ -7,7 +7,7 @@ import down_arrow from '../../assets/images/down_arrow.png';
 //import amica_l from "../../assets/images/amica_l.png";
 //import kasumi_l from "../../assets/images/kasumi_l.png";
 import arbius from '../../assets/images/arbius_logo_without_name.png';
-import gysr from '../../assets/images/gysr_logo_without_name.png';
+//import gysr from '../../assets/images/gysr_logo_without_name.png';
 import kandinsky from '../../assets/images/kandinsky.png';
 
 import Image from 'next/image';
@@ -158,8 +158,8 @@ export default function Header() {
               </div>
               <div className='absolute left-[-18px] bg-[black] p-[15px_50px] opacity-0'></div>
               <AnimateHeight height={stakingOpen ? 'auto' : 0}>
-                <div className='lg:staking lg:hidden lg:translate-x-[-30%] lg:translate-y-[25px] lg:group-hover:flex'>
-                  <Link
+                <div className='lg:staking lg:hidden lg:translate-x-[-10%] lg:translate-y-[25px] lg:group-hover:flex'>
+                  {/*<Link
                     href={
                       'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum'
                     }
@@ -181,7 +181,7 @@ export default function Header() {
                       <div className='lato-bold'>GYSR</div>
                       <div>Provide liquidity, earn AIUS rewards.</div>
                     </div>
-                  </Link>
+                  </Link>*/}
                   <Link
                     href={'/aius'}
                     onClick={() => {
