@@ -320,7 +320,7 @@ function StakeCard({
             <h2 className='text-[12px] font-semibold text-[#8D8D8D]'>
               Rewards
             </h2>
-            <h2 className={"text-[12px] font-semibold"} /*onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}*/>
+            <h2 className={"text-[12px] font-semibold mt-[4px]"} /*onMouseEnter={()=>handleRealtimeClaimableRewards(true, initialBalance)} onMouseLeave={()=>handleRealtimeClaimableRewards(false, initialBalance)}*/>
               { earned ?
                 (Number(earned) / AIUS_wei)?.toFixed(11).toString()
                 : "0.00"
@@ -328,7 +328,7 @@ function StakeCard({
               <span className='text-[9px] font-medium'>AIUS</span>
             </h2>
           </div>
-          <div className='mt-[4px]' /* Extra margin : because rewards has less font size, so to maintain the gap there is mt added */> 
+          <div className='' /* Extra margin : because rewards has less font size, so to maintain the gap there is mt added */> 
             <div>
               <h2 className='text-[12px] font-semibold text-[#8D8D8D]'>
                 End Date
