@@ -153,7 +153,7 @@ function Gauge({
         if(newGovernancePower){
           let percentageUsed = ((totalGovernancePower - newGovernancePower)/totalGovernancePower) * 100;
           let percentageOfLeftGovPower = (newGovernancePower / totalGovernancePower)*100
-          console.log(percentageUsed, percentageOfLeftGovPower, "error")
+
           setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
         }else{
           setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
@@ -163,7 +163,7 @@ function Gauge({
       if(newGovernancePower){
         let percentageUsed = ((totalGovernancePower - newGovernancePower)/totalGovernancePower) * 100;
         let percentageOfLeftGovPower = (newGovernancePower / totalGovernancePower)*100
-        console.log(percentageUsed, percentageOfLeftGovPower, "NO ERROR")
+
         setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
       }else{
         setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
@@ -182,7 +182,6 @@ function Gauge({
 
   const calculateNewPercentageLeft = (newGovPower) => {
     const _percentage = ((totalGovernancePower - newGovPower)/totalGovernancePower) * 100
-    console.log(_percentage, "PPTAGE")
     setPercentageLeft(100 - _percentage);
   }
 
@@ -199,10 +198,9 @@ function Gauge({
       // proceed with calculations and setting up things
       if(Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){ // check if last user vote was this week or last week
         for(let i=0; i<allTokens.length; i++){
-          console.log(Number(allTokens[i]?.stakedOn), lastUserVote, Number(allTokens[i]?.stakedOn) > lastUserVote)
           if(Number(allTokens[i]?.stakedOn) > lastUserVote){ // check for a new stake
             if( (Number(allTokens[i].locked__end) * 1000) > Date.now()){
-              newGovPower = newGovPower + allTokens[i]?.balanceOfNFT
+              newGovPower = newGovPower + Number(allTokens[i]?.balanceOfNFT)
               _newTokenIDs.push(allTokens[i]?.tokenID)
             }
           }
@@ -212,10 +210,10 @@ function Gauge({
       setNewTokensIDs(_newTokenIDs);
 
       if(Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){
-        calculateNewPercentageLeft(newGovPower);
+        //calculateNewPercentageLeft(newGovPower);
       }
     }
-  },[lastUserVote])
+  },[lastUserVote, updateValue])
 
 
   const getWeb3 = async() => {
@@ -252,6 +250,7 @@ function Gauge({
 
 
   useEffect(() => {
+    console.log("USE EFFECT MAIN")
     const initialModelPercentages = data.reduce((accumulator, item) => {
       accumulator[item.model_name] = {
         "percentage": 0,
@@ -309,25 +308,22 @@ function Gauge({
         let tokens = await getTokenIDs(address, _escrowBalanceData);
         setAllTokens(tokens);
 
-        // CALL THIS WITH THE LIST OF MODELS
-        //const multi = await voterContract.methods.getGaugeMultiplier("0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b").call()
-
-        // CALL THIS TO GET THE LAST VOTE MADE TO A STAKE
-        if(tokens?.length){
-          const lastVoted = await voterContract.methods.lastVoted(tokens[tokens.length - 1]?.tokenID).call()
-          setLastUserVote(lastVoted)
-        }
-
         let _totalGovernancePower = 0;
-        tokens.forEach((token) => {
-          if( (Number(token?.locked__end) * 1000) > Date.now()){
+        let _lastVoted = 0;
+
+        for (const token of tokens) {
+          if ((Number(token?.locked__end) * 1000) > Date.now()) {
             _totalGovernancePower = _totalGovernancePower + Number(token?.balanceOfNFT);
           }
-        });
 
+          const lastVoted = await voterContract.methods.lastVoted(token?.tokenID).call();
+          if (lastVoted > 0) {
+            _lastVoted = lastVoted;
+          }
+        }
+
+        setLastUserVote(_lastVoted);
         setTotalGovernancePower(_totalGovernancePower)
-
-        console.log(_totalGovernancePower, "TGP")
       }catch(err){
         console.log("Error at gauge fetch:", err)
       }
@@ -349,10 +345,11 @@ function Gauge({
       _totalGovernancePower = newGovernancePower;
       powerUsed = totalGovernancePower - newGovernancePower;
     }
-
+    console.log(powerUsed, "PU")
     const percentageUsed = 100 - percentageLeft;
     if( (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei) < 1){
       let res = Number((powerUsed / AIUS_wei)?.toFixed(2)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2))
+      console.log(powerUsed / AIUS_wei, ((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)
       return res.toFixed(2)
     }else{
       let res = Number((powerUsed / AIUS_wei)?.toFixed(0)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0))
