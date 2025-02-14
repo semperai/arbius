@@ -601,20 +601,17 @@ function Gauge({
         </div>
       </div>
       <div className='w-full overflow-x-auto xl:overflow-x-visible'>
-        <div className='gauge-table-headings mb-4 mt-2 flex min-w-[1000px] items-center justify-between gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-semibold lg:px-10 lg:pb-6 lg:pt-6'>
+        <div className='text-[13px] md:text-[16px] gauge-table-headings mb-4 mt-2 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-2 md:gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-semibold lg:px-10 lg:pb-6 lg:pt-6'>
           <div className='w-[25%]'>
             <h1>Model Name</h1>
           </div>
           <div className='w-[20%]'>
             <h1>Description</h1>
           </div>
-          <div className='w-[20%]'>
+          <div className='w-[15%]'>
             <h1>Emissions</h1>
           </div>
-          <div className='hidden xl:block w-[20%]'>
-            <h1>Total Prompts Requested</h1>
-          </div>
-          <div className='xl:hidden w-[20%]'>
+          <div className='w-[20%]'>
             <h1>Repository</h1>
           </div>
           <div className='hidden xl:block w-[15%]'></div>
@@ -623,7 +620,7 @@ function Gauge({
         {filteredData?.map((item, key) => {
           return (
             <div
-              className={`gauge-table-item relative my-3 flex min-w-[1000px] items-center justify-between gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false && votingPercentage?.[item?.model_name]?.percentage > 0 ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 py-5 font-semibold lg:px-10`}
+              className={`gauge-table-item relative my-3 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-2 md:gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false && votingPercentage?.[item?.model_name]?.percentage > 0 ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 py-5 font-semibold lg:px-10`}
               key={key}
             >
               <div
@@ -639,7 +636,7 @@ function Gauge({
                 <Image src={polygon} className='-ml-2' />
               </div>
               <div className='flex w-[25%] items-center justify-start gap-2'>
-                <div className='flex h-[28px] w-[28px] items-center justify-center rounded-full bg-purple-background'>
+                <div className='flex h-[20px] w-[20px] md:h-[28px] md:w-[28px] items-center justify-center rounded-full bg-purple-background'>
                   <div className='relative flex h-[16px] w-[16px] items-center justify-center'>
                     <Image
                       src={item?.icon}
@@ -648,7 +645,7 @@ function Gauge({
                     />
                   </div>
                 </div>
-                <h1 className='text-[0.85rem] 2xl:text-base'>
+                <h1 className='text-[12px] md:text-[0.85rem] 2xl:text-base'>
                   {item?.model_name}
                 </h1>
                 <div
@@ -664,30 +661,23 @@ function Gauge({
                 </div>
               </div>
               <div className='w-[20%]'>
-                <h1 className='text-[0.85rem] 2xl:text-base'>
+                <h1 className='text-[12px] md:text-[0.85rem] 2xl:text-base'>
                   {item?.description}
                 </h1>
+              </div>
+              <div className='w-[15%]'>
+                {/*<Image
+                  src={skeleton}
+                  className='h-[24px] w-[100%] rounded-lg'
+                />*/}
+                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
               </div>
               <div className='w-[20%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
-                <h1>{item?.emissions}</h1>
-              </div>
-              <div className='hidden xl:block w-[20%]'>
-                {/*<Image
-                  src={skeleton}
-                  className='h-[24px] w-[100%] rounded-lg'
-                />*/}
-                <h1>{item?.prompts}</h1> 
-              </div>
-              <div className='xl:hidden w-[20%]'>
-                {/*<Image
-                  src={skeleton}
-                  className='h-[24px] w-[100%] rounded-lg'
-                />*/}
-                <h1 className="flex items-center gap-1 border-b-[1px] border-[#000] w-fit">
+                <h1 className="text-[14px] md:text-[16px] flex items-center gap-1 border-b-[1px] border-[#000] w-fit">
                   <Image className="mt-[2px] h-[15px] w-[15px] brightness-0" src={github} alt="" /><div>github</div>
                 </h1> 
               </div>
