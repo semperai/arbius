@@ -13,6 +13,7 @@ import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_na
 import clock_icon from '../../../assets/images/clock_icon.png';
 import skeleton from '../../../assets/images/skeleton.png';
 import prompts from '../../../assets/images/prompts.png';
+import github from '../../../assets/images/github.png';
 import thunder from '../../../assets/images/thunder.png';
 import governance from '../../../assets/images/governance.png';
 import info_red from '../../../assets/images/info_red.png';
@@ -544,24 +545,19 @@ function Gauge({
         : null
       }
 
-      <div className='hidden w-full items-center justify-between lg:flex'>
-        <div className='flex h-auto w-full items-center justify-start gap-4'>
+      <div className='w-full items-center justify-between lg:flex'>
+        <div className='flex flex-col xl:flex-row h-auto w-full xl:items-center justify-start mb-3 xl:mb-0 xl:gap-4'>
           <h1 className='lato-bold mb-2 text-[40px] text-purple-text'>Gauge</h1>
-          <div className='flex items-center justify-end gap-2 text-end text-[14px] font-semibold text-purple-text'>
-            <Image src={clock_icon} className='h-4 w-4' />
-            {/* <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1> */}
+          <div className='flex items-center xl:justify-end gap-1 md:gap-2 text-end text-[14px] font-semibold text-purple-text'>
+            <Image src={clock_icon} className='h-3 w-3 md:h-4 md:w-4' />
 
             <div className='flex items-center justify-start gap-2'>
-              <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting ends in <Timer epochTimestamp={epochTimestamp} /></h1>
-              {/*<Image
-                src={skeleton}
-                className='h-[20px] w-[100px] rounded-lg opacity-70 contrast-[90%] md:w-[80px] xl:w-[140px]'
-              />*/}
+              <h1 className='text-[11px] xl:text-[12px] 2xl:text-[16px]'>Voting ends in <Timer epochTimestamp={epochTimestamp} /></h1>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex gap-2 items-center relative">
+      <div className="flex gap-2 xl:items-center relative flex-col-reverse xl:flex-row">
         <div className='stake-box-shadow flex h-auto items-center justify-between rounded-md bg-white-background px-2 pr-3'>
           <input
             placeholder='Search Model name or ID'
@@ -574,23 +570,23 @@ function Gauge({
           <Image src={search_icon} className='h-4 w-4' />
         </div>
         <div className="flex gap-2 text-purple-text border-[1px] border-purple-text p-1 rounded-[10px]">
-          <div className="flex items-center gap-2 p-2 bg-white-background rounded-md">
-            <Image src={lightning} className="h-[15px] w-auto mt-[2px]" alt="" /> Total Governance Power: { getGovPowerFormatted() }
+          <div className="flex items-center gap-1 md:gap-2 p-2 bg-white-background rounded-md basis-[50%] xl:basis-[unset] text-[11px] md:text-[16px]">
+            <Image src={lightning} className="h-[11px] md:h-[15px] w-auto mt-[2px]" alt="" /> Total Governance Power: { getGovPowerFormatted() }
           </div>
-          <div className="flex flex-col gap-1 p-2 bg-white-background rounded-md">
-            <div className="flex justify-between text-[12px]">
+          <div className="flex flex-col gap-1 p-2 bg-white-background rounded-md basis-[50%] xl:basis-[unset]">
+            <div className="flex justify-between text-[11px] md:text-[12px]">
               <div>{getGPUsed()}/{ getGovPowerFormatted() }</div>
               <div>{percentageLeft < 1 ? percentageLeft?.toFixed(2) : percentageLeft?.toFixed(0)}% left</div>
             </div>
-            <div className="w-[234px] bg-gray-text rounded-full h-2">
+            <div className="w-full xl:w-[234px] bg-gray-text rounded-full h-2">
               <div className="bg-purple-background h-2 rounded-full" style={{width: (100 - percentageLeft).toString()+"%" }}></div>
             </div>
           </div>
         </div>
-        <div className="absolute right-0">
-          <div onClick={percentageLeft === 0 && userCanVote() ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 && userCanVote() ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group hidden xl:block`}>
+        <div className="absolute right-0 top-[-55px] xl:top-[unset]">
+          <div onClick={percentageLeft === 0 && userCanVote() ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 && userCanVote() ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group xl:block`}>
             Vote
-            <div className="absolute left-[-10px] top-[-130px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <div className="absolute left-[-10px] top-[-130px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300">
               <Image src={lightningbulb} alt="" />
               <div className="text-[12px] text-aius-tabs-gray">
                 {
@@ -604,31 +600,6 @@ function Gauge({
           </div>
         </div>
       </div>
-      <div className='mb-2 flex flex-col items-start justify-between font-semibold um:mb-0 um:flex-row um:items-center lg:hidden'>
-        <h1 className='lato-bold mb-2 text-[40px] text-purple-text'>Gauge</h1>
-        <div className='flex items-center justify-end gap-2 text-end text-[.85rem] text-purple-text'>
-          <Image src={clock_icon} className='h-4 w-4' />
-          {/* <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1> */}
-          <div className='flex items-center justify-start gap-2'>
-            <h1 className=''>Voting ends in <Timer epochTimestamp={epochTimestamp} /></h1>
-            {/*<Image
-              src={skeleton}
-              className='h-[20px] w-[100px] rounded-lg opacity-70 contrast-[90%] md:w-[80px] xl:w-[140px]'
-            />*/}
-          </div>
-        </div>
-      </div>
-      <div className='stake-box-shadow flex h-auto items-center justify-between rounded-md bg-white-background px-2 pr-3 lg:hidden'>
-        <input
-          placeholder='Search Model name or ID'
-          className='placeholder:lato-regular h-full w-full border-0 bg-transparent p-2 px-3 py-3 focus:outline-none'
-          value={searchText}
-          onChange={(e) => {
-            handleSearch(e);
-          }}
-        />
-        <Image src={search_icon} className='h-4 w-4' />
-      </div>
       <div className='w-full overflow-x-auto xl:overflow-x-visible'>
         <div className='gauge-table-headings mb-4 mt-2 flex min-w-[1000px] items-center justify-between gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-semibold lg:px-10 lg:pb-6 lg:pt-6'>
           <div className='w-[25%]'>
@@ -640,10 +611,13 @@ function Gauge({
           <div className='w-[20%]'>
             <h1>Emissions</h1>
           </div>
-          <div className='w-[20%]'>
+          <div className='hidden xl:block w-[20%]'>
             <h1>Total Prompts Requested</h1>
           </div>
-          <div className='w-[15%]'></div>
+          <div className='xl:hidden w-[20%]'>
+            <h1>Repository</h1>
+          </div>
+          <div className='hidden xl:block w-[15%]'></div>
         </div>
 
         {filteredData?.map((item, key) => {
@@ -701,14 +675,23 @@ function Gauge({
                 />*/}
                 <h1>{item?.emissions}</h1>
               </div>
-              <div className='w-[20%]'>
+              <div className='hidden xl:block w-[20%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
                 <h1>{item?.prompts}</h1> 
               </div>
-              <div className='flex flex-col justify-end w-[15%]'>
+              <div className='xl:hidden w-[20%]'>
+                {/*<Image
+                  src={skeleton}
+                  className='h-[24px] w-[100%] rounded-lg'
+                />*/}
+                <h1 className="flex items-center gap-1 border-b-[1px] border-[#000] w-fit">
+                  <Image className="mt-[2px] h-[15px] w-[15px] brightness-0" src={github} alt="" /><div>github</div>
+                </h1> 
+              </div>
+              <div className='hidden xl:flex flex-col justify-end w-[15%]'>
                 <div className={`flex border-[1px] ${ votingPercentage?.[item?.model_name]?.error ? "border-[#C71518]" : "border-purple-text/20"} rounded-[25px]`}>
                   <div className="rounded-l-[20px] p-[6px_10px] bg-purple-text/10">%</div>
                   <input

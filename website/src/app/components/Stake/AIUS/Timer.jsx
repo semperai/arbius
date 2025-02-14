@@ -29,7 +29,8 @@ const Timer = ({ epochTimestamp }) => {
 
   return (
       <>
-        {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+      <span className="hidden md:inline">{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</span>
+      <span className="inline md:hidden">{timeLeft.days}:{timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</span>
       </>
   );
 };
