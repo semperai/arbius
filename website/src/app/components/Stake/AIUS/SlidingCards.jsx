@@ -923,7 +923,7 @@ function SlidingCards({
     dots: false,
     infinite: false,
     speed: 500,
-    slidesToShow: tokenIDs?.length > 2 ? (windowWidth > 1800 ? 2.8 : 2.3) : 2,
+    slidesToShow: tokenIDs?.length > 2 ? (windowWidth > 1800 ? 2.3 : 2.1) : 2,
     slidesToScroll: 1,
     nextArrow: tokenIDs?.length > 2 ? <NextBtn /> : null,
     prevArrow: tokenIDs?.length > 2 ? <PrevBtn /> : null,
