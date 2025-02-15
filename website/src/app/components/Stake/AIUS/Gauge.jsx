@@ -143,19 +143,30 @@ function Gauge({
       const _sum = sum;
       sum = sum + percentage;
       if( sum > 100 ){
-        setVotingPercentage((prevState) => ({
-          ...prevState,
-          [modelName]: {
-            "percentage": percentage,
-            "error": "You only have "+ Math.min(100, Math.abs(100 - _sum)) +"% left"
-          },
-        }));
+        if(!newGovernancePower){
+          setVotingPercentage((prevState) => ({
+            ...prevState,
+            [modelName]: {
+              "percentage": percentage,
+              "error": "You only have "+ Math.min(100, Math.abs(100 - _sum)) +"% left"
+            },
+          }));
+        }
 
         if(newGovernancePower){
           let percentageUsed = ((totalGovernancePower - newGovernancePower)/totalGovernancePower) * 100;
-          let percentageOfLeftGovPower = (newGovernancePower / totalGovernancePower)*100
+          let inputPercentageInValue = (_sum / 100) * newGovernancePower;
+          let percentageOfInput = (inputPercentageInValue / totalGovernancePower) * 100
 
-          setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
+          setPercentageLeft(Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)))
+
+          setVotingPercentage((prevState) => ({
+            ...prevState,
+            [modelName]: {
+              "percentage": percentage,
+              "error": "You only have "+ Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)).toFixed(0) +"% left"
+            },
+          }));
         }else{
           setPercentageLeft(Math.min(100, Math.abs(100 - _sum)))
         }
@@ -163,9 +174,10 @@ function Gauge({
       }
       if(newGovernancePower){
         let percentageUsed = ((totalGovernancePower - newGovernancePower)/totalGovernancePower) * 100;
-        let percentageOfLeftGovPower = (newGovernancePower / totalGovernancePower)*100
+        let inputPercentageInValue = (sum / 100) * newGovernancePower;
+        let percentageOfInput = (inputPercentageInValue / totalGovernancePower) * 100
 
-        setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
+        setPercentageLeft(Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)))
       }else{
         setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
       }
@@ -211,7 +223,7 @@ function Gauge({
       setNewTokensIDs(_newTokenIDs);
 
       if(Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){
-        //calculateNewPercentageLeft(newGovPower);
+        calculateNewPercentageLeft(newGovPower);
       }
     }
   },[lastUserVote, updateValue])
@@ -251,7 +263,6 @@ function Gauge({
 
 
   useEffect(() => {
-    console.log("USE EFFECT MAIN")
     const initialModelPercentages = data.reduce((accumulator, item) => {
       accumulator[item.model_name] = {
         "percentage": 0,
@@ -340,20 +351,13 @@ function Gauge({
 
   const getGPUsed = () => {
     let _totalGovernancePower = totalGovernancePower;
-    let powerUsed = 0;
-
-    if(newGovernancePower > 0){
-      _totalGovernancePower = newGovernancePower;
-      powerUsed = totalGovernancePower - newGovernancePower;
-    }
-    console.log(powerUsed, "PU")
     const percentageUsed = 100 - percentageLeft;
+
     if( (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei) < 1){
-      let res = Number((powerUsed / AIUS_wei)?.toFixed(2)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2))
-      console.log(powerUsed / AIUS_wei, ((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)
+      let res = Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2))
       return res.toFixed(2)
     }else{
-      let res = Number((powerUsed / AIUS_wei)?.toFixed(0)) + Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0))
+      let res = Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0))
       return res.toFixed(0)
     }
   }
