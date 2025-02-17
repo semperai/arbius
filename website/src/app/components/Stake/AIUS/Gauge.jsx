@@ -98,6 +98,7 @@ function Gauge({
   const [showConfirmVote, setShowConfirmVote] = useState(false)
   const [votingPercentage, setVotingPercentage] = useState({});
   const [percentageLeft, setPercentageLeft] = useState(100);
+  const [percentUsed, setPercentageUsed] = useState(0);
   const [epochTimestamp, setEpochTimestamp] = useState(0);
   const [lastUserVote, setLastUserVote] = useState(0);
   const [newTokenIDs, setNewTokensIDs] = useState([]);
@@ -158,7 +159,7 @@ function Gauge({
           let inputPercentageInValue = (_sum / 100) * newGovernancePower;
           let percentageOfInput = (inputPercentageInValue / totalGovernancePower) * 100
 
-          setPercentageLeft(Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)))
+          setPercentageLeft(Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)).toFixed(0))
 
           setVotingPercentage((prevState) => ({
             ...prevState,
@@ -177,7 +178,7 @@ function Gauge({
         let inputPercentageInValue = (sum / 100) * newGovernancePower;
         let percentageOfInput = (inputPercentageInValue / totalGovernancePower) * 100
 
-        setPercentageLeft(Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)))
+        setPercentageLeft(Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)).toFixed(0))
       }else{
         setPercentageLeft(Math.min(100, Math.abs(100 - sum)))
       }
@@ -195,7 +196,8 @@ function Gauge({
 
   const calculateNewPercentageLeft = (newGovPower) => {
     const _percentage = ((totalGovernancePower - newGovPower)/totalGovernancePower) * 100
-    setPercentageLeft(100 - _percentage);
+    setPercentageLeft((100 - _percentage).toFixed(0));
+    setPercentageUsed(_percentage.toFixed(0));
   }
 
   const getTimestamp7DaysEarlier = (timestamp) => {
@@ -471,7 +473,19 @@ function Gauge({
   };
 
   const userCanVote = () => {
-    if(Number(lastUserVote) > 0 && Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){
+    // CHECK IF USER HAS INPUTTED A TOTAL OF 100
+    let sum_percentage = 0;
+    Object.entries(votingPercentage).map(([key, value], index) => {
+        if(value?.percentage > 0){
+          sum_percentage = sum_percentage + Number(value.percentage);
+        }
+    })
+    if(sum_percentage !== 100){
+      return;
+    }
+    // CHECK IF USER HAS INPUTTED A TOTAL OF 100
+
+    if(Number(lastUserVote) > 0 && Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){ // CHECK IF USER HAD A VOTE PREVIOUSLY + IF THE LAST VOTE WAS FROM CURRENT WEEK OR PREVIOUS WEEKS
       if(newGovernancePower > 0){
         return true;
       }else{
@@ -580,15 +594,17 @@ function Gauge({
           <div className="flex flex-col gap-1 p-2 bg-white-background rounded-md basis-[50%] xl:basis-[unset]">
             <div className="flex justify-between text-[11px] md:text-[12px]">
               <div>{getGPUsed()}/{ getGovPowerFormatted() }</div>
-              <div>{percentageLeft < 1 ? percentageLeft?.toFixed(2) : percentageLeft?.toFixed(0)}% left</div>
+              <div>{percentageLeft}% left</div>
             </div>
             <div className="w-full xl:w-[234px] bg-gray-text rounded-full h-2">
               <div className="bg-purple-background h-2 rounded-full" style={{width: (100 - percentageLeft).toString()+"%" }}></div>
+              <div className="bg-light-purple-background h-2 rounded-l-full relative top-[-8px] z-2" style={{width: percentUsed.toString()+"%" }}></div>
             </div>
           </div>
         </div>
         <div className="absolute right-0 top-[-55px] xl:top-[unset]">
-          <div onClick={percentageLeft === 0 && userCanVote() ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 && userCanVote() ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group xl:block`}>
+
+          <div onClick={Number(percentageLeft) === 0 && userCanVote() ? ()=>setShowConfirmVote(true) : null} className={`${ Number(percentageLeft) === 0 && userCanVote() ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group xl:block`}>
             Vote
             <div className="absolute left-[-10px] top-[-130px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300">
               <Image src={lightningbulb} alt="" />
@@ -681,8 +697,8 @@ function Gauge({
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
-                <h1 className="text-[14px] md:text-[16px] flex items-center gap-1 border-b-[1px] border-[#000] w-fit">
-                  <Image className="mt-[2px] h-[15px] w-[15px] brightness-0" src={github} alt="" /><div>github</div>
+                <h1 className="text-[14px] md:text-[16px] flex items-center gap-1 border-b-[1px] border-[#000] w-fit cursor-pointer">
+                  <Image className="mt-[2px] h-[15px] w-[15px] brightness-0" src={github} alt="" /><div>Github</div>
                 </h1> 
               </div>
               <div className='hidden xl:flex flex-col justify-end w-[15%]'>
