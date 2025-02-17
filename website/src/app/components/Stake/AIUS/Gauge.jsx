@@ -598,7 +598,7 @@ function Gauge({
             </div>
             <div className="w-full xl:w-[234px] bg-gray-text rounded-full h-2">
               <div className="bg-purple-background h-2 rounded-full" style={{width: (100 - percentageLeft).toString()+"%" }}></div>
-              <div className="bg-light-purple-background h-2 rounded-l-full relative top-[-8px] z-2" style={{width: percentUsed.toString()+"%" }}></div>
+              <div className="bg-[#9f76ff] h-2 rounded-l-full relative top-[-8px] z-2" style={{width: percentUsed.toString()+"%" }}></div>
             </div>
           </div>
         </div>
@@ -656,7 +656,7 @@ function Gauge({
                 <Image src={polygon} className='-ml-2' />
               </div>
               <div className='flex w-[25%] items-center justify-start gap-2'>
-                <div className='flex h-[20px] w-[20px] md:h-[28px] md:w-[28px] items-center justify-center rounded-full bg-purple-background'>
+                <div className='hidden md:flex h-[20px] w-[20px] md:h-[28px] md:w-[28px] items-center justify-center rounded-full bg-purple-background'>
                   <div className='relative flex h-[16px] w-[16px] items-center justify-center'>
                     <Image
                       src={item?.icon}
