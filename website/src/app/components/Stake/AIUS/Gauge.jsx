@@ -22,6 +22,7 @@ import lightningbulb from '../../../assets/images/lightningbulb.svg';
 import confirmvote from '../../../assets/images/confirmvote.svg';
 import votingEscrow from '../../../abis/votingEscrow.json';
 import voter from '../../../abis/voter.json';
+import engineABI from '../../../abis/v2_enginev4.json';
 import Web3 from 'web3';
 import Config from '@/config.one.json';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
@@ -50,6 +51,7 @@ function Gauge({
       model_id: '0x9d04df3076afee4ab86ac2e30f103ecc9dd5bea9cb70af6881d74f638183e274',
       description: 'Text Generator',
       emissions: '0%',
+      fees: '0',
       prompts: '40,304',
       icon: mistral_icon,
       model_bytes: "0x9d04df3076afee4ab86ac2e30f103ecc9dd5bea9cb70af6881d74f638183e274"
@@ -59,6 +61,7 @@ function Gauge({
       model_id: '0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b',
       description: 'Text Generator',
       emissions: '0%',
+      fees: '0',
       prompts: '38,994',
       icon: nemotron_icon,
       model_bytes: "0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b"
@@ -68,6 +71,7 @@ function Gauge({
       model_id: '0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64',
       description: 'Text Generator',
       emissions: '0%',
+      fees: '0',
       prompts: '32,945',
       icon: llama_icon,
       model_bytes: "0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64"
@@ -77,6 +81,7 @@ function Gauge({
       model_id: '0xe6a0efde928efd1b948521b7517888363c4d5d5f1272dd6ba3170726a722afd1',
       description: 'Text Generator',
       emissions: '0%',
+      fees: '0',
       prompts: '10,203',
       icon: llama_icon,
       model_bytes: "0xe6a0efde928efd1b948521b7517888363c4d5d5f1272dd6ba3170726a722afd1"
@@ -86,6 +91,7 @@ function Gauge({
       model_id: '0x83da7b4bbec9da6b1664342bae2db3c920d43e4aebe92f9d0e8e5d80492ad68c',
       description: 'Code Generator',
       emissions: '0%',
+      fees: '0',
       prompts: '6049',
       icon: deepseek_icon,
       model_bytes: "0x83da7b4bbec9da6b1664342bae2db3c920d43e4aebe92f9d0e8e5d80492ad68c"
@@ -285,6 +291,10 @@ function Gauge({
           voter.abi,
           Config.v4_voterAddress
         );
+        const engineContract = new web3.eth.Contract(
+          engineABI.abi,
+          Config.v4_engineAddress
+        );
 
         const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
         setEpochTimestamp(_epochVoteEnd * 1000)
@@ -294,8 +304,13 @@ function Gauge({
         for(let i=0; i<_modelData.length; i++){
           let a = await voterContract.methods.getGaugeMultiplier(_modelData[i]?.model_id).call()
           _modelData[i]["emissions"] = ((Number(a) / AIUS_wei) * 100).toFixed(1).toString()+"%";
+
+          let b = await engineContract.methods.models(_modelData[i]?.model_bytes).call()
+          _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(10).toString();
         }
         setFilteredData(_modelData)
+
+        console.log(engineContract, "EC")
 
       }catch(e){
         console.log("F1 error", e)
@@ -628,13 +643,13 @@ function Gauge({
           <div className='w-[25%]'>
             <h1>Model Name</h1>
           </div>
-          <div className='w-[20%]'>
+          <div className='w-[15%]'>
             <h1>Description</h1>
           </div>
           <div className='w-[12.5%]'>
             <h1>Emissions</h1>
           </div>
-          <div className='w-[15%]'>
+          <div className='w-[20%]'>
             <h1 className="flex items-center">Fees <span className="text-[13px]">(AIUS)</span>
               <div className="group relative">
                 <Image src={info_icon} className='cursor-pointer ml-1 w-[12px] h-[12px] grayscale-[1] opacity-30' />
@@ -691,7 +706,7 @@ function Gauge({
                   <Image src={info_icon} height={12} width={12} />
                 </div>
               </div>
-              <div className='w-[20%]'>
+              <div className='w-[15%]'>
                 <h1 className='text-[12px] md:text-[0.85rem] 2xl:text-base'>
                   {item?.description}
                 </h1>
@@ -703,12 +718,12 @@ function Gauge({
                 />*/}
                 <h1 className='text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
               </div>
-              <div className='w-[15%]'>
+              <div className='w-[20%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
-                <h1 className='text-[14px] md:text-[0.85rem]'>0.002 <span className="text-[11px]">($0.1)</span></h1>
+                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees} <span className="text-[11px]">($0.0)</span></h1>
               </div>
               <div className='w-[12.5%]'>
                 {/*<Image
