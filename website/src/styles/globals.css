@@ -159,6 +159,10 @@
   font-style: italic;
 }
 
+.image-blue-filter:hover img {
+  filter: brightness(0) saturate(100%) invert(16%) sepia(97%) saturate(4130%) hue-rotate(251deg) brightness(71%) contrast(148%);
+}
+
 .fade-container > div {
   white-space: pre !important;
 }
