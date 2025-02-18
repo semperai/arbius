@@ -207,7 +207,9 @@ function Gauge({
   };
 
   useEffect(() => {
+
     if(Number(lastUserVote) > 0){
+
       let newGovPower = 0;
       let _newTokenIDs = [];
       // proceed with calculations and setting up things
@@ -228,7 +230,7 @@ function Gauge({
         calculateNewPercentageLeft(newGovPower);
       }
     }
-  },[lastUserVote, updateValue])
+  },[lastUserVote, updateValue, totalGovernancePower])
 
 
   const getWeb3 = async() => {
@@ -265,6 +267,7 @@ function Gauge({
 
 
   useEffect(() => {
+
     const initialModelPercentages = data.reduce((accumulator, item) => {
       accumulator[item.model_name] = {
         "percentage": 0,
