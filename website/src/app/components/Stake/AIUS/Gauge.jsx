@@ -631,10 +631,15 @@ function Gauge({
           <div className='w-[12.5%]'>
             <h1>Emissions</h1>
           </div>
-          <div className='w-[12.5%]'>
-            <h1>Fees</h1>
-          </div>
           <div className='w-[15%]'>
+            <h1 className="flex items-center">Fees <span className="text-[13px]">(AIUS)</span>
+              <div className="group relative">
+                <Image src={info_icon} className='cursor-pointer ml-1 w-[12px] h-[12px] grayscale-[1] opacity-30' />
+                <div className="hidden group-hover:flex absolute left-[20px] top-[-12px] bg-white-background p-2 rounded-[15px] text-[12px] lato-regular border-[1px] border-light-purple-background">AIUS Cost per Inference</div>
+              </div>
+            </h1>
+          </div>
+          <div className='w-[12.5%]'>
             <h1>Repository</h1>
           </div>
           <div className='hidden xl:block w-[15%]'></div>
@@ -695,21 +700,21 @@ function Gauge({
                 />*/}
                 <h1 className='text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
               </div>
-              <div className='w-[12.5%]'>
-                {/*<Image
-                  src={skeleton}
-                  className='h-[24px] w-[100%] rounded-lg'
-                />*/}
-                <h1 className='text-[14px] md:text-[0.85rem]'>0.002 ($0.1)</h1>
-              </div>
               <div className='w-[15%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
-                <h1 className="text-[14px] md:text-[16px] flex items-center gap-1 border-b-[1px] border-[#000] w-fit cursor-pointer">
+                <h1 className='text-[14px] md:text-[0.85rem]'>0.002 <span className="text-[11px]">($0.1)</span></h1>
+              </div>
+              <div className='w-[12.5%]'>
+                {/*<Image
+                  src={skeleton}
+                  className='h-[24px] w-[100%] rounded-lg'
+                />*/}
+                <h1 className="image-blue-filter text-[14px] md:text-[16px] flex items-center gap-1 border-b-[1px] border-[#000] w-fit cursor-pointer hover:text-blue-text hover:border-blue-text">
                   <Image className="mt-[2px] h-[15px] w-[15px] brightness-0" src={github} alt="" /><div>Github</div>
-                </h1> 
+                </h1>
               </div>
               <div className='hidden xl:flex flex-col justify-end w-[15%]'>
                 <div className={`flex border-[1px] ${ votingPercentage?.[item?.model_name]?.error ? "border-[#C71518]" : "border-purple-text/20"} rounded-[25px]`}>
