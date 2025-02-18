@@ -27,12 +27,12 @@ async function main() {
   // Use walletNova to interact with the contracts
   const mirrorEngine = await ethers.getContractAt(
     "V2_EngineV2",
-    Config.v2_engineAddress,
+    Config.engineAddress,
     walletNova
   );
   const mirrorL2Token = await ethers.getContractAt(
     "BaseTokenV1",
-    Config.v2_l1TokenAddress,
+    Config.l1TokenAddress,
     walletNova
   );
 
