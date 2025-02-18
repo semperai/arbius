@@ -628,10 +628,13 @@ function Gauge({
           <div className='w-[20%]'>
             <h1>Description</h1>
           </div>
-          <div className='w-[15%]'>
+          <div className='w-[12.5%]'>
             <h1>Emissions</h1>
           </div>
-          <div className='w-[20%]'>
+          <div className='w-[12.5%]'>
+            <h1>Fees</h1>
+          </div>
+          <div className='w-[15%]'>
             <h1>Repository</h1>
           </div>
           <div className='hidden xl:block w-[15%]'></div>
@@ -685,14 +688,21 @@ function Gauge({
                   {item?.description}
                 </h1>
               </div>
-              <div className='w-[15%]'>
+              <div className='w-[12.5%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
                 <h1 className='text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
               </div>
-              <div className='w-[20%]'>
+              <div className='w-[12.5%]'>
+                {/*<Image
+                  src={skeleton}
+                  className='h-[24px] w-[100%] rounded-lg'
+                />*/}
+                <h1 className='text-[14px] md:text-[0.85rem]'>0.002 ($0.1)</h1>
+              </div>
+              <div className='w-[15%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
