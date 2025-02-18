@@ -593,12 +593,12 @@ function Gauge({
           </div>
           <div className="flex flex-col gap-1 p-2 bg-white-background rounded-md basis-[50%] xl:basis-[unset]">
             <div className="flex justify-between text-[11px] md:text-[12px]">
-              <div>{getGPUsed()}/{ getGovPowerFormatted() }</div>
+              <div>{percentUsed == 100 ? getGovPowerFormatted() : getGPUsed()}/{ getGovPowerFormatted() }</div>
               <div>{percentageLeft}% left</div>
             </div>
             <div className="w-full xl:w-[234px] bg-gray-text rounded-full h-2">
               <div className="bg-purple-background h-2 rounded-full" style={{width: (100 - percentageLeft).toString()+"%" }}></div>
-              <div className="bg-[#9f76ff] h-2 rounded-l-full relative top-[-8px] z-2" style={{width: percentUsed.toString()+"%" }}></div>
+              <div className={`bg-[#9f76ff] h-2 ${ percentUsed == 100 ? "rounded-full" : "rounded-l-full"} relative top-[-8px] z-2`} style={{width: percentUsed.toString()+"%" }}></div>
             </div>
           </div>
         </div>
