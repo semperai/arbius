@@ -490,6 +490,18 @@ function Gauge({
     }
   };
 
+  const checkIfUserCanVote = () => {
+    if(Number(lastUserVote) > 0 && Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){ // CHECK IF USER HAD A VOTE PREVIOUSLY + IF THE LAST VOTE WAS FROM CURRENT WEEK OR PREVIOUS WEEKS
+      if(newGovernancePower > 0){
+        return true;
+      }else{
+        return false;
+      }
+    }else{
+      return true;
+    }
+  }
+
   const userCanVote = () => {
     // CHECK IF USER HAS INPUTTED A TOTAL OF 100
     let sum_percentage = 0;
@@ -503,15 +515,7 @@ function Gauge({
     }
     // CHECK IF USER HAS INPUTTED A TOTAL OF 100
 
-    if(Number(lastUserVote) > 0 && Number(lastUserVote) > getTimestamp7DaysEarlier(epochTimestamp)){ // CHECK IF USER HAD A VOTE PREVIOUSLY + IF THE LAST VOTE WAS FROM CURRENT WEEK OR PREVIOUS WEEKS
-      if(newGovernancePower > 0){
-        return true;
-      }else{
-        return false;
-      }
-    }else{
-      return true;
-    }
+    return checkIfUserCanVote();
   }
 
   return (
@@ -628,7 +632,7 @@ function Gauge({
               <Image src={lightningbulb} alt="" />
               <div className="text-[12px] text-aius-tabs-gray">
                 {
-                  userCanVote() ?
+                  checkIfUserCanVote() ?
                     "100% of user owned governance power must be contributed before proceeding."
                   : "You have already voted, create a new stake to vote again with your new balance."
                 }
