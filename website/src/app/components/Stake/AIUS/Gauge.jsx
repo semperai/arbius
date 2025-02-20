@@ -45,7 +45,7 @@ function Gauge({
   const [totalGovernancePower, setTotalGovernancePower] = useState(0);
   const [allTokens, setAllTokens] = useState([]);
 
-  const data = [
+  const [data, setData] = useState([
     {
       model_name: 'Mistral-large-2407',
       model_id: '0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522',
@@ -96,8 +96,7 @@ function Gauge({
       icon: deepseek_icon,
       model_bytes: "0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21"
     },
-  ];
-
+  ]);
   const [showPopUp, setShowPopUp] = useState(false);
   const [filteredData, setFilteredData] = useState(data);
   const [searchText, setSearchText] = useState('');
@@ -253,14 +252,14 @@ function Gauge({
         }),
       })
       .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Infura error:", data.error.message);
+        .then(_data => {
+          if (_data.error) {
+            console.error("Infura error:", _data.error.message);
             let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
             return web3
           } else {
             let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-            console.log("Successfully connected. Block number:", data.result);
+            console.log("Successfully connected. Block number:", _data.result);
             return web3
           }
         })
@@ -308,7 +307,8 @@ function Gauge({
           let b = await engineContract.methods.models(_modelData[i]?.model_bytes).call()
           _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(4).toString();
         }
-        setFilteredData(_modelData)
+        setFilteredData(_modelData);
+        setData(_modelData);
 
         console.log(engineContract, "EC")
 
