@@ -374,11 +374,11 @@ function Gauge({
     const percentageUsed = 100 - percentageLeft;
 
     if( (((percentageUsed/100) * _totalGovernancePower) / AIUS_wei) < 1){
-      let res = Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(2))
-      return res.toFixed(2)
+      let res = Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(3))
+      return res
     }else{
-      let res = Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(0))
-      return res.toFixed(0)
+      let res = Number((((percentageUsed/100) * _totalGovernancePower) / AIUS_wei)?.toFixed(1))
+      return res
     }
   }
 
@@ -390,9 +390,9 @@ function Gauge({
     // }
 
     if( (Number(_totalGovernancePower) / AIUS_wei) < 1 ){
-      return (Number(_totalGovernancePower) / AIUS_wei)?.toFixed(2)
+      return (Number(_totalGovernancePower) / AIUS_wei)?.toFixed(3)
     }else{
-      return (Number(_totalGovernancePower) / AIUS_wei)?.toFixed(0)
+      return (Number(_totalGovernancePower) / AIUS_wei)?.toFixed(1)
     }
   }
 
