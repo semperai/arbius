@@ -171,7 +171,7 @@ function Gauge({
             ...prevState,
             [modelName]: {
               "percentage": percentage,
-              "error": "You only have "+ Math.min(100, Math.abs(100 - percentageUsed - percentageOfInput)).toFixed(0) +"% left"
+              "error": "You only have "+ Math.min(100, Math.abs(100 - _sum)) +"% left"
             },
           }));
         }else{
@@ -346,11 +346,11 @@ function Gauge({
         for (const token of tokens) {
           if ((Number(token?.locked__end) * 1000) > Date.now()) {
             _totalGovernancePower = _totalGovernancePower + Number(token?.balanceOfNFT);
-          }
 
-          const lastVoted = await voterContract.methods.lastVoted(token?.tokenID).call();
-          if (lastVoted > 0) {
-            _lastVoted = lastVoted;
+            const lastVoted = await voterContract.methods.lastVoted(token?.tokenID).call();
+            if (lastVoted > 0) {
+              _lastVoted = lastVoted;
+            }
           }
         }
 
