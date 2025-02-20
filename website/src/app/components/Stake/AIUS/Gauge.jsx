@@ -48,23 +48,23 @@ function Gauge({
   const data = [
     {
       model_name: 'Mistral-large-2407',
-      model_id: '0x9d04df3076afee4ab86ac2e30f103ecc9dd5bea9cb70af6881d74f638183e274',
+      model_id: '0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522',
       description: 'Text Generator',
       emissions: '0%',
       fees: '0',
       prompts: '40,304',
       icon: mistral_icon,
-      model_bytes: "0x9d04df3076afee4ab86ac2e30f103ecc9dd5bea9cb70af6881d74f638183e274"
+      model_bytes: "0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522"
     },
     {
       model_name: 'Nemotron-4-340b',
-      model_id: '0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b',
+      model_id: '0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f',
       description: 'Text Generator',
       emissions: '0%',
       fees: '0',
       prompts: '38,994',
       icon: nemotron_icon,
-      model_bytes: "0xba6e50e1a4bfe06c48e38800c4133d25f40f0aeb4983d953fc9369fde40ef87b"
+      model_bytes: "0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f"
     },
     {
       model_name: 'Llama-3.1-405b',
@@ -78,23 +78,23 @@ function Gauge({
     },
     {
       model_name: 'Llama-3.1-80b',
-      model_id: '0xe6a0efde928efd1b948521b7517888363c4d5d5f1272dd6ba3170726a722afd1',
+      model_id: '0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca',
       description: 'Text Generator',
       emissions: '0%',
       fees: '0',
       prompts: '10,203',
       icon: llama_icon,
-      model_bytes: "0xe6a0efde928efd1b948521b7517888363c4d5d5f1272dd6ba3170726a722afd1"
+      model_bytes: "0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca"
     },
     {
       model_name: 'Deepseek-coder-v2',
-      model_id: '0x83da7b4bbec9da6b1664342bae2db3c920d43e4aebe92f9d0e8e5d80492ad68c',
+      model_id: '0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21',
       description: 'Code Generator',
       emissions: '0%',
       fees: '0',
       prompts: '6049',
       icon: deepseek_icon,
-      model_bytes: "0x83da7b4bbec9da6b1664342bae2db3c920d43e4aebe92f9d0e8e5d80492ad68c"
+      model_bytes: "0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21"
     },
   ];
 
