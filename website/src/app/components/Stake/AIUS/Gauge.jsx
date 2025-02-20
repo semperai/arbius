@@ -628,7 +628,7 @@ function Gauge({
 
           <div onClick={Number(percentageLeft) === 0 && userCanVote() ? ()=>setShowConfirmVote(true) : null} className={`${ Number(percentageLeft) === 0 && userCanVote() ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group xl:block`}>
             Vote
-            <div className="absolute left-[-10px] top-[-130px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300">
+            <div className={`${Number(percentageLeft) === 0 && userCanVote() ? "hidden" : ""} absolute left-[-10px] top-[-130px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-all duration-300`}>
               <Image src={lightningbulb} alt="" />
               <div className="text-[12px] text-aius-tabs-gray">
                 {
@@ -654,7 +654,7 @@ function Gauge({
             <h1>Emissions</h1>
           </div>
           <div className='w-[20%]'>
-            <h1 className="flex items-center">Fees <span className="text-[13px]">(AIUS)</span>
+            <h1 className="flex items-center">Fees<span className="ml-1 text-[13px]">(AIUS)</span>
               <div className="group relative">
                 <Image src={info_icon} className='cursor-pointer ml-1 w-[12px] h-[12px] grayscale-[1] opacity-30' />
                 <div className="hidden group-hover:flex absolute left-[20px] top-[-12px] bg-white-background p-2 rounded-[15px] text-[12px] lato-regular border-[1px] border-light-purple-background">AIUS Cost per Inference</div>
