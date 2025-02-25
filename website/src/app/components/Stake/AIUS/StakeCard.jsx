@@ -43,6 +43,7 @@ function StakeCard({
   const [realtimeInterval, setRealtimeInterval] = useState(null);
   const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
   const [extendMonths, setExtendMonths] = useState(0);
+
   /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
         address: Config.v4_votingEscrowAddress,
         abi: votingEscrow.abi,
@@ -222,9 +223,15 @@ function StakeCard({
       const numberOfMonths =
         (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 +
         (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
-      console.log(numberOfMonths, 'MAX NO OF months in stake card');
 
-      setExtendMonths(numberOfMonths);
+      const timeDiff = (datePlus24Months - currentlyEndingDate) / (1000 * 60 * 60 * 24);
+      let numberOfWeeks = Math.floor(timeDiff / 7);
+
+      if(numberOfMonths === 0){
+        setExtendMonths(numberOfWeeks / 4);
+      }else{
+        setExtendMonths(numberOfMonths);
+      }
 
       if (realtimeInterval) {
           clearInterval(realtimeInterval);

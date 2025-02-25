@@ -388,10 +388,17 @@ const ExtendPopUpChildren = ({
   let datePlus24Months = new Date();
   datePlus24Months.setMonth(datePlus24Months.getMonth() + 24);
   const currentlyEndingDate = new Date(currentlyEndingAt);
-  const numberOfMonths =
+  let numberOfMonths =
     (datePlus24Months.getFullYear() - currentlyEndingDate.getFullYear()) * 12 +
     (datePlus24Months.getMonth() - currentlyEndingDate.getMonth());
-  console.log(numberOfMonths, 'MAX NO OF months');
+
+  const timeDiff = (datePlus24Months - currentlyEndingDate) / (1000 * 60 * 60 * 24);
+  let numberOfWeeks = Math.floor(timeDiff / 7);
+
+  if(numberOfMonths === 0){
+    numberOfMonths = numberOfWeeks;
+  }
+
   const [extendEndDate, setExtendEndDate] = useState(
     new Date(currentlyEndingAt)
   );
