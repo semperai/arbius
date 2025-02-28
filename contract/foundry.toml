@@ -7,3 +7,7 @@ cache_path  = 'cache_forge'
 
 # ir based compilation
 via_ir = true
+
+[invariant]
+# fail_on_revert = true
+# show_metrics = true

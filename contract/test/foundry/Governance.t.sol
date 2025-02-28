@@ -5,12 +5,13 @@ import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 
 import "contracts/BaseTokenV1.sol";
-import "contracts/V2_EngineV4.sol";
+import "contracts/V2_EngineV5.sol";
 import {getIPFSCIDMemory} from "contracts/libraries/IPFS.sol";
 
 import "contracts/ve/VotingEscrow.sol";
 import "contracts/ve/VeNFTRender.sol";
 import "contracts/ve/VeStaking.sol";
+import "contracts/ve/Voter.sol";
 
 import "contracts/GovernorV1.sol";
 import "contracts/TimelockV1.sol";
@@ -19,14 +20,15 @@ import "contracts/TimelockV1.sol";
  * @notice Tests for onchain governance
  * @dev Steps to run this test contract:
  * 1. Deploy local hardhat node with `npx hardhat node`
- * 2. Then, run hardhat setup on local node with `npx hardhat test test/enginev4.test.ts --network localhost`
+ * 2. Then, run hardhat setup on local node with `npx hardhat test test/enginev5.test.ts --network localhost`
  * 3. Run Foundry tests with `npm run forge-test`, or `npm run forge-test-v` for verbose output
- * 3.1 Alternatively, `forge test --fork-url http://localhost:8545 --fork-block-number 18 --mc GovernanceTest`
+ * 3.1 Alternatively, `forge test --fork-url http://localhost:8545 --fork-block-number 25 --mc GovernanceTest`
  */
 contract GovernanceTest is Test {
     VotingEscrow public votingEscrow;
     VeStaking public veStaking;
     VeNFTRender public veNFTRender;
+    Voter public voter;
 
     GovernorV1 public governor;
     TimelockV1 public timelock;
@@ -49,13 +51,14 @@ contract GovernanceTest is Test {
     address newowner = vm.addr(vm.deriveKey(mnemonic, 9));
 
     // contracts
-    V2_EngineV4 public engine =
-        V2_EngineV4(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
+    V2_EngineV5 public engine =
+        V2_EngineV5(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
     BaseTokenV1 public baseToken =
         BaseTokenV1(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
 
     function setUp() public {
-        // initial set up is done in hardhat test file: test/enginev4.test.ts
+        // initial set up is done in hardhat test file: test/enginev5.test.ts
+        vm.startPrank(deployer);
 
         /* ve specific setup */
         veNFTRender = new VeNFTRender();
@@ -69,12 +72,16 @@ contract GovernanceTest is Test {
         // set veStaking in escrow
         votingEscrow.setVeStaking(address(veStaking));
 
-        /* v4 specific setup */
-        vm.prank(deployer);
+        // deploy Voter contract
+        voter = new Voter(address(votingEscrow));
+        // set voter in escrow
+        votingEscrow.setVoter(address(voter));
+
+        /* engine specific setup */
         engine.setVeStaking(address(veStaking));
+        engine.setVoter(address(voter));
 
         /* gov setup */
-        vm.startPrank(deployer);
 
         address[] memory proposers = new address[](2);
         proposers[0] = deployer;
@@ -92,9 +99,7 @@ contract GovernanceTest is Test {
 
         // transfer ownership to timelock
         engine.transferOwnership(address(timelock));
-
-        // normally we'd do this, but we want ability to mint whenever easily for testing
-        // baseToken.transferOwnership(adress(engine));
+        voter.transferOwnership(address(timelock));
 
         bytes32 TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
         bytes32 PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
@@ -104,7 +109,7 @@ contract GovernanceTest is Test {
         timelock.grantRole(PROPOSER_ROLE, address(governor));
         timelock.grantRole(EXECUTOR_ROLE, address(governor));
 
-        uint256 timelockMinDelay = 60 * 60 * 24 * 3;
+        uint256 timelockMinDelay = 60 * 60 * 24 * 3; // 3 days
 
         timelock.schedule(
             address(timelock),
@@ -171,12 +176,12 @@ contract GovernanceTest is Test {
     }
 
     function testGovSettings() public {
-        assertEq(governor.votingDelay(), 86400);
-        assertEq(governor.votingPeriod(), 86400 * 3);
+        assertEq(governor.votingDelay(), 86400); // 1 day
+        assertEq(governor.votingPeriod(), 86400 * 3); // 3 days
         assertEq(governor.proposalThreshold(), 1e18);
     }
 
-    function testFailProposalHasQuorum() public {
+    function testRevertProposalHasQuorum() public {
         // deployer stakes 93 AIUS for max lock time, veAIUS total supply is ~100 veAIUS
         // quorum is 4% of total supply, so 4 veAIUS needed for successful proposal
         vm.startPrank(deployer);
@@ -217,10 +222,15 @@ contract GovernanceTest is Test {
         skip(1 days + 1);
 
         // user1 votes for, but proposal should fail due to lack of quorum
+        // since user1 has only ~2 veAIUS, but 4 veAIUS needed for quorum
         governor.castVote(proposalId, 1);
 
         // queue
+        vm.expectRevert(abi.encodePacked("Governor: proposal not successful"));
         governor.queue(targets, values, calldatas, descriptionHash);
+
+        // failed, so user should not have received 1 AIUS from timelock
+        assertEq(baseToken.balanceOf(user1), 0);
     }
 
     function testProposalHasQuorum() public {
@@ -391,6 +401,59 @@ contract GovernanceTest is Test {
         vm.prank(user1);
         vm.expectRevert(abi.encodePacked("Governor: proposal not successful"));
         governor.queue(targets, values, calldatas, descriptionHash);
+    }
+
+    function testVoteCreateGauge() public {
+        address[] memory targets = new address[](1);
+        targets[0] = address(voter);
+
+        uint256[] memory values = new uint256[](1);
+        values[0] = 0;
+
+        // calldata to transfer 1 AIUS to user1
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature(
+            "createGauge(bytes32)",
+            keccak256("testModel")
+        );
+
+        string memory description = "Proposal #1: Create gauge for model";
+        bytes32 descriptionHash = keccak256(bytes(description));
+
+        // validator proposes
+        vm.prank(validator1);
+        governor.propose(targets, values, calldatas, description);
+
+        uint256 proposalId = governor.hashProposal(
+            targets,
+            values,
+            calldatas,
+            descriptionHash
+        );
+
+        // fast forward one day (initialVotingDelay)
+        skip(1 days + 1);
+
+        // castVote
+        vm.prank(validator1);
+        governor.castVote(proposalId, 1);
+
+        // fast forward 3 days (votingPeriod)
+        skip(3 days);
+
+        // queue
+        vm.prank(validator1);
+        governor.queue(targets, values, calldatas, descriptionHash);
+
+        // fast forward timelockMinDelay
+        skip(3 days);
+
+        // execute
+        vm.prank(validator1);
+        governor.execute(targets, values, calldatas, descriptionHash);
+
+        // user1 should have received 1 AIUS from timelock
+        assertEq(voter.isGauge(keccak256("testModel")), true);
     }
 
     function testSolutionMineableRate() public {

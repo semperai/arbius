@@ -27,12 +27,12 @@ async function main() {
   // Use walletNova to interact with the contracts
   const mirrorEngine = await ethers.getContractAt(
     "V2_EngineV2",
-    Config.v2_engineAddress,
+    Config.engineAddress,
     walletNova
   );
   const mirrorL2Token = await ethers.getContractAt(
     "BaseTokenV1",
-    Config.v2_l1TokenAddress,
+    Config.l1TokenAddress,
     walletNova
   );
 
@@ -182,14 +182,14 @@ async function main() {
     sepoliaConfigPath,
     JSON.stringify(
       {
-        v2_baseTokenAddress: l2Token.address,
-        v2_enginev5Address: engine.address,
-        veNFTRenderAddress: veNFTRender.address,
-        votingEscrowAddress: votingEscrow.address,
-        veStakingAddress: veStaking.address,
-        voterAddress: voter.address,
-        timelockAddress: timelock.address,
-        governorAddress: governor.address,
+        v5_baseTokenAddress: l2Token.address,
+        v5_engineAddress: engine.address,
+        v5_veNFTRenderAddress: veNFTRender.address,
+        v5_votingEscrowAddress: votingEscrow.address,
+        v5_veStakingAddress: veStaking.address,
+        v5_voterAddress: voter.address,
+        v5_timelockAddress: timelock.address,
+        v5_governorAddress: governor.address,
       },
       null,
       2

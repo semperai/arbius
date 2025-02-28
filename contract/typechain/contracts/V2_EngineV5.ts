@@ -111,6 +111,8 @@ export interface V2_EngineV5Interface extends utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "retractionFeePercentage()": FunctionFragment;
     "reward(uint256,uint256)": FunctionFragment;
+    "setModelAddr(bytes32,address)": FunctionFragment;
+    "setModelFee(bytes32,uint256)": FunctionFragment;
     "setPaused(bool)": FunctionFragment;
     "setSolutionMineableRate(bytes32,uint256)": FunctionFragment;
     "setStartBlockTime(uint64)": FunctionFragment;
@@ -197,6 +199,8 @@ export interface V2_EngineV5Interface extends utils.Interface {
       | "renounceOwnership"
       | "retractionFeePercentage"
       | "reward"
+      | "setModelAddr"
+      | "setModelFee"
       | "setPaused"
       | "setSolutionMineableRate"
       | "setStartBlockTime"
@@ -406,6 +410,14 @@ export interface V2_EngineV5Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "reward",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setModelAddr",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setModelFee",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setPaused",
@@ -688,6 +700,14 @@ export interface V2_EngineV5Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "reward", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setModelAddr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setModelFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSolutionMineableRate",
@@ -808,6 +828,8 @@ export interface V2_EngineV5Interface extends utils.Interface {
     "ContestationVote(address,bytes32,bool)": EventFragment;
     "ContestationVoteFinish(bytes32,uint32,uint32)": EventFragment;
     "Initialized(uint8)": EventFragment;
+    "ModelAddrChanged(bytes32,address)": EventFragment;
+    "ModelFeeChanged(bytes32,uint256)": EventFragment;
     "ModelRegistered(bytes32)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PausedChanged(bool)": EventFragment;
@@ -830,6 +852,8 @@ export interface V2_EngineV5Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ContestationVote"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContestationVoteFinish"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModelAddrChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ModelFeeChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModelRegistered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PausedChanged"): EventFragment;
@@ -892,6 +916,29 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface ModelAddrChangedEventObject {
+  id: string;
+  addr: string;
+}
+export type ModelAddrChangedEvent = TypedEvent<
+  [string, string],
+  ModelAddrChangedEventObject
+>;
+
+export type ModelAddrChangedEventFilter =
+  TypedEventFilter<ModelAddrChangedEvent>;
+
+export interface ModelFeeChangedEventObject {
+  id: string;
+  fee: BigNumber;
+}
+export type ModelFeeChangedEvent = TypedEvent<
+  [string, BigNumber],
+  ModelFeeChangedEventObject
+>;
+
+export type ModelFeeChangedEventFilter = TypedEventFilter<ModelFeeChangedEvent>;
 
 export interface ModelRegisteredEventObject {
   id: string;
@@ -1312,6 +1359,18 @@ export interface V2_EngineV5 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    setModelAddr(
+      model_: PromiseOrValue<BytesLike>,
+      addr_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setModelFee(
+      model_: PromiseOrValue<BytesLike>,
+      fee_: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setPaused(
       paused_: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1696,6 +1755,18 @@ export interface V2_EngineV5 extends BaseContract {
     ts: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  setModelAddr(
+    model_: PromiseOrValue<BytesLike>,
+    addr_: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setModelFee(
+    model_: PromiseOrValue<BytesLike>,
+    fee_: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setPaused(
     paused_: PromiseOrValue<boolean>,
@@ -2082,6 +2153,18 @@ export interface V2_EngineV5 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setModelAddr(
+      model_: PromiseOrValue<BytesLike>,
+      addr_: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setModelFee(
+      model_: PromiseOrValue<BytesLike>,
+      fee_: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setPaused(
       paused_: PromiseOrValue<boolean>,
       overrides?: CallOverrides
@@ -2299,6 +2382,24 @@ export interface V2_EngineV5 extends BaseContract {
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "ModelAddrChanged(bytes32,address)"(
+      id?: PromiseOrValue<BytesLike> | null,
+      addr?: null
+    ): ModelAddrChangedEventFilter;
+    ModelAddrChanged(
+      id?: PromiseOrValue<BytesLike> | null,
+      addr?: null
+    ): ModelAddrChangedEventFilter;
+
+    "ModelFeeChanged(bytes32,uint256)"(
+      id?: PromiseOrValue<BytesLike> | null,
+      fee?: null
+    ): ModelFeeChangedEventFilter;
+    ModelFeeChanged(
+      id?: PromiseOrValue<BytesLike> | null,
+      fee?: null
+    ): ModelFeeChangedEventFilter;
 
     "ModelRegistered(bytes32)"(
       id?: PromiseOrValue<BytesLike> | null
@@ -2630,6 +2731,18 @@ export interface V2_EngineV5 extends BaseContract {
       t: PromiseOrValue<BigNumberish>,
       ts: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setModelAddr(
+      model_: PromiseOrValue<BytesLike>,
+      addr_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setModelFee(
+      model_: PromiseOrValue<BytesLike>,
+      fee_: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setPaused(
@@ -2994,6 +3107,18 @@ export interface V2_EngineV5 extends BaseContract {
       t: PromiseOrValue<BigNumberish>,
       ts: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setModelAddr(
+      model_: PromiseOrValue<BytesLike>,
+      addr_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setModelFee(
+      model_: PromiseOrValue<BytesLike>,
+      fee_: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setPaused(

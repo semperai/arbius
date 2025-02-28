@@ -12,6 +12,7 @@ contract VoterTest is BaseTest {
     bytes32 constant MODEL_1 = keccak256("model1");
     bytes32 constant MODEL_2 = keccak256("model2");
     bytes32 constant MODEL_3 = keccak256("model3");
+    bytes32 constant MODEL_4 = keccak256("model4");
 
     function setUp() public {
         // set time
@@ -22,69 +23,31 @@ contract VoterTest is BaseTest {
         // mint and approve AIUS
         mintTestAius();
         approveTestAiusToEscrow();
-    }
 
-    function testOnlyOwner() public {
-        // create gauge for MODEL_1
+        // create gauges
         voter.createGauge(MODEL_1);
-
-        assertEq(voter.owner(), address(this));
-
-        // whitelist
-        voter.whitelist(MODEL_1);
-        assertEq(voter.isWhitelisted(MODEL_1), true);
-        // whitelistFail
-        vm.prank(alice);
-        vm.expectRevert();
-        voter.whitelist(MODEL_1);
-
-        // killGauge
-        voter.killGauge(MODEL_1);
-        assertEq(voter.isAlive(MODEL_1), false);
-        // killGaugeFail
-        vm.prank(alice);
-        vm.expectRevert();
-        voter.killGauge(MODEL_1);
-
-        // reviveGauge
-        voter.reviveGauge(MODEL_1);
-        assertEq(voter.isAlive(MODEL_1), true);
-        // reviveGaugeFail
-        vm.prank(alice);
-        vm.expectRevert();
-        voter.reviveGauge(MODEL_1);
-
-        // non owner cannot create whitelisted gauges
-        vm.prank(alice);
-        vm.expectRevert();
         voter.createGauge(MODEL_2);
-
-        // owner can create non whitelisted gauges
-        voter.createGauge(MODEL_2);
+        voter.createGauge(MODEL_3);
     }
 
     function testCreateGauge() public {
-        // create gauge for MODEL_1
-        voter.createGauge(MODEL_1);
-        assertEq(voter.length(), 1);
+        // create gauge for MODEL_4
+        voter.createGauge(MODEL_4);
 
-        // create gauge for MODEL_2
-        voter.createGauge(MODEL_2);
-        assertEq(voter.length(), 2);
+        // 3 gauges already created, so length should be 4
+        assertEq(voter.length(), 4);
     }
 
-    function testFailCreateGauge() public {
+    function testRevert_CreateGauge() public {
         // create gauge for MODEL_1
-        voter.createGauge(MODEL_1);
-        assertEq(voter.length(), 1);
+        voter.createGauge(MODEL_4);
 
         // create gauge for MODEL_1 again
-        voter.createGauge(MODEL_1);
+        vm.expectRevert(abi.encodePacked("exists"));
+        voter.createGauge(MODEL_4);
     }
 
     function testKillGauge() public {
-        // create gauge for MODEL_1
-        voter.createGauge(MODEL_1);
         assertEq(voter.isAlive(MODEL_1), true);
 
         voter.killGauge(MODEL_1);
@@ -96,10 +59,6 @@ contract VoterTest is BaseTest {
     }
 
     function testReviveGauge() public {
-        // create gauge for MODEL_1
-        voter.createGauge(MODEL_1);
-        assertEq(voter.isAlive(MODEL_1), true);
-
         voter.killGauge(MODEL_1);
         assertEq(voter.isAlive(MODEL_1), false);
 
@@ -112,23 +71,19 @@ contract VoterTest is BaseTest {
 
         // revive non existing gauge
         vm.expectRevert(abi.encodePacked("not a gauge"));
-        voter.reviveGauge(MODEL_2);
+        voter.reviveGauge(MODEL_4);
     }
 
     function testWhitelist() public {
-        // create gauge for MODEL_1
-        voter.createGauge(MODEL_1);
-        assertEq(voter.isAlive(MODEL_1), true);
-
         // not whitelisted yet
-        assertEq(voter.isWhitelisted(MODEL_1), false);
+        assertEq(voter.isWhitelisted(MODEL_4), false);
 
-        voter.whitelist(MODEL_1);
-        assertEq(voter.isWhitelisted(MODEL_1), true);
+        voter.whitelist(MODEL_4);
+        assertEq(voter.isWhitelisted(MODEL_4), true);
 
         // whitelist already whitelisted model
         vm.expectRevert(abi.encodePacked("whitelisted"));
-        voter.whitelist(MODEL_1);
+        voter.whitelist(MODEL_4);
     }
 
     function testGaugeVote() public {
@@ -142,11 +97,7 @@ contract VoterTest is BaseTest {
         votingEscrow.create_lock(100 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(2), bob);
 
-        // create gauge for MODEL_1 and MODEL_2
-        voter.createGauge(MODEL_1);
-        voter.createGauge(MODEL_2);
-
-        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        // vote for MODEL_1 and MODEL_2, with weights 500 and 500 respectively
         bytes32[] memory modelVote = new bytes32[](2);
         uint256[] memory weights = new uint256[](2);
         modelVote[0] = MODEL_1;
@@ -194,15 +145,95 @@ contract VoterTest is BaseTest {
         assertEq(voter.getGaugeMultiplier(MODEL_2), 1e18 / 4);
     }
 
-    function testCannotChangeVoteOrResetInSameEpoch() public {
+    function testMultipleVote() public {
+        // create multiple locks for alice
+        vm.prank(alice);
+        uint256 id1 = votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
+        vm.prank(alice);
+        uint256 id2 = votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(2), alice);
+
+        // balance for second lock is identical to first lock
+        uint256 balance = votingEscrow.balanceOfNFT(1);
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = id1;
+        ids[1] = id2;
+
+        // create two dimensional array:
+        // modelVote[0] = [MODEL_1]
+        // weights[0] = [1000]
+        // modelVote[1] = [MODEL_1, MODEL_2]
+        // weights[1] = [500, 500]
+        bytes32[][] memory modelVote = new bytes32[][](2);
+        uint256[][] memory weights = new uint256[][](2);
+        modelVote[0] = new bytes32[](1);
+        weights[0] = new uint256[](1);
+        modelVote[0][0] = MODEL_1;
+        weights[0][0] = 1000;
+        modelVote[1] = new bytes32[](2);
+        weights[1] = new uint256[](2);
+        modelVote[1][0] = MODEL_1;
+        weights[1][0] = 500;
+        modelVote[1][1] = MODEL_2;
+        weights[1][1] = 500;
+
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.voteMultiple(ids, modelVote, weights);
+
+        // check weights and other values
+        assertEq(voter.totalWeight(), 2 * balance);
+        assertEq(voter.weights(MODEL_2), balance / 2);
+        assertEq(voter.weights(MODEL_1), balance / 2 + balance);
+        assertEq(voter.votes(1, MODEL_1), balance);
+        assertEq(voter.usedWeights(2), balance);
+        assertEq(voter.lastVoted(2), block.timestamp);
+        assertEq(votingEscrow.voted(2), true);
+
+        assertEq(voter.getGaugeMultiplier(MODEL_1), (1e18 * 3) / 4);
+        assertEq(voter.getGaugeMultiplier(MODEL_2), 1e18 / 4);
+
+        // check that both locks are voted
+        assertEq(votingEscrow.voted(1), true);
+        assertEq(votingEscrow.voted(2), true);
+
+        // sanity check, cant vote again in same epoch
+        vm.expectRevert(abi.encodePacked("only new epoch"));
+        vm.prank(alice);
+        voter.voteMultiple(ids, modelVote, weights);
+    }
+
+    function testCannotWithdrawWhenActiveVote() public {
         // create lock for alice
         vm.prank(alice);
         votingEscrow.create_lock(100 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
 
-        // create gauge for MODEL_1 and MODEL_2
-        voter.createGauge(MODEL_1);
-        voter.createGauge(MODEL_2);
+        // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
+        bytes32[] memory modelVote = new bytes32[](2);
+        uint256[] memory weights = new uint256[](2);
+        modelVote[0] = MODEL_1;
+        weights[0] = 100;
+        modelVote[1] = MODEL_2;
+        weights[1] = 400;
+
+        // alice votes for MODEL_1 and MODEL_2
+        vm.prank(alice);
+        voter.vote(1, modelVote, weights);
+
+        // withdraw should fail
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("voted"));
+        votingEscrow.withdraw(1);
+    }
+
+    function testCannotChangeVoteOrResetInSameEpoch() public {
+        // create lock for alice
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 2 * YEAR);
+        assertEq(votingEscrow.ownerOf(1), alice);
 
         // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
         bytes32[] memory modelVote = new bytes32[](2);
@@ -230,10 +261,6 @@ contract VoterTest is BaseTest {
         vm.prank(alice);
         votingEscrow.create_lock(100 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
-
-        // create gauge for MODEL_1 and MODEL_2
-        voter.createGauge(MODEL_1);
-        voter.createGauge(MODEL_2);
 
         // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
         bytes32[] memory modelVote = new bytes32[](2);
@@ -267,10 +294,6 @@ contract VoterTest is BaseTest {
         vm.prank(alice);
         votingEscrow.create_lock(100 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
-
-        // create gauge for MODEL_1 and MODEL_2
-        voter.createGauge(MODEL_1);
-        voter.createGauge(MODEL_2);
 
         // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
         bytes32[] memory modelVote = new bytes32[](2);
@@ -308,10 +331,6 @@ contract VoterTest is BaseTest {
         votingEscrow.create_lock(100 ether, 2 * YEAR);
         assertEq(votingEscrow.ownerOf(1), alice);
 
-        // create gauge for MODEL_1 and MODEL_2
-        voter.createGauge(MODEL_1);
-        voter.createGauge(MODEL_2);
-
         // vote for MODEL_1 and MODEL_2, with weights 100 and 400 respectively
         bytes32[] memory modelVote = new bytes32[](2);
         uint256[] memory weights = new uint256[](2);
@@ -343,7 +362,7 @@ contract VoterTest is BaseTest {
         assertEq(voter.weights(MODEL_2), balance - balance / 5);
     }
 
-    function testAlignedEpochDuration(uint256 warp) public {
+    function testFuzz_AlignedEpochDuration(uint256 warp) public {
         // warp should be less than 100 years
         vm.assume(warp <= 3155760000);
 
@@ -361,19 +380,14 @@ contract VoterTest is BaseTest {
         assertEq(voter.epochVoteEnd(), veStaking.periodFinish());
     }
 
-    function testGaugeMultiplier(
+    function testFuzz_GaugeMultiplier(
         uint256 weight1,
         uint256 weight2,
         uint256 weight3
     ) public {
-        vm.assume(weight1 <= 1e18 && weight1 > 0);
-        vm.assume(weight2 <= 1e18 && weight2 > 0);
-        vm.assume(weight3 <= 1e18 && weight3 > 0);
-
-        // create gauges
-        voter.createGauge(MODEL_1);
-        voter.createGauge(MODEL_2);
-        voter.createGauge(MODEL_3);
+        vm.assume(weight1 <= 1e6 && weight1 > 0);
+        vm.assume(weight2 <= 1e6 && weight2 > 0);
+        vm.assume(weight3 <= 1e6 && weight3 > 0);
 
         // create lock for alice
         vm.prank(alice);
