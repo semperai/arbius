@@ -825,17 +825,17 @@ export default function Stake({
             <div className='mt-6'>
               <button
                 type='button'
-                onClick={async () => {
-                  //console.log(amount, walletBalance, duration)
-                  if (
-                    Number(amount) &&
-                    Number(amount) <= Number(walletBalance) &&
-                    (duration.months || duration.weeks)
-                  ) {
-                    await handleStake();
-                  }
-                }}
-                className={`group relative justify-center bg-black-background py-2 ${Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks) ? '' : 'opacity-40'} flex w-full items-center gap-3 rounded-full px-6 py-1 lg:px-10`}
+                // onClick={async () => {
+                //   //console.log(amount, walletBalance, duration)
+                //   if (
+                //     Number(amount) &&
+                //     Number(amount) <= Number(walletBalance) &&
+                //     (duration.months || duration.weeks)
+                //   ) {
+                //     await handleStake();
+                //   }
+                // }}
+                className={`group relative justify-center bg-black-background py-2 ${Number(amount) && Number(amount) <= Number(walletBalance) && (duration.months || duration.weeks) && 0 ? '' : 'opacity-40'} flex w-full items-center gap-3 rounded-full px-6 py-1 lg:px-10`}
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
                 <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
