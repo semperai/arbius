@@ -591,7 +591,7 @@ contract VeStakingTest is BaseTest {
         );
     }
 
-    /* user related tests: staking, increasing amount, increasing duration, merging */
+    /* user related tests: staking, increasing amount, increasing duration */
 
     function testFuzz_Stake(uint256 amount) public {
         // bind amount to be between 1 and 999 AIUS
@@ -748,4 +748,61 @@ contract VeStakingTest is BaseTest {
         );
     }
 
+    /* other */
+
+    function testMigrateToV2() public {
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), 10 ether);
+        veStaking.notifyRewardAmount(10 ether);
+
+        // alice stakes 100 AIUS
+        vm.prank(alice);
+        votingEscrow.create_lock(10 ether, YEAR);
+
+        // bob stakes 50 AIUS
+        vm.prank(bob);
+        votingEscrow.create_lock(520 ether, 1 weeks);
+
+        uint256 balanceAlice = veStaking.balanceOf(1);
+        uint256 balanceBob = veStaking.balanceOf(2);
+
+        skip(1 weeks);
+
+        // migrate to new contract
+        VeStaking veStakingV2 = new VeStaking(address(AIUS), address(votingEscrow));
+        veStakingV2.setBalance(1, balanceAlice);
+        veStakingV2.setBalance(2, balanceBob);
+
+        // update vestaking contract
+        votingEscrow.setVeStaking(address(veStakingV2));
+        // here we would also need to update the engine contract, but we don't have it in this test
+
+        // balance of NFTs should be updated
+        assertEq(veStakingV2.balanceOf(1), balanceAlice, "!balanceOfNFT");
+        assertEq(veStakingV2.balanceOf(2), balanceBob, "!balanceOfNFT");
+
+
+        // add rewards to veStakingV2
+        AIUS.transfer(address(veStakingV2), 10 ether);
+        veStakingV2.notifyRewardAmount(10 ether);
+                
+        skip(1 weeks);
+
+        // alice and bob should accrue rewards normally
+        assertEq(veStakingV2.earned(1), veStaking.earned(1), "!earned");
+        assertEq(veStakingV2.earned(2), veStaking.earned(2), "!earned");
+
+        // alice claims rewards, bob can withdraw his locked amount
+        vm.prank(alice);
+        veStakingV2.getReward(1);
+        vm.prank(bob);
+        votingEscrow.withdraw(2);
+
+        // bobs balance should be zero in veStakingV2
+        assertEq(veStakingV2.balanceOf(2), 0, "!balanceOfNFT");
+
+        // earned should both be zero
+        assertEq(veStakingV2.earned(1), 0, "!earned");
+        assertEq(veStakingV2.earned(2), 0, "!earned");
+    }
 }
