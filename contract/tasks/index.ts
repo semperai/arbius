@@ -79,7 +79,30 @@ async function getVeStaking(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'arbsepolia') {
-    return await VeStaking.attach(ArbSepoliaConfig.v4_veStakingAddress);
+    return await VeStaking.attach(ArbSepoliaConfig.v5_veStakingAddress);
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+
+async function getVotingEscrow(hre: HardhatRuntimeEnvironment) {
+  const VotingEscrow = await hre.ethers.getContractFactory("VotingEscrow");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    return await VotingEscrow.attach(LocalConfig.v4_votingEscrowAddress);
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    return await VotingEscrow.attach(Config.v4_votingEscrowAddress);
+  }
+
+  if (hre.network.name === 'arbsepolia') {
+    return await VotingEscrow.attach(ArbSepoliaConfig.v5_votingEscrowAddress);
   }
 
   console.log('Unknown network');
