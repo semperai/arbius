@@ -14,6 +14,7 @@ import {IVoter} from "contracts/interfaces/IVoter.sol";
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
 
+uint256 constant ARBITRUM_ONE_CHAINID = 0xa4b1; 
 uint256 constant ARBITRUM_NOVA_CHAINID = 0xa4ba;
 uint256 constant ARBITRUM_GOERLI_CHAINID = 0x66eed;
 uint256 constant ARBITRUM_SEPOLIA_CHAINID = 0x66eee;
@@ -156,6 +157,9 @@ contract V2_EngineV5 is OwnableUpgradeable {
     uint256[37] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
+    event ModelFeeChanged(bytes32 indexed id, uint256 fee);
+    event ModelAddrChanged(bytes32 indexed id, address addr); 
+
     event ValidatorDeposit(
         address indexed addr,
         address indexed validator,
@@ -232,6 +236,14 @@ contract V2_EngineV5 is OwnableUpgradeable {
         _;
     }
 
+    modifier onlyModelOwnerOrOwner(bytes32 model_) {
+        require(
+            models[model_].addr == msg.sender || msg.sender == owner(),
+            "not model owner"
+        );
+        _;
+    } 
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -239,7 +251,9 @@ contract V2_EngineV5 is OwnableUpgradeable {
 
     /// @notice Initialize contract
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public reinitializer(5) {}
+    function initialize() public reinitializer(6) {
+        version = 5;
+    }
 
     /// @notice Transfer ownership
     /// @param to_ Address to transfer ownership to
@@ -324,6 +338,33 @@ contract V2_EngineV5 is OwnableUpgradeable {
     function getValidatorMinimum() public view returns (uint256) {
         uint256 ts = getPsuedoTotalSupply();
         return ts - ((ts * (1e18 - validatorMinimumPercentage)) / 1e18);
+    }
+
+    /// @notice Set model fee
+    /// @dev Added in v4
+    /// @param model_ Model hash
+    /// @param fee_ Fee for model
+    function setModelFee(
+        bytes32 model_,
+        uint256 fee_
+    ) external onlyModelOwnerOrOwner(model_) {
+        models[model_].fee = fee_;
+        emit ModelFeeChanged(model_, fee_);
+    }
+
+    /// @notice Set model address
+    /// @dev Added in v4
+    /// @param model_ Model hash
+    /// @param addr_ New address for model
+    function setModelAddr(
+        bytes32 model_,
+        address addr_
+    ) external onlyModelOwnerOrOwner(model_) {
+        // we must have this check as models are checked to have an address for emptiness
+        // if you wish to revoke a models owner set addr to 0x1
+        require(addr_ != address(0x0), "address must be non-zero");
+        models[model_].addr = addr_;
+        emit ModelAddrChanged(model_, addr_);
     }
 
     /// @notice Get IPFS cid
@@ -690,6 +731,7 @@ contract V2_EngineV5 is OwnableUpgradeable {
         }
 
         if (
+            id == ARBITRUM_ONE_CHAINID || 
             id == ARBITRUM_NOVA_CHAINID ||
             id == ARBITRUM_GOERLI_CHAINID ||
             id == ARBITRUM_SEPOLIA_CHAINID

@@ -49,6 +49,7 @@ export interface VoterInterface extends utils.Interface {
     "transferOwnership(address)": FunctionFragment;
     "usedWeights(uint256)": FunctionFragment;
     "vote(uint256,bytes32[],uint256[])": FunctionFragment;
+    "voteMultiple(uint256[],bytes32[][],uint256[][])": FunctionFragment;
     "votes(uint256,bytes32)": FunctionFragment;
     "votingEscrow()": FunctionFragment;
     "weights(bytes32)": FunctionFragment;
@@ -77,6 +78,7 @@ export interface VoterInterface extends utils.Interface {
       | "transferOwnership"
       | "usedWeights"
       | "vote"
+      | "voteMultiple"
       | "votes"
       | "votingEscrow"
       | "weights"
@@ -162,6 +164,14 @@ export interface VoterInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "voteMultiple",
+    values: [
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>[][],
+      PromiseOrValue<BigNumberish>[][]
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "votes",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
@@ -225,6 +235,10 @@ export interface VoterInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "voteMultiple",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "votes", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "votingEscrow",
@@ -441,6 +455,13 @@ export interface Voter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    voteMultiple(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      _modelVote: PromiseOrValue<BytesLike>[][],
+      _weights: PromiseOrValue<BigNumberish>[][],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     votes(
       arg0: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<BytesLike>,
@@ -550,6 +571,13 @@ export interface Voter extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  voteMultiple(
+    tokenIds: PromiseOrValue<BigNumberish>[],
+    _modelVote: PromiseOrValue<BytesLike>[][],
+    _weights: PromiseOrValue<BigNumberish>[][],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   votes(
     arg0: PromiseOrValue<BigNumberish>,
     arg1: PromiseOrValue<BytesLike>,
@@ -654,6 +682,13 @@ export interface Voter extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       _modelVote: PromiseOrValue<BytesLike>[],
       _weights: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    voteMultiple(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      _modelVote: PromiseOrValue<BytesLike>[][],
+      _weights: PromiseOrValue<BigNumberish>[][],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -829,6 +864,13 @@ export interface Voter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    voteMultiple(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      _modelVote: PromiseOrValue<BytesLike>[][],
+      _weights: PromiseOrValue<BigNumberish>[][],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     votes(
       arg0: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<BytesLike>,
@@ -936,6 +978,13 @@ export interface Voter extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       _modelVote: PromiseOrValue<BytesLike>[],
       _weights: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    voteMultiple(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      _modelVote: PromiseOrValue<BytesLike>[][],
+      _weights: PromiseOrValue<BigNumberish>[][],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

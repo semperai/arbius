@@ -25,22 +25,28 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
 
-  // Deploy veNFTRender
-  const VeNFTRender = await ethers.getContractFactory("VeNFTRender");
+  const Voter = await ethers.getContractFactory("Voter");
 
-  const veNFTRender = await VeNFTRender.deploy();
-  console.log("VeNFTRender deployed to:", veNFTRender.address);
+  // Deploy Voter
+  const voter = await Voter.deploy(Config.v5_votingEscrowAddress);
+  console.log("Voter deployed to:", voter.address);
 
-  // Update artProxy address in VotingEscrow
   const votingEscrow = await ethers.getContractAt(
     "VotingEscrow",
-    Config.votingEscrowAddress
+    Config.v5_votingEscrowAddress
   );
-  await votingEscrow.setArtProxy(veNFTRender.address);
-  console.log("VeNFTRender updated in VotingEscrow");
+  await (await votingEscrow.setVoter(voter.address)).wait();
+  console.log("Voter set in VotingEscrow");
+
+  const engineV5 = await ethers.getContractAt(
+    "V2_EngineV5",
+    Config.v5_engineAddress
+  );
+  await (await engineV5.setVoter(voter.address)).wait();
+  console.log("Voter set in EngineV5");
 
   // Update config
-  Config.veNFTRenderAddress = veNFTRender.address;
+  Config.v5_voterAddress = voter.address;
   fs.writeFileSync(configPath, JSON.stringify(Config, null, 2));
   console.log("Updated config");
 
