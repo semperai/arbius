@@ -62,6 +62,7 @@ contract EngineV5Test is Test {
 
     function setUp() public {
         // initial set up is done in hardhat test file: test/enginev5.test.ts
+        vm.startPrank(deployer);
 
         /* ve specific setup */
         veNFTRender = new VeNFTRender();
@@ -71,6 +72,7 @@ contract EngineV5Test is Test {
             address(0)
         );
         veStaking = new VeStaking(address(baseToken), address(votingEscrow));
+        veStaking.setEngine(address(engine));
 
         // set veStaking in escrow
         votingEscrow.setVeStaking(address(veStaking));
@@ -81,10 +83,10 @@ contract EngineV5Test is Test {
         votingEscrow.setVoter(address(voter));
 
         /* v5 specific setup */
-        vm.prank(deployer);
         engine.setVeStaking(address(veStaking));
-        vm.prank(deployer);
         engine.setVoter(address(voter));
+        
+        vm.stopPrank();
 
         // set up models
         MODEL_1 = deployBootstrapModel(modelOwner1);
@@ -92,9 +94,11 @@ contract EngineV5Test is Test {
         MODEL_3 = deployBootstrapModel(modelOwner3);
 
         // create gauges
+        vm.startPrank(deployer);
         voter.createGauge(MODEL_1);
         voter.createGauge(MODEL_2);
         voter.createGauge(MODEL_3);
+        vm.stopPrank();
 
         // set up validators
         vm.prank(validator1);
@@ -544,6 +548,7 @@ contract EngineV5Test is Test {
 
     function _simulateUsage() internal {
         // call notifyRewardAmount so rewardDuration starts
+        vm.prank(deployer);
         veStaking.notifyRewardAmount(0);
 
         uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
