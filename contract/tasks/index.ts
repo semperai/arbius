@@ -29,7 +29,7 @@ async function getEngine(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'arbsepolia') {
-    const engine = await Engine.attach(ArbSepoliaConfig.v4_engineAddress);
+    const engine = await Engine.attach(ArbSepoliaConfig.v5_engineAddress);
     return engine;
   }
 
@@ -55,7 +55,7 @@ async function getBaseToken(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'arbsepolia') {
-    const baseToken = await BaseToken.attach(ArbSepoliaConfig.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(ArbSepoliaConfig.v5_baseTokenAddress);
     return baseToken;
   }
 
