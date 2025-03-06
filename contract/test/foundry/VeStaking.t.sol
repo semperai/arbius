@@ -48,6 +48,22 @@ contract VeStakingTest is BaseTest {
         vm.prank(alice);
         vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
         veStaking.recoverERC20(address(mockToken), 10 ether);
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
+        veStaking.setBalance(1, 10 ether);
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
+        veStaking.setEmergency(true);
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
+        veStaking.setEngine(address(this));
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
+        veStaking.recoverERC20(address(mockToken), 100 ether);
     }
 
     function testOnlyVotingEscrow() public {
@@ -74,31 +90,11 @@ contract VeStakingTest is BaseTest {
         mockToken.mint(address(this), 100 ether);
         mockToken.transfer(address(veStaking), 100 ether);
 
-        // should revert, only owner can call recoverERC20
-        vm.prank(alice);
-        vm.expectRevert(abi.encodePacked("Ownable: caller is not the owner"));
-        veStaking.recoverERC20(address(mockToken), 100 ether);
-
-        // should work
         veStaking.recoverERC20(address(mockToken), 100 ether);
         assertEq(
             mockToken.balanceOf(address(this)),
             100 ether,
             "!balanceOf(this)"
-        );
-    }
-
-    function testRecoverRewardsToken() public {
-        AIUS.transfer(address(veStaking), 100 ether);
-
-        // should revert when trying to recover staking token
-        vm.expectRevert(abi.encodePacked("Cannot withdraw the rewards token"));
-        veStaking.recoverERC20(address(AIUS), 100 ether);
-
-        assertEq(
-            AIUS.balanceOf(address(veStaking)),
-            100 ether,
-            "!balanceOf(veStaking)"
         );
     }
 
@@ -151,9 +147,97 @@ contract VeStakingTest is BaseTest {
         veStaking.setRewardsDuration(2 weeks);
     }
 
+    function testRestrictedNotifyRewardAmount() public {
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("Caller is not engine contract or owner"));
+        veStaking.notifyRewardAmount(0);
+
+        // owner should be able to call to manually add rewards
+        veStaking.notifyRewardAmount(0);
+
+        // for testing: engine address is now alice
+        veStaking.setEngine(alice);
+
+        // alice should be able to call notifyRewardAmount
+        vm.prank(alice);
+        veStaking.notifyRewardAmount(0);
+    }
+
+    function testSetBalance() public {
+        // set balance of NFT to 200 AIUS
+        veStaking.setBalance(1, 200 ether);
+
+        // balance of NFT and totalsupply should be updated
+        assertEq(veStaking.balanceOf(1), 200 ether, "!balanceOfNFT");
+        assertEq(veStaking.totalSupply(), 200 ether, "!totalSupply");
+
+        // alice stakes 100 AIUS
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 1 weeks);
+         
+        // balance of NFT and totalsupply should be updated
+        assertEq(veStaking.balanceOf(1), 200 ether + 958904109588902400, "!balanceOfNFT");
+        assertEq(veStaking.totalSupply(), 200 ether + 958904109588902400, "!totalSupply");
+
+        // set balance of NFT back to 200 AIUS
+        veStaking.setBalance(1, 200 ether);
+
+        // balance of NFT and totalsupply should be updated
+        assertEq(veStaking.balanceOf(1), 200 ether, "!balanceOfNFT");
+        assertEq(veStaking.totalSupply(), 200 ether, "!totalSupply");
+    }
+
+    function test_RevertSetBalance() public {
+        veStaking.notifyRewardAmount(0);
+
+        // function should revert if rewards have started
+        vm.expectRevert(abi.encodePacked("Cannot set balance after rewards have started"));
+        veStaking.setBalance(1, 100 ether);
+    }
+
+    function testEmergency() public {
+        vm.prank(alice);
+        votingEscrow.create_lock(100 ether, 1 weeks);
+
+        // add rewards to veStaking
+        AIUS.transfer(address(veStaking), 1000 ether);
+        veStaking.notifyRewardAmount(1000 ether);
+
+        skip(8 days);
+
+        // now, for some reason there are not enough rewards in the contract to pay out
+        // we simulate this by calling recoverERC20
+        veStaking.recoverERC20(address(AIUS), 800 ether);
+        assertEq(AIUS.balanceOf(address(veStaking)), 200 ether, "!balanceOf(veStaking)");
+
+        // alice tries to withdraw, this should fail
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("ERC20: transfer amount exceeds balance"));
+        votingEscrow.withdraw(1);
+
+        // set emergency to true
+        veStaking.setEmergency(true);
+        assertEq(veStaking.emergency(), true, "!emergency");
+
+        // now alice can withdraw 
+        vm.prank(alice);
+        votingEscrow.withdraw(1);
+
+        // rewards are forfeited
+        assertEq(veStaking.earned(1), 0, "!earned");
+
+        assertEq(AIUS.balanceOf(address(veStaking)), 200 ether, "!balanceOf(veStaking)");
+    }
+
     /* reward logic */
 
     function testLastTimeRewardApplicable() public {
+        assertEq(
+            veStaking.lastTimeRewardApplicable(),
+            0,
+            "!lastTimeRewardApplicable"
+        );
+
         // call notifyRewardAmount so rewardDuration starts
         veStaking.notifyRewardAmount(0);
 
@@ -663,4 +747,5 @@ contract VeStakingTest is BaseTest {
             "newEscrowBalance != newStakingBalance"
         );
     }
+
 }
