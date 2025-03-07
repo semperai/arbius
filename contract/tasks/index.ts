@@ -29,7 +29,7 @@ async function getEngine(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'arbsepolia') {
-    const engine = await Engine.attach(ArbSepoliaConfig.v4_engineAddress);
+    const engine = await Engine.attach(ArbSepoliaConfig.v5_engineAddress);
     return engine;
   }
 
@@ -55,7 +55,7 @@ async function getBaseToken(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'arbsepolia') {
-    const baseToken = await BaseToken.attach(ArbSepoliaConfig.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(ArbSepoliaConfig.v5_baseTokenAddress);
     return baseToken;
   }
 
@@ -79,7 +79,30 @@ async function getVeStaking(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'arbsepolia') {
-    return await VeStaking.attach(ArbSepoliaConfig.v4_veStakingAddress);
+    return await VeStaking.attach(ArbSepoliaConfig.v5_veStakingAddress);
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+
+async function getVotingEscrow(hre: HardhatRuntimeEnvironment) {
+  const VotingEscrow = await hre.ethers.getContractFactory("VotingEscrow");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    return await VotingEscrow.attach(LocalConfig.v4_votingEscrowAddress);
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    return await VotingEscrow.attach(Config.v4_votingEscrowAddress);
+  }
+
+  if (hre.network.name === 'arbsepolia') {
+    return await VotingEscrow.attach(ArbSepoliaConfig.v5_votingEscrowAddress);
   }
 
   console.log('Unknown network');
@@ -788,4 +811,105 @@ task("amica:setTax")
   const tx = await amica.setTax(hre.ethers.utils.parseEther(tax));
   await tx.wait();
   console.log(`Tax set to ${tax}`);
+});
+
+task("snapshot", "Take a snapshot")
+.setAction(async ({ }, hre) => {
+  const veStaking = await getVeStaking(hre);
+  const votingEscrow = await getVotingEscrow(hre);
+
+  const timestamp = 1737526931;
+
+  const totalAirdrop = 6_969_696_969 * 0.1;
+  console.log('totalAirdrop', totalAirdrop);
+
+  const totalSupply = await votingEscrow.getPastTotalSupply(timestamp);
+  const formattedTotalSupply = hre.ethers.utils.formatEther(totalSupply);
+
+  console.log('totalSupply', formattedTotalSupply);
+
+
+  let totalToSend = 0;
+
+  let items = [];
+  for (let i = 400; i < 800; i++) {
+    const balance = await votingEscrow.balanceOfNFTAt(i, timestamp);
+    if (balance.eq(0)) {
+      console.log(`skipping ${i}`);
+      continue;
+    }
+    const formattedBalance = hre.ethers.utils.formatEther(balance);
+    const owner = await votingEscrow.ownerOf(i);
+    const percentage = balance.mul(1_000_000_000).div(totalSupply);
+    const formattedPercentage = hre.ethers.utils.formatUnits(percentage, 9);
+    const amountToSend = Number(formattedPercentage) * totalAirdrop;
+    totalToSend += amountToSend;
+    console.log(i, owner, formattedBalance, formattedPercentage, amountToSend);
+    items.push({ id: i, owner, formattedBalance, formattedPercentage, amountToSend });
+  }
+
+  console.log('totalToSend', totalToSend);
+
+  console.log("\n\n\n\n\n");
+
+  console.log(JSON.stringify(items, null, 2));
+});
+
+task("snapshot:count", "Count snapshot")
+.setAction(async ({ }, hre) => {
+  const lines = fs.readFileSync('snapshot_amounts.txt', 'utf8');
+  const j = JSON.parse(lines);
+  console.log(j);
+  let total = 0;
+  for (let m of j) {
+    console.log(m.amountToSend);
+    total += m.amountToSend;
+  }
+  console.log(total);
+});
+
+task("rescue:vestaking", "Rescue veStaking")
+.setAction(async ({ }, hre) => {
+  const veStaking = await getVeStaking(hre);
+
+  let total = hre.ethers.BigNumber.from(0);
+  for (let i = 0; i < 1000; i++) {
+    try {
+      const balance = await veStaking.earned(i);
+      console.log(`${i},${hre.ethers.utils.formatEther(balance)}`);
+      if (balance.eq(0)) {
+        // console.log(`skipping ${i}`);
+        continue;
+      }
+
+      // total = total.add(balance);
+      // console.log('total', hre.ethers.utils.formatEther(total));
+      /*
+      const tx = await veStaking.getReward(i);
+      const receipt = await tx.wait();
+      console.log('Claimed reward for', i, receipt.transactionHash);
+      */
+    } catch (e) {
+      console.log('error', i, e);
+      console.log('waiting 3 seconds');
+      await new Promise(r => setTimeout(r, 3000));
+      // i--;
+    }
+  }
+});
+
+task("model:setFee", "Set fee for model")
+.addParam("model", "Model id")
+.addParam("fee", "Fee")
+.setAction(async ({ model, fee }, hre) => {
+  const engine = await getEngine(hre);
+
+  const minfo = await engine.models(model);
+  console.log(`Model ${minfo.addr} fee is ${hre.ethers.utils.formatEther(minfo.fee)}`);
+
+  const tx = await engine.setModelFee(model, hre.ethers.utils.parseEther(fee));
+  const receipt = await tx.wait();
+
+
+  console.log(`Model fee for model ${model} is now ${fee} in ${receipt.transactionHash}`);
 });
