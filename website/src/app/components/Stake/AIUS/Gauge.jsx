@@ -653,7 +653,7 @@ function Gauge({
         </div>
       </div>
       <div className='w-full overflow-x-auto xl:overflow-x-visible'>
-        <div className='text-[13px] md:text-[16px] gauge-table-headings mb-4 mt-2 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-2 md:gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-semibold lg:px-10 lg:pb-6 lg:pt-6'>
+        <div className='text-[13px] md:text-[16px] gauge-table-headings mb-4 mt-2 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-4 md:gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-semibold lg:px-10 lg:pb-6 lg:pt-6'>
           <div className='w-[25%]'>
             <h1>Model Name</h1>
           </div>
@@ -674,13 +674,13 @@ function Gauge({
           <div className='w-[10%]'>
             <h1>Repository</h1>
           </div>
-          <div className='hidden xl:block w-[15%]'></div>
+          <div className='w-[15%]'></div>
         </div>
 
         {filteredData?.map((item, key) => {
           return (
             <div
-              className={`gauge-table-item relative my-3 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-2 md:gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false && votingPercentage?.[item?.model_name]?.percentage > 0 ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 py-5 font-semibold lg:px-10`}
+              className={`gauge-table-item relative my-3 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-4 md:gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false && votingPercentage?.[item?.model_name]?.percentage > 0 ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 py-5 font-semibold lg:px-10`}
               key={key}
             >
               <div
@@ -748,9 +748,9 @@ function Gauge({
                   <Image className="mt-[2px] h-[15px] w-[15px] brightness-0" src={github} alt="" /><div>Github</div>
                 </h1>
               </div>
-              <div className='hidden xl:flex flex-col justify-end w-[15%]'>
+              <div className='flex flex-col justify-end w-[15%]'>
                 <div className={`flex border-[1px] max-w-[150px] ${ votingPercentage?.[item?.model_name]?.error ? "border-[#C71518]" : "border-purple-text/20"} rounded-[25px]`}>
-                  <div className="rounded-l-[20px] p-[6px_10px] bg-purple-text/10">%</div>
+                  <div className="text-[11px] md:text-[14px] lg:text-[16px] rounded-l-[20px] p-[6px_10px] bg-purple-text/10">%</div>
                   <input
                     className={"w-full rounded-r-[25px] bg-white-background w-[70px] focus:outline-none pl-2"}
                     value={votingPercentage?.[item?.model_name]?.percentage}
