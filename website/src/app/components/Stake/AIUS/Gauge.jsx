@@ -96,6 +96,16 @@ function Gauge({
       icon: deepseek_icon,
       model_bytes: "0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21"
     },
+    {
+      model_name: 'Qwen',
+      model_id: '0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a',
+      description: 'Text Generator',
+      emissions: '0%',
+      fees: '0',
+      prompts: '6049',
+      icon: deepseek_icon,
+      model_bytes: "0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a"
+    },
   ]);
   const [showPopUp, setShowPopUp] = useState(false);
   const [filteredData, setFilteredData] = useState(data);
