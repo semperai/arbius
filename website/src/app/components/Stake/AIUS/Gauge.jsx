@@ -664,14 +664,6 @@ function Gauge({
             <h1>Emissions</h1>
           </div>
           <div className='w-[20%]'>
-            <h1 className="flex items-center">Fees <span className="text-[13px]">(AIUS)</span>
-              <div className="group relative">
-                <Image src={info_icon} className='cursor-pointer ml-1 w-[12px] h-[12px] grayscale-[1] opacity-30' />
-                <div className="hidden group-hover:flex absolute left-[20px] top-[-12px] bg-white-background p-2 rounded-[15px] text-[12px] lato-regular border-[1px] border-light-purple-background">Controlled by Governance Power</div>
-              </div>
-            </h1>
-          </div>
-          <div className='w-[20%]'>
             <h1 className="flex items-center">Fees<span className="ml-1 text-[13px]">(AIUS)</span>
               <div className="group relative">
                 <Image src={info_icon} className='cursor-pointer ml-1 w-[12px] h-[12px] grayscale-[1] opacity-30' />
