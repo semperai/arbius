@@ -139,6 +139,8 @@ async function main() {
   console.log("Voter set in VotingEscrow");
   await (await engine.setVoter(voter.address)).wait();
   console.log("Voter set in EngineV5");
+  await (await veStaking.setEngine(engine.address)).wait();
+  console.log("Engine set in VeStaking)");
 
   // Governance contracts
   const TimelockV1 = await ethers.getContractFactory("TimelockV1");
