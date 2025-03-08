@@ -6,10 +6,11 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
 // import config from "../../../../sepolia_config.json"
 import votingEscrow from '../../../abis/votingEscrow.json';
+import voter from '../../../abis/voter.json';
 import veStaking from '../../../abis/veStaking.json';
 import Image from 'next/image';
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png';
@@ -145,19 +146,65 @@ function StakeCard({
     },
   });
 
-  const handleWithdraw = (lockedEndDate) => {
-    console.log(
-      lockedEndDate,
-      Date.now(),
-      'locked end date and current date comparison'
-    );
-    if (lockedEndDate > Date.now()) {
-      return;
-    }
-    console.log(lockedEndDate, 'LOCKED END DATE', 'Withdraw');
+  const handleWithdraw = async(lockedEndDate) => {
+    // @ts-ignore
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    // Create a provider
+    // @ts-ignore
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    withdrawAIUS?.();
-    setShowPopUp('withdraw/2');
+    // Get the signer
+    const signer = provider.getSigner();
+
+    const votingEscrowContract = new ethers.Contract(
+      Config.votingEscrowAddress,
+      votingEscrow.abi,
+      signer
+    );
+
+    const voterContract = new ethers.Contract(
+      Config.voterAddress,
+      voter.abi,
+      signer
+    );
+
+    const alreadyVoted = await votingEscrowContract.voted(token?.tokenID);
+
+    if(alreadyVoted){
+      // @ts-ignore
+      setShowPopUp('withdraw/2');
+      // reset the vote first
+      const resetTx = await voterContract.reset(token?.tokenID);
+
+      await resetTx.wait();
+      getTransactionReceiptData(resetTx.hash).then(async function () {
+
+        if (lockedEndDate > Date.now()) {
+          return;
+        }
+
+        const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
+        await _withdraw.wait();
+        getTransactionReceiptData(_withdraw.hash).then(function () {
+          // @ts-ignore
+          setShowPopUp('withdraw/Success');
+          // @ts-ignore
+          setUpdateValue((prevValue) => prevValue + 1);
+        })
+        .catch(function() {
+          // @ts-ignore
+          setShowPopUp('withdraw/Error');
+        })
+      });
+    }else{
+      if (lockedEndDate > Date.now()) {
+        return;
+      }
+
+      withdrawAIUS?.();
+      // @ts-ignore
+      setShowPopUp('withdraw/2');
+    }
   };
 
   useEffect(() => {
