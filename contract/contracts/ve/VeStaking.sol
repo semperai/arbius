@@ -222,10 +222,19 @@ contract VeStaking is IVeStaking, Ownable {
         emit EmergencySet(_emergency);
     }
 
+    /// @notice Sets the balances of multiple tokenIds
+    function setMultipleBalances(uint256[] calldata tokenIds, uint256[] calldata newAmounts) external onlyOwner {
+        require(tokenIds.length == newAmounts.length, "Arrays must have the same length");
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            setBalance(tokenIds[i], newAmounts[i]);
+        }
+    }
+
     /// @notice Sets the balance of `tokenId` to `newAmount`
     /// @notice This function reverts after rewards have started
     /// @dev Necessary for migration of v1 -> v2 
-    function setBalance(uint256 tokenId, uint256 newAmount) external onlyOwner {
+    function setBalance(uint256 tokenId, uint256 newAmount) public onlyOwner {
         require(periodFinish == 0, "Cannot set balance after rewards have started");
 
         uint256 amount = _balances[tokenId];
