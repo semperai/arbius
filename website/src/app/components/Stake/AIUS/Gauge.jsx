@@ -7,6 +7,7 @@ import nemotron_icon from '../../../assets/images/nemotron_icon.png';
 import deepseek_icon from '../../../assets/images/deepseek_icon.png';
 import llama_icon from '../../../assets/images/llama.png';
 import search_icon from '../../../assets/images/search_icon.png';
+import qwen_icon from '../../../assets/images/qwen.png';
 import PopUp from './PopUp';
 import cross_icon from '../../../assets/images/cross_icon.png';
 import arbius_logo_without_name from '@/app/assets/images/arbius_logo_without_name.png';
@@ -103,7 +104,7 @@ function Gauge({
       emissions: '0%',
       fees: '0',
       prompts: '6049',
-      icon: deepseek_icon,
+      icon: qwen_icon,
       model_bytes: "0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a"
     },
   ]);
