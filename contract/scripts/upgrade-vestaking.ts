@@ -45,8 +45,10 @@ async function main() {
   await (await engineV5.setVeStaking(veStaking.address)).wait();
   console.log("VeStaking set in EngineV5");
 
-  await (await veStaking.setEngine(engineV5.address)).wait();
-  console.log("Engine set in VeStaking)");
+  // note: this is commented out, bc if someone claims rewards the engine contract calls notifyRewardAmount and setBalance will fail
+  // note: this is not possible on arbitrum one since no functioning model is registered yet
+  //await (await veStaking.setEngine(engineV5.address)).wait();
+  //console.log("Engine set in VeStaking)");
 
   // Update config
   Config.v5_veStakingAddress = veStaking.address;
