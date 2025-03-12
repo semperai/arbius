@@ -20,6 +20,8 @@ contract VeStaking is IVeStaking, Ownable {
 
     IERC20 public rewardsToken;
     IVotingEscrow public votingEscrow;
+    address public engine;
+    bool public emergency; // flag to stop rewards in case of emergency
 
     uint256 public periodFinish;
     uint256 public rewardRate;
@@ -44,9 +46,10 @@ contract VeStaking is IVeStaking, Ownable {
         uint256 oldAmount,
         uint256 newAmount
     );
-    event RewardPaid(address indexed tokenId, uint256 reward);
+    event RewardPaid(uint256 indexed tokenId, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);
+    event EmergencySet(bool emergency);
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -66,6 +69,14 @@ contract VeStaking is IVeStaking, Ownable {
         _;
     }
 
+    modifier onlyEngineOrOwner() {
+        require(
+            msg.sender == address(engine) || msg.sender == owner(),
+            "Caller is not engine contract or owner"
+        );
+        _;
+    }
+
     modifier updateReward(uint256 tokenId) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = lastTimeRewardApplicable();
@@ -78,42 +89,6 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    /// @notice Adds `reward` to be distributed to veToken holders
-    /// @param reward Amount of rewards to add
-    function notifyRewardAmount(uint256 reward) external updateReward(0) {
-        // remaining time until periodFinish
-        uint256 remaining;
-
-        if (block.timestamp >= periodFinish) {
-            // set new periodFinish if the previous period has ended
-            // periodFinish is rounded down to weeks to be aligned with the weekly gauge voting schedule
-            periodFinish =
-                ((block.timestamp + rewardsDuration) / 1 weeks) *
-                1 weeks;
-
-            remaining = periodFinish - block.timestamp;
-            rewardRate = reward / remaining;
-        } else {
-            remaining = periodFinish - block.timestamp;
-            uint256 leftover = remaining * rewardRate;
-            rewardRate = (reward + leftover) / remaining;
-        }
-
-        lastUpdateTime = block.timestamp;
-
-        // Ensure the provided reward amount is not more than the balance in the contract.
-        // This keeps the reward rate in the right range, preventing overflows due to
-        // very high values of rewardRate in the earned and rewardsPerToken functions;
-        // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
-        uint256 balance = rewardsToken.balanceOf(address(this));
-        require(
-            rewardRate <= (balance / remaining),
-            "Provided reward too high"
-        );
-
-        emit RewardAdded(reward);
-    }
-
     /// @notice Claim rewards for `tokenId`
     /// @param tokenId ID of the veNFT
     function getReward(uint256 tokenId) external updateReward(tokenId) {
@@ -122,8 +97,12 @@ contract VeStaking is IVeStaking, Ownable {
         uint256 reward = rewards[tokenId];
         if (reward > 0) {
             rewards[tokenId] = 0;
-            rewardsToken.safeTransfer(tokenOwner, reward);
-            emit RewardPaid(tokenOwner, reward);
+
+            // only transfer rewards if not in emergency mode
+            if (!emergency) {
+                rewardsToken.safeTransfer(tokenOwner, reward);
+                emit RewardPaid(tokenId, reward);
+            }
         }
     }
 
@@ -172,6 +151,43 @@ contract VeStaking is IVeStaking, Ownable {
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
+    /// @notice Adds `reward` to be distributed to veToken holders
+    /// @dev This function is called once at the beginning of a new epoch by the engine contract
+    /// @param reward Amount of rewards to add
+    function notifyRewardAmount(uint256 reward) external onlyEngineOrOwner updateReward(0) {
+        // remaining time until periodFinish
+        uint256 remaining;
+
+        if (block.timestamp >= periodFinish) {
+            // set new periodFinish if the previous period has ended
+            // periodFinish is rounded down to weeks to be aligned with the weekly gauge voting schedule
+            periodFinish =
+                ((block.timestamp + rewardsDuration) / 1 weeks) *
+                1 weeks;
+
+            remaining = periodFinish - block.timestamp;
+            rewardRate = reward / remaining;
+        } else {
+            remaining = periodFinish - block.timestamp;
+            uint256 leftover = remaining * rewardRate;
+            rewardRate = (reward + leftover) / remaining;
+        }
+
+        lastUpdateTime = block.timestamp;
+
+        // Ensure the provided reward amount is not more than the balance in the contract.
+        // This keeps the reward rate in the right range, preventing overflows due to
+        // very high values of rewardRate in the earned and rewardsPerToken functions;
+        // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
+        uint256 balance = rewardsToken.balanceOf(address(this));
+        require(
+            rewardRate <= (balance / remaining),
+            "Provided reward too high"
+        );
+
+        emit RewardAdded(reward);
+    }
+
     /// @notice Recover tokens that are accidentally sent to the contract
     /// @param tokenAddress Address of the token to recover
     /// @param tokenAmount Amount of tokens to recover
@@ -179,10 +195,6 @@ contract VeStaking is IVeStaking, Ownable {
         address tokenAddress,
         uint256 tokenAmount
     ) external onlyOwner {
-        require(
-            tokenAddress != address(rewardsToken),
-            "Cannot withdraw the rewards token"
-        );
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
         emit Recovered(tokenAddress, tokenAmount);
     }
@@ -196,6 +208,38 @@ contract VeStaking is IVeStaking, Ownable {
         );
         rewardsDuration = _rewardsDuration;
         emit RewardsDurationUpdated(rewardsDuration);
+    }
+
+    /// @notice Sets the address of the engine contract
+    function setEngine(address _engine) external onlyOwner {
+        engine = _engine;
+    }
+
+    /// @notice Sets the emergency flag to stop rewards in case of emergency
+    function setEmergency(bool _emergency) external onlyOwner {
+        emergency = _emergency;
+
+        emit EmergencySet(_emergency);
+    }
+
+    /// @notice Sets the balances of multiple tokenIds
+    function setMultipleBalances(uint256[] calldata tokenIds, uint256[] calldata newAmounts) external onlyOwner {
+        require(tokenIds.length == newAmounts.length, "Arrays must have the same length");
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            setBalance(tokenIds[i], newAmounts[i]);
+        }
+    }
+
+    /// @notice Sets the balance of `tokenId` to `newAmount`
+    /// @notice This function reverts after rewards have started
+    /// @dev Necessary for migration of v1 -> v2 
+    function setBalance(uint256 tokenId, uint256 newAmount) public onlyOwner {
+        require(periodFinish == 0, "Cannot set balance after rewards have started");
+
+        uint256 amount = _balances[tokenId];
+        _totalSupply = _totalSupply - amount + newAmount;
+        _balances[tokenId] = newAmount;
     }
 
     /* ========== VIEWS ========== */

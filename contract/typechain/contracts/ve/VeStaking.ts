@@ -34,6 +34,8 @@ export interface VeStakingInterface extends utils.Interface {
     "_withdraw(uint256)": FunctionFragment;
     "balanceOf(uint256)": FunctionFragment;
     "earned(uint256)": FunctionFragment;
+    "emergency()": FunctionFragment;
+    "engine()": FunctionFragment;
     "getReward(uint256)": FunctionFragment;
     "getRewardForDuration()": FunctionFragment;
     "lastTimeRewardApplicable()": FunctionFragment;
@@ -50,6 +52,10 @@ export interface VeStakingInterface extends utils.Interface {
     "rewards(uint256)": FunctionFragment;
     "rewardsDuration()": FunctionFragment;
     "rewardsToken()": FunctionFragment;
+    "setBalance(uint256,uint256)": FunctionFragment;
+    "setEmergency(bool)": FunctionFragment;
+    "setEngine(address)": FunctionFragment;
+    "setMultipleBalances(uint256[],uint256[])": FunctionFragment;
     "setRewardsDuration(uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
@@ -63,6 +69,8 @@ export interface VeStakingInterface extends utils.Interface {
       | "_withdraw"
       | "balanceOf"
       | "earned"
+      | "emergency"
+      | "engine"
       | "getReward"
       | "getRewardForDuration"
       | "lastTimeRewardApplicable"
@@ -79,6 +87,10 @@ export interface VeStakingInterface extends utils.Interface {
       | "rewards"
       | "rewardsDuration"
       | "rewardsToken"
+      | "setBalance"
+      | "setEmergency"
+      | "setEngine"
+      | "setMultipleBalances"
       | "setRewardsDuration"
       | "totalSupply"
       | "transferOwnership"
@@ -105,6 +117,8 @@ export interface VeStakingInterface extends utils.Interface {
     functionFragment: "earned",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(functionFragment: "emergency", values?: undefined): string;
+  encodeFunctionData(functionFragment: "engine", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getReward",
     values: [PromiseOrValue<BigNumberish>]
@@ -167,6 +181,22 @@ export interface VeStakingInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "setBalance",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setEmergency",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setEngine",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMultipleBalances",
+    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setRewardsDuration",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -191,6 +221,8 @@ export interface VeStakingInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "_withdraw", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "earned", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "emergency", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "engine", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getReward", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRewardForDuration",
@@ -243,6 +275,16 @@ export interface VeStakingInterface extends utils.Interface {
     functionFragment: "rewardsToken",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setBalance", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setEmergency",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setEngine", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setMultipleBalances",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setRewardsDuration",
     data: BytesLike
@@ -262,16 +304,18 @@ export interface VeStakingInterface extends utils.Interface {
 
   events: {
     "BalanceUpdated(uint256,uint256,uint256)": EventFragment;
+    "EmergencySet(bool)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Recovered(address,uint256)": EventFragment;
     "RewardAdded(uint256)": EventFragment;
-    "RewardPaid(address,uint256)": EventFragment;
+    "RewardPaid(uint256,uint256)": EventFragment;
     "RewardsDurationUpdated(uint256)": EventFragment;
     "Staked(uint256,uint256)": EventFragment;
     "Withdrawn(uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "BalanceUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "EmergencySet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Recovered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RewardAdded"): EventFragment;
@@ -292,6 +336,13 @@ export type BalanceUpdatedEvent = TypedEvent<
 >;
 
 export type BalanceUpdatedEventFilter = TypedEventFilter<BalanceUpdatedEvent>;
+
+export interface EmergencySetEventObject {
+  emergency: boolean;
+}
+export type EmergencySetEvent = TypedEvent<[boolean], EmergencySetEventObject>;
+
+export type EmergencySetEventFilter = TypedEventFilter<EmergencySetEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -324,11 +375,11 @@ export type RewardAddedEvent = TypedEvent<[BigNumber], RewardAddedEventObject>;
 export type RewardAddedEventFilter = TypedEventFilter<RewardAddedEvent>;
 
 export interface RewardPaidEventObject {
-  tokenId: string;
+  tokenId: BigNumber;
   reward: BigNumber;
 }
 export type RewardPaidEvent = TypedEvent<
-  [string, BigNumber],
+  [BigNumber, BigNumber],
   RewardPaidEventObject
 >;
 
@@ -418,6 +469,10 @@ export interface VeStaking extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    emergency(overrides?: CallOverrides): Promise<[boolean]>;
+
+    engine(overrides?: CallOverrides): Promise<[string]>;
+
     getReward(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -468,6 +523,28 @@ export interface VeStaking extends BaseContract {
 
     rewardsToken(overrides?: CallOverrides): Promise<[string]>;
 
+    setBalance(
+      tokenId: PromiseOrValue<BigNumberish>,
+      newAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setEmergency(
+      _emergency: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setEngine(
+      _engine: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setMultipleBalances(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      newAmounts: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setRewardsDuration(
       _rewardsDuration: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -509,6 +586,10 @@ export interface VeStaking extends BaseContract {
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  emergency(overrides?: CallOverrides): Promise<boolean>;
+
+  engine(overrides?: CallOverrides): Promise<string>;
 
   getReward(
     tokenId: PromiseOrValue<BigNumberish>,
@@ -560,6 +641,28 @@ export interface VeStaking extends BaseContract {
 
   rewardsToken(overrides?: CallOverrides): Promise<string>;
 
+  setBalance(
+    tokenId: PromiseOrValue<BigNumberish>,
+    newAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setEmergency(
+    _emergency: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setEngine(
+    _engine: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setMultipleBalances(
+    tokenIds: PromiseOrValue<BigNumberish>[],
+    newAmounts: PromiseOrValue<BigNumberish>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setRewardsDuration(
     _rewardsDuration: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -601,6 +704,10 @@ export interface VeStaking extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    emergency(overrides?: CallOverrides): Promise<boolean>;
+
+    engine(overrides?: CallOverrides): Promise<string>;
 
     getReward(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -650,6 +757,28 @@ export interface VeStaking extends BaseContract {
 
     rewardsToken(overrides?: CallOverrides): Promise<string>;
 
+    setBalance(
+      tokenId: PromiseOrValue<BigNumberish>,
+      newAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setEmergency(
+      _emergency: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setEngine(
+      _engine: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMultipleBalances(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      newAmounts: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setRewardsDuration(
       _rewardsDuration: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -677,6 +806,9 @@ export interface VeStaking extends BaseContract {
       newAmount?: null
     ): BalanceUpdatedEventFilter;
 
+    "EmergencySet(bool)"(emergency?: null): EmergencySetEventFilter;
+    EmergencySet(emergency?: null): EmergencySetEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -695,12 +827,12 @@ export interface VeStaking extends BaseContract {
     "RewardAdded(uint256)"(reward?: null): RewardAddedEventFilter;
     RewardAdded(reward?: null): RewardAddedEventFilter;
 
-    "RewardPaid(address,uint256)"(
-      tokenId?: PromiseOrValue<string> | null,
+    "RewardPaid(uint256,uint256)"(
+      tokenId?: PromiseOrValue<BigNumberish> | null,
       reward?: null
     ): RewardPaidEventFilter;
     RewardPaid(
-      tokenId?: PromiseOrValue<string> | null,
+      tokenId?: PromiseOrValue<BigNumberish> | null,
       reward?: null
     ): RewardPaidEventFilter;
 
@@ -758,6 +890,10 @@ export interface VeStaking extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    emergency(overrides?: CallOverrides): Promise<BigNumber>;
+
+    engine(overrides?: CallOverrides): Promise<BigNumber>;
+
     getReward(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -808,6 +944,28 @@ export interface VeStaking extends BaseContract {
 
     rewardsToken(overrides?: CallOverrides): Promise<BigNumber>;
 
+    setBalance(
+      tokenId: PromiseOrValue<BigNumberish>,
+      newAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setEmergency(
+      _emergency: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setEngine(
+      _engine: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setMultipleBalances(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      newAmounts: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setRewardsDuration(
       _rewardsDuration: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -850,6 +1008,10 @@ export interface VeStaking extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    emergency(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    engine(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getReward(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -906,6 +1068,28 @@ export interface VeStaking extends BaseContract {
     rewardsDuration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     rewardsToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    setBalance(
+      tokenId: PromiseOrValue<BigNumberish>,
+      newAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setEmergency(
+      _emergency: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setEngine(
+      _engine: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMultipleBalances(
+      tokenIds: PromiseOrValue<BigNumberish>[],
+      newAmounts: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     setRewardsDuration(
       _rewardsDuration: PromiseOrValue<BigNumberish>,

@@ -68,7 +68,8 @@ contract GovernanceTest is Test {
             address(0)
         );
         veStaking = new VeStaking(address(baseToken), address(votingEscrow));
-
+        veStaking.setEngine(address(engine));
+        
         // set veStaking in escrow
         votingEscrow.setVeStaking(address(veStaking));
 
