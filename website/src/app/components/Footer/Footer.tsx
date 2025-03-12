@@ -119,7 +119,7 @@ export default function Footer() {
   return (
     <div className='bg-white-background py-8 lg:py-20'>
       <div className="fixed bottom-0 h-[80px] w-full bg-black-background flex flex-col items-center justify-center z-[9999]">
-        <div className="text-[14px]">Rewards are paused until further notice!</div>
+        <div className="text-[14px] text-original-white">Rewards are paused until further notice!</div>
       </div>
       <div className='mx-auto w-mobile-section-width max-w-center-width lg:w-section-width'>
         <Fade direction='up' triggerOnce={true}>
