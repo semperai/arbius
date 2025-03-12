@@ -358,14 +358,14 @@ function StakeCard({
             <div className='w-[32%]'>
               <button
                 type='button'
-                // onClick={() => {
-                //   setShowPopUp('add');
-                //   setSelectedStake(token?.tokenID);
-                // }}
-                className={`group relative flex w-full items-center justify-center gap-3 rounded-full ${0 ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 py-2 lg:px-4`}
+                onClick={() => {
+                  setShowPopUp('add');
+                  setSelectedStake(token?.tokenID);
+                }}
+                className={`group relative flex w-full items-center justify-center gap-3 rounded-full bg-black-background px-3 py-1 py-2 lg:px-4`}
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                <div className={`lato-bold relative z-10 ${0 ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[15px]`}>
+                <div className={`lato-bold relative z-10 text-original-white lg:text-[15px]`}>
                   Add
                 </div>
               </button>
@@ -373,14 +373,14 @@ function StakeCard({
             <div className='w-[32%]'>
               <button
                 type='button'
-                // onClick={extendMonths ? () => {
-                //   setShowPopUp('extend');
-                //   setSelectedStake(token?.tokenID);
-                // } : null }
-                className={`group relative flex w-full items-center justify-center gap-3 rounded-full ${extendMonths && 0 ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 py-2 lg:px-4`}
+                onClick={extendMonths ? () => {
+                  setShowPopUp('extend');
+                  setSelectedStake(token?.tokenID);
+                } : null }
+                className={`group relative flex w-full items-center justify-center gap-3 rounded-full ${extendMonths ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 py-2 lg:px-4`}
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                <div className={`lato-bold relative z-10 ${extendMonths && 0 ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[15px]`}>
+                <div className={`lato-bold relative z-10 ${extendMonths ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[15px]`}>
                   Extend
                 </div>
               </button>
@@ -388,14 +388,14 @@ function StakeCard({
             <div className='w-[32%]'>
               <button
                 type='button'
-                // onClick={() => {
-                //   setShowPopUp('claim');
-                //   setSelectedStake(token?.tokenID);
-                // }}
-                className={`group relative flex w-full items-center justify-center gap-3 rounded-full ${0 ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 py-2 lg:px-4`}
+                onClick={() => {
+                  setShowPopUp('claim');
+                  setSelectedStake(token?.tokenID);
+                }}
+                className={`group relative flex w-full items-center justify-center gap-3 rounded-full bg-black-background px-3 py-1 py-2 lg:px-4`}
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                <div className={`lato-bold relative z-10 ${0 ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[15px]`}>
+                <div className={`lato-bold relative z-10 text-original-white lg:text-[15px]`}>
                   Claim
                 </div>
               </button>
@@ -408,14 +408,14 @@ function StakeCard({
             <div className='w-[40%]'>
               <button
                 type='button'
-                // onClick={() => {
-                //   setSelectedStake(token?.tokenID);
-                //   handleWithdraw(Number(endDate) * 1000);
-                // }}
-                className={`group relative flex w-full items-center justify-center gap-3 rounded-full ${0 ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 py-2 lg:px-4`}
+                onClick={() => {
+                  setSelectedStake(token?.tokenID);
+                  handleWithdraw(Number(endDate) * 1000);
+                }}
+                className={`group relative flex w-full items-center justify-center gap-3 rounded-full bg-black-background px-3 py-1 py-2 lg:px-4`}
               >
                 <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                <div className={`lato-bold relative z-10 flex items-center justify-center gap-1 ${0 ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[15px]`}>
+                <div className={`lato-bold relative z-10 flex items-center justify-center gap-1 text-original-white lg:text-[15px]`}>
                   <h1>Withdraw</h1>
                   <div className='group mt-[1px]'>
                     <Image src={info_icon} width={14} height={14} alt='info' />
