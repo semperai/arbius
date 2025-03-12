@@ -169,6 +169,23 @@ task("info:veStaking", "Gets all info about contract")
   console.log("votingEscrow", await veStaking.votingEscrow());
 });
 
+task("vestaking:setEngine", "Set engine address")
+.addParam("address", "Engine address")
+.setAction(async ({ address }, hre) => {
+  const veStaking = await getVeStaking(hre);
+  const tx = await veStaking.setEngine(address);
+  await tx.wait();
+  console.log('Engine set to ', address);
+});
+
+task("vestaking:notifyRewardAmount", "Notify reward amount")
+.addParam("amount", "Amount")
+.setAction(async ({ amount }, hre) => {
+  const veStaking = await getVeStaking(hre);
+  const tx = await veStaking.notifyRewardAmount(hre.ethers.utils.parseEther(amount));
+  const receipt = await tx.wait();
+  console.log('Reward notified in ', receipt.transactionHash);
+});
 
 task("bulk:submit", "Helper to submit multiple tasks at once")
 .addOptionalParam("v", "Version of task", "0")
