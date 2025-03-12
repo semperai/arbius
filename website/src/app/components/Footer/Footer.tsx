@@ -142,7 +142,7 @@ export default function Footer() {
         <div className="text-[14px] text-original-white">Rewards are paused until further notice!</div>
       </div>*/}
       { popupVisible ?
-        <div className="hidden lg:block fixed left-[50%] translate-x-[-50%] top-[60px] py-2 px-4 bg-white-background flex flex-col items-center justify-center z-[9999] shadow-lg rounded-[10px]">
+        <div className="hidden lg:block absolute left-[50%] translate-x-[-50%] top-[75px] py-2 px-4 bg-white-background flex flex-col items-center justify-center z-[9999] shadow-lg rounded-[10px]">
         <div className="text-[14px] text-original-black flex items-center justify-center"><span>New veAIUS contract is live with improved security</span><Image className="ml-2 h-[12px] w-[auto]" src={LockIcon} alt="" /></div>
       </div> : null }
       <div className='mx-auto w-mobile-section-width max-w-center-width lg:w-section-width'>
