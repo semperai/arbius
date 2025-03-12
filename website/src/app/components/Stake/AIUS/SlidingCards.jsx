@@ -24,7 +24,7 @@ import {
 import { BigNumber } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
 import StakeCard from './StakeCard';
-import { AIUS_wei, t_max, defaultApproveAmount } from '../../../Utils/constantValues';
+import { AIUS_wei, t_max, defaultApproveAmount, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import CircularProgressBar from './CircularProgressBar';
 import powered_by from '../../../assets/images/powered_by.png';
 import cross from '../../../assets/images/cross.png';
@@ -35,6 +35,39 @@ import { ethers } from 'ethers';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 import Config from '@/config.one.json';
 import Decimal from 'decimal.js';
+
+const getWeb3 = async() => {
+  return await fetch(alchemyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_blockNumber",
+        params: []
+      }),
+    })
+    .then(res => res.json())
+      .then(_data => {
+        if (_data.error) {
+          console.error("Alchemy error:", _data.error.message);
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+          return web3
+        } else {
+          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          console.log("Successfully connected. Block number:", _data.result);
+          return web3
+        }
+      })
+      .catch((err) => {
+        console.log("Request failed:", err)
+        let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+        return web3
+      });
+  }
+
 
 const AddPopUpChildren = ({
   setShowPopUp,
@@ -160,39 +193,6 @@ const AddPopUpChildren = ({
       }
     }
   };
-
-  const getWeb3 = async() => {
-    return await fetch(alchemyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_blockNumber",
-          params: []
-        }),
-      })
-      .then(res => res.json())
-        .then(_data => {
-          if (_data.error) {
-            console.error("Alchemy error:", _data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-            return web3
-          } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
-            console.log("Successfully connected. Block number:", _data.result);
-            return web3
-          }
-        })
-        .catch((err) => {
-          console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-          return web3
-        });
-    }
-
 
 
   useEffect(() => {
