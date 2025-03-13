@@ -433,7 +433,7 @@ function Gauge({
       const modelArrays = Array(allTokenIDs.length).fill().map(() => [...models])
       const weightArrays = Array(allTokenIDs.length).fill().map(() => [...weights])
 
-      const web3 = await getWeb3();
+      const web3 = new Web3(window.ethereum);
       const voterContract = new web3.eth.Contract(
         voter.abi,
         Config.voterAddress
