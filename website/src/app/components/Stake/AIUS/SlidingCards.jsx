@@ -84,7 +84,7 @@ const AddPopUpChildren = ({
   const [aiusToStake, setAIUSToStake] = useState(0);
   const [estBalance, setEstBalance] = useState(0);
   const [allowance, setAllowance] = useState(0);
-  console.log(Number(selectedStake), 'selected Stake');
+  //console.log(Number(selectedStake), 'selected Stake');
 
   const [endDate, setEndDate] = useState(0);
   const [stakedOn, setStakedOn] = useState(0);
@@ -94,7 +94,7 @@ const AddPopUpChildren = ({
     let amountInDec = new Decimal(aiusToStake);
     let allowanceInDec = new Decimal(allowance);
 
-    console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
+    //console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
 
     if (amountInDec.comparedTo(allowanceInDec) > 0 || allowance === 0) {
       try {
@@ -389,13 +389,13 @@ const ExtendPopUpChildren = ({
     months: 0,
     weeks: 0,
   });
-
+  //console.log(sliderValue, duration, "SLDURA")
   function getCurrentTimeInMSeconds() {
     const now = new Date();
     return Math.floor(now.getTime());
   }
   const [endDate, setEndDate] = useState(0);
-  console.log({ selectedStake });
+  //console.log({ selectedStake });
 
   /*const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
         address: Config.votingEscrowAddress,
@@ -406,7 +406,7 @@ const ExtendPopUpChildren = ({
         ]
     })*/
 
-  console.log(endDate, 'END DATE');
+  //console.log(endDate, 'END DATE');
   let currentlyEndingAt = new Date(Number(endDate) * 1000).toLocaleDateString(
     'en-US'
   );
@@ -435,25 +435,13 @@ const ExtendPopUpChildren = ({
   const [extendEndDate, setExtendEndDate] = useState(
     new Date(currentlyEndingAt)
   );
-  console.log(
-    sliderValue,
-    'SLIDER VALUE and dates check',
-    { extendEndDate },
-    getCurrentTimeInMSeconds(),
-    (extendEndDate - getCurrentTimeInMSeconds()) / 1000
-  );
-  console.log(extendEndDate, 'EXTENDED END DATE');
-  console.log(
-    'Below: Difference in time in seconds of extended date and current time'
-  );
-  console.log(
-    parseInt(
-      (extendEndDate.getTime() - getCurrentTimeInMSeconds()) / 1000
-    ).toString()
-  );
+  //console.log(sliderValue,'SLIDER VALUE and dates check',{ extendEndDate },getCurrentTimeInMSeconds(),(extendEndDate - getCurrentTimeInMSeconds()) / 1000);
+  //console.log(extendEndDate, 'EXTENDED END DATE');
+  //console.log('Below: Difference in time in seconds of extended date and current time');
+  //console.log(parseInt((extendEndDate.getTime() - getCurrentTimeInMSeconds()) / 1000).toString());
 
-  console.log({ currentlyEndingAt });
-  console.log({ currentlyEndingDate });
+  //console.log({ currentlyEndingAt });
+  //console.log({ currentlyEndingDate });
 
   const { config: addAIUSConfig } = usePrepareContractWrite({
     address: Config.votingEscrowAddress,
@@ -461,7 +449,7 @@ const ExtendPopUpChildren = ({
     functionName: 'increase_unlock_time',
     args: [
       Number(selectedStake),
-      parseInt((extendEndDate - getCurrentTimeInMSeconds()) / 1000).toString(), // value in months(decimal) * 4*7*24*60*60
+      parseInt( ( (extendEndDate - getCurrentTimeInMSeconds()) / 1000) + 1000 ).toString(), // value in months(decimal) * 4*7*24*60*60
     ],
     enabled: extendEndDate > 0,
   });
@@ -473,7 +461,7 @@ const ExtendPopUpChildren = ({
     isError: addAIUSError,
     write: extendAIUS,
   } = useContractWrite(addAIUSConfig);
-  console.log({ addAIUSData });
+  //console.log({ addAIUSData });
 
   const {
     data: approveTx,
@@ -483,7 +471,7 @@ const ExtendPopUpChildren = ({
     hash: addAIUSData?.hash,
     confirmations: 3,
     onSuccess(data) {
-      console.log('approve tx successful data ', data);
+      //console.log('approve tx successful data ', data);
       setShowPopUp('extend/Success');
       getTransactionReceiptData(addAIUSData?.hash).then(function () {
         //window.location.reload(true)
@@ -584,7 +572,7 @@ const ExtendPopUpChildren = ({
               let currentTimestamp = getCurrentTimeInMSeconds() / 1000;
               const unlockTime =
                 Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
-              console.log(unlockTime, 'UNLOCK TIME and', date);
+              //console.log(unlockTime, 'UNLOCK TIME and', date);
               date = new Date(unlockTime * 1000);
               if (date <= currentEndDate) {
                 return;
@@ -711,7 +699,7 @@ const ClaimPopUpChildren = ({
     write: claimAIUS,
   } = useContractWrite(addAIUSConfig);
 
-  console.log({ addAIUSData });
+  //console.log({ addAIUSData });
 
   const {
     data: approveTx,
@@ -1032,7 +1020,7 @@ function SlidingCards({
   }
 
   useEffect(() => {
-    console.log('direction of movement of cards: ', direction);
+    //console.log('direction of movement of cards: ', direction);
     const elements = document.querySelectorAll('.slick-list');
     if (tokenIDs?.length > 2) {
       elements.forEach((element) => {
