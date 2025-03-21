@@ -43,6 +43,10 @@ const config: HardhatUserConfig = {
       url: envconfig.nova.provider_url,
       accounts: [`0x${envconfig.nova.private_key}`],
     },
+    sepolia: {
+      url: envconfig.sepolia.provider_url,
+      accounts: [`0x${envconfig.sepolia.private_key}`],
+    },
     /*
     mainnet: {
       url: envconfig.mainnet.provider_url,
@@ -51,10 +55,6 @@ const config: HardhatUserConfig = {
     goerli: {
       url: envconfig.goerli.provider_url,
       accounts: [`0x${envconfig.goerli.private_key}`],
-    },
-    sepolia: {
-      url: envconfig.sepolia.provider_url,
-      accounts: [`0x${envconfig.sepolia.private_key}`],
     },
     arbgoerli: {
       url: envconfig.arbgoerli.provider_url,
@@ -84,6 +84,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api-sepolia.arbiscan.io/api",
           browserURL: "https://sepolia.arbiscan.io/",
+        },
+      },
+      {
+        network: "sepolia",
+        chainId: 11155111,
+        urls: {
+          apiURL: "https://api-sepolia.etherscan.io/api",
+          browserURL: "https://sepolia.etherscan.io",
         },
       }
     ],
