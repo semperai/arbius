@@ -257,6 +257,7 @@ contract V2_EngineV5 is OwnableUpgradeable {
     function initialize() public reinitializer(6) {
         version = 5;
         solutionModelFeePercentage = 1 ether; // 100%
+        validatorMinimumPercentage = 0.0024; // 0.24%
     }
 
     /// @notice Transfer ownership
