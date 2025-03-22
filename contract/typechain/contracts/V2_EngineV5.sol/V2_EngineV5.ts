@@ -25,7 +25,7 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../common";
+} from "../../common";
 
 export type ModelStruct = {
   fee: PromiseOrValue<BigNumberish>;
@@ -115,7 +115,6 @@ export interface V2_EngineV5Interface extends utils.Interface {
     "setModelFee(bytes32,uint256)": FunctionFragment;
     "setPaused(bool)": FunctionFragment;
     "setSolutionMineableRate(bytes32,uint256)": FunctionFragment;
-    "setSolutionModelFeePercentage(uint256)": FunctionFragment;
     "setStartBlockTime(uint64)": FunctionFragment;
     "setVeStaking(address)": FunctionFragment;
     "setVersion(uint256)": FunctionFragment;
@@ -205,7 +204,6 @@ export interface V2_EngineV5Interface extends utils.Interface {
       | "setModelFee"
       | "setPaused"
       | "setSolutionMineableRate"
-      | "setSolutionModelFeePercentage"
       | "setStartBlockTime"
       | "setVeStaking"
       | "setVersion"
@@ -430,10 +428,6 @@ export interface V2_EngineV5Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setSolutionMineableRate",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSolutionModelFeePercentage",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setStartBlockTime",
@@ -723,10 +717,6 @@ export interface V2_EngineV5Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSolutionMineableRate",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSolutionModelFeePercentage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1402,11 +1392,6 @@ export interface V2_EngineV5 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setSolutionModelFeePercentage(
-      solutionModelFeePercentage_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setStartBlockTime(
       startBlockTime_: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1806,11 +1791,6 @@ export interface V2_EngineV5 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSolutionModelFeePercentage(
-    solutionModelFeePercentage_: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setStartBlockTime(
     startBlockTime_: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2207,11 +2187,6 @@ export interface V2_EngineV5 extends BaseContract {
     setSolutionMineableRate(
       model_: PromiseOrValue<BytesLike>,
       rate_: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSolutionModelFeePercentage(
-      solutionModelFeePercentage_: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2797,11 +2772,6 @@ export interface V2_EngineV5 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setSolutionModelFeePercentage(
-      solutionModelFeePercentage_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setStartBlockTime(
       startBlockTime_: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3177,11 +3147,6 @@ export interface V2_EngineV5 extends BaseContract {
     setSolutionMineableRate(
       model_: PromiseOrValue<BytesLike>,
       rate_: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSolutionModelFeePercentage(
-      solutionModelFeePercentage_: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
