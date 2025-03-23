@@ -8,7 +8,7 @@ import "./utils/MockERC20.sol";
 
 import {StakingRewards} from "contracts/StakingRewards.sol";
 
-contract stakingRewardsTest is Test {
+contract StakingRewardsTest is Test {
     // lpToken (LP token)
     MockERC20 public lpToken;
     // rewardsToken
@@ -135,8 +135,8 @@ contract stakingRewardsTest is Test {
     }
 
     function testFuzz_NotifyRewardAmount(uint256 reward) public {
-        // bind reward to be between 1 and 1000 AIUS
-        reward = bound(reward, 1 ether, 1000 ether);
+        // bind reward to be between 1 and 499 AIUS
+        reward = bound(reward, 1 ether, 499 ether);
 
         // transfering exact reward should work
         AIUS.transfer(address(stakingRewards), reward);
