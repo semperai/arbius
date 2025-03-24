@@ -372,6 +372,7 @@ contract EngineV5Test is Test {
 
         // get balance before claiming
         uint256 modelOwnerBalanceBefore = baseToken.balanceOf(modelOwner1);
+        uint256 treasuryBalanceBefore = baseToken.balanceOf(treasury);
 
         // fast forward `minClaimSolutionTime` and `minClaimSolutionTime/12` blocks
         uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
@@ -390,9 +391,13 @@ contract EngineV5Test is Test {
 
         // get balance after claiming
         uint256 modelOwnerBalanceAfter = baseToken.balanceOf(modelOwner1);
+        uint256 treasuryBalanceAfter = baseToken.balanceOf(treasury);
 
-        // modelOwner should receive 1 ether
-        assertEq(modelOwnerBalanceAfter - modelOwnerBalanceBefore, 1 ether);
+        // modelOwner should receive 0.05 ether
+        assertEq(modelOwnerBalanceAfter - modelOwnerBalanceBefore, 0 ether);
+        // treasury should receive 0.95 ether
+        assertEq(treasuryBalanceAfter - treasuryBalanceBefore, 1 ether);
+
 
         // get totalHeld after claiming
         uint256 totalHeldAfter = engine.totalHeld();

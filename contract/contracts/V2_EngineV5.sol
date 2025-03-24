@@ -154,7 +154,10 @@ contract V2_EngineV5 is OwnableUpgradeable {
     uint256 public veRewards; // v4
     address public voter; // v5
 
-    uint256[37] __gap; // upgradeable gap
+    // How much of model fee for solutions go to treasury
+    uint256 public solutionModelFeePercentage; // v5
+
+    uint256[36] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
     event ModelFeeChanged(bytes32 indexed id, uint256 fee);
@@ -253,7 +256,11 @@ contract V2_EngineV5 is OwnableUpgradeable {
     /// @dev For upgradeable contracts this function necessary
     function initialize() public reinitializer(6) {
         version = 5;
+        solutionModelFeePercentage = 1 ether; // 100%
+        validatorMinimumPercentage = 0.0024 ether; // 0.24%
+        slashAmountPercentage = 0.00001 ether; // 0.001% of total supply
     }
+
 
     /// @notice Transfer ownership
     /// @param to_ Address to transfer ownership to
@@ -294,6 +301,14 @@ contract V2_EngineV5 is OwnableUpgradeable {
         require(models[model_].addr != address(0x0), "model does not exist");
         models[model_].rate = rate_;
         emit SolutionMineableRateChange(model_, rate_);
+    }
+
+    /// @notice Set the solution model fee percentage to send to treasury
+    /// @param solutionModelFeePercentage_ Percentage of model fee to send to treasury
+    /// @dev introduced in v5
+    function setSolutionModelFeePercentage(uint256 solutionModelFeePercentage_) external onlyOwner {
+        require(solutionModelFeePercentage_ <= 1 ether, "percentage too high");
+        solutionModelFeePercentage = solutionModelFeePercentage_;
     }
 
     /// @notice Set version
@@ -857,12 +872,22 @@ contract V2_EngineV5 is OwnableUpgradeable {
         uint256 modelFee = models[_model].fee;
 
         // This is necessary in case model changes fee to prevent drain
-        // note: currently it is not possible for a model to change fee
         if (modelFee > tasks[taskid_].fee) {
             modelFee = 0;
         }
+
+        // v5 we split the model fee between the model owner and treasury
         if (modelFee > 0) {
-            baseToken.transfer(models[_model].addr, modelFee);
+            uint256 sendToTreasury = modelFee -
+                (modelFee * (1e18 - solutionModelFeePercentage)) / 1e18;
+
+            if (sendToTreasury > 0) {
+                baseToken.transfer(treasury, sendToTreasury);
+            }
+
+            if (modelFee - sendToTreasury > 0) {
+                baseToken.transfer(models[_model].addr, modelFee - sendToTreasury);
+            }
         }
 
         uint256 remainingFee = tasks[taskid_].fee - modelFee;

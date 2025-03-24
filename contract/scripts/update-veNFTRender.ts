@@ -34,13 +34,13 @@ async function main() {
   // Update artProxy address in VotingEscrow
   const votingEscrow = await ethers.getContractAt(
     "VotingEscrow",
-    Config.votingEscrowAddress
+    Config.v4_votingEscrowAddress
   );
   await votingEscrow.setArtProxy(veNFTRender.address);
   console.log("VeNFTRender updated in VotingEscrow");
 
   // Update config
-  Config.veNFTRenderAddress = veNFTRender.address;
+  Config.v4_veNFTRenderAddress = veNFTRender.address;
   fs.writeFileSync(configPath, JSON.stringify(Config, null, 2));
   console.log("Updated config");
 
