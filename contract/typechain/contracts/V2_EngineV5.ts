@@ -847,6 +847,7 @@ export interface V2_EngineV5Interface extends utils.Interface {
     "ContestationSubmitted(address,bytes32)": EventFragment;
     "ContestationVote(address,bytes32,bool)": EventFragment;
     "ContestationVoteFinish(bytes32,uint32,uint32)": EventFragment;
+    "FeesPaid(uint256,uint256,uint256,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "ModelAddrChanged(bytes32,address)": EventFragment;
     "ModelFeeChanged(bytes32,uint256)": EventFragment;
@@ -854,6 +855,7 @@ export interface V2_EngineV5Interface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "PausedChanged(bool)": EventFragment;
     "PauserTransferred(address)": EventFragment;
+    "RewardsPaid(uint256,uint256,uint256,uint256)": EventFragment;
     "SignalCommitment(address,bytes32)": EventFragment;
     "SolutionClaimed(address,bytes32)": EventFragment;
     "SolutionMineableRateChange(bytes32,uint256)": EventFragment;
@@ -871,6 +873,7 @@ export interface V2_EngineV5Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ContestationSubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContestationVote"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContestationVoteFinish"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeesPaid"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModelAddrChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ModelFeeChanged"): EventFragment;
@@ -878,6 +881,7 @@ export interface V2_EngineV5Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PausedChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PauserTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RewardsPaid"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SignalCommitment"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SolutionClaimed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SolutionMineableRateChange"): EventFragment;
@@ -929,6 +933,19 @@ export type ContestationVoteFinishEvent = TypedEvent<
 
 export type ContestationVoteFinishEventFilter =
   TypedEventFilter<ContestationVoteFinishEvent>;
+
+export interface FeesPaidEventObject {
+  modelFee: BigNumber;
+  treasuryFee: BigNumber;
+  remainingFee: BigNumber;
+  validatorFee: BigNumber;
+}
+export type FeesPaidEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber, BigNumber],
+  FeesPaidEventObject
+>;
+
+export type FeesPaidEventFilter = TypedEventFilter<FeesPaidEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -1002,6 +1019,19 @@ export type PauserTransferredEvent = TypedEvent<
 
 export type PauserTransferredEventFilter =
   TypedEventFilter<PauserTransferredEvent>;
+
+export interface RewardsPaidEventObject {
+  totalRewards: BigNumber;
+  treasuryReward: BigNumber;
+  taskOwnerReward: BigNumber;
+  validatorReward: BigNumber;
+}
+export type RewardsPaidEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber, BigNumber],
+  RewardsPaidEventObject
+>;
+
+export type RewardsPaidEventFilter = TypedEventFilter<RewardsPaidEvent>;
 
 export interface SignalCommitmentEventObject {
   addr: string;
@@ -2421,6 +2451,19 @@ export interface V2_EngineV5 extends BaseContract {
       end_idx?: null
     ): ContestationVoteFinishEventFilter;
 
+    "FeesPaid(uint256,uint256,uint256,uint256)"(
+      modelFee?: null,
+      treasuryFee?: null,
+      remainingFee?: null,
+      validatorFee?: null
+    ): FeesPaidEventFilter;
+    FeesPaid(
+      modelFee?: null,
+      treasuryFee?: null,
+      remainingFee?: null,
+      validatorFee?: null
+    ): FeesPaidEventFilter;
+
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
@@ -2471,6 +2514,19 @@ export interface V2_EngineV5 extends BaseContract {
     PauserTransferred(
       to?: PromiseOrValue<string> | null
     ): PauserTransferredEventFilter;
+
+    "RewardsPaid(uint256,uint256,uint256,uint256)"(
+      totalRewards?: null,
+      treasuryReward?: null,
+      taskOwnerReward?: null,
+      validatorReward?: null
+    ): RewardsPaidEventFilter;
+    RewardsPaid(
+      totalRewards?: null,
+      treasuryReward?: null,
+      taskOwnerReward?: null,
+      validatorReward?: null
+    ): RewardsPaidEventFilter;
 
     "SignalCommitment(address,bytes32)"(
       addr?: PromiseOrValue<string> | null,
