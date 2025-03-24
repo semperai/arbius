@@ -5,10 +5,11 @@ import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi';
 import Config from '@/config.one.json';
 import Tabs from '@/app/components/Stake/LPStaking/Tabs';
 import TopHeaderSection from '@/app/components/Stake/LPStaking/TopHeaderSection';
-import { getAPR } from '@/app/utils/getAPR';
+import { getAPR } from '@/app/Utils/getAPR';
 import { AIUS_wei, t_max, infuraUrl, alchemyUrl } from '@/app/Utils/constantValues';
 import Web3 from 'web3';
 import veStaking from '@/app/abis/veStaking.json';
+import { AbiItem } from 'web3-utils';
 
 export default function LPStaking() {
   const [data, setData] = useState(null);
@@ -75,16 +76,16 @@ export default function LPStaking() {
           "type": "function"
         }]
         const veStakingContract = new web3.eth.Contract(
-          veStaking.abi,
+          veStaking.abi as AbiItem[],
           Config.v4_veStakingAddress
         );
 
         const univ2Contract = new web3.eth.Contract(
-          balanceOfABI,
+          balanceOfABI as AbiItem[],
           UNIV2_ADDRESS
         )
         const aiusTokenContract = new web3.eth.Contract(
-          balanceOfABI,
+          balanceOfABI as AbiItem[],
           Config.v4_baseTokenAddress
         )
 
@@ -98,9 +99,13 @@ export default function LPStaking() {
         console.log("balances", _balanceAIUS, _balanceUNIV2)
         const apr = await getAPR(_rewardRate, _totalSupply)
 
+        //@ts-ignore
         setData({
+          // @ts-ignore
           "univ2Staked": _balanceUNIV2,
+          // @ts-ignore
           "aiusStaked": _balanceAIUS,
+          // @ts-ignore
           "apr": (apr ? apr?.toFixed(2) : "0") + "%"
         })        
       }catch(e){

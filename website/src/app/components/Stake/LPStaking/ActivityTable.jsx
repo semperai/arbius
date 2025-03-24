@@ -9,7 +9,7 @@ import time_icon from '@/app/assets/images/time.png';
 import arrow_icon from '@/app/assets/images/rounded_arrow.png';
 import Image from 'next/image';
 import { getTransactions } from '@/app/Utils/getActivities';
-import Loader from '@/app/components/Stake/Loader';
+import Loader from '@/app/components/Stake/Loader/Index';
 
 function ActivityTable() {
   const [data, setData] = useState(null);
