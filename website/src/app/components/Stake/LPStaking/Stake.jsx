@@ -1,23 +1,40 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import walletImage from '../../../assets/images/ion_wallet-outline.png';
 import Image from 'next/image';
 import Popup from './Popup';
 import HintBox from '../../HintBox/Hintbox';
-import { approveUNIV2 } from '@/app/Utils/approveUniv2';
-import { stakeTokens } from '@/app/Utils/staking';
-import { claimTokens } from '@/app/Utils/claim';
-import { useWeb3Modal } from '@web3modal/react'; // main arbius component
 import { useAccount } from 'wagmi';
-import { unstakeTokens } from '@/app/Utils/unstake';
-import { claimableRewards } from '@/app/Utils/claimableRewards';
-import { stakeTokenBalance } from '@/app/Utils/stakedTokenBalance';
+import { AIUS_wei, t_max, defaultApproveAmount } from '@/app/Utils/constantValues';
+import Web3 from 'web3';
+import PopUp from '@/app/components/Stake/AIUS/PopUp';
+import stakingContractABI from '@/app/abis/stakingContractABI';
+import univ2ContractABI from '@/app/abis/univ2ContractABI';
+import cross from '@/app/assets/images/cross.png';
+import Decimal from 'decimal.js';
+import CircularProgressBar from '@/app/components/Stake/AIUS/CircularProgressBar';
+import powered_by from '@/app/assets/images/powered_by.png';
+import error_stake from '@/app/assets/images/error_stake.png';
+import success_stake from '@/app/assets/images/success_stake.png';
+import { ethers } from 'ethers';
+import { getTransactionReceiptData } from '@/app/Utils/getTransactionReceiptData';
 
 function Stake() {
-  const { isConnected, isConnecting, isDisconnected } = useAccount();
-  const { open: openWeb3Modal } = useWeb3Modal();
+  const { address, isConnected } = useAccount();
   const [currentHoverId, setCurrentHoverId] = useState(null);
+  const [data, setData] = useState(null);
+  const [showPopUp, setShowPopUp] = useState(false);
+  const [amount, setAmount] = useState(0);
+  const [withdrawAmount, setWithdrawAmount] = useState(0);
+  const [updateValue, setUpdateValue] = useState(0);
 
+  const stakeInput = useRef("");
+
+  const infuraUrl = "https://sepolia.infura.io/v3/0a5cec7a39384fe3a6daad7a86cc9d99";
+  const alchemyUrl = "https://sepolia.g.alchemy.com/v2/-ajhFQTtft1QCDeaEzApe9eSnPQgQE7N";
+  const UNIV2_ADDRESS = "0x5919827b631d1a1ab2ed01fbf06854968f438797";
+  const StakingAddress = "0x0476ad06c62d743cae0bf743e745ff44962c62f2";
+  
   function convertLargeNumber(numberStr) {
     // Convert the string to a BigInt
     let number = BigInt(0);
@@ -28,10 +45,377 @@ function Stake() {
     return scaledNumber;
   }
 
+  const getWeb3Sepolia = async() => {
+
+    return await fetch(infuraUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Infura error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            return web3
+          } else {
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            console.log("Successfully connected. Block number:", data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          return web3
+        });
+  }
+
+
+  useEffect(() => {
+
+    const f1 = async () => {
+      try{
+        const web3 = await getWeb3Sepolia();
+
+        const balanceOfABI = [{
+          "constant": true,
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "balanceOf",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        }]
+
+        const univ2Contract = new web3.eth.Contract(
+          univ2ContractABI,
+          UNIV2_ADDRESS
+        )
+        const stakingContract = new web3.eth.Contract(
+          stakingContractABI,
+          StakingAddress
+        )
+
+        const _userUNIV2Balance = await univ2Contract.methods.balanceOf(address).call()
+        console.log(_userUNIV2Balance)
+        const _stakedBalance = await stakingContract.methods.balanceOf(address).call()
+        console.log(_stakedBalance)
+        const _earned = await stakingContract.methods.balanceOf(address).call()
+        console.log(_earned)
+        const _allowance = await univ2Contract.methods.allowance(address, StakingAddress).call()
+        console.log(_allowance)
+
+        setData({
+          "userUNIV2Balance": _userUNIV2Balance,
+          "stakedBalance": _stakedBalance,
+          "claimableRewards": _earned,
+          "allowance": _allowance
+        })
+        setAmount(new Decimal(0))
+        setWithdrawAmount(new Decimal(0))
+      }catch(e){
+        console.log("F1 error", e)
+      }
+    }
+
+    if(address){
+      f1();
+    }
+
+  },[address, updateValue])
+
+  const handleStake = async () => {
+    let amountInDec = amount; // already in decimal
+    let allowanceInDec = new Decimal(data?.allowance);
+
+    if (amountInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
+      // set allowance first
+      return;
+    }
+
+    try {
+      if (amountInDec) {
+        setShowPopUp(3);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+        const signer = provider.getSigner();
+
+        const stakingContract = new ethers.Contract(
+          StakingAddress,
+          stakingContractABI,
+          signer
+        );
+
+        const tx2 = await stakingContract.stake(
+          amountInDec.toFixed(0).toString()
+        );
+
+        console.log('Second transaction hash:', tx2.hash);
+        await tx2.wait();
+        console.log('Second transaction confirmed');
+
+        setShowPopUp('Success');
+        console.log('Both transactions completed successfully');
+        getTransactionReceiptData(tx2.hash).then(function () {
+          setUpdateValue(prev => prev + 1);
+        });
+      } else {
+        // amount to be greater than 0
+      }
+    } catch (err) {
+      console.log(err)
+      setShowPopUp('Error');
+    }
+  };
+
+  const handleApprove = async() => {
+    let amountInDec = amount; // already setting in dec
+    let allowanceInDec = new Decimal(data?.allowance);
+
+    if (amountInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
+      try {
+        setShowPopUp(3);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        const univ2Contract = new ethers.Contract(
+          UNIV2_ADDRESS,
+          univ2ContractABI,
+          signer
+        );
+
+        const tx1 = await univ2Contract.approve(
+          StakingAddress,
+          defaultApproveAmount
+        );
+
+        await tx1.wait();
+
+        console.log('First transaction confirmed');
+
+        setShowPopUp('Success');
+        getTransactionReceiptData(tx1.hash).then(function () {
+          setShowPopUp(false)
+          setUpdateValue(prev => prev + 1);
+        });
+      } catch (error) {
+        console.log(error)
+        setShowPopUp('Error');
+      }
+    }
+  }
+
+  const setStakeAmount = (e) => {
+    if(Number(e.target.value)){
+      const amountInDec = new Decimal(e.target.value);
+      const AIUS_wei_InDec = new Decimal(AIUS_wei);
+
+      setAmount(amountInDec.mul(AIUS_wei_InDec));
+    }else{
+      setAmount(new Decimal(0));
+    }
+  }
+
+  const setUnstakeAmount = (e) => {
+    if(Number(e.target.value)){
+      const amountInDec = new Decimal(e.target.value);
+      const AIUS_wei_InDec = new Decimal(AIUS_wei);
+
+      setWithdrawAmount(amountInDec.mul(AIUS_wei_InDec));
+    }else{
+      setWithdrawAmount(new Decimal(0));
+    }
+  }
+
+  const setMaxAmount = () => {
+    const balanceInDec = new Decimal(data?.userUNIV2Balance);
+    const AIUS_wei_InDec = new Decimal(AIUS_wei);
+
+    setAmount(balanceInDec.mul(AIUS_wei_InDec));
+    stakeInput.current.value = balanceInDec.div(AIUS_wei);
+  }
+
+  const handleClaim = async() => {
+    try {
+      setShowPopUp(3);
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      const signer = provider.getSigner();
+
+      const stakingContract = new ethers.Contract(
+        StakingAddress,
+        stakingContractABI,
+        signer
+      );
+
+      const tx2 = await stakingContract.getReward();
+
+      console.log('Second transaction hash:', tx2.hash);
+      await tx2.wait();
+      console.log('Second transaction confirmed');
+
+      setShowPopUp('Success');
+      console.log('Both transactions completed successfully');
+      getTransactionReceiptData(tx2.hash).then(function () {
+        setUpdateValue(prev => prev + 1);
+      });
+    } catch (err) {
+      console.log(err)
+      setShowPopUp('Error');
+    }
+  }
+
+  const handleExit = async() => {
+    try {
+      setShowPopUp(3);
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      const signer = provider.getSigner();
+
+      const stakingContract = new ethers.Contract(
+        StakingAddress,
+        stakingContractABI,
+        signer
+      );
+
+      const tx2 = await stakingContract.exit();
+
+      console.log('Second transaction hash:', tx2.hash);
+      await tx2.wait();
+      console.log('Second transaction confirmed');
+
+      setShowPopUp('Success');
+      console.log('Both transactions completed successfully');
+      getTransactionReceiptData(tx2.hash).then(function () {
+        setUpdateValue(prev => prev + 1);
+      });
+    } catch (err) {
+      console.log(err)
+      setShowPopUp('Error');
+    }
+  }
+
+  const handleWithdraw = async() => {
+    try {
+      let amountInDec = new Decimal(withdrawAmount);
+
+      setShowPopUp(3);
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      const signer = provider.getSigner();
+
+      const stakingContract = new ethers.Contract(
+        StakingAddress,
+        stakingContractABI,
+        signer
+      );
+
+      const tx2 = await stakingContract.withdraw(
+        amountInDec.toFixed(0).toString()
+      );
+
+      console.log('Second transaction hash:', tx2.hash);
+      await tx2.wait();
+      console.log('Second transaction confirmed');
+
+      setShowPopUp('Success');
+      console.log('Both transactions completed successfully');
+      getTransactionReceiptData(tx2.hash).then(function () {
+        setUpdateValue(prev => prev + 1);
+      });
+    } catch (err) {
+      console.log(err)
+      setShowPopUp('Error');
+    }
+  }
+
+  const handleUnstakeClaim = async() => {
+    if(withdrawAmount > 0){
+      alert("Calling withdraw");
+      await handleWithdraw();
+    }else{
+      alert("Calling exit")
+      await handleExit();
+    }
+  }
+
   return (
     <>
-      {false && (
-        <Popup isPopupOpen={true} setIsPopupOpen={()=>{}} />
+      {showPopUp !== false && (
+        <PopUp setShowPopUp={setShowPopUp}>
+          {/* TODO fix showPopUp types*/}
+          {/* @ts-ignore */}
+          {showPopUp === 1 && (
+            <StepOneChildren
+              setShowPopUp={setShowPopUp}
+              isError={false}
+              noChildren={false}
+              repeat={false}
+              valueStart={0}
+              valueEnd={50}
+            />
+          )}
+          {/* @ts-ignore */}
+          {showPopUp === 2 && (
+            <StepTwoChildren
+              setShowPopUp={setShowPopUp}
+              isError={false}
+              noChildren={false}
+              repeat={false}
+              valueStart={50}
+              valueEnd={100}
+            />
+          )}
+          {/* @ts-ignore */}
+          {showPopUp === 3 && (
+            <StepTwoChildren
+              setShowPopUp={setShowPopUp}
+              isError={false}
+              noChildren={true}
+              repeat={true}
+              valueStart={0}
+              valueEnd={100}
+            />
+          )}
+          {/* @ts-ignore */}
+          {showPopUp === 'Success' && (
+            <SuccessChildren setShowPopUp={setShowPopUp} />
+          )}
+          {/* @ts-ignore */}
+          {showPopUp === 'Error' && (
+            <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
+          )}
+        </PopUp>
       )}
       <div className='m-[auto] grid w-mobile-section-width max-w-center-width grid-cols-1 gap-8 pb-8 pt-8 lg:w-section-width lg:grid-cols-2'>
         {true ? (
@@ -45,7 +429,7 @@ function Stake() {
                   <div className='mt-6 max-h-[150px] w-1/2 rounded-[10px] lp-stake-bg-gradient p-6 py-4 shadow-none transition-all hover:shadow-stats'>
                     <div className='flex items-baseline justify-start'>
                       <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
-                        0.000
+                        {Number(data?.userUNIV2Balance / AIUS_wei).toFixed(2)}
                       </h1>
                       <p className='ml-2 text-para text-black-text'>Uni-V2</p>
                     </div>
@@ -60,7 +444,7 @@ function Stake() {
                       id='RewardsPeriod'
                     >
                       <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
-                        90
+                        120
                       </h1>
                       <p className='ml-2 text-para text-black-text'>Days</p>
                     </div>
@@ -83,18 +467,22 @@ function Stake() {
                 </div>
                 <div className='mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
                   <div className='flex w-[30%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] p-2 px-2 lg:gap-2 lg:p-3'>
-                    <h className='text-[10px] font-medium lg:text-[14px]'>
+                    <h1 className='text-[10px] font-medium lg:text-[14px]'>
                       UNI-V2
-                    </h>
+                    </h1>
                   </div>
                   <div className='flex w-[75%] flex-row justify-between rounded-l-none rounded-r-[25px] border-[1.5px] border-l-0 bg-original-white p-2 focus:outline-none lg:p-3'>
                     <div className='w-[80%]'>
                       <input
+                        ref={stakeInput}
                         className='w-[100%] bg-original-white text-[13px] italic outline-none'
                         placeholder='Amount of UNI-V2 to stake'
+                        onChange={(e) => setStakeAmount(e)}
                       />
                     </div>
-                    <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'>
+                    <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'
+                    onClick={setMaxAmount}
+                    >
                       <p className='pb-[2px] text-[6px] lg:text-[11px]'>max</p>
                     </div>
                   </div>
@@ -102,12 +490,12 @@ function Stake() {
               </div>
 
               <div className='mt-4 flex items-center justify-end gap-4 text-[#101010] md:mb-0'>
-                <button
+                { ( (amount && amount > 0 && amount.comparedTo(data?.allowance) > 0) || Number(data?.allowance) === 0 ) ? <button
                   type='button'
                   className='group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2'
                   id={'approveUniV2'}
                   onClick={() => {
-                    // handleApproveClick()
+                    handleApprove()
                   }}
                 >
                   <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
@@ -125,12 +513,12 @@ function Stake() {
                     currentHoverId={currentHoverId}
                     setCurrentHoverId={setCurrentHoverId}
                   />*/}
-                </button>
+                </button> : null}
 
                 <button
                   type='button'
                   className='group relative flex items-center gap-3 rounded-full bg-[#121212] bg-opacity-5 px-8 py-2'
-                  onClick={() => connectWallet()}
+                  onClick={() => handleStake()}
                 >
                   <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500'></div>
                   <p className='relative z-10 text-[15px] text-[#101010] opacity-30'>
@@ -152,7 +540,7 @@ function Stake() {
                       className='flex items-baseline justify-start'
                     >
                       <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
-                        1234
+                        {Number(data?.stakedBalance / AIUS_wei).toFixed(3)}
                         &nbsp;
                       </h1>
                       <p className='text-para text-black-text'>Uni-V2</p>
@@ -177,7 +565,7 @@ function Stake() {
                       className='flex items-baseline justify-start'
                     >
                       <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
-                        0.0001
+                        {Number(data?.claimableRewards / AIUS_wei).toFixed(5)}
                         &nbsp;
                       </h1>
                       <p className='text-para'>AIUS</p>
@@ -246,15 +634,16 @@ function Stake() {
                 </div>*/}
                 <div className='mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
                   <div className='flex w-[25%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] p-2 px-2 lg:gap-2 lg:p-3'>
-                    <h className='text-[10px] font-medium lg:text-[14px]'>
+                    <h1 className='text-[10px] font-medium lg:text-[14px]'>
                       UNI-V2
-                    </h>
+                    </h1>
                   </div>
                   <div className='flex w-[75%] flex-row justify-between rounded-l-none rounded-r-[25px] border-[1.5px] border-l-0 bg-original-white p-2 focus:outline-none lg:p-3'>
                     <div className='w-[80%]'>
                       <input
                         className='w-[100%] bg-original-white text-[13px] italic outline-none'
                         placeholder='Amount of UNI-V2 to unstake'
+                        onChange={(e) => setUnstakeAmount(e)}
                       />
                     </div>
                     {/*<div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'>
@@ -267,18 +656,18 @@ function Stake() {
                 <div className='mt-6 flex items-center justify-end gap-4'>
                   <button
                     type='button'
-                    className='group relative flex items-center gap-3 rounded-full bg-[#121212] bg-opacity-5 px-8 py-2'
-                    onClick={() => claimTokens()}
+                    className='group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2'
+                    onClick={() => handleClaim()}
                   >
                     <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500'></div>
-                    <p className='relative z-10 mb-[1px] text-[15px] text-[#101010] opacity-30'>
+                    <p className='relative z-10 mb-[1px] text-[15px]'>
                       Claim
                     </p>
                   </button>
                   <button
                     type='button'
                     className='group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2'
-                    onClick={() => unstakeTokens()}
+                    onClick={handleUnstakeClaim}
                   >
                     <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
                     <p className='relative z-10 mb-[1px] text-[15px] text-original-white'>
@@ -356,3 +745,168 @@ function Stake() {
 }
 
 export default Stake;
+
+
+const StepOneChildren = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat,
+  valueStart,
+  valueEnd,
+}) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={valueStart}
+              valueEnd={valueEnd}
+              duration={4}
+              text={'1/2'}
+              setShowPopUp={setShowPopUp}
+              step={1}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={repeat}
+            />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Approve AIUS Spending Limit!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Confirm this transaction in your wallet.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
+
+const StepTwoChildren = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat,
+  valueStart,
+  valueEnd,
+}) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={valueStart}
+              valueEnd={valueEnd}
+              duration={4}
+              text={'2/2'}
+              setShowPopUp={setShowPopUp}
+              step={2}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={repeat}
+            />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Pending transaction confirmation!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Confirm this transaction in your wallet.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
+
+const SuccessChildren = ({ setShowPopUp }) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='relative flex h-40 w-40 items-center justify-center rounded-full bg-white-background'>
+            <Image src={success_stake} className='w-12' alt='error_stake' />
+          </div>
+        </div>
+
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Congrats!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Transaction Completed.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
+
+const ErrorPopUpChildren = ({ setShowPopUp }) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='relative flex h-40 w-40 items-center justify-center rounded-full bg-white-background'>
+            <Image src={error_stake} className='w-12' alt='error_stake' />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Error!
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Please try again.
+        </h1>
+
+        <div className='flex items-center justify-center'>
+          <button
+            onClick={() => setShowPopUp(false)}
+            type='button'
+            className='group relative mt-2 flex items-center justify-center gap-3 rounded-full bg-black-background px-6 py-1 py-2 lg:px-10'
+          >
+            <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-4 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+            <div className='lato-bold relative z-10 text-original-white lg:text-[15px]'>
+              Continue
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};

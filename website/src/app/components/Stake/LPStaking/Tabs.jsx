@@ -31,9 +31,9 @@ function Tabs({ data }) {
               return (
                 <div
                   className={`font-[600] ${selectedTab === item ? 'selected' : 'non-selected'} hover:text-purple-text`}
-                  onClick={() => {
-                    setSelectedTab(item);
-                  }}
+                  // onClick={() => {
+                  //   setSelectedTab(item);
+                  // }}
                   key={index}
                 >
                   {item}
@@ -53,10 +53,10 @@ function Tabs({ data }) {
                   <button
                     type='button'
                     className={`${mobileSelectedTab === item ? 'bg-buy-hover text-original-white' : 'text-subtext-three'} flex w-[100%] items-center justify-center rounded-full py-4`}
-                    onClick={() => {
-                      setMobileSelectedTab(item);
-                      setSelectedTab(item);
-                    }}
+                    // onClick={() => {
+                    //   setMobileSelectedTab(item);
+                    //   setSelectedTab(item);
+                    // }}
                   >
                     <p className='relative z-10 mb-1'>{item}</p>
                   </button>
