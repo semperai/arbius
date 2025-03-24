@@ -11,7 +11,7 @@ import {
     ERC20Votes
 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IArbius} from "./../interfaces/IArbius.sol";
+import {IArbius} from "./interfaces/IArbius.sol";
 
 contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
     // where the collected aius goes
@@ -33,7 +33,7 @@ contract ModelTokenV1 is ERC20, ERC20Permit, ERC20Votes, Ownable {
         string memory _symbol,
         uint256 _initialSupply,
         address _treasury,
-        address _arbius,
+        address _arbius
     ) ERC20(_name, _symbol) ERC20Permit(_name) {
         treasury = _treasury;
         arbius = IArbius(_arbius);
