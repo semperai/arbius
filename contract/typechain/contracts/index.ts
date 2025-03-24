@@ -18,6 +18,7 @@ export type { EngineUtilsV1 } from "./EngineUtilsV1";
 export type { EngineV1 } from "./EngineV1";
 export type { GovernorV1 } from "./GovernorV1";
 export type { OneToOneConvert } from "./OneToOneConvert";
+export type { StakingRewards } from "./StakingRewards";
 export type { TestnetToken } from "./TestnetToken";
 export type { TimelockV1 } from "./TimelockV1";
 export type { V2_EngineV1 } from "./V2_EngineV1";
