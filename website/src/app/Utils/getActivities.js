@@ -9,7 +9,7 @@ const address = '0xF0148B59D7F31084Fb22FF969321FDfAfA600C02';
 // Initialize Web3 with Infura provider (replace with your preferred provider)
 const web3 = new Web3(
   new Web3.providers.HttpProvider(
-    'https://mainnet.infura.io/v3/your_infura_project_id'
+    'https://mainnet.infura.io/v3/0a5cec7a39384fe3a6daad7a86cc9d99'
   )
 );
 // useEffect(() => {
@@ -142,7 +142,7 @@ export const getTransactions = async () => {
 
     if (response.data.status === '1') {
       const transactions = response.data.result;
-
+      console.log(transactions, "ANS")
       // Limit the transactions to the latest 100
       const latest100Transactions = transactions.slice(0, 10);
 

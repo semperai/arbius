@@ -661,3 +661,7 @@ input[type='number']::-ms-reveal {
   font-size: 0.8em;
   color: #4a28ff;
 }
+
+.lp-stake-bg-gradient{
+  background: linear-gradient(106.64deg, #EEEAFF 38.5%, #4A28FF 290%);
+}
