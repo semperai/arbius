@@ -32,20 +32,23 @@ function TopHeaderSection({ data }) {
   ];
   return (
     <>
-      <div className='m-[auto] w-mobile-section-width max-w-center-width py-24 lg:w-section-width'>
+      <div className='m-[auto] w-mobile-section-width max-w-center-width pt-24 pb-8 um:py-24 lg:w-section-width'>
         <div>
           <div className='flex items-center justify-start'>
-            <div className='relative h-[auto] w-[50px]'>
+            <div className='hidden md:block relative h-[auto] w-[50px]'>
               <Image src={arbiuslogo_lpstake} />
             </div>
 
             <div className='flex items-baseline justify-start pl-2'>
-              <h1 className='text-[28px] lm:text-mobile-header font-medium text-card-heading lg:text-header'>
-                AIUS LP Stake
+              <h1 className='text-[28px] um:text-mobile-header font-medium text-card-heading lg:text-header'>
+                AIUS Uniswap V2 LP Staking
+                <div className='inline-block align-middle md:hidden relative h-[auto] w-[30px] um:w-[50px] ml-2'>
+                  <Image src={arbiuslogo_lpstake} />
+                </div>
               </h1>
             </div>
           </div>
-          <p className='mt-6 text-para text-subtext-three'>
+          <p className='mt-4 um:mt-6 text-para text-subtext-three'>
             Stake AIUS and ETH, earn AIUS rewards.
           </p>
 
@@ -68,7 +71,7 @@ function TopHeaderSection({ data }) {
             href='https://app.uniswap.org/add/v2/0x8afe4055ebc86bd2afb3940c0095c9aca511d852/ETH?chain=mainnet'
             target='_blank'
           >
-            <p className='mt-6 text-para font-medium text-available decoration-[#4A28FF] hover:text-[#4A28FF] hover:underline'>
+            <p className='mt-6 font-medium text-[14px] text-available decoration-[#4A28FF] hover:text-[#4A28FF] hover:underline'>
               Get UNI-V2 by providing liquidity on Uniswap ➚
             </p>
           </Link>

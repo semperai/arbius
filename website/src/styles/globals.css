@@ -506,7 +506,12 @@ input[type='number'] {
     font-size: 12px;
   }
 }
+@media (max-width: 400px){
+    .all-stake > div {
+      @apply pb-[10px] text-[14px];
+    }
 
+}
 /* IE 10+ */
 input[type='number']::-ms-clear,
 input[type='number']::-ms-reveal {

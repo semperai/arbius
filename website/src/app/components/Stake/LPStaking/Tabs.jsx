@@ -25,7 +25,7 @@ function Tabs({ data }) {
   return (
     <>
       <div className='m-[auto] w-mobile-section-width max-w-center-width lg:w-section-width'>
-        <div className='hidden justify-start lg:flex'>
+        <div className='justify-start lg:flex'>
           <div className='all-stake stake-items flex w-[50%] w-full justify-between'>
             {tabs.map(function (item, index) {
               return (

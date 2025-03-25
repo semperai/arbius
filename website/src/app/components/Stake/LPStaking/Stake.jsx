@@ -451,39 +451,39 @@ function Stake() {
           )}
         </PopUp>
       )}
-      <div className='m-[auto] grid w-mobile-section-width max-w-center-width grid-cols-1 gap-8 pb-8 pt-8 lg:w-section-width lg:grid-cols-2'>
+      <div className='m-[auto] grid w-mobile-section-width max-w-center-width grid-cols-1 gap-8 pt-4 pb-4 um:pb-8 um:pt-8 lg:w-section-width lg:grid-cols-2'>
         {true ? (
           <>
-            <div className='stake-card flex h-[auto] flex-col justify-between rounded-2xl bg-white-background p-6 lg:p-10'>
+            <div className='stake-card flex h-[auto] flex-col justify-between rounded-2xl bg-white-background p-4 um:p-6 lg:p-10'>
               <div>
                 <h1 className='text-[15px] font-medium text-[#4A28FF] lg:text-[20px]'>
                   Stake
                 </h1>
-                <div className='mt-6 flex items-end justify-between gap-6'>
-                  <div className='mt-6 max-h-[150px] w-1/2 rounded-[10px] lp-stake-bg-gradient px-2 lm:px-6 py-4 shadow-none transition-all hover:shadow-stats whitespace-nowrap'>
+                <div className='um:mt-6 flex items-end justify-between gap-6'>
+                  <div className='mt-1 um:mt-6 max-h-[150px] w-1/2 rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 shadow-none transition-all hover:shadow-stats whitespace-nowrap'>
                     <div className='flex items-baseline justify-start'>
-                      <h1 className='text-[18px] lm:text-[25px] font-medium text-purple-text'>
+                      <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
                         { data?.userUNIV2Balance ?
                             Number(data?.userUNIV2Balance / AIUS_wei).toFixed(2)
                           : 0
                         }
                       </h1>
-                      <p className='ml-2 text-para text-black-text'>Uni-V2</p>
+                      <p className='ml-2 text-[11px] um:text-[14px] text-black-text'>Uni-V2</p>
                     </div>
                     <h1 className='text-[8px] font-medium text-black-text lg:text-[13px]'>
                       Wallet Balance
                     </h1>
                   </div>
 
-                  <div className='mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 lm:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
+                  <div className='mt-1 um:mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
                     <div
                       className='flex items-baseline justify-start'
                       id='RewardsPeriod'
                     >
-                      <h1 className='text-[18px] lm:text-[25px] font-medium text-purple-text'>
+                      <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
                         120
                       </h1>
-                      <p className='ml-2 text-para text-black-text'>Days</p>
+                      <p className='ml-2 text-[11px] um:text-[14px] text-black-text'>Days</p>
                     </div>
 
                     <h1 className='text-[8px] font-medium text-black-text lg:text-[13px]'>
@@ -502,17 +502,17 @@ function Stake() {
                     />*/}
                   </div>
                 </div>
-                <div className='mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
-                  <div className='flex w-[30%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] py-1 lm:py-2 px-2 lg:gap-2 lg:p-3'>
+                <div className='mt-4 um:mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
+                  <div className='flex w-[25%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] py-1 um:py-2 px-2 lg:gap-2 lg:p-3'>
                     <h1 className='text-[10px] font-medium lg:text-[14px]'>
                       UNI-V2
                     </h1>
                   </div>
-                  <div className='flex w-[75%] flex-row justify-between rounded-l-none rounded-r-[25px] border-[1.5px] border-l-0 bg-original-white py-1 lm:py-2 px-2 focus:outline-none lg:p-3'>
-                    <div className='w-[80%]'>
+                  <div className='flex w-[75%] flex-row justify-between rounded-l-none rounded-r-[25px] border-[1.5px] border-l-0 bg-original-white py-1 um:py-2 px-2 focus:outline-none lg:p-3'>
+                    <div className='flex w-[80%] py-1 um:py-0 um:block'>
                       <input
                         ref={stakeInput}
-                        className='w-[100%] bg-original-white text-[11px] lm:text-[13px] italic outline-none'
+                        className='w-[100%] bg-original-white text-[11px] um:text-[13px] italic outline-none'
                         placeholder='Amount of UNI-V2 to stake'
                         onChange={(e) => setStakeAmount(e)}
                       />
@@ -520,13 +520,13 @@ function Stake() {
                     <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'
                     onClick={setMaxAmount}
                     >
-                      <p className='pb-[2px] text-[6px] lg:text-[11px]'>max</p>
+                      <p className='um:pb-[2px] text-[6px] lg:text-[11px]'>max</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className='mt-4 flex items-center justify-end gap-4 text-[#101010] md:mb-0'>
+              <div className='mt-3 um:mt-4 flex items-center justify-end gap-4 text-[#101010] md:mb-0'>
                 { ( (amount && amount > 0 && amount.comparedTo?.(data?.allowance ?? 0) > 0) || Number(data?.allowance) === 0 ) ? <button
                   type='button'
                   className='group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2'
@@ -565,25 +565,25 @@ function Stake() {
               </div>
             </div>
 
-            <div className='stake-card flex h-[auto] flex-col justify-between rounded-2xl bg-white-background p-6 lg:p-10'>
+            <div className='stake-card flex h-[auto] flex-col justify-between rounded-2xl bg-white-background p-4 um:p-6 lg:p-10'>
               <div>
                 <h1 className='text-[15px] font-medium text-[#4A28FF] lg:text-[20px]'>
                   Unstake
                 </h1>
-                <div className='mt-6 flex items-end justify-start gap-6 text-[#101010]'>
-                  <div className='mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 lm:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
+                <div className='um:mt-6 flex items-end justify-start gap-6 text-[#101010]'>
+                  <div className='mt-2 um:mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
                     <div
                       id='unstakeBalance'
                       className='flex items-baseline justify-start'
                     >
-                      <h1 className='text-[18px] lm:text-[25px] font-medium text-purple-text'>
+                      <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
                         { data?.stakedBalance ?
                             Number(data?.stakedBalance / AIUS_wei).toFixed(3)
                           : 0
                         }
                         &nbsp;
                       </h1>
-                      <p className='text-para text-black-text'>Uni-V2</p>
+                      <p className='text-[11px] um:text-[14px] text-black-text'>Uni-V2</p>
                       {/*<HintBox
                         content={'Total UNI-V2 you have staked in this Pool'}
                         customStyle={{}}
@@ -599,12 +599,12 @@ function Stake() {
                     </h1>
                   </div>
 
-                  <div className='mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 lm:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
+                  <div className='mt-2 um:mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
                     <div
                       id='claimableRewards'
                       className='flex items-baseline justify-start'
                     >
-                      <h1 className='text-[18px] lm:text-[25px] font-medium text-purple-text'>
+                      <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
                         {
                           data?.claimableRewards ?
                             Number(data?.claimableRewards / AIUS_wei).toFixed(3)
@@ -612,7 +612,7 @@ function Stake() {
                         }
                         &nbsp;
                       </h1>
-                      <p className='text-para'>AIUS</p>
+                      <p className='text-[11px] um:text-[14px]'>AIUS</p>
                       {/*<HintBox
                         content={'Your estimated rewards if you unstake now'}
                         customStyle={{}}
@@ -676,17 +676,17 @@ function Stake() {
                     <h2 className='text-[15px] font-medium'>Time Staked</h2>
                   </div>
                 </div>*/}
-                <div className='mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
-                  <div className='flex w-[25%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] py-1 lm:py-2 px-2 lg:gap-2 lg:p-3'>
+                <div className='mt-4 um:mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
+                  <div className='flex w-[25%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] py-1 um:py-2 px-2 lg:gap-2 lg:p-3'>
                     <h1 className='text-[10px] font-medium lg:text-[14px]'>
                       UNI-V2
                     </h1>
                   </div>
-                  <div className='flex w-[75%] flex-row justify-between rounded-l-none rounded-r-[25px] border-[1.5px] border-l-0 bg-original-white py-1 lm:py-2 px-2 focus:outline-none lg:p-3'>
-                    <div className='w-[80%]'>
+                  <div className='flex w-[75%] flex-row justify-between rounded-l-none rounded-r-[25px] border-[1.5px] border-l-0 bg-original-white py-1 um:py-2 px-2 focus:outline-none lg:p-3'>
+                    <div className='flex w-[80%] py-1 um:py-0 um:block'>
                       <input
                         ref={unstakeInput}
-                        className='w-[100%] bg-original-white text-[11px] lm:text-[13px] italic outline-none'
+                        className='w-[100%] bg-original-white text-[11px] um:text-[13px] italic outline-none'
                         placeholder='Amount of UNI-V2 to unstake'
                         onChange={(e) => setUnstakeAmount(e)}
                       />
@@ -694,16 +694,16 @@ function Stake() {
                     <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'
                     onClick={setMaxUnstakeAmount}
                     >
-                      <p className='pb-[2px] text-[6px] lg:text-[11px]'>max</p>
+                      <p className='um:pb-[2px] text-[6px] lg:text-[11px]'>max</p>
                     </div>
                   </div>
                 </div>
 
 
-                <div className='mt-6 flex items-center justify-end gap-4 flex-col lm:flex-row'>
+                <div className='mt-3 um:mt-6 flex items-center justify-end gap-4'>
                   <button
                     type='button'
-                    className='group relative flex items-center justify-center gap-3 rounded-full bg-[#121212] px-8 py-2 w-[100%] lm:w-[auto]'
+                    className='group relative flex items-center justify-center gap-3 rounded-full bg-[#121212] px-8 py-2'
                     onClick={() => handleClaim()}
                   >
                     <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500 bg-buy-hover group-hover:opacity-100'></div>
@@ -713,7 +713,7 @@ function Stake() {
                   </button>
                   <button
                     type='button'
-                    className='group relative flex items-center justify-center gap-3 rounded-full bg-[#121212] px-8 py-2 w-[100%] lm:w-[auto]'
+                    className='group relative flex items-center justify-center gap-3 rounded-full bg-[#121212] px-4 um:px-8 py-2'
                     onClick={handleUnstakeClaim}
                   >
                     <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
