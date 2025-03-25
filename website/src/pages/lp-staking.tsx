@@ -46,12 +46,47 @@ export default function LPStaking() {
         });
   }
 
+  const getWeb3Sepolia = async() => {
+    let infuraUrl = "https://sepolia.infura.io/v3/0a5cec7a39384fe3a6daad7a86cc9d99";
+    let alchemyUrl = "https://sepolia.g.alchemy.com/v2/-ajhFQTtft1QCDeaEzApe9eSnPQgQE7N";
+
+    return await fetch(infuraUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Infura error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            return web3
+          } else {
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            console.log("Successfully connected. Block number:", data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          return web3
+        });
+  }
 
   useEffect(() => {
 
     const f1 = async () => {
       try{
         const web3 = await getWeb3();
+        const web3Sepola = await getWeb3Sepolia();
         const UNIV2_ADDRESS = "0x5919827b631d1a1ab2ed01fbf06854968f438797";
         const StakingAddress = "0x0476ad06c62d743cae0bf743e745ff44962c62f2";
         const balanceOfABI = [{
@@ -80,7 +115,7 @@ export default function LPStaking() {
           Config.v4_veStakingAddress
         );
 
-        const univ2Contract = new web3.eth.Contract(
+        const univ2Contract = new web3Sepola.eth.Contract(
           balanceOfABI as AbiItem[],
           UNIV2_ADDRESS
         )
@@ -94,7 +129,7 @@ export default function LPStaking() {
         console.log(_rewardRate, _totalSupply, "SUPP")
         const _balanceAIUS = await aiusTokenContract.methods.balanceOf(StakingAddress).call()
         console.log("worked 1")
-        const _balanceUNIV2 = 0//await univ2Contract.methods.balanceOf(StakingAddress).call()
+        const _balanceUNIV2 = await univ2Contract.methods.balanceOf(StakingAddress).call()
         console.log("worked 2")
         console.log("balances", _balanceAIUS, _balanceUNIV2)
         const apr = await getAPR(_rewardRate, _totalSupply)

@@ -29,6 +29,7 @@ function Stake() {
   const [updateValue, setUpdateValue] = useState(0);
 
   const stakeInput = useRef("");
+  const unstakeInput = useRef("");
 
   const infuraUrl = "https://sepolia.infura.io/v3/0a5cec7a39384fe3a6daad7a86cc9d99";
   const alchemyUrl = "https://sepolia.g.alchemy.com/v2/-ajhFQTtft1QCDeaEzApe9eSnPQgQE7N";
@@ -131,8 +132,6 @@ function Stake() {
           "claimableRewards": _earned,
           "allowance": _allowance
         })
-        setAmount(new Decimal(0))
-        setWithdrawAmount(new Decimal(0))
       }catch(e){
         console.log("F1 error", e)
       }
@@ -142,9 +141,15 @@ function Stake() {
       f1();
     }
 
+    setAmount(new Decimal(0))
+    setWithdrawAmount(new Decimal(0))
+
   },[address, updateValue])
 
   const handleStake = async () => {
+    if(!address){
+      return;
+    }
     let amountInDec = amount; // already in decimal
     let allowanceInDec = new Decimal(data?.allowance);
 
@@ -191,6 +196,9 @@ function Stake() {
   };
 
   const handleApprove = async() => {
+    if(!address){
+      return;
+    }
     let amountInDec = amount; // already setting in dec
     let allowanceInDec = new Decimal(data?.allowance);
 
@@ -252,6 +260,9 @@ function Stake() {
   }
 
   const setMaxAmount = () => {
+    if(!data?.userUNIV2Balance){
+      return;
+    }
     const balanceInDec = new Decimal(data?.userUNIV2Balance);
     const AIUS_wei_InDec = new Decimal(AIUS_wei);
 
@@ -259,7 +270,22 @@ function Stake() {
     stakeInput.current.value = balanceInDec.div(AIUS_wei);
   }
 
+  const setMaxUnstakeAmount = () => {
+    if(!data?.stakedBalance){
+      return;
+    }
+    const balanceInDec = new Decimal(data?.stakedBalance);
+    const AIUS_wei_InDec = new Decimal(AIUS_wei);
+
+    setWithdrawAmount(balanceInDec.mul(AIUS_wei_InDec));
+    unstakeInput.current.value = balanceInDec.div(AIUS_wei);
+  }
+
   const handleClaim = async() => {
+    if(!address){
+      return;
+    }
+
     try {
       setShowPopUp(3);
       await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -292,6 +318,10 @@ function Stake() {
   }
 
   const handleExit = async() => {
+    if(!address){
+      return;
+    }
+
     try {
       setShowPopUp(3);
       await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -324,6 +354,9 @@ function Stake() {
   }
 
   const handleWithdraw = async() => {
+    if(!address){
+      return;
+    }
     try {
       let amountInDec = new Decimal(withdrawAmount);
 
@@ -429,7 +462,10 @@ function Stake() {
                   <div className='mt-6 max-h-[150px] w-1/2 rounded-[10px] lp-stake-bg-gradient p-6 py-4 shadow-none transition-all hover:shadow-stats'>
                     <div className='flex items-baseline justify-start'>
                       <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
-                        {Number(data?.userUNIV2Balance / AIUS_wei).toFixed(2)}
+                        { data?.userUNIV2Balance ?
+                            Number(data?.userUNIV2Balance / AIUS_wei).toFixed(2)
+                          : 0
+                        }
                       </h1>
                       <p className='ml-2 text-para text-black-text'>Uni-V2</p>
                     </div>
@@ -490,7 +526,7 @@ function Stake() {
               </div>
 
               <div className='mt-4 flex items-center justify-end gap-4 text-[#101010] md:mb-0'>
-                { ( (amount && amount > 0 && amount.comparedTo(data?.allowance) > 0) || Number(data?.allowance) === 0 ) ? <button
+                { ( (amount && amount > 0 && amount.comparedTo?.(data?.allowance ?? 0) > 0) || Number(data?.allowance) === 0 ) ? <button
                   type='button'
                   className='group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2'
                   id={'approveUniV2'}
@@ -517,11 +553,11 @@ function Stake() {
 
                 <button
                   type='button'
-                  className='group relative flex items-center gap-3 rounded-full bg-[#121212] bg-opacity-5 px-8 py-2'
+                  className='group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2'
                   onClick={() => handleStake()}
                 >
-                  <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500'></div>
-                  <p className='relative z-10 text-[15px] text-[#101010] opacity-30'>
+                  <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500 bg-buy-hover group-hover:opacity-100'></div>
+                  <p className='relative z-10 text-[15px] text-original-white'>
                     Stake
                   </p>
                 </button>
@@ -540,7 +576,10 @@ function Stake() {
                       className='flex items-baseline justify-start'
                     >
                       <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
-                        {Number(data?.stakedBalance / AIUS_wei).toFixed(3)}
+                        { data?.stakedBalance ?
+                            Number(data?.stakedBalance / AIUS_wei).toFixed(3)
+                          : 0
+                        }
                         &nbsp;
                       </h1>
                       <p className='text-para text-black-text'>Uni-V2</p>
@@ -565,7 +604,11 @@ function Stake() {
                       className='flex items-baseline justify-start'
                     >
                       <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
-                        {Number(data?.claimableRewards / AIUS_wei).toFixed(5)}
+                        {
+                          data?.claimableRewards ?
+                            Number(data?.claimableRewards / AIUS_wei).toFixed(5)
+                          : 0
+                        }
                         &nbsp;
                       </h1>
                       <p className='text-para'>AIUS</p>
@@ -641,14 +684,15 @@ function Stake() {
                   <div className='flex w-[75%] flex-row justify-between rounded-l-none rounded-r-[25px] border-[1.5px] border-l-0 bg-original-white p-2 focus:outline-none lg:p-3'>
                     <div className='w-[80%]'>
                       <input
+                        ref={unstakeInput}
                         className='w-[100%] bg-original-white text-[13px] italic outline-none'
                         placeholder='Amount of UNI-V2 to unstake'
                         onChange={(e) => setUnstakeAmount(e)}
                       />
                     </div>
-                    {/*<div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'>
+                    <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'>
                       <p className='pb-[2px] text-[6px] lg:text-[11px]'>max</p>
-                    </div>*/}
+                    </div>
                   </div>
                 </div>
 
@@ -659,8 +703,8 @@ function Stake() {
                     className='group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2'
                     onClick={() => handleClaim()}
                   >
-                    <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500'></div>
-                    <p className='relative z-10 mb-[1px] text-[15px]'>
+                    <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500 bg-buy-hover group-hover:opacity-100'></div>
+                    <p className='relative z-10 mb-[1px] text-[15px] text-original-white'>
                       Claim
                     </p>
                   </button>

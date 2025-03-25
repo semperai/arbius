@@ -7,22 +7,24 @@ import arbiuslogorounded from '@/app/assets/images/arbiuslogo_rounded.png';
 import arbiuslogo_lpstake from '@/app/assets/images/arbiuslogo_lpstake.svg';
 import GradientCrad from '@/app/components/Stake/LPStaking/GradientCrad';
 import Link from 'next/link';
+import { AIUS_wei } from '@/app/Utils/constantValues';
+
 function TopHeaderSection({ data }) {
   const headerCardData = [
     {
-      heading: data ? data?.univ2Staked : '',
+      heading: data ? Number(data?.univ2Staked / AIUS_wei).toFixed(3) : 0,
       subheading: 'UNI-V2',
       para: 'Staked',
       logo: unilogo,
     },
     {
-      heading: data ? data?.aiusStaked : '',
+      heading: data ? data?.aiusStaked : 0,
       subheading: 'AIUS',
       para: 'Remaining',
       logo: arbiuslogorounded,
     },
     {
-      heading: data ? data?.apr : '',
+      heading: data ? data?.apr : 0,
       subheading: '',
       para: 'APR',
       logo: arbiuslogorounded,
