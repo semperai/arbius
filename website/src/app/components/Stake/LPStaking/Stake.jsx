@@ -411,10 +411,8 @@ function Stake() {
 
   const handleUnstakeClaim = async() => {
     if(withdrawAmount > 0){
-      alert("Calling withdraw");
       await handleWithdraw();
     }else{
-      alert("Calling exit")
       await handleExit();
     }
   }
@@ -734,7 +732,7 @@ function Stake() {
                   >
                     <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
                     <p className='relative z-10 mb-[1px] text-[15px] text-original-white'>
-                      Unstake & Claim
+                      Unstake
                     </p>
                   </button>
                 </div>
