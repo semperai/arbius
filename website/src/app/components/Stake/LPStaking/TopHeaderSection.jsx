@@ -12,7 +12,7 @@ import { AIUS_wei } from '@/app/Utils/constantValues';
 function TopHeaderSection({ data }) {
   const headerCardData = [
     {
-      heading: data ? Number(data?.univ2Staked / AIUS_wei).toFixed(3) : 0,
+      heading: data ? Number(data?.univ2Staked / AIUS_wei).toFixed(0) : 0,
       subheading: 'UNI-V2',
       para: 'Staked',
       logo: unilogo,

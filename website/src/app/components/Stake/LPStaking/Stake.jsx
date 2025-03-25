@@ -462,7 +462,7 @@ function Stake() {
                 <div className='mt-6 flex items-end justify-between gap-6'>
                   <div className='mt-6 max-h-[150px] w-1/2 rounded-[10px] lp-stake-bg-gradient p-6 py-4 shadow-none transition-all hover:shadow-stats'>
                     <div className='flex items-baseline justify-start'>
-                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[25px] font-medium text-purple-text'>
                         { data?.userUNIV2Balance ?
                             Number(data?.userUNIV2Balance / AIUS_wei).toFixed(2)
                           : 0
@@ -480,7 +480,7 @@ function Stake() {
                       className='flex items-baseline justify-start'
                       id='RewardsPeriod'
                     >
-                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[25px] font-medium text-purple-text'>
                         120
                       </h1>
                       <p className='ml-2 text-para text-black-text'>Days</p>
@@ -576,7 +576,7 @@ function Stake() {
                       id='unstakeBalance'
                       className='flex items-baseline justify-start'
                     >
-                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[25px] font-medium text-purple-text'>
                         { data?.stakedBalance ?
                             Number(data?.stakedBalance / AIUS_wei).toFixed(3)
                           : 0
@@ -604,7 +604,7 @@ function Stake() {
                       id='claimableRewards'
                       className='flex items-baseline justify-start'
                     >
-                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[25px] font-medium text-purple-text'>
                         {
                           data?.claimableRewards ?
                             Number(data?.claimableRewards / AIUS_wei).toFixed(5)

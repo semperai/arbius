@@ -162,7 +162,7 @@ export default function LPStaking() {
           // @ts-ignore
           "aiusStaked": _balanceAIUS,
           // @ts-ignore
-          "apr": (apr ? apr?.toFixed(2) : "0") + "%"
+          "apr": (apr ? apr?.toFixed(0) : "0") + "%"
         })        
       }catch(e){
         console.log("F1 error", e)
