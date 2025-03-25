@@ -40,7 +40,7 @@ function TopHeaderSection({ data }) {
             </div>
 
             <div className='flex items-baseline justify-start pl-2'>
-              <h1 className='text-mobile-header font-medium text-card-heading lg:text-header 2xl:text-header-2xl'>
+              <h1 className='text-[28px] lm:text-mobile-header font-medium text-card-heading lg:text-header'>
                 AIUS LP Stake
               </h1>
             </div>
@@ -49,7 +49,7 @@ function TopHeaderSection({ data }) {
             Stake AIUS and ETH, earn AIUS rewards.
           </p>
 
-          <div className='mt-8 grid gap-6 grid-cols-4'>
+          <div className='mt-8 grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
             {headerCardData.map((item, key) => {
               return (
                 <GradientCrad

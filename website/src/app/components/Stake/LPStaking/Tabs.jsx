@@ -10,17 +10,17 @@ function Tabs({ data }) {
   const [selectedTab, setSelectedTab] = useState('Stake');
   const [mobileSelectedTab, setMobileSelectedTab] = useState('Stats');
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // const handleResize = () => {
-      const isMobile = window.innerWidth <= 768;
-      console.log(window.innerWidth);
-      if (isMobile) {
-        setSelectedTab('Stats');
-      }
-      // };
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     // const handleResize = () => {
+  //     const isMobile = window.innerWidth <= 768;
+  //     console.log(window.innerWidth);
+  //     if (isMobile) {
+  //       setSelectedTab('Stats');
+  //     }
+  //     // };
+  //   }
+  // }, []);
 
   return (
     <>
@@ -45,7 +45,7 @@ function Tabs({ data }) {
       </div>
 
       <div className='min-w-full max-w-center-width bg-aius-stake pb-4 pt-4 lg:py-24'>
-        <div className='m-[auto] w-mobile-section-width lg:hidden lg:w-[90%]'>
+        {/*<div className='m-[auto] w-mobile-section-width lg:hidden lg:w-[90%]'>
           <div className='mb-6 flex w-[100%] justify-center rounded-full bg-white-background lg:hidden'>
             {mobiletabs.map(function (item, index) {
               return (
@@ -64,7 +64,7 @@ function Tabs({ data }) {
               );
             })}
           </div>
-        </div>
+        </div>*/}
 
         {selectedTab === 'Stake' && <Stake />}
         {selectedTab === 'Stats' && <Stats data={data} />}
