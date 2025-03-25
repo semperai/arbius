@@ -109,9 +109,9 @@ export default function Header() {
         }else{
           aiusTokenAddress = Config.v4_baseTokenAddress
         }
-
+        // @ts-ignore
         await window.ethereum.request({ method: 'eth_requestAccounts' });
-
+        // @ts-ignore
         const provider = new ethers.providers.Web3Provider(window.ethereum);
 
         const signer = provider.getSigner();
@@ -126,14 +126,14 @@ export default function Header() {
         console.log(balance)
         const _walletBalance = formatBalance(ethers.utils.formatEther(balance as BigNumber));
         console.log(_walletBalance)
-        setWalletBalance(_walletBalance)
+        setWalletBalance(Number(_walletBalance))
       } catch (err) {
         console.log(err, "ERR At UE Header")
         setWalletBalance(0)
       }
     }
 
-    if(address){
+    if(address && chain?.id){
       f();
     }
   },[address, chain?.id])
