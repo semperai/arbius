@@ -158,14 +158,13 @@ export default function Header() {
               </div>
               <div className='absolute left-[-18px] bg-[black] p-[15px_50px] opacity-0'></div>
               <AnimateHeight height={stakingOpen ? 'auto' : 0}>
-                <div className='lg:staking lg:hidden lg:translate-x-[-10%] lg:translate-y-[25px] lg:group-hover:flex'>
-                  {/*<Link
-                    href={
-                      'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum'
-                    }
+                <div className='lg:staking lg:hidden lg:translate-x-[-30%] lg:translate-y-[25px] lg:group-hover:flex'>
+                  <Link
+                    href={'/lp-staking'}
                     onClick={() => {
                       setHeaderOpen(!headerOpen);
                     }}
+                    target="_blank"
                   >
                     <div className='staking-block relative'>
                       <div className='absolute right-2 top-2 hidden rounded-2xl bg-[#FBFBFB1A] p-2 opacity-0 lg:block'>
@@ -175,13 +174,13 @@ export default function Header() {
                       </div>
                       <Image
                         className='h-[auto] w-[20px] lg:h-[20px] lg:w-[auto]'
-                        src={gysr}
+                        src={arbius}
                         alt=''
                       />
-                      <div className='lato-bold'>GYSR</div>
+                      <div className='lato-bold'>LP Staking</div>
                       <div>Provide liquidity, earn AIUS rewards.</div>
                     </div>
-                  </Link>*/}
+                  </Link>
                   <Link
                     href={'/aius'}
                     onClick={() => {
