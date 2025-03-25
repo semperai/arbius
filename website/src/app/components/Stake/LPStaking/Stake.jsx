@@ -23,11 +23,12 @@ function Stake() {
   const { address, isConnected } = useAccount();
   const [currentHoverId, setCurrentHoverId] = useState(null);
   const [data, setData] = useState(null);
+  //console.log(data, "DATS")
   const [showPopUp, setShowPopUp] = useState(false);
   const [amount, setAmount] = useState(0);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
   const [updateValue, setUpdateValue] = useState(0);
-
+  //console.log(amount.toString(), withdrawAmount.toString())
   const stakeInput = useRef("");
   const unstakeInput = useRef("");
 
@@ -266,7 +267,7 @@ function Stake() {
     const balanceInDec = new Decimal(data?.userUNIV2Balance);
     const AIUS_wei_InDec = new Decimal(AIUS_wei);
 
-    setAmount(balanceInDec.mul(AIUS_wei_InDec));
+    setAmount(balanceInDec);
     stakeInput.current.value = balanceInDec.div(AIUS_wei);
   }
 
@@ -277,7 +278,7 @@ function Stake() {
     const balanceInDec = new Decimal(data?.stakedBalance);
     const AIUS_wei_InDec = new Decimal(AIUS_wei);
 
-    setWithdrawAmount(balanceInDec.mul(AIUS_wei_InDec));
+    setWithdrawAmount(balanceInDec);
     unstakeInput.current.value = balanceInDec.div(AIUS_wei);
   }
 
@@ -461,7 +462,7 @@ function Stake() {
                 <div className='mt-6 flex items-end justify-between gap-6'>
                   <div className='mt-6 max-h-[150px] w-1/2 rounded-[10px] lp-stake-bg-gradient p-6 py-4 shadow-none transition-all hover:shadow-stats'>
                     <div className='flex items-baseline justify-start'>
-                      <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
                         { data?.userUNIV2Balance ?
                             Number(data?.userUNIV2Balance / AIUS_wei).toFixed(2)
                           : 0
@@ -479,7 +480,7 @@ function Stake() {
                       className='flex items-baseline justify-start'
                       id='RewardsPeriod'
                     >
-                      <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
                         120
                       </h1>
                       <p className='ml-2 text-para text-black-text'>Days</p>
@@ -575,7 +576,7 @@ function Stake() {
                       id='unstakeBalance'
                       className='flex items-baseline justify-start'
                     >
-                      <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
                         { data?.stakedBalance ?
                             Number(data?.stakedBalance / AIUS_wei).toFixed(3)
                           : 0
@@ -603,7 +604,7 @@ function Stake() {
                       id='claimableRewards'
                       className='flex items-baseline justify-start'
                     >
-                      <h1 className='text-[25px] font-medium text-purple-text xl:text-[38px]'>
+                      <h1 className='text-[22px] font-medium text-purple-text xl:text-[38px]'>
                         {
                           data?.claimableRewards ?
                             Number(data?.claimableRewards / AIUS_wei).toFixed(5)
@@ -690,7 +691,9 @@ function Stake() {
                         onChange={(e) => setUnstakeAmount(e)}
                       />
                     </div>
-                    <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'>
+                    <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'
+                    onClick={setMaxUnstakeAmount}
+                    >
                       <p className='pb-[2px] text-[6px] lg:text-[11px]'>max</p>
                     </div>
                   </div>

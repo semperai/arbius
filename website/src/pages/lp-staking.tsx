@@ -14,6 +14,27 @@ import { AbiItem } from 'web3-utils';
 export default function LPStaking() {
   const [data, setData] = useState(null);
 
+  const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 11155111 : 1;
+  const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
+    chainId: CHAIN,
+  });
+
+  useEffect(() => {
+    console.log('switch');
+    const f = async () => {
+      try {
+        const check = await window.ethereum?.request({ method: 'eth_accounts' }); // Request account access if needed
+        if (check?.length) {
+          await window.ethereum?.request({ method: 'eth_requestAccounts' });
+        }
+      } catch (error) {}
+    };
+
+    f();
+    switchNetworkArbitrum?.();
+  }, [switchNetworkArbitrum]);
+
+
   const getWeb3 = async() => {
     return await fetch(infuraUrl, {
         method: 'POST',
