@@ -18,7 +18,7 @@ import Link from 'next/link';
 
 import ConnectWallet from '@/components/ConnectWallet'; // main arbius component
 import { useWeb3Modal } from '@web3modal/react'; // main arbius component
-import { useAccount, useContractRead } from 'wagmi'; // main arbius component
+import { useAccount, useContractRead, useNetwork } from 'wagmi'; // main arbius component
 import baseTokenV1 from '../../abis/baseTokenV1.json';
 import getAIUSBalance from '../../Utils/aiusWalletBalance';
 import { BigNumber } from 'ethers';
@@ -35,6 +35,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const route = pathname.replace('/', '');
+  const { chain, chains } = useNetwork()
 
   useEffect(() => {
     if (window.innerWidth < 1024) {
@@ -66,7 +67,7 @@ export default function Header() {
   const { open: openWeb3Modal } = useWeb3Modal();
 
   const [walletConnected, setWalletConnected] = useState(false);
-  // const [walletBalance, setWalletBalance] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
 
   useEffect(() => {
@@ -88,13 +89,14 @@ export default function Header() {
     })();
   }
 
-  const { data, isError, isLoading } = useContractRead({
-    address: Config.v4_baseTokenAddress as `0x${string}`,
-    abi: baseTokenV1.abi,
-    functionName: 'balanceOf',
-    args: [address],
-    enabled: isConnected,
-  });
+  let aiusTokenAddress = "";
+  if(chain?.id === 11155111){
+    aiusTokenAddress = "0xc4e93fEAA88638889ea85787D9ab7C751C87C29B";
+  }else if(chain?.id === 1){
+    aiusTokenAddress = "";
+  }else{
+    aiusTokenAddress = Config.v4_baseTokenAddress
+  }
 
   function formatBalance(num: string) {
     if (Number.isInteger(num)) {
@@ -105,10 +107,34 @@ export default function Header() {
     }
   }
 
-  let walletBalance = '0';
-  if (data && !isLoading) {
-    walletBalance = formatBalance(ethers.utils.formatEther(data as BigNumber));
-  }
+  useEffect(() => {
+    async function f(){
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+        const signer = provider.getSigner();
+
+        const aiusTokenContract = new ethers.Contract(
+          aiusTokenAddress,
+          baseTokenV1.abi,
+          signer
+        );
+
+        const balance = await aiusTokenContract.balanceOf(address)
+        const _walletBalance = formatBalance(ethers.utils.formatEther(balance as BigNumber));
+        setWalletBalance(_walletBalance)
+      } catch (err) {
+        console.log(err)
+        setWalletBalance(0)
+      }
+    }
+
+    if(address){
+      f();
+    }
+  },[address, chain?.id])
 
   return (
     <div

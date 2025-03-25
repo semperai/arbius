@@ -29,7 +29,7 @@ function TopHeaderSection({ data }) {
       logo: unilogo,
     },
     {
-      heading: data ? Number(data?.aiusStaked / AIUS_wei) : 0,
+      heading: data ? Number(data?.aiusStaked / AIUS_wei).toFixed(0) : 0,
       subheading: 'AIUS',
       para: 'Remaining',
       logo: arbiuslogorounded,
