@@ -80,6 +80,13 @@ function Stake() {
         });
   }
 
+  function getDaysFromNow(timestamp) {
+    const now = Date.now(); // Current timestamp in milliseconds
+    const givenDate = timestamp * 1000; // Convert the given timestamp to milliseconds
+    const differenceInMilliseconds = givenDate - now;
+    const days = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+    return days;
+  }
 
   useEffect(() => {
 
@@ -122,16 +129,18 @@ function Stake() {
         console.log(_userUNIV2Balance)
         const _stakedBalance = await stakingContract.methods.balanceOf(address).call()
         console.log(_stakedBalance)
-        const _earned = await stakingContract.methods.balanceOf(address).call()
+        const _earned = await stakingContract.methods.earned(address).call()
         console.log(_earned)
         const _allowance = await univ2Contract.methods.allowance(address, StakingAddress).call()
         console.log(_allowance)
-
+        const _rewardPeriod = await stakingContract.methods.periodFinish().call()
+        console.log(_rewardPeriod, getDaysFromNow(_rewardPeriod))
         setData({
           "userUNIV2Balance": _userUNIV2Balance,
           "stakedBalance": _stakedBalance,
           "claimableRewards": _earned,
-          "allowance": _allowance
+          "allowance": _allowance,
+          "rewardPeriod": getDaysFromNow(_rewardPeriod)
         })
       }catch(e){
         console.log("F1 error", e)
@@ -140,8 +149,15 @@ function Stake() {
 
     if(address){
       f1();
+    }else{
+      setData({
+        "userUNIV2Balance": 0,
+        "stakedBalance": 0,
+        "claimableRewards": 0,
+        "allowance": 0,
+        "rewardPeriod": 0
+      })
     }
-
     setAmount(new Decimal(0))
     setWithdrawAmount(new Decimal(0))
 
@@ -481,7 +497,7 @@ function Stake() {
                       id='RewardsPeriod'
                     >
                       <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
-                        120
+                        {data?.rewardPeriod}
                       </h1>
                       <p className='ml-2 text-[11px] um:text-[14px] text-black-text'>Days</p>
                     </div>
@@ -520,7 +536,7 @@ function Stake() {
                     <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'
                     onClick={setMaxAmount}
                     >
-                      <p className='um:pb-[2px] text-[6px] lg:text-[11px]'>max</p>
+                      <p className='um:pb-[2px] text-[9px] lg:text-[13px]'>max</p>
                     </div>
                   </div>
                 </div>
@@ -694,7 +710,7 @@ function Stake() {
                     <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'
                     onClick={setMaxUnstakeAmount}
                     >
-                      <p className='um:pb-[2px] text-[6px] lg:text-[11px]'>max</p>
+                      <p className='um:pb-[2px] text-[9px] lg:text-[13px]'>max</p>
                     </div>
                   </div>
                 </div>

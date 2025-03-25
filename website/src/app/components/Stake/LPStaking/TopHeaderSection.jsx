@@ -10,6 +10,17 @@ import Link from 'next/link';
 import { AIUS_wei } from '@/app/Utils/constantValues';
 
 function TopHeaderSection({ data }) {
+
+  // function formatNumber(num) {
+  //   if (num >= 1_000_000) {
+  //     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  //   } else if (num >= 1_000) {
+  //     return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  //   } else {
+  //     return num.toString();
+  //   }
+  // }
+
   const headerCardData = [
     {
       heading: data ? Number(data?.univ2Staked / AIUS_wei).toFixed(0) : 0,
@@ -18,7 +29,7 @@ function TopHeaderSection({ data }) {
       logo: unilogo,
     },
     {
-      heading: data ? data?.aiusStaked : 0,
+      heading: data ? Number(data?.aiusStaked / AIUS_wei) : 0,
       subheading: 'AIUS',
       para: 'Remaining',
       logo: arbiuslogorounded,
