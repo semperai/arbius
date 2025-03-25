@@ -89,15 +89,6 @@ export default function Header() {
     })();
   }
 
-  let aiusTokenAddress = "";
-  if(chain?.id === 11155111){
-    aiusTokenAddress = "0xc4e93fEAA88638889ea85787D9ab7C751C87C29B";
-  }else if(chain?.id === 1){
-    aiusTokenAddress = "";
-  }else{
-    aiusTokenAddress = Config.v4_baseTokenAddress
-  }
-
   function formatBalance(num: string) {
     if (Number.isInteger(num)) {
       return num.toString().split('.')[0];
@@ -110,23 +101,34 @@ export default function Header() {
   useEffect(() => {
     async function f(){
       try {
+        let aiusTokenAddress = "";
+        if(chain?.id === 11155111){
+          aiusTokenAddress = "0xc4e93fEAA88638889ea85787D9ab7C751C87C29B";
+        }else if(chain?.id === 1){
+          aiusTokenAddress = "";
+        }else{
+          aiusTokenAddress = Config.v4_baseTokenAddress
+        }
+
         await window.ethereum.request({ method: 'eth_requestAccounts' });
 
         const provider = new ethers.providers.Web3Provider(window.ethereum);
 
         const signer = provider.getSigner();
-
+        console.log(aiusTokenAddress, "ATA")
         const aiusTokenContract = new ethers.Contract(
           aiusTokenAddress,
           baseTokenV1.abi,
           signer
         );
-
+        console.log(aiusTokenContract)
         const balance = await aiusTokenContract.balanceOf(address)
+        console.log(balance)
         const _walletBalance = formatBalance(ethers.utils.formatEther(balance as BigNumber));
+        console.log(_walletBalance)
         setWalletBalance(_walletBalance)
       } catch (err) {
-        console.log(err)
+        console.log(err, "ERR At UE Header")
         setWalletBalance(0)
       }
     }
