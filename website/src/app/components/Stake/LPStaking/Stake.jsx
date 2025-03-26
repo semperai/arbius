@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Popup from './Popup';
 import HintBox from '../../HintBox/Hintbox';
 import { useAccount } from 'wagmi';
-import { AIUS_wei, t_max, defaultApproveAmount, infuraUrlSepolia, alchemyUrlSepolia } from '@/app/Utils/constantValues';
+import { AIUS_wei, maxApproveAmount, infuraUrlSepolia, alchemyUrlSepolia } from '@/app/Utils/constantValues';
 import Web3 from 'web3';
 import PopUp from '@/app/components/Stake/AIUS/PopUp';
 import stakingContractABI from '@/app/abis/stakingContractABI';
@@ -243,7 +243,7 @@ function Stake() {
 
         const tx1 = await univ2Contract.approve(
           StakingAddress,
-          defaultApproveAmount
+          maxApproveAmount
         );
 
         await tx1.wait();
