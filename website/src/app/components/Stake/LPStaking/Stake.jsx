@@ -41,6 +41,10 @@ function Stake() {
   const UNIV2_ADDRESS = Config.UNIV2_ADDRESS;
   const StakingAddress = Config.STAKING_REWARD_ADDRESS;
   
+  const [earned, setEarned] = useState(0);
+  const [realtimeInterval, setRealtimeInterval] = useState(null);
+  const [earnedHover, setEarnedHover] = useState(false);
+
   function convertLargeNumber(numberStr) {
     // Convert the string to a BigInt
     let number = BigInt(0);
@@ -458,6 +462,58 @@ function Stake() {
     }
   }
 
+
+  useEffect(() => {
+    const f = async () => {
+      try{
+        const web3 = await getWeb3Sepolia();
+
+        const stakingContract = new web3.eth.Contract(
+          stakingContractABI,
+          StakingAddress
+        )
+
+        const _earned = await stakingContract.methods.earned(address).call()
+        setEarned(_earned);
+
+        const _stakedBalance = await stakingContract.methods.balanceOf(address).call()
+
+        if (realtimeInterval) {
+            clearInterval(realtimeInterval);
+        }
+
+        const now = new Date();
+        let current_timestamp = Math.floor(now.getTime()); // milliseconds
+        current_timestamp = current_timestamp / 1000; // seconds
+
+        const _rewardPeriod = await stakingContract.methods.periodFinish().call()
+        if(current_timestamp > _rewardPeriod){
+          return;
+        }
+
+        const _rewardRate = await stakingContract.methods.rewardRate().call();
+        const _totalSupply = await stakingContract.methods.totalSupply().call();
+
+        const _rewardPerUNIV2PerSecond = Number(_rewardRate) / Number(_totalSupply);
+        const _rateOfIncreasePerSecond = Number(_rewardPerUNIV2PerSecond) * Number(_stakedBalance);
+
+        let newEarned = _earned;
+
+        let _interval = setInterval(async() => {
+            newEarned = Number(newEarned) + Number(_rateOfIncreasePerSecond);
+            setEarned(newEarned)
+        }, 1000);
+        setRealtimeInterval(_interval);
+      }catch(err){
+        console.log(err, "ERR in interval")
+      }
+    };
+    if (address) {
+      f();
+    }
+  }, [address]);
+
+
   return (
     <>
       {showPopUp !== false && (
@@ -659,15 +715,20 @@ function Stake() {
                     </h1>
                   </div>
 
-                  <div className='mt-2 um:mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
+                  <div className='mt-2 um:mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'
+                    onMouseEnter={() => setEarnedHover(true)}
+                    onMouseLeave={() => setEarnedHover(false)}
+                  >
                     <div
                       id='claimableRewards'
                       className='flex items-baseline justify-start'
                     >
-                      <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
+                      <h1 className={`${earnedHover ? "text-[13px] mt-[18px]" : "text-[18px] um:text-[25px]"} font-medium text-purple-text`}>
                         {
-                          data?.claimableRewards ?
-                            Number(data?.claimableRewards / AIUS_wei).toFixed(3)
+                          earned && earnedHover ?
+                            Number(earned / AIUS_wei).toFixed(11)
+                          : earned ?
+                            Number(earned / AIUS_wei).toFixed(3)
                           : 0
                         }
                         &nbsp;
