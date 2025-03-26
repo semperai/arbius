@@ -269,7 +269,12 @@ function Stake() {
       if(amountInWei.comparedTo(balanceInDec) > 0){
         setDisableStakeButton(true);
       }else{
-        setDisableStakeButton(false);
+        let allowanceInDec = new Decimal(data?.allowance);
+        if (amountInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
+          // Do nothing
+        }else{
+          setDisableStakeButton(false);
+        }
       }
 
       setAmount(amountInWei);
@@ -308,7 +313,15 @@ function Stake() {
 
     setAmount(balanceInDec);
     stakeInput.current.value = balanceInDec.div(AIUS_wei);
-    setDisableStakeButton(false);
+
+    if(balanceInDec > 0){
+      let allowanceInDec = new Decimal(data?.allowance);
+      if (balanceInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
+        // Do nothing
+      }else{
+        setDisableStakeButton(false);
+      }
+    }
   }
 
   const setMaxUnstakeAmount = () => {
@@ -320,7 +333,10 @@ function Stake() {
 
     setWithdrawAmount(balanceInDec);
     unstakeInput.current.value = balanceInDec.div(AIUS_wei);
-    setDisableUnstakeButton(false);
+
+    if(balanceInDec > 0){
+      setDisableUnstakeButton(false);
+    }
   }
 
   const handleClaim = async() => {
@@ -578,7 +594,7 @@ function Stake() {
                   }}
                 >
                   <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                  <p className='relative z-10 text-[13px] text-original-white'>
+                  <p className='relative z-10 text-[15px] text-original-white'>
                     Approve UNI-V2
                   </p>
                   {/*<HintBox
