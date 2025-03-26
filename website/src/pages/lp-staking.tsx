@@ -38,7 +38,7 @@ export default function LPStaking() {
     let infuraUrl = infuraUrlSepolia;
     let alchemyUrl = alchemyUrlSepolia;
 
-    return await fetch(infuraUrl, {
+    return await fetch(alchemyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,17 +54,17 @@ export default function LPStaking() {
         .then(data => {
           if (data.error) {
             console.error("Infura error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
             return web3
           } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
             console.log("Successfully connected. Block number:", data.result);
             return web3
           }
         })
         .catch((err) => {
           console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
           return web3
         });
   }
