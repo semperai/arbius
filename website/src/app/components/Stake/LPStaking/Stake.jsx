@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Popup from './Popup';
 import HintBox from '../../HintBox/Hintbox';
 import { useAccount } from 'wagmi';
-import { AIUS_wei, t_max, defaultApproveAmount } from '@/app/Utils/constantValues';
+import { AIUS_wei, t_max, defaultApproveAmount, infuraUrlSepolia, alchemyUrlSepolia } from '@/app/Utils/constantValues';
 import Web3 from 'web3';
 import PopUp from '@/app/components/Stake/AIUS/PopUp';
 import stakingContractABI from '@/app/abis/stakingContractABI';
@@ -18,27 +18,28 @@ import error_stake from '@/app/assets/images/error_stake.png';
 import success_stake from '@/app/assets/images/success_stake.png';
 import { ethers } from 'ethers';
 import { getTransactionReceiptData } from '@/app/Utils/getTransactionReceiptData';
+import Config from '@/config.eth.json';
 
 function Stake() {
   const { address, isConnected } = useAccount();
   const [currentHoverId, setCurrentHoverId] = useState(null);
   const [data, setData] = useState(null);
-  //console.log(data, "DATS")
+
   const [showPopUp, setShowPopUp] = useState(false);
   const [amount, setAmount] = useState(0);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
   const [updateValue, setUpdateValue] = useState(0);
-  //console.log(amount.toString(), withdrawAmount.toString())
+
   const stakeInput = useRef("");
   const unstakeInput = useRef("");
 
   const [disableStakeButton, setDisableStakeButton] = useState(true);
   const [disableUnstakeButton, setDisableUnstakeButton] = useState(true);
 
-  const infuraUrl = "https://sepolia.infura.io/v3/0a5cec7a39384fe3a6daad7a86cc9d99";
-  const alchemyUrl = "https://sepolia.g.alchemy.com/v2/-ajhFQTtft1QCDeaEzApe9eSnPQgQE7N";
-  const UNIV2_ADDRESS = "0x5919827b631d1a1ab2ed01fbf06854968f438797";
-  const StakingAddress = "0x0476ad06c62d743cae0bf743e745ff44962c62f2";
+  const infuraUrl = infuraUrlSepolia;
+  const alchemyUrl = alchemyUrlSepolia;
+  const UNIV2_ADDRESS = Config.UNIV2_ADDRESS;
+  const StakingAddress = Config.STAKING_REWARD_ADDRESS;
   
   function convertLargeNumber(numberStr) {
     // Convert the string to a BigInt
@@ -129,15 +130,15 @@ function Stake() {
         )
 
         const _userUNIV2Balance = await univ2Contract.methods.balanceOf(address).call()
-        console.log(_userUNIV2Balance)
+
         const _stakedBalance = await stakingContract.methods.balanceOf(address).call()
-        console.log(_stakedBalance)
+
         const _earned = await stakingContract.methods.earned(address).call()
-        console.log(_earned)
+
         const _allowance = await univ2Contract.methods.allowance(address, StakingAddress).call()
-        console.log(_allowance)
+
         const _rewardPeriod = await stakingContract.methods.periodFinish().call()
-        console.log(_rewardPeriod, getDaysFromNow(_rewardPeriod))
+
         setData({
           "userUNIV2Balance": _userUNIV2Balance,
           "stakedBalance": _stakedBalance,
@@ -197,12 +198,12 @@ function Stake() {
           amountInDec.toFixed(0).toString()
         );
 
-        console.log('Second transaction hash:', tx2.hash);
+        console.log('transaction hash:', tx2.hash);
         await tx2.wait();
-        console.log('Second transaction confirmed');
+        console.log('transaction confirmed');
 
         setShowPopUp('Success');
-        console.log('Both transactions completed successfully');
+        console.log('transaction completed successfully');
         getTransactionReceiptData(tx2.hash).then(function () {
           setUpdateValue(prev => prev + 1);
         });
@@ -264,7 +265,7 @@ function Stake() {
       const balanceInDec = new Decimal(data?.userUNIV2Balance);
       const AIUS_wei_InDec = new Decimal(AIUS_wei);
       const amountInWei = amountInDec.mul(AIUS_wei_InDec);
-      console.log(amountInWei.toString(), balanceInDec.toString(), amountInWei > balanceInDec)
+
       if(amountInWei.comparedTo(balanceInDec) > 0){
         setDisableStakeButton(true);
       }else{
@@ -343,12 +344,12 @@ function Stake() {
 
       const tx2 = await stakingContract.getReward();
 
-      console.log('Second transaction hash:', tx2.hash);
+      console.log('transaction hash:', tx2.hash);
       await tx2.wait();
-      console.log('Second transaction confirmed');
+      console.log('transaction confirmed');
 
       setShowPopUp('Success');
-      console.log('Both transactions completed successfully');
+      console.log('transaction completed successfully');
       getTransactionReceiptData(tx2.hash).then(function () {
         setUpdateValue(prev => prev + 1);
       });
@@ -379,12 +380,12 @@ function Stake() {
 
       const tx2 = await stakingContract.exit();
 
-      console.log('Second transaction hash:', tx2.hash);
+      console.log('transaction hash:', tx2.hash);
       await tx2.wait();
-      console.log('Second transaction confirmed');
+      console.log('transaction confirmed');
 
       setShowPopUp('Success');
-      console.log('Both transactions completed successfully');
+      console.log('transaction completed successfully');
       getTransactionReceiptData(tx2.hash).then(function () {
         setUpdateValue(prev => prev + 1);
       });
@@ -418,12 +419,12 @@ function Stake() {
         amountInDec.toFixed(0).toString()
       );
 
-      console.log('Second transaction hash:', tx2.hash);
+      console.log('transaction hash:', tx2.hash);
       await tx2.wait();
-      console.log('Second transaction confirmed');
+      console.log('transaction confirmed');
 
       setShowPopUp('Success');
-      console.log('Both transactions completed successfully');
+      console.log('transaction completed successfully');
       getTransactionReceiptData(tx2.hash).then(function () {
         setUpdateValue(prev => prev + 1);
       });
@@ -782,7 +783,7 @@ function Stake() {
 
               <div className='flex items-center justify-center lg:mb-16 lg:mt-16'>
                 <div className='relative h-[100px] w-[100px] lg:h-[100px] lg:w-[100px]'>
-                  <Image src={walletImage} fill />
+                  <Image src={walletImage} alt="" />
                 </div>
               </div>
               <div className='flex justify-center lg:justify-end'>
@@ -811,7 +812,7 @@ function Stake() {
 
               <div className='flex items-center justify-center lg:mb-16 lg:mt-16'>
                 <div className='relative h-[100px] w-[100px] lg:h-[100px] lg:w-[100px]'>
-                  <Image src={walletImage} fill />
+                  <Image src={walletImage} alt="" />
                 </div>
               </div>
               <div className='flex justify-center lg:justify-end'>

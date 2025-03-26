@@ -129,7 +129,7 @@ function ActivityTable() {
                         className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
-                          <Image width={15} height={15} src={sort_icon} />
+                          <Image width={15} height={15} src={sort_icon} alt="" />
                         </div>
 
                         <h1>Action</h1>
@@ -139,7 +139,7 @@ function ActivityTable() {
                         className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
-                          <Image width={15} height={15} src={up_icon} />
+                          <Image width={15} height={15} src={up_icon} alt="" />
                         </div>
 
                         <h1>Amount</h1>
@@ -149,7 +149,7 @@ function ActivityTable() {
                         className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
-                          <Image width={15} height={15} src={gift_icon} />
+                          <Image width={15} height={15} src={gift_icon} alt="" />
                         </div>
 
                         <h1>Earnings</h1>
@@ -164,6 +164,7 @@ function ActivityTable() {
                             height={15}
                             src={gysr_logo}
                             className='table-icon'
+                            alt=""
                           />
                         </div>
 
@@ -179,6 +180,7 @@ function ActivityTable() {
                             height={15}
                             src={wallet_icon}
                             className='table-icon'
+                            alt=""
                           />
                         </div>
 
@@ -189,7 +191,7 @@ function ActivityTable() {
                         className='text-gray-500 px-6 py-3 text-center text-[12px] font-medium lg:text-[15px]'
                       >
                         <div className='flex justify-center'>
-                          <Image width={15} height={15} src={time_icon} />
+                          <Image width={15} height={15} src={time_icon} alt="" />
                         </div>
 
                         <h1>Time</h1>
@@ -254,7 +256,7 @@ function ActivityTable() {
       <div className='mt-6 flex justify-end text-[#101010]'>
         <div className='flex items-center justify-center gap-4 rounded-md bg-white-background p-3'>
           <button className='rotate-180 p-1' onClick={() => handleClickPrev()}>
-            <Image src={arrow_icon} width={20} height={20} />
+            <Image src={arrow_icon} width={20} height={20} alt="" />
           </button>
 
           <button
@@ -301,7 +303,7 @@ function ActivityTable() {
           </button>
 
           <button className='p-1' onClick={() => handleClickNext()}>
-            <Image src={arrow_icon} width={20} height={20} />
+            <Image src={arrow_icon} width={20} height={20} alt="" />
           </button>
         </div>
       </div>

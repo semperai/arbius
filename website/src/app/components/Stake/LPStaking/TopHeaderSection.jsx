@@ -47,14 +47,14 @@ function TopHeaderSection({ data }) {
         <div>
           <div className='flex items-center justify-start'>
             <div className='hidden md:block relative h-[auto] w-[50px]'>
-              <Image src={arbiuslogo_lpstake} />
+              <Image src={arbiuslogo_lpstake} alt="" />
             </div>
 
             <div className='flex items-baseline justify-start pl-2'>
               <h1 className='text-[28px] um:text-mobile-header font-medium text-card-heading lg:text-header'>
                 AIUS Uniswap V2 LP Staking
                 <div className='inline-block align-middle md:hidden relative h-[auto] w-[30px] um:w-[50px] ml-2'>
-                  <Image src={arbiuslogo_lpstake} />
+                  <Image src={arbiuslogo_lpstake} alt="" />
                 </div>
               </h1>
             </div>

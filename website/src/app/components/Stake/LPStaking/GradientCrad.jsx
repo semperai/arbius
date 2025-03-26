@@ -14,7 +14,7 @@ function GradientCrad({ heading, subheading, para, logo, data }) {
       <div className='mt-4 flex items-center justify-between'>
         <h3 className='text-[11px] lg:text-para'>{para}</h3>
         <div className='relative h-auto w-[25px] lm:w-[30px]'>
-          <Image src={logo} />
+          <Image src={logo} alt="" />
         </div>
       </div>
     </div>

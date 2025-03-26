@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import RootLayout from '@/app/layout';
 import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi';
-import Config from '@/config.one.json';
 import Tabs from '@/app/components/Stake/LPStaking/Tabs';
 import TopHeaderSection from '@/app/components/Stake/LPStaking/TopHeaderSection';
 import { getAPR } from '@/app/Utils/getAPR';
-import { AIUS_wei } from '@/app/Utils/constantValues';
+import { AIUS_wei, infuraUrlSepolia, alchemyUrlSepolia } from '@/app/Utils/constantValues';
 import Web3 from 'web3';
 import veStaking from '@/app/abis/veStaking.json';
 import { AbiItem } from 'web3-utils';
+import Config from '@/config.eth.json';
 
 export default function LPStaking() {
   const [data, setData] = useState(null);
@@ -20,7 +20,6 @@ export default function LPStaking() {
   });
 
   useEffect(() => {
-    console.log('switch');
     const f = async () => {
       try {
         const check = await window.ethereum?.request({ method: 'eth_accounts' }); // Request account access if needed
@@ -36,8 +35,8 @@ export default function LPStaking() {
 
 
   const getWeb3Sepolia = async() => {
-    let infuraUrl = "https://sepolia.infura.io/v3/0a5cec7a39384fe3a6daad7a86cc9d99";
-    let alchemyUrl = "https://sepolia.g.alchemy.com/v2/-ajhFQTtft1QCDeaEzApe9eSnPQgQE7N";
+    let infuraUrl = infuraUrlSepolia;
+    let alchemyUrl = alchemyUrlSepolia;
 
     return await fetch(infuraUrl, {
         method: 'POST',
@@ -75,23 +74,10 @@ export default function LPStaking() {
     const f1 = async () => {
       try{
         const web3Sepola = await getWeb3Sepolia();
-        const UNIV2_ADDRESS = "0x5919827b631d1a1ab2ed01fbf06854968f438797";
-        const StakingAddress = "0x0476ad06c62d743cae0bf743e745ff44962c62f2";
-        const AIUSAddress = "0xc4e93fEAA88638889ea85787D9ab7C751C87C29B";
+        const UNIV2_ADDRESS = Config.UNIV2_ADDRESS;
+        const StakingAddress = Config.STAKING_REWARD_ADDRESS;
+        const AIUSAddress = Config.AIUS_TOKEN_ADDRESS;
 
-        let stakingToken = "";
-        let rewardsToken = "";
-        let networkName = "sepolia";
-
-        if (networkName === "mainnet") {
-          stakingToken = "0xCB37089fC6A6faFF231B96e000300a6994d7a625"; // UNI-V2
-          rewardsToken = "0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852"; // AIUS
-          //stakingRewards = "TBA";
-        } else if (networkName === "sepolia") {
-          stakingToken = "0x5919827b631D1a1Ab2Ed01Fbf06854968f438797"; // UNI-V2
-          rewardsToken = "0xc4e93fEAA88638889ea85787D9ab7C751C87C29B"; // AIUS
-          //stakingRewards = "0x0476ad06c62d743cae0bf743e745ff44962c62f2"; 
-        }
 
         const balanceOfABI = [{
           "constant": true,
@@ -127,16 +113,15 @@ export default function LPStaking() {
           balanceOfABI as AbiItem[],
           AIUSAddress
         )
-        console.log(veStakingContract, univ2Contract, aiusTokenContract)
+
         const _rewardRate = await veStakingContract.methods.rewardRate().call();
-        console.log(_rewardRate, "RR")
+
         const _totalSupply = await veStakingContract.methods.totalSupply().call();
-        console.log(_rewardRate, _totalSupply, "SUPP")
+
         const _balanceAIUS = await aiusTokenContract.methods.balanceOf(StakingAddress).call()
-        console.log("worked 1")
+
         const _balanceUNIV2 = await univ2Contract.methods.balanceOf(StakingAddress).call()
-        console.log("worked 2")
-        console.log("balances", _balanceAIUS, _balanceUNIV2)
+
         const apr = await getAPR(_rewardRate, _totalSupply)
 
         //@ts-ignore

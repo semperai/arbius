@@ -24,6 +24,7 @@ import getAIUSBalance from '../../Utils/aiusWalletBalance';
 import { BigNumber } from 'ethers';
 import { AIUS_wei } from '../../Utils/constantValues';
 import Config from '@/config.one.json';
+import ConfigEth from '@/config.eth.json';
 
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
@@ -102,12 +103,11 @@ export default function Header() {
     async function f(){
       try {
         let aiusTokenAddress = "";
-        if(chain?.id === 11155111){
-          aiusTokenAddress = "0xc4e93fEAA88638889ea85787D9ab7C751C87C29B";
-        }else if(chain?.id === 1){
-          aiusTokenAddress = "";
-        }else{
-          aiusTokenAddress = Config.v4_baseTokenAddress
+        if(chain?.id === 11155111 || chain?.id === 1){
+          aiusTokenAddress = ConfigEth.AIUS_TOKEN_ADDRESS;
+        }
+        else{
+          aiusTokenAddress = Config.v4_baseTokenAddress;
         }
         // @ts-ignore
         await window.ethereum.request({ method: 'eth_requestAccounts' });

@@ -14,6 +14,7 @@ function Popup({ isPopupOpen, setIsPopupOpen }) {
             width={12}
             className='cursor-pointer'
             onClick={() => setIsPopupOpen(false)}
+            alt=""
           />
         </div>
 
