@@ -3,13 +3,14 @@ pragma solidity ^0.8.19;
 
 import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {IStakingRewards} from "contracts/interfaces/IStakingRewards.sol";
 
 /// @title StakingRewards
 /// @notice Staking contract to distribute rewards to liquidity providers
 /// @dev Based on SNX StakingRewards https://docs.synthetix.io/contracts/source/contracts/stakingrewards
-contract StakingRewards is IStakingRewards, Ownable {
+contract StakingRewards is IStakingRewards, Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     /* ========== STATE VARIABLES ========== */
@@ -62,7 +63,7 @@ contract StakingRewards is IStakingRewards, Ownable {
 
     /// @notice Stakes `amount` of stakingToken
     /// @param amount Amount to stake
-    function stake(uint256 amount) external updateReward(msg.sender) {
+    function stake(uint256 amount) external nonReentrant updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
         _totalSupply += amount;
         _balances[msg.sender] += amount;
@@ -78,7 +79,7 @@ contract StakingRewards is IStakingRewards, Ownable {
 
     /// @notice Withdraws `amount` from the staking contract
     /// @param amount Amount to withdraw
-    function withdraw(uint256 amount) public updateReward(msg.sender) {
+    function withdraw(uint256 amount) public nonReentrant updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply -= amount;
         _balances[msg.sender] -= amount;
@@ -87,7 +88,7 @@ contract StakingRewards is IStakingRewards, Ownable {
     }
 
     /// @notice Claim rewards for `msg.sender`
-    function getReward() public updateReward(msg.sender) {
+    function getReward() public nonReentrant updateReward(msg.sender) {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
