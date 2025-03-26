@@ -32,6 +32,9 @@ function Stake() {
   const stakeInput = useRef("");
   const unstakeInput = useRef("");
 
+  const [disableStakeButton, setDisableStakeButton] = useState(true);
+  const [disableUnstakeButton, setDisableUnstakeButton] = useState(true);
+
   const infuraUrl = "https://sepolia.infura.io/v3/0a5cec7a39384fe3a6daad7a86cc9d99";
   const alchemyUrl = "https://sepolia.g.alchemy.com/v2/-ajhFQTtft1QCDeaEzApe9eSnPQgQE7N";
   const UNIV2_ADDRESS = "0x5919827b631d1a1ab2ed01fbf06854968f438797";
@@ -255,24 +258,43 @@ function Stake() {
   }
 
   const setStakeAmount = (e) => {
+
     if(Number(e.target.value)){
       const amountInDec = new Decimal(e.target.value);
+      const balanceInDec = new Decimal(data?.userUNIV2Balance);
       const AIUS_wei_InDec = new Decimal(AIUS_wei);
+      const amountInWei = amountInDec.mul(AIUS_wei_InDec);
+      console.log(amountInWei.toString(), balanceInDec.toString(), amountInWei > balanceInDec)
+      if(amountInWei.comparedTo(balanceInDec) > 0){
+        setDisableStakeButton(true);
+      }else{
+        setDisableStakeButton(false);
+      }
 
-      setAmount(amountInDec.mul(AIUS_wei_InDec));
+      setAmount(amountInWei);
     }else{
       setAmount(new Decimal(0));
+      setDisableStakeButton(true);
     }
   }
 
   const setUnstakeAmount = (e) => {
     if(Number(e.target.value)){
       const amountInDec = new Decimal(e.target.value);
+      const balanceInDec = new Decimal(data?.stakedBalance);
       const AIUS_wei_InDec = new Decimal(AIUS_wei);
+      const amountInWei = amountInDec.mul(AIUS_wei_InDec);
 
-      setWithdrawAmount(amountInDec.mul(AIUS_wei_InDec));
+      if(amountInWei.comparedTo(balanceInDec) > 0) {
+        setDisableUnstakeButton(true);
+      }else{
+        setDisableUnstakeButton(false);
+      }
+
+      setWithdrawAmount(amountInWei);
     }else{
       setWithdrawAmount(new Decimal(0));
+      setDisableUnstakeButton(true);
     }
   }
 
@@ -285,6 +307,7 @@ function Stake() {
 
     setAmount(balanceInDec);
     stakeInput.current.value = balanceInDec.div(AIUS_wei);
+    setDisableStakeButton(false);
   }
 
   const setMaxUnstakeAmount = () => {
@@ -296,6 +319,7 @@ function Stake() {
 
     setWithdrawAmount(balanceInDec);
     unstakeInput.current.value = balanceInDec.div(AIUS_wei);
+    setDisableUnstakeButton(false);
   }
 
   const handleClaim = async() => {
@@ -495,7 +519,10 @@ function Stake() {
                       id='RewardsPeriod'
                     >
                       <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
-                        {data?.rewardPeriod}
+                        { data?.rewardPeriod ?
+                            Number(data?.rewardPeriod)
+                          : 0
+                        }
                       </h1>
                       <p className='ml-2 text-[11px] um:text-[14px] text-black-text'>Days</p>
                     </div>
@@ -568,11 +595,13 @@ function Stake() {
 
                 <button
                   type='button'
-                  className='group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2'
-                  onClick={() => handleStake()}
+                  className={` ${disableStakeButton ? "opacity-10" : ""} group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2`}
+                  onClick={() => {
+                    disableStakeButton ? {} : handleStake()
+                  }}
                 >
                   <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500 bg-buy-hover group-hover:opacity-100'></div>
-                  <p className='relative z-10 text-[15px] text-original-white'>
+                  <p className={`relative z-10 text-[15px] ${disableStakeButton ? "text-original-white opacity-80" : "text-original-white"}`}>
                     Stake
                   </p>
                 </button>
@@ -727,11 +756,11 @@ function Stake() {
                   </button>
                   <button
                     type='button'
-                    className='group relative flex items-center justify-center gap-3 rounded-full bg-[#121212] px-4 um:px-8 py-2'
-                    onClick={handleUnstakeClaim}
+                    className={`${disableUnstakeButton ? "opacity-10" : ""} group relative flex items-center justify-center gap-3 rounded-full bg-[#121212] px-4 um:px-8 py-2`}
+                    onClick={ disableUnstakeButton ? null : handleUnstakeClaim}
                   >
                     <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                    <p className='relative z-10 mb-[1px] text-[15px] text-original-white'>
+                    <p className={`relative z-10 mb-[1px] text-[15px] text-original-white ${disableUnstakeButton ? "opacity-90": ""}`}>
                       Unstake
                     </p>
                   </button>
