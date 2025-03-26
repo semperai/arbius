@@ -62,6 +62,10 @@ const footerLinks: FooterLink[] = [
     link: '/aius',
   },
   {
+    name: 'LP Staking',
+    link: '/lp-staking',
+  },
+  {
     name: "Arbitrum Bridge",
     link: "https://bridge.arbitrum.io/"
   }
@@ -177,8 +181,8 @@ export default function Footer() {
                 </div>
               </div>
               <div>{footerLinks.slice(0, 3).map(FLink)}</div>
-              <div>{footerLinks.slice(-5, -2).map(FLink)}</div>
-              <div>{footerLinks.slice(-2).map(FLink)}</div>
+              <div>{footerLinks.slice(3, 6).map(FLink)}</div>
+              <div>{footerLinks.slice(6, 9).map(FLink)}</div>
               <div>
                 <div
                   className='group flex cursor-pointer items-center gap-4'
