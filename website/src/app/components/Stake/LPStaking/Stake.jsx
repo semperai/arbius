@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Popup from './Popup';
 import HintBox from '../../HintBox/Hintbox';
 import { useAccount } from 'wagmi';
-import { AIUS_wei, maxApproveAmount, infuraUrlSepolia, alchemyUrlSepolia } from '@/app/Utils/constantValues';
+import { AIUS_wei, maxApproveAmount, infuraUrlEth, alchemyUrlEth } from '@/app/Utils/constantValues';
 import Web3 from 'web3';
 import PopUp from '@/app/components/Stake/AIUS/PopUp';
 import stakingContractABI from '@/app/abis/stakingContractABI';
@@ -36,8 +36,8 @@ function Stake() {
   const [disableStakeButton, setDisableStakeButton] = useState(true);
   const [disableUnstakeButton, setDisableUnstakeButton] = useState(true);
 
-  const infuraUrl = infuraUrlSepolia;
-  const alchemyUrl = alchemyUrlSepolia;
+  const infuraUrl = infuraUrlEth;
+  const alchemyUrl = alchemyUrlEth;
   const UNIV2_ADDRESS = Config.UNIV2_ADDRESS;
   const StakingAddress = Config.STAKING_REWARD_ADDRESS;
   

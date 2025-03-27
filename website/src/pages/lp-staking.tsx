@@ -5,7 +5,7 @@ import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi';
 import Tabs from '@/app/components/Stake/LPStaking/Tabs';
 import TopHeaderSection from '@/app/components/Stake/LPStaking/TopHeaderSection';
 import { getAPR } from '@/app/Utils/getAPR';
-import { AIUS_wei, infuraUrlSepolia, alchemyUrlSepolia } from '@/app/Utils/constantValues';
+import { AIUS_wei, infuraUrlEth, alchemyUrlEth } from '@/app/Utils/constantValues';
 import Web3 from 'web3';
 import veStaking from '@/app/abis/veStaking.json';
 import { AbiItem } from 'web3-utils';
@@ -35,8 +35,8 @@ export default function LPStaking() {
 
 
   const getWeb3Sepolia = async() => {
-    let infuraUrl = infuraUrlSepolia;
-    let alchemyUrl = alchemyUrlSepolia;
+    let infuraUrl = infuraUrlEth;
+    let alchemyUrl = alchemyUrlEth;
 
     return await fetch(alchemyUrl, {
         method: 'POST',
