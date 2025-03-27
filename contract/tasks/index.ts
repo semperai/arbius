@@ -3,6 +3,7 @@ import ProxyAdminArtifact from '@openzeppelin/upgrades-core/artifacts/@openzeppe
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { task, types } from "hardhat/config";
 import Config from '../scripts/config.one.json';
+import MainnetConfig from '../scripts/config.mainnet.json';
 import LocalConfig from '../scripts/config.local.json';
 import ArbSepoliaConfig from '../scripts/config.sepolia.json';
 
@@ -80,6 +81,25 @@ async function getVeStaking(hre: HardhatRuntimeEnvironment) {
 
   if (hre.network.name === 'arbsepolia') {
     return await VeStaking.attach(ArbSepoliaConfig.v5_veStakingAddress);
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+
+async function getLPStaking(hre: HardhatRuntimeEnvironment) {
+  const LPStaking = await hre.ethers.getContractFactory("LPStaking");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    return await LPStaking.attach(LocalConfig.stakingRewards);
+  }
+
+  if (hre.network.name === 'mainnet') {
+    return await LPStaking.attach(MainnetConfig.stakingRewards);
   }
 
   console.log('Unknown network');
@@ -1081,4 +1101,14 @@ task("ipfsoracle:sign", "Sign solution cid from taskid")
 
   console.log("\nSignature Object for contract:");
   console.log(JSON.stringify(signatureObject, null, 2));
+});
+
+task("lpstaking:notifyRewardAmount", "Notify reward amount")
+.addParam("amount", "Amount")
+.setAction(async ({ amount }, hre) => {
+  console.log('Address', await getMinerAddress(hre));
+  const lpStaking = await getLPStaking(hre);
+  const tx = await lpStaking.notifyRewardAmount(hre.ethers.utils.parseEther(amount));
+  const receipt = await tx.wait();
+  console.log('Reward notified in ', receipt.transactionHash);
 });
