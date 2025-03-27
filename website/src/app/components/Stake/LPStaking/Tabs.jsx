@@ -24,7 +24,7 @@ function Tabs({ data }) {
 
   return (
     <>
-      <div className='m-[auto] w-mobile-section-width max-w-center-width lg:w-section-width'>
+      {/*<div className='m-[auto] w-mobile-section-width max-w-center-width lg:w-section-width'>
         <div className='justify-start lg:flex'>
           <div className='all-stake stake-items flex w-[50%] w-full justify-between'>
             {tabs.map(function (item, index) {
@@ -42,7 +42,7 @@ function Tabs({ data }) {
             })}
           </div>
         </div>
-      </div>
+      </div>*/}
 
       <div className='min-w-full max-w-center-width bg-aius-stake pb-4 pt-4 lg:py-24'>
         {/*<div className='m-[auto] w-mobile-section-width lg:hidden lg:w-[90%]'>
