@@ -88,6 +88,36 @@ function Stake() {
         });
   }
 
+  function formatNumber(num) {
+
+      if (num > 1) {
+          return num.toFixed(0);
+      }
+      
+      if (num === 0) {
+          return "0";
+      }
+      
+      const absNum = Math.abs(num);
+
+      if (absNum >= 1) {
+          return num.toFixed(2);
+      } else if (absNum >= 0.1) {
+          return num.toFixed(3);
+      } else if (absNum >= 0.01) {
+          return num.toFixed(4);
+      } else if (absNum >= 0.001) {
+          return num.toFixed(5);
+      } else if (absNum >= 0.0001) {
+          return num.toFixed(6);
+      } else if (absNum >= 0.00001) {
+          return num.toFixed(7);
+      } else {
+          return num.toExponential(4);
+      }
+  }
+
+
   function getDaysFromNow(timestamp) {
     const now = Date.now(); // Current timestamp in milliseconds
     const givenDate = timestamp * 1000; // Convert the given timestamp to milliseconds
@@ -171,7 +201,7 @@ function Stake() {
           "stakedBalance": _stakedBalance,
           "claimableRewards": _earned,
           "allowance": _allowance,
-          "rewardPeriod": getDaysFromNow(_rewardPeriod)
+          "rewardPeriod": 120//getDaysFromNow(_rewardPeriod)
         })
       }catch(e){
         console.log("F1 error", e)
@@ -182,14 +212,14 @@ function Stake() {
       f1();
 
     }else{
-      f();
+      //f();
 
       setData({
         "userUNIV2Balance": 0,
         "stakedBalance": 0,
         "claimableRewards": 0,
         "allowance": 0,
-        "rewardPeriod": 0
+        "rewardPeriod": 120
       })
     }
     setAmount(new Decimal(0))
@@ -601,7 +631,7 @@ function Stake() {
                     <div className='flex items-baseline justify-start'>
                       <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
                         { data?.userUNIV2Balance ?
-                            Number(data?.userUNIV2Balance / AIUS_wei).toFixed(2)
+                            formatNumber(Number(data?.userUNIV2Balance / AIUS_wei))
                           : 0
                         }
                       </h1>
@@ -720,7 +750,7 @@ function Stake() {
                     >
                       <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
                         { data?.stakedBalance ?
-                            Number(data?.stakedBalance / AIUS_wei).toFixed(3)
+                            formatNumber(Number(data?.stakedBalance / AIUS_wei))
                           : 0
                         }
                         &nbsp;
