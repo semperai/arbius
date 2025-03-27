@@ -19,6 +19,7 @@ error InsufficientSignatures();
 error SignersNotSorted();
 error InvalidSignature();
 error TimeNotPassed();
+error SubmitTaskFailed();
 
 contract ArbiusRouterV1 is Ownable {
     IArbius public engine;
@@ -117,7 +118,7 @@ contract ArbiusRouterV1 is Ownable {
         
         (bool success, ) = address(engine).call{gas: gas_}(enc);
         if (!success) {
-            revert("submitTask failed");
+            revert SubmitTaskFailed();
         }
         bytes32 taskid = engine.prevhash();
 
@@ -177,7 +178,7 @@ contract ArbiusRouterV1 is Ownable {
         
         (bool success, ) = address(engine).call{gas: gas_}(enc);
         if (!success) {
-            revert("submitTask failed");
+            revert SubmitTaskFailed();
         }
         bytes32 taskid = engine.prevhash();
 
@@ -234,7 +235,7 @@ contract ArbiusRouterV1 is Ownable {
         
         (bool success, ) = address(engine).call{gas: gas_}(enc);
         if (!success) {
-            revert("submitTask failed");
+            revert SubmitTaskFailed();
         }
         bytes32 taskid = engine.prevhash();
 
