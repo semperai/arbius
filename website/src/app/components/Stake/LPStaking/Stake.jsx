@@ -101,6 +101,26 @@ function Stake() {
 
   useEffect(() => {
 
+    const f = async () => {
+      try{
+        const web3 = await getWeb3Sepolia();
+
+        const stakingContract = new web3.eth.Contract(
+          stakingContractABI,
+          StakingAddress
+        )
+
+        const _rewardPeriod = await stakingContract.methods.periodFinish().call()
+
+        setData({
+          "rewardPeriod": getDaysFromNow(_rewardPeriod)
+        })
+      }catch(e){
+        console.log("F1 error", e)
+      }
+    }
+
+
     const f1 = async () => {
       try{
         const web3 = await getWeb3Sepolia();
@@ -160,7 +180,10 @@ function Stake() {
 
     if(address){
       f1();
+
     }else{
+      f();
+
       setData({
         "userUNIV2Balance": 0,
         "stakedBalance": 0,
