@@ -18,12 +18,13 @@ import Link from 'next/link';
 
 import ConnectWallet from '@/components/ConnectWallet'; // main arbius component
 import { useWeb3Modal } from '@web3modal/react'; // main arbius component
-import { useAccount, useContractRead } from 'wagmi'; // main arbius component
+import { useAccount, useContractRead, useNetwork } from 'wagmi'; // main arbius component
 import baseTokenV1 from '../../abis/baseTokenV1.json';
 import getAIUSBalance from '../../Utils/aiusWalletBalance';
 import { BigNumber } from 'ethers';
 import { AIUS_wei } from '../../Utils/constantValues';
 import Config from '@/config.one.json';
+import ConfigEth from '@/config.eth.json';
 
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
@@ -35,6 +36,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const route = pathname.replace('/', '');
+  const { chain, chains } = useNetwork()
 
   useEffect(() => {
     if (window.innerWidth < 1024) {
@@ -66,7 +68,7 @@ export default function Header() {
   const { open: openWeb3Modal } = useWeb3Modal();
 
   const [walletConnected, setWalletConnected] = useState(false);
-  // const [walletBalance, setWalletBalance] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
 
   useEffect(() => {
@@ -88,14 +90,6 @@ export default function Header() {
     })();
   }
 
-  const { data, isError, isLoading } = useContractRead({
-    address: Config.v4_baseTokenAddress as `0x${string}`,
-    abi: baseTokenV1.abi,
-    functionName: 'balanceOf',
-    args: [address],
-    enabled: isConnected,
-  });
-
   function formatBalance(num: string) {
     if (Number.isInteger(num)) {
       return num.toString().split('.')[0];
@@ -105,10 +99,44 @@ export default function Header() {
     }
   }
 
-  let walletBalance = '0';
-  if (data && !isLoading) {
-    walletBalance = formatBalance(ethers.utils.formatEther(data as BigNumber));
-  }
+  useEffect(() => {
+    async function f(){
+      try {
+        let aiusTokenAddress = "";
+        if(chain?.id === 11155111 || chain?.id === 1){
+          aiusTokenAddress = ConfigEth.AIUS_TOKEN_ADDRESS;
+        }
+        else{
+          aiusTokenAddress = Config.v4_baseTokenAddress;
+        }
+        // @ts-ignore
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // @ts-ignore
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+        const signer = provider.getSigner();
+        console.log(aiusTokenAddress, "ATA")
+        const aiusTokenContract = new ethers.Contract(
+          aiusTokenAddress,
+          baseTokenV1.abi,
+          signer
+        );
+        console.log(aiusTokenContract)
+        const balance = await aiusTokenContract.balanceOf(address)
+        console.log(balance)
+        const _walletBalance = formatBalance(ethers.utils.formatEther(balance as BigNumber));
+        console.log(_walletBalance)
+        setWalletBalance(Number(_walletBalance))
+      } catch (err) {
+        console.log(err, "ERR At UE Header")
+        setWalletBalance(0)
+      }
+    }
+
+    if(address && chain?.id){
+      f();
+    }
+  },[address, chain?.id])
 
   return (
     <div
@@ -158,14 +186,13 @@ export default function Header() {
               </div>
               <div className='absolute left-[-18px] bg-[black] p-[15px_50px] opacity-0'></div>
               <AnimateHeight height={stakingOpen ? 'auto' : 0}>
-                <div className='lg:staking lg:hidden lg:translate-x-[-10%] lg:translate-y-[25px] lg:group-hover:flex'>
-                  {/*<Link
-                    href={
-                      'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum'
-                    }
+                <div className='lg:staking lg:hidden lg:translate-x-[-30%] lg:translate-y-[25px] lg:group-hover:flex'>
+                  <Link
+                    href={'/lp-staking'}
                     onClick={() => {
                       setHeaderOpen(!headerOpen);
                     }}
+                    target="_blank"
                   >
                     <div className='staking-block relative'>
                       <div className='absolute right-2 top-2 hidden rounded-2xl bg-[#FBFBFB1A] p-2 opacity-0 lg:block'>
@@ -175,13 +202,13 @@ export default function Header() {
                       </div>
                       <Image
                         className='h-[auto] w-[20px] lg:h-[20px] lg:w-[auto]'
-                        src={gysr}
+                        src={arbius}
                         alt=''
                       />
-                      <div className='lato-bold'>GYSR</div>
+                      <div className='lato-bold'>LP Staking</div>
                       <div>Provide liquidity, earn AIUS rewards.</div>
                     </div>
-                  </Link>*/}
+                  </Link>
                   <Link
                     href={'/aius'}
                     onClick={() => {

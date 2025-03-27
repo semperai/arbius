@@ -506,7 +506,12 @@ input[type='number'] {
     font-size: 12px;
   }
 }
+@media (max-width: 400px){
+    .all-stake > div {
+      @apply pb-[10px] text-[14px];
+    }
 
+}
 /* IE 10+ */
 input[type='number']::-ms-clear,
 input[type='number']::-ms-reveal {
@@ -660,4 +665,8 @@ input[type='number']::-ms-reveal {
   height: 100%;
   font-size: 0.8em;
   color: #4a28ff;
+}
+
+.lp-stake-bg-gradient{
+  background: linear-gradient(106.64deg, #EEEAFF 38.5%, #4A28FF 290%);
 }
