@@ -1,0 +1,17 @@
+{
+  "name": "ipfs-oracle",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@helia/verified-fetch": "^2.6.4",
+    "@scure/base": "^1.1.5",
+    "dotenv": "^16.4.5",
+    "ethers": "^5.7.2",
+    "express": "^4.21.2",
+    "tslog": "^4.9.2"
+  }
+}
