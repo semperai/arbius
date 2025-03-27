@@ -91,6 +91,9 @@ function Stake() {
   function getDaysFromNow(timestamp) {
     const now = Date.now(); // Current timestamp in milliseconds
     const givenDate = timestamp * 1000; // Convert the given timestamp to milliseconds
+    if(givenDate < now){
+      return 0;
+    }
     const differenceInMilliseconds = givenDate - now;
     const days = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
     return days;
