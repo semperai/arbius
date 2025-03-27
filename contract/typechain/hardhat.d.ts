@@ -445,12 +445,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OneToOneConvert__factory>;
     getContractFactory(
-      name: "SwapReceiver",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.SwapReceiver__factory>;
       name: "StakingRewards",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StakingRewards__factory>;
+    getContractFactory(
+      name: "SwapReceiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SwapReceiver__factory>;
     getContractFactory(
       name: "TestnetToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1045,14 +1046,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.OneToOneConvert>;
     getContractAt(
-      name: "SwapReceiver",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.SwapReceiver>;
       name: "StakingRewards",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.StakingRewards>;
+    getContractAt(
+      name: "SwapReceiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SwapReceiver>;
     getContractAt(
       name: "TestnetToken",
       address: string,

@@ -302,7 +302,7 @@ contract ArbiusRouterV1 is Ownable {
         (address validator, uint64 blocktime, /*bool claimed*/, bytes memory cid) = abi.decode(result, (address, uint64, bool, bytes));
 
         if (msg.sender != validator) {
-            if (blocktime + 1 minutes < block.timestamp) {
+            if (block.timestamp < blocktime + 1 minutes) {
                 revert TimeNotPassed();
             }
         }
