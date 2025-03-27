@@ -106,6 +106,8 @@ export type { IUniswapV2Router01 } from "./@uniswap/v2-periphery/contracts/inter
 export { IUniswapV2Router01__factory } from "./factories/@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01__factory";
 export type { IUniswapV2Router02 } from "./@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02";
 export { IUniswapV2Router02__factory } from "./factories/@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02__factory";
+export type { ArbiusRouterV1 } from "./contracts/ArbiusRouterV1";
+export { ArbiusRouterV1__factory } from "./factories/contracts/ArbiusRouterV1__factory";
 export type { BaseTokenV1 } from "./contracts/BaseTokenV1";
 export { BaseTokenV1__factory } from "./factories/contracts/BaseTokenV1__factory";
 export type { EngineUtilsV1 } from "./contracts/EngineUtilsV1";
@@ -218,6 +220,8 @@ export type { ModelTokenV1 } from "./contracts/modeltokens/ModelTokenV1";
 export { ModelTokenV1__factory } from "./factories/contracts/modeltokens/ModelTokenV1__factory";
 export type { OneToOneConvert } from "./contracts/OneToOneConvert";
 export { OneToOneConvert__factory } from "./factories/contracts/OneToOneConvert__factory";
+export type { SwapReceiver } from "./contracts/SwapReceiver";
+export { SwapReceiver__factory } from "./factories/contracts/SwapReceiver__factory";
 export type { StakingRewards } from "./contracts/StakingRewards";
 export { StakingRewards__factory } from "./factories/contracts/StakingRewards__factory";
 export type { TestnetToken } from "./contracts/TestnetToken";

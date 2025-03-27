@@ -205,6 +205,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniswapV2Router02__factory>;
     getContractFactory(
+      name: "ArbiusRouterV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ArbiusRouterV1__factory>;
+    getContractFactory(
       name: "BaseTokenV1",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BaseTokenV1__factory>;
@@ -433,10 +437,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ModelTokenV1__factory>;
     getContractFactory(
+      name: "ModelTokenV1",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ModelTokenV1__factory>;
+    getContractFactory(
       name: "OneToOneConvert",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OneToOneConvert__factory>;
     getContractFactory(
+      name: "SwapReceiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SwapReceiver__factory>;
       name: "StakingRewards",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StakingRewards__factory>;
@@ -734,6 +745,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IUniswapV2Router02>;
     getContractAt(
+      name: "ArbiusRouterV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ArbiusRouterV1>;
+    getContractAt(
       name: "BaseTokenV1",
       address: string,
       signer?: ethers.Signer
@@ -1019,11 +1035,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ModelTokenV1>;
     getContractAt(
+      name: "ModelTokenV1",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ModelTokenV1>;
+    getContractAt(
       name: "OneToOneConvert",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OneToOneConvert>;
     getContractAt(
+      name: "SwapReceiver",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SwapReceiver>;
       name: "StakingRewards",
       address: string,
       signer?: ethers.Signer
