@@ -109,6 +109,29 @@ async function getVotingEscrow(hre: HardhatRuntimeEnvironment) {
   process.exit(1);
 }
 
+async function getArbiusRouter(hre: HardhatRuntimeEnvironment) {
+  const ArbiusRouterV1 = await hre.ethers.getContractFactory("ArbiusRouterV1");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    return await ArbiusRouterV1.attach(LocalConfig.arbiusRouterV1Address);
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    return await ArbiusRouterV1.attach(Config.arbiusRouterV1Address);
+  }
+
+  if (hre.network.name === 'arbsepolia') {
+    return await ArbiusRouterV1.attach(ArbSepoliaConfig.arbiusRouterV1Address);
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
 
@@ -181,6 +204,7 @@ task("vestaking:setEngine", "Set engine address")
 task("vestaking:notifyRewardAmount", "Notify reward amount")
 .addParam("amount", "Amount")
 .setAction(async ({ amount }, hre) => {
+  console.log('Address', await getMinerAddress(hre));
   const veStaking = await getVeStaking(hre);
   const tx = await veStaking.notifyRewardAmount(hre.ethers.utils.parseEther(amount));
   const receipt = await tx.wait();
@@ -929,4 +953,123 @@ task("model:setFee", "Set fee for model")
 
 
   console.log(`Model fee for model ${model} is now ${fee} in ${receipt.transactionHash}`);
+});
+
+task("router:allowToken", "Allow token for router")
+.addOptionalParam("token", "Token address")
+.setAction(async ({ token }, hre) => {
+  if (! token) {
+    token = await getBaseToken(hre);
+  } else {
+    token = await hre.ethers.getContractAt("IERC20", token);
+  }
+
+  const router = await getArbiusRouter(hre);
+
+  const allowance = await token.allowance(await getMinerAddress(hre), router.address);
+
+  console.log(`Allowance for router is ${hre.ethers.utils.formatEther(allowance)}`);
+
+  const tx = await token.approve(router.address, hre.ethers.constants.MaxUint256);
+  const receipt = await tx.wait();
+
+  console.log(`Token ${token.address} approved for router in ${receipt.transactionHash}`);
+});
+
+task("router:setValidator", "Set validator for router")
+.addParam("address", "Validator address")
+.addOptionalParam("status", "Status", "true")
+.setAction(async ({ address, status }, hre) => {
+  const router = await getArbiusRouter(hre);
+  const tx = await router.setValidator(address, status === 'true');
+  const receipt = await tx.wait();
+  console.log(`Validator ${address} is now ${status} in ${receipt.transactionHash}`);
+});
+
+task("router:setMinValidators", "Set min validators for router")
+.addParam("n", "Number")
+.setAction(async ({ n }, hre) => {
+  const router = await getArbiusRouter(hre);
+  const tx = await router.setMinValidators(n);
+  const receipt = await tx.wait();
+  console.log(`Min validators set to ${n} in ${receipt.transactionHash}`);
+});
+
+task("router:submitTask", "Submit task via router")
+.addOptionalParam("v", "Version of task", "0")
+.addOptionalParam("owner", "Owner of task")
+.addParam("model", "Model id")
+.addOptionalParam("fee", "Fee", "0")
+.addParam("input", "Input")
+.addOptionalParam("incentive", "Incentive", "0")
+.setAction(async ({ v, owner, model, fee, input, incentive }, hre) => {
+  if (! owner) {
+    owner = await getMinerAddress(hre);
+  }
+
+  const router = await getArbiusRouter(hre);
+  const tx = await router.submitTask(
+    v,
+    owner,
+    model,
+    hre.ethers.utils.parseEther(fee),
+    hre.ethers.utils.hexlify(hre.ethers.utils.toUtf8Bytes(input)),
+    hre.ethers.utils.parseEther(incentive),
+  );
+  const receipt = await tx.wait();
+  console.log(`Task submitted in ${receipt.transactionHash}`);
+});
+
+task("router:addIncentive", "Add incentive to task via router")
+.addParam("task", "Task id")
+.addParam("incentive", "Incentive")
+.setAction(async ({ task, incentive }, hre) => {
+  const router = await getArbiusRouter(hre);
+  const tx = await router.addIncentive(task, hre.ethers.utils.parseEther(incentive));
+  const receipt = await tx.wait();
+  console.log(`Incentive added in ${receipt.transactionHash}`);
+
+  const totalIncentive = await router.incentives(task);
+  console.log(`Total incentive for task ${task} is now ${hre.ethers.utils.formatEther(totalIncentive)}`);
+});
+
+task("router:claimIncentive", "Claim incentive from task via router")
+.setAction(async ({ }, hre) => {
+  const router = await getArbiusRouter(hre);
+  const task = "0x704171e1ae2a4ee583939f40375fcb62202d648dc035e3e92d0667960b4abbb7";
+  const sigs = [{
+    "signer": "0x49827ed1D59a60187040B56ec7CaBc8a8b8A2462",
+    "signature": "0x8c7be139219def87a4628a4f37850cc89e20e6ecd862a7defac76bc160f385246f0455c5e2492933666d36e42490f614b036f43e400113608c874cf6db7844391b"
+  }];
+  const tx = await router.claimIncentive(task, sigs);
+  const receipt = await tx.wait();
+  console.log(`Incentive claimed in ${receipt.transactionHash}`);
+});
+
+task("ipfsoracle:sign", "Sign solution cid from taskid")
+.addParam("task", "Task id")
+.addParam("pk", "Private key")
+.setAction(async ({ task, pk }, hre) => {
+  const wallet = new hre.ethers.Wallet(pk);
+
+  const engine = await getEngine(hre);
+  const { cid, validator } = await engine.solutions(task);
+  if (validator === hre.ethers.constants.AddressZero) {
+    console.error('No solution for task', task);
+    return
+  }
+
+  const hash = hre.ethers.utils.solidityKeccak256(['bytes'], [cid]);
+  const digest = hre.ethers.utils.arrayify(hash);
+  const skey = new hre.ethers.utils.SigningKey(wallet.privateKey);
+  const components = skey.signDigest(digest);
+  const signature = hre.ethers.utils.joinSignature(components);
+
+  const signatureObject = {
+    signer: wallet.address,
+    signature,
+  };
+
+  console.log("\nSignature Object for contract:");
+  console.log(JSON.stringify(signatureObject, null, 2));
 });
