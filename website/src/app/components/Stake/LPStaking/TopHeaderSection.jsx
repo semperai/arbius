@@ -20,10 +20,39 @@ function TopHeaderSection({ data }) {
   //     return num.toString();
   //   }
   // }
+  function formatNumber(num) {
+
+      if (num > 1) {
+          return num.toFixed(0);
+      }
+      
+      if (num === 0) {
+          return "0";
+      }
+      
+      const absNum = Math.abs(num);
+
+      if (absNum >= 1) {
+          return num.toFixed(2);
+      } else if (absNum >= 0.1) {
+          return num.toFixed(3);
+      } else if (absNum >= 0.01) {
+          return num.toFixed(4);
+      } else if (absNum >= 0.001) {
+          return num.toFixed(5);
+      } else if (absNum >= 0.0001) {
+          return num.toFixed(6);
+      } else if (absNum >= 0.00001) {
+          return num.toFixed(7);
+      } else {
+          return num.toExponential(4);
+      }
+  }
+
 
   const headerCardData = [
     {
-      heading: data ? Number(data?.univ2Staked / AIUS_wei).toFixed(0) : 0,
+      heading: data ? formatNumber(Number(data?.univ2Staked / AIUS_wei)) : 0,
       subheading: 'UNI-V2',
       para: 'Staked',
       logo: unilogo,
@@ -33,6 +62,8 @@ function TopHeaderSection({ data }) {
       subheading: 'AIUS',
       para: 'Remaining',
       logo: arbiuslogorounded,
+      showInfo: true,
+      info_text: "Rewards are replenished weekly to ensure consistent availability."
     },
     {
       heading: data ? data?.apr : 0,
@@ -41,6 +72,7 @@ function TopHeaderSection({ data }) {
       logo: arbiuslogorounded,
     },
   ];
+
   return (
     <>
       <div className='m-[auto] w-mobile-section-width max-w-center-width pt-24 pb-8 um:py-24 lg:w-section-width'>
@@ -73,6 +105,8 @@ function TopHeaderSection({ data }) {
                   subheading={item?.subheading}
                   para={item?.para}
                   logo={item?.logo}
+                  showInfo={item?.showInfo}
+                  info_text={item?.info_text}
                 />
               );
             })}
