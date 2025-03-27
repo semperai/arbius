@@ -178,6 +178,8 @@ export type { IPeripheryPayments } from "./contracts/interfaces/IPeripheryPaymen
 export { IPeripheryPayments__factory } from "./factories/contracts/interfaces/IPeripheryPayments__factory";
 export type { IPoolInitializer } from "./contracts/interfaces/IPoolInitializer";
 export { IPoolInitializer__factory } from "./factories/contracts/interfaces/IPoolInitializer__factory";
+export type { IStakingRewards } from "./contracts/interfaces/IStakingRewards";
+export { IStakingRewards__factory } from "./factories/contracts/interfaces/IStakingRewards__factory";
 export type { IUniswapV3Factory } from "./contracts/interfaces/IUniswapV3Factory";
 export { IUniswapV3Factory__factory } from "./factories/contracts/interfaces/IUniswapV3Factory__factory";
 export type { IUniswapV3Pool } from "./contracts/interfaces/IUniswapV3Pool";
@@ -220,6 +222,8 @@ export type { OneToOneConvert } from "./contracts/OneToOneConvert";
 export { OneToOneConvert__factory } from "./factories/contracts/OneToOneConvert__factory";
 export type { SwapReceiver } from "./contracts/SwapReceiver";
 export { SwapReceiver__factory } from "./factories/contracts/SwapReceiver__factory";
+export type { StakingRewards } from "./contracts/StakingRewards";
+export { StakingRewards__factory } from "./factories/contracts/StakingRewards__factory";
 export type { TestnetToken } from "./contracts/TestnetToken";
 export { TestnetToken__factory } from "./factories/contracts/TestnetToken__factory";
 export type { TimelockV1 } from "./contracts/TimelockV1";

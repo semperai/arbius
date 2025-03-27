@@ -13,6 +13,7 @@ export { INonfungiblePositionManager__factory } from "./INonfungiblePositionMana
 export { IPeripheryImmutableState__factory } from "./IPeripheryImmutableState__factory";
 export { IPeripheryPayments__factory } from "./IPeripheryPayments__factory";
 export { IPoolInitializer__factory } from "./IPoolInitializer__factory";
+export { IStakingRewards__factory } from "./IStakingRewards__factory";
 export { IUniswapV2Router01__factory } from "./IUniswapV2Router01__factory";
 export { IUniswapV2Router02__factory } from "./IUniswapV2Router02__factory";
 export { IUniswapV3Factory__factory } from "./IUniswapV3Factory__factory";

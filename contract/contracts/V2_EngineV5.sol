@@ -212,6 +212,9 @@ contract V2_EngineV5 is OwnableUpgradeable {
     event VersionChanged(uint256 version);
     event StartBlockTimeChanged(uint64 indexed startBlockTime); // v2
 
+    event RewardsPaid(uint256 totalRewards, uint256 treasuryReward, uint256 taskOwnerReward, uint256 validatorReward);
+    event FeesPaid(uint256 modelFee, uint256 treasuryFee, uint256 remainingFee, uint256 validatorFee); 
+    
     /// @notice Modifier to restrict to only pauser
     modifier onlyPauser() {
         require(msg.sender == pauser, "not pauser");
@@ -869,41 +872,56 @@ contract V2_EngineV5 is OwnableUpgradeable {
      */
     function _claimSolutionFeesAndReward(bytes32 taskid_) internal {
         bytes32 _model = tasks[taskid_].model;
-        uint256 modelFee = models[_model].fee;
 
-        // This is necessary in case model changes fee to prevent drain
-        if (modelFee > tasks[taskid_].fee) {
-            modelFee = 0;
-        }
+        /* Fee distribution */
 
-        // v5 we split the model fee between the model owner and treasury
-        if (modelFee > 0) {
-            uint256 sendToTreasury = modelFee -
-                (modelFee * (1e18 - solutionModelFeePercentage)) / 1e18;
+        { // {code in brackets because of stack too deep}
+            uint256 modelFee = models[_model].fee;
+            uint256 taskFee = tasks[taskid_].fee;
+            uint256 treasuryFee;
 
-            if (sendToTreasury > 0) {
-                baseToken.transfer(treasury, sendToTreasury);
+            // This is necessary in case model changes fee to prevent drain
+            if (modelFee > taskFee) {
+                modelFee = 0;
             }
 
-            if (modelFee - sendToTreasury > 0) {
-                baseToken.transfer(models[_model].addr, modelFee - sendToTreasury);
+            // v5 we split the model fee between the model owner and treasury
+            if (modelFee > 0) {
+                uint256 sendToTreasury = modelFee -
+                    (modelFee * (1e18 - solutionModelFeePercentage)) / 1e18;
+
+                if (sendToTreasury > 0) {
+                    treasuryFee = sendToTreasury;
+                }
+
+                if (modelFee - sendToTreasury > 0) {
+                    baseToken.transfer(models[_model].addr, modelFee - sendToTreasury);
+                }
             }
+
+            // remaining fee is distributed to treasury and validator
+            uint256 remainingFee = taskFee - modelFee;
+
+            uint256 remainingTreasuryFee = remainingFee -
+                ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
+                
+            // avoid 0 value transfer and emitted event
+            uint256 validatorFee = remainingFee - remainingTreasuryFee;
+            if (validatorFee > 0) {
+                baseToken.transfer(
+                    solutions[taskid_].validator,
+                    validatorFee
+                );
+            }
+                
+            // we do not include treasuryFees in totalHeld reduction as not transferred here
+            accruedFees += (treasuryFee + remainingTreasuryFee);
+            totalHeld -= taskFee - accruedFees; // v3
+
+            emit FeesPaid(modelFee, treasuryFee, remainingFee, validatorFee);
         }
 
-        uint256 remainingFee = tasks[taskid_].fee - modelFee;
-
-        uint256 treasuryFee = remainingFee -
-            ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
-        accruedFees += treasuryFee;
-
-        // avoid 0 value transfer and emitted event
-        uint256 validatorFee = remainingFee - treasuryFee;
-        if (validatorFee > 0) {
-            baseToken.transfer(
-                solutions[taskid_].validator,
-                remainingFee - treasuryFee
-            );
-        }
+        /* Reward distribution */
 
         // if block.timestamp > veStaking.periodFinish, set veReward to 0 and transfer funds via veStaking.notifyRewardAmount
         if (block.timestamp > IVeStaking(veStaking).periodFinish()) {
@@ -942,12 +960,16 @@ contract V2_EngineV5 is OwnableUpgradeable {
                     (total * (1e18 - taskOwnerRewardPercentage)) /
                     1e18;
 
-                baseToken.transfer(
-                    solutions[taskid_].validator,
-                    total - treasuryReward - taskOwnerReward // v3
-                );
+                uint256 validatorReward = total - treasuryReward - taskOwnerReward; // v3
+
                 baseToken.transfer(treasury, treasuryReward);
                 baseToken.transfer(tasks[taskid_].owner, taskOwnerReward); // v3
+                baseToken.transfer(
+                    solutions[taskid_].validator,
+                    validatorReward 
+                );
+
+                emit RewardsPaid(total, treasuryReward, taskOwnerReward, validatorReward);
             }
         }
 
@@ -955,9 +977,6 @@ contract V2_EngineV5 is OwnableUpgradeable {
         validators[solutions[taskid_].validator].staked += solutionsStake[
             taskid_
         ]; // v2
-
-        // we do not include treasuryFee in totalHeld reduction as not transferred here
-        totalHeld -= tasks[taskid_].fee - treasuryFee; // v3
     }
 
     /// @notice Claim solution
