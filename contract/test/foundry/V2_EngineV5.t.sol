@@ -203,40 +203,48 @@ contract EngineV5Test is Test {
         uint256 total = (reward * 1e18 * gaugeMultiplierModel1) /
             (2 * 1e18 * 1e18);
 
+        // calculate rewards
         uint256 treasuryRewardPercentage = engine.treasuryRewardPercentage();
+        uint256 treasuryReward = total -
+        (total * (1e18 - treasuryRewardPercentage)) /
+        1e18;
+
         uint256 taskOwnerRewardPercentage = engine.taskOwnerRewardPercentage();
+        uint256 taskOwnerReward = total -
+            (total * (1e18 - taskOwnerRewardPercentage)) /
+            1e18;
+        uint256 validatorReward = total - treasuryReward - taskOwnerReward;
 
+        // get balances before
         uint256 taskOwnerBalanceBefore = baseToken.balanceOf(deployer);
-
         uint256 validatorBalanceBefore1 = baseToken.balanceOf(validator1);
         uint256 validatorBalanceBefore2 = baseToken.balanceOf(validator2);
         uint256 validatorBalanceBefore3 = baseToken.balanceOf(validator3);
-
         uint256 treasuryBalanceBefore = baseToken.balanceOf(treasury);
 
+        vm.expectEmit();
+        emit V2_EngineV5.RewardsPaid(     
+            total,
+            treasuryReward,
+            taskOwnerReward,
+            validatorReward
+        );
         vm.prank(validator1);
         engine.claimSolution(taskid1);
 
-        uint256 treasuryReward = total -
-            (total * (1e18 - treasuryRewardPercentage)) /
-            1e18;
+
+        // check correct balances
         assertEq(
             baseToken.balanceOf(treasury) - treasuryBalanceBefore,
             treasuryReward
         );
-
-        uint256 taskOwnerReward = total -
-            (total * (1e18 - taskOwnerRewardPercentage)) /
-            1e18;
-
         assertEq(
             baseToken.balanceOf(deployer) - taskOwnerBalanceBefore,
             taskOwnerReward
         );
-
         assertEq(
             baseToken.balanceOf(validator1) - validatorBalanceBefore1,
-            total - treasuryReward - taskOwnerReward
+            validatorReward
         );
 
         // get new reward after first is claimed
@@ -333,13 +341,17 @@ contract EngineV5Test is Test {
         baseToken.transfer(user1, 100e18);
 
         // deploy model with a fee of 1 AIUS
+        uint256 modelFee = 1 ether;
         bytes32 modelid = deployBootstrapFeeModel(modelOwner1);
 
-        // get totalHeld before submitting / claiming task
+        // get totalHeld before submitting task
         uint256 totalHeldBefore = engine.totalHeld();
+        // get accrued fees before submitting task
+        uint256 accruedFeesBefore = engine.accruedFees();
 
         /* submit task, set fee to 2 AIUS (1 AIUS to model owner, rest as tip to treasury&validator) */
-        bytes32 taskid = deployBootstrapTask(modelid, user1, 2e18);
+        uint256 taskFee = 2 ether; 
+        bytes32 taskid = deployBootstrapTask(modelid, user1, taskFee);
 
         /* signal commitment and submit solution */
         bytes32 commitment = engine.generateCommitment(
@@ -360,48 +372,54 @@ contract EngineV5Test is Test {
 
         /* claim rewards */
 
-        uint256 remainingFee = 1 ether; // taskfee - modelfee
+        uint256 remainingFee = taskFee - modelFee; // 1 ether
 
         // get treasuryFee
-        uint256 solutionFeePercentage = engine.solutionFeePercentage();
-        uint256 treasuryFee = remainingFee -
-            ((remainingFee * (1e18 - solutionFeePercentage)) / 1e18);
+        uint256 treasuryFee = modelFee -
+        (modelFee * (1e18 - engine.solutionModelFeePercentage())) / 1e18; 
+
+        // get remaining treasuryFee
+        uint256 remainingTreasuryFee = remainingFee -
+            ((remainingFee * (1e18 - engine.solutionFeePercentage())) / 1e18);
 
         // get validatorFee
-        uint256 validatorFee = remainingFee - treasuryFee;
-
-        // get balance before claiming
-        uint256 modelOwnerBalanceBefore = baseToken.balanceOf(modelOwner1);
-        uint256 treasuryBalanceBefore = baseToken.balanceOf(treasury);
+        uint256 validatorFee = remainingFee - remainingTreasuryFee;
 
         // fast forward `minClaimSolutionTime` and `minClaimSolutionTime/12` blocks
         uint256 minClaimSolutionTime = engine.minClaimSolutionTime();
         skip(minClaimSolutionTime + 1);
         vm.roll(block.number + minClaimSolutionTime / 12);
 
-        // expect transfer of `validatorFee` to validator1
+        // get validator balance before
+        uint256 validatorBalanceBefore = baseToken.balanceOf(validator1);
+
         vm.expectEmit();
-        emit IERC20Upgradeable.Transfer(
-            address(engine),
-            validator1,
+        emit V2_EngineV5.FeesPaid(
+            modelFee, // 1 ether
+            treasuryFee, // 1 ether for solutionModelFeePercentage = 1e18  
+            remainingFee,
             validatorFee
         );
         vm.prank(validator1);
         engine.claimSolution(taskid);
 
-        // get balance after claiming
-        uint256 modelOwnerBalanceAfter = baseToken.balanceOf(modelOwner1);
-        uint256 treasuryBalanceAfter = baseToken.balanceOf(treasury);
+        // validatorBalanceAfter should be balance before + validatorFee
+        assertEq(baseToken.balanceOf(validator1), validatorBalanceBefore + validatorFee);
 
-        // modelOwner should receive 0.05 ether
-        assertEq(modelOwnerBalanceAfter - modelOwnerBalanceBefore, 0 ether);
-        // treasury should receive 0.95 ether
-        assertEq(treasuryBalanceAfter - treasuryBalanceBefore, 1 ether);
-
+        /* Total held, accrued fees test */
 
         // get totalHeld after claiming
         uint256 totalHeldAfter = engine.totalHeld();
-        assertEq(totalHeldAfter, totalHeldBefore + treasuryFee);
+        assertEq(totalHeldAfter, totalHeldBefore + treasuryFee + remainingTreasuryFee);
+
+        // get accruedFees after claiming
+        uint256 accruedFeesAfter = engine.accruedFees();
+        assertEq(accruedFeesAfter, accruedFeesBefore + treasuryFee + remainingTreasuryFee);
+
+        // claim accruedFees
+        engine.withdrawAccruedFees();
+        assertEq(engine.totalHeld(), totalHeldBefore);
+        assertEq(engine.accruedFees(), 0);
     }
 
     function testSimulateUsage() public {

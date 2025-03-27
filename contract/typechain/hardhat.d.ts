@@ -349,6 +349,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IPoolInitializer__factory>;
     getContractFactory(
+      name: "IStakingRewards",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IStakingRewards__factory>;
+    getContractFactory(
       name: "IUniswapV2Router01",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniswapV2Router01__factory>;
@@ -444,6 +448,9 @@ declare module "hardhat/types/runtime" {
       name: "SwapReceiver",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SwapReceiver__factory>;
+      name: "StakingRewards",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.StakingRewards__factory>;
     getContractFactory(
       name: "TestnetToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -918,6 +925,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IPoolInitializer>;
     getContractAt(
+      name: "IStakingRewards",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IStakingRewards>;
+    getContractAt(
       name: "IUniswapV2Router01",
       address: string,
       signer?: ethers.Signer
@@ -1037,6 +1049,10 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.SwapReceiver>;
+      name: "StakingRewards",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.StakingRewards>;
     getContractAt(
       name: "TestnetToken",
       address: string,
