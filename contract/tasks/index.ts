@@ -1034,16 +1034,25 @@ task("router:addIncentive", "Add incentive to task via router")
 });
 
 task("router:claimIncentive", "Claim incentive from task via router")
-.setAction(async ({ }, hre) => {
+.addParam("task", "Task id")
+.setAction(async ({ task }, hre) => {
   const router = await getArbiusRouter(hre);
-  const task = "0x704171e1ae2a4ee583939f40375fcb62202d648dc035e3e92d0667960b4abbb7";
+  // EDIT THESE MANUALLY
   const sigs = [{
-    "signer": "0x49827ed1D59a60187040B56ec7CaBc8a8b8A2462",
-    "signature": "0x8c7be139219def87a4628a4f37850cc89e20e6ecd862a7defac76bc160f385246f0455c5e2492933666d36e42490f614b036f43e400113608c874cf6db7844391b"
+    "signer": "0xb7a4f522Ea9e72a54cfcE736Cd5a40de4c0056c6",
+    "signature": "0xdf8f990a77b5e2843b43f685ce23ac266f976693b8ea7fee7e95b28bc36dc7ec4752fcba6ef3e76e398815a1e15f685a4d584c77a4a45b0ceed86f6442fe3dcc1b"
   }];
   const tx = await router.claimIncentive(task, sigs);
   const receipt = await tx.wait();
   console.log(`Incentive claimed in ${receipt.transactionHash}`);
+});
+
+task("router:incentives", "Get incentives for task via router")
+.addParam("task", "Task id")
+.setAction(async ({ task }, hre) => {
+  const router = await getArbiusRouter(hre);
+  const totalIncentive = await router.incentives(task);
+  console.log(`Total incentive for task ${task} is ${hre.ethers.utils.formatEther(totalIncentive)}`);
 });
 
 task("ipfsoracle:sign", "Sign solution cid from taskid")
