@@ -257,7 +257,7 @@ function Stake() {
         const tx2 = await stakingContract.stake(
           amountInDec.toFixed(0).toString()
         );
-
+        setShowPopUp(4);
         console.log('transaction hash:', tx2.hash);
         await tx2.wait();
         console.log('transaction confirmed');
@@ -301,7 +301,7 @@ function Stake() {
           StakingAddress,
           maxApproveAmount
         );
-
+        setShowPopUp(4);
         await tx1.wait();
 
         console.log('First transaction confirmed');
@@ -419,7 +419,7 @@ function Stake() {
       );
 
       const tx2 = await stakingContract.getReward();
-
+      setShowPopUp(4);
       console.log('transaction hash:', tx2.hash);
       await tx2.wait();
       console.log('transaction confirmed');
@@ -455,7 +455,7 @@ function Stake() {
       );
 
       const tx2 = await stakingContract.exit();
-
+      setShowPopUp(4);
       console.log('transaction hash:', tx2.hash);
       await tx2.wait();
       console.log('transaction confirmed');
@@ -494,7 +494,7 @@ function Stake() {
       const tx2 = await stakingContract.withdraw(
         amountInDec.toFixed(0).toString()
       );
-
+      setShowPopUp(4);
       console.log('transaction hash:', tx2.hash);
       await tx2.wait();
       console.log('transaction confirmed');
@@ -530,6 +530,7 @@ function Stake() {
         )
 
         const _earned = await stakingContract.methods.earned(address).call()
+
         setEarned(_earned);
 
         const _stakedBalance = await stakingContract.methods.balanceOf(address).call()
@@ -567,7 +568,7 @@ function Stake() {
     if (address) {
       f();
     }
-  }, [address]);
+  }, [address, updateValue]);
 
 
   return (
@@ -600,6 +601,17 @@ function Stake() {
           {/* @ts-ignore */}
           {showPopUp === 3 && (
             <StepTwoChildren
+              setShowPopUp={setShowPopUp}
+              isError={false}
+              noChildren={true}
+              repeat={true}
+              valueStart={0}
+              valueEnd={100}
+            />
+          )}
+          {/* @ts-ignore */}
+          {showPopUp === 4 && (
+            <StepWaitChildren
               setShowPopUp={setShowPopUp}
               isError={false}
               noChildren={true}
@@ -1062,6 +1074,53 @@ const StepTwoChildren = ({
     </div>
   );
 };
+
+const StepWaitChildren = ({
+  setShowPopUp,
+  isError,
+  noChildren,
+  repeat,
+  valueStart,
+  valueEnd,
+}) => {
+  return (
+    <div>
+      <div className='mt-4 flex justify-end'>
+        <button className='cursor-pointer' onClick={() => setShowPopUp(false)}>
+          <Image src={cross} className='w-[10px]' alt='cross' />
+        </button>
+      </div>
+      <div className='my-12'>
+        <div className='flex items-center justify-center'>
+          <div className='h-40 w-40'>
+            <CircularProgressBar
+              valueStart={valueStart}
+              valueEnd={valueEnd}
+              duration={4}
+              text={'2/2'}
+              setShowPopUp={setShowPopUp}
+              step={2}
+              isError={isError}
+              noChildren={noChildren}
+              repeat={repeat}
+            />
+          </div>
+        </div>
+        <h1 className='mt-4 text-center text-[20px] text-original-black'>
+          Finalizing Your Transaction...
+        </h1>
+        <h1 className='text-center text-[12px] text-aius-tabs-gray'>
+          Waiting for on-chain confirmation. This should only take a few seconds.
+        </h1>
+      </div>
+
+      <div className='flex items-center justify-center'>
+        <Image src={powered_by} className='h-4 w-auto' alt='powered_by' />
+      </div>
+    </div>
+  );
+};
+
 
 const SuccessChildren = ({ setShowPopUp }) => {
   return (

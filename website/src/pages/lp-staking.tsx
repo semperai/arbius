@@ -99,7 +99,9 @@ export default function LPStaking() {
           "payable": false,
           "stateMutability": "view",
           "type": "function"
-        }]
+        },
+        {"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]
+
         const veStakingContract = new web3Sepola.eth.Contract(
           veStaking.abi as AbiItem[],
           StakingAddress
@@ -122,7 +124,13 @@ export default function LPStaking() {
 
         const _balanceUNIV2 = await univ2Contract.methods.balanceOf(StakingAddress).call()
 
+        const _totalSupplyOfUNIV2 = await univ2Contract.methods.totalSupply().call()
+
+        const _balanceOfAIUS_UNIV2 = await aiusTokenContract.methods.balanceOf(UNIV2_ADDRESS).call()
+
         const apr = await getAPR(_rewardRate, _totalSupply)
+
+        const APR_PER_AIUS = (apr * Number(_totalSupplyOfUNIV2) ) / Number(_balanceOfAIUS_UNIV2)
 
         //@ts-ignore
         setData({
@@ -131,7 +139,7 @@ export default function LPStaking() {
           // @ts-ignore
           "aiusStaked": _balanceAIUS,
           // @ts-ignore
-          "apr": (apr ? apr?.toFixed(0) : "0") + "%"
+          "apr": (APR_PER_AIUS ? APR_PER_AIUS?.toFixed(0) : "0") + "%"
         })        
       }catch(e){
         console.log("F1 error", e)
