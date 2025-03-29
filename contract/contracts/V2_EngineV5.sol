@@ -262,8 +262,8 @@ contract V2_EngineV5 is OwnableUpgradeable {
         solutionModelFeePercentage = 1 ether; // 100%
         validatorMinimumPercentage = 0.0024 ether; // 0.24%
         slashAmountPercentage = 0.00001 ether; // 0.001% of total supply
+        solutionsStakeAmount = 0.001 ether; // 0.001 aius
     }
-
 
     /// @notice Transfer ownership
     /// @param to_ Address to transfer ownership to
