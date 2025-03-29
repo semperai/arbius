@@ -88,7 +88,7 @@ async function getVeStaking(hre: HardhatRuntimeEnvironment) {
 }
 
 async function getLPStaking(hre: HardhatRuntimeEnvironment) {
-  const LPStaking = await hre.ethers.getContractFactory("LPStaking");
+  const LPStaking = await hre.ethers.getContractFactory("StakingRewards");
   if (hre.network.name === 'hardhat') {
     console.log('You are on hardhat network, try localhost');
     process.exit(1);
