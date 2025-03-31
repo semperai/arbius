@@ -328,7 +328,13 @@ async function main(configPath: string) {
         log.debug(text);
 
         try {
-          ctx.reply(text);
+          let trimmed = text;
+          const tag = '</think>';
+          const index = trimmed.indexOf(tag);
+          if (index !== -1) {
+            trimmed = trimmed.substring(index + tag.length);
+          }
+          ctx.reply(trimmed);
         } catch (e) {
           log.error(`failed to respond: ${e}`);
           return;
