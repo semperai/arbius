@@ -301,7 +301,7 @@ const CustomGanttChart = ({ allStakingData }) => {
                     <h1
                       className={`whitespace-pre text-[.65rem] font-semibold text-purple-text`}
                     >
-                      {task?.veAIUSBalance?.toFixed(2)} veAIUS
+                      {task?.initialBalance?.toFixed(2)} veAIUS
                     </h1>
                   </div>
                 </div>

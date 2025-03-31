@@ -282,6 +282,7 @@ function DashBoard({
               .split('T')[0],
             currentDate: new Date().toLocaleDateString('en-US'),
             governancePower: Number(token?.balanceOfNFT) / AIUS_wei,
+            initialBalance: Number(token?.initialBalance) / AIUS_wei,
             veAIUSBalance: veAIUSBalance(
               Number(token?.locked.amount) / AIUS_wei,
               Number(token?.user_point_history__ts),
