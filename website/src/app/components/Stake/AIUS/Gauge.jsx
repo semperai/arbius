@@ -64,6 +64,7 @@ function Gauge() {
       emissions: '20%',
       prompts: '32,945',
       icon: llama_icon,
+      model_bytes: "0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64"
     },
     {
       model_name: 'Llama-3.1-80b',
@@ -72,6 +73,7 @@ function Gauge() {
       emissions: '10%',
       prompts: '10,203',
       icon: llama_icon,
+      model_bytes: "0xe6a0efde928efd1b948521b7517888363c4d5d5f1272dd6ba3170726a722afd1"
     },
     {
       model_name: 'Deepseek-coder-v2',
@@ -80,6 +82,7 @@ function Gauge() {
       emissions: '5%',
       prompts: '6049',
       icon: deepseek_icon,
+      model_bytes: "0x83da7b4bbec9da6b1664342bae2db3c920d43e4aebe92f9d0e8e5d80492ad68c"
     },
   ];
 
@@ -245,6 +248,14 @@ function Gauge() {
     return (((percentageUsed/100) * totalGovernancePower) / AIUS_wei)?.toFixed(2)
   }
 
+  const getGovPowerFormatted = () => {
+    if( (Number(totalGovernancePower) / AIUS_wei) < 1 ){
+      return (Number(totalGovernancePower) / AIUS_wei)?.toFixed(2)
+    }else{
+      return (Number(totalGovernancePower) / AIUS_wei)?.toFixed(0)
+    }
+  }
+
   const handleVoting = async() => {
     let allTokenIDs = []
     for(let i=0; i<allTokens.length; i++){
@@ -270,11 +281,11 @@ function Gauge() {
       voter.abi,
       Config.v4_voterAddress
     );
-
-    const makeVote = await voterContract.methods.vote(
-      allTokenIDs[0],
-      models,
-      weights
+    console.log(voterContract)
+    await voterContract.methods.voteMultiple(
+      allTokenIDs,
+      Array(allTokenIDs.length).fill().map(() => [...models]),
+      Array(allTokenIDs.length).fill().map(() => [...weights])
     ).send({from: address})
     .then((receipt) => {
       setShowConfirmVote(false)
@@ -296,14 +307,14 @@ function Gauge() {
               </div>
               <div className="flex text-center flex-col items-center font-Geist-Regular px-2 py-4">
                 <Image className="h-[45px] w-[45px]" src={confirmvote} alt="" />
-                <div className="text-[32px] font-semibold">Confirm Vote</div>
-                <div className="text-aius-tabs-gray mx-[5%]">
-                  All user owned governance power will be consumed during the duration of this voting period. In the circumstance a new stake is added after voting during this period, you may cast an additional vote with the newly added balance. All votes are final.
+                <div className="text-[32px] lato-regular">Confirm Vote</div>
+                <div className="text-aius-tabs-gray mx-[5%] lato-light">
+                  By confirming this transaction, all user owned governance power will be consumed during the duration of this voting period. In the circumstance a new stake is added after voting during this period, you may cast an additional vote with the newly added balance. All votes are final.
                 </div>
                 <div className="flex flex-wrap justify-center mt-4">
                   {
                     filteredData?.map((item, key) => {
-                      return <div className='flex w-[30%] items-center gap-2 bg-[#FAF6FF] p-2 rounded-[10px] mb-2 mr-2' key={key}>
+                      return <div className={`whitespace-nowrap flex items-center gap-2 bg-[#FAF6FF] p-2 rounded-[10px] mb-2 mr-2 ${votingPercentage?.[item?.model_name].percentage > 0 ? "" : "hidden"} `} key={key}>
                         <div className='flex h-[28px] w-[28px] items-center justify-center rounded-full bg-purple-background'>
                           <div className='relative flex h-[16px] w-[16px] items-center justify-center'>
                             <Image
@@ -322,8 +333,8 @@ function Gauge() {
                 </div>
                 <div>
                   <div className="flex gap-2 mt-[20px]">
-                    <div onClick={() => setShowConfirmVote(false)} className="cursor-pointer px-[30px] py-2 text-aius-tabs-gray bg-[#E8E8E8] rounded-[25px]">Cancel</div>
-                    <div onClick={handleVoting} className="px-[30px] py-2 text-[#FFF] bg-[#000000] rounded-[25px] cursor-pointer">Confirm</div>
+                    <div onClick={() => setShowConfirmVote(false)} className="cursor-pointer px-[40px] py-[8px] text-aius-tabs-gray bg-[#E8E8E8] rounded-[25px]">Cancel</div>
+                    <div onClick={handleVoting} className="hover:bg-buy-hover px-[40px] py-[8px] text-[#FFF] bg-[#000000] rounded-[25px] cursor-pointer">Confirm</div>
                   </div>
                 </div>
               </div>
@@ -460,7 +471,7 @@ function Gauge() {
             {/* <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1> */}
 
             <div className='flex items-center justify-start gap-2'>
-              <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in <Timer epochTimestamp={epochTimestamp} /></h1>
+              <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting ends in <Timer epochTimestamp={epochTimestamp} /></h1>
               {/*<Image
                 src={skeleton}
                 className='h-[20px] w-[100px] rounded-lg opacity-70 contrast-[90%] md:w-[80px] xl:w-[140px]'
@@ -483,11 +494,11 @@ function Gauge() {
         </div>
         <div className="flex gap-2 text-purple-text border-[1px] border-purple-text p-1 rounded-[10px]">
           <div className="flex items-center gap-2 p-2 bg-white-background rounded-md">
-            <Image src={lightning} className="h-[15px] w-auto mt-[2px]" alt="" /> Total Governance Power: { (Number(totalGovernancePower) / AIUS_wei)?.toFixed(2) }
+            <Image src={lightning} className="h-[15px] w-auto mt-[2px]" alt="" /> Total Governance Power: { getGovPowerFormatted() }
           </div>
           <div className="flex flex-col gap-1 p-2 bg-white-background rounded-md">
             <div className="flex justify-between text-[12px]">
-              <div>{getGPUsed()}/{(Number(totalGovernancePower) / AIUS_wei)?.toFixed(2)}</div>
+              <div>{getGPUsed()}/{ getGovPowerFormatted() }</div>
               <div>{percentageLeft}% left</div>
             </div>
             <div className="w-[234px] bg-gray-text rounded-full h-2">
@@ -496,7 +507,7 @@ function Gauge() {
           </div>
         </div>
         <div className="absolute right-0">
-          <div onClick={percentageLeft === 0 ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 ? "bg-black-background text-original-white" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[10px_45px] rounded-[25px] cursor-pointer group hidden xl:block`}>
+          <div onClick={percentageLeft === 0 ? ()=>setShowConfirmVote(true) : null} className={`${ percentageLeft === 0 ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group hidden xl:block`}>
             Vote
             <div className="absolute right-[-135px] top-[-42px] bg-white-background p-2 rounded-[15px] w-[130px] opacity-0 group-hover:opacity-100 transition-all duration-300">
               <Image src={lightningbulb} alt="" />
@@ -512,7 +523,7 @@ function Gauge() {
           <Image src={clock_icon} className='h-4 w-4' />
           {/* <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1> */}
           <div className='flex items-center justify-start gap-2'>
-            <h1 className=''>Voting starts in <Timer epochTimestamp={epochTimestamp} /></h1>
+            <h1 className=''>Voting ends in <Timer epochTimestamp={epochTimestamp} /></h1>
             {/*<Image
               src={skeleton}
               className='h-[20px] w-[100px] rounded-lg opacity-70 contrast-[90%] md:w-[80px] xl:w-[140px]'
@@ -551,7 +562,7 @@ function Gauge() {
         {filteredData?.map((item, key) => {
           return (
             <div
-              className={`gauge-table-item relative my-3 flex min-w-[1000px] items-center justify-between gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 pb-4 pt-4 font-semibold lg:px-10`}
+              className={`gauge-table-item relative my-3 flex min-w-[1000px] items-center justify-between gap-8 rounded-lg ${ votingPercentage?.[item?.model_name]?.error === false ? "bg-[#ECF7FF]" : "bg-white-background"} px-5 py-5 font-semibold lg:px-10`}
               key={key}
             >
               <div
@@ -615,11 +626,9 @@ function Gauge() {
                   <div className="rounded-l-[20px] p-[6px_10px] bg-purple-text/10">%</div>
                   <input className={"w-full rounded-r-[25px] bg-white-background w-[70px] focus:outline-none pl-2"} value={votingPercentage?.[item?.model_name]?.percentage} onChange={(e) => updateModelPercentage(item?.model_name, item?.model_bytes, e.target.value)} />
                 </div>
-                {
-                  votingPercentage?.[item?.model_name]?.error ?
-                   <div className="text-[#C71518] text-[9px] mt-[2px]">{votingPercentage?.[item?.model_name]?.error}*</div>
-                  : null
-              }
+                { votingPercentage?.[item?.model_name]?.error ?
+                  <div className="absolute bottom-[2px] text-[#C71518] text-[9px]">{ votingPercentage?.[item?.model_name]?.error }*</div>
+                : <div className="absolute bottom-[2px] text-[#FFF] text-[9px]">*</div> }
               </div>
             </div>
           );
