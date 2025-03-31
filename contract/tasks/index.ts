@@ -571,6 +571,49 @@ task("engine:minClaimSolutionTime", "Get minClaimSolutionTime")
   console.log(`Engine minClaimSolutionTime is ${m}`);
 });
 
+task("engine:registerModel", "Register model")
+.addOptionalParam("address", "Model treasury address")
+.addParam("fee", "Fee")
+.addParam("template", "Template")
+.setAction(async ({ address, fee, template }, hre) => {
+  const engine = await getEngine(hre);
+
+  if (! address) {
+    address = await getMinerAddress(hre);
+  }
+
+  const templateBuf = fs.readFileSync(template);
+  if (templateBuf.length > 262144) {
+    console.error('error: template file bigger than 262144 bytes');
+    process.exit(1);
+  }
+  if (templateBuf.length === 0) {
+    console.error('error: template file is empty');
+    process.exit(1);
+  }
+  if (! JSON.parse(templateBuf.toString())) {
+    console.error('error: template file is not valid json');
+    process.exit(1);
+  }
+
+  const cid = await engine.generateIPFSCID(templateBuf);
+  console.log('model cid is', cid);
+  console.log('model address', address);
+  console.log(templateBuf.toString());
+
+  const feeParsed = hre.ethers.utils.parseEther(fee);
+
+  const modelId = await engine.hashModel({
+    addr: address,
+    fee: feeParsed,
+    rate: hre.ethers.utils.parseEther('0'),
+    cid,
+  }, await getMinerAddress(hre));
+
+  await (await engine.registerModel(address, feeParsed, templateBuf)).wait();
+  console.log('model added with id', modelId);
+});
+
 task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
 .setAction(async ({ }, hre) => {
   const engine = await getEngine(hre);
