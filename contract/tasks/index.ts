@@ -129,6 +129,29 @@ async function getVotingEscrow(hre: HardhatRuntimeEnvironment) {
   process.exit(1);
 }
 
+async function getVoter(hre: HardhatRuntimeEnvironment) {
+  const Voter = await hre.ethers.getContractFactory("Voter");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    return await Voter.attach(LocalConfig.v5_voterAddress);
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    return await Voter.attach(Config.v5_voterAddress);
+  }
+
+  if (hre.network.name === 'arbsepolia') {
+    return await Voter.attach(ArbSepoliaConfig.v5_voterAddress);
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+
 async function getArbiusRouter(hre: HardhatRuntimeEnvironment) {
   const ArbiusRouterV1 = await hre.ethers.getContractFactory("ArbiusRouterV1");
   if (hre.network.name === 'hardhat') {
@@ -1154,4 +1177,31 @@ task("lpstaking:notifyRewardAmount", "Notify reward amount")
   const tx = await lpStaking.notifyRewardAmount(hre.ethers.utils.parseEther(amount));
   const receipt = await tx.wait();
   console.log('Reward notified in ', receipt.transactionHash);
+});
+
+task("voter:createGauge", "Create gauge")
+.addParam("model", "Model id")
+.setAction(async ({ model }, hre) => {
+  const voter = await getVoter(hre);
+  const tx = await voter.createGauge(model);
+  const receipt = await tx.wait();
+  console.log('Gauge created in ', receipt.transactionHash);
+});
+
+task("voter:killGauge", "Kill gauge (not allowed to receive more votes)")
+.addParam("model", "Model id")
+.setAction(async ({ model }, hre) => {
+  const voter = await getVoter(hre);
+  const tx = await voter.killGauge(model);
+  const receipt = await tx.wait();
+  console.log('Gauge killed in ', receipt.transactionHash);
+});
+
+task("voter:reviveGauge", "Revive gauge (brings back to life)")
+.addParam("model", "Model id")
+.setAction(async ({ model }, hre) => {
+  const voter = await getVoter(hre);
+  const tx = await voter.reviveGauge(model);
+  const receipt = await tx.wait();
+  console.log('Gauge revived in ', receipt.transactionHash);
 });
