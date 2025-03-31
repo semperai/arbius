@@ -42,7 +42,7 @@ export default function AIUS({ protocolData }: AIUSProps) {
   console.log({ address });
   console.log({ isConnected });
   const { data, isError, isLoading } = useContractRead({
-    address: Config.v4_baseTokenAddress as `0x${string}`,
+    address: Config.baseTokenAddress as `0x${string}`,
     abi: baseTokenV1.abi,
     functionName: 'balanceOf',
     args: [address],

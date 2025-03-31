@@ -289,11 +289,11 @@ function Gauge({
 
         const voterContract = new web3.eth.Contract(
           voter.abi,
-          Config.v4_voterAddress
+          Config.voterAddress
         );
         const engineContract = new web3.eth.Contract(
           engineABI.abi,
-          Config.v4_engineAddress
+          Config.engineAddress
         );
 
         const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
@@ -306,7 +306,7 @@ function Gauge({
           _modelData[i]["emissions"] = ((Number(a) / AIUS_wei) * 100).toFixed(1).toString()+"%";
 
           let b = await engineContract.methods.models(_modelData[i]?.model_bytes).call()
-          _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(10).toString();
+          _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(4).toString();
         }
         setFilteredData(_modelData)
 
@@ -324,11 +324,11 @@ function Gauge({
         
         const votingEscrowContract = new web3.eth.Contract(
           votingEscrow.abi,
-          Config.v4_votingEscrowAddress
+          Config.votingEscrowAddress
         );
         const voterContract = new web3.eth.Contract(
           voter.abi,
-          Config.v4_voterAddress
+          Config.voterAddress
         );
         const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
         setEpochTimestamp(_epochVoteEnd * 1000)
@@ -425,7 +425,7 @@ function Gauge({
       const web3 = new Web3(window.ethereum);
       const voterContract = new web3.eth.Contract(
         voter.abi,
-        Config.v4_voterAddress
+        Config.voterAddress
       );
       console.log(allTokenIDs, modelArrays, weightArrays)
 
@@ -650,7 +650,7 @@ function Gauge({
           <div className='w-[15%]'>
             <h1>Description</h1>
           </div>
-          <div className='w-[12.5%]'>
+          <div className='w-[15%]'>
             <h1>Emissions</h1>
           </div>
           <div className='w-[20%]'>
@@ -661,7 +661,7 @@ function Gauge({
               </div>
             </h1>
           </div>
-          <div className='w-[12.5%]'>
+          <div className='w-[10%]'>
             <h1>Repository</h1>
           </div>
           <div className='hidden xl:block w-[15%]'></div>
@@ -715,7 +715,7 @@ function Gauge({
                   {item?.description}
                 </h1>
               </div>
-              <div className='w-[12.5%]'>
+              <div className='w-[15%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
@@ -729,7 +729,7 @@ function Gauge({
                 />*/}
                 <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees} <span className="text-[11px]">($0.0)</span></h1>
               </div>
-              <div className='w-[12.5%]'>
+              <div className='w-[10%]'>
                 {/*<Image
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
@@ -739,7 +739,7 @@ function Gauge({
                 </h1>
               </div>
               <div className='hidden xl:flex flex-col justify-end w-[15%]'>
-                <div className={`flex border-[1px] ${ votingPercentage?.[item?.model_name]?.error ? "border-[#C71518]" : "border-purple-text/20"} rounded-[25px]`}>
+                <div className={`flex border-[1px] max-w-[150px] ${ votingPercentage?.[item?.model_name]?.error ? "border-[#C71518]" : "border-purple-text/20"} rounded-[25px]`}>
                   <div className="rounded-l-[20px] p-[6px_10px] bg-purple-text/10">%</div>
                   <input
                     className={"w-full rounded-r-[25px] bg-white-background w-[70px] focus:outline-none pl-2"}
