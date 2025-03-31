@@ -250,7 +250,7 @@ function Gauge({
 
 
   const getWeb3 = async() => {
-    return await fetch(infuraUrl, {
+    return await fetch(alchemyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -265,18 +265,18 @@ function Gauge({
       .then(res => res.json())
         .then(_data => {
           if (_data.error) {
-            console.error("Infura error:", _data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            console.error("Alchemy error:", _data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
             return web3
           } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
             console.log("Successfully connected. Block number:", _data.result);
             return web3
           }
         })
         .catch((err) => {
           console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
           return web3
         });
   }
@@ -331,7 +331,7 @@ function Gauge({
 
     const f = async () => {
       try{
-        const web3 = new Web3(window.ethereum);
+        const web3 = await getWeb3()
         
         const votingEscrowContract = new web3.eth.Contract(
           votingEscrow.abi,
@@ -433,7 +433,7 @@ function Gauge({
       const modelArrays = Array(allTokenIDs.length).fill().map(() => [...models])
       const weightArrays = Array(allTokenIDs.length).fill().map(() => [...weights])
 
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
       const voterContract = new web3.eth.Contract(
         voter.abi,
         Config.voterAddress

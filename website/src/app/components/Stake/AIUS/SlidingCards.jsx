@@ -161,6 +161,39 @@ const AddPopUpChildren = ({
     }
   };
 
+  const getWeb3 = async() => {
+    return await fetch(alchemyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(_data => {
+          if (_data.error) {
+            console.error("Alchemy error:", _data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            return web3
+          } else {
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            console.log("Successfully connected. Block number:", _data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+          return web3
+        });
+    }
+
+
 
   useEffect(() => {
     if (totalStaked && endDate && stakedOn) {
@@ -172,7 +205,7 @@ const AddPopUpChildren = ({
 
   useEffect(() => {
     const f = async () => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
       const votingEscrowContract = new web3.eth.Contract(
         votingEscrow.abi,
         Config.votingEscrowAddress
@@ -471,7 +504,7 @@ const ExtendPopUpChildren = ({
 
   useEffect(() => {
     const f = async () => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
       const votingEscrowContract = new web3.eth.Contract(
         votingEscrow.abi,
         Config.votingEscrowAddress
@@ -710,7 +743,7 @@ const ClaimPopUpChildren = ({
 
   useEffect(() => {
     const f = async () => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
       const veStakingContract = new web3.eth.Contract(
         veStaking.abi,
         Config.veStakingAddress

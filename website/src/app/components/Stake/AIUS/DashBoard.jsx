@@ -94,7 +94,7 @@ function DashBoard({
     })*/
 
   const getWeb3 = async() => {
-    return await fetch(infuraUrl, {
+    return await fetch(alchemyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,18 +109,18 @@ function DashBoard({
       .then(res => res.json())
         .then(data => {
           if (data.error) {
-            console.error("Infura error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            console.error("Alchemy error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
             return web3
           } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
             console.log("Successfully connected. Block number:", data.result);
             return web3
           }
         })
         .catch((err) => {
           console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
           return web3
         });
   }
@@ -156,7 +156,7 @@ function DashBoard({
       setLoading(true);
       //alert("Address changed calling again" + address)
       try {
-        const web3 = new Web3(window.ethereum);
+        const web3 = await getWeb3()
         const votingEscrowContract = new web3.eth.Contract(
           votingEscrow.abi,
           Config.votingEscrowAddress

@@ -14,7 +14,7 @@ import voter from '../../../abis/voter.json';
 import veStaking from '../../../abis/veStaking.json';
 import Image from 'next/image';
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png';
-import { AIUS_wei } from '../../../Utils/constantValues';
+import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import Link from 'next/link';
 import info_icon from '@/app/assets/images/info_icon_white.png';
 import Web3 from 'web3';
@@ -243,12 +243,43 @@ function StakeCard({
       ? 'https://testnets.opensea.io/assets/arbitrum-sepolia/'
       : 'https://opensea.io/assets/arbitrum/';
 
+  const getWeb3 = async() => {
+    return await fetch(alchemyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Alchemy error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            return web3
+          } else {
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            console.log("Successfully connected. Block number:", data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+          return web3
+        });
+  }
 
   //const handleRealtimeClaimableRewards = async (mouseOver) => {
   useEffect(() => {
 
     const f = async() => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
 
       const veStakingContract = new web3.eth.Contract(
         veStaking.abi,
