@@ -20,6 +20,7 @@ import lightning from '../../../assets/images/lightning.svg';
 import lightningbulb from '../../../assets/images/lightningbulb.svg';
 import confirmvote from '../../../assets/images/confirmvote.svg';
 import votingEscrow from '../../../abis/votingEscrow.json';
+import voter from '../../../abis/voter.json';
 import Web3 from 'web3';
 import Config from '@/config.one.json';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
@@ -86,6 +87,7 @@ function Gauge() {
   const [showConfirmVote, setShowConfirmVote] = useState(false)
   const [votingPercentage, setVotingPercentage] = useState({});
   const [percentageLeft, setPercentageLeft] = useState(100);
+  const [epochTimestamp, setEpochTimestamp] = useState(0);
 
   console.log(votingPercentage)
   console.log('filteredData', filteredData);
@@ -181,6 +183,13 @@ function Gauge() {
           votingEscrow.abi,
           Config.v4_votingEscrowAddress
         );
+        const voterContract = new web3.eth.Contract(
+          voter.abi,
+          Config.v4_voterAddress
+        );
+
+        const _epochVoteEnd = await voterContract.methods.epochVoteEnd().call();
+        setEpochTimestamp(_epochVoteEnd * 1000)
 
         const _escrowBalanceData = await votingEscrowContract.methods
           .balanceOf(address)
@@ -399,7 +408,7 @@ function Gauge() {
             {/* <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in {timeRemaining.days} D : {timeRemaining.hours} Hr : {timeRemaining.minutes} Min</h1> */}
 
             <div className='flex items-center justify-start gap-2'>
-              <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in <Timer epochTimestamp={1739664000000} /></h1>
+              <h1 className='xl:text-[12px] 2xl:text-[16px]'>Voting starts in <Timer epochTimestamp={epochTimestamp} /></h1>
               {/*<Image
                 src={skeleton}
                 className='h-[20px] w-[100px] rounded-lg opacity-70 contrast-[90%] md:w-[80px] xl:w-[140px]'
@@ -451,7 +460,7 @@ function Gauge() {
           <Image src={clock_icon} className='h-4 w-4' />
           {/* <h1>Voting starts in   02 D : 13 Hr : 16 Min</h1> */}
           <div className='flex items-center justify-start gap-2'>
-            <h1 className=''>Voting starts in <Timer epochTimestamp={1739664000000} /></h1>
+            <h1 className=''>Voting starts in <Timer epochTimestamp={epochTimestamp} /></h1>
             {/*<Image
               src={skeleton}
               className='h-[20px] w-[100px] rounded-lg opacity-70 contrast-[90%] md:w-[80px] xl:w-[140px]'
