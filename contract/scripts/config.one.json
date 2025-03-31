@@ -5,5 +5,6 @@
   "v5_votingEscrowAddress": "0x3A7e6915f997Cdbc8BFB090051AA22E37Dab345d",
   "v5_veStakingAddress": "0x1c0a14cAC52ebDe9c724e5627162a90A26B85E15",
   "v5_timelockAddress": "0x21F3d28f4932aEb593630196C6632b9D1C52d1Fb",
-  "v5_governorAddress": "0xE82F6F2F8cD967dfBE4915c9C996e938A3a12755"
+  "v5_governorAddress": "0xE82F6F2F8cD967dfBE4915c9C996e938A3a12755",
+  "v5_voterAddress": "0x80E9B3dA81258705eC7C3DC89a799b78f2c68968"
 }
