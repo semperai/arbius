@@ -20,12 +20,12 @@ async function getEngine(hre: HardhatRuntimeEnvironment) {
   }
     
   if (hre.network.name === 'localhost') {
-    const engine = await Engine.attach(LocalConfig.v4_engineAddress);
+    const engine = await Engine.attach(LocalConfig.v5_engineAddress);
     return engine;
   }
 
   if (hre.network.name === 'arbitrum') {
-    const engine = await Engine.attach(Config.v4_engineAddress);
+    const engine = await Engine.attach(Config.v5_engineAddress);
     return engine;
   }
 
@@ -46,12 +46,12 @@ async function getBaseToken(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    const baseToken = await BaseToken.attach(LocalConfig.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(LocalConfig.v5_baseTokenAddress);
     return baseToken;
   }
 
   if (hre.network.name === 'arbitrum') {
-    const baseToken = await BaseToken.attach(Config.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(Config.v5_baseTokenAddress);
     return baseToken;
   }
 
@@ -72,11 +72,11 @@ async function getVeStaking(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    return await VeStaking.attach(LocalConfig.v4_veStakingAddress);
+    return await VeStaking.attach(LocalConfig.v5_veStakingAddress);
   }
 
   if (hre.network.name === 'arbitrum') {
-    return await VeStaking.attach(Config.v4_veStakingAddress);
+    return await VeStaking.attach(Config.v5_veStakingAddress);
   }
 
   if (hre.network.name === 'arbsepolia') {
@@ -114,15 +114,38 @@ async function getVotingEscrow(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    return await VotingEscrow.attach(LocalConfig.v4_votingEscrowAddress);
+    return await VotingEscrow.attach(LocalConfig.v5_votingEscrowAddress);
   }
 
   if (hre.network.name === 'arbitrum') {
-    return await VotingEscrow.attach(Config.v4_votingEscrowAddress);
+    return await VotingEscrow.attach(Config.v5_votingEscrowAddress);
   }
 
   if (hre.network.name === 'arbsepolia') {
     return await VotingEscrow.attach(ArbSepoliaConfig.v5_votingEscrowAddress);
+  }
+
+  console.log('Unknown network');
+  process.exit(1);
+}
+
+async function getVoter(hre: HardhatRuntimeEnvironment) {
+  const Voter = await hre.ethers.getContractFactory("Voter");
+  if (hre.network.name === 'hardhat') {
+    console.log('You are on hardhat network, try localhost');
+    process.exit(1);
+  }
+
+  if (hre.network.name === 'localhost') {
+    return await Voter.attach(LocalConfig.v5_voterAddress);
+  }
+
+  if (hre.network.name === 'arbitrum') {
+    return await Voter.attach(Config.v5_voterAddress);
+  }
+
+  if (hre.network.name === 'arbsepolia') {
+    return await Voter.attach(ArbSepoliaConfig.v5_voterAddress);
   }
 
   console.log('Unknown network');
@@ -272,7 +295,7 @@ task("decode-tx", "Extract input from a submitTask transaction")
 .addParam("txid", "transaction hash")
 .setAction(async ({ txid }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await Engine.attach(Config.v5_engineAddress);
 
   const tx = await hre.ethers.provider.getTransaction(txid);
   // console.log(tx);
@@ -289,7 +312,7 @@ task("local:mint", "Mint tokens")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
     const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-    const baseToken = await BaseToken.attach(LocalConfig.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(LocalConfig.v5_baseTokenAddress);
     const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
@@ -300,7 +323,7 @@ task("test:mint", "Mint tokens")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
     const TestnetToken = await hre.ethers.getContractFactory("TestnetToken");
-    const testnetToken = await TestnetToken.attach(Config.v4_baseTokenAddress);
+    const testnetToken = await TestnetToken.attach(Config.v5_baseTokenAddress);
     const tx = await testnetToken.mint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
@@ -359,9 +382,9 @@ task("mining:allowance", "Set allowance for miner")
 .setAction(async ({ }, hre) => {
   const baseToken = await getBaseToken(hre);
   const minerAddress = await getMinerAddress(hre);
-  const tx = await baseToken.approve(Config.v4_engineAddress, hre.ethers.constants.MaxUint256);
+  const tx = await baseToken.approve(Config.v5_engineAddress, hre.ethers.constants.MaxUint256);
   await tx.wait();
-  const allowance = await baseToken.allowance(minerAddress, Config.v4_engineAddress);
+  const allowance = await baseToken.allowance(minerAddress, Config.v5_engineAddress);
   console.log(`allowance ${hre.ethers.utils.formatEther(allowance)}`);
 });
 
@@ -569,6 +592,49 @@ task("engine:minClaimSolutionTime", "Get minClaimSolutionTime")
   const engine = await getEngine(hre);
   const m = await engine.minClaimSolutionTime();
   console.log(`Engine minClaimSolutionTime is ${m}`);
+});
+
+task("engine:registerModel", "Register model")
+.addOptionalParam("address", "Model treasury address")
+.addParam("fee", "Fee")
+.addParam("template", "Template")
+.setAction(async ({ address, fee, template }, hre) => {
+  const engine = await getEngine(hre);
+
+  if (! address) {
+    address = await getMinerAddress(hre);
+  }
+
+  const templateBuf = fs.readFileSync(template);
+  if (templateBuf.length > 262144) {
+    console.error('error: template file bigger than 262144 bytes');
+    process.exit(1);
+  }
+  if (templateBuf.length === 0) {
+    console.error('error: template file is empty');
+    process.exit(1);
+  }
+  if (! JSON.parse(templateBuf.toString())) {
+    console.error('error: template file is not valid json');
+    process.exit(1);
+  }
+
+  const cid = await engine.generateIPFSCID(templateBuf);
+  console.log('model cid is', cid);
+  console.log('model address', address);
+  console.log(templateBuf.toString());
+
+  const feeParsed = hre.ethers.utils.parseEther(fee);
+
+  const modelId = await engine.hashModel({
+    addr: address,
+    fee: feeParsed,
+    rate: hre.ethers.utils.parseEther('0'),
+    cid,
+  }, await getMinerAddress(hre));
+
+  await (await engine.registerModel(address, feeParsed, templateBuf)).wait();
+  console.log('model added with id', modelId);
 });
 
 task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
@@ -1111,4 +1177,31 @@ task("lpstaking:notifyRewardAmount", "Notify reward amount")
   const tx = await lpStaking.notifyRewardAmount(hre.ethers.utils.parseEther(amount));
   const receipt = await tx.wait();
   console.log('Reward notified in ', receipt.transactionHash);
+});
+
+task("voter:createGauge", "Create gauge")
+.addParam("model", "Model id")
+.setAction(async ({ model }, hre) => {
+  const voter = await getVoter(hre);
+  const tx = await voter.createGauge(model);
+  const receipt = await tx.wait();
+  console.log('Gauge created in ', receipt.transactionHash);
+});
+
+task("voter:killGauge", "Kill gauge (not allowed to receive more votes)")
+.addParam("model", "Model id")
+.setAction(async ({ model }, hre) => {
+  const voter = await getVoter(hre);
+  const tx = await voter.killGauge(model);
+  const receipt = await tx.wait();
+  console.log('Gauge killed in ', receipt.transactionHash);
+});
+
+task("voter:reviveGauge", "Revive gauge (brings back to life)")
+.addParam("model", "Model id")
+.setAction(async ({ model }, hre) => {
+  const voter = await getVoter(hre);
+  const tx = await voter.reviveGauge(model);
+  const receipt = await tx.wait();
+  console.log('Gauge revived in ', receipt.transactionHash);
 });
