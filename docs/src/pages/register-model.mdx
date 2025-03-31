@@ -289,7 +289,7 @@ Make sure you read the [Model Tokens](/model-tokens) guide before continuing if 
 The following line will register a model with 0 fee, and it uses an unused address for the simplicity of this article.
 
 ```bash
-npx hardhat --network nova model:register \
+npx hardhat --network arbitrum engine:registerModel \
 --address "0x0000000000000000000000000000000000000001" \
 --fee "0" \
 --template templates/[your-template-file].json
