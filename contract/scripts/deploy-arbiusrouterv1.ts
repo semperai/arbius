@@ -1,10 +1,10 @@
 import { ethers, upgrades } from "hardhat";
-import Config from "./config.sepolia.json";
+import Config from "./config.one.json";
 
 
 async function main() {
   const signers = await ethers.getSigners();
-  const deployer   = signers[0];
+  const deployer = signers[0];
 
   console.log("Deploying contracts with the account:", deployer.address);
 
