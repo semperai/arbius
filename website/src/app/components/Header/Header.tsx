@@ -90,17 +90,6 @@ export default function Header() {
     })();
   }
 
-<<<<<<< HEAD
-=======
-  const { data, isError, isLoading } = useContractRead({
-    address: Config.baseTokenAddress as `0x${string}`,
-    abi: baseTokenV1.abi,
-    functionName: 'balanceOf',
-    args: [address],
-    enabled: isConnected,
-  });
-
->>>>>>> d4677ed2 (Updated addresses; Updated vote text on hover)
   function formatBalance(num: string) {
     if (Number.isInteger(num)) {
       return num.toString().split('.')[0];
@@ -118,7 +107,7 @@ export default function Header() {
           aiusTokenAddress = ConfigEth.AIUS_TOKEN_ADDRESS;
         }
         else{
-          aiusTokenAddress = Config.v4_baseTokenAddress;
+          aiusTokenAddress = Config.baseTokenAddress;
         }
         // @ts-ignore
         await window.ethereum.request({ method: 'eth_requestAccounts' });
