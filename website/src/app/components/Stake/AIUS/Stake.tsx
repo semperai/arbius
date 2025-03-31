@@ -274,7 +274,7 @@ export default function Stake({
   // Use effect to fetch all values
 
   const getWeb3 = async() => {
-    return await fetch(infuraUrl, {
+    return await fetch(alchemyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -289,18 +289,18 @@ export default function Stake({
       .then(res => res.json())
         .then(data => {
           if (data.error) {
-            console.error("Infura error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            console.error("Alchemy error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
             return web3
           } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
             console.log("Successfully connected. Block number:", data.result);
             return web3
           }
         })
         .catch((err) => {
           console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
           return web3
         });
   }
@@ -332,7 +332,7 @@ export default function Stake({
       try {
         // TODO move to wagmi&ethers
         // @ts-ignore
-        const web3 = new Web3(window.ethereum);
+        const web3 = await getWeb3();
         const votingEscrowContract = new web3.eth.Contract(
           // @ts-ignore
           votingEscrow.abi,
