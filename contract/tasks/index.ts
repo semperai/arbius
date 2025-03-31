@@ -20,12 +20,12 @@ async function getEngine(hre: HardhatRuntimeEnvironment) {
   }
     
   if (hre.network.name === 'localhost') {
-    const engine = await Engine.attach(LocalConfig.v4_engineAddress);
+    const engine = await Engine.attach(LocalConfig.v5_engineAddress);
     return engine;
   }
 
   if (hre.network.name === 'arbitrum') {
-    const engine = await Engine.attach(Config.v4_engineAddress);
+    const engine = await Engine.attach(Config.v5_engineAddress);
     return engine;
   }
 
@@ -46,12 +46,12 @@ async function getBaseToken(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    const baseToken = await BaseToken.attach(LocalConfig.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(LocalConfig.v5_baseTokenAddress);
     return baseToken;
   }
 
   if (hre.network.name === 'arbitrum') {
-    const baseToken = await BaseToken.attach(Config.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(Config.v5_baseTokenAddress);
     return baseToken;
   }
 
@@ -72,11 +72,11 @@ async function getVeStaking(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    return await VeStaking.attach(LocalConfig.v4_veStakingAddress);
+    return await VeStaking.attach(LocalConfig.v5_veStakingAddress);
   }
 
   if (hre.network.name === 'arbitrum') {
-    return await VeStaking.attach(Config.v4_veStakingAddress);
+    return await VeStaking.attach(Config.v5_veStakingAddress);
   }
 
   if (hre.network.name === 'arbsepolia') {
@@ -114,11 +114,11 @@ async function getVotingEscrow(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    return await VotingEscrow.attach(LocalConfig.v4_votingEscrowAddress);
+    return await VotingEscrow.attach(LocalConfig.v5_votingEscrowAddress);
   }
 
   if (hre.network.name === 'arbitrum') {
-    return await VotingEscrow.attach(Config.v4_votingEscrowAddress);
+    return await VotingEscrow.attach(Config.v5_votingEscrowAddress);
   }
 
   if (hre.network.name === 'arbsepolia') {
@@ -272,7 +272,7 @@ task("decode-tx", "Extract input from a submitTask transaction")
 .addParam("txid", "transaction hash")
 .setAction(async ({ txid }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
-  const engine = await Engine.attach(Config.v4_engineAddress);
+  const engine = await Engine.attach(Config.v5_engineAddress);
 
   const tx = await hre.ethers.provider.getTransaction(txid);
   // console.log(tx);
@@ -289,7 +289,7 @@ task("local:mint", "Mint tokens")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
     const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-    const baseToken = await BaseToken.attach(LocalConfig.v4_baseTokenAddress);
+    const baseToken = await BaseToken.attach(LocalConfig.v5_baseTokenAddress);
     const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
@@ -300,7 +300,7 @@ task("test:mint", "Mint tokens")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
     const TestnetToken = await hre.ethers.getContractFactory("TestnetToken");
-    const testnetToken = await TestnetToken.attach(Config.v4_baseTokenAddress);
+    const testnetToken = await TestnetToken.attach(Config.v5_baseTokenAddress);
     const tx = await testnetToken.mint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
@@ -359,9 +359,9 @@ task("mining:allowance", "Set allowance for miner")
 .setAction(async ({ }, hre) => {
   const baseToken = await getBaseToken(hre);
   const minerAddress = await getMinerAddress(hre);
-  const tx = await baseToken.approve(Config.v4_engineAddress, hre.ethers.constants.MaxUint256);
+  const tx = await baseToken.approve(Config.v5_engineAddress, hre.ethers.constants.MaxUint256);
   await tx.wait();
-  const allowance = await baseToken.allowance(minerAddress, Config.v4_engineAddress);
+  const allowance = await baseToken.allowance(minerAddress, Config.v5_engineAddress);
   console.log(`allowance ${hre.ethers.utils.formatEther(allowance)}`);
 });
 
