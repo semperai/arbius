@@ -9,7 +9,7 @@ const init = async () => {
   const votingEscrowContract = new web3.eth.Contract(
     // @ts-ignore
     votingEscrow.abi,
-    Config.v4_votingEscrowAddress
+    Config.votingEscrowAddress
   );
   return votingEscrowContract;
 };
@@ -27,12 +27,12 @@ const getTokenIDs = async (address: string, totalEscrowBalance) => {
   const votingEscrowContract = new web3.eth.Contract(
     // @ts-ignore
     votingEscrow.abi,
-    Config.v4_votingEscrowAddress
+    Config.votingEscrowAddress
   );
   const veStakingContract = new web3.eth.Contract(
     // @ts-ignore
     veStaking.abi,
-    Config.v4_veStakingAddress
+    Config.veStakingAddress
   );
   const tokenIDs = [];
   for (let i = 0; i < totalEscrowBalance; i++) {

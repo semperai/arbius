@@ -45,7 +45,7 @@ function StakeCard({
   const [extendMonths, setExtendMonths] = useState(0);
 
   /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'locked',
         args: [
@@ -55,7 +55,7 @@ function StakeCard({
     })
     console.log(totalStaked, "ttsake")
     const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
         args: [
@@ -65,7 +65,7 @@ function StakeCard({
     })
     console.log(Number(endDate?._hex), "endDate")
     const { data: stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'user_point_history__ts',
         args: [
@@ -76,7 +76,7 @@ function StakeCard({
     })
     console.log(stakedOn, "stakedOn")
     const { data: governancePower, isLoading: governancePowerIsLoading, isError: governancePowerIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'balanceOfNFT',
         args: [
@@ -86,7 +86,7 @@ function StakeCard({
     })
 
     const { data: initialBalance, isLoading: initialBalanceIsLoading, isError: initialBalanceIsError } = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'balanceOf',
         args: [
@@ -95,7 +95,7 @@ function StakeCard({
         enabled: isConnected
     })
     const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'earned',
         args: [
@@ -107,7 +107,7 @@ function StakeCard({
   //console.log(Number(endDate) * 1000, "current")
   //console.log("current Date", Date.now())
   const { config: withdrawAIUSConfig } = usePrepareContractWrite({
-    address: Config.v4_votingEscrowAddress,
+    address: Config.votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'withdraw',
     args: [Number(token?.tokenID)],
@@ -169,8 +169,8 @@ function StakeCard({
   // useEffect(() => {
   //     const f = async() => {
   //         const web3 = new Web3(window.ethereum);
-  //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
-  //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
+  //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.votingEscrowAddress);
+  //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.veStakingAddress);
 
   //         const _totalStaked = await votingEscrowContract.methods.locked(tokenID).call()
   //         const _endDate = await votingEscrowContract.methods.locked__end(tokenID).call()
@@ -205,12 +205,12 @@ function StakeCard({
 
       const veStakingContract = new web3.eth.Contract(
         veStaking.abi,
-        Config.v4_veStakingAddress
+        Config.veStakingAddress
       );
 
       const votingEscrowContract = new web3.eth.Contract(
         votingEscrow.abi,
-        Config.v4_votingEscrowAddress
+        Config.votingEscrowAddress
       );
 
       const _endDate = await votingEscrowContract.methods.locked__end(token?.tokenID).call();
@@ -270,7 +270,7 @@ function StakeCard({
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
       <Link
-        href={`${openseaLink}${Config.v4_votingEscrowAddress}/${Number(token?.tokenID)}`}
+        href={`${openseaLink}${Config.votingEscrowAddress}/${Number(token?.tokenID)}`}
         target='_blank'
       >
         <Image

@@ -49,7 +49,7 @@ function GanttChart({
   // ]
 
   // const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
-  //     address: Config.v4_votingEscrowAddress,
+  //     address: Config.votingEscrowAddress,
   //     abi: votingEscrow.abi,
   //     functionName: 'balanceOf',
   //     args: [
@@ -62,7 +62,7 @@ function GanttChart({
   //     contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
   //         console.log("the loop", i, totalEscrowBalance)
   //         return {
-  //             address: Config.v4_votingEscrowAddress,
+  //             address: Config.votingEscrowAddress,
   //             abi: votingEscrow.abi,
   //             functionName: 'tokenOfOwnerByIndex',
   //             args: [
@@ -172,7 +172,7 @@ function GanttChart({
   //     contracts: (tokenIDs) ? tokenIDs.flatMap(tokenId => {
   //         return [
   //             {
-  //                 address: Config.v4_votingEscrowAddress,
+  //                 address: Config.votingEscrowAddress,
   //                 abi: votingEscrow.abi,
   //                 functionName: 'locked',
   //                 args: [
@@ -181,7 +181,7 @@ function GanttChart({
   //                 enabled: isConnected
   //             },
   //             {
-  //                 address: Config.v4_votingEscrowAddress,
+  //                 address: Config.votingEscrowAddress,
   //                 abi: votingEscrow.abi,
   //                 functionName: 'locked__end',
   //                 args: [
@@ -190,7 +190,7 @@ function GanttChart({
   //                 enabled: isConnected
   //             },
   //             {
-  //                 address: Config.v4_votingEscrowAddress,
+  //                 address: Config.votingEscrowAddress,
   //                 abi: votingEscrow.abi,
   //                 functionName: 'user_point_history__ts',
   //                 args: [
@@ -200,7 +200,7 @@ function GanttChart({
   //                 enabled: isConnected
   //             },
   //             {
-  //                 address: Config.v4_votingEscrowAddress,
+  //                 address: Config.votingEscrowAddress,
   //                 abi: votingEscrow.abi,
   //                 functionName: 'balanceOfNFT',
   //                 args: [

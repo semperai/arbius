@@ -104,7 +104,7 @@ export default function Stake({
 
   const [faucetCalled, setFaucetCalled] = useState(false);
   /*const rewardRate = useContractRead({
-    address: Config.v4_veStakingAddress,
+    address: Config.veStakingAddress,
     abi: veStaking.abi,
     functionName: 'rewardRate',
     args: [
@@ -114,7 +114,7 @@ export default function Stake({
   })
 
   const totalSupply = useContractRead({
-    address: Config.v4_veStakingAddress,
+    address: Config.veStakingAddress,
     abi: veStaking.abi,
     functionName: 'totalSupply',
     args: [
@@ -123,7 +123,7 @@ export default function Stake({
     enabled: isConnected
   })
   const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
-    address: Config.v4_votingEscrowAddress,
+    address: Config.votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'balanceOf',
     args: [
@@ -135,7 +135,7 @@ export default function Stake({
   const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
     contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
       return {
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'tokenOfOwnerByIndex',
         args: [
@@ -149,7 +149,7 @@ export default function Stake({
   /*useEffect(() => {
     if (tokenIDs && tokenIDs.length > 0 && !tokenIDsIsLoading && !tokenIDsIsError) {
       const contracts = tokenIDs?.map((tokenID) => ({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'balanceOf',
         args: [
@@ -166,12 +166,12 @@ export default function Stake({
   });
   console.log(veAIUSBalances, "Stake data")
   const { data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError, refetch: refetchAllowance } = useContractRead({
-    address: Config.v4_baseTokenAddress,
+    address: Config.baseTokenAddress,
     abi: baseTokenV1.abi,
     functionName: 'allowance',
     args: [
       address,
-      Config.v4_votingEscrowAddress,
+      Config.votingEscrowAddress,
     ],
     enabled: isConnected
   })
@@ -204,11 +204,11 @@ export default function Stake({
   },[checkAllowance?._hex])
 
   /*const { config: approveConfig } = usePrepareContractWrite({
-    address: Config.v4_baseTokenAddress,
+    address: Config.baseTokenAddress,
     abi: baseTokenV1.abi,
     functionName: 'approve',
     args: [
-      Config.v4_votingEscrowAddress,
+      Config.votingEscrowAddress,
       defaultApproveAmount
       //(amount * AIUS_wei).toString()
     ]
@@ -218,7 +218,7 @@ export default function Stake({
   console.log({ approveData, approveError, approvePending, allowance });*/
 
   /*const { config: stakeConfig } = usePrepareContractWrite({
-    address: Config.v4_votingEscrowAddress,
+    address: Config.votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'create_lock',
     args: [
@@ -313,7 +313,7 @@ export default function Stake({
 
         const veStakingContract = new web3.eth.Contract(
           veStaking.abi as AbiItem[],
-          Config.v4_veStakingAddress
+          Config.veStakingAddress
         );
 
         console.log("calling f1", veStakingContract)
@@ -336,17 +336,17 @@ export default function Stake({
         const votingEscrowContract = new web3.eth.Contract(
           // @ts-ignore
           votingEscrow.abi,
-          Config.v4_votingEscrowAddress
+          Config.votingEscrowAddress
         );
         const veStakingContract = new web3.eth.Contract(
           // @ts-ignore
           veStaking.abi,
-          Config.v4_veStakingAddress
+          Config.veStakingAddress
         );
         const baseTokenContract = new web3.eth.Contract(
           // @ts-ignore
           baseTokenV1.abi,
-          Config.v4_baseTokenAddress
+          Config.baseTokenAddress
         );
 
         const wBal = await baseTokenContract.methods.balanceOf(address).call();
@@ -376,7 +376,7 @@ export default function Stake({
         setVeAIUSBalance(_veAIUSBalance);
 
         const _checkAllowance = await baseTokenContract.methods
-          .allowance(address, Config.v4_votingEscrowAddress)
+          .allowance(address, Config.votingEscrowAddress)
           .call();
         setAllowance(_checkAllowance);
 
@@ -446,13 +446,13 @@ export default function Stake({
         const signer = provider.getSigner();
 
         const approveContract = new ethers.Contract(
-          Config.v4_baseTokenAddress,
+          Config.baseTokenAddress,
           baseTokenV1.abi,
           signer
         );
 
         const tx1 = await approveContract.approve(
-          Config.v4_votingEscrowAddress,
+          Config.votingEscrowAddress,
           defaultApproveAmount
         );
 
@@ -464,7 +464,7 @@ export default function Stake({
         setShowPopUp(2);
 
         const stakeContract = new ethers.Contract(
-          Config.v4_votingEscrowAddress,
+          Config.votingEscrowAddress,
           votingEscrow.abi,
           signer
         );
@@ -521,7 +521,7 @@ export default function Stake({
           const signer = provider.getSigner();
 
           const stakeContract = new ethers.Contract(
-            Config.v4_votingEscrowAddress,
+            Config.votingEscrowAddress,
             votingEscrow.abi,
             signer
           );
