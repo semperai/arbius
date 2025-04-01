@@ -48,65 +48,75 @@ function Gauge({
 
   const [data, setData] = useState([
     {
-      model_name: 'Mistral-large-2407',
-      model_id: '0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522',
+      model_name: 'Qwen QwQ 32b',
+      model_id: '0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc',
       description: 'Text Generator',
       emissions: '0%',
       fees: '0',
-      prompts: '40,304',
-      icon: mistral_icon,
-      model_bytes: "0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522"
-    },
-    {
-      model_name: 'Nemotron-4-340b',
-      model_id: '0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f',
-      description: 'Text Generator',
-      emissions: '0%',
-      fees: '0',
-      prompts: '38,994',
-      icon: nemotron_icon,
-      model_bytes: "0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f"
-    },
-    {
-      model_name: 'Llama-3.1-405b',
-      model_id: '0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64',
-      description: 'Text Generator',
-      emissions: '0%',
-      fees: '0',
-      prompts: '32,945',
-      icon: llama_icon,
-      model_bytes: "0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64"
-    },
-    {
-      model_name: 'Llama-3.1-80b',
-      model_id: '0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca',
-      description: 'Text Generator',
-      emissions: '0%',
-      fees: '0',
-      prompts: '10,203',
-      icon: llama_icon,
-      model_bytes: "0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca"
-    },
-    {
-      model_name: 'Deepseek-coder-v2',
-      model_id: '0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21',
-      description: 'Code Generator',
-      emissions: '0%',
-      fees: '0',
-      prompts: '6049',
-      icon: deepseek_icon,
-      model_bytes: "0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21"
-    },
-    {
-      model_name: 'Qwen',
-      model_id: '0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a',
-      description: 'Text Generator',
-      emissions: '0%',
-      fees: '0',
-      prompts: '6049',
+      prompts: '0',
       icon: qwen_icon,
-      model_bytes: "0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a"
-    },
+      model_bytes: "0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc"
+    }
+    // {
+    //   model_name: 'Mistral-large-2407',
+    //   model_id: '0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522',
+    //   description: 'Text Generator',
+    //   emissions: '0%',
+    //   fees: '0',
+    //   prompts: '40,304',
+    //   icon: mistral_icon,
+    //   model_bytes: "0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522"
+    // },
+    // {
+    //   model_name: 'Nemotron-4-340b',
+    //   model_id: '0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f',
+    //   description: 'Text Generator',
+    //   emissions: '0%',
+    //   fees: '0',
+    //   prompts: '38,994',
+    //   icon: nemotron_icon,
+    //   model_bytes: "0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f"
+    // },
+    // {
+    //   model_name: 'Llama-3.1-405b',
+    //   model_id: '0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64',
+    //   description: 'Text Generator',
+    //   emissions: '0%',
+    //   fees: '0',
+    //   prompts: '32,945',
+    //   icon: llama_icon,
+    //   model_bytes: "0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64"
+    // },
+    // {
+    //   model_name: 'Llama-3.1-80b',
+    //   model_id: '0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca',
+    //   description: 'Text Generator',
+    //   emissions: '0%',
+    //   fees: '0',
+    //   prompts: '10,203',
+    //   icon: llama_icon,
+    //   model_bytes: "0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca"
+    // },
+    // {
+    //   model_name: 'Deepseek-coder-v2',
+    //   model_id: '0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21',
+    //   description: 'Code Generator',
+    //   emissions: '0%',
+    //   fees: '0',
+    //   prompts: '6049',
+    //   icon: deepseek_icon,
+    //   model_bytes: "0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21"
+    // },
+    // {
+    //   model_name: 'Qwen',
+    //   model_id: '0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a',
+    //   description: 'Text Generator',
+    //   emissions: '0%',
+    //   fees: '0',
+    //   prompts: '6049',
+    //   icon: qwen_icon,
+    //   model_bytes: "0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a"
+    // },
   ]);
   const [showPopUp, setShowPopUp] = useState(false);
   const [filteredData, setFilteredData] = useState(data);
