@@ -6,14 +6,15 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
 // import config from "../../../../sepolia_config.json"
 import votingEscrow from '../../../abis/votingEscrow.json';
+import voter from '../../../abis/voter.json';
 import veStaking from '../../../abis/veStaking.json';
 import Image from 'next/image';
 import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png';
-import { AIUS_wei } from '../../../Utils/constantValues';
+import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import Link from 'next/link';
 import info_icon from '@/app/assets/images/info_icon_white.png';
 import Web3 from 'web3';
@@ -43,9 +44,9 @@ function StakeCard({
   const [realtimeInterval, setRealtimeInterval] = useState(null);
   const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
   const [extendMonths, setExtendMonths] = useState(0);
-
+  console.log(extendMonths, "EMEMEM")
   /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'locked',
         args: [
@@ -55,7 +56,7 @@ function StakeCard({
     })
     console.log(totalStaked, "ttsake")
     const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
         args: [
@@ -65,7 +66,7 @@ function StakeCard({
     })
     console.log(Number(endDate?._hex), "endDate")
     const { data: stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'user_point_history__ts',
         args: [
@@ -76,7 +77,7 @@ function StakeCard({
     })
     console.log(stakedOn, "stakedOn")
     const { data: governancePower, isLoading: governancePowerIsLoading, isError: governancePowerIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'balanceOfNFT',
         args: [
@@ -86,7 +87,7 @@ function StakeCard({
     })
 
     const { data: initialBalance, isLoading: initialBalanceIsLoading, isError: initialBalanceIsError } = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'balanceOf',
         args: [
@@ -95,7 +96,7 @@ function StakeCard({
         enabled: isConnected
     })
     const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'earned',
         args: [
@@ -107,7 +108,7 @@ function StakeCard({
   //console.log(Number(endDate) * 1000, "current")
   //console.log("current Date", Date.now())
   const { config: withdrawAIUSConfig } = usePrepareContractWrite({
-    address: Config.v4_votingEscrowAddress,
+    address: Config.votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'withdraw',
     args: [Number(token?.tokenID)],
@@ -145,19 +146,65 @@ function StakeCard({
     },
   });
 
-  const handleWithdraw = (lockedEndDate) => {
-    console.log(
-      lockedEndDate,
-      Date.now(),
-      'locked end date and current date comparison'
-    );
-    if (lockedEndDate > Date.now()) {
-      return;
-    }
-    console.log(lockedEndDate, 'LOCKED END DATE', 'Withdraw');
+  const handleWithdraw = async(lockedEndDate) => {
+    // @ts-ignore
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    // Create a provider
+    // @ts-ignore
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    withdrawAIUS?.();
-    setShowPopUp('withdraw/2');
+    // Get the signer
+    const signer = provider.getSigner();
+
+    const votingEscrowContract = new ethers.Contract(
+      Config.votingEscrowAddress,
+      votingEscrow.abi,
+      signer
+    );
+
+    const voterContract = new ethers.Contract(
+      Config.voterAddress,
+      voter.abi,
+      signer
+    );
+
+    const alreadyVoted = await votingEscrowContract.voted(token?.tokenID);
+
+    if(alreadyVoted){
+      // @ts-ignore
+      setShowPopUp('withdraw/2');
+      // reset the vote first
+      const resetTx = await voterContract.reset(token?.tokenID);
+
+      await resetTx.wait();
+      getTransactionReceiptData(resetTx.hash).then(async function () {
+
+        if (lockedEndDate > Date.now()) {
+          return;
+        }
+
+        const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
+        await _withdraw.wait();
+        getTransactionReceiptData(_withdraw.hash).then(function () {
+          // @ts-ignore
+          setShowPopUp('withdraw/Success');
+          // @ts-ignore
+          setUpdateValue((prevValue) => prevValue + 1);
+        })
+        .catch(function() {
+          // @ts-ignore
+          setShowPopUp('withdraw/Error');
+        })
+      });
+    }else{
+      if (lockedEndDate > Date.now()) {
+        return;
+      }
+
+      withdrawAIUS?.();
+      // @ts-ignore
+      setShowPopUp('withdraw/2');
+    }
   };
 
   useEffect(() => {
@@ -169,8 +216,8 @@ function StakeCard({
   // useEffect(() => {
   //     const f = async() => {
   //         const web3 = new Web3(window.ethereum);
-  //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
-  //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
+  //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.votingEscrowAddress);
+  //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.veStakingAddress);
 
   //         const _totalStaked = await votingEscrowContract.methods.locked(tokenID).call()
   //         const _endDate = await votingEscrowContract.methods.locked__end(tokenID).call()
@@ -196,21 +243,52 @@ function StakeCard({
       ? 'https://testnets.opensea.io/assets/arbitrum-sepolia/'
       : 'https://opensea.io/assets/arbitrum/';
 
+  const getWeb3 = async() => {
+    return await fetch(alchemyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_blockNumber",
+          params: []
+        }),
+      })
+      .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Alchemy error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            return web3
+          } else {
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            console.log("Successfully connected. Block number:", data.result);
+            return web3
+          }
+        })
+        .catch((err) => {
+          console.log("Request failed:", err)
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+          return web3
+        });
+  }
 
   //const handleRealtimeClaimableRewards = async (mouseOver) => {
   useEffect(() => {
 
     const f = async() => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
 
       const veStakingContract = new web3.eth.Contract(
         veStaking.abi,
-        Config.v4_veStakingAddress
+        Config.veStakingAddress
       );
 
       const votingEscrowContract = new web3.eth.Contract(
         votingEscrow.abi,
-        Config.v4_votingEscrowAddress
+        Config.votingEscrowAddress
       );
 
       const _endDate = await votingEscrowContract.methods.locked__end(token?.tokenID).call();
@@ -270,7 +348,7 @@ function StakeCard({
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
       <Link
-        href={`${openseaLink}${Config.v4_votingEscrowAddress}/${Number(token?.tokenID)}`}
+        href={`${openseaLink}${Config.votingEscrowAddress}/${Number(token?.tokenID)}`}
         target='_blank'
       >
         <Image

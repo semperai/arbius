@@ -24,7 +24,7 @@ import {
 import { BigNumber } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
 import StakeCard from './StakeCard';
-import { AIUS_wei, t_max, defaultApproveAmount } from '../../../Utils/constantValues';
+import { AIUS_wei, t_max, defaultApproveAmount, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import CircularProgressBar from './CircularProgressBar';
 import powered_by from '../../../assets/images/powered_by.png';
 import cross from '../../../assets/images/cross.png';
@@ -35,6 +35,39 @@ import { ethers } from 'ethers';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 import Config from '@/config.one.json';
 import Decimal from 'decimal.js';
+
+const getWeb3 = async() => {
+  return await fetch(alchemyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_blockNumber",
+        params: []
+      }),
+    })
+    .then(res => res.json())
+      .then(_data => {
+        if (_data.error) {
+          console.error("Alchemy error:", _data.error.message);
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+          return web3
+        } else {
+          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          console.log("Successfully connected. Block number:", _data.result);
+          return web3
+        }
+      })
+      .catch((err) => {
+        console.log("Request failed:", err)
+        let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+        return web3
+      });
+  }
+
 
 const AddPopUpChildren = ({
   setShowPopUp,
@@ -51,7 +84,7 @@ const AddPopUpChildren = ({
   const [aiusToStake, setAIUSToStake] = useState(0);
   const [estBalance, setEstBalance] = useState(0);
   const [allowance, setAllowance] = useState(0);
-  console.log(Number(selectedStake), 'selected Stake');
+  //console.log(Number(selectedStake), 'selected Stake');
 
   const [endDate, setEndDate] = useState(0);
   const [stakedOn, setStakedOn] = useState(0);
@@ -61,7 +94,7 @@ const AddPopUpChildren = ({
     let amountInDec = new Decimal(aiusToStake);
     let allowanceInDec = new Decimal(allowance);
 
-    console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
+    //console.log(amountInDec.toString(), allowanceInDec.toString(), 'ALLOWANCE AND AMOUNT before staking');
 
     if (amountInDec.comparedTo(allowanceInDec) > 0 || allowance === 0) {
       try {
@@ -75,13 +108,13 @@ const AddPopUpChildren = ({
         const signer = provider.getSigner();
 
         const approveContract = new ethers.Contract(
-          Config.v4_baseTokenAddress,
+          Config.baseTokenAddress,
           baseTokenV1.abi,
           signer
         );
 
         const tx1 = await approveContract.approve(
-          Config.v4_votingEscrowAddress,
+          Config.votingEscrowAddress,
           defaultApproveAmount
         );
 
@@ -92,7 +125,7 @@ const AddPopUpChildren = ({
         // @ts-ignore
 
         const stakeContract = new ethers.Contract(
-          Config.v4_votingEscrowAddress,
+          Config.votingEscrowAddress,
           votingEscrow.abi,
           signer
         );
@@ -132,7 +165,7 @@ const AddPopUpChildren = ({
           const signer = provider.getSigner();
 
           const stakeContract = new ethers.Contract(
-            Config.v4_votingEscrowAddress,
+            Config.votingEscrowAddress,
             votingEscrow.abi,
             signer
           );
@@ -172,14 +205,14 @@ const AddPopUpChildren = ({
 
   useEffect(() => {
     const f = async () => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
       const votingEscrowContract = new web3.eth.Contract(
         votingEscrow.abi,
-        Config.v4_votingEscrowAddress
+        Config.votingEscrowAddress
       );
       const baseTokenContract = new web3.eth.Contract(
         baseTokenV1.abi,
-        Config.v4_baseTokenAddress
+        Config.baseTokenAddress
       );
 
       const _totalStaked = await votingEscrowContract.methods
@@ -196,7 +229,7 @@ const AddPopUpChildren = ({
       setEndDate(_endDate);
       setStakedOn(_stakedOn);
 
-      const _checkAllowance = await baseTokenContract.methods.allowance(address, Config.v4_votingEscrowAddress).call();
+      const _checkAllowance = await baseTokenContract.methods.allowance(address, Config.votingEscrowAddress).call();
       setAllowance(_checkAllowance);
     };
     if (address) {
@@ -356,16 +389,16 @@ const ExtendPopUpChildren = ({
     months: 0,
     weeks: 0,
   });
-
+  //console.log(sliderValue, duration, "SLDURA")
   function getCurrentTimeInMSeconds() {
     const now = new Date();
     return Math.floor(now.getTime());
   }
   const [endDate, setEndDate] = useState(0);
-  console.log({ selectedStake });
+  //console.log({ selectedStake });
 
   /*const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'locked__end',
         args: [
@@ -373,7 +406,7 @@ const ExtendPopUpChildren = ({
         ]
     })*/
 
-  console.log(endDate, 'END DATE');
+  //console.log(endDate, 'END DATE');
   let currentlyEndingAt = new Date(Number(endDate) * 1000).toLocaleDateString(
     'en-US'
   );
@@ -402,33 +435,21 @@ const ExtendPopUpChildren = ({
   const [extendEndDate, setExtendEndDate] = useState(
     new Date(currentlyEndingAt)
   );
-  console.log(
-    sliderValue,
-    'SLIDER VALUE and dates check',
-    { extendEndDate },
-    getCurrentTimeInMSeconds(),
-    (extendEndDate - getCurrentTimeInMSeconds()) / 1000
-  );
-  console.log(extendEndDate, 'EXTENDED END DATE');
-  console.log(
-    'Below: Difference in time in seconds of extended date and current time'
-  );
-  console.log(
-    parseInt(
-      (extendEndDate.getTime() - getCurrentTimeInMSeconds()) / 1000
-    ).toString()
-  );
+  //console.log(sliderValue,'SLIDER VALUE and dates check',{ extendEndDate },getCurrentTimeInMSeconds(),(extendEndDate - getCurrentTimeInMSeconds()) / 1000);
+  //console.log(extendEndDate, 'EXTENDED END DATE');
+  //console.log('Below: Difference in time in seconds of extended date and current time');
+  //console.log(parseInt((extendEndDate.getTime() - getCurrentTimeInMSeconds()) / 1000).toString());
 
-  console.log({ currentlyEndingAt });
-  console.log({ currentlyEndingDate });
+  //console.log({ currentlyEndingAt });
+  //console.log({ currentlyEndingDate });
 
   const { config: addAIUSConfig } = usePrepareContractWrite({
-    address: Config.v4_votingEscrowAddress,
+    address: Config.votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'increase_unlock_time',
     args: [
       Number(selectedStake),
-      parseInt((extendEndDate - getCurrentTimeInMSeconds()) / 1000).toString(), // value in months(decimal) * 4*7*24*60*60
+      parseInt( ( (extendEndDate - getCurrentTimeInMSeconds()) / 1000) + 1000 ).toString(), // value in months(decimal) * 4*7*24*60*60
     ],
     enabled: extendEndDate > 0,
   });
@@ -440,7 +461,7 @@ const ExtendPopUpChildren = ({
     isError: addAIUSError,
     write: extendAIUS,
   } = useContractWrite(addAIUSConfig);
-  console.log({ addAIUSData });
+  //console.log({ addAIUSData });
 
   const {
     data: approveTx,
@@ -450,7 +471,7 @@ const ExtendPopUpChildren = ({
     hash: addAIUSData?.hash,
     confirmations: 3,
     onSuccess(data) {
-      console.log('approve tx successful data ', data);
+      //console.log('approve tx successful data ', data);
       setShowPopUp('extend/Success');
       getTransactionReceiptData(addAIUSData?.hash).then(function () {
         //window.location.reload(true)
@@ -471,10 +492,10 @@ const ExtendPopUpChildren = ({
 
   useEffect(() => {
     const f = async () => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
       const votingEscrowContract = new web3.eth.Contract(
         votingEscrow.abi,
-        Config.v4_votingEscrowAddress
+        Config.votingEscrowAddress
       );
 
       const _endDate = await votingEscrowContract.methods
@@ -551,7 +572,7 @@ const ExtendPopUpChildren = ({
               let currentTimestamp = getCurrentTimeInMSeconds() / 1000;
               const unlockTime =
                 Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
-              console.log(unlockTime, 'UNLOCK TIME and', date);
+              //console.log(unlockTime, 'UNLOCK TIME and', date);
               date = new Date(unlockTime * 1000);
               if (date <= currentEndDate) {
                 return;
@@ -655,7 +676,7 @@ const ClaimPopUpChildren = ({
   const [realtimeInterval, setRealtimeInterval] = useState(null);
 
   /*const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'earned',
         args: [
@@ -664,7 +685,7 @@ const ClaimPopUpChildren = ({
   })*/
 
   const { config: addAIUSConfig } = usePrepareContractWrite({
-    address: Config.v4_veStakingAddress,
+    address: Config.veStakingAddress,
     abi: veStaking.abi,
     functionName: 'getReward',
     args: [Number(selectedStake)],
@@ -678,7 +699,7 @@ const ClaimPopUpChildren = ({
     write: claimAIUS,
   } = useContractWrite(addAIUSConfig);
 
-  console.log({ addAIUSData });
+  //console.log({ addAIUSData });
 
   const {
     data: approveTx,
@@ -710,10 +731,10 @@ const ClaimPopUpChildren = ({
 
   useEffect(() => {
     const f = async () => {
-      const web3 = new Web3(window.ethereum);
+      const web3 = await getWeb3();
       const veStakingContract = new web3.eth.Contract(
         veStaking.abi,
-        Config.v4_veStakingAddress
+        Config.veStakingAddress
       );
 
       const _earned = await veStakingContract.methods
@@ -860,7 +881,7 @@ function SlidingCards({
   /*const {
         data, isError, isLoading
     } = useContractRead({
-        address: Config.v4_baseTokenAddress,
+        address: Config.baseTokenAddress,
         abi: baseTokenV1.abi,
         functionName: 'balanceOf',
         args: [
@@ -872,7 +893,7 @@ function SlidingCards({
     const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / 1000000000000000000 : 0;*/
   //console.log(walletBalance, "wallet balance")
   /*const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'balanceOf',
         args: [
@@ -883,7 +904,7 @@ function SlidingCards({
   //console.log(escrowBalanceData, "VEBALANCE")
 
   /*const { data: rewardRate, isLoading: rewardRateIsLoading, isError: rewardRateIsError } = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'rewardRate',
         args: [],
@@ -891,7 +912,7 @@ function SlidingCards({
     })*/
 
   /*const { data: totalSupply, isLoading: totalSupplyIsLoading, isError: totalSupplyIsError } = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'totalSupply',
         args: [],
@@ -903,7 +924,7 @@ function SlidingCards({
         contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
             console.log("the loop", i, totalEscrowBalance)
             return {
-                address: Config.v4_votingEscrowAddress,
+                address: Config.votingEscrowAddress,
                 abi: votingEscrow.abi,
                 functionName: 'tokenOfOwnerByIndex',
                 args: [
@@ -999,7 +1020,7 @@ function SlidingCards({
   }
 
   useEffect(() => {
-    console.log('direction of movement of cards: ', direction);
+    //console.log('direction of movement of cards: ', direction);
     const elements = document.querySelectorAll('.slick-list');
     if (tokenIDs?.length > 2) {
       elements.forEach((element) => {
@@ -1016,9 +1037,9 @@ function SlidingCards({
   // useEffect(() => {
   //     const f = async() => {
   //         const web3 = new Web3(window.ethereum);
-  //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.v4_votingEscrowAddress);
-  //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.v4_veStakingAddress);
-  //         const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, Config.v4_baseTokenAddress);
+  //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.votingEscrowAddress);
+  //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.veStakingAddress);
+  //         const baseTokenV1Contract = new web3.eth.Contract(baseTokenV1.abi, Config.baseTokenAddress);
 
   //         const _escrowBalanceData = await votingEscrowContract.methods.balanceOf(address).call()
   //         const _rewardRate = await veStakingContract.methods.rewardRate().call()

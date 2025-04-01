@@ -107,7 +107,7 @@ export default function Header() {
           aiusTokenAddress = ConfigEth.AIUS_TOKEN_ADDRESS;
         }
         else{
-          aiusTokenAddress = Config.v4_baseTokenAddress;
+          aiusTokenAddress = Config.baseTokenAddress;
         }
         // @ts-ignore
         await window.ethereum.request({ method: 'eth_requestAccounts' });

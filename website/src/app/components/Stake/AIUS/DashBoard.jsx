@@ -70,7 +70,7 @@ function DashBoard({
   // const [walletBalance, setWalletBalance] = useState(0);
   // const [protocolData, setProtocolData] = useState([]);
   /*const rewardRate = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'rewardRate',
         args: [],
@@ -78,7 +78,7 @@ function DashBoard({
     })
 
     const totalSupply = useContractRead({
-        address: Config.v4_veStakingAddress,
+        address: Config.veStakingAddress,
         abi: veStaking.abi,
         functionName: 'totalSupply',
         args: [],
@@ -86,7 +86,7 @@ function DashBoard({
     })
 
     const { data: veSupplyData, isLoading: veSupplyIsLoading, isError: veSupplyIsError } = useContractRead({
-        address: Config.v4_votingEscrowAddress,
+        address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,
         functionName: 'supply',
         args: [],
@@ -94,7 +94,7 @@ function DashBoard({
     })*/
 
   const getWeb3 = async() => {
-    return await fetch(infuraUrl, {
+    return await fetch(alchemyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -109,18 +109,18 @@ function DashBoard({
       .then(res => res.json())
         .then(data => {
           if (data.error) {
-            console.error("Infura error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+            console.error("Alchemy error:", data.error.message);
+            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
             return web3
           } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
             console.log("Successfully connected. Block number:", data.result);
             return web3
           }
         })
         .catch((err) => {
           console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
           return web3
         });
   }
@@ -133,11 +133,11 @@ function DashBoard({
 
         const veStakingContract = new web3.eth.Contract(
           veStaking.abi,
-          Config.v4_veStakingAddress
+          Config.veStakingAddress
         );
         const votingEscrowContract = new web3.eth.Contract(
           votingEscrow.abi,
-          Config.v4_votingEscrowAddress
+          Config.votingEscrowAddress
         );
 
         const _rewardRate = await veStakingContract.methods.rewardRate().call();
@@ -156,18 +156,18 @@ function DashBoard({
       setLoading(true);
       //alert("Address changed calling again" + address)
       try {
-        const web3 = new Web3(window.ethereum);
+        const web3 = await getWeb3()
         const votingEscrowContract = new web3.eth.Contract(
           votingEscrow.abi,
-          Config.v4_votingEscrowAddress
+          Config.votingEscrowAddress
         );
         const veStakingContract = new web3.eth.Contract(
           veStaking.abi,
-          Config.v4_veStakingAddress
+          Config.veStakingAddress
         );
         const baseTokenContract = new web3.eth.Contract(
           baseTokenV1.abi,
-          Config.v4_baseTokenAddress
+          Config.baseTokenAddress
         );
 
         const _rewardRate = await veStakingContract.methods.rewardRate().call();
@@ -475,7 +475,7 @@ function DashBoard({
           </div>
         </div>
         <div className='col-span-2 mt-10 xl:mt-0'>
-          <div className='pl-2'>
+          <div className='xl:pl-2'>
             <div className='stake-box-shadow mb-2 w-full rounded-2xl bg-white-background px-8 py-3'>
               <h1 className='text-[20px] font-semibold text-purple-text'>
                 My Stakes
@@ -484,7 +484,7 @@ function DashBoard({
           </div>
           <div className=''>
             {loading ? (
-              <div className='h-[300px] pl-2'>
+              <div className='h-[300px] xl:pl-2'>
                 <Loader />
               </div>
             ) : tokenIDs?.slidingCards && tokenIDs?.slidingCards.length > 0 ? (
@@ -499,7 +499,7 @@ function DashBoard({
                 setUpdateValue={setUpdateValue}
               />
             ) : (
-              <div className='flex h-[300px] items-center justify-center pl-2'>
+              <div className='flex h-[300px] items-center justify-center xl:pl-2'>
                 <div className='flex h-full w-full items-center justify-center rounded-2xl bg-white-background'>
                   <h1 className='text-[20px] font-semibold text-purple-text'>
                     No Stakes Found

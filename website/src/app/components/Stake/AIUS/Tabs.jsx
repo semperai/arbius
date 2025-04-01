@@ -51,7 +51,10 @@ function Tabs({
             setUpdateValue={setUpdateValue}
           />
         ) : (
-          <Gauge />
+          <Gauge
+            updateValue={updateValue}
+            setUpdateValue={setUpdateValue}
+          />
         )}
       </div>
     </>

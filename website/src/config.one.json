@@ -1,9 +1,10 @@
 {
-    "v4_baseTokenAddress": "0x4a24b101728e07a52053c13fb4db2bcf490cabc3",
-    "v4_engineAddress": "0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66",
-    "v4_veNFTRenderAddress": "0x18f936418CeB70CceE7AebE1E66754a8CEe9350D",
-    "v4_votingEscrowAddress": "0x3A7e6915f997Cdbc8BFB090051AA22E37Dab345d",
-    "v4_veStakingAddress": "0x1c0a14cAC52ebDe9c724e5627162a90A26B85E15",
-    "v4_timelockAddress": "0x21F3d28f4932aEb593630196C6632b9D1C52d1Fb",
-    "v4_governorAddress": "0xE82F6F2F8cD967dfBE4915c9C996e938A3a12755"
+  "baseTokenAddress": "0x4a24b101728e07a52053c13fb4db2bcf490cabc3",
+  "engineAddress": "0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66",
+  "veNFTRenderAddress": "0x18f936418CeB70CceE7AebE1E66754a8CEe9350D",
+  "votingEscrowAddress": "0x3A7e6915f997Cdbc8BFB090051AA22E37Dab345d",
+  "veStakingAddress": "0x1c0a14cAC52ebDe9c724e5627162a90A26B85E15",
+  "voterAddress": "0x80E9B3dA81258705eC7C3DC89a799b78f2c68968",
+  "timelockAddress": "0x21F3d28f4932aEb593630196C6632b9D1C52d1Fb",
+  "governorAddress": "0xE82F6F2F8cD967dfBE4915c9C996e938A3a12755"
 }
