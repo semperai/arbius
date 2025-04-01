@@ -44,7 +44,6 @@ function StakeCard({
   const [realtimeInterval, setRealtimeInterval] = useState(null);
   const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
   const [extendMonths, setExtendMonths] = useState(0);
-  console.log(extendMonths, "EMEMEM")
   /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
         address: Config.votingEscrowAddress,
         abi: votingEscrow.abi,

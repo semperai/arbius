@@ -395,6 +395,9 @@ const ExtendPopUpChildren = ({
     return Math.floor(now.getTime());
   }
   const [endDate, setEndDate] = useState(0);
+
+  const [oldLockDuration, setOldLockDuration] = useState(0);
+  const [enableExtendButton, setEnableExtendButton] = useState(false);
   //console.log({ selectedStake });
 
   /*const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
@@ -505,8 +508,14 @@ const ExtendPopUpChildren = ({
         Number(_endDate) * 1000
       ).toLocaleDateString('en-US');
 
+      const _stakedOn = await votingEscrowContract.methods
+        .user_point_history__ts(selectedStake, 1)
+        .call();
+
       setEndDate(_endDate);
       setCurrentEndDate(new Date(_currentlyEndingAt));
+      console.log(_endDate, _stakedOn, "DIFF OLD")
+      setOldLockDuration(_endDate - _stakedOn);
     };
     if (address) {
       f();
@@ -574,13 +583,23 @@ const ExtendPopUpChildren = ({
                 Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
               //console.log(unlockTime, 'UNLOCK TIME and', date);
               date = new Date(unlockTime * 1000);
+              console.log(lockDuration, oldLockDuration, "OLD")
               if (date <= currentEndDate) {
+                setEnableExtendButton(false)
                 return;
               }
+              console.log(lockDuration, oldLockDuration, "OLD")
               if (unlockTime > currentTimestamp + MAXTIME) {
+                setEnableExtendButton(false)
+                return;
+              }
+              console.log(lockDuration, oldLockDuration, "OLD")
+              if(lockDuration < oldLockDuration){
+                setEnableExtendButton(false)
                 return;
               }
 
+              setEnableExtendButton(true);
               setExtendEndDate(date);
               setSliderValue(value);
             }}
@@ -617,6 +636,12 @@ const ExtendPopUpChildren = ({
             A lock duration cannot exceed two years
           </h1>
         </div>
+        <div className='mt-4 flex items-center justify-start gap-3 rounded-xl border-2 p-4'>
+          <Image src={info_icon} width={14} height={14} alt='' />
+          <h1 className='text-[0.66rem] text-purple-text'>
+            The new lock duration must be longer than the current lock duration
+          </h1>
+        </div>
 
         <div className='mt-4 flex justify-end gap-2'>
           <button
@@ -632,14 +657,16 @@ const ExtendPopUpChildren = ({
           <div className='flex justify-end'>
             <button
               type='button'
-              onClick={() => {
-                extendAIUS?.();
-                setShowPopUp('extend/2');
-              }}
-              className='group relative flex items-center gap-3 rounded-full bg-black-background px-3 py-1 lg:px-5'
+              onClick={
+                enableExtendButton ? () => {
+                  extendAIUS?.();
+                  setShowPopUp('extend/2');
+                } : null
+              }
+              className={`group relative flex items-center gap-3 rounded-full ${enableExtendButton ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 lg:px-5`}
             >
               <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-5 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-              <div className='lato-bold relative z-10 text-original-white lg:text-[100%]'>
+              <div className={`lato-bold relative z-10 ${enableExtendButton ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[100%]`}>
                 Extend
               </div>
             </button>
