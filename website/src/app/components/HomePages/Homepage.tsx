@@ -8,6 +8,7 @@ import Community from './Community/Community';
 import Quote from './Quote/Quote';
 import Showcase from './Showcase/Showcase';
 import ArbiusModels from './ArbiusModels/ArbiusModels';
+import AIUS from './AIUS/AIUS';
 
 export default function Homepage() {
   return (
@@ -15,7 +16,7 @@ export default function Homepage() {
       <MachineLearningSection />
       <Partners />
       <ArbiusModels />
-      <Models />
+      <AIUS />
       <Buy />
       <Democratic />
       <Community />
