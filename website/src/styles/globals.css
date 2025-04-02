@@ -336,6 +336,19 @@
 .gradient-border {
   border-image: linear-gradient(90deg, #4a28ff 16.5%, #9ed6ff 100%) 1;
 }
+
+.border-gradient{
+  border: 1.4px solid transparent;
+  background: linear-gradient(white, white) padding-box, linear-gradient(180deg, #D4B8EB 40%, #290ACF 100%) border-box;
+}
+
+.arbius-models-background{
+  background: url('../app/assets/images/models-bg.png');
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 .model-image-gradient {
   background: linear-gradient(
     78.34deg,

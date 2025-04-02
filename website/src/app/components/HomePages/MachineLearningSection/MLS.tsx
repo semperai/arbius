@@ -55,7 +55,7 @@ export default function MachineLearningSection() {
                       className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'
                     >
                       <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                      <div className='lato-bold relative z-10 text-original-white lg:text-[100%]'>
+                      <div className='lato-regular relative z-10 text-original-white lg:text-[100%]'>
                         Try now
                       </div>
                       <Image

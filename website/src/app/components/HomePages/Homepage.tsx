@@ -7,12 +7,14 @@ import Models from './Models/Models';
 import Community from './Community/Community';
 import Quote from './Quote/Quote';
 import Showcase from './Showcase/Showcase';
+import ArbiusModels from './ArbiusModels/ArbiusModels';
 
 export default function Homepage() {
   return (
     <div>
       <MachineLearningSection />
       <Partners />
+      <ArbiusModels />
       <Models />
       <Buy />
       <Democratic />
