@@ -18,12 +18,12 @@ export default function MachineLearningSection() {
             </div>
           </Fade>
 
-          <div className='fade-container hidden text-mobile-header text-black-text lg:block lg:text-header 2xl:text-header-2xl'>
+          <div className='fade-container hidden text-mobile-header text-black-text lg:block lg:text-header'>
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Peer-to-peer
             </Fade>
           </div>
-          <div className='fade-container mb-6 mt-[-15px] hidden text-mobile-header text-black-text lg:block lg:text-header 2xl:text-header-2xl'>
+          <div className='fade-container mb-6 mt-[-15px] hidden text-mobile-header text-black-text lg:block lg:text-header'>
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
               machine learning
             </Fade>

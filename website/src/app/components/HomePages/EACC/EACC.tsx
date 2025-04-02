@@ -14,7 +14,7 @@ export default function EACC(){
 				<div className="flex items-center justify-between">
 					<div className="basis-[55%]">
 						<Image src={EACCLogo} alt="" />
-						<div className="text-mobile-header lg:block lg:text-header 2xl:text-header-2xl font-normal">EACC (Effective Acceleration Marketplace)</div>
+						<div className="text-mobile-header lg:block lg:text-header font-normal">EACC (Effective Acceleration Marketplace)</div>
 						<div className="">
 							<ul className="list-disc ml-[15px]">
 								<li>Perform tasks</li>

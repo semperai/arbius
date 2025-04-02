@@ -12,14 +12,14 @@ export default function AIUS(){
 			<div className="w-[80%] m-[auto]">
 				<div className="">
 					<Image src={AIUS_SquareLogo} alt="" />
-					<div className='text-mobile-header text-black-text lg:block lg:text-header 2xl:text-header-2xl font-semibold'>
+					<div className='text-mobile-header text-black-text lg:block lg:text-header font-semibold'>
 			        	veAIUS
 			        </div>
 				</div>
 
 				<div className="flex items-center justify-between mt-[30px]">
 					<div className="basis-[30%]">
-						<div className="text-mobile-header lg:block lg:text-header 2xl:text-header-2xl font-normal">Shared Inference Fees</div>
+						<div className="text-mobile-header lg:block lg:text-header font-normal">Shared Inference Fees</div>
 						<div className="">veAIUS stakers share in fees from AI model inferences, providing a passive income stream as the network grows.</div>
 						<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8 mt-[20px]'>
                       		<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
@@ -35,13 +35,13 @@ export default function AIUS(){
 				</div>
 
 
-				<div className="flex items-center justify-between mt-[30px]">
+				<div className="flex items-center justify-between mt-[80px]">
 					<div className="basis-[40%] relative">
 						<Image className="" src={ModelInference} alt="" />
 					</div>
 
 					<div className="basis-[40%]">
-						<div className="text-mobile-header lg:block lg:text-header 2xl:text-header-2xl font-normal">
+						<div className="text-mobile-header lg:block lg:text-header font-normal">
 							Boosting AI Model Inference
 						</div>
 						<div className="">veAIUS holders can direct higher rewards to specific AI models, making those models more attractive to run.</div>

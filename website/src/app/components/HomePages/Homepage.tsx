@@ -10,6 +10,7 @@ import Showcase from './Showcase/Showcase';
 import ArbiusModels from './ArbiusModels/ArbiusModels';
 import AIUS from './AIUS/AIUS';
 import EACC from './EACC/EACC';
+import UncensoredArbius from './UncensoredArbius/UncensoredArbius';
 
 export default function Homepage() {
   return (
@@ -19,6 +20,7 @@ export default function Homepage() {
       <ArbiusModels />
       <AIUS />
       <EACC />
+      <UncensoredArbius />
     </div>
   );
 }

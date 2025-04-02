@@ -93,7 +93,7 @@ export default function ArbiusModels(){
 				<div className="flex justify-between">
 					<div className="basis-[45%]">
 						<div className="flex items-center gap-[15px]">
-							<div className="font-semibold text-black-text text-mobile-header lg:text-header 2xl:text-header-2xl">Arbius Models</div>
+							<div className="font-semibold text-black-text text-mobile-header lg:text-header">Arbius Models</div>
 							<Image src={ArbiusLogoDarkBlue} alt="" />
 						</div>
 						<div className="text-black-text mt-[10px] text-para text-subtext-one">Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).</div>
