@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import ArbiusLogoDarkBlue from '@/app/assets/images/arbius_logo_dark_blue.svg';
+import ArbiusSquareLogoDark from '@/app/assets/images/arbius_square_logo_dark.svg';
 import BgRectModels from '@/app/assets/images/bg_rect_models.png';
 import mistral_icon from '@/app/assets/images/mistral_icon.png';
 import nemotron_icon from '@/app/assets/images/nemotron_icon.png';
@@ -89,12 +90,13 @@ export default function ArbiusModels(){
 
 	return (
 		<div className="arbius-models-background py-16 lato-regular">
-			<div className="w-[70%] m-[auto]">
+			<div className="w-mobile-section-width lg:w-[70%] m-[auto]">
 				<div className="flex justify-between">
-					<div className="basis-[45%]">
+					<div className="basis-[100%] lg:basis-[45%]">
+						<Image className="lg:hidden" src={ArbiusSquareLogoDark} alt="" />
 						<div className="flex items-center gap-[15px]">
 							<div className="font-semibold text-black-text text-mobile-header lg:text-header">Arbius Models</div>
-							<Image src={ArbiusLogoDarkBlue} alt="" />
+							<Image className="hidden lg:block" src={ArbiusLogoDarkBlue} alt="" />
 						</div>
 						<div className="text-black-text mt-[10px] text-para text-subtext-one">Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).</div>
 						<div className="flex gap-[20px] items-center mt-[20px]">
@@ -113,7 +115,7 @@ export default function ArbiusModels(){
                     		</button>
 						</div>
 					</div>
-					<div className="basis-[40%]">
+					<div className="basis-[40%] hidden lg:block">
 						<Image src={BgRectModels} alt="" />
 					</div>
 				</div>
@@ -132,20 +134,20 @@ export default function ArbiusModels(){
 				        </div>
 				    </div>
 
-			        <div className='text-[13px] md:text-[16px] gauge-table-headings mb-4 mt-2 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-4 md:gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-normal lg:px-10 border-gradient'>
-			          <div className='w-[20%]'>
+			        <div className='text-[13px] md:text-[16px] gauge-table-headings mb-4 mt-2 flex min-w-[400px] lm:min-w-[500px] lg:min-w-[1000px] items-center justify-between gap-4 md:gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-normal lg:px-10 border-gradient'>
+			          <div className='w-[25%] lg:w-[20%]'>
 			            <h1>Model Name</h1>
 			          </div>
-			          <div className='w-[30%]'>
+			          <div className='hidden lg:block w-[30%]'>
 			            <h1>Description</h1>
 			          </div>
-			          <div className='w-[15%]'>
+			          <div className='w-[25%] lg:w-[15%]'>
 			            <h1>Emissions</h1>
 			          </div>
-			          <div className='w-[15%]'>
+			          <div className='w-[25%] lg:w-[15%]'>
 			            <h1 className="flex items-center">Fees</h1>
 			          </div>
-			          <div className='w-[20%]'>
+			          <div className='w-[25%] lg:w-[20%]'>
 			            <h1>Repository</h1>
 			          </div>
 			        </div>
@@ -153,7 +155,7 @@ export default function ArbiusModels(){
 			        {filteredData?.map((item, key) => {
 			          return (
 			            <div
-			              className={`gauge-table-item relative my-3 flex min-w-[700px] md:min-w-[1000px] items-center justify-between gap-4 md:gap-8 rounded-[25px] bg-white-background px-5 py-5 font-semibold lg:px-10 border-gradient`}
+			              className={`gauge-table-item relative my-3 flex min-w-[400px] lm:min-w-[500px] lg:min-w-[1000px] items-center justify-between gap-4 md:gap-8 rounded-[25px] bg-white-background px-5 py-5 font-semibold lg:px-10 border-gradient`}
 			              key={key}
 			            >
 			              <div
@@ -168,7 +170,7 @@ export default function ArbiusModels(){
 			                </div>
 			                <Image src={polygon} className='-ml-2' />
 			              </div>
-			              <div className='flex w-[20%] items-center justify-start gap-2'>
+			              <div className='flex w-[25%] lg:w-[20%] items-center justify-start gap-2'>
 			               	<div className='hidden md:flex h-[20px] w-[20px] md:h-[28px] md:w-[28px] items-center justify-center rounded-full bg-purple-background'>
 			                  <div className='relative flex h-[16px] w-[16px] items-center justify-center'>
 			                    <Image
@@ -182,18 +184,18 @@ export default function ArbiusModels(){
 			                  {item?.model_name}
 			                </h1>
 			              </div>
-			              <div className='w-[30%]'>
+			              <div className='hidden lg:block w-[30%]'>
 			                <h1 className='text-[12px] md:text-[0.85rem] 2xl:text-base whitespace-normal text-[#929292] font-normal'>
 			                  {item?.description}
 			                </h1>
 			              </div>
-			              <div className='w-[15%]'>
+			              <div className='w-[25%] lg:w-[15%] text-center lm:text-left'>
 			                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
 			              </div>
-			              <div className='w-[15%]'>
+			              <div className='w-[25%] lg:w-[15%]'>
 			                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees}</h1>
 			              </div>
-			              <div className='w-[20%]'>
+			              <div className='w-[25%] lg:w-[20%]'>
 			                <h1 className="image-blue-filter text-[14px] md:text-[16px] flex items-center gap-1 border-b-[1px] border-[#000] w-fit cursor-pointer hover:text-blue-text hover:border-blue-text">
 			                  <Image className="mt-[2px] h-[15px] w-[15px] brightness-0" src={github} alt="" /><div>Github</div>
 			                </h1>

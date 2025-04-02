@@ -573,10 +573,16 @@ input[type='number'] {
     width: 240px;
     font-size: 12px;
   }
+  .arbius-models-background{
+    background-position: -700px -50px;
+  }
 }
 @media (max-width: 400px){
     .all-stake > div {
       @apply pb-[10px] text-[14px];
+    }
+    .arbius-models-background{
+      background-position: -1000px -50px;
     }
 
 }
