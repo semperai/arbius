@@ -1,9 +1,10 @@
 'use client';
 import React from 'react';
-import right_arrow from '../../../assets/images/arrow.png';
+import right_arrow from '@/app/assets/images/arrow.png';
 import Image from 'next/image';
 import { Fade } from 'react-awesome-reveal';
 import Link from 'next/link';
+import Wand from '@/app/assets/images/wand.svg'
 
 export default function MachineLearningSection() {
   return (
@@ -11,19 +12,20 @@ export default function MachineLearningSection() {
       <div className='m-[auto] w-mobile-section-width max-w-center-width py-16 lg:w-section-width lg:p-0 lg:py-24'>
         <div className='w-[100%] xl:w-[65%]'>
           <Fade direction='up' triggerOnce={true}>
-            <div className='Gradient-transparent-text mb-2 bg-background-gradient-txt text-[16px] lg:mb-0 lg:text-[12px]'>
-              Welcome to Arbius!
+            <div className='mb-2 text-[16px] lg:mb-0 lg:text-[12px] px-3 py-2 font-normal text-[#290ACF] bg-[#290ACF14] flex items-center justify-start justify-self-start border-[2px] border-[#4A28FF1A] rounded-[15px]'>
+              <Image className="mt-[-2px]" src={Wand} alt="" />
+              Welcome to Arbius
             </div>
           </Fade>
 
           <div className='fade-container hidden text-mobile-header text-black-text lg:block lg:text-header 2xl:text-header-2xl'>
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
-              Peer-to-peer machine
+              Peer-to-peer
             </Fade>
           </div>
           <div className='fade-container mb-6 mt-[-15px] hidden text-mobile-header text-black-text lg:block lg:text-header 2xl:text-header-2xl'>
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
-              learning
+              machine learning
             </Fade>
           </div>
           <div className='fade-container mb-6 text-mobile-header leading-[50px] text-black-text lg:hidden lg:leading-none'>
@@ -36,12 +38,12 @@ export default function MachineLearningSection() {
             <Fade direction='up' triggerOnce={true}>
               <div className='lato-regular header-para text-para text-subtext-one'>
                 Arbius is a decentralized network for machine learning and a
-                token with a fixed total supply like Bitcoin. New coins are
+                token with a fixed supply like Bitcoin. New coins are
                 generated with GPU power by participating in the network. There
                 is no central authority to create new coins. Arbius is fully
-                open-source. Holders vote on-chain for protocol upgrades. Models
-                operate as DAOs with custom rules for distribution and rewards,
-                providing a way for model creators to earn&nbsp;income.&nbsp;
+                open-source. Holders vote on-chain for protocol upgrades.
+                Models operate as DAOS with custom rules for distribution and rewards,
+                providing a way for model creators to earn income.
               </div>
             </Fade>
             <Fade direction='up' triggerOnce={true}>
