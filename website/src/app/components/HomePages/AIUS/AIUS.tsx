@@ -17,7 +17,7 @@ export default function AIUS(){
 			        </div>
 				</div>
 
-				<div className="flex items-center justify-between mt-[30px]">
+				<div className="flex flex-col-reverse lg:flex-row items-start lg:items-center justify-between mt-[30px]">
 					<div className="basis-[30%]">
 						<div className="text-mobile-header lg:block lg:text-header font-normal">Shared Inference Fees</div>
 						<div className="">veAIUS stakers share in fees from AI model inferences, providing a passive income stream as the network grows.</div>
@@ -29,14 +29,14 @@ export default function AIUS(){
                     	</button>
 					</div>
 
-					<div className="basis-[45%]">
+					<div className="basis-[45%] mb-[40px] lg:mb-0">
 						<Image src={InferenceFees} alt="" />
 					</div>
 				</div>
 
 
-				<div className="flex items-center justify-between mt-[80px]">
-					<div className="basis-[40%] relative">
+				<div className="flex flex-col lg:flex-row items-center justify-between mt-[80px]">
+					<div className="basis-[40%] mb-[40px] lg:mb-0">
 						<Image className="" src={ModelInference} alt="" />
 					</div>
 
