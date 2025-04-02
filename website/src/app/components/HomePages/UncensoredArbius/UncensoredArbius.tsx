@@ -2,6 +2,7 @@
 import React from 'react';
 import Image from 'next/image';
 import UncensoredArbiusImage from '@/app/assets/images/uncensored_arbius_image.svg';
+import UncensoredArbiusMobileImage from '@/app/assets/images/uncensored_arbius_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
 
 export default function UncensoredArbius(){
@@ -10,7 +11,7 @@ export default function UncensoredArbius(){
 		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/uncensored_arbius_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
 			<div className="w-[80%] m-[auto]">
 
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col lg:flex-row items-center justify-between">
 					<div className="basis-[40%]">
 						<div className="text-mobile-header lg:block lg:text-header font-normal">Uncensored AI Access, Powered by Arbius.</div>
 						<div className="">
@@ -24,8 +25,11 @@ export default function UncensoredArbius(){
                     	</button>
 					</div>
 
-					<div className="basis-[60%]">
+					<div className="hidden lg:block basis-[60%]">
 						<Image src={UncensoredArbiusImage} alt="" />
+					</div>
+					<div className="self-start mt-[50px] lg:hidden">
+						<Image src={UncensoredArbiusMobileImage} alt="" />
 					</div>
 				</div>
 

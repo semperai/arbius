@@ -3,6 +3,7 @@ import React from 'react';
 import Image from 'next/image';
 import EACCLogo from '@/app/assets/images/eacc_logo.svg';
 import EACCImage from '@/app/assets/images/eacc_image.svg';
+import EACCImageMobile from '@/app/assets/images/eacc_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
 
 export default function EACC(){
@@ -11,7 +12,7 @@ export default function EACC(){
 		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/eacc_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
 			<div className="w-[80%] m-[auto]">
 
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col lg:flex-row items-center justify-between">
 					<div className="basis-[55%]">
 						<Image src={EACCLogo} alt="" />
 						<div className="text-mobile-header lg:block lg:text-header font-normal">EACC (Effective Acceleration Marketplace)</div>
@@ -30,8 +31,11 @@ export default function EACC(){
                     	</button>
 					</div>
 
-					<div className="basis-[40%]">
+					<div className="hidden lg:block basis-[40%]">
 						<Image src={EACCImage} alt="" />
+					</div>
+					<div className="self-start mt-[50px] lg:hidden">
+						<Image src={EACCImageMobile} alt="" />
 					</div>
 				</div>
 
