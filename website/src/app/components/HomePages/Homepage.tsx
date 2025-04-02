@@ -9,6 +9,7 @@ import Quote from './Quote/Quote';
 import Showcase from './Showcase/Showcase';
 import ArbiusModels from './ArbiusModels/ArbiusModels';
 import AIUS from './AIUS/AIUS';
+import EACC from './EACC/EACC';
 
 export default function Homepage() {
   return (
@@ -17,11 +18,7 @@ export default function Homepage() {
       <Partners />
       <ArbiusModels />
       <AIUS />
-      <Buy />
-      <Democratic />
-      <Community />
-      <Quote />
-      <Showcase />
+      <EACC />
     </div>
   );
 }
