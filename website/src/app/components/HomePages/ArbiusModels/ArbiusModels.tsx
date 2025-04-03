@@ -238,7 +238,7 @@ export default function ArbiusModels(){
 			                    />
 			                  </div>
 			                </div>
-			                <h1 className='text-[12px] md:text-[0.85rem] 2xl:text-base'>
+			                <h1 className='text-[14px] md:text-[0.85rem] 2xl:text-base'>
 			                  {item?.model_name}
 			                </h1>
 			              </div>
@@ -248,11 +248,11 @@ export default function ArbiusModels(){
 			                </h1>
 			              </div>
 			              <div className='w-[25%] lg:w-[15%] text-center lm:text-left'>
-			                <h1 className='ml-[12px] text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
+			                <h1 className='ml-[4px] md:ml-[0px] text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
 			              </div>
 			              <div className='w-[25%] lg:w-[15%]'>
 			                <h1 className='text-[14px] md:text-[0.85rem]'>
-			                	{item?.fees}<span className="text-[8px]">AIUS</span>
+			                	{item?.fees}<span className="text-[8px]">&nbsp;&nbsp;AIUS</span>
 			                </h1>
 			              </div>
 			              <div className='w-[25%] lg:w-[20%]'>

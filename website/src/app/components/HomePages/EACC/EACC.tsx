@@ -11,12 +11,12 @@ import { Fade } from 'react-awesome-reveal';
 export default function EACC(){
 
 	return (
-		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/eacc_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
+		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/eacc_background.png')] bg-cover bg-no-repeat bg-right-top py-16 lg:py-24">
 			<div className="w-mobile-section-width lg:w-section-width m-[auto]">
 
 				<div className="flex flex-col lg:flex-row lg:items-center justify-between">
 					<div className="basis-[55%]">
-						<Image src={EACCLogo} alt="" />
+						<Image src={EACCLogo} alt="" unoptimized />
 						<div className='hidden lg:block lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
 				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
 				            	EACC (Effective
@@ -53,7 +53,7 @@ export default function EACC(){
 						<Image src={EACCImage} alt="" />
 					</div>
 					<div className="self-start mt-[50px] lg:hidden">
-						<Image src={EACCImageMobile} alt="" />
+						<Image src={EACCImageMobile} alt="" unoptimized />
 					</div>
 				</div>
 

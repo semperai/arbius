@@ -32,20 +32,20 @@ const CustomDropdown = ({ options, defaultValue, onChange }) => {
       <div>
         <button
           type="button"
-          className="group inline-flex justify-between items-center text-center h-[42px] w-[180px] rounded-[15px] shadow-sm px-4 py-1 bg-white-background font-medium text-black-text hover:bg-purple-background hover:text-original-white"
+          className="group inline-flex justify-between items-center text-center h-[42px] w-[180px] rounded-[15px] shadow-sm px-4 py-1 bg-white-background font-medium text-black-text"
           onClick={() => setIsOpen(!isOpen)}
         >
-          <Image className="h-[11px] group-hover:invert" src={FilterIcon} alt="" />
+          <Image className="h-[11px]" src={FilterIcon} alt="" />
           <div>{selectedOption.name}</div>
-          <Image className="ml-2 h-2 w-2 group-hover:invert" src={DropDownIcon} width={4} height={4} alt="logo" />
+          <Image className="ml-2 h-2 w-2" src={DropDownIcon} width={4} height={4} alt="logo" />
         </button>
       </div>
 
       {isOpen && (
         <div className="origin-top-right w-full text-center absolute right-0 mt-1 rounded-[15px] shadow-lg bg-white-background z-40">
-          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+          <div className="py-0" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             {options.map((option, index) => (
-              <div className="flex justify-between px-2 py-2 hover:bg-purple-background group" key={index}>
+              <div className="flex justify-between px-2 py-3 hover:bg-purple-background group rounded-[15px]" key={index}>
               <a
                 key={option.name}
                 href="#"
