@@ -12,10 +12,13 @@ import search_icon from '@/app/assets/images/search_icon.png';
 import qwen_icon from '@/app/assets/images/qwen.png';
 import polygon from '@/app/assets/images/polygon.png';
 import github from '@/app/assets/images/github.png';
+import nvidia from '@/app/assets/images/nvidia.svg';
+import CustomDropdown from './CustomDropdown';
 
 export default function ArbiusModels(){
 
-	const [filteredData, setData] = useState([
+	const [searchText, setSearchText] = useState("");
+	const [data, setData] = useState([
 	    {
 	      model_name: 'Qwen QwQ 32b',
 	      model_id: '0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc',
@@ -86,7 +89,23 @@ export default function ArbiusModels(){
 	    //   icon: qwen_icon,
 	    //   model_bytes: "0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a"
 	    // }
-	  ]);
+	]);
+	const [filteredData, setFilteredData] = useState(data);
+
+	const handleSearch = (e) => {
+	    console.log(e.target.value);
+	    setSearchText(e.target.value);
+	    // debounce the function call
+	    let time = setTimeout(() => {
+	      setFilteredData(
+	        data.filter((item) =>
+	          item.model_name.toLowerCase().includes(e.target.value.toLowerCase())
+	        )
+	      );
+	      clearTimeout(time);
+	    }, 300);
+	};
+
 
 	return (
 		<div className="arbius-models-background py-16 lato-regular">
@@ -119,20 +138,31 @@ export default function ArbiusModels(){
 						<Image src={BgRectModels} alt="" />
 					</div>
 				</div>
-
-				<div className='w-full overflow-x-auto xl:overflow-x-visible text-black-text mt-[25px]'>
-					<div className="flex">
+				<div className="flex mt-[25px] justify-between">
 						<div className='stake-box-shadow flex h-auto items-center justify-between rounded-[15px] bg-white-background px-2 pr-3'>
 				          <input
 				            placeholder='Search Model name or ID'
-				            className='h-full w-[250px] border-0 bg-transparent px-3 py-4 focus:outline-none placeholder-[#B0B0B0]'
+				            className='h-full w-[250px] border-0 bg-transparent px-3 py-4 focus:outline-none placeholder-[#B0B0B0] text-black-text'
+				            value={searchText}
+				            onChange={(e) => {
+				              handleSearch(e);
+				            }}
 				          />
 				          <Image src={search_icon} className='h-4 w-4' />
 				        </div>
 
-				        <div>
+				        <div className="hidden lg:block">
+				        	<CustomDropdown
+				        		options={
+				        			[{"name": "A100", "icon": nvidia},
+				        			{"name": "H100", "icon": nvidia},
+				        			{"name": "5090", "icon": nvidia}]
+				        		}
+				        		defaultValue={{"name": "Filter by: GPU"}}
+				        	/>
 				        </div>
-				    </div>
+				</div>
+				<div className='w-full overflow-x-auto xl:overflow-x-visible text-black-text'>
 
 			        <div className='text-[13px] md:text-[16px] gauge-table-headings mb-4 mt-2 flex min-w-[400px] lm:min-w-[500px] lg:min-w-[1000px] items-center justify-between gap-4 md:gap-8 rounded-lg bg-white-background px-5 pb-2 pt-2 font-normal lg:px-10 border-gradient'>
 			          <div className='w-[25%] lg:w-[20%]'>
