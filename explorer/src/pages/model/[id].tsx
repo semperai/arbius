@@ -3,14 +3,14 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
-import { 
-  ChevronRightIcon, 
-  ArrowLeftIcon, 
-  CodeIcon, 
-  ImageIcon, 
+import {
+  ChevronRightIcon,
+  ArrowLeftIcon,
+  CodeIcon,
+  ImageIcon,
   FileTextIcon,
-  MusicIcon, 
-  VideoIcon, 
+  MusicIcon,
+  VideoIcon,
   ExternalLinkIcon,
   UserIcon,
   InfoIcon,
@@ -31,13 +31,13 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import {
   Accordion,
@@ -50,55 +50,55 @@ import { truncateMiddle } from '@/lib/utils';
 export default function ModelDetail() {
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [loading, setLoading] = useState(true);
   const [model, setModel] = useState<Model | null>(null);
   const [schema, setSchema] = useState<ModelSchema | null>(null);
   const [taskCount, setTaskCount] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     async function fetchModelData() {
       if (!id || typeof id !== 'string') return;
-      
+
       try {
         setLoading(true);
-        
+
         // In a real implementation, you would connect to the contract and fetch data
         // const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
         // const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
         // const modelData = await contract.models(id);
-        
+
         // Mock model data
         setTimeout(() => {
           const mockModel = getMockModel(id as string);
           setModel(mockModel);
-          
+
           // In real implementation, you would fetch the schema from IPFS using the CID
           // For now, we'll use the mock schema
           setSchema(getMockSchema());
-          
+
           // Mock task count
           setTaskCount(1248);
-          
+
           setLoading(false);
         }, 1000);
-        
+
       } catch (err) {
         console.error("Error fetching model data:", err);
         setError("Failed to load model data. Please try again later.");
         setLoading(false);
       }
     }
-    
+
     fetchModelData();
   }, [id]);
-  
+
   // Display loading skeleton while data is being fetched
   if (loading) {
     return <ModelDetailSkeleton />;
   }
-  
+
   // Display error if any
   if (error) {
     return (
@@ -112,7 +112,7 @@ export default function ModelDetail() {
       </div>
     );
   }
-  
+
   // If model is null, display not found
   if (!model) {
     return (
@@ -126,14 +126,14 @@ export default function ModelDetail() {
       </div>
     );
   }
-  
+
   return (
     <>
       <Head>
         <title>{schema?.meta.title || model.name} | Arbius Explorer</title>
-        <meta 
-          name="description" 
-          content={schema?.meta.description || `Details for Model ${model.name} on the Arbius decentralized AI system.`} 
+        <meta
+          name="description"
+          content={schema?.meta.description || `Details for Model ${model.name} on the Arbius decentralized AI system.`}
         />
       </Head>
 
@@ -154,11 +154,11 @@ export default function ModelDetail() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        
+
         {/* Back button */}
         <div className="mb-6">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.back()}
             size="sm"
             className="gap-2"
@@ -166,7 +166,7 @@ export default function ModelDetail() {
             <ArrowLeftIcon className="h-4 w-4" /> Back
           </Button>
         </div>
-        
+
         {/* Header with Model name */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
@@ -179,7 +179,7 @@ export default function ModelDetail() {
             {schema?.meta.description || 'No description available'}
           </p>
         </div>
-        
+
         {/* Model Information Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <Card className="lg:col-span-2">
@@ -189,68 +189,68 @@ export default function ModelDetail() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem 
-                  icon={<CodeIcon className="h-4 w-4" />} 
-                  label="Model Hash" 
-                  value={truncateMiddle(id as string, 20)} 
+                <InfoItem
+                  icon={<CodeIcon className="h-4 w-4" />}
+                  label="Model Hash"
+                  value={truncateMiddle(id as string, 20)}
                 />
-                <InfoItem 
-                  icon={<UserIcon className="h-4 w-4" />} 
-                  label="Owner" 
+                <InfoItem
+                  icon={<UserIcon className="h-4 w-4" />}
+                  label="Owner"
                   value={
                     <Link href={`/address/${model.addr}`} className="text-primary hover:underline">
                       {truncateMiddle(model.addr, 16)}
                     </Link>
-                  } 
+                  }
                 />
-                <InfoItem 
-                  icon={<InfoIcon className="h-4 w-4" />} 
-                  label="Base Fee" 
-                  value={`${ethers.formatEther(model.fee)} AIUS`} 
+                <InfoItem
+                  icon={<InfoIcon className="h-4 w-4" />}
+                  label="Base Fee"
+                  value={`${ethers.formatEther(model.fee)} AIUS`}
                 />
-                <InfoItem 
-                  icon={<InfoIcon className="h-4 w-4" />} 
-                  label="Reward Rate" 
-                  value={model.rate.toString()} 
+                <InfoItem
+                  icon={<InfoIcon className="h-4 w-4" />}
+                  label="Reward Rate"
+                  value={model.rate.toString()}
                 />
                 {schema?.meta.git && (
-                  <InfoItem 
-                    icon={<FileIcon className="h-4 w-4" />} 
-                    label="Repository" 
+                  <InfoItem
+                    icon={<FileIcon className="h-4 w-4" />}
+                    label="Repository"
                     value={
-                      <a 
-                        href={schema.meta.git} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={schema.meta.git}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-primary hover:underline flex items-center gap-1"
                       >
                         GitHub Repository
                         <ExternalLinkIcon className="h-3 w-3" />
                       </a>
-                    } 
+                    }
                   />
                 )}
                 {model.cid && (
-                  <InfoItem 
-                    icon={<FileTextIcon className="h-4 w-4" />} 
-                    label="IPFS CID" 
+                  <InfoItem
+                    icon={<FileTextIcon className="h-4 w-4" />}
+                    label="IPFS CID"
                     value={
-                      <a 
-                        href={`https://ipfs.io/ipfs/${model.cid}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={`https://ipfs.io/ipfs/${model.cid}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-primary hover:underline flex items-center gap-1"
                       >
                         {truncateMiddle(model.cid, 16)}
                         <ExternalLinkIcon className="h-3 w-3" />
                       </a>
-                    } 
+                    }
                   />
                 )}
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Usage Statistics</CardTitle>
@@ -283,7 +283,7 @@ export default function ModelDetail() {
             </CardFooter>
           </Card>
         </div>
-        
+
         {/* Model tabs - Schema, Inputs, Outputs */}
         {schema && (
           <Tabs defaultValue="inputs" className="mb-8">
@@ -292,7 +292,7 @@ export default function ModelDetail() {
               <TabsTrigger value="outputs">Outputs</TabsTrigger>
               {schema.meta.docker && <TabsTrigger value="docker">Implementation</TabsTrigger>}
             </TabsList>
-            
+
             <TabsContent value="inputs" className="space-y-4">
               <Card>
                 <CardHeader>
@@ -342,7 +342,7 @@ export default function ModelDetail() {
                   </Table>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle>Parameter Details</CardTitle>
@@ -363,7 +363,7 @@ export default function ModelDetail() {
                         <AccordionContent>
                           <div className="space-y-2 pt-2">
                             <p className="text-sm">{input.description || 'No description provided.'}</p>
-                            
+
                             {/* Display type-specific information */}
                             {(input.type === 'int' || input.type === 'decimal') && (
                               <div className="text-sm text-muted-foreground">
@@ -381,7 +381,7 @@ export default function ModelDetail() {
                                 </div>
                               </div>
                             )}
-                            
+
                             {/* Display choices for enum types */}
                             {(input.type === 'string_enum' || input.type === 'int_enum') && 'choices' in input && (
                               <div className="mt-2">
@@ -395,7 +395,7 @@ export default function ModelDetail() {
                                 </div>
                               </div>
                             )}
-                            
+
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Default value:</span>{' '}
                               {input.default !== undefined && input.default !== '' ? (
@@ -414,7 +414,7 @@ export default function ModelDetail() {
                 </CardContent>
               </Card>
             </TabsContent>
-            
+
             <TabsContent value="outputs" className="space-y-4">
               <Card>
                 <CardHeader>
@@ -447,7 +447,7 @@ export default function ModelDetail() {
                 </CardContent>
               </Card>
             </TabsContent>
-            
+
             {schema.meta.docker && (
               <TabsContent value="docker" className="space-y-4">
                 <Card>
@@ -463,10 +463,10 @@ export default function ModelDetail() {
                           <p className="text-sm text-muted-foreground mb-2">
                             The source code for this model is available on GitHub:
                           </p>
-                          <a 
-                            href={schema.meta.git} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
+                          <a
+                            href={schema.meta.git}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-primary hover:underline"
                           >
                             {schema.meta.git}
@@ -474,9 +474,9 @@ export default function ModelDetail() {
                           </a>
                         </div>
                       )}
-                      
+
                       <Separator />
-                      
+
                       <div>
                         <h3 className="text-lg font-medium mb-2">Docker Image</h3>
                         <p className="text-sm text-muted-foreground mb-2">
@@ -486,18 +486,18 @@ export default function ModelDetail() {
                           {schema.meta.docker}
                         </code>
                       </div>
-                      
+
                       <Separator />
-                      
+
                       <div>
                         <h3 className="text-lg font-medium mb-2">Schema Information</h3>
                         <p className="text-sm text-muted-foreground mb-2">
                           The full schema for this model can be accessed via IPFS:
                         </p>
-                        <a 
-                          href={`https://ipfs.io/ipfs/${model.cid}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href={`https://ipfs.io/ipfs/${model.cid}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-primary hover:underline"
                         >
                           IPFS CID: {model.cid}
@@ -511,7 +511,7 @@ export default function ModelDetail() {
             )}
           </Tabs>
         )}
-        
+
         {/* Recent tasks with this model */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
@@ -522,7 +522,7 @@ export default function ModelDetail() {
               </Button>
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {mockRecentTasks.map((task) => (
               <TaskCard key={task.id} task={task} />
@@ -629,14 +629,14 @@ function ModelDetailSkeleton() {
         <Skeleton className="h-4 w-4" />
         <Skeleton className="h-4 w-20" />
       </div>
-      
+
       <Skeleton className="h-8 w-24 mb-6" />
-      
+
       <div className="mb-8">
         <Skeleton className="h-10 w-2/3 mb-4" />
         <Skeleton className="h-5 w-full max-w-xl" />
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -654,7 +654,7 @@ function ModelDetailSkeleton() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <Skeleton className="h-6 w-48 mb-2" />
@@ -672,7 +672,7 @@ function ModelDetailSkeleton() {
           </CardContent>
         </Card>
       </div>
-      
+
       <div>
         <Skeleton className="h-10 w-full mb-8" />
         <Card>
@@ -804,26 +804,26 @@ function getMockSchema(): ModelSchema {
 
 // Mock task data
 const mockRecentTasks = [
-  { 
-    id: '0x1309128093aa6234231eee34234234eff7778aa8a', 
+  {
+    id: '0x1309128093aa6234231eee34234234eff7778aa8a',
     owner: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-    fee: '0.25 AIUS', 
-    time: '3h', 
-    status: 'Completed' 
+    fee: '0.25 AIUS',
+    time: '3h',
+    status: 'Completed'
   },
-  { 
-    id: '0x2409338762aa8734231eee34298734eff7734fa8b', 
+  {
+    id: '0x2409338762aa8734231eee34298734eff7734fa8b',
     owner: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-    fee: '0.15 AIUS', 
-    time: '5h', 
-    status: 'Pending' 
+    fee: '0.15 AIUS',
+    time: '5h',
+    status: 'Pending'
   },
-  { 
-    id: '0x34093aa762aa8734231eee34298734eff7734fa8c', 
+  {
+    id: '0x34093aa762aa8734231eee34298734eff7734fa8c',
     owner: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-    fee: '0.32 AIUS', 
-    time: '6h', 
-    status: 'Contested' 
+    fee: '0.32 AIUS',
+    time: '6h',
+    status: 'Contested'
   }
 ].map((task) => ({
   ...task,

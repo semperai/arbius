@@ -36,41 +36,41 @@ export default function ValidatorsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('staked');
   const [filterActive, setFilterActive] = useState('all');
-  
+
   useEffect(() => {
     async function fetchValidators() {
       try {
         setLoading(true);
-        
+
         // In a real implementation, you would fetch validators from the contract
         // For now, we'll use mock data
         setTimeout(() => {
           setValidators(getMockValidators());
           setLoading(false);
         }, 1000);
-        
+
       } catch (error) {
         console.error("Error fetching validators:", error);
         setLoading(false);
       }
     }
-    
+
     fetchValidators();
   }, []);
-  
+
   // Filter validators based on search query and active filter
   const filteredValidators = validators.filter((validator) => {
     // First apply the active/inactive filter
     if (filterActive === 'active' && !validator.active) return false;
     if (filterActive === 'inactive' && validator.active) return false;
-    
+
     // Then apply the search query
     if (!searchQuery) return true;
-    
+
     const query = searchQuery.toLowerCase();
     return validator.address.toLowerCase().includes(query);
   });
-  
+
   // Sort validators based on sortBy
   const sortedValidators = [...filteredValidators].sort((a, b) => {
     switch (sortBy) {
@@ -86,22 +86,22 @@ export default function ValidatorsPage() {
         return 0;
     }
   });
-  
+
   // Calculate total stats
   const totalStaked = validators.reduce(
     (sum, validator) => sum+validator.staked,
     BigInt(0)
   );
-  
+
   const activeValidatorsCount = validators.filter(v => v.active).length;
-  
+
   return (
     <>
       <Head>
         <title>Validators | Arbius Explorer</title>
         <meta name="description" content="Browse validators in the Arbius decentralized AI system." />
       </Head>
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -110,7 +110,7 @@ export default function ValidatorsPage() {
             Browse validators securing the Arbius decentralized AI system
           </p>
         </div>
-        
+
         {/* Stats Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card>
@@ -126,7 +126,7 @@ export default function ValidatorsPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Total Staked</CardTitle>
@@ -142,7 +142,7 @@ export default function ValidatorsPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Average Success Rate</CardTitle>
@@ -159,7 +159,7 @@ export default function ValidatorsPage() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Search and Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
@@ -172,7 +172,7 @@ export default function ValidatorsPage() {
               className="pl-9"
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Select value={filterActive} onValueChange={setFilterActive}>
               <SelectTrigger className="w-[140px]">
@@ -184,7 +184,7 @@ export default function ValidatorsPage() {
                 <SelectItem value="inactive">Inactive Only</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by" />
@@ -198,7 +198,7 @@ export default function ValidatorsPage() {
             </Select>
           </div>
         </div>
-        
+
         {/* Validators List */}
         {loading ? (
           <div className="space-y-4">
@@ -215,8 +215,8 @@ export default function ValidatorsPage() {
         ) : (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No validators found matching your search criteria.</p>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="mt-4"
               onClick={() => {
                 setSearchQuery('');
@@ -236,7 +236,7 @@ export default function ValidatorsPage() {
 function ValidatorCard({ validator }: { validator: Validator }) {
   const stakedAmount = parseFloat(ethers.formatEther(validator.staked)).toLocaleString(undefined, { maximumFractionDigits: 2 });
   const sinceDate = new Date(validator.since * 1000).toLocaleDateString();
-  
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -257,19 +257,19 @@ function ValidatorCard({ validator }: { validator: Validator }) {
               <ClockIcon className="h-3 w-3" /> Since {sinceDate}
             </div>
           </div>
-          
+
           {/* Staked Amount */}
           <div>
             <div className="text-sm text-muted-foreground mb-1">Staked</div>
             <div className="font-medium">{stakedAmount} AIUS</div>
           </div>
-          
+
           {/* Tasks Validated */}
           <div>
             <div className="text-sm text-muted-foreground mb-1">Tasks Validated</div>
             <div className="font-medium">{validator.tasksValidated.toLocaleString()}</div>
           </div>
-          
+
           {/* Success Rate */}
           <div>
             <div className="text-sm text-muted-foreground mb-1">Success Rate</div>

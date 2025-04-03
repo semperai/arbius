@@ -125,3 +125,21 @@ export interface ModelSchema {
   input: ModelInput[];
   output: ModelOutput[];
 }
+
+// Validator signature used for claiming incentives
+export interface Signature {
+  signer: string;
+  signature: string;
+}
+
+// Incentive event information
+export interface IncentiveEvent {
+  taskId: string;
+  type: 'added' | 'claimed';
+  amount: bigint;
+  from?: string;  // Address that added the incentive
+  to?: string;    // Address that claimed the incentive
+  blocktime: number;
+  transactionHash: string;
+  signatures?: Signature[]; // Only present for 'claimed' events
+}

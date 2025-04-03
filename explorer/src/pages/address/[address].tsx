@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
-import { 
-  ArrowLeftIcon, 
-  ClockIcon, 
-  CheckCircleIcon, 
+import {
+  ArrowLeftIcon,
+  ClockIcon,
+  CheckCircleIcon,
   XCircleIcon,
   AlertTriangleIcon,
   FileTextIcon
@@ -68,20 +68,20 @@ interface Contestation {
 export default function ValidatorDetail() {
   const router = useRouter();
   const { address } = router.query;
-  
+
   const [loading, setLoading] = useState(true);
   const [validator, setValidator] = useState<Validator | null>(null);
   const [solutions, setSolutions] = useState<Solution[]>([]);
   const [contestations, setContestations] = useState<Contestation[]>([]);
   const [initiatedContestations, setInitiatedContestations] = useState<Contestation[]>([]);
-  
+
   useEffect(() => {
     if (!address) return;
-    
+
     async function fetchValidatorData() {
       try {
         setLoading(true);
-        
+
         // In a real implementation, you would fetch validator data from the contract
         // For now, we'll use mock data
         setTimeout(() => {
@@ -92,32 +92,32 @@ export default function ValidatorDetail() {
           setInitiatedContestations(getMockContestations(address as string, true));
           setLoading(false);
         }, 1000);
-        
+
       } catch (error) {
         console.error("Error fetching validator data:", error);
         setLoading(false);
       }
     }
-    
+
     fetchValidatorData();
   }, [address]);
-  
+
   // Calculate total pending withdrawals
   const totalPendingWithdrawals = validator?.pendingWithdrawals?.reduce(
     (sum, withdrawal) => sum + withdrawal.amount,
     BigInt(0)
   ) || BigInt(0);
-  
+
   const stakedAmount = validator ? parseFloat(ethers.formatEther(validator.staked)).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0';
   const pendingWithdrawalsAmount = parseFloat(ethers.formatEther(totalPendingWithdrawals)).toLocaleString(undefined, { maximumFractionDigits: 2 });
   const effectiveStake = validator ? parseFloat(ethers.formatEther(validator.staked - totalPendingWithdrawals)).toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0';
-  
+
   // Calculate earnings (this would come from real data in a production app)
   const totalEarnings = solutions.reduce(
     (sum, solution) => solution.claimed ? sum + solution.taskFee : sum,
     BigInt(0)
   );
-  
+
   return (
     <>
       <Head>
@@ -142,11 +142,11 @@ export default function ValidatorDetail() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        
+
         {/* Back button */}
         <div className="mb-6">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.back()}
             size="sm"
             className="gap-2"
@@ -163,7 +163,7 @@ export default function ValidatorDetail() {
             <code className="text-sm bg-muted p-1 rounded font-mono">{address}</code>
           </div>
         </div>
-        
+
         {loading ? (
           <ValidatorDetailSkeleton />
         ) : validator ? (
@@ -188,7 +188,7 @@ export default function ValidatorDetail() {
                       <span>{formatDuration(Math.floor(Date.now() / 1000) - validator.since)}</span>
                     </div>
                   </div>
-                  
+
                   {/* Key Stats */}
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Total Staked</div>
@@ -203,7 +203,7 @@ export default function ValidatorDetail() {
                       Effective Stake: {effectiveStake} AIUS
                     </div>
                   </div>
-                  
+
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Tasks Validated</div>
                     <div className="text-2xl font-bold">{validator.tasksValidated.toLocaleString()}</div>
@@ -211,13 +211,13 @@ export default function ValidatorDetail() {
                       Avg {Math.round(validator.tasksValidated / (Math.floor(Date.now() / 1000) - validator.since) * 86400)} per day
                     </div>
                   </div>
-                  
+
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Success Rate</div>
                     <div className="text-2xl font-bold">{validator.successRate}%</div>
                     <Progress value={validator.successRate} className="h-2 w-full mt-2" />
                   </div>
-                  
+
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Total Earnings</div>
                     <div className="text-2xl font-bold">
@@ -230,7 +230,7 @@ export default function ValidatorDetail() {
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Tabs for different data views */}
             <Tabs defaultValue="solutions" className="mb-8">
               <TabsList className="mb-4">
@@ -239,7 +239,7 @@ export default function ValidatorDetail() {
                 <TabsTrigger value="initiated">Initiated Contestations</TabsTrigger>
                 <TabsTrigger value="withdrawals">Pending Withdrawals</TabsTrigger>
               </TabsList>
-              
+
               {/* Solutions Tab */}
               <TabsContent value="solutions">
                 <Card>
@@ -282,14 +282,14 @@ export default function ValidatorDetail() {
                                 )}
                               </TableCell>
                               <TableCell>
-                                {solution.claimed 
+                                {solution.claimed
                                   ? `${parseFloat(ethers.formatEther(solution.taskFee)).toLocaleString(undefined, { maximumFractionDigits: 4 })} AIUS`
                                   : '-'
                                 }
                               </TableCell>
                               <TableCell>
-                                <Link 
-                                  href={`https://ipfs.io/ipfs/${solution.cid}`} 
+                                <Link
+                                  href={`https://ipfs.io/ipfs/${solution.cid}`}
                                   target="_blank"
                                   className="text-primary hover:underline flex items-center gap-1"
                                 >
@@ -309,7 +309,7 @@ export default function ValidatorDetail() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               {/* Received Contestations Tab */}
               <TabsContent value="contestations">
                 <Card>
@@ -382,7 +382,7 @@ export default function ValidatorDetail() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               {/* Initiated Contestations Tab */}
               <TabsContent value="initiated">
                 <Card>
@@ -455,7 +455,7 @@ export default function ValidatorDetail() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               {/* Pending Withdrawals Tab */}
               <TabsContent value="withdrawals">
                 <Card>
@@ -479,7 +479,7 @@ export default function ValidatorDetail() {
                             const now = Math.floor(Date.now() / 1000);
                             const isUnlocked = now >= withdrawal.unlockTime;
                             const timeRemaining = isUnlocked ? 0 : withdrawal.unlockTime - now;
-                            
+
                             return (
                               <TableRow key={index}>
                                 <TableCell className="font-medium">
@@ -572,7 +572,7 @@ function ValidatorDetailSkeleton() {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-32" />
@@ -593,7 +593,7 @@ function ValidatorDetailSkeleton() {
 // Mock data functions
 function getMockValidator(address: string): Validator {
   const now = Math.floor(Date.now() / 1000);
-  
+
   // For the example address, create a validator with pending withdrawals
   if (address === '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199' || address === '0x976EA74026E726554dB657fA54763abd0C3a0aa9') {
     return {
@@ -615,7 +615,7 @@ function getMockValidator(address: string): Validator {
       ]
     };
   }
-  
+
   // Otherwise, create a basic active validator
   return {
     address,
@@ -630,7 +630,7 @@ function getMockValidator(address: string): Validator {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getMockSolutions(address: string): Solution[] {
   const now = Math.floor(Date.now() / 1000);
-  
+
   return [
     {
       taskHash: ethers.keccak256(ethers.toUtf8Bytes('task1')),
@@ -672,7 +672,7 @@ function getMockSolutions(address: string): Solution[] {
 
 function getMockContestations(address: string, initiated: boolean): Contestation[] {
   const now = Math.floor(Date.now() / 1000);
-  
+
   if (initiated) {
     // Contestations initiated by this validator
     return [

@@ -1,18 +1,20 @@
-import { Task, Model, Solution, Contestation } from '@/types';
+import { Task, Model, Solution, Contestation, IncentiveEvent } from '@/types';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
-import { 
-  ClockIcon, 
-  UserIcon, 
-  BoxIcon, 
-  FileIcon, 
-  CheckIcon, 
+import {
+  ClockIcon,
+  UserIcon,
+  BoxIcon,
+  FileIcon,
+  CheckIcon,
   AlertTriangleIcon,
   ExternalLinkIcon,
   ArrowLeftIcon,
+  CoinsIcon,
+  PlusCircleIcon,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -33,58 +35,63 @@ import { truncateMiddle, formatDate } from '@/lib/utils';
 export default function TaskDetail() {
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [loading, setLoading] = useState(true);
   const [task, setTask] = useState<Task | null>(null);
   const [solution, setSolution] = useState<Solution | null>(null);
   const [contestation, setContestation] = useState<Contestation | null>(null);
   const [model, setModel] = useState<Model | null>(null);
+  const [incentiveEvents, setIncentiveEvents] = useState<IncentiveEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     async function fetchTaskData() {
       if (!id || typeof id !== 'string') return;
-      
+
       try {
         setLoading(true);
-        
+
         // In a real implementation, you would connect to the contract and fetch data
         // const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
         // const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
         // const taskData = await contract.tasks(id);
-        
+
         // For demo purposes, we're using mock data
         setTimeout(() => {
           const mockTask = getMockTask(id);
           setTask(mockTask);
-          
+
           if (mockTask.hasSolution) {
             setSolution(getMockSolution(id));
           }
-          
+
           if (mockTask.hasContestation) {
             setContestation(getMockContestation(id));
           }
-          
+
           setModel(getMockModel(mockTask.model));
+
+          // Mock incentive events
+          setIncentiveEvents(getMockIncentiveEvents(id));
+
           setLoading(false);
         }, 1000);
-        
+
       } catch (err) {
         console.error("Error fetching task data:", err);
         setError("Failed to load task data. Please try again later.");
         setLoading(false);
       }
     }
-    
+
     fetchTaskData();
   }, [id]);
-  
+
   // Display loading skeleton while data is being fetched
   if (loading) {
     return <TaskDetailSkeleton />;
   }
-  
+
   // Display error if any
   if (error) {
     return (
@@ -98,7 +105,7 @@ export default function TaskDetail() {
       </div>
     );
   }
-  
+
   // If task is null, display not found
   if (!task) {
     return (
@@ -112,14 +119,18 @@ export default function TaskDetail() {
       </div>
     );
   }
-  
+
+  // Calculate the total incentives
+  const totalIncentives = incentiveEvents.reduce((sum, event) => sum + event.amount, ethers.parseEther('0'));
+  const isIncentiveClaimed = incentiveEvents.some(event => event.type === 'claimed');
+
   return (
     <>
       <Head>
         <title>Task {truncateMiddle(id as string, 16)} | Arbius Explorer</title>
         <meta name="description" content={`Details for Task ${id} on the Arbius decentralized AI system.`} />
       </Head>
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <Breadcrumb className="mb-6">
@@ -137,11 +148,11 @@ export default function TaskDetail() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        
+
         {/* Back button */}
         <div className="mb-6">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.back()}
             size="sm"
             className="gap-2"
@@ -149,7 +160,7 @@ export default function TaskDetail() {
             <ArrowLeftIcon className="h-4 w-4" /> Back
           </Button>
         </div>
-        
+
         {/* Header with Task ID */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Task Details</h1>
@@ -157,9 +168,14 @@ export default function TaskDetail() {
             <Badge variant="outline" className="px-3 py-1 text-xs">Task ID</Badge>
             <code className="text-sm bg-muted p-1 rounded font-mono">{id as string}</code>
             <TaskStatusBadge status={getTaskStatus(task)} />
+            {totalIncentives > 0 && (
+              <Badge variant="secondary" className="px-3 py-1 gap-1 flex items-center">
+                <CoinsIcon className="h-3 w-3" /> Incentivized
+              </Badge>
+            )}
           </div>
         </div>
-        
+
         {/* Task Information Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <Card className="lg:col-span-2">
@@ -169,56 +185,63 @@ export default function TaskDetail() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem 
-                  icon={<ClockIcon className="h-4 w-4" />} 
-                  label="Created" 
-                  value={formatDate(task.blocktime)} 
+                <InfoItem
+                  icon={<ClockIcon className="h-4 w-4" />}
+                  label="Created"
+                  value={formatDate(task.blocktime)}
                 />
-                <InfoItem 
-                  icon={<UserIcon className="h-4 w-4" />} 
-                  label="Owner" 
+                <InfoItem
+                  icon={<UserIcon className="h-4 w-4" />}
+                  label="Owner"
                   value={
                     <Link href={`/address/${task.owner}`} className="text-primary hover:underline">
                       {truncateMiddle(task.owner, 16)}
                     </Link>
-                  } 
+                  }
                 />
-                <InfoItem 
-                  icon={<BoxIcon className="h-4 w-4" />} 
-                  label="Model" 
+                <InfoItem
+                  icon={<BoxIcon className="h-4 w-4" />}
+                  label="Model"
                   value={
                     <Link href={`/models/${task.model}`} className="text-primary hover:underline">
                       {model ? model.name : truncateMiddle(task.model, 16)}
                     </Link>
-                  } 
+                  }
                 />
-                <InfoItem 
-                  icon={<FileIcon className="h-4 w-4" />} 
-                  label="IPFS CID" 
+                <InfoItem
+                  icon={<FileIcon className="h-4 w-4" />}
+                  label="IPFS CID"
                   value={
-                    <a 
-                      href={`https://ipfs.io/ipfs/${task.cid}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
+                    <a
+                      href={`https://ipfs.io/ipfs/${task.cid}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-primary hover:underline flex items-center gap-1"
                     >
                       {truncateMiddle(task.cid, 16)}
                       <ExternalLinkIcon className="h-3 w-3" />
                     </a>
-                  } 
+                  }
                 />
-                <InfoItem 
-                  label="Fee" 
-                  value={`${ethers.formatEther(task.fee)} AIUS`} 
+                <InfoItem
+                  label="Fee"
+                  value={`${ethers.formatEther(task.fee)} AIUS`}
                 />
-                <InfoItem 
-                  label="Version" 
-                  value={task.version.toString()} 
+                <InfoItem
+                  label="Version"
+                  value={task.version.toString()}
                 />
+                {totalIncentives > 0 && (
+                  <InfoItem
+                    icon={<CoinsIcon className="h-4 w-4" />}
+                    label="Incentive"
+                    value={`${ethers.formatEther(totalIncentives)} AIUS`}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Model Details</CardTitle>
@@ -227,25 +250,25 @@ export default function TaskDetail() {
             <CardContent>
               {model ? (
                 <div className="space-y-4">
-                  <InfoItem 
-                    label="Model Name" 
-                    value={model.name} 
+                  <InfoItem
+                    label="Model Name"
+                    value={model.name}
                   />
-                  <InfoItem 
-                    label="Base Fee" 
-                    value={`${ethers.formatEther(model.fee)} AIUS`} 
+                  <InfoItem
+                    label="Base Fee"
+                    value={`${ethers.formatEther(model.fee)} AIUS`}
                   />
-                  <InfoItem 
-                    label="Reward Rate" 
-                    value={model.rate.toString()} 
+                  <InfoItem
+                    label="Reward Rate"
+                    value={model.rate.toString()}
                   />
-                  <InfoItem 
-                    label="Address" 
+                  <InfoItem
+                    label="Address"
                     value={
                       <Link href={`/address/${model.addr}`} className="text-primary hover:underline">
                         {truncateMiddle(model.addr, 16)}
                       </Link>
-                    } 
+                    }
                   />
                   <div className="pt-4">
                     <Link href={`/models/${task.model}`} passHref>
@@ -259,15 +282,16 @@ export default function TaskDetail() {
             </CardContent>
           </Card>
         </div>
-        
-        {/* Task Status Tabs - Solution, Contestation, etc. */}
+
+        {/* Task Status Tabs - Solution, Contestation, Incentives, etc. */}
         <Tabs defaultValue="overview" className="mb-8">
           <TabsList className="mb-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="solution" disabled={!solution}>Solution</TabsTrigger>
             <TabsTrigger value="contestation" disabled={!contestation}>Contestation</TabsTrigger>
+            <TabsTrigger value="incentives" disabled={incentiveEvents.length === 0}>Incentives</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="overview" className="space-y-4">
             <Card>
               <CardHeader>
@@ -276,47 +300,66 @@ export default function TaskDetail() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-8">
-                  <TimelineItem 
-                    title="Task Created" 
-                    date={formatDate(task.blocktime)} 
+                  <TimelineItem
+                    title="Task Created"
+                    date={formatDate(task.blocktime)}
                     description={`Task created by ${truncateMiddle(task.owner, 16)} with a fee of ${ethers.formatEther(task.fee)} AIUS`}
                     status="complete"
                   />
-                  
+
+                  {incentiveEvents.length > 0 && incentiveEvents[0].type === 'added' && (
+                    <TimelineItem
+                      title="Initial Incentive Added"
+                      date={formatDate(incentiveEvents[0].blocktime)}
+                      description={`Initial incentive of ${ethers.formatEther(incentiveEvents[0].amount)} AIUS added by ${truncateMiddle(incentiveEvents[0].from!, 16)}`}
+                      status="complete"
+                    />
+                  )}
+
                   {solution ? (
-                    <TimelineItem 
-                      title="Solution Submitted" 
-                      date={formatDate(solution.blocktime)} 
+                    <TimelineItem
+                      title="Solution Submitted"
+                      date={formatDate(solution.blocktime)}
                       description={`Solution submitted by validator ${truncateMiddle(solution.validator, 16)}`}
                       status="complete"
                     />
                   ) : (
-                    <TimelineItem 
-                      title="Awaiting Solution" 
+                    <TimelineItem
+                      title="Awaiting Solution"
                       description="No solution has been submitted for this task yet"
                       status="pending"
                     />
                   )}
-                  
+
                   {solution && solution.claimed ? (
-                    <TimelineItem 
-                      title="Reward Claimed" 
-                      date={formatDate(solution.claimedAt!)} 
+                    <TimelineItem
+                      title="Reward Claimed"
+                      date={formatDate(solution.claimedAt!)}
                       description={`Validator ${truncateMiddle(solution.validator, 16)} claimed the reward`}
                       status="complete"
                     />
                   ) : solution ? (
-                    <TimelineItem 
-                      title="Awaiting Claim" 
+                    <TimelineItem
+                      title="Awaiting Claim"
                       description="Solution submitted but reward not yet claimed"
                       status="pending"
                     />
                   ) : null}
-                  
+
+                  {isIncentiveClaimed && (
+                    <TimelineItem
+                      title="Incentive Claimed"
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+                      date={formatDate(incentiveEvents.find(e => e.type === 'claimed')?.blocktime!)}
+                      description={`Incentive of ${ethers.formatEther(totalIncentives)} AIUS claimed by ${truncateMiddle(incentiveEvents.find(e => e.type === 'claimed')?.to || '', 16)}`}
+                      status="complete"
+                    />
+                  )}
+
                   {contestation ? (
-                    <TimelineItem 
-                      title="Solution Contested" 
-                      date={formatDate(contestation.blocktime)} 
+                    <TimelineItem
+                      title="Solution Contested"
+                      date={formatDate(contestation.blocktime)}
                       description={`Contestation initiated by validator ${truncateMiddle(contestation.validator, 16)}`}
                       status="alert"
                     />
@@ -325,7 +368,7 @@ export default function TaskDetail() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="solution" className="space-y-4">
             {solution && (
               <Card>
@@ -335,40 +378,40 @@ export default function TaskDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <InfoItem 
-                      label="Validator" 
+                    <InfoItem
+                      label="Validator"
                       value={
                         <Link href={`/address/${solution.validator}`} className="text-primary hover:underline">
                           {truncateMiddle(solution.validator, 16)}
                         </Link>
-                      } 
+                      }
                     />
-                    <InfoItem 
-                      label="Submitted" 
-                      value={formatDate(solution.blocktime)} 
+                    <InfoItem
+                      label="Submitted"
+                      value={formatDate(solution.blocktime)}
                     />
-                    <InfoItem 
-                      label="Status" 
-                      value={solution.claimed ? "Claimed" : "Pending Claim"} 
+                    <InfoItem
+                      label="Status"
+                      value={solution.claimed ? "Claimed" : "Pending Claim"}
                     />
-                    <InfoItem 
-                      label="IPFS CID" 
+                    <InfoItem
+                      label="IPFS CID"
                       value={
-                        <a 
-                          href={`https://ipfs.io/ipfs/${solution.cid}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href={`https://ipfs.io/ipfs/${solution.cid}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-primary hover:underline flex items-center gap-1"
                         >
                           {truncateMiddle(solution.cid, 16)}
                           <ExternalLinkIcon className="h-3 w-3" />
                         </a>
-                      } 
+                      }
                     />
                     {solution.claimed && (
-                      <InfoItem 
-                        label="Claimed At" 
-                        value={formatDate(solution.claimedAt!)} 
+                      <InfoItem
+                        label="Claimed At"
+                        value={formatDate(solution.claimedAt!)}
                       />
                     )}
                   </div>
@@ -376,7 +419,7 @@ export default function TaskDetail() {
               </Card>
             )}
           </TabsContent>
-          
+
           <TabsContent value="contestation" className="space-y-4">
             {contestation && (
               <Card>
@@ -386,35 +429,35 @@ export default function TaskDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <InfoItem 
-                      label="Contesting Validator" 
+                    <InfoItem
+                      label="Contesting Validator"
                       value={
                         <Link href={`/address/${contestation.validator}`} className="text-primary hover:underline">
                           {truncateMiddle(contestation.validator, 16)}
                         </Link>
-                      } 
+                      }
                     />
-                    <InfoItem 
-                      label="Submitted" 
-                      value={formatDate(contestation.blocktime)} 
+                    <InfoItem
+                      label="Submitted"
+                      value={formatDate(contestation.blocktime)}
                     />
-                    <InfoItem 
-                      label="Slash Amount" 
-                      value={`${ethers.formatEther(contestation.slashAmount)} AIUS`} 
+                    <InfoItem
+                      label="Slash Amount"
+                      value={`${ethers.formatEther(contestation.slashAmount)} AIUS`}
                     />
-                    <InfoItem 
-                      label="Finish Start Index" 
-                      value={contestation.finish_start_index.toString()} 
+                    <InfoItem
+                      label="Finish Start Index"
+                      value={contestation.finish_start_index.toString()}
                     />
-                    <InfoItem 
-                      label="Status" 
-                      value={contestation.status} 
+                    <InfoItem
+                      label="Status"
+                      value={contestation.status}
                     />
                   </div>
                 </CardContent>
               </Card>
             )}
-            
+
             {contestation && (
               <Card>
                 <CardHeader>
@@ -435,9 +478,9 @@ export default function TaskDetail() {
                       <span>Vote Period Ends:</span>
                       <span>{formatDate(contestation.voteEndTime)}</span>
                     </div>
-                    
+
                     <Separator className="my-4" />
-                    
+
                     <div>
                       <h4 className="font-medium mb-2">Recent Votes</h4>
                       <div className="border rounded-md divide-y">
@@ -458,7 +501,147 @@ export default function TaskDetail() {
               </Card>
             )}
           </TabsContent>
-          
+
+          {/* New Incentives Tab */}
+          <TabsContent value="incentives" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Incentive Summary</CardTitle>
+                <CardDescription>Additional rewards offered for this task</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-muted/50 p-6 rounded-lg flex flex-col items-center justify-center text-center">
+                    <CoinsIcon className="h-8 w-8 text-primary mb-2" />
+                    <h3 className="text-lg font-medium mb-1">Total Incentive</h3>
+                    <div className="text-2xl font-bold">{ethers.formatEther(totalIncentives)} AIUS</div>
+                    <div className="text-sm text-muted-foreground mt-2">
+                      {isIncentiveClaimed
+                        ? "Incentive has been claimed"
+                        : "Available to be claimed"}
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/50 p-6 rounded-lg">
+                    <h3 className="text-lg font-medium mb-3">Status</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Total Additions:</span>
+                        <span className="font-medium">{incentiveEvents.filter(e => e.type === 'added').length}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">First Added:</span>
+                        <span className="font-medium">
+                          {incentiveEvents.length > 0 ? formatDate(incentiveEvents[0].blocktime) : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Last Added:</span>
+                        <span className="font-medium">
+                          {incentiveEvents.length > 0
+                            ? formatDate(incentiveEvents.filter(e => e.type === 'added').slice(-1)[0].blocktime)
+                            : 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Claimed:</span>
+                        <Badge variant={isIncentiveClaimed ? "default" : "outline"}>
+                          {isIncentiveClaimed ? "Yes" : "No"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Incentive History</CardTitle>
+                <CardDescription>Chronological record of incentive changes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {incentiveEvents.map((event, index) => (
+                    <div key={index} className="flex items-start gap-4 border-b pb-4 last:border-0 last:pb-0">
+                      <div className={`mt-1 p-2 rounded-full ${event.type === 'added' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
+                        {event.type === 'added' ? (
+                          <PlusCircleIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        ) : (
+                          <CheckIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium">
+                              {event.type === 'added' ? 'Incentive Added' : 'Incentive Claimed'}
+                            </h4>
+                            <time className="text-sm text-muted-foreground">
+                              {formatDate(event.blocktime)}
+                            </time>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold">{ethers.formatEther(event.amount)} AIUS</div>
+                            <div className="text-xs text-muted-foreground">
+                              TX: {truncateMiddle(event.transactionHash, 10)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-sm">
+                          {event.type === 'added' ? (
+                            <span>
+                              Added by{' '}
+                              <Link href={`/address/${event.from}`} className="text-primary hover:underline">
+                                {truncateMiddle(event.from!, 16)}
+                              </Link>
+                            </span>
+                          ) : (
+                            <span>
+                              Claimed by{' '}
+                              <Link href={`/address/${event.to}`} className="text-primary hover:underline">
+                                {truncateMiddle(event.to!, 16)}
+                              </Link>
+                              {' '}with{' '}
+                              <span className="font-medium">{event.signatures?.length || 0} validator signatures</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {isIncentiveClaimed && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Validator Signatures</CardTitle>
+                  <CardDescription>Signatures used to claim the incentive</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {incentiveEvents
+                      .find(e => e.type === 'claimed')?.signatures?.map((signature, index) => (
+                        <div key={index} className="p-3 border rounded-md flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="mr-2">{index + 1}</Badge>
+                            <Link href={`/address/${signature.signer}`} className="text-primary hover:underline">
+                              {truncateMiddle(signature.signer, 24)}
+                            </Link>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Validated
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
         </Tabs>
       </div>
     </>
@@ -493,7 +676,7 @@ function TimelineItem({ title, date, description, status }: { title: string; dat
         return <div className="h-6 w-6 rounded-full bg-amber-500/20 flex items-center justify-center"><AlertTriangleIcon className="h-3 w-3 text-amber-500" /></div>;
     }
   };
-  
+
   return (
     <div className="flex">
       <div className="mr-4 flex flex-col items-center">
@@ -540,9 +723,9 @@ function TaskDetailSkeleton() {
         <Skeleton className="h-4 w-4" />
         <Skeleton className="h-4 w-20" />
       </div>
-      
+
       <Skeleton className="h-8 w-24 mb-6" />
-      
+
       <div className="mb-8">
         <Skeleton className="h-10 w-3/4 mb-4" />
         <div className="flex items-center gap-2">
@@ -551,7 +734,7 @@ function TaskDetailSkeleton() {
           <Skeleton className="h-6 w-24" />
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -569,7 +752,7 @@ function TaskDetailSkeleton() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <Skeleton className="h-6 w-48 mb-2" />
@@ -587,7 +770,7 @@ function TaskDetailSkeleton() {
           </CardContent>
         </Card>
       </div>
-      
+
       <div>
         <Skeleton className="h-10 w-full mb-8" />
         <Card>
@@ -638,7 +821,7 @@ function getMockTask(id: string): Task {
     cid: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG',
     hasSolution: true,
     hasContestation: id.endsWith('a') ? true : false, // Just for demo variety
-    solutionClaimed: id.endsWith('b') ? true : false
+    solutionClaimed: id.endsWith('b') ? true : false,
   };
 }
 
@@ -682,4 +865,66 @@ function getMockModel(id: string) {
     rate: 100,
     cid: 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
   };
+}
+
+// New mock data function for incentive events
+function getMockIncentiveEvents(id: string): IncentiveEvent[] {
+  // Base timestamp to work from
+  const baseTime = Math.floor(Date.now() / 1000) - 86400; // 1 day ago
+
+  // Generate some mock events
+  const events: IncentiveEvent[] = [
+    {
+      taskId: id,
+      type: 'added',
+      amount: ethers.parseEther('0.2'),
+      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', // Same as task owner
+      blocktime: baseTime + 3600, // 1 hour after task creation
+      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+    },
+    {
+      taskId: id,
+      type: 'added',
+      amount: ethers.parseEther('0.05'),
+      from: '0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2', // Different address
+      blocktime: baseTime + 7200, // 2 hours after task creation
+      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+    },
+    {
+      taskId: id,
+      type: 'added',
+      amount: ethers.parseEther('0.1'),
+      from: '0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db', // Different address
+      blocktime: baseTime + 14400, // 4 hours after task creation
+      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+    }
+  ];
+
+  // Add a claimed event if the task ID ends with 'b'
+  if (id.endsWith('b')) {
+    events.push({
+      taskId: id,
+      type: 'claimed',
+      amount: ethers.parseEther('0.35'), // Total of all added incentives
+      to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // Same as solution validator
+      blocktime: baseTime + 50400, // 14 hours after task creation
+      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+      signatures: [
+        {
+          signer: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
+          signature: '0x' + Array(130).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+        },
+        {
+          signer: '0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2',
+          signature: '0x' + Array(130).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+        },
+        {
+          signer: '0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db',
+          signature: '0x' + Array(130).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+        }
+      ]
+    });
+  }
+
+  return events;
 }
