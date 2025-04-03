@@ -243,7 +243,7 @@ export default function Footer() {
                 </div>
                 <div className='mt-6'>
                   <p className='lato-regular text-[13px] text-copyright-text'>
-                    &copy; Arbius 2024
+                    &copy; Arbius 2025
                   </p>
                 </div>
               </div>
