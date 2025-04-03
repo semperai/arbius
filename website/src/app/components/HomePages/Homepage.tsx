@@ -17,10 +17,13 @@ export default function Homepage() {
     <div>
       <MachineLearningSection />
       <Partners />
+      <Models />
       <ArbiusModels />
       <AIUS />
-      <EACC />
+      <Democratic />
       <UncensoredArbius />
+      <EACC />
+      <Community />
     </div>
   );
 }
