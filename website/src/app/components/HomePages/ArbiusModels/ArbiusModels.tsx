@@ -21,6 +21,7 @@ import Config from '@/config.one.json';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import Link from 'next/link';
+import { Fade } from 'react-awesome-reveal';
 
 export default function ArbiusModels(){
 
@@ -132,10 +133,16 @@ export default function ArbiusModels(){
 					<div className="basis-[100%] lg:basis-[45%]">
 						<Image className="lg:hidden" src={ArbiusSquareLogoDark} alt="" />
 						<div className="flex items-center gap-[15px]">
-							<div className="font-semibold text-black-text text-mobile-header lg:text-header">Arbius Models</div>
-							<Image className="hidden lg:block" src={ArbiusLogoDarkBlue} alt="" />
+				        	<div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl flex items-center gap-3'>
+				           		<Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				             		Arbius Models
+				            	</Fade>
+				            	<Image className="hidden lg:block" src={ArbiusLogoDarkBlue} alt="" />
+				          	</div>
 						</div>
-						<div className="text-black-text mt-[10px] text-para text-subtext-one">Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).</div>
+						<Fade direction='up' triggerOnce={true}>
+							<div className="text-black-text text-para text-subtext-one">Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).</div>
+						</Fade>
 						<div className="flex gap-[20px] items-center mt-[20px]">
 							<Link href={'https://arbiusplayground.com/'} target='_blank'>
 								<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'>

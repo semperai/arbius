@@ -5,22 +5,32 @@ import AIUS_SquareLogo from '@/app/assets/images/aius_square_logo.svg';
 import InferenceFees from '@/app/assets/images/inference_fees.svg'
 import ModelInference from '@/app/assets/images/model_inference.svg'
 import Link from 'next/link';
+import { Fade } from 'react-awesome-reveal';
 
 export default function AIUS(){
 
 	return (
 		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/buy_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
 			<div className="w-[80%] m-[auto]">
-				<div className="">
+				<div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
 					<Image src={AIUS_SquareLogo} alt="" />
-					<div className='text-mobile-header text-black-text lg:block lg:text-header font-semibold'>
-			        	veAIUS
-			        </div>
-				</div>
+		            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+		            	veAIUS
+		            </Fade>
+		        </div>
 
 				<div className="flex flex-col-reverse lg:flex-row items-start lg:items-center justify-between mt-[30px]">
 					<div className="basis-[30%]">
-						<div className="text-mobile-header lg:block lg:text-header font-normal">Shared Inference Fees</div>
+						<div className='lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	Shared
+				            </Fade>
+				        </div>
+				        <div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	Inference Fees
+				            </Fade>
+				        </div>
 						<div className="">veAIUS stakers share in fees from AI model inferences, providing a passive income stream as the network grows.</div>
 
 						<Link href={'https://arbius.ai/aius'} target='_blank'>
@@ -33,21 +43,28 @@ export default function AIUS(){
 	                    </Link>
 					</div>
 
-					<div className="basis-[45%] mb-[40px] lg:mb-0">
+					<div className="basis-[50%] mb-[40px] lg:mb-0">
 						<Image src={InferenceFees} alt="" />
 					</div>
 				</div>
 
 
 				<div className="flex flex-col lg:flex-row items-center justify-between mt-[80px]">
-					<div className="basis-[40%] mb-[40px] lg:mb-0">
+					<div className="basis-[50%] mb-[40px] lg:mb-0">
 						<Image className="" src={ModelInference} alt="" />
 					</div>
 
 					<div className="basis-[40%]">
-						<div className="text-mobile-header lg:block lg:text-header font-normal">
-							Boosting AI Model Inference
-						</div>
+						<div className='lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	Boosting AI
+				            </Fade>
+				        </div>
+				        <div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	Model Inference
+				            </Fade>
+				        </div>
 						<div className="">veAIUS holders can direct higher rewards to specific AI models, making those models more attractive to run.</div>
 						<Link href={'https://arbius.ai/aius'} target='_blank'>
 							<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8 mt-[20px]'>

@@ -6,6 +6,7 @@ import EACCImage from '@/app/assets/images/eacc_image.svg';
 import EACCImageMobile from '@/app/assets/images/eacc_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
 import Link from 'next/link';
+import { Fade } from 'react-awesome-reveal';
 
 export default function EACC(){
 
@@ -16,7 +17,16 @@ export default function EACC(){
 				<div className="flex flex-col lg:flex-row items-center justify-between">
 					<div className="basis-[55%]">
 						<Image src={EACCLogo} alt="" />
-						<div className="text-mobile-header lg:block lg:text-header font-normal">EACC (Effective Acceleration Marketplace)</div>
+						<div className='lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	EACC (Effective
+				            </Fade>
+				        </div>
+				        <div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	Acceleration Marketplace)
+				            </Fade>
+				        </div>
 						<div className="">
 							<ul className="list-disc ml-[15px]">
 								<li>Perform tasks</li>

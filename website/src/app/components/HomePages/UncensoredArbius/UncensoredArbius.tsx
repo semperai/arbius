@@ -5,6 +5,7 @@ import UncensoredArbiusImage from '@/app/assets/images/uncensored_arbius_image.s
 import UncensoredArbiusMobileImage from '@/app/assets/images/uncensored_arbius_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
 import Link from 'next/link';
+import { Fade } from 'react-awesome-reveal';
 
 export default function UncensoredArbius(){
 
@@ -14,7 +15,16 @@ export default function UncensoredArbius(){
 
 				<div className="flex flex-col lg:flex-row items-center justify-between">
 					<div className="basis-[40%]">
-						<div className="text-mobile-header lg:block lg:text-header font-normal">Uncensored AI Access, Powered by Arbius.</div>
+						<div className='lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	Uncensored AI Access,
+				            </Fade>
+				        </div>
+						<div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+				            	Powered by Arbius.
+				            </Fade>
+				        </div>
 						<div className="">
 							Interact with and customize AI models in a free and open environment. Build without boundaries with Arbius Playground.
 						</div>
