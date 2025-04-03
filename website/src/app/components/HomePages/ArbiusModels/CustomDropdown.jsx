@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import DropDownIcon from '@/app/assets/images/dropdown.svg'
 import FilterIcon from '@/app/assets/images/filter.svg'
 
-const CustomDropdown = ({ options, defaultValue, onChange, showFirstname }) => {
+const CustomDropdown = ({ options, defaultValue, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(defaultValue || options[0]);
   const dropdownRef = useRef(null);
@@ -44,8 +44,8 @@ const CustomDropdown = ({ options, defaultValue, onChange, showFirstname }) => {
       {isOpen && (
         <div className="origin-top-right w-full text-center absolute right-0 mt-1 rounded-[15px] shadow-lg bg-white-background z-40">
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-            {options.map((option) => (
-              <div className="flex justify-between px-2 py-2 hover:bg-purple-background group">
+            {options.map((option, index) => (
+              <div className="flex justify-between px-2 py-2 hover:bg-purple-background group" key={index}>
               <a
                 key={option.name}
                 href="#"

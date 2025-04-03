@@ -92,7 +92,7 @@ export default function ArbiusModels(){
 	]);
 	const [filteredData, setFilteredData] = useState(data);
 
-	const handleSearch = (e) => {
+	const handleSearch = (e: any) => {
 	    console.log(e.target.value);
 	    setSearchText(e.target.value);
 	    // debounce the function call
@@ -148,7 +148,7 @@ export default function ArbiusModels(){
 				              handleSearch(e);
 				            }}
 				          />
-				          <Image src={search_icon} className='h-4 w-4' />
+				          <Image src={search_icon} className='h-4 w-4' alt="" />
 				        </div>
 
 				        <div className="hidden lg:block">
@@ -159,6 +159,7 @@ export default function ArbiusModels(){
 				        			{"name": "5090", "icon": nvidia}]
 				        		}
 				        		defaultValue={{"name": "Filter by: GPU"}}
+				        		onChange={() => {}}
 				        	/>
 				        </div>
 				</div>
@@ -190,7 +191,7 @@ export default function ArbiusModels(){
 			            >
 			              <div
 			                className='absolute left-[-125px] top-[10%] z-20 flex hidden items-center justify-start'
-			                id={key}
+			                id={key.toString()}
 			              >
 			                <div className='w-[108px] w-auto rounded-xl bg-white-background p-3'>
 			                  <h1 className='mb-1 text-[.6rem] text-aius-tabs-gray'>
@@ -198,15 +199,15 @@ export default function ArbiusModels(){
 			                  </h1>
 			                  <p className='text-[.6rem]'>{item?.model_id.slice(0, 6)}...{item?.model_id.slice(-4)}</p>
 			                </div>
-			                <Image src={polygon} className='-ml-2' />
+			                <Image src={polygon} className='-ml-2' alt="" />
 			              </div>
 			              <div className='flex w-[25%] lg:w-[20%] items-center justify-start gap-2'>
 			               	<div className='hidden md:flex h-[20px] w-[20px] md:h-[28px] md:w-[28px] items-center justify-center rounded-full bg-purple-background'>
 			                  <div className='relative flex h-[16px] w-[16px] items-center justify-center'>
 			                    <Image
 			                      src={item?.icon}
-			                      fill
 			                      className='h-full w-full object-contain'
+			                      alt=""
 			                    />
 			                  </div>
 			                </div>
