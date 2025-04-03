@@ -25,3 +25,4 @@ export { V2_EngineV3_Withdraw__factory } from "./V2_EngineV3_Withdraw__factory";
 export { V2_EngineV4__factory } from "./V2_EngineV4__factory";
 export { V2_EngineV4_1__factory } from "./V2_EngineV4_1__factory";
 export { V2_EngineV5__factory } from "./V2_EngineV5__factory";
+export { V2_EngineV5_1__factory } from "./V2_EngineV5_1__factory";
