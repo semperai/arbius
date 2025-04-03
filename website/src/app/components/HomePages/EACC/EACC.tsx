@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import EACCLogo from '@/app/assets/images/eacc_logo.png';
+import EACCLogo from '@/app/assets/images/eacc_logo.svg';
 import EACCImage from '@/app/assets/images/eacc_image.svg';
 import EACCImageMobile from '@/app/assets/images/eacc_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
@@ -16,7 +16,7 @@ export default function EACC(){
 
 				<div className="flex flex-col lg:flex-row lg:items-center justify-between">
 					<div className="basis-[55%]">
-						<Image src={EACCLogo} alt="" unoptimized />
+						<Image src={EACCLogo} alt="" />
 						<div className='hidden lg:block lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
 				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
 				            	EACC (Effective
@@ -53,7 +53,7 @@ export default function EACC(){
 						<Image src={EACCImage} alt="" />
 					</div>
 					<div className="self-start mt-[50px] lg:hidden">
-						<Image src={EACCImageMobile} alt="" unoptimized />
+						<Image src={EACCImageMobile} alt="" />
 					</div>
 				</div>
 

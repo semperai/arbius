@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import AIUS_SquareLogo from '@/app/assets/images/veaius_logo.png';
+import AIUS_SquareLogo from '@/app/assets/images/aius_square_logo.svg';
 import InferenceFees from '@/app/assets/images/inference_fees.png'
 import ModelInference from '@/app/assets/images/model_inference.png'
 import Link from 'next/link';
@@ -13,7 +13,7 @@ export default function AIUS(){
 		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/buy_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
 			<div className="w-mobile-section-width lg:w-section-width m-[auto]">
 				<div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
-					<Image src={AIUS_SquareLogo} alt="" unoptimized />
+					<Image src={AIUS_SquareLogo} alt="" className="transform translate-z-0" />
 		            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
 		            	veAIUS
 		            </Fade>
@@ -44,14 +44,14 @@ export default function AIUS(){
 					</div>
 
 					<div className="basis-[50%] mb-[40px] lg:mb-0">
-						<Image src={InferenceFees} alt="" unoptimized />
+						<Image src={InferenceFees} alt="" />
 					</div>
 				</div>
 
 
 				<div className="flex flex-col lg:flex-row items-center justify-between mt-[80px]">
 					<div className="basis-[50%] mb-[40px] lg:mb-0">
-						<Image className="" src={ModelInference} alt="" unoptimized />
+						<Image className="" src={ModelInference} alt="" />
 					</div>
 
 					<div className="basis-[40%]">

@@ -265,7 +265,7 @@ export default function Header() {
                         </p>
                       </div>
                       <Image
-                        className='h-[auto] w-[20px] lg:h-[20px] lg:w-[auto]'
+                        className='h-[auto] w-[20px] lg:h-[20px] lg:w-[auto] !filter-none'
                         src={qwen_icon}
                         alt=''
                       />
@@ -281,7 +281,7 @@ export default function Header() {
                         </p>
                       </div>
                       <Image
-                        className='lg:w-[auto]] h-[auto] w-[20px] lg:h-[20px]'
+                        className='lg:w-[auto] h-[auto] w-[20px] lg:h-[20px]'
                         src={kandinsky}
                         alt=''
                       />
