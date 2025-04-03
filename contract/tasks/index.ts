@@ -638,6 +638,20 @@ task("engine:registerModel", "Register model")
   console.log('model added with id', modelId);
 });
 
+task("engine:setSolutionMineableRate", "Set solution mineable rate")
+.addParam("model", "Model id")
+.addParam("rate", "Rate")
+.setAction(async ({ model, rate }, hre) => {
+  if (parseFloat(rate) > 1) {
+    console.error('error: rate must be less than 1');
+  }
+
+  const engine = await getEngine(hre);
+  const tx = await engine.setSolutionMineableRate(model, hre.ethers.utils.parseEther(rate));
+  const receipt = await tx.wait();
+  console.log(`Solution mineable rate set in ${receipt.transactionHash}`);
+});
+
 task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
 .setAction(async ({ }, hre) => {
   const engine = await getEngine(hre);
