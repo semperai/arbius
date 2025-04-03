@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import ArbiusLogoDarkBlue from '@/app/assets/images/arbius_logo_dark_blue.svg';
 import ArbiusSquareLogoDark from '@/app/assets/images/arbius_square_logo_dark.svg';
@@ -14,6 +14,12 @@ import polygon from '@/app/assets/images/polygon.png';
 import github from '@/app/assets/images/github.png';
 import nvidia from '@/app/assets/images/nvidia.svg';
 import CustomDropdown from './CustomDropdown';
+import { AIUS_wei, infuraUrl, alchemyUrl } from '@/app/Utils/constantValues';
+import voter from '@/app/abis/voter.json';
+import engineABI from '@/app/abis/v2_enginev4.json';
+import Config from '@/config.one.json';
+import Web3 from 'web3';
+
 
 export default function ArbiusModels(){
 
@@ -22,73 +28,13 @@ export default function ArbiusModels(){
 	    {
 	      model_name: 'Qwen QwQ 32b',
 	      model_id: '0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc',
-	      description: 'Text Generator',
-	      emissions: '40%',
-	      fees: '0.01 AIUS',
+	      description: 'A multilingual large language model with strong reasoning and coding capabilities.',
+	      emissions: '100%',
+	      fees: '0.007 AIUS',
 	      prompts: '0',
 	      icon: qwen_icon,
 	      model_bytes: "0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc"
-	    },
-	    {
-	      model_name: 'Mistral-large-2407',
-	      model_id: '0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522',
-	      description: 'Powerful, versatile, coherent, generative, capable text generator.',
-	      emissions: '40%',
-	      fees: '0.01 AIUS',
-	      prompts: '40,304',
-	      icon: mistral_icon,
-	      model_bytes: "0x7be59c5981953ec1fe696e16639aadc56de47330cc73af4c4bc4b758fd71a522"
-	    },
-	    {
-	      model_name: 'Nemotron-4-340b',
-	      model_id: '0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f',
-	      description: 'Sophisticated, imaginative and efficient text generator',
-	      emissions: '40%',
-	      fees: '0.01 AIUS',
-	      prompts: '38,994',
-	      icon: nemotron_icon,
-	      model_bytes: "0x4baca32105739de16cf826b6cdea4cd1d7086af40efafb1742d3b637ab703a1f"
-	    },
-	    {
-	      model_name: 'Llama-3.1-405b',
-	      model_id: '0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64',
-	      description: 'Text generator with contextually aware, strong reasoning',
-	      emissions: '40%',
-	      fees: '0.01 AIUS',
-	      prompts: '32,945',
-	      icon: llama_icon,
-	      model_bytes: "0x6c7442f4cf999d9cb907458701b6c0dc2bb9eff10bfe20add82a9917ea955a64"
-	    },
-	    {
-	      model_name: 'Deepseek-coder-v2',
-	      model_id: '0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21',
-	      description: 'Efficient, precise, versatile, robust, generative code generator.',
-	      emissions: '40%',
-	      fees: '0.01 AIUS',
-	      prompts: '6049',
-	      icon: deepseek_icon,
-	      model_bytes: "0x3aa70902b29c08238a3a287f14907f4b752c9a18d69fa08822937f2ca8d63e21"
-	    },
-	   	{
-	      model_name: 'Llama-3.1-80b',
-	      model_id: '0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca',
-	      description: 'Large, capable language model.',
-	      emissions: '40%',
-	      fees: '0.01 AIUS',
-	      prompts: '10,203',
-	      icon: llama_icon,
-	      model_bytes: "0x4f4999001f7a0012ee8d2c41643f84ce25055aaacfb0b7134c8a572faffc13ca"
-	    },
-	    // {
-	    //   model_name: 'Qwen',
-	    //   model_id: '0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a',
-	    //   description: 'Text Generator',
-	    //   emissions: '0%',
-	    //   fees: '0',
-	    //   prompts: '6049',
-	    //   icon: qwen_icon,
-	    //   model_bytes: "0x7cd06b3facb05c072fb359904a7381e8f28218f410830f85018f3922621ed33a"
-	    // }
+	    }
 	]);
 	const [filteredData, setFilteredData] = useState(data);
 
@@ -105,6 +51,77 @@ export default function ArbiusModels(){
 	      clearTimeout(time);
 	    }, 300);
 	};
+
+ 	const getWeb3 = async() => {
+	    return await fetch(alchemyUrl, {
+	        method: 'POST',
+	        headers: {
+	          'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify({
+	          jsonrpc: "2.0",
+	          id: 1,
+	          method: "eth_blockNumber",
+	          params: []
+	        }),
+	      })
+	      .then(res => res.json())
+	        .then(_data => {
+	          if (_data.error) {
+	            console.error("Alchemy error:", _data.error.message);
+	            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+	            return web3
+	          } else {
+	            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
+	            console.log("Successfully connected. Block number:", _data.result);
+	            return web3
+	          }
+	        })
+	        .catch((err) => {
+	          console.log("Request failed:", err)
+	          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+	          return web3
+	        });
+  	}
+
+
+	useEffect(() => {
+
+		const f1 = async () => {
+		 	try{
+			    const web3 = await getWeb3()
+
+			    const voterContract = new web3.eth.Contract(
+			      voter.abi,
+			      Config.voterAddress
+			    );
+			    const engineContract = new web3.eth.Contract(
+			      engineABI.abi,
+			      Config.engineAddress
+			    );
+
+			    const _modelData = JSON.parse(JSON.stringify(data));
+
+			    for(let i=0; i<_modelData.length; i++){
+			      let a = await voterContract.methods.getGaugeMultiplier(_modelData[i]?.model_id).call()
+			      _modelData[i]["emissions"] = ((Number(a) / AIUS_wei) * 100).toFixed(1).toString()+"%";
+
+			      let b = await engineContract.methods.models(_modelData[i]?.model_bytes).call()
+			      _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(4).toString() + " AIUS";
+			    }
+			    setFilteredData(_modelData);
+			    setData(_modelData);
+
+			    console.log(engineContract, "EC")
+
+		 	}catch(e){
+		    	console.log("F1 error", e)
+		  	}
+		}
+
+		f1();
+
+	}, []);
 
 
 	return (
