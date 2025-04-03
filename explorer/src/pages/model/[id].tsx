@@ -236,7 +236,7 @@ export default function ModelDetail() {
                     label="IPFS CID"
                     value={
                       <a
-                        href={`https://ipfs.io/ipfs/${model.cid}`}
+                        href={`https://ipfs.arbius.org/ipfs/${model.cid}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline flex items-center gap-1"
@@ -277,7 +277,7 @@ export default function ModelDetail() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full gap-2" onClick={() => router.push(`/tasks?model=${id}`)}>
+              <Button variant="outline" className="w-full gap-2" onClick={() => router.push(`/model/${id}/tasks`)}>
                 View Model Tasks <ChevronRightIcon className="h-4 w-4" />
               </Button>
             </CardFooter>
@@ -495,7 +495,7 @@ export default function ModelDetail() {
                           The full schema for this model can be accessed via IPFS:
                         </p>
                         <a
-                          href={`https://ipfs.io/ipfs/${model.cid}`}
+                          href={`https://ipfs.arbius.org/ipfs/${model.cid}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-primary hover:underline"
@@ -516,7 +516,7 @@ export default function ModelDetail() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Recent Tasks</h2>
-            <Link href={`/tasks?model=${id}`} passHref>
+            <Link href={`/model/${id}/tasks`} passHref>
               <Button variant="ghost" className="gap-1">
                 View All <ChevronRightIcon className="h-4 w-4" />
               </Button>
@@ -567,7 +567,7 @@ function TaskCard({ task }: { task: Task }) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg truncate">
-          <Link href={`/tasks/${task.id}`} className="hover:text-primary transition-colors">
+          <Link href={`/task/${task.id}`} className="hover:text-primary transition-colors">
             {truncateMiddle(task.id, 16)}
           </Link>
         </CardTitle>
@@ -590,7 +590,7 @@ function TaskCard({ task }: { task: Task }) {
         </div>
       </CardContent>
       <CardFooter>
-        <Link href={`/tasks/${task.id}`} passHref className="w-full">
+        <Link href={`/task/${task.id}`} passHref className="w-full">
           <Button variant="outline" className="w-full">View Details</Button>
         </Link>
       </CardFooter>
