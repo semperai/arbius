@@ -171,7 +171,7 @@ export default function ArbiusModels(){
 						<div className='stake-box-shadow flex h-auto items-center justify-between rounded-[15px] bg-white-background px-2 pr-3'>
 				          <input
 				            placeholder='Search Model name or ID'
-				            className='h-full w-[250px] border-0 bg-transparent px-3 py-0 focus:outline-none placeholder-[#B0B0B0] text-black-text'
+				            className='h-full w-[250px] border-0 bg-transparent px-3 py-[11px] focus:outline-none placeholder-[#B0B0B0] text-black-text'
 				            value={searchText}
 				            onChange={(e) => {
 				              handleSearch(e);
