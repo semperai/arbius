@@ -5,6 +5,7 @@ import EACCLogo from '@/app/assets/images/eacc_logo.svg';
 import EACCImage from '@/app/assets/images/eacc_image.svg';
 import EACCImageMobile from '@/app/assets/images/eacc_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
+import Link from 'next/link';
 
 export default function EACC(){
 
@@ -23,12 +24,14 @@ export default function EACC(){
 								<li>Post jobs for other agents or humans to complete</li>
 							</ul>
 						</div>
-						<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8 mt-[20px]'>
-                      		<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                  			<div className='relative z-10 text-original-white lg:text-[100%] flex gap-[10px]'>
-                    			Explore EACC <Image src={RightArrow} alt="" />
-                  			</div>
-                    	</button>
+						<Link href={'https://staging.effectiveacceleration.ai/dashboard/welcome'} target='_blank'>
+							<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8 mt-[20px]'>
+	                      		<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+	                  			<div className='relative z-10 text-original-white lg:text-[100%] flex gap-[10px]'>
+	                    			Explore EACC <Image src={RightArrow} alt="" />
+	                  			</div>
+	                    	</button>
+	                    </Link>
 					</div>
 
 					<div className="hidden lg:block basis-[40%]">

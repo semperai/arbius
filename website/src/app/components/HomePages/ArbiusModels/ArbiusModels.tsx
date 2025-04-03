@@ -20,6 +20,7 @@ import engineABI from '@/app/abis/v2_enginev4.json';
 import Config from '@/config.one.json';
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
+import Link from 'next/link';
 
 export default function ArbiusModels(){
 
@@ -136,19 +137,23 @@ export default function ArbiusModels(){
 						</div>
 						<div className="text-black-text mt-[10px] text-para text-subtext-one">Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).</div>
 						<div className="flex gap-[20px] items-center mt-[20px]">
-							<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'>
-                      			<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                  				<div className='relative z-10 text-original-white lg:text-[100%]'>
-                    				Visit Playground
-                  				</div>
-                    		</button>
+							<Link href={'https://arbiusplayground.com/'} target='_blank'>
+								<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'>
+	                      			<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+	                  				<div className='relative z-10 text-original-white lg:text-[100%]'>
+	                    				Visit Playground
+	                  				</div>
+	                    		</button>
+	                    	</Link>
 
-                    		<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'>
-                      			<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                  				<div className='relative z-10 text-original-white lg:text-[100%]'>
-                    				Amica
-                  				</div>
-                    		</button>
+	                    	<Link href={'https://amica.arbius.ai/'} target='_blank'>
+	                    		<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'>
+	                      			<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
+	                  				<div className='relative z-10 text-original-white lg:text-[100%]'>
+	                    				Amica
+	                  				</div>
+	                    		</button>
+	                    	</Link>
 						</div>
 					</div>
 					<div className="basis-[40%] hidden lg:block">
