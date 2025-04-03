@@ -28,6 +28,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
+import { truncateMiddle, formatDate } from '@/lib/utils';
 
 export default function TaskDetail() {
   const router = useRouter();
@@ -615,26 +616,6 @@ function TaskDetailSkeleton() {
 }
 
 // Helper functions
-function truncateMiddle(str: string, maxLength: number): string {
-  if (!str) return '';
-  if (str.length <= maxLength) return str;
-  const prefixLength = Math.ceil(maxLength / 2);
-  const suffixLength = Math.floor(maxLength / 2);
-  return `${str.slice(0, prefixLength)}...${str.slice(-suffixLength)}`;
-}
-
-function formatDate(timestamp: number): string {
-  if (!timestamp) return 'N/A';
-  const date = new Date(timestamp * 1000);
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date);
-}
-
 function getTaskStatus(task: Task): string {
   if (!task) return 'Unknown';
   if (task.hasContestation) return 'Contested';

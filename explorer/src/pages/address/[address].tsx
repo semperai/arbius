@@ -10,7 +10,6 @@ import {
   AlertTriangleIcon,
   FileTextIcon
 } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,6 +32,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { truncateMiddle, formatDuration } from '@/lib/utils';
 
 // Types
 interface Validator {
@@ -588,29 +588,6 @@ function ValidatorDetailSkeleton() {
       </Card>
     </>
   );
-}
-
-// Helper functions
-function truncateMiddle(str: string, maxLength: number): string {
-  if (!str) return '';
-  if (str.length <= maxLength) return str;
-  const prefixLength = Math.ceil(maxLength / 2);
-  const suffixLength = Math.floor(maxLength / 2);
-  return `${str.slice(0, prefixLength)}...${str.slice(-suffixLength)}`;
-}
-
-function formatDuration(seconds: number): string {
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  
-  if (days > 0) {
-    return `${days} day${days !== 1 ? 's' : ''}`;
-  } else if (hours > 0) {
-    return `${hours} hour${hours !== 1 ? 's' : ''}`;
-  } else {
-    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
-  }
 }
 
 // Mock data functions

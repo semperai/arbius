@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { truncateString } from '@/lib/utils';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -238,14 +239,6 @@ function TaskStatusBadge({ status }: { status: string }) {
 }
 
 // Helper function to truncate strings
-function truncateString(str: string, maxLength: number): string {
-  if (str.length <= maxLength) return str;
-  const prefix = str.slice(0, maxLength / 2);
-  const suffix = str.slice(-maxLength / 2);
-  return `${prefix}...${suffix}`;
-}
-
-// Mock data for display
 const mockRecentTasks: Task[] = [
   {
     id: '0x1309128093aa6234231eee34234234eff7778aa8a', 

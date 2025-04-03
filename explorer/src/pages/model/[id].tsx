@@ -17,9 +17,7 @@ import {
   AlertTriangleIcon,
   FileIcon
 } from 'lucide-react';
-
 import { Model, ModelSchema, Task } from '@/types';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -47,6 +45,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { truncateMiddle } from '@/lib/utils';
 
 export default function ModelDetail() {
   const router = useRouter();
@@ -688,15 +687,6 @@ function ModelDetailSkeleton() {
       </div>
     </div>
   );
-}
-
-// Helper functions
-function truncateMiddle(str: string, maxLength: number): string {
-  if (!str) return '';
-  if (str.length <= maxLength) return str;
-  const prefixLength = Math.ceil(maxLength / 2);
-  const suffixLength = Math.floor(maxLength / 2);
-  return `${str.slice(0, prefixLength)}...${str.slice(-suffixLength)}`;
 }
 
 // Mock data functions - Replace these with actual data
