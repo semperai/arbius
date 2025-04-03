@@ -24,6 +24,7 @@ export default function Homepage() {
       <UncensoredArbius />
       <EACC />
       <Community />
+      <Buy />
     </div>
   );
 }

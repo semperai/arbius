@@ -11,10 +11,15 @@ export default function MachineLearningSection() {
     <div className="lato-bold mt-[72px] bg-[url('../app/assets/images/peer_background.jpg')] bg-cover lg:flex lg:h-[75vh] lg:items-center">
       <div className='m-[auto] w-mobile-section-width max-w-center-width py-16 lg:w-section-width lg:p-0 lg:py-24'>
         <div className='w-[100%] xl:w-[65%]'>
-          <Fade direction='up' triggerOnce={true}>
+          {/*<Fade direction='up' triggerOnce={true}>
             <div className='mb-2 text-[16px] lg:mb-0 lg:text-[12px] px-3 py-2 font-normal text-[#290ACF] bg-[#290ACF14] flex items-center justify-start justify-self-start border-[2px] border-[#4A28FF1A] rounded-[15px]'>
               <Image className="mt-[-2px]" src={Wand} alt="" />
               Welcome to Arbius
+            </div>
+          </Fade>*/}
+          <Fade direction='up' triggerOnce={true}>
+            <div className='Gradient-transparent-text mb-2 bg-background-gradient-txt text-[16px] lg:mb-0 lg:text-[12px]'>
+              Welcome to Arbius!
             </div>
           </Fade>
 
@@ -38,12 +43,12 @@ export default function MachineLearningSection() {
             <Fade direction='up' triggerOnce={true}>
               <div className='lato-regular header-para text-para text-subtext-one'>
                 Arbius is a decentralized network for machine learning and a
-                token with a fixed supply like Bitcoin. New coins are
+                token with a fixed total supply like Bitcoin. New coins are
                 generated with GPU power by participating in the network. There
                 is no central authority to create new coins. Arbius is fully
                 open-source. Holders vote on-chain for protocol upgrades.
-                Models operate as DAOS with custom rules for distribution and rewards,
-                providing a way for model creators to earn income.
+                Models operate as DAOs with custom rules for distribution and rewards,
+                providing a way for model creators to earn income. 
               </div>
             </Fade>
             <Fade direction='up' triggerOnce={true}>

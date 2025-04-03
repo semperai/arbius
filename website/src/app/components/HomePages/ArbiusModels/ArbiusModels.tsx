@@ -32,7 +32,7 @@ export default function ArbiusModels(){
 	      model_id: '0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc',
 	      description: 'A multilingual large language model with strong reasoning and coding capabilities.',
 	      emissions: '100%',
-	      fees: '0.007 AIUS',
+	      fees: '0.007',
 	      prompts: '0',
 	      icon: qwen_icon,
 	      model_bytes: "0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc"
@@ -109,7 +109,7 @@ export default function ArbiusModels(){
 			      _modelData[i]["emissions"] = ((Number(a) / AIUS_wei) * 100).toFixed(1).toString()+"%";
 
 			      let b = await engineContract.methods.models(_modelData[i]?.model_bytes).call()
-			      _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(4).toString() + " AIUS";
+			      _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(4).toString();
 			    }
 			    setFilteredData(_modelData);
 			    setData(_modelData);
@@ -251,7 +251,9 @@ export default function ArbiusModels(){
 			                <h1 className='ml-[12px] text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
 			              </div>
 			              <div className='w-[25%] lg:w-[15%]'>
-			                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees}</h1>
+			                <h1 className='text-[14px] md:text-[0.85rem]'>
+			                	{item?.fees}<span className="text-[8px]">AIUS</span>
+			                </h1>
 			              </div>
 			              <div className='w-[25%] lg:w-[20%]'>
 			                <h1 className="image-blue-filter text-[14px] md:text-[16px] flex items-center gap-1 border-b-[1px] border-[#000] w-fit cursor-pointer hover:text-blue-text hover:border-blue-text">
