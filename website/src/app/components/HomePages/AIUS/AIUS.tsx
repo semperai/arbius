@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import AIUS_SquareLogo from '@/app/assets/images/aius_square_logo.svg';
-import InferenceFees from '@/app/assets/images/inference_fees.svg'
-import ModelInference from '@/app/assets/images/model_inference.svg'
+import AIUS_SquareLogo from '@/app/assets/images/veaius_logo.png';
+import InferenceFees from '@/app/assets/images/inference_fees.png'
+import ModelInference from '@/app/assets/images/model_inference.png'
 import Link from 'next/link';
 import { Fade } from 'react-awesome-reveal';
 
@@ -33,7 +33,7 @@ export default function AIUS(){
 				        </div>
 						<div className="">veAIUS stakers share in fees from AI model inferences, providing a passive income stream as the network grows.</div>
 
-						<Link href={'https://arbius.ai/aius'} target='_blank'>
+						<Link href={'/aius'} target='_blank'>
 							<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2 lg:px-10 mt-[20px]'>
 	                      		<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
 	                  			<div className='relative z-10 text-original-white lg:text-[100%]'>
@@ -66,7 +66,7 @@ export default function AIUS(){
 				            </Fade>
 				        </div>
 						<div className="">veAIUS holders can direct higher rewards to specific AI models, making those models more attractive to run.</div>
-						<Link href={'https://arbius.ai/aius'} target='_blank'>
+						<Link href={'/aius?section=Gauge'} target='_blank'>
 							<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8 mt-[20px]'>
 	                      		<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
 	                  			<div className='relative z-10 text-original-white lg:text-[100%]'>

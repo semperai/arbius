@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import EACCLogo from '@/app/assets/images/eacc_logo.svg';
+import EACCLogo from '@/app/assets/images/eacc_logo.png';
 import EACCImage from '@/app/assets/images/eacc_image.svg';
 import EACCImageMobile from '@/app/assets/images/eacc_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';

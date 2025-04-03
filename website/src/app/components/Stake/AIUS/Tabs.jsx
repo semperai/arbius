@@ -1,6 +1,7 @@
 'use client';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
-import React, { useState } from 'react';
 import DashBoard from './DashBoard';
 import Gauge from './Gauge';
 
@@ -16,8 +17,22 @@ function Tabs({
   updateValue,
   setUpdateValue,
 }) {
-  // const [selectedtab, setSelectedTab] = useState("Dashboard")
-  console.log(updateValue, 'Value updated in TABS');
+  const router = useRouter();
+  const { section } = router.query; // Extracts URL param (e.g., ?section=contact)
+
+  useEffect(() => {
+    if (section && typeof section === 'string') {
+      // Wait for the page to fully render before scrolling
+      setTimeout(() => {
+        const element = document.getElementById(section);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+          setSelectedTab(section)
+        }
+      }, 100); // Small delay to ensure DOM is ready
+    }
+  }, [section]); // Trigger effect when URL param changes
+
   return (
     <>
       <div className='m-[auto] w-mobile-section-width max-w-center-width lg:w-section-width'>
@@ -31,6 +46,7 @@ function Tabs({
                     setSelectedTab(item);
                   }}
                   key={index}
+                  id={item}
                 >
                   {item}
                 </div>
