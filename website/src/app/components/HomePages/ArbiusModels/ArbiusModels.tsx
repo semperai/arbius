@@ -19,7 +19,7 @@ import voter from '@/app/abis/voter.json';
 import engineABI from '@/app/abis/v2_enginev4.json';
 import Config from '@/config.one.json';
 import Web3 from 'web3';
-
+import { AbiItem } from 'web3-utils';
 
 export default function ArbiusModels(){
 
@@ -92,11 +92,11 @@ export default function ArbiusModels(){
 			    const web3 = await getWeb3()
 
 			    const voterContract = new web3.eth.Contract(
-			      voter.abi,
+			      voter.abi as AbiItem[],
 			      Config.voterAddress
 			    );
 			    const engineContract = new web3.eth.Contract(
-			      engineABI.abi,
+			      engineABI.abi as AbiItem[],
 			      Config.engineAddress
 			    );
 
