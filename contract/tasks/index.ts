@@ -453,7 +453,8 @@ task("mining:claimSolution", "Claim past task")
 .setAction(async ({ task }, hre) => {
   const engine = await getEngine(hre);
   const tx = await engine.claimSolution(task);
-  await tx.wait();
+  const receipt = await tx.wait();
+  console.log(`Solution claimed for task ${task} in ${receipt.transactionHash}`);
 });
 
 task("validator:lookup", "Query validator")
