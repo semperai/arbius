@@ -16,6 +16,8 @@ Arbius is a monorepo:
 
 - **/website** frontend interface you see on arbius.ai
 
+- **/explorer** frontend task explorer you see on explorer.arbius.ai
+
 - **/docs** frontend you see on docs.arbius.ai
 
 - **/paper** source for building pdf
