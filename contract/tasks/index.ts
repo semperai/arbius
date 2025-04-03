@@ -388,107 +388,6 @@ task("mining:allowance", "Set allowance for miner")
   console.log(`allowance ${hre.ethers.utils.formatEther(allowance)}`);
 });
 
-task("mining:submitTask", "Helper to submit task")
-.addOptionalParam("v", "Version of task", "0")
-.addOptionalParam("owner", "Owner of task")
-.addParam("model", "Model id")
-.addOptionalParam("fee", "Fee", "0")
-.addParam("input", "Input")
-.setAction(async ({ v, owner, model, fee, input }, hre) => {
-  owner = owner || await getMinerAddress(hre);
-
-  const engine = await getEngine(hre);
-  const tx = await engine.submitTask(
-    v,
-    owner,
-    model,
-    hre.ethers.utils.parseEther(fee),
-    hre.ethers.utils.hexlify(hre.ethers.utils.toUtf8Bytes(input))
-  );
-  const receipt = await tx.wait();
-  console.log(receipt.events[0].args.id);
-});
-
-task("mining:signalCommitment", "Helper to submit commitment")
-.addParam("task", "Task id")
-.addOptionalParam("cid", "Solution cid", "0x12206666666666666666666666666666666666666666666666666666666666666666")
-.setAction(async ({ task, cid }, hre) => {
-  const engine = await getEngine(hre);
-  const sender = await getMinerAddress(hre);
-  const commitment = await engine.generateCommitment(sender, task, cid);
-  console.log(`Commitment: ${commitment}`);
-  const tx = await engine.signalCommitment(commitment);
-  const receipt = await tx.wait();
-  console.log(`Commitment signaled for task ${task} in ${receipt.transactionHash}`);
-});
-
-task("mining:submitSolution", "Helper to submit solution")
-.addParam("task", "Task id")
-.addOptionalParam("cid", "Solution cid", "0x12206666666666666666666666666666666666666666666666666666666666666666")
-.addOptionalParam("commit", "Send commitment", true, types.boolean)
-.setAction(async ({ task, cid, commit }, hre) => {
-  const engine = await getEngine(hre);
-
-  if (commit) {
-    const sender = await getMinerAddress(hre);
-    const commitment = await engine.generateCommitment(sender, task, cid);
-    console.log(`Commitment: ${commitment}`);
-    const tx = await engine.signalCommitment(commitment);
-    const receipt = await tx.wait();
-    console.log(`Commitment signaled for task ${task} in ${receipt.transactionHash}`);
-  }
-  {
-    const tx = await engine.submitSolution(
-      task,
-      cid,
-    );
-    const receipt = await tx.wait();
-    console.log(`Solution submitted for task ${task} in ${receipt.transactionHash}`);
-  }
-});
-  
-
-task("mining:claimSolution", "Claim past task")
-.addParam("task", "Task id")
-.setAction(async ({ task }, hre) => {
-  const engine = await getEngine(hre);
-  const tx = await engine.claimSolution(task);
-  await tx.wait();
-});
-
-task("validator:lookup", "Query validator")
-.addOptionalParam("address", "Address")
-.setAction(async ({ address }, hre) => {
-  address = address || await getMinerAddress(hre);
-  const engine = await getEngine(hre);
-  const validator = await engine.validators(address);
-  console.log(validator);
-
-});
-
-task("validator:stake", "Become a validator")
-.addOptionalParam("address", "Address")
-.addOptionalParam("amount", "Amount")
-.setAction(async ({ address, amount }, hre) => {
-  address = address || await getMinerAddress(hre);
-  const engine = await getEngine(hre);
-
-  if (! amount) {
-    const minimum = await engine.getValidatorMinimum();
-    const minimumWithBuffer = minimum.mul(1200).div(1000);
-    console.log(`No amount specified, using minimum ${hre.ethers.utils.formatEther(minimumWithBuffer)}`);
-    amount = hre.ethers.utils.formatEther(minimumWithBuffer);
-  }
-
-  const tx = await engine.validatorDeposit(address, hre.ethers.utils.parseEther(amount));
-  await tx.wait();
-
-  const validator = await engine.validators(address);
-  const staked = hre.ethers.utils.formatEther(validator.staked);
-
-  console.log(`${await getMinerAddress(hre)} is now a validator with stake ${staked}`);
-});
-
 task("engine:transferOwnership", "Transfer admin ownership of Engine")
 .addParam("address", "To who?")
 .setAction(async ({ address }, hre) => {
@@ -637,12 +536,130 @@ task("engine:registerModel", "Register model")
   console.log('model added with id', modelId);
 });
 
-task("treasury:withdrawAccruedFees", "Withdraw fees to treasury")
+task("engine:setSolutionMineableRate", "Set solution mineable rate")
+.addParam("model", "Model id")
+.addParam("rate", "Rate")
+.setAction(async ({ model, rate }, hre) => {
+  if (parseFloat(rate) > 1) {
+    console.error('error: rate must be less than 1');
+  }
+
+  const engine = await getEngine(hre);
+  const tx = await engine.setSolutionMineableRate(model, hre.ethers.utils.parseEther(rate));
+  const receipt = await tx.wait();
+  console.log(`Solution mineable rate set in ${receipt.transactionHash}`);
+});
+
+task("engine:submitTask", "Helper to submit task")
+.addOptionalParam("v", "Version of task", "0")
+.addOptionalParam("owner", "Owner of task")
+.addParam("model", "Model id")
+.addOptionalParam("fee", "Fee", "0")
+.addParam("input", "Input")
+.setAction(async ({ v, owner, model, fee, input }, hre) => {
+  owner = owner || await getMinerAddress(hre);
+
+  const engine = await getEngine(hre);
+  const tx = await engine.submitTask(
+    v,
+    owner,
+    model,
+    hre.ethers.utils.parseEther(fee),
+    hre.ethers.utils.hexlify(hre.ethers.utils.toUtf8Bytes(input))
+  );
+  const receipt = await tx.wait();
+  console.log(receipt.events[0].args.id);
+});
+
+task("engine:signalCommitment", "Helper to submit commitment")
+.addParam("task", "Task id")
+.addOptionalParam("cid", "Solution cid", "0x12206666666666666666666666666666666666666666666666666666666666666666")
+.setAction(async ({ task, cid }, hre) => {
+  const engine = await getEngine(hre);
+  const sender = await getMinerAddress(hre);
+  const commitment = await engine.generateCommitment(sender, task, cid);
+  console.log(`Commitment: ${commitment}`);
+  const tx = await engine.signalCommitment(commitment);
+  const receipt = await tx.wait();
+  console.log(`Commitment signaled for task ${task} in ${receipt.transactionHash}`);
+});
+
+task("engine:submitSolution", "Helper to submit solution")
+.addParam("task", "Task id")
+.addOptionalParam("cid", "Solution cid", "0x12206666666666666666666666666666666666666666666666666666666666666666")
+.addOptionalParam("commit", "Send commitment", true, types.boolean)
+.setAction(async ({ task, cid, commit }, hre) => {
+  const engine = await getEngine(hre);
+
+  if (commit) {
+    const sender = await getMinerAddress(hre);
+    const commitment = await engine.generateCommitment(sender, task, cid);
+    console.log(`Commitment: ${commitment}`);
+    const tx = await engine.signalCommitment(commitment);
+    const receipt = await tx.wait();
+    console.log(`Commitment signaled for task ${task} in ${receipt.transactionHash}`);
+  }
+  {
+    const tx = await engine.submitSolution(
+      task,
+      cid,
+    );
+    const receipt = await tx.wait();
+    console.log(`Solution submitted for task ${task} in ${receipt.transactionHash}`);
+  }
+});
+
+task("engine:validator", "Query validator")
+.addOptionalParam("address", "Address")
+.setAction(async ({ address }, hre) => {
+  address = address || await getMinerAddress(hre);
+  const engine = await getEngine(hre);
+  const validator = await engine.validators(address);
+  console.log(validator);
+
+});
+
+task("engine:stake", "Become a validator")
+.addOptionalParam("address", "Address")
+.addOptionalParam("amount", "Amount")
+.setAction(async ({ address, amount }, hre) => {
+  address = address || await getMinerAddress(hre);
+  const engine = await getEngine(hre);
+
+  if (! amount) {
+    const minimum = await engine.getValidatorMinimum();
+    const minimumWithBuffer = minimum.mul(1200).div(1000);
+    console.log(`No amount specified, using minimum ${hre.ethers.utils.formatEther(minimumWithBuffer)}`);
+    amount = hre.ethers.utils.formatEther(minimumWithBuffer);
+  }
+
+  const tx = await engine.validatorDeposit(address, hre.ethers.utils.parseEther(amount));
+  await tx.wait();
+
+  const validator = await engine.validators(address);
+  const staked = hre.ethers.utils.formatEther(validator.staked);
+
+  console.log(`${await getMinerAddress(hre)} is now a validator with stake ${staked}`);
+});
+
+
+task("engine:claimSolution", "Claim solved task")
+.addParam("task", "Task id")
+.setAction(async ({ task }, hre) => {
+  const engine = await getEngine(hre);
+  const tx = await engine.claimSolution(task);
+  const receipt = await tx.wait();
+  console.log(`Solution claimed for task ${task} in ${receipt.transactionHash}`);
+});
+
+
+task("engine:withdrawAccruedFees", "Withdraw fees to treasury")
 .setAction(async ({ }, hre) => {
   const engine = await getEngine(hre);
+  const fees = await engine.accruedFees();
   const tx = await engine.withdrawAccruedFees();
-  await tx.wait();
-  console.log('Fees withdrawn');
+  const receipt = await tx.wait();
+  console.log(`Fees ${hre.ethers.utils.formatEther(fees)}  withdrawn to treasury in ${receipt.transactionHash}`);
 });
 
 task("modeltoken:deploy", "Create new model token")

@@ -32,3 +32,4 @@ export type { V2_EngineV3_Withdraw } from "./V2_EngineV3_Withdraw";
 export type { V2_EngineV4 } from "./V2_EngineV4";
 export type { V2_EngineV4_1 } from "./V2_EngineV4_1";
 export type { V2_EngineV5 } from "./V2_EngineV5";
+export type { V2_EngineV5_1 } from "./V2_EngineV5_1";
