@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import UncensoredArbiusImage from '@/app/assets/images/uncensored_arbius_image.png';
-import UncensoredArbiusMobileImage from '@/app/assets/images/uncensored_arbius_mobile_image.png';
+import UncensoredArbiusImage from '@/app/assets/images/uncensored_arbius_image.svg';
+import UncensoredArbiusMobileImage from '@/app/assets/images/uncensored_arbius_mobile_image.svg';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
 import Link from 'next/link';
 import { Fade } from 'react-awesome-reveal';
