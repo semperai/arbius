@@ -36,7 +36,7 @@ export function formatDuration(seconds: number): string {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
+
   if (days > 0) {
     return `${days} day${days !== 1 ? 's' : ''}`;
   } else if (hours > 0) {
@@ -49,12 +49,12 @@ export function formatDuration(seconds: number): string {
 export function formatTimeAgo(timestamp: number): string {
   const now = Math.floor(Date.now() / 1000);
   const diff = now - timestamp;
-  
+
   if (diff < 60) return `${diff} sec ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
   if (diff < 2592000) return `${Math.floor(diff / 86400)} days ago`;
-  
+
   const date = new Date(timestamp * 1000);
   return date.toLocaleDateString();
 }

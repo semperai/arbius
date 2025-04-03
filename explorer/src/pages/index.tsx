@@ -15,9 +15,9 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!searchQuery) return;
-    
+
     // Simple validation for task/address format
     if (searchQuery.startsWith('0x') && searchQuery.length >= 42) {
       // Determine if it's likely a task ID, model, or address based on length
@@ -241,46 +241,46 @@ function TaskStatusBadge({ status }: { status: string }) {
 // Helper function to truncate strings
 const mockRecentTasks: Task[] = [
   {
-    id: '0x1309128093aa6234231eee34234234eff7778aa8a', 
-    model: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    fee: '0.25 AIUS', 
-    time: '3h', 
+    id: '0x1309128093aa6234231eee34234234eff7778aa8a',
+    model: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    fee: '0.25 AIUS',
+    time: '3h',
     status: 'Completed',
   },
   {
-    id: '0x2409338762aa8734231eee34298734eff7734fa8b', 
-    model: '0x8f23f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    fee: '0.15 AIUS', 
-    time: '5h', 
-    status: 'Pending' 
+    id: '0x2409338762aa8734231eee34298734eff7734fa8b',
+    model: '0x8f23f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    fee: '0.15 AIUS',
+    time: '5h',
+    status: 'Pending'
   },
   {
-    id: '0x34093aa762aa8734231eee34298734eff7734fa8c', 
-    model: '0x9a25f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    fee: '0.32 AIUS', 
-    time: '6h', 
-    status: 'Contested' 
+    id: '0x34093aa762aa8734231eee34298734eff7734fa8c',
+    model: '0x9a25f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    fee: '0.32 AIUS',
+    time: '6h',
+    status: 'Contested'
   },
   {
-    id: '0x44093aa762aa8734231eee34298734eff7734fa8d', 
-    model: '0xac25f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    fee: '0.08 AIUS', 
-    time: '12h', 
-    status: 'Completed' 
+    id: '0x44093aa762aa8734231eee34298734eff7734fa8d',
+    model: '0xac25f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    fee: '0.08 AIUS',
+    time: '12h',
+    status: 'Completed'
   },
   {
-    id: '0x54093aa762aa8734231eee34298734eff7734fa8e', 
-    model: '0xbc25f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    fee: '0.45 AIUS', 
-    time: '1d', 
-    status: 'Pending' 
+    id: '0x54093aa762aa8734231eee34298734eff7734fa8e',
+    model: '0xbc25f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    fee: '0.45 AIUS',
+    time: '1d',
+    status: 'Pending'
   },
   {
-    id: '0x64093aa762aa8734231eee34298734eff7734fa8f', 
-    model: '0xdc25f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    fee: '0.18 AIUS', 
-    time: '1d', 
-    status: 'Completed' 
+    id: '0x64093aa762aa8734231eee34298734eff7734fa8f',
+    model: '0xdc25f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    fee: '0.18 AIUS',
+    time: '1d',
+    status: 'Completed'
   }
 ].map((task) => ({
   ...task,
@@ -291,29 +291,29 @@ const mockRecentTasks: Task[] = [
 }) as Task);
 
 const mockPopularModels: Model[] = [
-  { 
-    id: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    name: 'InferenceAI-V1', 
-    fee: '0.15 AIUS', 
-    usage: '2,345', 
+  {
+    id: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    name: 'InferenceAI-V1',
+    fee: '0.15 AIUS',
+    usage: '2,345',
     successRate: 98,
     addr: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
     rate: 0.25,
   },
-  { 
-    id: '0x8c23f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    name: 'StableDiffusion-XL', 
-    fee: '0.25 AIUS', 
-    usage: '1,872', 
+  {
+    id: '0x8c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    name: 'StableDiffusion-XL',
+    fee: '0.25 AIUS',
+    usage: '1,872',
     successRate: 96,
     addr: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
     rate: 0.6,
   },
-  { 
-    id: '0x9c23f5ca27a3e9a75340e2282e0a853d4fe591d7', 
-    name: 'GPT-Arbius', 
-    fee: '0.18 AIUS', 
-    usage: '1,653', 
+  {
+    id: '0x9c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
+    name: 'GPT-Arbius',
+    fee: '0.18 AIUS',
+    usage: '1,653',
     successRate: 94,
     addr: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
     rate: 0.15,

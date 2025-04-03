@@ -56,35 +56,35 @@ export default function TasksPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
-  
+
   useEffect(() => {
     async function fetchTasks() {
       try {
         setLoading(true);
-        
+
         // In a real implementation, you would fetch tasks from the contract
         // For now, we'll use mock data
         setTimeout(() => {
           setTasks(getMockTasks());
           setLoading(false);
         }, 1000);
-        
+
       } catch (error) {
         console.error("Error fetching tasks:", error);
         setLoading(false);
       }
     }
-    
+
     fetchTasks();
   }, []);
-  
+
   // Filter tasks based on search query and filters
   const filteredTasks = tasks.filter((task) => {
     // Apply status filter
     if (statusFilter !== 'all' && task.status.toLowerCase() !== statusFilter) {
       return false;
     }
-    
+
     // Apply time filter
     const now = Math.floor(Date.now() / 1000);
     if (timeFilter === '24h' && (now - task.blocktime > 24 * 60 * 60)) {
@@ -94,10 +94,10 @@ export default function TasksPage() {
     } else if (timeFilter === '30d' && (now - task.blocktime > 30 * 24 * 60 * 60)) {
       return false;
     }
-    
+
     // Apply search query
     if (!searchQuery) return true;
-    
+
     const query = searchQuery.toLowerCase();
     return (
       task.id.toLowerCase().includes(query) ||
@@ -106,7 +106,7 @@ export default function TasksPage() {
       (task.modelName && task.modelName.toLowerCase().includes(query))
     );
   });
-  
+
   // Sort tasks based on sortBy
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     switch (sortBy) {
@@ -122,7 +122,7 @@ export default function TasksPage() {
         return 0;
     }
   });
-  
+
   // Calculate statistics
   const stats = {
     total: tasks.length,
@@ -131,14 +131,14 @@ export default function TasksPage() {
     contested: tasks.filter(t => t.status === 'Contested').length,
     totalFees: tasks.reduce((sum, task) => sum + task.fee, BigInt(0))
   };
-  
+
   return (
     <>
       <Head>
         <title>Tasks | Arbius Explorer</title>
         <meta name="description" content="Browse AI tasks in the Arbius decentralized AI system." />
       </Head>
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -147,7 +147,7 @@ export default function TasksPage() {
             Browse tasks submitted to the Arbius decentralized AI system
           </p>
         </div>
-        
+
         {/* Stats Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card>
@@ -163,7 +163,7 @@ export default function TasksPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -177,7 +177,7 @@ export default function TasksPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -191,7 +191,7 @@ export default function TasksPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -204,16 +204,16 @@ export default function TasksPage() {
                   </div>
                 </div>
                 <div className="p-2 bg-primary/10 rounded-full">
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="20" 
-                    height="20" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     className="text-primary"
                   >
                     <path d="M12 2v6.5l1 1 1-1V2" />
@@ -225,7 +225,7 @@ export default function TasksPage() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Search and Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
@@ -238,7 +238,7 @@ export default function TasksPage() {
               className="pl-9"
             />
           </div>
-          
+
           <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[130px]">
@@ -251,7 +251,7 @@ export default function TasksPage() {
                 <SelectItem value="contested">Contested</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={timeFilter} onValueChange={setTimeFilter}>
               <SelectTrigger className="w-[130px]">
                 <SelectValue placeholder="Time" />
@@ -263,7 +263,7 @@ export default function TasksPage() {
                 <SelectItem value="30d">Last 30 Days</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Sort by" />
@@ -275,7 +275,7 @@ export default function TasksPage() {
                 <SelectItem value="fee-low">Lowest Fee</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -293,12 +293,12 @@ export default function TasksPage() {
             </DropdownMenu>
           </div>
         </div>
-        
+
         {/* Results Count */}
         <div className="text-sm text-muted-foreground mb-4">
           Showing {sortedTasks.length} of {tasks.length} tasks
         </div>
-        
+
         {/* Tasks List */}
         {loading ? (
           viewMode === 'table' ? (
@@ -324,8 +324,8 @@ export default function TasksPage() {
           <div className="text-center py-12 border rounded-lg">
             <AlertTriangleIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground mb-4">No tasks found matching your search criteria.</p>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setSearchQuery('');
                 setStatusFilter('all');
@@ -398,7 +398,7 @@ function TaskCard({ task }: { task: Task }) {
             </Link>
             <TaskStatusBadge status={task.status} />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-muted-foreground mb-1">Model</div>
@@ -406,25 +406,25 @@ function TaskCard({ task }: { task: Task }) {
                 {task.modelName || truncateMiddle(task.model, 10)}
               </Link>
             </div>
-            
+
             <div>
               <div className="text-xs text-muted-foreground mb-1">Fee</div>
               <div className="text-sm font-medium">{ethers.formatEther(task.fee)} AIUS</div>
             </div>
-            
+
             <div>
               <div className="text-xs text-muted-foreground mb-1">Owner</div>
               <Link href={`/address/${task.owner}`} className="text-sm text-primary hover:underline truncate block">
                 {truncateMiddle(task.owner, 10)}
               </Link>
             </div>
-            
+
             <div>
               <div className="text-xs text-muted-foreground mb-1">Created</div>
               <div className="text-sm">{formatTimeAgo(task.blocktime)}</div>
             </div>
           </div>
-          
+
           <Button variant="outline" className="w-full" asChild>
             <Link href={`/tasks/${task.id}`}>View Details</Link>
           </Button>
@@ -495,7 +495,7 @@ function TaskCardSkeleton() {
             <Skeleton className="h-5 w-40" />
             <Skeleton className="h-5 w-20" />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             {[...Array(4)].map((_, i) => (
               <div key={i}>
@@ -504,7 +504,7 @@ function TaskCardSkeleton() {
               </div>
             ))}
           </div>
-          
+
           <Skeleton className="h-9 w-full" />
         </div>
       </CardContent>
@@ -515,7 +515,7 @@ function TaskCardSkeleton() {
 // Mock data functions
 function getMockTasks(): Task[] {
   const now = Math.floor(Date.now() / 1000);
-  
+
   return [
     {
       id: '0x1309128093aa6234231eee34234234eff7778aa8a',

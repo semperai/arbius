@@ -26,8 +26,8 @@ const NotFoundPage = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => router.back()}
               className="gap-2"
             >

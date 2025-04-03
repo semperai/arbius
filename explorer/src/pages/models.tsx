@@ -22,32 +22,32 @@ export default function ModelsPage() {
   const [models, setModels] = useState<Model[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('popularity');
-  
+
   useEffect(() => {
     async function fetchModels() {
       try {
         setLoading(true);
-        
+
         // In a real implementation, you would fetch models from the contract
         // For now, we'll use mock data
         setTimeout(() => {
           setModels(getMockModels());
           setLoading(false);
         }, 1000);
-        
+
       } catch (error) {
         console.error("Error fetching models:", error);
         setLoading(false);
       }
     }
-    
+
     fetchModels();
   }, []);
-  
+
   // Filter models based on search query
   const filteredModels = models.filter((model) => {
     if (!searchQuery) return true;
-    
+
     const query = searchQuery.toLowerCase();
     return (
       model.name.toLowerCase().includes(query) ||
@@ -55,7 +55,7 @@ export default function ModelsPage() {
       model.addr.toLowerCase().includes(query)
     );
   });
-  
+
   // Sort models based on sortBy
   const sortedModels = [...filteredModels].sort((a, b) => {
     switch (sortBy) {
@@ -73,14 +73,14 @@ export default function ModelsPage() {
         return 0;
     }
   });
-  
+
   return (
     <>
       <Head>
         <title>Models | Arbius Explorer</title>
         <meta name="description" content="Browse AI models available on the Arbius decentralized AI system." />
       </Head>
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -89,7 +89,7 @@ export default function ModelsPage() {
             Browse available models in the Arbius decentralized AI system
           </p>
         </div>
-        
+
         {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
@@ -102,7 +102,7 @@ export default function ModelsPage() {
               className="pl-9"
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
             <SlidersIcon className="h-4 w-4 text-muted-foreground" />
             <Select value={sortBy} onValueChange={setSortBy}>
@@ -119,7 +119,7 @@ export default function ModelsPage() {
             </Select>
           </div>
         </div>
-        
+
         {/* Models Grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -136,8 +136,8 @@ export default function ModelsPage() {
         ) : (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No models found matching your search criteria.</p>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="mt-4"
               onClick={() => {
                 setSearchQuery('');
@@ -228,7 +228,7 @@ function SuccessRateBadge({ rate }: { rate: number }) {
     if (rate >= 85) return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
     return 'bg-red-500/10 text-red-500 border-red-500/20';
   };
-  
+
   return (
     <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-xs font-semibold ${getColor()}`}>
       {rate >= 95 ? 'High' : rate >= 85 ? 'Med' : 'Low'}

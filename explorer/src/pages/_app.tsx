@@ -16,7 +16,7 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className='relative bg-background border-b z-50 block w-full mx-4 z-auto top-auto p-0 bg-transparent border-0'>
+        <div className='relative bg-background border-b z-50 block w-full mx-4 top-auto p-0 border-0'>
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -129,7 +129,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 export default function App({ Component, pageProps }: AppProps) {
   // Special pages that don't need the full layout (like 404)
   const is404Page = Component.displayName === 'NotFound';
-  
+
   return (
     <ThemeProvider
       attribute="class"
@@ -140,7 +140,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      
+
       {is404Page ? (
         <Component {...pageProps} />
       ) : (

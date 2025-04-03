@@ -63,13 +63,13 @@ const ARBIUS_ABI = [
   "function tasks(bytes32) view returns (bytes32 model, uint256 fee, address owner, uint64 blocktime, uint8 version, bytes cid)",
   "function solutions(bytes32) view returns (address validator, uint64 blocktime, bool claimed, bytes cid)",
   "function contestations(bytes32) view returns (address validator, uint64 blocktime, uint32 finish_start_index, uint256 slashAmount)",
-  
+
   // Model functions
   "function models(bytes32) view returns (uint256 fee, address addr, uint256 rate, bytes cid)",
-  
+
   // Validator functions
   "function validators(address) view returns (uint256 staked, uint256 since, address addr)",
-  
+
   // Other getters
   "function baseToken() view returns (address)",
   "function treasury() view returns (address)",
@@ -86,7 +86,7 @@ const ARBIUS_ABI = [
 
 // Contract address on Arbitrum One
 // Note: Replace with the actual contract address
-const ARBIUS_CONTRACT_ADDRESS = "0xYourArbiusContractAddress"; 
+const ARBIUS_CONTRACT_ADDRESS = "0xYourArbiusContractAddress";
 
 // Provider setup - using a singleton pattern to avoid multiple providers
 let provider: ethers.JsonRpcProvider | null = null;
@@ -111,7 +111,7 @@ export async function getTask(taskId: string): Promise<Task | null> {
     const task = await contract.tasks(taskId);
     const solution = await contract.solutions(taskId);
     const contestation = await contract.contestations(taskId);
-    
+
     return {
       id: taskId,
       model: task.model,
@@ -145,7 +145,7 @@ export async function getModel(modelId: string): Promise<Model | null> {
   const contract = await getContract();
   try {
     const model = await contract.models(modelId);
-    
+
     return {
       id: modelId,
       fee: ethers.formatUnits(model.fee, 18), // Assuming 18 decimals
@@ -164,7 +164,7 @@ export async function getValidator(address: string): Promise<Validator | null> {
   const contract = await getContract();
   try {
     const validator = await contract.validators(address);
-    
+
     return {
       address: address,
       staked: ethers.formatUnits(validator.staked, 18), // Assuming 18 decimals
@@ -206,7 +206,7 @@ export async function getContractInfo(): Promise<ContractInfo | null> {
       contract.retractionFeePercentage(),
       contract.treasuryRewardPercentage()
     ]);
-    
+
     return {
       baseToken,
       treasury,
