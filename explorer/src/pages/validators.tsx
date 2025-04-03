@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
+import { truncateMiddle } from "@/lib/utils";
 
 // Validator interface
 interface Validator {
@@ -308,15 +309,6 @@ function ValidatorCardSkeleton() {
       </CardContent>
     </Card>
   );
-}
-
-// Helper functions
-function truncateMiddle(str: string, maxLength: number): string {
-  if (!str) return '';
-  if (str.length <= maxLength) return str;
-  const prefixLength = Math.ceil(maxLength / 2);
-  const suffixLength = Math.floor(maxLength / 2);
-  return `${str.slice(0, prefixLength)}...${str.slice(-suffixLength)}`;
 }
 
 // Mock data functions

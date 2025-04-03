@@ -29,6 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { truncateMiddle, formatTimeAgo } from "@/lib/utils";
 
 interface Task {
   id: string;
@@ -509,28 +510,6 @@ function TaskCardSkeleton() {
       </CardContent>
     </Card>
   );
-}
-
-// Helper functions
-function truncateMiddle(str: string, maxLength: number): string {
-  if (!str) return '';
-  if (str.length <= maxLength) return str;
-  const prefixLength = Math.ceil(maxLength / 2);
-  const suffixLength = Math.floor(maxLength / 2);
-  return `${str.slice(0, prefixLength)}...${str.slice(-suffixLength)}`;
-}
-
-function formatTimeAgo(timestamp: number): string {
-  const now = Math.floor(Date.now() / 1000);
-  const diff = now - timestamp;
-  
-  if (diff < 60) return `${diff} sec ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
-  if (diff < 2592000) return `${Math.floor(diff / 86400)} days ago`;
-  
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString();
 }
 
 // Mock data functions

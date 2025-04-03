@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { truncateMiddle } from '@/lib/utils';
 
 export default function ModelsPage() {
   const [loading, setLoading] = useState(true);
@@ -233,15 +234,6 @@ function SuccessRateBadge({ rate }: { rate: number }) {
       {rate >= 95 ? 'High' : rate >= 85 ? 'Med' : 'Low'}
     </span>
   );
-}
-
-// Helper functions
-function truncateMiddle(str: string, maxLength: number): string {
-  if (!str) return '';
-  if (str.length <= maxLength) return str;
-  const prefixLength = Math.ceil(maxLength / 2);
-  const suffixLength = Math.floor(maxLength / 2);
-  return `${str.slice(0, prefixLength)}...${str.slice(-suffixLength)}`;
 }
 
 // Mock data functions
