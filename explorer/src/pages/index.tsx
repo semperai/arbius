@@ -160,7 +160,9 @@ function TaskCard({ task }: { task: Task }) {
         <div className="flex flex-col space-y-1 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Model:</span>
-            <span className="font-medium truncate max-w-[180px]">{truncateString(task.model, 16)}</span>
+            <Link href={`/model/${task.model}`} className="font-medium truncate max-w-[180px]">
+              {truncateString(task.model, 16)}
+            </Link>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Fee:</span>
@@ -186,7 +188,7 @@ function ModelCard({ model }: { model: Model }) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg truncate">
-          <Link href={`/models/${model.id}`} className="hover:text-primary transition-colors">
+          <Link href={`/model/${model.id}`} className="hover:text-primary transition-colors">
             {model.name}
           </Link>
         </CardTitle>

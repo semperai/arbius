@@ -393,7 +393,7 @@ function TaskCard({ task }: { task: Task }) {
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-start">
-            <Link href={`/tasks/${task.id}`} className="font-medium text-primary hover:underline truncate max-w-[80%]">
+            <Link href={`/task/${task.id}`} className="font-medium text-primary hover:underline truncate max-w-[80%]">
               {truncateMiddle(task.id, 16)}
             </Link>
             <TaskStatusBadge status={task.status} />
@@ -426,7 +426,7 @@ function TaskCard({ task }: { task: Task }) {
           </div>
 
           <Button variant="outline" className="w-full" asChild>
-            <Link href={`/tasks/${task.id}`}>View Details</Link>
+            <Link href={`/task/${task.id}`}>View Details</Link>
           </Button>
         </div>
       </CardContent>

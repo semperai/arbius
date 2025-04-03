@@ -289,7 +289,7 @@ export default function ValidatorDetail() {
                               </TableCell>
                               <TableCell>
                                 <Link
-                                  href={`https://ipfs.io/ipfs/${solution.cid}`}
+                                  href={`https://ipfs.arbius.ai/ipfs/${solution.cid}`}
                                   target="_blank"
                                   className="text-primary hover:underline flex items-center gap-1"
                                 >

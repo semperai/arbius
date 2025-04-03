@@ -203,7 +203,7 @@ export default function TaskDetail() {
                   icon={<BoxIcon className="h-4 w-4" />}
                   label="Model"
                   value={
-                    <Link href={`/models/${task.model}`} className="text-primary hover:underline">
+                    <Link href={`/model/${task.model}`} className="text-primary hover:underline">
                       {model ? model.name : truncateMiddle(task.model, 16)}
                     </Link>
                   }
@@ -213,7 +213,7 @@ export default function TaskDetail() {
                   label="IPFS CID"
                   value={
                     <a
-                      href={`https://ipfs.io/ipfs/${task.cid}`}
+                      href={`https://ipfs.arbius.org/ipfs/${task.cid}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline flex items-center gap-1"
@@ -271,7 +271,7 @@ export default function TaskDetail() {
                     }
                   />
                   <div className="pt-4">
-                    <Link href={`/models/${task.model}`} passHref>
+                    <Link href={`/model/${task.model}`} passHref>
                       <Button variant="outline" size="sm" className="w-full">View Model Details</Button>
                     </Link>
                   </div>
@@ -398,7 +398,7 @@ export default function TaskDetail() {
                       label="IPFS CID"
                       value={
                         <a
-                          href={`https://ipfs.io/ipfs/${solution.cid}`}
+                          href={`https://ipfs.arbius.org/ipfs/${solution.cid}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline flex items-center gap-1"
