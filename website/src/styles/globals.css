@@ -575,6 +575,7 @@ input[type='number'] {
   }
   .arbius-models-background{
     background-position: -700px -50px;
+    background-repeat: repeat;
   }
 }
 @media (max-width: 400px){
