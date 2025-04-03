@@ -171,7 +171,7 @@ export default function ArbiusModels(){
 						<div className='stake-box-shadow flex h-auto items-center justify-between rounded-[15px] bg-white-background px-2 pr-3'>
 				          <input
 				            placeholder='Search Model name or ID'
-				            className='h-full w-[250px] border-0 bg-transparent px-3 py-4 focus:outline-none placeholder-[#B0B0B0] text-black-text'
+				            className='h-full w-[250px] border-0 bg-transparent px-3 py-0 focus:outline-none placeholder-[#B0B0B0] text-black-text'
 				            value={searchText}
 				            onChange={(e) => {
 				              handleSearch(e);
@@ -183,9 +183,7 @@ export default function ArbiusModels(){
 				        <div className="hidden lg:block">
 				        	<CustomDropdown
 				        		options={
-				        			[{"name": "A100", "icon": nvidia},
-				        			{"name": "H100", "icon": nvidia},
-				        			{"name": "5090", "icon": nvidia}]
+				        			[{"name": "A100", "icon": nvidia}]
 				        		}
 				        		defaultValue={{"name": "Filter by: GPU"}}
 				        		onChange={() => {}}
@@ -250,7 +248,7 @@ export default function ArbiusModels(){
 			                </h1>
 			              </div>
 			              <div className='w-[25%] lg:w-[15%] text-center lm:text-left'>
-			                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
+			                <h1 className='ml-[12px] text-[14px] md:text-[0.85rem]'>{item?.emissions}</h1>
 			              </div>
 			              <div className='w-[25%] lg:w-[15%]'>
 			                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees}</h1>

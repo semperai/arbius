@@ -32,7 +32,7 @@ const CustomDropdown = ({ options, defaultValue, onChange }) => {
       <div>
         <button
           type="button"
-          className="group inline-flex justify-between items-center text-center h-[51.5px] w-[180px] rounded-[15px] shadow-sm px-4 py-1 bg-white-background font-medium text-black-text hover:bg-purple-background hover:text-original-white"
+          className="group inline-flex justify-between items-center text-center h-[42px] w-[180px] rounded-[15px] shadow-sm px-4 py-1 bg-white-background font-medium text-black-text hover:bg-purple-background hover:text-original-white"
           onClick={() => setIsOpen(!isOpen)}
         >
           <Image className="h-[11px] group-hover:invert" src={FilterIcon} alt="" />

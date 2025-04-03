@@ -203,7 +203,7 @@ export default function Footer() {
             <div className='h-[1.5px] w-[100%] bg-[#F4F4F4]'></div>
             <div className='mt-10'>
               <p className='lato-regular text-[14px] text-copyright-text'>
-                &copy; Arbius 2024
+                &copy; Arbius 2025
               </p>
             </div>
           </div>

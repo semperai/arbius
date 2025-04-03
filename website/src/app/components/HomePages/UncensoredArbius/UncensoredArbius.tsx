@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import Image from 'next/image';
-import UncensoredArbiusImage from '@/app/assets/images/uncensored_arbius_image.svg';
-import UncensoredArbiusMobileImage from '@/app/assets/images/uncensored_arbius_mobile_image.svg';
+import UncensoredArbiusImage from '@/app/assets/images/uncensored_arbius_image.png';
+import UncensoredArbiusMobileImage from '@/app/assets/images/uncensored_arbius_mobile_image.png';
 import RightArrow from '@/app/assets/images/right_arrow.svg';
 import Link from 'next/link';
 import { Fade } from 'react-awesome-reveal';
@@ -11,18 +11,23 @@ export default function UncensoredArbius(){
 
 	return (
 		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/uncensored_arbius_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
-			<div className="w-[80%] m-[auto]">
+			<div className="w-mobile-section-width lg:w-section-width m-[auto]">
 
 				<div className="flex flex-col lg:flex-row items-center justify-between">
 					<div className="basis-[40%]">
-						<div className='lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+						<div className='hidden lg:block lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
 				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
 				            	Uncensored AI Access,
 				            </Fade>
 				        </div>
-						<div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+						<div className='hidden lg:block lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
 				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
 				            	Powered by Arbius.
+				            </Fade>
+				        </div>
+				        <div className='lato-bold fade-container mb-6 text-mobile-header leading-[50px] text-black-text lg:hidden lg:leading-none lato-bold'>
+				            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+				            	Uncensored AI Access, Powered by Arbius.
 				            </Fade>
 				        </div>
 						<div className="">

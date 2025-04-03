@@ -12,19 +12,24 @@ export default function EACC(){
 
 	return (
 		<div className="text-black-text lato-regular bg-white-background bg-[url('../app/assets/images/eacc_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
-			<div className="w-[80%] m-[auto]">
+			<div className="w-mobile-section-width lg:w-section-width m-[auto]">
 
-				<div className="flex flex-col lg:flex-row items-center justify-between">
+				<div className="flex flex-col lg:flex-row lg:items-center justify-between">
 					<div className="basis-[55%]">
 						<Image src={EACCLogo} alt="" />
-						<div className='lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+						<div className='hidden lg:block lato-bold text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
 				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
 				            	EACC (Effective
 				            </Fade>
 				        </div>
-				        <div className='lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
+				        <div className='hidden lg:block lato-bold mb-6 text-mobile-header font-medium text-black-text lg:text-header 2xl:text-header-2xl'>
 				            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
 				            	Acceleration Marketplace)
+				            </Fade>
+				        </div>
+				        <div className='fade-container mb-6 text-mobile-header leading-[50px] text-black-text lg:hidden lg:leading-none lato-bold'>
+				            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+				              EACC (Effective Acceleration Marketplace)
 				            </Fade>
 				        </div>
 						<div className="">
