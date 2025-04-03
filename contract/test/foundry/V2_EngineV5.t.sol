@@ -91,7 +91,7 @@ contract EngineV5Test is Test {
         // set up models
         MODEL_1 = deployBootstrapModel(modelOwner1);
         MODEL_2 = deployBootstrapModel(modelOwner2);
-        MODEL_3 = deployBootstrapModel(modelOwner3);
+        MODEL_3 = deployBootstrapFeeModel(modelOwner3);
 
         // create gauges
         vm.startPrank(deployer);
@@ -154,9 +154,9 @@ contract EngineV5Test is Test {
         // get veRewards up until now
         uint256 veRewards = engine.veRewards();
 
-        bytes32 taskid1 = deployBootstrapTask(MODEL_1, deployer, 0);
+        bytes32 taskid1 = deployBootstrapTask(MODEL_1, user2, 0);
         bytes32 taskid2 = deployBootstrapTask(MODEL_2, user1, 0);
-        bytes32 taskid3 = deployBootstrapTask(MODEL_3, user2, 0);
+        bytes32 taskid3 = deployBootstrapTask(MODEL_3, deployer, 1 ether);
 
         bytes32 commitment1 = engine.generateCommitment(
             validator1,
@@ -216,7 +216,7 @@ contract EngineV5Test is Test {
         uint256 validatorReward = total - treasuryReward - taskOwnerReward;
 
         // get balances before
-        uint256 taskOwnerBalanceBefore = baseToken.balanceOf(deployer);
+        uint256 taskOwnerBalanceBefore = baseToken.balanceOf(user2);
         uint256 validatorBalanceBefore1 = baseToken.balanceOf(validator1);
         uint256 validatorBalanceBefore2 = baseToken.balanceOf(validator2);
         uint256 validatorBalanceBefore3 = baseToken.balanceOf(validator3);
@@ -239,7 +239,7 @@ contract EngineV5Test is Test {
             treasuryReward
         );
         assertEq(
-            baseToken.balanceOf(deployer) - taskOwnerBalanceBefore,
+            baseToken.balanceOf(user2) - taskOwnerBalanceBefore,
             taskOwnerReward
         );
         assertEq(
@@ -335,10 +335,15 @@ contract EngineV5Test is Test {
         assertEq(stakedFinal - staked, 0);
     }
 
-    function testFeeDistribution() public {
+    function testFeeDistributionV5() public {
         // transfer some AIUS from deployer to user1 for fees
         vm.prank(deployer);
         baseToken.transfer(user1, 100e18);
+
+        uint256 initialTotalHeld = engine.totalHeld();
+
+        // simulate usage to test for accruedfees etc. 
+        _simulateUsage();
 
         // deploy model with a fee of 1 AIUS
         uint256 modelFee = 1 ether;
@@ -418,7 +423,7 @@ contract EngineV5Test is Test {
 
         // claim accruedFees
         engine.withdrawAccruedFees();
-        assertEq(engine.totalHeld(), totalHeldBefore);
+        assertEq(engine.totalHeld(), initialTotalHeld);
         assertEq(engine.accruedFees(), 0);
     }
 
@@ -580,8 +585,8 @@ contract EngineV5Test is Test {
         // submit task and claim solution every hour for one week
         for (uint256 i = 0; i < 168; i++) {
             /* submit task */
-            bytes32 taskid = deployBootstrapTask(MODEL_1, user1, 0);
-            uint256 gaugeMultiplier = voter.getGaugeMultiplier(MODEL_1);
+            bytes32 taskid = deployBootstrapTask(MODEL_3, deployer, 1 ether);
+            uint256 gaugeMultiplier = voter.getGaugeMultiplier(MODEL_3);
 
             /* signal commitment and submit solution */
             bytes32 commitment = engine.generateCommitment(
@@ -637,6 +642,7 @@ contract EngineV5Test is Test {
             //uint256 psuedoTotalSupply = engine.getPsuedoTotalSupply();
             //console2.log("psuedoTotalSupply", psuedoTotalSupply);
             //console2.log("veRewardsSum", veRewardsSum);
+            //console2.log(engine.accruedFees());
 
             // fast forward 1 hour
             skip(3600);

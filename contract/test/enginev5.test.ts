@@ -48,7 +48,7 @@ describe("EngineV5 SetUp", () => {
     const V2_EngineV2 = await ethers.getContractFactory("V2_EngineV2");
     const V2_EngineV3 = await ethers.getContractFactory("V2_EngineV3");
     const V2_EngineV4 = await ethers.getContractFactory("V2_EngineV4");
-    const V2_EngineV5 = await ethers.getContractFactory("V2_EngineV5");
+    const V2_EngineV5 = await ethers.getContractFactory("V2_EngineV5_1");
 
     engine = (await upgrades.deployProxy(V2_EngineV1, [
       baseToken.address,
