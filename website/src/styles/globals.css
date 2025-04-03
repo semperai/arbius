@@ -336,6 +336,19 @@
 .gradient-border {
   border-image: linear-gradient(90deg, #4a28ff 16.5%, #9ed6ff 100%) 1;
 }
+
+.border-gradient{
+  border: 1.4px solid transparent;
+  background: linear-gradient(white, white) padding-box, linear-gradient(180deg, #D4B8EB 40%, #290ACF 100%) border-box;
+}
+
+.arbius-models-background{
+  background: url('../app/assets/images/models-bg.png');
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 .model-image-gradient {
   background: linear-gradient(
     78.34deg,
@@ -560,10 +573,17 @@ input[type='number'] {
     width: 240px;
     font-size: 12px;
   }
+  .arbius-models-background{
+    background-position: -700px -50px;
+    background-repeat: repeat;
+  }
 }
 @media (max-width: 400px){
     .all-stake > div {
       @apply pb-[10px] text-[14px];
+    }
+    .arbius-models-background{
+      background-position: -1000px -50px;
     }
 
 }

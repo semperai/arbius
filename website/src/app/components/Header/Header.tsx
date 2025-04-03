@@ -25,6 +25,7 @@ import { BigNumber } from 'ethers';
 import { AIUS_wei } from '../../Utils/constantValues';
 import Config from '@/config.one.json';
 import ConfigEth from '@/config.eth.json';
+import qwen_icon from '@/app/assets/images/qwen.png';
 
 export default function Header() {
   const [headerOpen, setHeaderOpen] = useState(false);
@@ -256,20 +257,20 @@ export default function Header() {
               <div className='absolute left-[-18px] ml-[-5px] bg-[black] p-[15px_50px] opacity-0'></div>
               <AnimateHeight height={modelsOpen ? 'auto' : 0}>
                 <div className='lg:staking lg:hidden lg:translate-x-[-40%] lg:translate-y-[25px] lg:group-hover:flex'>
-                  <Link href={'/generate'} target='_blank'>
+                  <Link href={'https://arbiusplayground.com/chat'} target='_blank'>
                     <div className='staking-block'>
                       <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
                         <p className='lato-regular badge-text text-[12px] text-[#4A28FF]'>
-                          Paused
+                          Live
                         </p>
                       </div>
                       <Image
-                        className='h-[auto] w-[20px] lg:h-[20px] lg:w-[auto]'
-                        src={kandinsky}
+                        className='h-[auto] w-[20px] lg:h-[20px] lg:w-[auto] !filter-none'
+                        src={qwen_icon}
                         alt=''
                       />
-                      <div>Kandinsky 2</div>
-                      <div>Image Generation</div>
+                      <div>Qwen 32b</div>
+                      <div>Text Generation</div>
                     </div>
                   </Link>
                   <Link href={'#'}>
@@ -280,7 +281,7 @@ export default function Header() {
                         </p>
                       </div>
                       <Image
-                        className='lg:w-[auto]] h-[auto] w-[20px] lg:h-[20px]'
+                        className='lg:w-[auto] h-[auto] w-[20px] lg:h-[20px]'
                         src={kandinsky}
                         alt=''
                       />

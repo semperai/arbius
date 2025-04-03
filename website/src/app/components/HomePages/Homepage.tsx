@@ -7,6 +7,10 @@ import Models from './Models/Models';
 import Community from './Community/Community';
 import Quote from './Quote/Quote';
 import Showcase from './Showcase/Showcase';
+import ArbiusModels from './ArbiusModels/ArbiusModels';
+import AIUS from './AIUS/AIUS';
+import EACC from './EACC/EACC';
+import UncensoredArbius from './UncensoredArbius/UncensoredArbius';
 
 export default function Homepage() {
   return (
@@ -14,11 +18,13 @@ export default function Homepage() {
       <MachineLearningSection />
       <Partners />
       <Models />
-      <Buy />
+      <ArbiusModels />
+      <AIUS />
       <Democratic />
+      <UncensoredArbius />
+      <EACC />
       <Community />
-      <Quote />
-      <Showcase />
+      <Buy />
     </div>
   );
 }
