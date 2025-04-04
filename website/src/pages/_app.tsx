@@ -4,7 +4,7 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 import { WagmiProvider, createConfig, http } from 'wagmi';
-import { mainnet, arbitrum, arbitrumNova, arbitrumSepolia, Chain } from 'wagmi/chains';
+import { mainnet, arbitrum, arbitrumNova, arbitrumSepolia, Chain, sepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { injected } from 'wagmi/connectors';
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
@@ -48,7 +48,7 @@ const arbitrumNovaChain: Chain = {
   },
 };
 
-const chains = [arbitrumNovaChain, mainnet, arbitrumSepolia, arbitrum] as const;
+const chains = [arbitrumNovaChain, mainnet, arbitrumSepolia, arbitrum, sepolia];
 
 const wagmiConfig = defaultWagmiConfig({
   chains,

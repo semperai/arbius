@@ -11,9 +11,6 @@ import Notifications from '../app/components/Stake/AIUS/Notifications';
 import {
   useAccount,
   useReadContract,
-  useWriteContract,
-  useTransaction,
-  useSwitchChain,
   useChainId,
 } from 'wagmi';
 import baseTokenV1 from '../app/abis/baseTokenV1.json';
@@ -46,32 +43,31 @@ export default function AIUS({ protocolData }: AIUSProps) {
   const { address, isConnected } = useAccount();
   const [updateValue, setUpdateValue] = useState(0);
   const chainId = useChainId();
-  const { switchChain } = useSwitchChain();
 
-  const switchToArbitrum = useCallback(async () => {
+  const forceSwitchChain = async (chainId: number) => {
+    if (!window.ethereum) return;
+
     try {
-      const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 421614 : 42161;
-      await switchChain({ chainId: CHAIN });
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${chainId.toString(16)}` }],
+      });
     } catch (error) {
-      console.error('Failed to switch network:', error);
+      if (error.code === 4902) {
+        // Chain not added? Add it dynamically
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [getChainConfig(chainId)], // Define `getChainConfig` for Arbitrum/Mainnet
+        });
+      }
     }
-  }, [switchChain]);
+  };
+
 
   useEffect(() => {
-    const checkAndSwitchNetwork = async () => {
-      try {
-        const check = await window.ethereum?.request({ method: 'eth_accounts' });
-        if (check?.length) {
-          await window.ethereum?.request({ method: 'eth_requestAccounts' });
-        }
-      } catch (error) {
-        console.error('Network switch error:', error);
-      }
-      await switchToArbitrum();
-    };
-
-    checkAndSwitchNetwork();
-  }, [chainId, switchToArbitrum]);
+    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 421614 : 42161;
+    forceSwitchChain(CHAIN)
+  }, [chainId]);
 
   const { data, isError, isLoading } = useReadContract({
     address: Config.baseTokenAddress as `0x${string}`,

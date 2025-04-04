@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState, useCallback } from 'react';
 import RootLayout from '@/app/layout';
-import { useAccount, useContractRead, useSwitchChain, useChainId } from 'wagmi';
+import { useChainId } from 'wagmi';
 import Tabs from '@/app/components/Stake/LPStaking/Tabs';
 import TopHeaderSection from '@/app/components/Stake/LPStaking/TopHeaderSection';
 import { getAPR } from '@/app/Utils/getAPR';
@@ -14,27 +14,31 @@ import Config from '@/config.eth.json';
 export default function LPStaking() {
   const [data, setData] = useState(null);
 
-  const { switchChain } = useSwitchChain();
   const chainId = useChainId();
 
-  const switchToArbitrum = useCallback(() =>{
-    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 11155111 : 1;
-    switchChain({ chainId: CHAIN });
-  }, [switchChain]);
+  const forceSwitchChain = async (chainId: number) => {
+    if (!window.ethereum) return;
+
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${chainId.toString(16)}` }],
+      });
+    } catch (error) {
+      if (error.code === 4902) {
+        // Chain not added? Add it dynamically
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [getChainConfig(chainId)], // Define `getChainConfig` for Arbitrum/Mainnet
+        });
+      }
+    }
+  };
 
   useEffect(() => {
-    const f = async () => {
-      try {
-        const check = await window.ethereum?.request({ method: 'eth_accounts' }); // Request account access if needed
-        if (check?.length) {
-          await window.ethereum?.request({ method: 'eth_requestAccounts' });
-        }
-      } catch (error) {}
-    };
-
-    f();
-    switchToArbitrum();
-  }, [switchToArbitrum]);
+    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 11155111 : 1;
+    forceSwitchChain(CHAIN)
+  }, [chainId]);
 
 
   const getWeb3Sepolia = async() => {
