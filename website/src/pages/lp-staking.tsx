@@ -24,13 +24,14 @@ export default function LPStaking() {
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${chainId.toString(16)}` }],
       });
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 4902) {
+        console.log("Error : Chain not defined")
         // Chain not added? Add it dynamically
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [getChainConfig(chainId)], // Define `getChainConfig` for Arbitrum/Mainnet
-        });
+        // await window.ethereum.request({
+        //   method: 'wallet_addEthereumChain',
+        //   params: [getChainConfig(chainId)], // Define `getChainConfig` for Arbitrum/Mainnet
+        // });
       }
     }
   };

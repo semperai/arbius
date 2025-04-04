@@ -10,7 +10,7 @@ export default function ActiveValidatorsCount() {
     address: Config.v2_engineAddress as `0x${string}`,
     abi: EngineArtifact.abi,
     eventName: 'SolutionSubmitted',
-    listener: (...args: any[]) => {
+    onLogs: (...args: any[]) => {
       const sender = args[0];
       if (sender) {
         validators.add(sender);

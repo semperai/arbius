@@ -48,7 +48,7 @@ const arbitrumNovaChain: Chain = {
   },
 };
 
-const chains = [arbitrumNovaChain, mainnet, arbitrumSepolia, arbitrum, sepolia];
+const chains = [arbitrumNovaChain, mainnet, arbitrumSepolia, arbitrum, sepolia] as const;
 
 const wagmiConfig = defaultWagmiConfig({
   chains,

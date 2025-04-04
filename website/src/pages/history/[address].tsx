@@ -3,14 +3,12 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  useNetwork,
   useAccount,
-  useContractReads,
-  useContractInfiniteReads,
-  paginatedIndexesConfig,
+  useReadContracts,
   useChainId,
 } from 'wagmi';
 import { ethers } from 'ethers';
+import type { Abi } from 'viem';
 
 import Config from '@/config.json';
 import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
@@ -197,30 +195,28 @@ export default function HistoryPage() {
     iota.push(i);
   }
 
-  const { data: tasksData } = useContractReads({
-    enabled: logTasks.length > 0,
-    // @ts-ignore
-    contracts: (logTasks.length > 0 ? iota : []).map((i) => {
-      return {
-        address: Config.v2_engineAddress,
-        abi: EngineArtifact.abi,
-        functionName: 'tasks',
-        args: [logTasks[page * perPage + i].taskid],
-      };
-    }),
+  const { data: tasksData } = useReadContracts({
+    contracts: (logTasks.length > 0 ? iota : []).map((i) => ({
+      address: Config.v2_engineAddress as `0x${string}`,
+      abi: EngineArtifact.abi as Abi,
+      functionName: 'tasks',
+      args: [logTasks[page * perPage + i].taskid],
+    })),
+    query: {
+      enabled: logTasks.length > 0,
+    }
   });
 
-  const { data: solutionsData } = useContractReads({
-    enabled: logTasks.length > 0,
-    // @ts-ignore
-    contracts: (logTasks.length > 0 ? iota : []).map((i) => {
-      return {
-        address: Config.v2_engineAddress,
-        abi: EngineArtifact.abi,
-        functionName: 'solutions',
-        args: [logTasks[page * perPage + i].taskid],
-      };
-    }),
+  const { data: solutionsData } = useReadContracts({
+    contracts: (logTasks.length > 0 ? iota : []).map((i) => ({
+      address: Config.v2_engineAddress as `0x${string}`,
+      abi: EngineArtifact.abi as Abi,
+      functionName: 'solutions',
+      args: [logTasks[page * perPage + i].taskid],
+    })),
+    query: {
+      enabled: logTasks.length > 0,
+    }
   });
 
   useEffect(() => {
@@ -231,10 +227,12 @@ export default function HistoryPage() {
     let list = [];
     for (let t = 0; t < tasksData.length && t < solutionsData.length; ++t) {
       const logTasksIndex = page * perPage + t;
-      const task = tasksData[t] as TTask;
-      const solution = solutionsData[t] as TSolution;
+      const task = tasksData[t].result as unknown as TTask;
+      const solution = solutionsData[t].result as unknown as TSolution;
       console.log('task', task);
       console.log('solution', solution);
+
+      if (!task || !solution) continue;
 
       const txid = logTasks[logTasksIndex].txid;
       const taskid = logTasks[logTasksIndex].taskid;
@@ -243,7 +241,6 @@ export default function HistoryPage() {
       const modelid = task.model;
       const version = task.version;
 
-      // console.log(modelid);
       const template = getModelTemplate(modelid);
       const hassolution = solution.validator !== ethers.constants.AddressZero;
       const solutionblocktime = new Date(solution.blocktime.toNumber() * 1000);

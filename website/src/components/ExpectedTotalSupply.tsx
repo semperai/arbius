@@ -31,7 +31,9 @@ export default function ExpectedTotalSupply() {
     abi: EngineArtifact.abi,
     functionName: 'targetTs',
     args: [unixTime - (startBlockTimeData as ethers.BigNumber)?.toNumber()],
-    enabled: Boolean(startBlockTimeData),
+    query: {
+      enabled: Boolean(startBlockTimeData),
+    }
   });
 
   useEffect(() => {

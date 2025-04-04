@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   useAccount,
-  useWaitForTransaction,
-  usePrepareContractWrite,
-  useContractWrite,
-  useContractEvent,
-  useProvider,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  useWatchContractEvent,
+  usePublicClient,
 } from 'wagmi';
 import { ethers } from 'ethers';
 import Config from '@/config.json';
@@ -36,7 +35,8 @@ export default function TaskLoader({
   template,
 }: Props) {
   const { address } = useAccount();
-  const provider = useProvider();
+  const publicClient = usePublicClient();
+  const provider = publicClient ? new ethers.providers.JsonRpcProvider(publicClient.transport.url) : undefined;
   const engine = new ethers.Contract(
     Config.v2_engineAddress,
     EngineArtifact.abi,
@@ -48,35 +48,20 @@ export default function TaskLoader({
   const [validator, setValidator] = useState('');
   const [blocktime, setBlocktime] = useState(ethers.BigNumber.from(0));
 
-  const { config: submitTaskConfig } = usePrepareContractWrite({
-    address: cid ? undefined : (Config.v2_engineAddress as `0x${string}`),
-    abi: EngineArtifact.abi,
-    functionName: 'submitTask',
-    args: [
-      version,
-      address,
-      modelid,
-      fee,
-      ethers.utils.hexlify(ethers.utils.toUtf8Bytes(input)),
-    ],
-    enabled: Boolean(input),
-  });
-
-  const {
-    data: submitTaskData,
-    isIdle: submitTaskIsIdle,
+  const { 
+    writeContract,
+    isPending: submitTaskIsLoading,
     isError: submitTaskIsError,
-    isLoading: submitTaskIsLoading,
     isSuccess: submitTaskIsSuccess,
-    write: submitTaskWrite,
-  } = useContractWrite(submitTaskConfig);
+    data: submitTaskData,
+  } = useWriteContract();
 
   const {
-    data: submitTaskTxData,
-    isError: submitTaskTxIsError,
     isLoading: submitTaskTxIsLoading,
-  } = useWaitForTransaction({
-    hash: cid ? undefined : submitTaskData?.hash,
+    isError: submitTaskTxIsError,
+    data: submitTaskTxData,
+  } = useWaitForTransactionReceipt({
+    hash: cid ? undefined : submitTaskData,
   });
 
   let watchTaskid: string | null = null;
@@ -132,20 +117,21 @@ export default function TaskLoader({
   }, [submitTaskTxData, submitTaskTxIsLoading]);
 
   useEffect(() => {
-    if (
-      submitTaskIsIdle &&
-      !submitTaskIsLoading &&
-      !submitTaskIsError &&
-      !submitTaskIsSuccess
-    ) {
-      submitTaskWrite?.();
+    if (!submitTaskIsLoading && !submitTaskIsError && !submitTaskIsSuccess) {
+      writeContract({
+        address: Config.v2_engineAddress as `0x${string}`,
+        abi: EngineArtifact.abi,
+        functionName: 'submitTask',
+        args: [
+          version,
+          address,
+          modelid,
+          fee,
+          ethers.utils.hexlify(ethers.utils.toUtf8Bytes(input)),
+        ],
+      });
     }
-  }, [
-    submitTaskIsIdle,
-    submitTaskIsLoading,
-    submitTaskIsError,
-    submitTaskIsSuccess,
-  ]);
+  }, [submitTaskIsLoading, submitTaskIsError, submitTaskIsSuccess]);
 
   return (
     <>

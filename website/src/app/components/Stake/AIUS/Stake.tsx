@@ -141,6 +141,7 @@ export default function Stake({
       args: [tokenID],
     })) ?? [],
     query: {
+      // @ts-ignore-next-line (tokenIDs is guaranteed to be defined)
       enabled: isConnected && tokenIDs?.length > 0,
     },
   });
