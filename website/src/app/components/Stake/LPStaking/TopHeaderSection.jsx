@@ -62,7 +62,7 @@ function TopHeaderSection({ data }) {
       subheading: 'AIUS',
       para: 'Remaining',
       logo: arbiuslogorounded,
-      showInfo: true,
+      showInfo: false,
       info_text: "Rewards are replenished weekly to ensure consistent availability."
     },
     {
