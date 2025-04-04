@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  useContractRead,
+  useReadContract,
   useAccount,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
+  useWriteContract,
+  useTransaction,
 } from 'wagmi';
 import { BigNumber, ethers } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
@@ -34,6 +33,7 @@ function StakeCard({
 }) {
   //console.log(token, "TOKEN in individual card")
   const { address, isConnected } = useAccount();
+  const { writeContract } = useWriteContract();
 
   const [totalStaked, setTotalStaked] = useState(token?.locked);
   const [endDate, setEndDate] = useState(token?.locked__end);
@@ -106,7 +106,7 @@ function StakeCard({
   // withdraw
   //console.log(Number(endDate) * 1000, "current")
   //console.log("current Date", Date.now())
-  const { config: withdrawAIUSConfig } = usePrepareContractWrite({
+  const { config: withdrawAIUSConfig } = useTransaction({
     address: Config.votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'withdraw',
@@ -120,7 +120,7 @@ function StakeCard({
     isSuccess: withdrawAIUSIsSuccess,
     isError: withdrawAIUSError,
     write: withdrawAIUS,
-  } = useContractWrite(withdrawAIUSConfig);
+  } = useWriteContract(withdrawAIUSConfig);
 
   //console.log({ withdrawAIUSData })
 
@@ -128,7 +128,7 @@ function StakeCard({
     data: approveTx,
     isError: txError,
     isLoading: txLoading,
-  } = useWaitForTransaction({
+  } = useTransaction({
     hash: withdrawAIUSData?.hash,
     confirmations: 3,
     onSuccess(data) {
@@ -195,14 +195,43 @@ function StakeCard({
           setShowPopUp('withdraw/Error');
         })
       });
-    }else{
+    } else {
       if (lockedEndDate > Date.now()) {
         return;
       }
 
-      withdrawAIUS?.();
-      // @ts-ignore
-      setShowPopUp('withdraw/2');
+      try {
+        // @ts-ignore
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // Create a provider
+        // @ts-ignore
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+        // Get the signer
+        const signer = provider.getSigner();
+
+        const votingEscrowContract = new ethers.Contract(
+          Config.votingEscrowAddress,
+          votingEscrow.abi,
+          signer
+        );
+
+        const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
+        await _withdraw.wait();
+        getTransactionReceiptData(_withdraw.hash).then(function () {
+          // @ts-ignore
+          setShowPopUp('withdraw/Success');
+          // @ts-ignore
+          setUpdateValue((prevValue) => prevValue + 1);
+        })
+        .catch(function() {
+          // @ts-ignore
+          setShowPopUp('withdraw/Error');
+        })
+      } catch (error) {
+        // @ts-ignore
+        setShowPopUp('withdraw/Error');
+      }
     }
   };
 

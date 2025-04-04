@@ -5,7 +5,7 @@ import Image from 'next/image';
 import aius_icon from '../../../assets/images/aius_icon.png';
 import gysr_logo_wallet from '../../../assets/images/gysr_logo_wallet.png';
 import GanttChart from './GanttChart';
-import { useAccount, useContractRead, useNetwork } from 'wagmi';
+import { useAccount, useReadContract, useChainId } from 'wagmi';
 import veStaking from '../../../abis/veStaking.json';
 import votingEscrow from '../../../abis/votingEscrow.json';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
@@ -31,16 +31,16 @@ function DashBoard({
   setUpdateValue,
 }) {
   const { address, isConnected } = useAccount();
-  const { chain, chains } = useNetwork();
+  const chainId = useChainId();
   console.log(updateValue, 'value updated in DashBoard');
-  console.log(chain, 'CONNECTed chain');
+  console.log(chainId, 'CONNECTed chain');
   console.log('IS CONNECTed?', isConnected);
 
   //const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
   const [walletBalance, setWalletBalance] = useState(0);
   const [rewardRate, setRewardRate] = useState(0);
   const [totalSupply, setTotalSupply] = useState(0);
-  const [veSupplyData, setVESupplyData] = useState(0);
+  const [veSupply, setVeSupply] = useState(0);
   const [escrowBalanceData, setEscrowBalanceData] = useState(0);
   const [tokenIDs, setTokenIDs] = useState([]);
   const [windowStartDate, setWindowStartDate] = useState(
@@ -53,6 +53,27 @@ function DashBoard({
       windowStartDate?.getMonth()
   );
   const [loading, setLoading] = useState(false);
+
+  const { data: rewardRateData } = useReadContract({
+    address: Config.veStakingAddress,
+    abi: veStaking.abi,
+    functionName: 'rewardRate',
+    args: [],
+  });
+
+  const { data: totalSupplyData } = useReadContract({
+    address: Config.veStakingAddress,
+    abi: veStaking.abi,
+    functionName: 'totalSupply',
+    args: [],
+  });
+
+  const { data: veSupplyData } = useReadContract({
+    address: Config.votingEscrowAddress,
+    abi: votingEscrow.abi,
+    functionName: 'supply',
+    args: [],
+  });
 
   const veAIUSBalance = (staked, startDate, endDate) => {
     const t = endDate - startDate;
@@ -126,6 +147,18 @@ function DashBoard({
   }
 
   useEffect(() => {
+    if (rewardRateData) {
+      setRewardRate(Number(rewardRateData));
+    }
+    if (totalSupplyData) {
+      setTotalSupply(Number(totalSupplyData));
+    }
+    if (veSupplyData) {
+      setVeSupply(Number(veSupplyData));
+    }
+  }, [rewardRateData, totalSupplyData, veSupplyData]);
+
+  useEffect(() => {
 
     const f1 = async () => {
       try{
@@ -146,7 +179,7 @@ function DashBoard({
 
         setRewardRate(_rewardRate / AIUS_wei);
         setTotalSupply(_totalSupply / AIUS_wei);
-        setVESupplyData(_veSupplyData);
+        setVeSupply(_veSupplyData);
       }catch(e){
         console.log("F1 error", e)
       }
@@ -180,7 +213,7 @@ function DashBoard({
 
         setRewardRate(_rewardRate / AIUS_wei);
         setTotalSupply(_totalSupply / AIUS_wei);
-        setVESupplyData(_veSupplyData);
+        setVeSupply(_veSupplyData);
 
         // Getting user wallet balance
         const wBal = await baseTokenContract.methods.balanceOf(address).call();
@@ -367,7 +400,7 @@ function DashBoard({
         ganttChart: {},
       });
     }
-  }, [address, chain?.id, updateValue]);
+  }, [address, chainId, updateValue]);
   /* DASHBOARD CALLS ENDS HERE */
 
   console.log(tokenIDs, 'TOKENS');
@@ -523,8 +556,8 @@ function DashBoard({
                     AIUS Staked
                   </h2>
                   <h2 className='mt-[2px] text-[16px] font-semibold 2xl:text-[18px]'>
-                    {veSupplyData
-                      ? (Number(veSupplyData) / AIUS_wei).toFixed(2)
+                    {veSupply
+                      ? (Number(veSupply) / AIUS_wei).toFixed(2)
                       : 0}
                   </h2>
                 </div>

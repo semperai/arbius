@@ -27,7 +27,7 @@ import engineABI from '../../../abis/v2_enginev4.json';
 import Web3 from 'web3';
 import Config from '@/config.one.json';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
-import { useAccount, useNetwork } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 import Timer from './Timer';
 import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import CircularProgressBar from './CircularProgressBar';
@@ -42,7 +42,7 @@ function Gauge({
   setUpdateValue,
 }) {
   const { address, isConnected } = useAccount();
-  const { chain, chains } = useNetwork();
+  const chainId = useChainId();
   const [totalGovernancePower, setTotalGovernancePower] = useState(0);
   const [allTokens, setAllTokens] = useState([]);
 
@@ -388,7 +388,7 @@ function Gauge({
       f();
     } else {
     }
-  }, [address, chain?.id, updateValue]);
+  }, [address, chainId, updateValue]);
 
   const getGPUsed = () => {
     let _totalGovernancePower = totalGovernancePower;

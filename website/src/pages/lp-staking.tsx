@@ -1,7 +1,7 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import RootLayout from '@/app/layout';
-import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi';
+import { useAccount, useContractRead, useSwitchChain, useChainId } from 'wagmi';
 import Tabs from '@/app/components/Stake/LPStaking/Tabs';
 import TopHeaderSection from '@/app/components/Stake/LPStaking/TopHeaderSection';
 import { getAPR } from '@/app/Utils/getAPR';
@@ -14,10 +14,13 @@ import Config from '@/config.eth.json';
 export default function LPStaking() {
   const [data, setData] = useState(null);
 
-  const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 11155111 : 1;
-  const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
-    chainId: CHAIN,
-  });
+  const { switchChain } = useSwitchChain();
+  const chainId = useChainId();
+
+  const switchToArbitrum = useCallback(() =>{
+    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 11155111 : 1;
+    switchChain({ chainId: CHAIN });
+  }, [switchChain]);
 
   useEffect(() => {
     const f = async () => {
@@ -30,8 +33,8 @@ export default function LPStaking() {
     };
 
     f();
-    switchNetworkArbitrum?.();
-  }, [switchNetworkArbitrum]);
+    switchToArbitrum();
+  }, [switchToArbitrum]);
 
 
   const getWeb3Sepolia = async() => {

@@ -15,11 +15,10 @@ import votingEscrow from '../../../abis/votingEscrow.json';
 import { getAPR } from '../../../Utils/getAPR';
 import {
   useAccount,
-  useContractRead,
-  useContractReads,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
+  useReadContract,
+  useReadContracts,
+  useWriteContract,
+  useTransaction,
 } from 'wagmi';
 import { BigNumber } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
@@ -84,11 +83,24 @@ const AddPopUpChildren = ({
   const [aiusToStake, setAIUSToStake] = useState(0);
   const [estBalance, setEstBalance] = useState(0);
   const [allowance, setAllowance] = useState(0);
-  //console.log(Number(selectedStake), 'selected Stake');
+  const { writeContract } = useWriteContract();
 
   const [endDate, setEndDate] = useState(0);
   const [stakedOn, setStakedOn] = useState(0);
   const [totalStaked, setTotalStaked] = useState(0);
+
+  const { data: allowanceData } = useReadContract({
+    address: Config.baseTokenAddress,
+    abi: baseTokenV1.abi,
+    functionName: 'allowance',
+    args: [address, Config.votingEscrowAddress],
+  });
+
+  useEffect(() => {
+    if (allowanceData) {
+      setAllowance(Number(allowanceData));
+    }
+  }, [allowanceData]);
 
   const handleStake = async () => {
     let amountInDec = new Decimal(aiusToStake);
@@ -438,6 +450,7 @@ const ExtendPopUpChildren = ({
   const [extendEndDate, setExtendEndDate] = useState(
     new Date(currentlyEndingAt)
   );
+
   //console.log(sliderValue,'SLIDER VALUE and dates check',{ extendEndDate },getCurrentTimeInMSeconds(),(extendEndDate - getCurrentTimeInMSeconds()) / 1000);
   //console.log(extendEndDate, 'EXTENDED END DATE');
   //console.log('Below: Difference in time in seconds of extended date and current time');
@@ -446,52 +459,74 @@ const ExtendPopUpChildren = ({
   //console.log({ currentlyEndingAt });
   //console.log({ currentlyEndingDate });
 
-  const { config: addAIUSConfig } = usePrepareContractWrite({
-    address: Config.votingEscrowAddress,
-    abi: votingEscrow.abi,
-    functionName: 'increase_unlock_time',
-    args: [
-      Number(selectedStake),
-      parseInt( ( (extendEndDate - getCurrentTimeInMSeconds()) / 1000) + 1000 ).toString(), // value in months(decimal) * 4*7*24*60*60
-    ],
-    enabled: extendEndDate > 0,
-  });
+  // const { config: addAIUSConfig } = usePrepareContractWrite({
+  //   address: Config.votingEscrowAddress,
+  //   abi: votingEscrow.abi,
+  //   functionName: 'increase_unlock_time',
+  //   args: [
+  //     Number(selectedStake),
+  //     parseInt( ( (extendEndDate - getCurrentTimeInMSeconds()) / 1000) + 1000 ).toString(), // value in months(decimal) * 4*7*24*60*60
+  //   ],
+  //   enabled: extendEndDate > 0,
+  // });
 
-  const {
-    data: addAIUSData,
-    isLoading: addAIUSIsLoading,
-    isSuccess: addAIUSIsSuccess,
-    isError: addAIUSError,
-    write: extendAIUS,
-  } = useContractWrite(addAIUSConfig);
-  //console.log({ addAIUSData });
+  // const {
+  //   data: addAIUSData,
+  //   isLoading: addAIUSIsLoading,
+  //   isSuccess: addAIUSIsSuccess,
+  //   isError: addAIUSError,
+  //   write: extendAIUS,
+  // } = useWriteContract(addAIUSConfig);
 
-  const {
-    data: approveTx,
-    isError: txError,
-    isLoading: txLoading,
-  } = useWaitForTransaction({
-    hash: addAIUSData?.hash,
-    confirmations: 3,
-    onSuccess(data) {
-      //console.log('approve tx successful data ', data);
+  // const {
+  //   data: approveTx,
+  //   isError: txError,
+  //   isLoading: txLoading,
+  // } = useTransaction(addAIUSData?.hash)
+
+  // useEffect(() => {
+  //   alert(txError)
+  //   alert(addAIUSIsSuccess)
+  //   alert(addAIUSError)
+  //   if (txError && addAIUSError) {
+  //     setShowPopUp('extend/Error');
+  //   }
+  // }, [txError]);
+
+  const handleExtend = async () => {
+    try {
+      // @ts-ignore
+      setShowPopUp('extend/2');
+      // @ts-ignore
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      // @ts-ignore
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      const votingEscrowContract = new ethers.Contract(
+        Config.votingEscrowAddress,
+        votingEscrow.abi,
+        signer
+      );
+
+      const tx = await votingEscrowContract.increase_unlock_time(
+        Number(selectedStake),
+        parseInt( ( (extendEndDate - getCurrentTimeInMSeconds()) / 1000) + 1000 ).toString(), // value in months(decimal) * 4*7*24*60*60
+      );
+
+      console.log('Transaction hash:', tx.hash);
+      await tx.wait();
+      console.log('Transaction confirmed');
       setShowPopUp('extend/Success');
-      getTransactionReceiptData(addAIUSData?.hash).then(function () {
-        //window.location.reload(true)
+      getTransactionReceiptData(tx.hash).then(function () {
         setUpdateValue((prevValue) => prevValue + 1);
       });
-    },
-    onError(err) {
-      console.log('approve tx error data ', err);
-      setShowPopUp('extend/Error');
-    },
-  });
-
-  useEffect(() => {
-    if (addAIUSError) {
+    } catch (error) {
+      console.error('Extend error:', error);
       setShowPopUp('extend/Error');
     }
-  }, [addAIUSError]);
+  };
+
 
   useEffect(() => {
     const f = async () => {
@@ -523,7 +558,7 @@ const ExtendPopUpChildren = ({
   }, [address]);
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center w-full h-full">
       <div className={showPopUp === 'extend' ? 'block' : 'hidden'}>
         <div className='my-2 flex items-center justify-between'>
           <div className='flex items-center justify-start gap-3'>
@@ -659,8 +694,7 @@ const ExtendPopUpChildren = ({
               type='button'
               onClick={
                 enableExtendButton ? () => {
-                  extendAIUS?.();
-                  setShowPopUp('extend/2');
+                  handleExtend()
                 } : null
               }
               className={`group relative flex items-center gap-3 rounded-full ${enableExtendButton ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 lg:px-5`}
@@ -687,7 +721,7 @@ const ExtendPopUpChildren = ({
       <div className={showPopUp === 'extend/Error' ? 'block' : 'hidden'}>
         <ErrorPopUpChildren setShowPopUp={setShowPopUp} />
       </div>
-    </>
+    </div>
   );
 };
 
@@ -711,49 +745,70 @@ const ClaimPopUpChildren = ({
         ]
   })*/
 
-  const { config: addAIUSConfig } = usePrepareContractWrite({
-    address: Config.veStakingAddress,
-    abi: veStaking.abi,
-    functionName: 'getReward',
-    args: [Number(selectedStake)],
-  });
+  // const { config: addAIUSConfig } = useWriteContract({
+  //   address: Config.veStakingAddress,
+  //   abi: veStaking.abi,
+  //   functionName: 'getReward',
+  //   args: [Number(selectedStake)],
+  // });
 
-  const {
-    data: addAIUSData,
-    isLoading: addAIUSIsLoading,
-    isSuccess: addAIUSIsSuccess,
-    isError: addAIUSError,
-    write: claimAIUS,
-  } = useContractWrite(addAIUSConfig);
+  // const {
+  //   data: addAIUSData,
+  //   isLoading: addAIUSIsLoading,
+  //   isSuccess: addAIUSIsSuccess,
+  //   isError: addAIUSError,
+  //   write: claimAIUS,
+  // } = useTransaction(addAIUSConfig);
 
   //console.log({ addAIUSData });
 
-  const {
-    data: approveTx,
-    isError: txError,
-    isLoading: txLoading,
-  } = useWaitForTransaction({
-    hash: addAIUSData?.hash,
-    confirmations: 3,
-    onSuccess(data) {
-      console.log('approve tx successful data ', data);
+  // const {
+  //   data: approveTx,
+  //   isError: txError,
+  //   isLoading: txLoading,
+  // } = useTransaction(addAIUSData?.hash)
+
+  // useEffect(() => {
+  //   if (addAIUSError) {
+  //     alert(addAIUSError)
+  //     alert(txError)
+  //     setShowPopUp('claim/Error');
+  //   }
+  // }, [addAIUSError]);
+
+  const handleClaim = async () => {
+    try {
+      // @ts-ignore
+      setShowPopUp('claim/2');
+      // @ts-ignore
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      // @ts-ignore
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      const veStakingContract = new ethers.Contract(
+        Config.veStakingAddress,
+        veStaking.abi,
+        signer
+      );
+
+      const tx = await veStakingContract.getReward(
+        Number(selectedStake)
+      );
+
+      console.log('Transaction hash:', tx.hash);
+      await tx.wait();
+      console.log('Transaction confirmed');
       setShowPopUp('claim/Success');
-      getTransactionReceiptData(addAIUSData?.hash).then(function () {
-        //window.location.reload(true)
+      getTransactionReceiptData(tx.hash).then(function () {
         setUpdateValue((prevValue) => prevValue + 1);
       });
-    },
-    onError(err) {
-      console.log('approve tx error data ', err);
-      setShowPopUp('claim/Error');
-    },
-  });
-
-  useEffect(() => {
-    if (addAIUSError) {
+    } catch (error) {
+      console.error('Extend error:', error);
       setShowPopUp('claim/Error');
     }
-  }, [addAIUSError]);
+  };
+
 
 
   useEffect(() => {
@@ -851,8 +906,7 @@ const ClaimPopUpChildren = ({
             <button
               type='button'
               onClick={() => {
-                claimAIUS?.();
-                setShowPopUp('claim/2');
+                handleClaim()
               }}
               className='group relative flex items-center gap-3 rounded-full bg-black-background px-3 py-1 lg:px-5'
             >

@@ -10,14 +10,14 @@ import { BigNumber } from 'ethers';
 import { getAIUSVotingPower, calculateSecondsUntilRoundedDate } from '../../../Utils/getAIUSVotingPower';
 import { getAPR } from '../../../Utils/getAPR';
 import {
-  useContractRead,
   useAccount,
-  useNetwork,
-  useContractWrite,
-  usePrepareContractWrite,
-  useContractReads,
-  useWaitForTransaction,
+  useReadContract,
+  useWriteContract,
+  useReadContracts,
+  useTransaction,
+  useChainId,
 } from 'wagmi';
+import type { Abi } from 'viem';
 // import config from "../../../../sepolia_config.json"
 import votingEscrow from '../../../abis/votingEscrow.json';
 import veStaking from '../../../abis/veStaking.json';
@@ -58,7 +58,7 @@ export default function Stake({
 }: StakeProps) {
   const [sliderValue, setSliderValue] = useState(0);
   const { address, isConnected } = useAccount();
-  const { chain, chains } = useNetwork()
+  const chainId = useChainId();
   //const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
   const [veAiusBalance, setVeAIUSBalance] = useState(0);
   const [allowance, setAllowance] = useState(0);
@@ -103,131 +103,61 @@ export default function Stake({
   ];
 
   const [faucetCalled, setFaucetCalled] = useState(false);
-  /*const rewardRate = useContractRead({
-    address: Config.veStakingAddress,
-    abi: veStaking.abi,
-    functionName: 'rewardRate',
-    args: [
-
-    ],
-    enabled: isConnected
-  })
-
-  const totalSupply = useContractRead({
-    address: Config.veStakingAddress,
-    abi: veStaking.abi,
-    functionName: 'totalSupply',
-    args: [
-
-    ],
-    enabled: isConnected
-  })
-  const { data: escrowBalanceData, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useContractRead({
-    address: Config.votingEscrowAddress,
-    abi: votingEscrow.abi,
+  const { data: escrowBalance, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useReadContract({
+    address: Config.votingEscrowAddress as `0x${string}`,
+    abi: votingEscrow.abi as Abi,
     functionName: 'balanceOf',
-    args: [
-      address
-    ],
-    enabled: isConnected
-  })
+    args: [address],
+    query: {
+      enabled: isConnected,
+    },
+  });
 
-  const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useContractReads({
-    contracts: (totalEscrowBalance) ? new Array(totalEscrowBalance).fill(0).map((i, index) => {
-      return {
-        address: Config.votingEscrowAddress,
-        abi: votingEscrow.abi,
+  const { data: tokenIDs, isLoading: tokenIDsIsLoading, isError: tokenIDsIsError } = useReadContracts({
+    contracts: [
+      {
+        address: Config.votingEscrowAddress as `0x${string}`,
+        abi: votingEscrow.abi as Abi,
         functionName: 'tokenOfOwnerByIndex',
-        args: [
-          address,
-          index
-        ]
-      }
-    }) : null,
-  });*/
-
-  /*useEffect(() => {
-    if (tokenIDs && tokenIDs.length > 0 && !tokenIDsIsLoading && !tokenIDsIsError) {
-      const contracts = tokenIDs?.map((tokenID) => ({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'balanceOf',
-        args: [
-          Number(tokenID?._hex)
-        ]
-      }));
-      setVeAIUSBalancesContracts(contracts);
-    }
-  }, [tokenIDs, tokenIDsIsLoading, tokenIDsIsError]);
-
-  //console.log(veAIUSBalancesContracts, "stake")
-  const { data: veAIUSBalances, isLoading: veAIUSBalancesIsLoading, isError: veAIUSBalancesIsError } = useContractReads({
-    contracts: veAIUSBalancesContracts,
+        args: [address, 0],
+      },
+      {
+        address: Config.votingEscrowAddress as `0x${string}`,
+        abi: votingEscrow.abi as Abi,
+        functionName: 'tokenOfOwnerByIndex',
+        args: [address, 1],
+      },
+    ],
+    query: {
+      enabled: isConnected,
+    },
   });
-  console.log(veAIUSBalances, "Stake data")
-  const { data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError, refetch: refetchAllowance } = useContractRead({
-    address: Config.baseTokenAddress,
-    abi: baseTokenV1.abi,
+
+  const { data: veAIUSBalances, isLoading: veAIUSBalancesIsLoading, isError: veAIUSBalancesIsError } = useReadContracts({
+    contracts: tokenIDs?.map((tokenID) => ({
+      address: Config.votingEscrowAddress as `0x${string}`,
+      abi: votingEscrow.abi as Abi,
+      functionName: 'locked',
+      args: [tokenID],
+    })) ?? [],
+    query: {
+      enabled: isConnected && tokenIDs?.length > 0,
+    },
+  });
+
+  const { data: checkAllowance, isLoading: checkIsLoading, isError: checkIsError, refetch: refetchAllowance } = useReadContract({
+    address: Config.baseTokenAddress as `0x${string}`,
+    abi: baseTokenV1.abi as Abi,
     functionName: 'allowance',
-    args: [
-      address,
-      Config.votingEscrowAddress,
-    ],
-    enabled: isConnected
-  })
-  //console.log(checkAllowance, "TO CHECK ALLOWANCE")
-  useEffect(() => {
-    console.log(veAIUSBalances, "veAIUSBalances")
-    let sum = 0
-    veAIUSBalances?.forEach((veAIUSBalance, index) => {
-      if (veAIUSBalance) {
-        sum = sum + Number(veAIUSBalance?._hex) / AIUS_wei
-      }
-    })
-    setVeAIUSBalance(sum);
-  }, [veAIUSBalances])
-
-  console.log(escrowBalanceData, "ESCROW BALANCE DATA")
-  useEffect(() => {
-    console.log(escrowBalanceData, "escrowBalanceData")
-    if (escrowBalanceData) {
-      setTotalEscrowBalance(Number(escrowBalanceData?._hex))
-    }
-  }, [escrowBalanceData])
-
-  useEffect(() => {
-    console.log(checkAllowance, "CHECK ALLOWANCE")
-    if (checkAllowance) {
-      const val = Number(checkAllowance?._hex) / AIUS_wei
-      setAllowance(val)
-    }
-  },[checkAllowance?._hex])
-
-  /*const { config: approveConfig } = usePrepareContractWrite({
-    address: Config.baseTokenAddress,
-    abi: baseTokenV1.abi,
-    functionName: 'approve',
-    args: [
-      Config.votingEscrowAddress,
-      defaultApproveAmount
-      //(amount * AIUS_wei).toString()
-    ]
+    args: [address, Config.votingEscrowAddress],
+    query: {
+      enabled: isConnected,
+    },
   });
 
-  const { data: approveData, error: approveError, isPending: approvePending, write: approveWrite } = useContractWrite(approveConfig)
-  console.log({ approveData, approveError, approvePending, allowance });*/
+  const { data: approveData, error: approveError, isPending: approvePending, writeContract: approveWrite } = useWriteContract();
 
-  /*const { config: stakeConfig } = usePrepareContractWrite({
-    address: Config.votingEscrowAddress,
-    abi: votingEscrow.abi,
-    functionName: 'create_lock',
-    args: [
-      (Number(amount) * AIUS_wei).toString(),
-      (duration.months !== 0 ? duration.months * (52 / 12) : duration.weeks) * 7 * 24 * 60 * 60
-    ],
-    enabled: allowance >= amount,
-  });*/
-  console.log(allowance, amount, 'ALLOWANCE AND AMOUNT');
+  //console.log(allowance, amount, 'ALLOWANCE AND AMOUNT');
   //const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
   //console.log({stakeData, stakeError,stakeWrite})
 
@@ -414,7 +344,15 @@ export default function Stake({
       setVeAIUSBalance(0)
       setAllowance(0)
     }
-  }, [address, chain?.id, updateValue]);
+  }, [address, chainId, updateValue]);
+
+  // useEffect(() => {
+  //   if (chainId === 42170) { // Arbitrum Nova chain ID
+  //     setV1TokenAddress(Config.baseTokenAddress);
+  //     setV2TokenAddress(Config.v2_baseTokenAddress);
+  //     setOneToOneAddress(Config.l2OneToOneAddress);
+  //   }
+  // }, [chainId]);
 
   const handleStake = async () => {
     //console.log({stakeData});
