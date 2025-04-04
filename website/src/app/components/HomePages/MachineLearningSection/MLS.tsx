@@ -34,7 +34,7 @@ export default function MachineLearningSection() {
             </Fade>
           </div>
           <div className='fade-container mb-6 text-mobile-header leading-[50px] text-black-text lg:hidden lg:leading-none'>
-            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={300}>
+            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={500}>
               Peer-to-peer machine learning
             </Fade>
           </div>

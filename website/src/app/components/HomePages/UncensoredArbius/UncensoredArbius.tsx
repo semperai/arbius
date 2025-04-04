@@ -26,7 +26,7 @@ export default function UncensoredArbius(){
 				            </Fade>
 				        </div>
 				        <div className='lato-bold fade-container mb-6 text-mobile-header leading-[50px] text-black-text lg:hidden lg:leading-none lato-bold'>
-				            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={300}>
+				            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={400}>
 				            	Uncensored AI Access, Powered by Arbius.
 				            </Fade>
 				        </div>
