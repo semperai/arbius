@@ -28,7 +28,7 @@ export default function EACC(){
 				            </Fade>
 				        </div>
 				        <div className='fade-container mb-6 text-mobile-header leading-[50px] text-black-text lg:hidden lg:leading-none lato-bold'>
-				            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+				            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={300}>
 				              EACC (Effective Acceleration Marketplace)
 				            </Fade>
 				        </div>
