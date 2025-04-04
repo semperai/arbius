@@ -2,18 +2,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import {
-  useNetwork,
-  useContractRead,
   useAccount,
-  useContractEvent,
+  useReadContract,
+  useWriteContract,
+  useTransaction,
+  useChainId,
+  useWatchContractEvent,
 } from 'wagmi';
 import { ethers } from 'ethers';
 import { useQuery, gql } from '@apollo/client';
+import type { Abi } from 'viem';
 
 import Layout from '@/components/Layout';
-import Config from '@/config.json';
+import Config from '@/config.one.json';
 import { cidify, renderBlocktime } from '@/utils';
-import EngineArtifact from '@/artifacts/V2_EngineV2.sol/V2_EngineV2.json';
+import engineArtifact from '../app/abis/v2_enginev4.json';
 
 const GET_RECENT_CONTESTATIONS = gql`
   query GetRecentContestations {
@@ -31,11 +34,11 @@ const GET_RECENT_CONTESTATIONS = gql`
   }
 `;
 
-export default function ContestationsPage() {
-  const { address } = useAccount();
+export default function Contestations() {
+  const { address, isConnected: walletConnected } = useAccount();
+  const chainId = useChainId();
   console.log({ address });
 
-  const [walletConnected, setWalletConnected] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(ethers.BigNumber.from(0));
 
   const {
@@ -43,6 +46,16 @@ export default function ContestationsPage() {
     error: contestationsError,
     data: contestationsData,
   } = useQuery(GET_RECENT_CONTESTATIONS);
+
+  const { data: contestationData, isLoading: contestationIsLoading, isError: contestationIsError } = useReadContract({
+    address: Config.engineAddress as `0x${string}`,
+    abi: engineArtifact.abi as Abi,
+    functionName: 'getContestations',
+    args: [],
+    query: {
+      enabled: walletConnected,
+    },
+  });
 
   console.log('contestations', contestationsData);
 

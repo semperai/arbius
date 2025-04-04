@@ -8,6 +8,7 @@ import {
   useContractReads,
   useContractInfiniteReads,
   paginatedIndexesConfig,
+  useChainId,
 } from 'wagmi';
 import { ethers } from 'ethers';
 
@@ -80,6 +81,8 @@ export default function HistoryPage() {
   const perPage = 12;
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(logTasks.length / perPage);
+
+  const chainId = useChainId();
 
   function paginationButton(n: number) {
     return (

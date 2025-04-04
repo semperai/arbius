@@ -5,15 +5,19 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 
 import {
   useBlockNumber,
-  useNetwork,
   useContractRead,
   useAccount,
-  useContractEvent,
+  useChainId,
+  useReadContract,
+  useWriteContract,
+  useTransaction,
 } from 'wagmi';
 import { ethers } from 'ethers';
+import type { Abi } from 'viem';
 
-import Config from '@/config.json';
-import EngineArtifact from '@/artifacts/EngineV1.sol/EngineV1.json';
+import { getTransactionReceiptData } from '@/app/Utils/getTransactionReceiptData';
+import Config from '@/config.one.json';
+import engineArtifact from '../app/abis/v2_enginev4.json';
 
 import Layout from '@/components/Layout';
 import TotalSupply from '@/components/TotalSupply';
@@ -31,14 +35,12 @@ interface Event {
   data: any;
 }
 
-export default function ExplorerPage() {
-  const { chain } = useNetwork();
-  const { address } = useAccount();
-
+export default function Explorer() {
   const [search, setSearch] = useState('');
   const [walletConnected, setWalletConnected] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(ethers.BigNumber.from(0));
   const [loadedHistorical, setLoadedHistorical] = useState(false);
+  const chainId = useChainId();
 
   const [events, setEvents] = useState([] as Event[]);
 
@@ -50,8 +52,61 @@ export default function ExplorerPage() {
     isError: blockNumberIsError,
     isLoading: blockNumberIsLoading,
   } = useBlockNumber({
-    enabled: events.length === 0,
+    watch: events.length === 0,
   });
+
+  const { data: taskData, isLoading: taskIsLoading, isError: taskIsError } = useReadContract({
+    address: Config.engineAddress as `0x${string}`,
+    abi: engineArtifact.abi as Abi,
+    functionName: 'getTask',
+    args: [search],
+  });
+
+  useEffect(() => {
+    if (!walletConnected || !search) return;
+    
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(
+      Config.engineAddress,
+      engineArtifact.abi,
+      provider
+    );
+  }, [walletConnected, search]);
+
+  useEffect(() => {
+    if (!Config.engineAddress) return;
+
+    const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
+    const contract = new ethers.Contract(Config.engineAddress, engineArtifact.abi, provider);
+
+    const handleModelRegistered = (model: string, fee: bigint, sender: string) => {
+      console.log('Model registered:', { model, fee, sender });
+    };
+
+    const handleSolutionSubmitted = (addr: string, task: string) => {
+      console.log('Solution submitted:', { addr, task });
+    };
+
+    const handleSolutionClaimed = (addr: string, task: string) => {
+      console.log('Solution claimed:', { addr, task });
+    };
+
+    contract.on('ModelRegistered', handleModelRegistered);
+    contract.on('SolutionSubmitted', handleSolutionSubmitted);
+    contract.on('SolutionClaimed', handleSolutionClaimed);
+
+    return () => {
+      contract.off('ModelRegistered', handleModelRegistered);
+      contract.off('SolutionSubmitted', handleSolutionSubmitted);
+      contract.off('SolutionClaimed', handleSolutionClaimed);
+    };
+  }, []);
+
+  // Convert bigint operations
+  const calculateTimeDifference = (time: bigint) => {
+    const now = BigInt(Math.floor(Date.now() / 1000));
+    return Number(time - now);
+  };
 
   useEffect(() => {
     async function f() {
@@ -64,8 +119,8 @@ export default function ExplorerPage() {
         process.env.NEXT_PUBLIC_RPC_URL
       );
       const contract = new ethers.Contract(
-        Config.v2_engineAddress,
-        EngineArtifact.abi,
+        Config.engineAddress,
+        engineArtifact.abi,
         provider
       );
 
@@ -85,7 +140,7 @@ export default function ExplorerPage() {
             address: contract.address,
             topics: [esigs.map((esig) => ethers.utils.id(esig))],
           },
-          blockNumber - 128,
+          Number(blockNumber) - 128,
           'latest'
         )
       )
@@ -98,7 +153,7 @@ export default function ExplorerPage() {
       for (let log of logs) {
         const key = genkey();
         const date = new Date(
-          +new Date() - blocktime * 1000 * (blockNumber - log.blockNumber)
+          +new Date() - blocktime * 1000 * (Number(blockNumber) - log.blockNumber)
         );
 
         switch (log.name) {
@@ -170,263 +225,6 @@ export default function ExplorerPage() {
 
     f();
   }, [blockNumber]);
-
-  /*
-  // TODO re-write to use ethers and be more optimized
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'ModelRegistered',
-    listener(id) {
-      console.debug('Event.ModelRegistered', id)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ModelRegistered',
-        data: {
-          id,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'SolutionMineableStatusChange',
-    listener(id, enabled) {
-      console.debug('Event.SolutionMineableStatusChange', id, enabled)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'SolutionMineableStatusChange',
-        data: {
-          id,
-          enabled,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'ValidatorDeposit',
-    listener(addr, validator, amount) {
-      console.debug('Event.ValidatorDeposit', addr, validator, amount)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ValidatorDeposit',
-        data: {
-          addr,
-          validator,
-          amount,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'ValidatorWithdrawInitiated',
-    listener(addr, count, unlockTime, amount) {
-      console.debug('Event.ValidatorWithdrawInitiated', addr, count, unlockTime, amount)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ValidatorWithdrawInitiated',
-        data: {
-          addr,
-          count,
-          unlockTime,
-          amount,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'ValidatorWithdrawCancelled',
-    listener(addr, count) {
-      console.debug('Event.ValidatorWithdrawCancelled', addr, count)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ValidatorWithdrawCancelled',
-        data: {
-          addr,
-          count,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'ValidatorWithdraw',
-    listener(addr, to, count, amount) {
-      console.debug('Event.ValidatorWithdraw', addr, to, count, amount)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ValidatorWithdraw',
-        data: {
-          addr,
-          to,
-          count,
-          amount,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'TaskSubmitted',
-    listener(id, model, fee, sender) {
-      console.debug('Event.TaskSubmitted', id, model, fee, sender)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'TaskSubmitted',
-        data: {
-          id,
-          model,
-          fee: (fee as ethers.BigNumber).toString(),
-          sender,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'TaskRetracted',
-    listener(id) {
-      console.debug('Event.TaskRetracted', id)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'TaskRetracted',
-        data: {
-          id,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'SolutionSubmitted',
-    listener(addr, taskid) {
-      console.debug('Event.SolutionSubmitted', addr, taskid)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'SolutionSubmitted',
-        data: {
-          addr,
-          taskid,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'SolutionClaimed',
-    listener(addr, taskid) {
-      console.debug('Event.SolutionClaimed', taskid)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'SolutionClaimed',
-        data: {
-          addr,
-          taskid,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'ContestationSubmitted',
-    listener(addr, taskid) {
-      console.debug('Event.ContestationSubmitted', addr, taskid)
-      const e = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ContestationSubmitted',
-        data: {
-          addr,
-          taskid,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'ContestationVote',
-    listener(addr, taskid, yea) {
-      console.debug('Event.ContestationVote', addr, taskid, yea)
-      const e: Event = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ContestationVote',
-        data: {
-          addr,
-          taskid,
-          yea,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-
-  useContractEvent({
-    address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
-    eventName: 'SignalSupport',
-    listener(addr, modelid, supported) {
-      console.debug('Event.SignalSupport', addr, modelid, supported)
-      const e: Event = {
-        key: genkey(),
-        date: new Date(),
-        title: 'ContestationVote',
-        data: {
-          addr,
-          modelid,
-          supported,
-        },
-      };
-      setEvents(events => [e, ...events] as Event[]);
-    },
-  })
-  */
 
   return (
     <Layout title='Explorer'>

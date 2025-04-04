@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWeb3Modal } from '@web3modal/react';
+import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useAccount } from 'wagmi';
 
 const buttonClassName =
@@ -10,36 +10,34 @@ interface Props {
 }
 
 export default function ConnectWallet({ update }: Props) {
-  const { isConnected, isConnecting, isDisconnected } = useAccount();
+  const { isConnected } = useAccount();
   const { open: openWeb3Modal } = useWeb3Modal();
-
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setWalletConnected(isConnected);
     update(isConnected);
-  }, [isConnected]);
+  }, [isConnected, update]);
 
-  function clickConnect() {
-    async function f() {
-      setLoadingWeb3Modal(true);
+  async function clickConnect() {
+    setLoading(true);
+    try {
       await openWeb3Modal();
-      setLoadingWeb3Modal(false);
+    } catch (error) {
+      console.error('Error connecting wallet:', error);
+    } finally {
+      setLoading(false);
     }
-
-    f();
   }
 
   return (
-    <div className={walletConnected ? 'hidden' : ''}>
+    <div className={isConnected ? 'hidden' : ''}>
       <button
         type='button'
         onClick={clickConnect}
         className={buttonClassName}
-        disabled={loadingWeb3Modal}
+        disabled={loading}
       >
-        Connect
+        {loading ? 'Connecting...' : 'Connect'}
       </button>
     </div>
   );
