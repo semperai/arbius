@@ -10,6 +10,9 @@
     "format": "prettier --check --ignore-path .gitignore .",
     "format:fix": "prettier --write --ignore-path .gitignore ."
   },
+  "engines": {
+    "node": ">=18.20.3"
+  },
   "dependencies": {
     "@apollo/client": "^3.9.7",
     "@emotion/react": "^11.11.4",
