@@ -28,8 +28,12 @@ export default function NetworkSwitch({ enableEth }: Props) {
 
   const handleSwitch = async () => {
     try {
-      await switchChain({ chainId: targetChain });
+      //await switchChain({ chainId: targetChain });
       setOpen(false);
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${targetChain.toString(16)}` }],
+      });
     } catch (error) {
       console.error('Failed to switch network:', error);
     }
