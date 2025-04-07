@@ -32,7 +32,7 @@ export default function NetworkSwitch({ enableEth }: Props) {
       setOpen(false);
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: `0x${targetChain.toString(16)}` }],
+        params: [{ chainId: `0x${Number(targetChain).toString(16)}` }],
       });
     } catch (error) {
       console.error('Failed to switch network:', error);
