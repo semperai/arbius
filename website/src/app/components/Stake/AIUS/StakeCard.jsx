@@ -166,56 +166,49 @@ function StakeCard({
       voter.abi,
       signer
     );
-
+      
+    // @ts-ignore
+    setShowPopUp('withdraw/2');
+    
     const alreadyVoted = await votingEscrowContract.voted(token?.tokenID);
 
     if(alreadyVoted){
-      // @ts-ignore
-      setShowPopUp('withdraw/2');
-      // reset the vote first
-      const resetTx = await voterContract.reset(token?.tokenID);
+      alert("alreadyVoted")
+      try{
+        // reset the vote first
+        const resetTx = await voterContract.reset(token?.tokenID);
 
-      await resetTx.wait();
-      getTransactionReceiptData(resetTx.hash).then(async function () {
+        await resetTx.wait();
+        getTransactionReceiptData(resetTx.hash).then(async function () {
 
-        if (lockedEndDate > Date.now()) {
-          return;
-        }
+          if (lockedEndDate > Date.now()) {
+            return;
+          }
 
-        const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
-        await _withdraw.wait();
-        getTransactionReceiptData(_withdraw.hash).then(function () {
-          // @ts-ignore
-          setShowPopUp('withdraw/Success');
-          // @ts-ignore
-          setUpdateValue((prevValue) => prevValue + 1);
-        })
-        .catch(function() {
-          // @ts-ignore
-          setShowPopUp('withdraw/Error');
-        })
-      });
+          const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
+          await _withdraw.wait();
+          getTransactionReceiptData(_withdraw.hash).then(function () {
+            // @ts-ignore
+            setShowPopUp('withdraw/Success');
+            // @ts-ignore
+            setUpdateValue((prevValue) => prevValue + 1);
+          })
+          .catch(function() {
+            // @ts-ignore
+            setShowPopUp('withdraw/Error');
+          })
+        });
+      }catch(err){
+        console.log(err);
+        // @ts-ignore
+        setShowPopUp('withdraw/Error');
+      }
     } else {
       if (lockedEndDate > Date.now()) {
         return;
       }
-
+      alert("not alreadyVoted")
       try {
-        // @ts-ignore
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        // Create a provider
-        // @ts-ignore
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-        // Get the signer
-        const signer = provider.getSigner();
-
-        const votingEscrowContract = new ethers.Contract(
-          Config.votingEscrowAddress,
-          votingEscrow.abi,
-          signer
-        );
-
         const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
         await _withdraw.wait();
         getTransactionReceiptData(_withdraw.hash).then(function () {
@@ -229,6 +222,7 @@ function StakeCard({
           setShowPopUp('withdraw/Error');
         })
       } catch (error) {
+        console.log(error)
         // @ts-ignore
         setShowPopUp('withdraw/Error');
       }
