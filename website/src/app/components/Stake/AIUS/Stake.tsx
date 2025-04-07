@@ -32,7 +32,8 @@ import success_stake from '../../../assets/images/success_stake.png';
 import { ethers } from 'ethers';
 import Config from '@/config.one.json';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
-import Web3 from 'web3';
+
+import { getWeb3 } from '@/app/Utils/getWeb3RPC';
 import { AbiItem } from 'web3-utils'; // or relevant package
 import Decimal from 'decimal.js';
 
@@ -62,13 +63,13 @@ export default function Stake({
   //const [totalEscrowBalance, setTotalEscrowBalance] = useState(0)
   const [veAiusBalance, setVeAIUSBalance] = useState(0);
   const [allowance, setAllowance] = useState(0);
-  //const [veAIUSBalancesContracts, setVeAIUSBalancesContracts] = useState(null);
+
   const [duration, setDuration] = useState({
     months: 0,
     weeks: 0,
   });
   const [amount, setAmount] = useState(0);
-  //const walletBalance = data && !isLoading ? Number(data._hex) / AIUS_wei : 0;
+
   const [walletBalance, setWalletBalance] = useState(0);
   const [rewardRate, setRewardRate] = useState(0);
   const [totalSupply, setTotalSupply] = useState(0);
@@ -103,6 +104,7 @@ export default function Stake({
   ];
 
   const [faucetCalled, setFaucetCalled] = useState(false);
+<<<<<<< HEAD
   const { data: escrowBalance, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useReadContract({
     address: Config.votingEscrowAddress as `0x${string}`,
     abi: votingEscrow.abi as Abi,
@@ -235,6 +237,8 @@ export default function Stake({
           return web3
         });
   }
+
+  console.log(allowance, amount, 'ALLOWANCE AND AMOUNT');
 
   useEffect(() => {
 

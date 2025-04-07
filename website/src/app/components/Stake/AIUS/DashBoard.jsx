@@ -16,11 +16,11 @@ import { getAPR } from '../../../Utils/getAPR';
 import { BigNumber } from 'ethers';
 import { fetchArbiusData } from '../../../Utils/getArbiusData';
 // import { AIUS_wei } from "../../../Utils/constantValues";
-import Web3 from 'web3';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
 import { AIUS_wei, t_max, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import Loader from '../Loader/Index';
 import Gantt from './GanttChartTest';
+import { getWeb3 } from '@/app/Utils/getWeb3RPC';
 
 function DashBoard({
   data,
@@ -113,38 +113,6 @@ function DashBoard({
         args: [],
         enabled: isConnected
     })*/
-
-  const getWeb3 = async() => {
-    return await fetch(alchemyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_blockNumber",
-          params: []
-        }),
-      })
-      .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Alchemy error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-            return web3
-          } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
-            console.log("Successfully connected. Block number:", data.result);
-            return web3
-          }
-        })
-        .catch((err) => {
-          console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-          return web3
-        });
-  }
 
   useEffect(() => {
     if (rewardRateData) {
