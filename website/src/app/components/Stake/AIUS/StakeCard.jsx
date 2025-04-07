@@ -116,7 +116,6 @@ function StakeCard({
     const alreadyVoted = await votingEscrowContract.voted(token?.tokenID);
 
     if(alreadyVoted){
-      alert("alreadyVoted")
       try{
         // reset the vote first
         const resetTx = await voterContract.reset(token?.tokenID);
@@ -150,7 +149,6 @@ function StakeCard({
       if (lockedEndDate > Date.now()) {
         return;
       }
-      alert("not alreadyVoted")
       try {
         const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
         await _withdraw.wait();
