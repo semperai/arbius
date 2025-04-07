@@ -88,31 +88,6 @@ function DashBoard({
       (endDate.getFullYear() * 12 + endDate.getMonth());
     return diff;
   };
-  // const [walletBalance, setWalletBalance] = useState(0);
-  // const [protocolData, setProtocolData] = useState([]);
-  /*const rewardRate = useContractRead({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'rewardRate',
-        args: [],
-        enabled: isConnected
-    })
-
-    const totalSupply = useContractRead({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'totalSupply',
-        args: [],
-        enabled: isConnected
-    })
-
-    const { data: veSupplyData, isLoading: veSupplyIsLoading, isError: veSupplyIsError } = useContractRead({
-        address: Config.votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'supply',
-        args: [],
-        enabled: isConnected
-    })*/
 
   useEffect(() => {
     if (rewardRateData) {

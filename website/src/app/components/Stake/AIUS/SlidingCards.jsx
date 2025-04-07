@@ -410,48 +410,6 @@ const ExtendPopUpChildren = ({
     new Date(currentlyEndingAt)
   );
 
-  //console.log(sliderValue,'SLIDER VALUE and dates check',{ extendEndDate },getCurrentTimeInMSeconds(),(extendEndDate - getCurrentTimeInMSeconds()) / 1000);
-  //console.log(extendEndDate, 'EXTENDED END DATE');
-  //console.log('Below: Difference in time in seconds of extended date and current time');
-  //console.log(parseInt((extendEndDate.getTime() - getCurrentTimeInMSeconds()) / 1000).toString());
-
-  //console.log({ currentlyEndingAt });
-  //console.log({ currentlyEndingDate });
-
-  // const { config: addAIUSConfig } = usePrepareContractWrite({
-  //   address: Config.votingEscrowAddress,
-  //   abi: votingEscrow.abi,
-  //   functionName: 'increase_unlock_time',
-  //   args: [
-  //     Number(selectedStake),
-  //     parseInt( ( (extendEndDate - getCurrentTimeInMSeconds()) / 1000) + 1000 ).toString(), // value in months(decimal) * 4*7*24*60*60
-  //   ],
-  //   enabled: extendEndDate > 0,
-  // });
-
-  // const {
-  //   data: addAIUSData,
-  //   isLoading: addAIUSIsLoading,
-  //   isSuccess: addAIUSIsSuccess,
-  //   isError: addAIUSError,
-  //   write: extendAIUS,
-  // } = useWriteContract(addAIUSConfig);
-
-  // const {
-  //   data: approveTx,
-  //   isError: txError,
-  //   isLoading: txLoading,
-  // } = useTransaction(addAIUSData?.hash)
-
-  // useEffect(() => {
-  //   alert(txError)
-  //   alert(addAIUSIsSuccess)
-  //   alert(addAIUSError)
-  //   if (txError && addAIUSError) {
-  //     setShowPopUp('extend/Error');
-  //   }
-  // }, [txError]);
-
   const handleExtend = async () => {
     try {
       // @ts-ignore
@@ -694,46 +652,6 @@ const ClaimPopUpChildren = ({
 }) => {
   const [earned, setEarned] = useState(0);
   const [realtimeInterval, setRealtimeInterval] = useState(null);
-
-  /*const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'earned',
-        args: [
-            Number(selectedStake)
-        ]
-  })*/
-
-  // const { config: addAIUSConfig } = useWriteContract({
-  //   address: Config.veStakingAddress,
-  //   abi: veStaking.abi,
-  //   functionName: 'getReward',
-  //   args: [Number(selectedStake)],
-  // });
-
-  // const {
-  //   data: addAIUSData,
-  //   isLoading: addAIUSIsLoading,
-  //   isSuccess: addAIUSIsSuccess,
-  //   isError: addAIUSError,
-  //   write: claimAIUS,
-  // } = useTransaction(addAIUSConfig);
-
-  //console.log({ addAIUSData });
-
-  // const {
-  //   data: approveTx,
-  //   isError: txError,
-  //   isLoading: txLoading,
-  // } = useTransaction(addAIUSData?.hash)
-
-  // useEffect(() => {
-  //   if (addAIUSError) {
-  //     alert(addAIUSError)
-  //     alert(txError)
-  //     setShowPopUp('claim/Error');
-  //   }
-  // }, [addAIUSError]);
 
   const handleClaim = async () => {
     try {

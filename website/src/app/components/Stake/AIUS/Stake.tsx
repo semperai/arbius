@@ -75,8 +75,6 @@ export default function Stake({
   const [totalSupply, setTotalSupply] = useState(0);
   const [escrowBalanceData, setEscrowBalanceData] = useState(0);
 
-  //console.log(veAiusBalance, allowance, walletBalance, rewardRate, totalSupply, escrowBalanceData, "ALL VALUES IN STAKE COMP")
-
   const FAUCET_ADDRESS = '0x9a2aef1a0fc09d22f0703decd5bf19dc4214e52a';
 
   const faucetABI = [
@@ -104,7 +102,7 @@ export default function Stake({
   ];
 
   const [faucetCalled, setFaucetCalled] = useState(false);
-<<<<<<< HEAD
+
   const { data: escrowBalance, isLoading: escrowBalanceIsLoading, isError: escrowBalanceIsError } = useReadContract({
     address: Config.votingEscrowAddress as `0x${string}`,
     abi: votingEscrow.abi as Abi,
@@ -157,86 +155,6 @@ export default function Stake({
       enabled: isConnected,
     },
   });
-
-  const { data: approveData, error: approveError, isPending: approvePending, writeContract: approveWrite } = useWriteContract();
-
-  //console.log(allowance, amount, 'ALLOWANCE AND AMOUNT');
-  //const {data:stakeData, error:stakeError, isPending:stakeIsPending, write:stakeWrite} = useContractWrite(stakeConfig)
-  //console.log({stakeData, stakeError,stakeWrite})
-
-  /*const { data: approveTx, isError: txError, isLoading: txLoading } = useWaitForTransaction({
-    hash: approveData?.hash,
-    confirmations: 3,
-    onSuccess(data) {
-      console.log('approve tx successful data ', data);
-      setAllowance(Number(defaultApproveAmount) / AIUS_wei);
-    },
-    onError(err) {
-      console.log('approve tx error data ', err);
-    }
-  });*/
-
-  /*const { data: approveTx2, isError: txError2, isLoading: txLoading2 } = useWaitForTransaction({
-    hash: stakeData?.hash,
-    confirmations: 3,
-    onSuccess(data) {
-      console.log('approve tx successful data 2', data);
-      setShowPopUp("Success")
-      getTransactionReceiptData(stakeData?.hash).then(function(){
-        window.location.reload(true)
-      })
-    },
-    onError(err) {
-      console.log('approve tx error data 2', err);
-      setShowPopUp("Error")
-    }
-  });*/
-
-  /*useEffect(() => {
-    console.log(allowance, amount)
-    if(allowance > amount && showPopUp === 1){
-      console.log("running")
-      setShowPopUp(2)
-      console.log("calling stake")
-      setTimeout(() => {
-        console.log("HEllo")
-        stakeWrite()
-      },2000)
-    }
-  },[allowance])*/
-  // Use effect to fetch all values
-
-  const getWeb3 = async() => {
-    return await fetch(alchemyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_blockNumber",
-          params: []
-        }),
-      })
-      .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Alchemy error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-            return web3
-          } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
-            console.log("Successfully connected. Block number:", data.result);
-            return web3
-          }
-        })
-        .catch((err) => {
-          console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-          return web3
-        });
-  }
 
   console.log(allowance, amount, 'ALLOWANCE AND AMOUNT');
 
