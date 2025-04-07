@@ -26,9 +26,11 @@ export default function NetworkSwitch({ enableEth }: Props) {
     }
   }, [chainId]);
 
+  console.log(targetChain, `0x${Number(targetChain).toString(16)}`, "CONSOLE LOG")
   const handleSwitch = async () => {
     try {
       //await switchChain({ chainId: targetChain });
+      console.log(targetChain, `0x${Number(targetChain).toString(16)}`, "CONSOLE LOG")
       setOpen(false);
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
