@@ -46,6 +46,7 @@ export default function UpgradePage() {
   const [tokenABalance, setTokenABalance] = useState(ethers.BigNumber.from(0));
   const [tokenBBalance, setTokenBBalance] = useState(ethers.BigNumber.from(0));
   const [needsAllowance, setNeedsAllowance] = useState(false);
+  const zero = ethers.BigNumber.from(0);
 
   console.log('chain', chainId);
 
@@ -152,7 +153,7 @@ export default function UpgradePage() {
                   to={oneToOneAddress as `0x${string}`}
                 />
 
-                {chainId && !needsAllowance && tokenABalance > 0n && (
+                {chainId && !needsAllowance && tokenABalance > zero && (
                   <button
                     className='bg-black bg-opacity-50 px-4 py-1 outline transition hover:bg-opacity-60'
                     disabled={upgradeButtonDisabled}
@@ -161,7 +162,7 @@ export default function UpgradePage() {
                     Upgrade <span aria-hidden='true'>→</span>
                   </button>
                 )}
-                {chainId && tokenABalance === 0n && (
+                {chainId && tokenABalance === zero && (
                   <button
                     className='bg-black bg-opacity-50 px-4 py-1 outline transition hover:bg-opacity-60'
                     disabled={true}

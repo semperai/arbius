@@ -107,6 +107,7 @@ export default function Layout({
   const [v2TokenBalance, setV2TokenBalance] = useState(
     ethers.BigNumber.from(0)
   );
+  const zero = ethers.BigNumber.from(0);
 
   return (
     <>
@@ -156,7 +157,7 @@ export default function Layout({
                     <div className='hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8'>
                       {navigation.map((item) => (
                         <>
-                          {(item.name !== 'Upgrade' || tokenBalance > 0n) && (
+                          {(item.name !== 'Upgrade' || tokenBalance > zero) && (
                             <Link
                               key={item.name}
                               href={item.href}
@@ -192,7 +193,7 @@ export default function Layout({
                       className={
                         (walletConnected ? '' : 'hidden ') +
                         'text-mono flex-rows text-slate-800 bg-slate-50 flex rounded-md px-3 pb-1 pt-2 text-xs shadow' +
-                        (tokenBalance === 0n ? '' : 'animate-pulse')
+                        (tokenBalance === zero ? '' : 'animate-pulse')
                       }
                     >
                       <Link href='/upgrade' className='flex-rows flex'>
@@ -222,7 +223,7 @@ export default function Layout({
                         className={
                           (walletConnected ? '' : 'hidden ') +
                           'text-mono flex-rows m3-4 text-slate-800 bg-slate-50 flex rounded-md px-3 pb-1 pt-2 text-xs shadow' +
-                          (tokenBalance === 0n ? '' : 'animate-pulse')
+                          (tokenBalance === zero ? '' : 'animate-pulse')
                         }
                       >
                         <Link href='/upgrade' className='flex-rows flex'>
