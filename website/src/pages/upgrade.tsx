@@ -152,7 +152,7 @@ export default function UpgradePage() {
                   to={oneToOneAddress as `0x${string}`}
                 />
 
-                {chainId && !needsAllowance && tokenABalance.gt(0) && (
+                {chainId && !needsAllowance && tokenABalance > 0n && (
                   <button
                     className='bg-black bg-opacity-50 px-4 py-1 outline transition hover:bg-opacity-60'
                     disabled={upgradeButtonDisabled}
@@ -161,7 +161,7 @@ export default function UpgradePage() {
                     Upgrade <span aria-hidden='true'>→</span>
                   </button>
                 )}
-                {chainId && tokenABalance.eq(0) && (
+                {chainId && tokenABalance === 0n && (
                   <button
                     className='bg-black bg-opacity-50 px-4 py-1 outline transition hover:bg-opacity-60'
                     disabled={true}

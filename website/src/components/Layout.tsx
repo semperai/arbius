@@ -156,7 +156,7 @@ export default function Layout({
                     <div className='hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8'>
                       {navigation.map((item) => (
                         <>
-                          {(item.name !== 'Upgrade' || tokenBalance.gt(0)) && (
+                          {(item.name !== 'Upgrade' || tokenBalance > 0n) && (
                             <Link
                               key={item.name}
                               href={item.href}
@@ -192,7 +192,7 @@ export default function Layout({
                       className={
                         (walletConnected ? '' : 'hidden ') +
                         'text-mono flex-rows text-slate-800 bg-slate-50 flex rounded-md px-3 pb-1 pt-2 text-xs shadow' +
-                        (tokenBalance.eq(0) ? '' : 'animate-pulse')
+                        (tokenBalance === 0n ? '' : 'animate-pulse')
                       }
                     >
                       <Link href='/upgrade' className='flex-rows flex'>
@@ -222,7 +222,7 @@ export default function Layout({
                         className={
                           (walletConnected ? '' : 'hidden ') +
                           'text-mono flex-rows m3-4 text-slate-800 bg-slate-50 flex rounded-md px-3 pb-1 pt-2 text-xs shadow' +
-                          (tokenBalance.eq(0) ? '' : 'animate-pulse')
+                          (tokenBalance === 0n ? '' : 'animate-pulse')
                         }
                       >
                         <Link href='/upgrade' className='flex-rows flex'>

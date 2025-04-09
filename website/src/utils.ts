@@ -26,13 +26,13 @@ export function cidify(cid: string): string {
   return base58.encode(ethers.utils.arrayify(cid));
 }
 
-export function formatBalance(b: ethers.BigNumber, m: number = 1e14): string {
+export function formatBalance(b: ethers.BigNumber, m: ethers.BigNumber = 1e14): string {
   if (!b) {
     return '';
   }
 
-  const remainder = b.mod(m);
-  return ethers.utils.formatEther(b.sub(remainder));
+  const remainder = BigInt(b) % BigInt(m);
+  return ethers.utils.formatEther(BigInt(b) - BigInt(remainder));
 }
 
 export function sleep(ms: number) {
@@ -43,7 +43,7 @@ export function renderBlocktime(blocktime: ethers.BigNumber | null) {
   if (!blocktime) {
     return '';
   }
-  if (blocktime.eq(0)) {
+  if (blocktime === 0n) {
     return '';
   }
   const d = new Date(blocktime.toNumber() * 1000);
