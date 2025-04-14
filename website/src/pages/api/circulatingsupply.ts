@@ -21,7 +21,7 @@ export default async function handler(
     'https://eth.llamarpc.com'
   );
   const oneProvider = new ethers.providers.JsonRpcProvider(
-    'https://arbitrum.llamarpc.com'
+    'https://arb1.arbitrum.io/rpc'
   );
 
   const novaContract = new ethers.Contract(
