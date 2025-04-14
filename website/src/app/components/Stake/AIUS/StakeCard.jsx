@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  useContractRead,
+  useReadContract,
   useAccount,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
+  useWriteContract,
+  useTransaction,
 } from 'wagmi';
 import { BigNumber, ethers } from 'ethers';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
@@ -17,7 +16,8 @@ import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png';
 import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import Link from 'next/link';
 import info_icon from '@/app/assets/images/info_icon_white.png';
-import Web3 from 'web3';
+
+import { getWeb3 } from '@/app/Utils/getWeb3RPC';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
 import Config from '@/config.one.json';
 
@@ -34,6 +34,7 @@ function StakeCard({
 }) {
   //console.log(token, "TOKEN in individual card")
   const { address, isConnected } = useAccount();
+  const { writeContract } = useWriteContract();
 
   const [totalStaked, setTotalStaked] = useState(token?.locked);
   const [endDate, setEndDate] = useState(token?.locked__end);
@@ -44,69 +45,11 @@ function StakeCard({
   const [realtimeInterval, setRealtimeInterval] = useState(null);
   const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
   const [extendMonths, setExtendMonths] = useState(0);
-  /*const { data: totalStaked, isLoading: totalStakedIsLoading, isError: totalStakedIsError } = useContractRead({
-        address: Config.votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'locked',
-        args: [
-            Number(tokenID?._hex)
-        ],
-        enabled: isConnected
-    })
-    console.log(totalStaked, "ttsake")
-    const { data: endDate, isLoading: endDateIsLoading, isError: endDateIsError } = useContractRead({
-        address: Config.votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'locked__end',
-        args: [
-            Number(tokenID?._hex)
-        ],
-        enabled: isConnected
-    })
-    console.log(Number(endDate?._hex), "endDate")
-    const { data: stakedOn, isLoading: stakedOnIsLoading, isError: stakedOnIsError } = useContractRead({
-        address: Config.votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'user_point_history__ts',
-        args: [
-            Number(tokenID?._hex),
-            1
-        ],
-        enabled: isConnected
-    })
-    console.log(stakedOn, "stakedOn")
-    const { data: governancePower, isLoading: governancePowerIsLoading, isError: governancePowerIsError } = useContractRead({
-        address: Config.votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'balanceOfNFT',
-        args: [
-            Number(tokenID?._hex)
-        ],
-        enabled: isConnected
-    })
-
-    const { data: initialBalance, isLoading: initialBalanceIsLoading, isError: initialBalanceIsError } = useContractRead({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'balanceOf',
-        args: [
-            Number(tokenID?._hex)
-        ],
-        enabled: isConnected
-    })
-    const { data: earned, isLoading: earnedIsLoading, isError: earnedIsError } = useContractRead({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'earned',
-        args: [
-            Number(tokenID?._hex)
-        ]
-    })*/
-
+  
   // withdraw
   //console.log(Number(endDate) * 1000, "current")
   //console.log("current Date", Date.now())
-  const { config: withdrawAIUSConfig } = usePrepareContractWrite({
+  const { config: withdrawAIUSConfig } = useTransaction({
     address: Config.votingEscrowAddress,
     abi: votingEscrow.abi,
     functionName: 'withdraw',
@@ -120,7 +63,7 @@ function StakeCard({
     isSuccess: withdrawAIUSIsSuccess,
     isError: withdrawAIUSError,
     write: withdrawAIUS,
-  } = useContractWrite(withdrawAIUSConfig);
+  } = useWriteContract(withdrawAIUSConfig);
 
   //console.log({ withdrawAIUSData })
 
@@ -128,7 +71,7 @@ function StakeCard({
     data: approveTx,
     isError: txError,
     isLoading: txLoading,
-  } = useWaitForTransaction({
+  } = useTransaction({
     hash: withdrawAIUSData?.hash,
     confirmations: 3,
     onSuccess(data) {
@@ -166,22 +109,47 @@ function StakeCard({
       voter.abi,
       signer
     );
-
+      
+    // @ts-ignore
+    setShowPopUp('withdraw/2');
+    
     const alreadyVoted = await votingEscrowContract.voted(token?.tokenID);
 
     if(alreadyVoted){
-      // @ts-ignore
-      setShowPopUp('withdraw/2');
-      // reset the vote first
-      const resetTx = await voterContract.reset(token?.tokenID);
+      try{
+        // reset the vote first
+        const resetTx = await voterContract.reset(token?.tokenID);
 
-      await resetTx.wait();
-      getTransactionReceiptData(resetTx.hash).then(async function () {
+        await resetTx.wait();
+        getTransactionReceiptData(resetTx.hash).then(async function () {
 
-        if (lockedEndDate > Date.now()) {
-          return;
-        }
+          if (lockedEndDate > Date.now()) {
+            return;
+          }
 
+          const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
+          await _withdraw.wait();
+          getTransactionReceiptData(_withdraw.hash).then(function () {
+            // @ts-ignore
+            setShowPopUp('withdraw/Success');
+            // @ts-ignore
+            setUpdateValue((prevValue) => prevValue + 1);
+          })
+          .catch(function() {
+            // @ts-ignore
+            setShowPopUp('withdraw/Error');
+          })
+        });
+      }catch(err){
+        console.log(err);
+        // @ts-ignore
+        setShowPopUp('withdraw/Error');
+      }
+    } else {
+      if (lockedEndDate > Date.now()) {
+        return;
+      }
+      try {
         const _withdraw = await votingEscrowContract.withdraw(token?.tokenID);
         await _withdraw.wait();
         getTransactionReceiptData(_withdraw.hash).then(function () {
@@ -194,15 +162,11 @@ function StakeCard({
           // @ts-ignore
           setShowPopUp('withdraw/Error');
         })
-      });
-    }else{
-      if (lockedEndDate > Date.now()) {
-        return;
+      } catch (error) {
+        console.log(error)
+        // @ts-ignore
+        setShowPopUp('withdraw/Error');
       }
-
-      withdrawAIUS?.();
-      // @ts-ignore
-      setShowPopUp('withdraw/2');
     }
   };
 
@@ -212,67 +176,11 @@ function StakeCard({
     }
   }, [withdrawAIUSError]);
 
-  // useEffect(() => {
-  //     const f = async() => {
-  //         const web3 = new Web3(window.ethereum);
-  //         const votingEscrowContract = new web3.eth.Contract(votingEscrow.abi, Config.votingEscrowAddress);
-  //         const veStakingContract = new web3.eth.Contract(veStaking.abi, Config.veStakingAddress);
-
-  //         const _totalStaked = await votingEscrowContract.methods.locked(tokenID).call()
-  //         const _endDate = await votingEscrowContract.methods.locked__end(tokenID).call()
-  //         const _stakedOn = await votingEscrowContract.methods.user_point_history__ts(tokenID, 1).call()
-  //         const _governancePower = await votingEscrowContract.methods.balanceOfNFT(tokenID).call()
-  //         const _initialBalance = await veStakingContract.methods.balanceOf(tokenID).call()
-  //         const _earned = await veStakingContract.methods.earned(tokenID).call()
-  //         console.log(_totalStaked, _endDate, _stakedOn, _governancePower, _initialBalance, _earned, "^ 6 values")
-  //         setTotalStaked(_totalStaked)
-  //         setEndDate(_endDate)
-  //         setStakedOn(_stakedOn)
-  //         setGovernancePower(_governancePower)
-  //         setInitialBalance(_initialBalance)
-  //         setEarned(_earned)
-  //     }
-  //     if(address){
-  //         f();
-  //     }
-  // },[address])
-
   const openseaLink =
     process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev'
       ? 'https://testnets.opensea.io/assets/arbitrum-sepolia/'
       : 'https://opensea.io/assets/arbitrum/';
 
-  const getWeb3 = async() => {
-    return await fetch(alchemyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_blockNumber",
-          params: []
-        }),
-      })
-      .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Alchemy error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-            return web3
-          } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
-            console.log("Successfully connected. Block number:", data.result);
-            return web3
-          }
-        })
-        .catch((err) => {
-          console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-          return web3
-        });
-  }
 
   //const handleRealtimeClaimableRewards = async (mouseOver) => {
   useEffect(() => {

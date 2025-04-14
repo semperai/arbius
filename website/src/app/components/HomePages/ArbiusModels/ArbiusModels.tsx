@@ -14,14 +14,14 @@ import polygon from '@/app/assets/images/polygon.png';
 import github from '@/app/assets/images/github.png';
 import nvidia from '@/app/assets/images/nvidia.svg';
 import CustomDropdown from './CustomDropdown';
-import { AIUS_wei, infuraUrl, alchemyUrl } from '@/app/Utils/constantValues';
+import { AIUS_wei } from '@/app/Utils/constantValues';
 import voter from '@/app/abis/voter.json';
 import engineABI from '@/app/abis/v2_enginev4.json';
 import Config from '@/config.one.json';
-import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import Link from 'next/link';
 import { Fade } from 'react-awesome-reveal';
+import { getWeb3 } from '@/app/Utils/getWeb3RPC';
 
 export default function ArbiusModels(){
 
@@ -53,39 +53,6 @@ export default function ArbiusModels(){
 	      clearTimeout(time);
 	    }, 300);
 	};
-
- 	const getWeb3 = async() => {
-	    return await fetch(alchemyUrl, {
-	        method: 'POST',
-	        headers: {
-	          'Content-Type': 'application/json',
-	        },
-	        body: JSON.stringify({
-	          jsonrpc: "2.0",
-	          id: 1,
-	          method: "eth_blockNumber",
-	          params: []
-	        }),
-	      })
-	      .then(res => res.json())
-	        .then(_data => {
-	          if (_data.error) {
-	            console.error("Alchemy error:", _data.error.message);
-	            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-	            return web3
-	          } else {
-	            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
-	            console.log("Successfully connected. Block number:", _data.result);
-	            return web3
-	          }
-	        })
-	        .catch((err) => {
-	          console.log("Request failed:", err)
-	          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-	          return web3
-	        });
-  	}
-
 
 	useEffect(() => {
 

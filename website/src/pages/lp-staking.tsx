@@ -1,12 +1,12 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import RootLayout from '@/app/layout';
-import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi';
+import { useChainId } from 'wagmi';
 import Tabs from '@/app/components/Stake/LPStaking/Tabs';
 import TopHeaderSection from '@/app/components/Stake/LPStaking/TopHeaderSection';
 import { getAPR } from '@/app/Utils/getAPR';
 import { AIUS_wei, infuraUrlEth, alchemyUrlEth } from '@/app/Utils/constantValues';
-import Web3 from 'web3';
+import { getWeb3Sepolia } from '@/app/Utils/getWeb3RPC';
 import veStaking from '@/app/abis/veStaking.json';
 import { AbiItem } from 'web3-utils';
 import Config from '@/config.eth.json';
@@ -14,60 +14,33 @@ import Config from '@/config.eth.json';
 export default function LPStaking() {
   const [data, setData] = useState(null);
 
-  const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 11155111 : 1;
-  const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
-    chainId: CHAIN,
-  });
+  const chainId = useChainId();
+
+  const forceSwitchChain = async (chainId: number) => {
+    if (!window.ethereum) return;
+
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${chainId.toString(16)}` }],
+      });
+    } catch (error: any) {
+      if (error.code === 4902) {
+        console.log("Error : Chain not defined")
+        // Chain not added? Add it dynamically
+        // await window.ethereum.request({
+        //   method: 'wallet_addEthereumChain',
+        //   params: [getChainConfig(chainId)], // Define `getChainConfig` for Arbitrum/Mainnet
+        // });
+      }
+    }
+  };
 
   useEffect(() => {
-    const f = async () => {
-      try {
-        const check = await window.ethereum?.request({ method: 'eth_accounts' }); // Request account access if needed
-        if (check?.length) {
-          await window.ethereum?.request({ method: 'eth_requestAccounts' });
-        }
-      } catch (error) {}
-    };
+    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 11155111 : 1;
+    forceSwitchChain(CHAIN)
+  }, [chainId]);
 
-    f();
-    switchNetworkArbitrum?.();
-  }, [switchNetworkArbitrum]);
-
-
-  const getWeb3Sepolia = async() => {
-    let infuraUrl = infuraUrlEth;
-    let alchemyUrl = alchemyUrlEth;
-
-    return await fetch(alchemyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_blockNumber",
-          params: []
-        }),
-      })
-      .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Infura error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-            return web3
-          } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
-            console.log("Successfully connected. Block number:", data.result);
-            return web3
-          }
-        })
-        .catch((err) => {
-          console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-          return web3
-        });
-  }
 
   useEffect(() => {
 

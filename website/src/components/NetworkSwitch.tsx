@@ -1,4 +1,4 @@
-import { useNetwork, useSwitchNetwork } from 'wagmi';
+import { useChainId, useSwitchChain } from 'wagmi';
 import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import {
@@ -13,39 +13,30 @@ type Props = {
   enableEth?: boolean;
 };
 
-export default function SwitchNetwork({ enableEth }: Props) {
-  const { chain, chains } = useNetwork();
-  const { switchNetwork } = useSwitchNetwork({
-    chainId: DEFAULT_CHAIN,
-  });
-  const { switchNetwork: switchNetworkEth } = useSwitchNetwork({
-    chainId: ETH_CHAIN,
-  });
+export default function NetworkSwitch({ enableEth }: Props) {
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
   const [open, setOpen] = useState(false);
-
-  function clickSwitch() {
-    switchNetwork?.();
-    setOpen(false);
-  }
-
-  function clickSwitchEth() {
-    switchNetworkEth?.();
-    setOpen(false);
-  }
+  const [targetChain, setTargetChain] = useState(DEFAULT_CHAIN);
 
   useEffect(() => {
-    if (chain) {
-      if (enableEth && chain.id !== ETH_CHAIN && chain.id !== DEFAULT_CHAIN) {
-        setOpen(true);
-      } else if (!enableEth && chain.id !== DEFAULT_CHAIN) {
-        setOpen(true);
-      } else {
-        setOpen(false);
-      }
-    } else {
-      setOpen(false);
+    if (chainId && chainId !== DEFAULT_CHAIN && chainId !== ETH_CHAIN) {
+      setOpen(true);
+      setTargetChain(DEFAULT_CHAIN);
     }
-  }, [chain]);
+  }, [chainId]);
+
+  const handleSwitch = async () => {
+    try {
+      setOpen(false);
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${Number(targetChain).toString(16)}` }],
+      });
+    } catch (error) {
+      console.error('Failed to switch network:', error);
+    }
+  };
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -59,7 +50,7 @@ export default function SwitchNetwork({ enableEth }: Props) {
           leaveFrom='opacity-100'
           leaveTo='opacity-0'
         >
-          <div className='bg-gray-500 fixed inset-0 bg-opacity-75 transition-opacity' />
+          <div className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
         </Transition.Child>
 
         <div className='fixed inset-0 z-10 overflow-y-auto'>
@@ -73,11 +64,11 @@ export default function SwitchNetwork({ enableEth }: Props) {
               leaveFrom='opacity-100 translate-y-0 sm:scale-100'
               leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
             >
-              <Dialog.Panel className='bg-white relative transform overflow-hidden rounded-lg px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6'>
+              <Dialog.Panel className='relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6'>
                 <div className='absolute right-0 top-0 hidden pr-4 pt-4 sm:block'>
                   <button
                     type='button'
-                    className='bg-white text-gray-400 rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                    className='rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                     onClick={() => setOpen(false)}
                   >
                     <span className='sr-only'>Close</span>
@@ -85,98 +76,37 @@ export default function SwitchNetwork({ enableEth }: Props) {
                   </button>
                 </div>
                 <div className='sm:flex sm:items-start'>
-                  <div className='bg-red-100 mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10'>
+                  <div className='mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10'>
                     <ExclamationTriangleIcon
-                      className='text-red-600 h-6 w-6'
+                      className='h-6 w-6 text-red-600'
                       aria-hidden='true'
                     />
                   </div>
                   <div className='mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left'>
                     <Dialog.Title
                       as='h3'
-                      className='text-gray-900 text-base font-semibold leading-6'
+                      className='text-base font-semibold leading-6 text-gray-900'
                     >
-                      Switch Network
+                      Wrong Network
                     </Dialog.Title>
                     <div className='mt-2'>
-                      {enableEth ? (
-                        <p className='text-gray-500 text-sm'>
-                          You are currently connected to an unsupported network.
-                          Arbius upgrade supports Arbitrum Nova and Ethereum.
-                          Would you like to switch networks now?
-                        </p>
-                      ) : (
-                        <p className='text-gray-500 text-sm'>
-                          You are currently connected to an unsupported network.
-                          Arbius runs Arbitrum Nova. Would you like to switch
-                          networks now?
-                        </p>
-                      )}
+                      <p className='text-sm text-gray-500'>
+                        Please switch to {targetChain === DEFAULT_CHAIN ? 'Arbitrum Nova' : 'Ethereum Mainnet'} to continue.
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div className='mt-5 sm:mt-4 sm:flex sm:flex-row-reverse'>
-                  {enableEth ? (
-                    <>
-                      {switchNetwork ? (
-                        <>
-                          <button
-                            type='button'
-                            className='text-white bg-indigo-600 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto'
-                            onClick={clickSwitch}
-                          >
-                            Switch To Nova
-                          </button>
-                          <button
-                            type='button'
-                            className='text-white bg-indigo-600 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto'
-                            onClick={clickSwitchEth}
-                          >
-                            Switch To Ethereum
-                          </button>
-                        </>
-                      ) : (
-                        <a
-                          href='https://chainlist.org/chain/42170'
-                          target='_blank'
-                        >
-                          <button
-                            type='button'
-                            className='text-white bg-indigo-600 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto'
-                          >
-                            Add Network
-                          </button>
-                        </a>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {switchNetwork ? (
-                        <button
-                          type='button'
-                          className='text-white bg-indigo-600 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto'
-                          onClick={clickSwitch}
-                        >
-                          Switch
-                        </button>
-                      ) : (
-                        <a
-                          href='https://chainlist.org/chain/42170'
-                          target='_blank'
-                        >
-                          <button
-                            type='button'
-                            className='text-white bg-indigo-600 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-indigo-500 sm:ml-3 sm:w-auto'
-                          >
-                            Add Network
-                          </button>
-                        </a>
-                      )}
-                    </>
-                  )}
                   <button
                     type='button'
-                    className='bg-white text-gray-900 mt-3 inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto'
+                    className='inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto'
+                    onClick={handleSwitch}
+                  >
+                    Switch Network
+                  </button>
+                  <button
+                    type='button'
+                    className='mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto'
                     onClick={() => setOpen(false)}
                   >
                     Cancel

@@ -3,8 +3,7 @@ import { ethers } from 'ethers';
 import BaseTokenArtifact from '@/artifacts/BaseTokenV1.sol/BaseTokenV1.json';
 import Config from '@/config.json';
 import { formatBalance } from '@/utils';
-
-import { useAccount, useContractRead } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 
 interface Props {
   show: boolean;
@@ -13,45 +12,38 @@ interface Props {
 }
 
 export default function TokenBalance({ show, update, token }: Props) {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const [balance, setBalance] = useState(ethers.BigNumber.from(0));
 
-  const {
-    data: tokenBalance,
-    isError: tokenBalanceError,
-    isLoading: tokenBalanceLoading,
-    refetch: tokenBalanceRefetch,
-  } = useContractRead({
+  const { data: balanceData } = useReadContract({
     address: token,
     abi: BaseTokenArtifact.abi,
     functionName: 'balanceOf',
     args: [address],
-    enabled: Boolean(address),
+    query: {
+      enabled: isConnected && !!address,
+    },
   });
 
-  const [tokenBalanceString, setTokenBalanceString] = useState('');
-
   useEffect(() => {
-    if (tokenBalanceError) {
-      setTokenBalanceString('RPC_ERROR');
-    } else if (tokenBalanceLoading || !tokenBalance) {
-      setTokenBalanceString('loading...');
-    } else {
-      setTokenBalanceString(formatBalance(tokenBalance as ethers.BigNumber));
+    if (balanceData) {
+      const newBalance = balanceData as ethers.BigNumber;
+      setBalance(newBalance);
+      update(newBalance);
     }
+  }, [balanceData, update]);
 
-    update(
-      tokenBalance
-        ? (tokenBalance as ethers.BigNumber)
-        : ethers.BigNumber.from('0')
-    );
-  }, [tokenBalance, tokenBalanceError, tokenBalanceLoading]);
+  let balanceStr = '';
+  if (balance) {
+    balanceStr = formatBalance(balance);
+  }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      tokenBalanceRefetch();
-    }, 10_000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return <div className={!show ? 'hidden' : ''}>{tokenBalanceString}</div>;
+  return (
+    <div className={show ? '' : 'hidden'}>
+      <p>
+        <strong>Balance: </strong>
+        {balanceStr} AIUS
+      </p>
+    </div>
+  );
 }

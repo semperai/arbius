@@ -19,12 +19,6 @@ type FooterLink = {
 };
 
 const footerLinks: FooterLink[] = [
-  /*
-  {
-    name: "Generate",
-    link: "/generate"
-  },
-  */
   {
     name: 'Upgrade',
     link: '/upgrade',
@@ -33,10 +27,6 @@ const footerLinks: FooterLink[] = [
     name: 'Media',
     link: '/media',
   },
-  // {
-  //   name: "Staking",
-  //   link: "https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum"
-  // }, //commenting for mobile footer
   {
     name: 'Docs',
     link: 'https://docs.arbius.ai/',
@@ -55,10 +45,6 @@ const footerLinks: FooterLink[] = [
     name: 'Blog',
     link: 'https://blog.arbius.ai/',
   },
-  /*{
-    name: 'GYSR',
-    link: 'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum',
-  },*/
   {
     name: 'veAIUS',
     link: '/aius',

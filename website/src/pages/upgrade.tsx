@@ -1,11 +1,11 @@
 import {
   useAccount,
-  useContractRead,
-  usePrepareContractWrite,
-  useContractWrite,
-  useNetwork,
-  useWaitForTransaction,
+  useReadContract,
+  useWriteContract,
+  useTransaction,
+  useChainId,
 } from 'wagmi';
+import type { Abi } from 'viem';
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
@@ -21,7 +21,7 @@ const DEFAULT_CHAIN = parseInt(process.env.NEXT_PUBLIC_CHAINID || '31337');
 const ETH_CHAIN = parseInt(process.env.NEXT_PUBLIC_ETH_CHAINID || '1');
 
 export default function UpgradePage() {
-  const { chain, chains } = useNetwork();
+  const chainId = useChainId();
 
   const [upgradeButtonDisabled, setUpgradeButtonDisabled] = useState(false);
   const [v1TokenAddress, setV1TokenAddress] = useState('');
@@ -29,53 +29,43 @@ export default function UpgradePage() {
   const [oneToOneAddress, setOneToOneAddress] = useState('');
 
   useEffect(() => {
-    if (chain) {
-      if (chain.id == ETH_CHAIN) {
+    if (chainId) {
+      if (chainId == ETH_CHAIN) {
         setV1TokenAddress(Config.l1TokenAddress);
         setV2TokenAddress(Config.v2_l1TokenAddress);
         setOneToOneAddress(Config.l1OneToOneAddress);
       }
-      if (chain.id == DEFAULT_CHAIN) {
+      if (chainId == DEFAULT_CHAIN) {
         setV1TokenAddress(Config.baseTokenAddress);
         setV2TokenAddress(Config.v2_baseTokenAddress);
         setOneToOneAddress(Config.l2OneToOneAddress);
       }
     }
-  }, [chain]);
+  }, [chainId]);
 
   const [tokenABalance, setTokenABalance] = useState(ethers.BigNumber.from(0));
   const [tokenBBalance, setTokenBBalance] = useState(ethers.BigNumber.from(0));
   const [needsAllowance, setNeedsAllowance] = useState(false);
+  const zero = ethers.BigNumber.from(0);
 
-  console.log('chain', chain);
+  console.log('chain', chainId);
 
-  const { config: convertConfig } = usePrepareContractWrite({
-    address: oneToOneAddress as `0x${string}`,
-    abi: OneToOneConvertArtifact.abi,
-    functionName: 'swap',
-    args: [tokenABalance],
-    enabled: !needsAllowance && oneToOneAddress !== '' && tokenABalance.gt(0),
-  });
+  const { data: convertData, writeContract: convertWrite } = useWriteContract();
 
-  const {
-    data: convertData,
-    isLoading: convertIsLoading,
-    isSuccess: convertIsSuccess,
-    write: convertWrite,
-  } = useContractWrite(convertConfig);
-
-  const {
-    data: convertTxData,
-    isError: convertTxIsError,
-    isLoading: convertTxIsLoading,
-  } = useWaitForTransaction({
-    hash: convertData?.hash,
-  });
+  const handleConvert = async () => {
+    if (!convertWrite) return;
+    await convertWrite({
+      address: oneToOneAddress as `0x${string}`,
+      abi: OneToOneConvertArtifact.abi as Abi,
+      functionName: 'swap',
+      args: [tokenABalance],
+    });
+  };
 
   function clickUpgrade() {
     async function f() {
       setUpgradeButtonDisabled(true);
-      convertWrite?.();
+      await handleConvert();
     }
 
     f();
@@ -163,7 +153,7 @@ export default function UpgradePage() {
                   to={oneToOneAddress as `0x${string}`}
                 />
 
-                {chain && !needsAllowance && tokenABalance.gt(0) && (
+                {chainId && !needsAllowance && tokenABalance > zero && (
                   <button
                     className='bg-black bg-opacity-50 px-4 py-1 outline transition hover:bg-opacity-60'
                     disabled={upgradeButtonDisabled}
@@ -172,7 +162,7 @@ export default function UpgradePage() {
                     Upgrade <span aria-hidden='true'>→</span>
                   </button>
                 )}
-                {chain && tokenABalance.eq(0) && (
+                {chainId && tokenABalance === zero && (
                   <button
                     className='bg-black bg-opacity-50 px-4 py-1 outline transition hover:bg-opacity-60'
                     disabled={true}

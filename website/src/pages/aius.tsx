@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { GetServerSideProps } from 'next';
 import Stake from '../app/components/Stake/AIUS/Stake';
 import Steps from '../app/components/Stake/AIUS/Steps';
@@ -8,7 +8,11 @@ import { Fade } from 'react-awesome-reveal';
 import RootLayout from '@/app/layout';
 import Tabs from '../app/components/Stake/AIUS/Tabs';
 import Notifications from '../app/components/Stake/AIUS/Notifications';
-import { useAccount, useContractRead, useSwitchNetwork } from 'wagmi';
+import {
+  useAccount,
+  useReadContract,
+  useChainId,
+} from 'wagmi';
 import baseTokenV1 from '../app/abis/baseTokenV1.json';
 import { fetchArbiusData } from '../app/Utils/getArbiusData';
 import { BigNumber } from 'ethers';
@@ -38,35 +42,43 @@ export default function AIUS({ protocolData }: AIUSProps) {
   const [selectedtab, setSelectedTab] = useState('Dashboard');
   const { address, isConnected } = useAccount();
   const [updateValue, setUpdateValue] = useState(0);
+  const chainId = useChainId();
 
-  console.log({ address });
-  console.log({ isConnected });
-  const { data, isError, isLoading } = useContractRead({
+  const forceSwitchChain = async (chainId: number) => {
+    if (!window.ethereum) return;
+
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${chainId.toString(16)}` }],
+      });
+    } catch (error: any) {
+      if (error.code === 4902) {
+        console.log("ERROR, chain not defined")
+        // Chain not added? Add it dynamically
+        // await window.ethereum.request({
+        //   method: 'wallet_addEthereumChain',
+        //   params: [getChainConfig(chainId)], // Define `getChainConfig` for Arbitrum/Mainnet
+        // });
+      }
+    }
+  };
+
+
+  useEffect(() => {
+    const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 421614 : 42161;
+    forceSwitchChain(CHAIN)
+  }, [chainId]);
+
+  const { data, isError, isLoading } = useReadContract({
     address: Config.baseTokenAddress as `0x${string}`,
     abi: baseTokenV1.abi,
     functionName: 'balanceOf',
     args: [address],
-    enabled: isConnected,
+    query: {
+      enabled: isConnected,
+    },
   });
-  const CHAIN = process?.env?.NEXT_PUBLIC_AIUS_ENV === 'dev' ? 421614 : 42161;
-  const { switchNetwork: switchNetworkArbitrum } = useSwitchNetwork({
-    chainId: CHAIN,
-  });
-
-  useEffect(() => {
-    console.log('switch');
-    const f = async () => {
-      try {
-        const check = await window.ethereum?.request({ method: 'eth_accounts' }); // Request account access if needed
-        if (check?.length) {
-          await window.ethereum?.request({ method: 'eth_requestAccounts' });
-        }
-      } catch (error) {}
-    };
-
-    f();
-    switchNetworkArbitrum?.();
-  }, [switchNetworkArbitrum]);
 
   return (
     <RootLayout>

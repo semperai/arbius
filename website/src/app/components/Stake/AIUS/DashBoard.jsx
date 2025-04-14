@@ -5,7 +5,7 @@ import Image from 'next/image';
 import aius_icon from '../../../assets/images/aius_icon.png';
 import gysr_logo_wallet from '../../../assets/images/gysr_logo_wallet.png';
 import GanttChart from './GanttChart';
-import { useAccount, useContractRead, useNetwork } from 'wagmi';
+import { useAccount, useReadContract, useChainId } from 'wagmi';
 import veStaking from '../../../abis/veStaking.json';
 import votingEscrow from '../../../abis/votingEscrow.json';
 import baseTokenV1 from '../../../abis/baseTokenV1.json';
@@ -16,11 +16,11 @@ import { getAPR } from '../../../Utils/getAPR';
 import { BigNumber } from 'ethers';
 import { fetchArbiusData } from '../../../Utils/getArbiusData';
 // import { AIUS_wei } from "../../../Utils/constantValues";
-import Web3 from 'web3';
 import { getTokenIDs } from '../../../Utils/gantChart/contractInteractions';
 import { AIUS_wei, t_max, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import Loader from '../Loader/Index';
 import Gantt from './GanttChartTest';
+import { getWeb3 } from '@/app/Utils/getWeb3RPC';
 
 function DashBoard({
   data,
@@ -31,16 +31,16 @@ function DashBoard({
   setUpdateValue,
 }) {
   const { address, isConnected } = useAccount();
-  const { chain, chains } = useNetwork();
+  const chainId = useChainId();
   console.log(updateValue, 'value updated in DashBoard');
-  console.log(chain, 'CONNECTed chain');
+  console.log(chainId, 'CONNECTed chain');
   console.log('IS CONNECTed?', isConnected);
 
   //const walletBalance = data && !isLoading ? BigNumber.from(data._hex) / AIUS_wei : 0;
   const [walletBalance, setWalletBalance] = useState(0);
   const [rewardRate, setRewardRate] = useState(0);
   const [totalSupply, setTotalSupply] = useState(0);
-  const [veSupplyData, setVESupplyData] = useState(0);
+  const [veSupply, setVeSupply] = useState(0);
   const [escrowBalanceData, setEscrowBalanceData] = useState(0);
   const [tokenIDs, setTokenIDs] = useState([]);
   const [windowStartDate, setWindowStartDate] = useState(
@@ -53,6 +53,27 @@ function DashBoard({
       windowStartDate?.getMonth()
   );
   const [loading, setLoading] = useState(false);
+
+  const { data: rewardRateData } = useReadContract({
+    address: Config.veStakingAddress,
+    abi: veStaking.abi,
+    functionName: 'rewardRate',
+    args: [],
+  });
+
+  const { data: totalSupplyData } = useReadContract({
+    address: Config.veStakingAddress,
+    abi: veStaking.abi,
+    functionName: 'totalSupply',
+    args: [],
+  });
+
+  const { data: veSupplyData } = useReadContract({
+    address: Config.votingEscrowAddress,
+    abi: votingEscrow.abi,
+    functionName: 'supply',
+    args: [],
+  });
 
   const veAIUSBalance = (staked, startDate, endDate) => {
     const t = endDate - startDate;
@@ -67,63 +88,18 @@ function DashBoard({
       (endDate.getFullYear() * 12 + endDate.getMonth());
     return diff;
   };
-  // const [walletBalance, setWalletBalance] = useState(0);
-  // const [protocolData, setProtocolData] = useState([]);
-  /*const rewardRate = useContractRead({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'rewardRate',
-        args: [],
-        enabled: isConnected
-    })
 
-    const totalSupply = useContractRead({
-        address: Config.veStakingAddress,
-        abi: veStaking.abi,
-        functionName: 'totalSupply',
-        args: [],
-        enabled: isConnected
-    })
-
-    const { data: veSupplyData, isLoading: veSupplyIsLoading, isError: veSupplyIsError } = useContractRead({
-        address: Config.votingEscrowAddress,
-        abi: votingEscrow.abi,
-        functionName: 'supply',
-        args: [],
-        enabled: isConnected
-    })*/
-
-  const getWeb3 = async() => {
-    return await fetch(alchemyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_blockNumber",
-          params: []
-        }),
-      })
-      .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Alchemy error:", data.error.message);
-            let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-            return web3
-          } else {
-            let web3 = new Web3(new Web3.providers.HttpProvider(alchemyUrl));
-            console.log("Successfully connected. Block number:", data.result);
-            return web3
-          }
-        })
-        .catch((err) => {
-          console.log("Request failed:", err)
-          let web3 = new Web3(new Web3.providers.HttpProvider(infuraUrl));
-          return web3
-        });
-  }
+  useEffect(() => {
+    if (rewardRateData) {
+      setRewardRate(Number(rewardRateData));
+    }
+    if (totalSupplyData) {
+      setTotalSupply(Number(totalSupplyData));
+    }
+    if (veSupplyData) {
+      setVeSupply(Number(veSupplyData));
+    }
+  }, [rewardRateData, totalSupplyData, veSupplyData]);
 
   useEffect(() => {
 
@@ -146,7 +122,7 @@ function DashBoard({
 
         setRewardRate(_rewardRate / AIUS_wei);
         setTotalSupply(_totalSupply / AIUS_wei);
-        setVESupplyData(_veSupplyData);
+        setVeSupply(_veSupplyData);
       }catch(e){
         console.log("F1 error", e)
       }
@@ -180,7 +156,7 @@ function DashBoard({
 
         setRewardRate(_rewardRate / AIUS_wei);
         setTotalSupply(_totalSupply / AIUS_wei);
-        setVESupplyData(_veSupplyData);
+        setVeSupply(_veSupplyData);
 
         // Getting user wallet balance
         const wBal = await baseTokenContract.methods.balanceOf(address).call();
@@ -367,7 +343,7 @@ function DashBoard({
         ganttChart: {},
       });
     }
-  }, [address, chain?.id, updateValue]);
+  }, [address, chainId, updateValue]);
   /* DASHBOARD CALLS ENDS HERE */
 
   console.log(tokenIDs, 'TOKENS');
@@ -523,8 +499,8 @@ function DashBoard({
                     AIUS Staked
                   </h2>
                   <h2 className='mt-[2px] text-[16px] font-semibold 2xl:text-[18px]'>
-                    {veSupplyData
-                      ? (Number(veSupplyData) / AIUS_wei).toFixed(2)
+                    {veSupply
+                      ? (Number(veSupply) / AIUS_wei).toFixed(2)
                       : 0}
                   </h2>
                 </div>

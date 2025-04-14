@@ -1196,6 +1196,16 @@ task("lpstaking:notifyRewardAmount", "Notify reward amount")
   console.log('Reward notified in ', receipt.transactionHash);
 });
 
+task("lpstaking:setRewardsDuration", "Set duration of rewards period")
+.addParam("seconds", "Seconds")
+.setAction(async ({ seconds }, hre) => {
+  console.log('Address', await getMinerAddress(hre));
+  const lpStaking = await getLPStaking(hre);
+  const tx = await lpStaking.setRewardsDuration(seconds);
+  const receipt = await tx.wait();
+  console.log('Reward duration changed in ', receipt.transactionHash);
+});
+
 task("voter:createGauge", "Create gauge")
 .addParam("model", "Model id")
 .setAction(async ({ model }, hre) => {

@@ -34,7 +34,7 @@ export default function MachineLearningSection() {
             </Fade>
           </div>
           <div className='fade-container mb-6 text-mobile-header leading-[50px] text-black-text lg:hidden lg:leading-none'>
-            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={500}>
               Peer-to-peer machine learning
             </Fade>
           </div>
@@ -48,12 +48,12 @@ export default function MachineLearningSection() {
                 is no central authority to create new coins. Arbius is fully
                 open-source. Holders vote on-chain for protocol upgrades.
                 Models operate as DAOs with custom rules for distribution and rewards,
-                providing a way for model creators to earn income. 
+                providing a way for model creators to earn income.
               </div>
             </Fade>
             <Fade direction='up' triggerOnce={true}>
               <div className='mt-[30px] flex items-center gap-[20px]'>
-                <Link href={'https://arbius.ai/generate'} target='_blank'>
+                <Link href={'https://arbiusplayground.com/chat'} target='_blank'>
                   <div>
                     <button
                       type='button'
