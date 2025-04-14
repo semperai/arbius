@@ -45,10 +45,12 @@ const footerLinks: FooterLink[] = [
     name: 'Models',
     link: '/models',
   },
+  /*
   {
     name: 'Explorer',
-    link: '/explorer',
+    link: 'https://explorer.arbius.ai',
   },
+  */
   {
     name: 'Blog',
     link: 'https://blog.arbius.ai/',

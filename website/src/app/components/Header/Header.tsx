@@ -309,9 +309,11 @@ export default function Header() {
               </AnimateHeight>
             </div>
 
+            {/*
             <Link href={'/explorer'} target='_blank'>
               <div className='item hover:text-purple-text'>Explorer</div>
             </Link>
+            */}
 
             <Link href={'https://docs.arbius.ai/'} target='_blank'>
               <div className='link-with-image'>
