@@ -131,7 +131,7 @@ const arbitrumOne = {
   },
 };
 
-const chains = [arbitrumNova, mainnet, arbitrumSepolia, arbitrumOne];
+const chains = [mainnet, arbitrumSepolia, arbitrumOne];
 
 const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
 const wagmiClient = createClient({
