@@ -19,15 +19,15 @@ import NetworkSwitch from '@/components/NetworkSwitch';
 import Config from '@/config.json';
 
 const navigation = [
-  { name: 'Generate', href: '/generate', external: false },
-  {
-    name: 'Staking',
-    href: 'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum',
-    external: true,
-  },
+  // { name: 'Generate', href: '/generate', external: false },
+  // {
+  //   name: 'Staking',
+  //   href: 'https://app.gysr.io/pool/0xf0148b59d7f31084fb22ff969321fdfafa600c02?network=ethereum',
+  //   external: true,
+  // },
   // { name: 'Bond', href: 'https://app.bondprotocol.finance/#/market/42161/111', external: true, },
-  { name: 'Models', href: '/models', external: false },
-  { name: 'Explorer', href: '/explorer', external: false },
+  // { name: 'Models', href: '/models', external: false },
+  // { name: 'Explorer', href: '/explorer', external: false },
   // { name: 'Governance', href: 'https://www.tally.xyz/gov/arbitrum', external: true, },
   { name: 'Upgrade', href: '/upgrade', external: false },
   { name: 'Docs', href: 'https://docs.arbius.ai', external: true },
