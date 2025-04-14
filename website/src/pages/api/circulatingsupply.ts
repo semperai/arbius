@@ -21,7 +21,7 @@ export default async function handler(
     'https://eth.llamarpc.com'
   );
   const oneProvider = new ethers.providers.JsonRpcProvider(
-    'https://arbitrum.llamarpc.com'
+    'https://arb1.arbitrum.io/rpc'
   );
 
   const novaContract = new ethers.Contract(
@@ -35,7 +35,7 @@ export default async function handler(
     ethProvider
   );
   const oneContract = new ethers.Contract(
-    Config.baseTokenAddress,
+    Config.v4_baseTokenAddress,
     BaseTokenArtifact.abi,
     oneProvider
   );
@@ -43,7 +43,7 @@ export default async function handler(
   const engineBalanceNova = await novaContract.balanceOf(
     Config.v2_engineAddress
   );
-  const engineBalanceOne = await oneContract.balanceOf(Config.engineAddress);
+  const engineBalanceOne = await oneContract.balanceOf(Config.v4_engineAddress);
   const converterBalanceEth = await ethContract.balanceOf(
     Config.l1OneToOneAddress
   );
