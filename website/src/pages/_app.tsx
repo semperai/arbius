@@ -20,45 +20,6 @@ const apolloClient = new ApolloClient({
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 
-const arbitrumNova = {
-  id: parseInt(process.env.NEXT_PUBLIC_CHAINID || ''),
-  network: 'arbitrum-nova',
-  name: 'Arbitrum Nova',
-  nativeCurrency: {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: {
-      http: [process.env.NEXT_PUBLIC_RPC_URL || ''],
-    },
-    public: {
-      http: [process.env.NEXT_PUBLIC_RPC_URL || ''],
-    },
-  },
-  blockExplorers: {
-    etherscan: {
-      name: 'Arbiscan',
-      url: 'https://nova.arbiscan.io',
-    },
-    blockScout: {
-      name: 'BlockScout',
-      url: 'https://nova-explorer.arbitrum.io/',
-    },
-    default: {
-      name: 'Arbiscan',
-      url: 'https://nova.arbiscan.io',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11' as `0x${string}`,
-      blockCreated: 1746963,
-    },
-  },
-};
-
 const arbitrumSepolia = {
   id: 421614,
   network: 'arbitrum-sepolia',
