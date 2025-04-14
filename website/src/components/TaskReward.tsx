@@ -36,7 +36,8 @@ export default function TaskReward() {
 
   let taskRewardStr = '';
   if (taskReward) {
-    taskRewardStr = formatBalance(taskReward, 1e4);
+    const divisor = ethers.BigNumber.from(10).pow(4);
+    taskRewardStr = formatBalance(taskReward, divisor);
   }
 
   return (

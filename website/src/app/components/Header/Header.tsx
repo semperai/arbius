@@ -17,10 +17,9 @@ import AnimateHeight from 'react-animate-height';
 import Link from 'next/link';
 
 import ConnectWallet from '@/components/ConnectWallet'; // main arbius component
-import { useWeb3Modal } from '@web3modal/react'; // main arbius component
-import { useAccount, useContractRead, useNetwork } from 'wagmi'; // main arbius component
+import { useWeb3Modal } from '@web3modal/wagmi/react'; // main arbius component
+import { useAccount, useChainId } from 'wagmi'; // main arbius component
 import baseTokenV1 from '../../abis/baseTokenV1.json';
-import getAIUSBalance from '../../Utils/aiusWalletBalance';
 import { BigNumber } from 'ethers';
 import { AIUS_wei } from '../../Utils/constantValues';
 import Config from '@/config.one.json';
@@ -37,7 +36,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const route = pathname.replace('/', '');
-  const { chain, chains } = useNetwork()
+  const chainId = useChainId();
 
   useEffect(() => {
     if (window.innerWidth < 1024) {
@@ -65,7 +64,7 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollTop]);
 
-  const { isConnected, isConnecting, isDisconnected, address } = useAccount();
+  const { isConnected, address } = useAccount();
   const { open: openWeb3Modal } = useWeb3Modal();
 
   const [walletConnected, setWalletConnected] = useState(false);
@@ -73,41 +72,16 @@ export default function Header() {
   const [loadingWeb3Modal, setLoadingWeb3Modal] = useState(false);
 
   useEffect(() => {
-    // if(localStorage.getItem('aiusBalance')){
-    //   const wallet=getAIUSBalance()
-    //   // setWalletBalance(localStorage.getItem('aiusBalance'))
-    //   setWalletConnected(true);
-    // }
-    // else{
     setWalletConnected(isConnected);
-    // }
   }, [isConnected]);
 
-  function clickConnect() {
-    (async () => {
-      setLoadingWeb3Modal(true);
-      await openWeb3Modal();
-      setLoadingWeb3Modal(false);
-    })();
-  }
-
-  function formatBalance(num: string) {
-    if (Number.isInteger(num)) {
-      return num.toString().split('.')[0];
-    } else {
-      const numStr = num.toString().split('.')[0];
-      return numStr.length < 3 ? Number(num).toFixed(2) : numStr;
-    }
-  }
-
   useEffect(() => {
-    async function f(){
+    async function f() {
       try {
         let aiusTokenAddress = "";
-        if(chain?.id === 11155111 || chain?.id === 1){
+        if (chainId === 11155111 || chainId === 1) {
           aiusTokenAddress = ConfigEth.AIUS_TOKEN_ADDRESS;
-        }
-        else{
+        } else {
           aiusTokenAddress = Config.baseTokenAddress;
         }
         // @ts-ignore
@@ -134,10 +108,27 @@ export default function Header() {
       }
     }
 
-    if(address && chain?.id){
+    if (address && chainId) {
       f();
     }
-  },[address, chain?.id])
+  }, [address, chainId]);
+
+  function clickConnect() {
+    (async () => {
+      setLoadingWeb3Modal(true);
+      await openWeb3Modal();
+      setLoadingWeb3Modal(false);
+    })();
+  }
+
+  function formatBalance(num: string) {
+    if (Number.isInteger(num)) {
+      return num.toString().split('.')[0];
+    } else {
+      const numStr = num.toString().split('.')[0];
+      return numStr.length < 3 ? Number(num).toFixed(2) : numStr;
+    }
+  }
 
   return (
     <div

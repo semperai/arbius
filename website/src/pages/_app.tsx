@@ -3,13 +3,11 @@ import { useEffect } from 'react';
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
-import { configureChains, createClient, WagmiConfig, mainnet } from 'wagmi';
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from '@web3modal/ethereum';
-import { Web3Modal } from '@web3modal/react';
+import { WagmiProvider, createConfig, http } from 'wagmi';
+import { mainnet, arbitrum, arbitrumNova, arbitrumSepolia, Chain, sepolia } from 'wagmi/chains';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { injected } from 'wagmi/connectors';
+import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
 import * as gtag from '@/gtag';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
@@ -20,9 +18,8 @@ const apolloClient = new ApolloClient({
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 
-const arbitrumNova = {
+const arbitrumNovaChain: Chain = {
   id: parseInt(process.env.NEXT_PUBLIC_CHAINID || ''),
-  network: 'arbitrum-nova',
   name: 'Arbitrum Nova',
   nativeCurrency: {
     name: 'Ethereum',
@@ -38,14 +35,6 @@ const arbitrumNova = {
     },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Arbiscan',
-      url: 'https://nova.arbiscan.io',
-    },
-    blockScout: {
-      name: 'BlockScout',
-      url: 'https://nova-explorer.arbitrum.io/',
-    },
     default: {
       name: 'Arbiscan',
       url: 'https://nova.arbiscan.io',
@@ -59,88 +48,27 @@ const arbitrumNova = {
   },
 };
 
-const arbitrumSepolia = {
-  id: 421614,
-  network: 'arbitrum-sepolia',
-  name: 'Arbitrum Sepolia',
-  nativeCurrency: {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
-    },
-    public: {
-      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
-    },
-  },
-  blockExplorers: {
-    etherscan: {
-      name: 'Arbiscan',
-      url: 'https://nova.arbiscan.io',
-    },
-    blockScout: {
-      name: 'BlockScout',
-      url: 'https://nova-explorer.arbitrum.io/',
-    },
-    default: {
-      name: 'Arbiscan',
-      url: 'https://nova.arbiscan.io',
-    },
-  },
-  // contracts: {
-  //   multicall3: {
-  //     address: '0xca11bde05977b3631167028862be2a173976ca11' as `0x${string}`,
-  //     blockCreated: 1746963,
-  //   },
-  // }
-};
+const chains = [arbitrumNova, mainnet, arbitrumSepolia, arbitrum, sepolia] as const;
 
-const arbitrumOne = {
-  id: 42161,
-  network: 'arbitrum-one',
-  name: 'Arbitrum One',
-  nativeCurrency: {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    decimals: 18,
+const wagmiConfig = defaultWagmiConfig({
+  chains,
+  projectId,
+  metadata: {
+    name: 'Arbius',
+    description: 'Arbius Website',
+    url: 'https://arbius.ai',
+    icons: ['https://arbius.ai/favicon.ico'],
   },
-  rpcUrls: {
-    default: {
-      http: ['https://arb1.arbitrum.io/rpc'],
-    },
-    public: {
-      http: ['https://arb1.arbitrum.io/rpc'],
-    },
-  },
-  blockExplorers: {
-    etherscan: {
-      name: 'Arbiscan',
-      url: 'https://arbiscan.io',
-    },
-    // blockScout: {
-    //   name: 'BlockScout',
-    //   url: 'https://nova-explorer.arbitrum.io/',
-    // },
-    default: {
-      name: 'Arbiscan',
-      url: 'https://arbiscan.io',
-    },
-  },
-};
-
-const chains = [arbitrumNova, mainnet, arbitrumSepolia, arbitrumOne];
-
-const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: w3mConnectors({ version: 1, chains, projectId }),
-  provider,
 });
 
-const ethereumClient = new EthereumClient(wagmiClient, chains);
+const queryClient = new QueryClient();
+
+// Create Web3Modal instance
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  themeMode: 'dark',
+});
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -162,16 +90,16 @@ export default function App({ Component, pageProps }: AppProps) {
       <ThemeProvider
         attribute='class'
         storageKey='nightwind-mode'
-        defaultTheme='system' // default "light"
+        defaultTheme='system'
       >
-        <WagmiConfig client={wagmiClient}>
-          <ApolloProvider client={apolloClient}>
-            <Component {...pageProps} />
-          </ApolloProvider>
-        </WagmiConfig>
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <ApolloProvider client={apolloClient}>
+              <Component {...pageProps} />
+            </ApolloProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
       </ThemeProvider>
-
-      <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
     </>
   );
 }

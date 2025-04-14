@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 import {
-  useNetwork,
-  useContractRead,
   useAccount,
-  useContractEvent,
+  useReadContract,
+  useWatchContractEvent,
 } from 'wagmi';
 import { ethers } from 'ethers';
+import type { Abi } from 'viem';
 import { useQuery, gql } from '@apollo/client';
 
 import Layout from '@/components/Layout';
@@ -57,9 +57,9 @@ export default function ValidatorPage() {
     data: validatorData,
     isError: validatorIsError,
     isLoading: validatorIsLoading,
-  } = useContractRead({
+  } = useReadContract({
     address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
+    abi: EngineArtifact.abi as Abi,
     functionName: 'validators',
     args: [validator],
   });
@@ -68,11 +68,35 @@ export default function ValidatorPage() {
     data: lastContestationLossTimeData,
     isError: lastContestationLossTimeIsError,
     isLoading: lastContestationLossTimeIsLoading,
-  } = useContractRead({
+  } = useReadContract({
     address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
+    abi: EngineArtifact.abi as Abi,
     functionName: 'lastContestationLossTime',
     args: [validator],
+  });
+
+  useWatchContractEvent({
+    address: Config.v2_engineAddress as `0x${string}`,
+    abi: EngineArtifact.abi as Abi,
+    eventName: 'ValidatorDeposit',
+    args: {
+      validator: validator,
+    },
+    onLogs(logs) {
+      console.log('New validator deposit!', logs);
+    },
+  });
+
+  useWatchContractEvent({
+    address: Config.v2_engineAddress as `0x${string}`,
+    abi: EngineArtifact.abi as Abi,
+    eventName: 'ValidatorWithdraw',
+    args: {
+      validator: validator,
+    },
+    onLogs(logs) {
+      console.log('New validator withdraw!', logs);
+    },
   });
 
   return (

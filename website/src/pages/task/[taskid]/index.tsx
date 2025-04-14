@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 import {
-  useNetwork,
-  useContractRead,
   useAccount,
-  useContractEvent,
+  useReadContract,
+  useWatchContractEvent,
 } from 'wagmi';
 import { ethers } from 'ethers';
+import type { Abi } from 'viem';
 import { useQuery, gql } from '@apollo/client';
 import Layout from '@/components/Layout';
 import RenderSolution from '@/components/RenderSolution';
@@ -83,9 +83,9 @@ export default function TaskPage() {
     data: taskData,
     isError: taskIsError,
     isLoading: taskIsLoading,
-  } = useContractRead({
+  } = useReadContract({
     address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
+    abi: EngineArtifact.abi as Abi,
     functionName: 'tasks',
     args: [taskid],
   });
@@ -94,9 +94,9 @@ export default function TaskPage() {
     data: solutionData,
     isError: solutionIsError,
     isLoading: solutionIsLoading,
-  } = useContractRead({
+  } = useReadContract({
     address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
+    abi: EngineArtifact.abi as Abi,
     functionName: 'solutions',
     args: [taskid],
   });
@@ -105,9 +105,9 @@ export default function TaskPage() {
     data: contestationData,
     isError: contestationIsError,
     isLoading: contestationIsLoading,
-  } = useContractRead({
+  } = useReadContract({
     address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
+    abi: EngineArtifact.abi as Abi,
     functionName: 'contestations',
     args: [taskid],
   });
@@ -116,11 +116,35 @@ export default function TaskPage() {
     data: modelData,
     isError: modelIsError,
     isLoading: modelIsLoading,
-  } = useContractRead({
+  } = useReadContract({
     address: Config.v2_engineAddress as `0x${string}`,
-    abi: EngineArtifact.abi,
+    abi: EngineArtifact.abi as Abi,
     functionName: 'models',
     args: [(taskData as Task)?.model],
+  });
+
+  useWatchContractEvent({
+    address: Config.v2_engineAddress as `0x${string}`,
+    abi: EngineArtifact.abi as Abi,
+    eventName: 'SolutionSubmitted',
+    args: {
+      taskid: taskid,
+    },
+    onLogs(logs) {
+      console.log('New solution submitted!', logs);
+    },
+  });
+
+  useWatchContractEvent({
+    address: Config.v2_engineAddress as `0x${string}`,
+    abi: EngineArtifact.abi as Abi,
+    eventName: 'ContestationSubmitted',
+    args: {
+      taskid: taskid,
+    },
+    onLogs(logs) {
+      console.log('New contestation submitted!', logs);
+    },
   });
 
   useEffect(() => {
