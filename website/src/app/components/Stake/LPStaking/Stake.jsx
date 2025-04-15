@@ -1088,6 +1088,13 @@ const StepWaitChildren = ({
 
 
 const SuccessChildren = ({ setShowPopUp }) => {
+
+  useEffect(()=>{
+    setTimeout(function(){
+      setShowPopUp(false)
+    },3000)
+  },[])
+
   return (
     <div>
       <div className='mt-4 flex justify-end'>

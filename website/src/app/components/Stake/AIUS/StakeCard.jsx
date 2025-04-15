@@ -134,6 +134,11 @@ function StakeCard({
             setShowPopUp('withdraw/Success');
             // @ts-ignore
             setUpdateValue((prevValue) => prevValue + 1);
+
+            setTimeout(function(){
+              // @ts-ignore
+              setShowPopUp(false)
+            },3000)
           })
           .catch(function() {
             // @ts-ignore
@@ -157,6 +162,11 @@ function StakeCard({
           setShowPopUp('withdraw/Success');
           // @ts-ignore
           setUpdateValue((prevValue) => prevValue + 1);
+
+          setTimeout(function(){
+            // @ts-ignore
+            setShowPopUp(false)
+          },3000)
         })
         .catch(function() {
           // @ts-ignore
