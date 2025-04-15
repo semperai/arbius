@@ -125,6 +125,11 @@ const AddPopUpChildren = ({
         getTransactionReceiptData(tx2.hash).then(function () {
           // @ts-ignore
           setUpdateValue((prevValue) => prevValue + 1);
+
+          setTimeout(function(){
+            // @ts-ignore
+            setShowPopUp(false)
+          },3000)
         });
       } catch (error) {
         // @ts-ignore
@@ -162,6 +167,11 @@ const AddPopUpChildren = ({
           getTransactionReceiptData(tx2.hash).then(function () {
             // @ts-ignore
             setUpdateValue((prevValue) => prevValue + 1);
+
+            setTimeout(function(){
+              // @ts-ignore
+              setShowPopUp(false)
+            },3000)
           });
         } else {
           console.log("Please enter the amount and duration to stake!");
@@ -437,6 +447,11 @@ const ExtendPopUpChildren = ({
       setShowPopUp('extend/Success');
       getTransactionReceiptData(tx.hash).then(function () {
         setUpdateValue((prevValue) => prevValue + 1);
+        
+        setTimeout(function(){
+          // @ts-ignore
+          setShowPopUp(false)
+        },3000)
       });
     } catch (error) {
       console.error('Extend error:', error);
@@ -679,6 +694,11 @@ const ClaimPopUpChildren = ({
       setShowPopUp('claim/Success');
       getTransactionReceiptData(tx.hash).then(function () {
         setUpdateValue((prevValue) => prevValue + 1);
+
+        setTimeout(function(){
+          // @ts-ignore
+          setShowPopUp(false)
+        },3000)
       });
     } catch (error) {
       console.error('Extend error:', error);
@@ -1144,6 +1164,7 @@ const StepTwoChildren = ({
 };
 
 const SuccessChildren = ({ setShowPopUp }) => {
+
   return (
     <div>
       <div className='mt-4 flex justify-end'>
