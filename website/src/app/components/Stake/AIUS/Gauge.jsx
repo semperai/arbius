@@ -531,14 +531,14 @@ function Gauge({
       {
         showConfirmVote ?
           <div className="absolute top-0 left-0 w-[100vw] h-[100vh] bg-[#FFFFFFCC] z-[10]">
-            <div className="w-[750px] mt-[10%] mx-auto bg-white-background p-4 shadow-[0px_0px_50px_10px_#2A0FB933] rounded-[15px]">
+            <div className="w-[85%] md:w-[750px] mt-[10%] mx-auto bg-white-background p-4 shadow-[0px_0px_50px_10px_#2A0FB933] rounded-[15px]">
               <div className="relative">
                 <Image onClick={() => setShowConfirmVote(false)} className="cursor-pointer absolute right-0" src={cross_icon} alt="" />
               </div>
               <div className="flex text-center flex-col items-center font-Geist-Regular px-2 py-4 gap-4">
                 <Image className="h-[45px] w-[45px]" src={confirmvote} alt="" />
                 <div className="text-[32px] lato-regular">Confirm Vote</div>
-                <div className="text-aius-tabs-gray mx-[5%] lato-light">
+                <div className="text-aius-tabs-gray md:mx-[5%] lato-light">
                   By confirming this transaction, all user owned governance power will be consumed during the duration of this voting period. In the circumstance a new stake is added after voting during this period, you may cast an additional vote with the newly added balance. All votes are final.
                 </div>
                 <div className="flex flex-wrap justify-center mt-4">
@@ -562,9 +562,9 @@ function Gauge({
                   }
                 </div>
                 <div>
-                  <div className="flex gap-2 mt-[20px]">
-                    <div onClick={() => setShowConfirmVote(false)} className="cursor-pointer px-[40px] py-[8px] text-aius-tabs-gray bg-[#E8E8E8] rounded-[25px]">Cancel</div>
-                    <div onClick={handleVoting} className="hover:bg-buy-hover px-[40px] py-[8px] text-[#FFF] bg-[#000000] rounded-[25px] cursor-pointer">Confirm</div>
+                  <div className="flex gap-2 md:mt-[20px]">
+                    <div onClick={() => setShowConfirmVote(false)} className="cursor-pointer px-[30px] lm:px-[40px] py-[8px] text-aius-tabs-gray bg-[#E8E8E8] rounded-[25px]">Cancel</div>
+                    <div onClick={handleVoting} className="hover:bg-buy-hover px-[30px] lm:px-[40px] py-[8px] text-[#FFF] bg-[#000000] rounded-[25px] cursor-pointer">Confirm</div>
                   </div>
                 </div>
               </div>
