@@ -315,6 +315,66 @@ contract ArbiusRouterV1 is Ownable {
         delete incentives[taskid_];
     }
 
+    /// @notice Bulk claim incentive for multiple tasks
+    /// @param taskids_ Task IDs
+    /// @param sigs_ Signatures
+    /// @param sigsPerTask_ Number of signatures per task
+    function bulkClaimIncentive(
+        bytes32[] calldata taskids_,
+        Signature[] calldata sigs_,
+        uint256 sigsPerTask_
+    ) external {
+        if (sigsPerTask_ < minValidators) {
+            revert InsufficientSignatures();
+        }
+
+        Signature[] memory sigs = new Signature[](sigsPerTask_);
+        uint256 amount = 0;
+
+        for (uint256 i = 0; i < taskids_.length; ++i) {
+            // only allow miner to claim unless some time has passed
+            (/*bool success*/, bytes memory result) = address(engine).call(abi.encodeWithSignature("solutions(bytes32)", taskids_[i]));
+            (address validator, uint64 blocktime, /*bool claimed*/, bytes memory cid) = abi.decode(result, (address, uint64, bool, bytes));
+
+            if (msg.sender != validator) {
+                if (block.timestamp < blocktime + 1 minutes) {
+                    revert TimeNotPassed();
+                }
+            }
+
+            bytes32 hash = keccak256(cid);
+            for (uint256 j = 0; j < sigsPerTask_; ++j) {
+                sigs[j] = sigs_[i * sigsPerTask_ + j];
+            }
+
+            address last = address(0); // Ensure signers are sorted (to ensure they are unique)
+            for (uint256 i = 0; i < sigs.length; ++i) {
+                address signer = sigs[i].signer;
+
+                if (last >= signer) {
+                    revert SignersNotSorted();
+                }
+
+                if (! validators[signer]) {
+                    revert InvalidValidator();
+                }
+
+                if (ECDSA.recover(hash, sigs[i].signature) != signer) {
+                    revert InvalidSignature();
+                }
+
+                last = signer;
+            }
+
+            amount += incentives[taskids_[i]];
+
+            emit IncentiveClaimed(taskids_[i], msg.sender, incentives[taskids_[i]]);
+            delete incentives[taskids_[i]];
+        }
+
+        arbius.transfer(msg.sender, amount);
+    }
+
     /// @notice Emergency claim incentive for a task
     /// @param taskid_ Task ID
     function emergencyClaimIncentive(bytes32 taskid_) external onlyOwner {
