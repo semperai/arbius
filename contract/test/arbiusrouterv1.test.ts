@@ -245,7 +245,7 @@ describe("swap", () => {
 
   it("submit task function", async () => {
     const modelid = await deploy_model();
-    const taskid = await arbiusRouter.submitTask(
+    await arbiusRouter.submitTask(
       0,
       nonowner.address,
       modelid,
@@ -255,12 +255,12 @@ describe("swap", () => {
       1_000_000,
     );
 
-    const taskid_ = await engine.prevhash();
+    const taskid = await engine.prevhash();
   });
 
   it("claim incentive by miner", async () => {
     const modelid = await deploy_model();
-    const taskid = await arbiusRouter.submitTask(
+    await arbiusRouter.submitTask(
       0,
       nonowner.address,
       modelid,
@@ -270,7 +270,7 @@ describe("swap", () => {
       1_000_000,
     );
 
-    const taskid_ = await engine.prevhash();
+    const taskid = await engine.prevhash();
 
     const validatorMinimum = await engine.getValidatorMinimum();
 
@@ -278,9 +278,9 @@ describe("swap", () => {
 
     const cid = "0x1220b67cb9e4eb64d2771bb37d9344d51b29a3db0472c4db745350eb18747073c8a8";
 
-    const commitment = generateCommitment(signer.address, taskid_, cid);
+    const commitment = generateCommitment(signer.address, taskid, cid);
     await engine.signalCommitment(commitment);
-    await engine.submitSolution(taskid_, cid);
+    await engine.submitSolution(taskid, cid);
 
     await arbiusRouter.setMinValidators(1);
 
@@ -297,12 +297,12 @@ describe("swap", () => {
       },
     ];
 
-    await arbiusRouter.claimIncentive(taskid_, sigs);
+    await arbiusRouter.claimIncentive(taskid, sigs);
   });
 
   it("claim incentive by non miner fails if not waiting long enough", async () => {
     const modelid = await deploy_model();
-    const taskid = await arbiusRouter.submitTask(
+    await arbiusRouter.submitTask(
       0,
       nonowner.address,
       modelid,
@@ -312,7 +312,7 @@ describe("swap", () => {
       1_000_000,
     );
 
-    const taskid_ = await engine.prevhash();
+    const taskid = await engine.prevhash();
 
     const validatorMinimum = await engine.getValidatorMinimum();
 
@@ -320,9 +320,9 @@ describe("swap", () => {
 
     const cid = "0x1220b67cb9e4eb64d2771bb37d9344d51b29a3db0472c4db745350eb18747073c8a8";
 
-    const commitment = generateCommitment(signer.address, taskid_, cid);
+    const commitment = generateCommitment(signer.address, taskid, cid);
     await engine.signalCommitment(commitment);
-    await engine.submitSolution(taskid_, cid);
+    await engine.submitSolution(taskid, cid);
 
     await arbiusRouter.setMinValidators(1);
 
@@ -339,12 +339,12 @@ describe("swap", () => {
       },
     ];
 
-    await expect(arbiusRouter.connect(nonowner).claimIncentive(taskid_, sigs)).to.be.revertedWith("TimeNotPassed");
+    await expect(arbiusRouter.connect(nonowner).claimIncentive(taskid, sigs)).to.be.revertedWith("TimeNotPassed");
   });
 
   it("claim incentive by non miner succeeds if waited long enough", async () => {
     const modelid = await deploy_model();
-    const taskid = await arbiusRouter.submitTask(
+    await arbiusRouter.submitTask(
       0,
       nonowner.address,
       modelid,
@@ -354,7 +354,7 @@ describe("swap", () => {
       1_000_000,
     );
 
-    const taskid_ = await engine.prevhash();
+    const taskid = await engine.prevhash();
 
     const validatorMinimum = await engine.getValidatorMinimum();
 
@@ -362,9 +362,9 @@ describe("swap", () => {
 
     const cid = "0x1220b67cb9e4eb64d2771bb37d9344d51b29a3db0472c4db745350eb18747073c8a8";
 
-    const commitment = generateCommitment(signer.address, taskid_, cid);
+    const commitment = generateCommitment(signer.address, taskid, cid);
     await engine.signalCommitment(commitment);
-    await engine.submitSolution(taskid_, cid);
+    await engine.submitSolution(taskid, cid);
 
     await arbiusRouter.setMinValidators(1);
 
@@ -382,13 +382,74 @@ describe("swap", () => {
     ];
 
     await ethers.provider.send("evm_increaseTime", [100]);
-    await arbiusRouter.connect(nonowner).claimIncentive(taskid_, sigs);
+    await arbiusRouter.connect(nonowner).claimIncentive(taskid, sigs);
   });
+
+  it("bulk claim incentive by miner", async () => {
+    const modelid = await deploy_model();
+    await arbiusRouter.submitTask(
+      0,
+      nonowner.address,
+      modelid,
+      eth(0),
+      TESTBUF,
+      eth(0.1),
+      1_000_000,
+    );
+    const taskid1 = await engine.prevhash();
+    await arbiusRouter.submitTask(
+      0,
+      nonowner.address,
+      modelid,
+      eth(0),
+      TESTBUF,
+      eth(0.1),
+      1_000_000,
+    );
+    const taskid2 = await engine.prevhash();
+
+    const validatorMinimum = await engine.getValidatorMinimum();
+
+    await engine.validatorDeposit(signer.address, validatorMinimum.add(eth(10)));
+
+    const cid = "0x1220b67cb9e4eb64d2771bb37d9344d51b29a3db0472c4db745350eb18747073c8a8";
+
+    const commitment1 = generateCommitment(signer.address, taskid1, cid);
+    await engine.signalCommitment(commitment1);
+    await engine.submitSolution(taskid1, cid);
+
+    const commitment2 = generateCommitment(signer.address, taskid2, cid);
+    await engine.signalCommitment(commitment2);
+    await engine.submitSolution(taskid2, cid);
+
+    await arbiusRouter.setMinValidators(1);
+
+    const validator = ethers.Wallet.createRandom();
+    await arbiusRouter.setValidator(validator.address, true);
+
+    const hash = ethers.utils.keccak256(utils.arrayify(cid));
+    const signature1 = sign(validator, hash);
+    const signature2 = sign(validator, hash);
+
+    const sigs = [
+      {
+        signer: validator.address,
+        signature: signature1,
+      },
+      {
+        signer: validator.address,
+        signature: signature2,
+      },
+    ];
+
+    await arbiusRouter.bulkClaimIncentive([taskid1, taskid2], sigs, 1);
+  });
+
 
   it("submitTaskWithToken", async () => {
     const modelid = await deploy_model();
     await arbiusRouter.uniswapApprove(usdtoken.address);
-    const taskid = await arbiusRouter.submitTaskWithToken(
+    await arbiusRouter.submitTaskWithToken(
       0,
       nonowner.address,
       modelid,
@@ -404,7 +465,7 @@ describe("swap", () => {
   it("submitTaskWithETH", async () => {
     const modelid = await deploy_model();
     // need to send eth to the contract
-    const taskid = await arbiusRouter.submitTaskWithETH(
+    await arbiusRouter.submitTaskWithETH(
       0,
       nonowner.address,
       modelid,

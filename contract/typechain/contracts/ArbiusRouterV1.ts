@@ -42,6 +42,7 @@ export interface ArbiusRouterV1Interface extends utils.Interface {
   functions: {
     "addIncentive(bytes32,uint256)": FunctionFragment;
     "arbius()": FunctionFragment;
+    "bulkClaimIncentive(bytes32[],(address,bytes)[],uint256)": FunctionFragment;
     "claimIncentive(bytes32,(address,bytes)[])": FunctionFragment;
     "emergencyClaimIncentive(bytes32)": FunctionFragment;
     "engine()": FunctionFragment;
@@ -68,6 +69,7 @@ export interface ArbiusRouterV1Interface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "addIncentive"
       | "arbius"
+      | "bulkClaimIncentive"
       | "claimIncentive"
       | "emergencyClaimIncentive"
       | "engine"
@@ -95,6 +97,14 @@ export interface ArbiusRouterV1Interface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "arbius", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "bulkClaimIncentive",
+    values: [
+      PromiseOrValue<BytesLike>[],
+      SignatureStruct[],
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "claimIncentive",
     values: [PromiseOrValue<BytesLike>, SignatureStruct[]]
@@ -195,6 +205,10 @@ export interface ArbiusRouterV1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "arbius", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "bulkClaimIncentive",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "claimIncentive",
     data: BytesLike
@@ -360,6 +374,13 @@ export interface ArbiusRouterV1 extends BaseContract {
 
     arbius(overrides?: CallOverrides): Promise<[string]>;
 
+    bulkClaimIncentive(
+      taskids_: PromiseOrValue<BytesLike>[],
+      sigs_: SignatureStruct[],
+      sigsPerTask_: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     claimIncentive(
       taskid_: PromiseOrValue<BytesLike>,
       sigs_: SignatureStruct[],
@@ -475,6 +496,13 @@ export interface ArbiusRouterV1 extends BaseContract {
 
   arbius(overrides?: CallOverrides): Promise<string>;
 
+  bulkClaimIncentive(
+    taskids_: PromiseOrValue<BytesLike>[],
+    sigs_: SignatureStruct[],
+    sigsPerTask_: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   claimIncentive(
     taskid_: PromiseOrValue<BytesLike>,
     sigs_: SignatureStruct[],
@@ -589,6 +617,13 @@ export interface ArbiusRouterV1 extends BaseContract {
     ): Promise<void>;
 
     arbius(overrides?: CallOverrides): Promise<string>;
+
+    bulkClaimIncentive(
+      taskids_: PromiseOrValue<BytesLike>[],
+      sigs_: SignatureStruct[],
+      sigsPerTask_: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     claimIncentive(
       taskid_: PromiseOrValue<BytesLike>,
@@ -747,6 +782,13 @@ export interface ArbiusRouterV1 extends BaseContract {
 
     arbius(overrides?: CallOverrides): Promise<BigNumber>;
 
+    bulkClaimIncentive(
+      taskids_: PromiseOrValue<BytesLike>[],
+      sigs_: SignatureStruct[],
+      sigsPerTask_: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     claimIncentive(
       taskid_: PromiseOrValue<BytesLike>,
       sigs_: SignatureStruct[],
@@ -862,6 +904,13 @@ export interface ArbiusRouterV1 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     arbius(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    bulkClaimIncentive(
+      taskids_: PromiseOrValue<BytesLike>[],
+      sigs_: SignatureStruct[],
+      sigsPerTask_: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     claimIncentive(
       taskid_: PromiseOrValue<BytesLike>,
