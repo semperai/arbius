@@ -1105,7 +1105,8 @@ task("router:submitTask", "Submit task via router")
 .addOptionalParam("fee", "Fee", "0")
 .addParam("input", "Input")
 .addOptionalParam("incentive", "Incentive", "0")
-.setAction(async ({ v, owner, model, fee, input, incentive }, hre) => {
+.addOptionalParam("gas", "Gas limit", "1000000")
+.setAction(async ({ v, owner, model, fee, input, incentive, gas }, hre) => {
   if (! owner) {
     owner = await getMinerAddress(hre);
   }
@@ -1118,6 +1119,7 @@ task("router:submitTask", "Submit task via router")
     hre.ethers.utils.parseEther(fee),
     hre.ethers.utils.hexlify(hre.ethers.utils.toUtf8Bytes(input)),
     hre.ethers.utils.parseEther(incentive),
+    gas,
   );
   const receipt = await tx.wait();
   console.log(`Task submitted in ${receipt.transactionHash}`);
