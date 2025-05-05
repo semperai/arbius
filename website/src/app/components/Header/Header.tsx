@@ -231,6 +231,10 @@ export default function Header() {
               <div className='item hover:text-purple-text'>Amica</div>
             </Link>
 
+            <Link href={'https://arbiusplayground.com/chat'} target='_blank'>
+              <div className='item hover:text-purple-text'>Playground</div>
+            </Link>
+
             <div className='link-with-image group relative'>
               <div
                 className='link hover:!text-purple-text'
@@ -247,7 +251,7 @@ export default function Header() {
               </div>
               <div className='absolute left-[-18px] ml-[-5px] bg-[black] p-[15px_50px] opacity-0'></div>
               <AnimateHeight height={modelsOpen ? 'auto' : 0}>
-                <div className='lg:staking lg:hidden lg:translate-x-[-40%] lg:translate-y-[25px] lg:group-hover:flex'>
+                <div className='lg:staking lg:hidden lg:translate-x-[-35%] lg:translate-y-[25px] lg:group-hover:flex'>
                   <Link href={'https://arbiusplayground.com/chat'} target='_blank'>
                     <div className='staking-block'>
                       <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
@@ -264,11 +268,11 @@ export default function Header() {
                       <div>Text Generation</div>
                     </div>
                   </Link>
-                  <Link href={'#'}>
+                  <Link href={'https://arbiusplayground.com/chat'}>
                     <div className='staking-block'>
                       <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
                         <p className='lato-regular badge-text text-[12px] text-[#4A28FF]'>
-                          Coming Soon
+                          Live
                         </p>
                       </div>
                       <Image
@@ -276,24 +280,8 @@ export default function Header() {
                         src={kandinsky}
                         alt=''
                       />
-                      <div>Llama 3.1 405B</div>
-                      <div>Text Generation</div>
-                    </div>
-                  </Link>
-                  <Link href={'#'}>
-                    <div className='staking-block'>
-                      <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
-                        <p className='lato-regular badge-text text-[12px] text-[#4A28FF]'>
-                          Coming Soon
-                        </p>
-                      </div>
-                      <Image
-                        className='h-[auto] w-[20px] lg:h-[20px] lg:w-[auto]'
-                        src={kandinsky}
-                        alt=''
-                      />
-                      <div>Llama 3.2 90B</div>
-                      <div>Multi-modal</div>
+                      <div>WAI SDXL</div>
+                      <div>NSFW Image Generation</div>
                     </div>
                   </Link>
                 </div>
