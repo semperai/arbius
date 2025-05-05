@@ -40,7 +40,7 @@ export default function ArbiusModels(){
 	    {
 	      model_name: 'WAI SDXL (NSFW)',
 	      model_id: '0xa473c70e9d7c872ac948d20546bc79db55fa64ca325a4b229aaffddb7f86aae0',
-	      description: 'A specialized Stable Diffusion XL model optimized for generation of high-quality, NSFW waifu-style images.',
+	      description: 'Stable Diffusion XL model optimized for generation of NSFW waifu-style images.',
 	      emissions: '0%',
 	      fees: '0.0035',
 	      prompts: '0',
