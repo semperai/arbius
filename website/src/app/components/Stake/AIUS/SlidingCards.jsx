@@ -385,8 +385,6 @@ const ExtendPopUpChildren = ({
     return Math.floor(now.getTime());
   }
   const [endDate, setEndDate] = useState(0);
-
-  const [enableExtendButton, setEnableExtendButton] = useState(false);
   //console.log({ selectedStake });
 
   //console.log(endDate, 'END DATE');
@@ -499,11 +497,12 @@ const ExtendPopUpChildren = ({
         </div>
 
         <div className='my-6'>
+          {/*console.log(numberOfMonths, "NOM")*/}
           <ReactSlider
             className='rounded-2xl border-4 border-b border-[#ECECEC] text-original-white'
             thumbClassName=' w-[28px] h-[28px] ml-[-6px] bg-thumb cursor-pointer rounded-[50%] flex items-center justify-center border-0 mt-[-14px] outline-none'
             markClassName='customSlider-mark'
-            marks={4}
+            marks={numberOfMonths <= 5 ? 1 : numberOfMonths <= 12 ? 3 : 4}
             min={0}
             step={0.25}
             max={numberOfMonths}
@@ -547,18 +546,15 @@ const ExtendPopUpChildren = ({
               const unlockTime = Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
               //console.log(unlockTime, 'UNLOCK TIME and', date);
               date = new Date(unlockTime * 1000);
-
+              //console.log(date, currentDate, "DCD1")
               if (date <= currentEndDate) {
-                setEnableExtendButton(false)
                 return;
               }
-
+              //console.log(unlockTime, currentTimestamp + MAXTIME, "DCD2")
               if (unlockTime > currentTimestamp + MAXTIME) {
-                setEnableExtendButton(false)
                 return;
               }
 
-              setEnableExtendButton(true);
               setExtendEndDate(date);
               setSliderValue(value);
             }}
@@ -610,15 +606,11 @@ const ExtendPopUpChildren = ({
           <div className='flex justify-end'>
             <button
               type='button'
-              onClick={
-                enableExtendButton ? () => {
-                  handleExtend()
-                } : null
-              }
-              className={`group relative flex items-center gap-3 rounded-full ${enableExtendButton ? "bg-black-background" : "bg-light-gray-background"} px-3 py-1 lg:px-5`}
+              onClick={handleExtend}
+              className={`group relative flex items-center gap-3 rounded-full bg-black-background px-3 py-1 lg:px-5`}
             >
               <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-5 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-              <div className={`lato-bold relative z-10 ${enableExtendButton ? "text-original-white" : "text-black-text text-opacity-40"} lg:text-[100%]`}>
+              <div className={`lato-bold relative z-10 text-original-white lg:text-[100%]`}>
                 Extend
               </div>
             </button>
