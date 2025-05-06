@@ -495,8 +495,10 @@ function Gauge({
       }else{
         return false;
       }
-    }else{
+    }else if(Number(totalGovernancePower) > 0){
       return true;
+    }else{
+      return false;
     }
   }
 
