@@ -36,6 +36,16 @@ export default function ArbiusModels(){
 	      prompts: '0',
 	      icon: qwen_icon,
 	      model_bytes: "0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc"
+	    },
+	    {
+	      model_name: 'WAI SDXL (NSFW)',
+	      model_id: '0xa473c70e9d7c872ac948d20546bc79db55fa64ca325a4b229aaffddb7f86aae0',
+	      description: 'Stable Diffusion XL model optimized for generation of NSFW waifu-style images.',
+	      emissions: '0%',
+	      fees: '0.0035',
+	      prompts: '0',
+	      icon: qwen_icon,
+	      model_bytes: "0xa473c70e9d7c872ac948d20546bc79db55fa64ca325a4b229aaffddb7f86aae0"
 	    }
 	]);
 	const [filteredData, setFilteredData] = useState(data);
