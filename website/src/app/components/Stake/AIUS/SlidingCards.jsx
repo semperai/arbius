@@ -386,7 +386,6 @@ const ExtendPopUpChildren = ({
   }
   const [endDate, setEndDate] = useState(0);
 
-  const [oldLockDuration, setOldLockDuration] = useState(0);
   const [enableExtendButton, setEnableExtendButton] = useState(false);
   //console.log({ selectedStake });
 
@@ -481,8 +480,6 @@ const ExtendPopUpChildren = ({
 
       setEndDate(_endDate);
       setCurrentEndDate(new Date(_currentlyEndingAt));
-      console.log(_endDate, _stakedOn, "DIFF OLD")
-      setOldLockDuration(_endDate - _stakedOn);
     };
     if (address) {
       f();
@@ -491,7 +488,7 @@ const ExtendPopUpChildren = ({
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">
-      <div className={showPopUp === 'extend' ? 'block' : 'hidden'}>
+      <div className={showPopUp === 'extend' ? 'w-[100%] block' : 'hidden'}>
         <div className='my-2 flex items-center justify-between'>
           <div className='flex items-center justify-start gap-3'>
             <h1>Extend</h1>
@@ -545,23 +542,18 @@ const ExtendPopUpChildren = ({
               let lockDuration = parseInt(
                 (date - getCurrentTimeInMSeconds()) / 1000
               );
+
               let currentTimestamp = getCurrentTimeInMSeconds() / 1000;
-              const unlockTime =
-                Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
+              const unlockTime = Math.floor((currentTimestamp + lockDuration) / WEEK) * WEEK; // Locktime rounded down to weeks
               //console.log(unlockTime, 'UNLOCK TIME and', date);
               date = new Date(unlockTime * 1000);
-              console.log(lockDuration, oldLockDuration, "OLD")
+
               if (date <= currentEndDate) {
                 setEnableExtendButton(false)
                 return;
               }
-              console.log(lockDuration, oldLockDuration, "OLD")
+
               if (unlockTime > currentTimestamp + MAXTIME) {
-                setEnableExtendButton(false)
-                return;
-              }
-              console.log(lockDuration, oldLockDuration, "OLD")
-              if(lockDuration < oldLockDuration){
                 setEnableExtendButton(false)
                 return;
               }
@@ -601,12 +593,6 @@ const ExtendPopUpChildren = ({
           <Image src={info_icon} width={14} height={14} alt='' />
           <h1 className='text-[0.66rem] text-purple-text'>
             A lock duration cannot exceed two years
-          </h1>
-        </div>
-        <div className='mt-4 flex items-center justify-start gap-3 rounded-xl border-2 p-4'>
-          <Image src={info_icon} width={14} height={14} alt='' />
-          <h1 className='text-[0.66rem] text-purple-text'>
-            The new lock duration must be longer than the current lock duration
           </h1>
         </div>
 
