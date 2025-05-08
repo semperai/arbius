@@ -54,6 +54,7 @@ function Gauge({
       description: 'Text Generator',
       emissions: '0%',
       fees: '0',
+      feesDollar: '0',
       prompts: '0',
       icon: qwen_icon,
       model_bytes: "0x89c39001e3b23d2092bd998b62f07b523d23deb55e1627048b4ed47a4a38d5cc"
@@ -64,6 +65,7 @@ function Gauge({
       description: 'Image Generator',
       emissions: '0%',
       fees: '0',
+      feesDollar: '0',
       prompts: '0',
       icon: qwen_icon,
       model_bytes: "0xa473c70e9d7c872ac948d20546bc79db55fa64ca325a4b229aaffddb7f86aae0"
@@ -304,6 +306,9 @@ function Gauge({
 
           let b = await engineContract.methods.models(_modelData[i]?.model_bytes).call()
           _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(4).toString();
+
+          let c = await getDollarPrice(_modelData[i]["fees"])
+          _modelData[i]["feesDollar"] = c;
         }
         setFilteredData(_modelData);
         setData(_modelData);
@@ -518,6 +523,14 @@ function Gauge({
     return checkIfUserCanVote();
   }
 
+  const getDollarPrice = async(fee) => {
+    let usdPrice = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=AIUS&tsyms=USD`);
+    usdPrice = await usdPrice.json();
+    usdPrice = usdPrice.USD;
+    return Number(usdPrice) * Number(fee);
+  }
+
+
   return (
     <div className='mx-auto w-mobile-section-width max-w-center-width py-10 text-black-text lg:w-section-width lg:py-16'>
       {showPopUp !== false && (
@@ -727,7 +740,7 @@ function Gauge({
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
-                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees} <span className="text-[11px]">($0.0)</span></h1>
+                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees} <span className="text-[11px]">(${item?.feesDollar?.toFixed(3)})</span></h1>
               </div>
               <div className='w-[10%]'>
                 {/*<Image
