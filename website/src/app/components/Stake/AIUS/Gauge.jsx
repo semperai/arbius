@@ -740,7 +740,7 @@ function Gauge({
                   src={skeleton}
                   className='h-[24px] w-[100%] rounded-lg'
                 />*/}
-                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees} <span className="text-[11px]">(${item?.feesDollar?.toFixed(3)})</span></h1>
+                <h1 className='text-[14px] md:text-[0.85rem]'>{item?.fees} <span className="text-[11px]">(${Number(item?.feesDollar)?.toFixed(3)})</span></h1>
               </div>
               <div className='w-[10%]'>
                 {/*<Image
