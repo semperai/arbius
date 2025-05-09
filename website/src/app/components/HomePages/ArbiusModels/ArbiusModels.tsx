@@ -46,10 +46,21 @@ export default function ArbiusModels(){
 	      prompts: '0',
 	      icon: qwen_icon,
 	      model_bytes: "0xa473c70e9d7c872ac948d20546bc79db55fa64ca325a4b229aaffddb7f86aae0"
+	    },
+	    {
+	      model_name: 'M8B-uncensored',
+	      model_id: "0x6cb3eed9fe3f32da1910825b98bd49d537912c99410e7a35f30add137fd3b64c",
+	      description: 'Uncensored instruct model, optimized for GGUF with abliterated constraints removed.',
+	      emissions: '0%',
+	      fees: '0',
+	      feesDollar: '0',
+	      prompts: '0',
+	      icon: llama_icon,
+	      model_bytes: "0x6cb3eed9fe3f32da1910825b98bd49d537912c99410e7a35f30add137fd3b64c"
 	    }
 	]);
 	const [filteredData, setFilteredData] = useState(data);
-
+	console.log(filteredData, "DFD")
 	const handleSearch = (e: any) => {
 	    console.log(e.target.value);
 	    setSearchText(e.target.value);
@@ -86,7 +97,7 @@ export default function ArbiusModels(){
 			      _modelData[i]["emissions"] = ((Number(a) / AIUS_wei) * 100).toFixed(1).toString()+"%";
 
 			      let b = await engineContract.methods.models(_modelData[i]?.model_bytes).call()
-			      _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(4).toString();
+			      _modelData[i]["fees"] = (Number(b.fee) / AIUS_wei).toFixed(5).toString();
 			    }
 			    setFilteredData(_modelData);
 			    setData(_modelData);
