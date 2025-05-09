@@ -253,7 +253,7 @@ export default function Header() {
               <div className='absolute left-[-18px] ml-[-5px] bg-[black] p-[15px_50px] opacity-0'></div>
               <AnimateHeight height={modelsOpen ? 'auto' : 0}>
                 <div className='lg:staking lg:hidden lg:translate-x-[-40%] lg:translate-y-[25px] lg:group-hover:flex'>
-                  <Link href={'https://dev.arbiusplayground.com/chat/qwen-32b'} target='_blank'>
+                  <Link href={'https://arbiusplayground.com/chat/qwen-32b'} target='_blank'>
                     <div className='staking-block'>
                       <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
                         <p className='lato-regular badge-text text-[12px] text-[#4A28FF]'>
@@ -269,7 +269,7 @@ export default function Header() {
                       <div>Text Generation</div>
                     </div>
                   </Link>
-                  <Link href={'https://dev.arbiusplayground.com/chat/wai-sdxl'} target='_blank'>
+                  <Link href={'https://arbiusplayground.com/chat/wai-sdxl'} target='_blank'>
                     <div className='staking-block'>
                       <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
                         <p className='lato-regular badge-text text-[12px] text-[#4A28FF]'>
@@ -285,7 +285,7 @@ export default function Header() {
                       <div>NSFW Image Generation</div>
                     </div>
                   </Link>
-                  <Link href={'https://dev.arbiusplayground.com/chat/m8b-uncensored'} target='_blank'>
+                  <Link href={'https://arbiusplayground.com/chat/m8b-uncensored'} target='_blank'>
                     <div className='staking-block'>
                       <div className='badge absolute right-2 top-2 hidden rounded-2xl bg-[#f0efff] p-2 lg:block'>
                         <p className='lato-regular badge-text text-[12px] text-[#4A28FF]'>
