@@ -301,9 +301,12 @@ function StakeCard({
       const alreadyVoted = await votingEscrowContract.methods.voted(token?.tokenID).call();
 
       const lastVoted = await voterContract.methods.lastVoted(token?.tokenID).call();
-
-      if(checkWeek(lastVoted) > 0 && alreadyVoted){
-        setResetButton(true);
+      console.log(lastVoted, alreadyVoted, "CHECK VALS")
+      const checkLastVote = checkWeek(lastVoted)
+      if(checkLastVote > 0 && alreadyVoted){
+        setResetButton(2);
+      }else if(checkLastVote === 0){
+        setResetButton(1)
       }
 
       if (realtimeInterval) {
@@ -343,8 +346,8 @@ function StakeCard({
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
       { resetButton ?
-        <div className="absolute bg-light-purple-background right-2 top-2 z-20 cursor-pointer rounded-[15px] px-3 py-[6px]" onClick={handleReset}>
-          <div className="flex items-center text-[11px] gap-[3px] text-purple-text"><span>Reset</span><Image className="h-[10px] w-auto purple-filter-image" src={reload_icon} alt="" /></div>        
+        <div className={`absolute ${ resetButton === 2 ? "bg-light-purple-background" : "bg-light-gray-background" } right-2 top-2 z-20 cursor-pointer rounded-[15px] px-3 py-[6px]`} onClick={() => { if(resetButton === 2){handleReset()} }}>
+          <div className={`flex items-center text-[11px] gap-[3px] ${ resetButton === 2 ? "text-purple-text" : "text-gray-600"}`}><span>Reset</span><Image className={`h-[10px] w-auto ${ resetButton === 2 ? "purple-filter-image" : "gray-filter-image" }`} src={reload_icon} alt="" /></div>
         </div>
         : <Link
             href={`${openseaLink}${Config.votingEscrowAddress}/${Number(token?.tokenID)}`}

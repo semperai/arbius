@@ -749,3 +749,6 @@ input[type='number']::-ms-reveal {
 .purple-filter-image{
   filter: brightness(0) saturate(100%) invert(13%) sepia(92%) saturate(5059%) hue-rotate(252deg) brightness(107%) contrast(111%);
 }
+.gray-filter-image{
+  filter: brightness(0) saturate(100%) invert(92%) sepia(7%) saturate(180%) hue-rotate(177deg) brightness(95%) contrast(87%);
+}
