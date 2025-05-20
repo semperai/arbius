@@ -141,6 +141,13 @@ function StakeCard({
         await resetTx.wait();
         getTransactionReceiptData(resetTx.hash).then(async function () {
           setShowPopUp('withdraw/Success')
+          
+          setUpdateValue((prevValue) => prevValue + 1);
+
+          setTimeout(function(){
+            // @ts-ignore
+            setShowPopUp(false)
+          },3000)
         }).catch(function(){
           setShowPopUp('withdraw/Error')
         })
