@@ -353,8 +353,18 @@ function StakeCard({
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
       { resetButton ?
-        <div className={`absolute ${ resetButton === 2 ? "bg-light-purple-background" : "bg-light-gray-background" } right-2 top-2 z-20 cursor-pointer rounded-[15px] px-3 py-[6px]`} onClick={() => { if(resetButton === 2){handleReset()} }}>
-          <div className={`flex items-center text-[11px] gap-[3px] ${ resetButton === 2 ? "text-purple-text" : "text-gray-600"}`}><span>Reset</span><Image className={`h-[10px] w-auto ${ resetButton === 2 ? "purple-filter-image" : "gray-filter-image" }`} src={reload_icon} alt="" /></div>
+        <div className={`group absolute ${ resetButton === 2 ? "bg-light-purple-background" : "bg-light-gray-background" } right-2 top-2 z-20 cursor-pointer rounded-[15px] px-3 py-[6px]`} onClick={() => { if(resetButton === 2){handleReset()} }}>
+          <div className={`flex items-center text-[11px] gap-[3px] ${ resetButton === 2 ? "text-purple-text" : "text-[#808080]"}`}>
+            <span>Reset</span>
+            <Image className={`h-[10px] w-auto ${ resetButton === 2 ? "purple-filter-image" : "gray-filter-image" }`} src={reload_icon} alt="" />
+
+            <div className="hidden group-hover:block absolute bg-original-white p-2 top-0 right-[70px] text-original-black w-[160px] shadow-lg rounded-[10px]">
+              { resetButton === 2 ?
+                "You must reset your governance power before transferring your veNFT if you're already voted."
+                : "You must wait until the next epoch phase to reset your stake before transferring it out."
+              }
+            </div>
+          </div>
         </div>
         : <Link
             href={`${openseaLink}${Config.votingEscrowAddress}/${Number(token?.tokenID)}`}
