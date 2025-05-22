@@ -312,7 +312,7 @@ function StakeCard({
       const checkLastVote = checkWeek(lastVoted)
       if(checkLastVote > 0 && alreadyVoted){
         setResetButton(2);
-      }else if(checkLastVote === 0){
+      }else if(checkLastVote === 0 && alreadyVoted){
         setResetButton(1)
       }
 
