@@ -319,6 +319,11 @@ export default function Header() {
                 </div>
               </div>
             </Link>
+
+            <Link href={'https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum'} target='_blank'>
+              <div className='item hover:text-purple-text'>Bridge</div>
+            </Link>
+
             <Link
               href={'/media'}
               onClick={() => {

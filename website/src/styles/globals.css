@@ -745,3 +745,10 @@ input[type='number']::-ms-reveal {
 .lp-stake-bg-gradient{
   background: linear-gradient(106.64deg, #EEEAFF 38.5%, #4A28FF 290%);
 }
+
+.purple-filter-image{
+  filter: brightness(0) saturate(100%) invert(13%) sepia(92%) saturate(5059%) hue-rotate(252deg) brightness(107%) contrast(111%);
+}
+.gray-filter-image{
+  filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(196deg) brightness(83%) contrast(82%);
+}

@@ -16,6 +16,7 @@ import arbius_logo_slider from '@/app/assets/images/arbius_logo_slider.png';
 import { AIUS_wei, infuraUrl, alchemyUrl } from '../../../Utils/constantValues';
 import Link from 'next/link';
 import info_icon from '@/app/assets/images/info_icon_white.png';
+import reload_icon from '@/app/assets/images/reload.png';
 
 import { getWeb3 } from '@/app/Utils/getWeb3RPC';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
@@ -45,7 +46,7 @@ function StakeCard({
   const [realtimeInterval, setRealtimeInterval] = useState(null);
   const [rateOfIncreasePerSecond, setRateOfIncreasePerSecond] = useState(0);
   const [extendMonths, setExtendMonths] = useState(0);
-  
+  const [resetButton, setResetButton] = useState(false)
   // withdraw
   //console.log(Number(endDate) * 1000, "current")
   //console.log("current Date", Date.now())
@@ -87,6 +88,77 @@ function StakeCard({
       setShowPopUp('withdraw/Error');
     },
   });
+
+  function checkWeek(timestamp) {
+      const date = new Date(timestamp * 1000);
+      const now = new Date();
+      
+      // Get current Thursday of this week
+      const currentThursday = new Date(now);
+      currentThursday.setDate(now.getDate() - ((now.getDay() + 3) % 7));
+      currentThursday.setHours(0, 0, 0, 0);
+      
+      // Get previous Thursday (start of last week)
+      const prevThursday = new Date(currentThursday);
+      prevThursday.setDate(prevThursday.getDate() - 7);
+      console.log(currentThursday, "currentThursday", prevThursday, date)
+      if (date >= currentThursday) {
+          return 0;
+      } else if (date >= prevThursday) {
+          return 1;
+      } else {
+          return 2; // For any time before last week
+      }
+  }
+
+
+  const handleReset = async() => {
+    // @ts-ignore
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    // Create a provider
+    // @ts-ignore
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+    // Get the signer
+    const signer = provider.getSigner();
+
+    const voterContract = new ethers.Contract(
+      Config.voterAddress,
+      voter.abi,
+      signer
+    );
+      
+    // @ts-ignore
+    setShowPopUp('withdraw/2');
+
+    const lastVoted = await voterContract.lastVoted(token?.tokenID);
+
+    if(checkWeek(lastVoted) > 0){
+      try{
+        // reset the vote first
+        const resetTx = await voterContract.reset(token?.tokenID);
+
+        await resetTx.wait();
+        getTransactionReceiptData(resetTx.hash).then(async function () {
+          setShowPopUp('withdraw/Success')
+          
+          setUpdateValue((prevValue) => prevValue + 1);
+
+          setTimeout(function(){
+            // @ts-ignore
+            setShowPopUp(false)
+          },3000)
+        }).catch(function(){
+          setShowPopUp('withdraw/Error')
+        })
+      }catch(err){
+        console.log(err)
+        setShowPopUp('withdraw/Error')
+      }
+    }else{
+      // pass
+    }
+  }
 
   const handleWithdraw = async(lockedEndDate) => {
     // @ts-ignore
@@ -208,6 +280,11 @@ function StakeCard({
         Config.votingEscrowAddress
       );
 
+      const voterContract = new web3.eth.Contract(
+        voter.abi,
+        Config.voterAddress
+      );
+
       const _endDate = await votingEscrowContract.methods.locked__end(token?.tokenID).call();
 
       let _currentlyEndingAt = new Date(Number(_endDate) * 1000).toLocaleDateString('en-US');
@@ -226,6 +303,17 @@ function StakeCard({
         setExtendMonths(numberOfWeeks / 4);
       }else{
         setExtendMonths(numberOfMonths);
+      }
+
+      const alreadyVoted = await votingEscrowContract.methods.voted(token?.tokenID).call();
+
+      const lastVoted = await voterContract.methods.lastVoted(token?.tokenID).call();
+      console.log(lastVoted, alreadyVoted, "CHECK VALS")
+      const checkLastVote = checkWeek(lastVoted)
+      if(checkLastVote > 0 && alreadyVoted){
+        setResetButton(2);
+      }else if(checkLastVote === 0 && alreadyVoted){
+        setResetButton(1)
       }
 
       if (realtimeInterval) {
@@ -264,16 +352,31 @@ function StakeCard({
 
   return (
     <div className='relative rounded-2xl bg-white-background px-8 py-6'>
-      <Link
-        href={`${openseaLink}${Config.votingEscrowAddress}/${Number(token?.tokenID)}`}
-        target='_blank'
-      >
-        <Image
-          src={arbius_logo_slider}
-          className='absolute right-2 top-2 z-20 h-[36px] w-[36px] cursor-pointer'
-          alt=''
-        />
-      </Link>
+      { resetButton ?
+        <div className={`group absolute ${ resetButton === 2 ? "bg-light-purple-background" : "bg-light-gray-background" } right-2 top-2 z-20 cursor-pointer rounded-[15px] px-3 py-[6px]`} onClick={() => { if(resetButton === 2){handleReset()} }}>
+          <div className={`flex items-center text-[11px] gap-[3px] ${ resetButton === 2 ? "text-purple-text" : "text-[#808080]"}`}>
+            <span>Reset</span>
+            <Image className={`h-[10px] w-auto ${ resetButton === 2 ? "purple-filter-image" : "gray-filter-image" }`} src={reload_icon} alt="" />
+
+            <div className="hidden group-hover:block absolute bg-original-white p-2 top-0 right-[70px] text-original-black w-[160px] shadow-lg rounded-[10px]">
+              { resetButton === 2 ?
+                "You must reset your governance power before transferring your veNFT if you're already voted."
+                : "You must wait until the next epoch phase to reset your stake before transferring it out."
+              }
+            </div>
+          </div>
+        </div>
+        : <Link
+            href={`${openseaLink}${Config.votingEscrowAddress}/${Number(token?.tokenID)}`}
+            target='_blank'
+          >
+            <Image
+              src={arbius_logo_slider}
+              className='absolute right-2 top-2 z-20 h-[36px] w-[36px] cursor-pointer'
+              alt=''
+            />
+          </Link>
+       }
       <div className='flex items-start justify-start gap-8'>
         <div className='flex flex-col items-start justify-center gap-3'>
           <div>
