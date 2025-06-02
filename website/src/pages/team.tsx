@@ -104,7 +104,7 @@ export default function Team() {
     <RootLayout>
       <div style={{ backgroundImage: `url(${TeamBackground.src})` }} className="pb-8 bg-cover bg-center">
         <div className="w-[90%] md:w-[80%] max-w-[1300px] m-[auto] text-black-text lato-regular">
-          <div className="pt-[110px] mb-2"><Image className="h-[50px] w-[auto] lm:h-[auto]" src={ArbiusLogo} /></div>
+          <div className="pt-[110px] mb-2"><Image className="h-[50px] w-[auto] lm:h-[auto]" src={ArbiusLogo} alt="" /></div>
           <div className="text-[36px] lm:text-[48px] mb-2">Meet Our team</div>
           <div className="w-[auto] lm:w-[380px] mb-8">Meet the passionate and talented team bringing free and open AI to the world.</div>
 
