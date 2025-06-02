@@ -111,7 +111,7 @@ export default function Team() {
           <div className="">
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               { team_data.map(function(item, index){
-                return <div className={`relative ${index === 8 ? "xl:col-start-2" : index === 9 ? "lg:col-start-2 xl:col-start-3" : ""}`}>
+                return <div key={index} className={`relative ${index === 8 ? "xl:col-start-2" : index === 9 ? "lg:col-start-2 xl:col-start-3" : ""}`}>
                         <Image src={item.image} alt={item.name} />
                         { item.telegram ? <div className={`absolute top-[5px] lm:top-[10px] right-[5px] lm:right-[10px] flex items-center p-1 md:p-2 rounded-[15px] ${item.telegram_bg} backdrop-blur`}>
                           <Image className="h-[15px] md:h-[18px]" src={TelegramIcon} alt="telegram" />
