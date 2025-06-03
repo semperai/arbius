@@ -50,7 +50,7 @@ export default function Team() {
       "title": "Developer",
       "telegram": "freewillisnotfree",
       "image": Cyrus,
-      "telegram_bg": "bg-[#ffffff]",
+      "telegram_bg": "bg-[#ffffff]/70",
       "title_bg": "bg-[#ffffff]/70"
     },
     {
@@ -113,9 +113,9 @@ export default function Team() {
               { team_data.map(function(item, index){
                 return <div key={index} className={`relative ${index === 8 ? "xl:col-start-2" : index === 9 ? "lg:col-start-2 xl:col-start-3" : ""}`}>
                         <Image src={item.image} alt={item.name} />
-                        { item.telegram ? <div className={`absolute top-[5px] lm:top-[10px] right-[5px] lm:right-[10px] flex items-center p-1 md:p-2 rounded-[15px] ${item.telegram_bg} backdrop-blur`}>
+                        { item.telegram ? <div className={`absolute top-[5px] lm:top-[10px] right-[5px] lm:right-[10px] flex items-center p-1 md:p-2 rounded-[15px] ${item.telegram_bg} backdrop-blur hover:bg-white-background cursor-pointer`}>
                           <Image className="h-[15px] md:h-[18px]" src={TelegramIcon} alt="telegram" />
-                          <div className="text-[12px] md:text-[16px]">{item.telegram}</div>
+                          <div className="text-[11px] md:text-[13px]">@{item.telegram}</div>
                         </div> : null }
                         
                         <div className={`w-[95%] absolute bottom-[5px] lm:bottom-[10px] left-[2.5%] flex flex-col items-center p-1 md:p-2 rounded-[15px] ${item.title_bg} backdrop-blur`}>
