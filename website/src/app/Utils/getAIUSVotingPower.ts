@@ -33,7 +33,7 @@ export const calculateSecondsUntilRoundedDate = (duration: number) => {
     return {
         currentTimeUTC: nowUTC.toISOString(),
         targetDateUTC: targetDate.toISOString(),
-        secondsUntilRoundedDate: diffInSeconds
+        secondsUntilRoundedDate: diffInSeconds + 1000 // buffer seconds
     };
 }
 

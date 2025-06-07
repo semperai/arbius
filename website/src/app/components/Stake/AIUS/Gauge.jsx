@@ -37,6 +37,7 @@ import cross from '../../../assets/images/cross.png';
 import error_stake from '../../../assets/images/error_stake.png';
 import success_stake from '../../../assets/images/success_stake.png';
 import { getTransactionReceiptData } from '../../../Utils/getTransactionReceiptData';
+import Loader from '../Loader/Index';
 
 function Gauge({
   updateValue,
@@ -46,7 +47,7 @@ function Gauge({
   const chainId = useChainId();
   const [totalGovernancePower, setTotalGovernancePower] = useState(0);
   const [allTokens, setAllTokens] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState([
     {
       model_name: 'Qwen QwQ 32b',
@@ -334,6 +335,8 @@ function Gauge({
 
     const f = async () => {
       try{
+        setLoading(true)
+
         const web3 = await getWeb3()
         
         const votingEscrowContract = new web3.eth.Contract(
@@ -370,6 +373,8 @@ function Gauge({
 
         setLastUserVote(_lastVoted);
         setTotalGovernancePower(_totalGovernancePower)
+
+        setLoading(false)
       }catch(err){
         console.log("Error at gauge fetch:", err)
       }
@@ -633,6 +638,12 @@ function Gauge({
           />
           <Image src={search_icon} className='h-4 w-4' />
         </div>
+        {
+        loading ?
+          <div className='h-[50px] w-[300px] bg-white-background'>
+            <Loader loadingText={"Loading"} height="100px" width="100px" />
+          </div>
+        :
         <div className="flex gap-2 text-purple-text border-[1px] border-purple-text p-1 rounded-[10px]">
           <div className="flex items-center gap-1 md:gap-2 p-2 bg-white-background rounded-md basis-[50%] xl:basis-[unset] text-[11px] md:text-[16px]">
             <Image src={lightning} className="h-[11px] md:h-[15px] w-auto mt-[2px]" alt="" /> Total Governance Power: { getGovPowerFormatted() }
@@ -647,7 +658,8 @@ function Gauge({
               <div className={`bg-[#9f76ff] h-2 ${ percentUsed == 100 ? "rounded-full" : "rounded-l-full"} relative top-[-8px] z-2`} style={{width: percentUsed.toString()+"%" }}></div>
             </div>
           </div>
-        </div>
+        </div> }
+        
         <div className="absolute right-0 top-[-55px] xl:top-[unset]">
 
           <div onClick={Number(percentageLeft) === 0 && userCanVote() ? ()=>setShowConfirmVote(true) : null} className={`${ Number(percentageLeft) === 0 && userCanVote() ? "bg-black-background text-original-white hover:bg-buy-hover" : "bg-[#E8E8E8] text-aius-tabs-gray" } p-[8px_40px] rounded-[25px] cursor-pointer group xl:block`}>
