@@ -56,6 +56,10 @@ const footerLinks: FooterLink[] = [
   {
     name: "Arbitrum Bridge",
     link: "https://bridge.arbitrum.io/"
+  },
+  {
+    name: "Team",
+    link: "/team"
   }
 ].map((o, id) => ({ ...o, id }));
 
@@ -223,7 +227,7 @@ export default function Footer() {
                 </div>
                 <div className='flex flex-row justify-between mt-6'>
                   <div className='mt-4 flex flex-col flex-wrap items-start gap-4 lm:mt-0 lm:gap-0 lg:flex-row'>
-                    {footerLinks.slice(0, 4).map(FLink)}
+                    {footerLinks.slice(0, 5).map(FLink)}
                   </div>
                   <div className='mt-4 flex flex-col flex-wrap items-start gap-4 lm:mt-0 lm:gap-0 lg:flex-row'>
                     {footerLinks.slice(-4).map(FLink)}

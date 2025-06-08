@@ -79,6 +79,22 @@ export default function Header() {
   useEffect(() => {
     async function f() {
       try {
+        // @ts-ignore
+        if(!window.ethereum){
+          return;
+        }
+        // Check if MetaMask is unlocked
+        // @ts-ignore
+        const accounts = await window.ethereum.request({ 
+          method: 'eth_accounts' // This doesn't trigger unlock prompt
+        });
+
+        if (accounts.length === 0) {
+          // MetaMask is locked or not connected
+          //console.log('MetaMask is locked or not connected');
+          return;
+        }
+
         let aiusTokenAddress = "";
         if (chainId === 11155111 || chainId === 1) {
           aiusTokenAddress = ConfigEth.AIUS_TOKEN_ADDRESS;

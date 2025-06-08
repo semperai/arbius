@@ -461,7 +461,7 @@ function DashBoard({
           <div className=''>
             {loading ? (
               <div className='h-[300px] xl:pl-2'>
-                <Loader />
+                <Loader loadingText={"Loading Stakes"} height={"100px"} width={"auto"} />
               </div>
             ) : tokenIDs?.slidingCards && tokenIDs?.slidingCards.length > 0 ? (
               <SlidingCards
@@ -555,7 +555,7 @@ function DashBoard({
           {
             loading ? (
               <div className='h-[300px]'>
-                <Loader />
+                <Loader loadingText={"Loading Stakes"} height={"100px"} width={"auto"} />
               </div>
             ) : (
               <Gantt
