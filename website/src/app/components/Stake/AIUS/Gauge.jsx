@@ -638,19 +638,45 @@ function Gauge({
           />
           <Image src={search_icon} className='h-4 w-4' />
         </div>
-        {
-        loading ?
-          <div className='h-[50px] w-[300px] bg-white-background'>
-            <Loader loadingText={"Loading"} height="100px" width="100px" />
-          </div>
-        :
+
         <div className="flex gap-2 text-purple-text border-[1px] border-purple-text p-1 rounded-[10px]">
           <div className="flex items-center gap-1 md:gap-2 p-2 bg-white-background rounded-md basis-[50%] xl:basis-[unset] text-[11px] md:text-[16px]">
-            <Image src={lightning} className="h-[11px] md:h-[15px] w-auto mt-[2px]" alt="" /> Total Governance Power: { getGovPowerFormatted() }
+            <Image src={lightning} className="h-[11px] md:h-[15px] w-auto mt-[2px]" alt="" /> Total Governance Power: {
+              loading ?
+              <div className="h-[15px] w-[15px]">
+                <CircularProgressBar
+                  valueStart={0}
+                  valueEnd={100}
+                  duration={4}
+                  text={''}
+                  setShowPopUp={setLoading}
+                  isError={false}
+                  noChildren={true}
+                  repeat={true}
+                />
+              </div>
+              : getGovPowerFormatted() }
           </div>
           <div className="flex flex-col gap-1 p-2 bg-white-background rounded-md basis-[50%] xl:basis-[unset]">
             <div className="flex justify-between text-[11px] md:text-[12px]">
-              <div>{percentUsed == 100 ? getGovPowerFormatted() : getGPUsed()}/{ getGovPowerFormatted() }</div>
+              <div className="flex items-center">
+                { loading ?
+                    <div className="ml-1 h-[10px] w-[10px]">
+                      <CircularProgressBar
+                        valueStart={0}
+                        valueEnd={100}
+                        duration={4}
+                        text={''}
+                        setShowPopUp={setLoading}
+                        isError={false}
+                        noChildren={true}
+                        repeat={true}
+                      />
+                    </div>
+                  : 
+                `${percentUsed == 100 ? getGovPowerFormatted() : getGPUsed()}/${ getGovPowerFormatted() }`
+                }
+              </div>
               <div>{checkIfUserCanVote() ? percentageLeft : "0"}% left</div>
             </div>
             <div className="w-full xl:w-[234px] bg-gray-text rounded-full h-2">
@@ -658,7 +684,7 @@ function Gauge({
               <div className={`bg-[#9f76ff] h-2 ${ percentUsed == 100 ? "rounded-full" : "rounded-l-full"} relative top-[-8px] z-2`} style={{width: percentUsed.toString()+"%" }}></div>
             </div>
           </div>
-        </div> }
+        </div>
         
         <div className="absolute right-0 top-[-55px] xl:top-[unset]">
 
