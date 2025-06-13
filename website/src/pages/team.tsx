@@ -46,7 +46,7 @@ export default function Team() {
       "title_bg": "bg-[#ffffff]/70"
     },
     {
-      "name": "Cyrus",
+      "name": "Hal",
       "title": "Developer",
       "telegram": "freewillisnotfree",
       "image": Cyrus,
@@ -58,7 +58,7 @@ export default function Team() {
       "title": "Developer",
       "telegram": "beskay0x",
       "image": Beskay,
-      "telegram_bg": "bg-[#ffffff]/90",
+      "telegram_bg": "bg-[#ffffff]/70",
       "title_bg": "bg-[#ffffff]/70"
     },
     {
