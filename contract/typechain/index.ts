@@ -242,6 +242,8 @@ export type { V2_EngineV4 } from "./contracts/V2_EngineV4";
 export { V2_EngineV4__factory } from "./factories/contracts/V2_EngineV4__factory";
 export type { V2_EngineV5_1 } from "./contracts/V2_EngineV5_1";
 export { V2_EngineV5_1__factory } from "./factories/contracts/V2_EngineV5_1__factory";
+export type { V2_EngineV5_2 } from "./contracts/V2_EngineV5_2";
+export { V2_EngineV5_2__factory } from "./factories/contracts/V2_EngineV5_2__factory";
 export type { V2_EngineV5 } from "./contracts/V2_EngineV5";
 export { V2_EngineV5__factory } from "./factories/contracts/V2_EngineV5__factory";
 export type { VeNFTRender } from "./contracts/ve/VeNFTRender";

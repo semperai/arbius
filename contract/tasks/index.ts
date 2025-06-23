@@ -414,6 +414,7 @@ task("engine:isPaused", "Check if engine is paused")
 task("engine:pause", "Pause engine")
 .addParam("pause", "Pause/Unpause")
 .setAction(async ({ pause }, hre) => {
+  console.log('Pausing engine with address', await getMinerAddress(hre));
   const engine = await getEngine(hre);
   const tx = await engine.setPaused(pause === 'true');
   await tx.wait();
@@ -474,6 +475,14 @@ task("engine:getReward", "Call getReward")
   const engine = await getEngine(hre);
   const r = await engine.getReward();
   console.log(hre.ethers.utils.formatEther(r));
+});
+
+task("engine:startBlockTime", "Call startBlockTime")
+.setAction(async ({ }, hre) => {
+  const engine = await getEngine(hre);
+  const startBlockTime = await engine.startBlockTime();
+  console.log(`Engine startBlockTime is ${startBlockTime}`);
+  console.log(`Seconds until now is ${Math.floor(Date.now() / 1000) - startBlockTime.toNumber()}`);
 });
 
 task("engine:setStartBlockTime", "Set startBlockTime")
