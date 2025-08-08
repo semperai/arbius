@@ -10,6 +10,7 @@ import {getIPFSCID} from "./libraries/IPFS.sol";
 import "./interfaces/IBaseToken.sol";
 import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 import {IVoter} from "contracts/interfaces/IVoter.sol";
+import {IMasterContesterRegistry} from "contracts/interfaces/IMasterContesterRegistry.sol";
 
 uint256 constant STARTING_ENGINE_TOKEN_AMOUNT = 600_000e18;
 uint256 constant BASE_TOKEN_STARTING_REWARD = 1e18;
@@ -157,7 +158,10 @@ contract V2_EngineV6 is OwnableUpgradeable {
     // How much of model fee for solutions go to treasury
     uint256 public solutionModelFeePercentage; // v5
 
-    uint256[36] __gap; // upgradeable gap
+    address public masterContesterRegistry; // v6: registry contract for master contesters
+    uint32 public masterContesterVoteAdder; // v6: vote weight adder for master contesters (e.g., 5e18 for +5 votes)
+
+    uint256[35] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
     event ModelFeeChanged(bytes32 indexed id, uint256 fee);
@@ -211,6 +215,8 @@ contract V2_EngineV6 is OwnableUpgradeable {
     event SolutionMineableRateChange(bytes32 indexed id, uint256 rate);
     event VersionChanged(uint256 version);
     event StartBlockTimeChanged(uint64 indexed startBlockTime); // v2
+    event MasterContesterRegistrySet(address indexed registry); // v6
+    event MasterContesterVoteAdderSet(uint32 adder); // v6
 
     event RewardsPaid(
         uint256 totalRewards,
@@ -252,6 +258,15 @@ contract V2_EngineV6 is OwnableUpgradeable {
         _;
     }
 
+    /// @notice Modifier to restrict to only master contesters (v6)
+    modifier onlyMasterContester() {
+        require(
+            IMasterContesterRegistry(masterContesterRegistry).isMasterContester(msg.sender),
+            "not master contester"
+        );
+        _;
+    }
+
     modifier onlyModelOwnerOrOwner(bytes32 model_) {
         require(
             models[model_].addr == msg.sender || msg.sender == owner(),
@@ -265,9 +280,11 @@ contract V2_EngineV6 is OwnableUpgradeable {
         _disableInitializers();
     }
 
-    /// @notice Initialize contract
+    /// @notice Initialize contract for v6
     /// @dev For upgradeable contracts this function necessary
-    function initialize() public reinitializer(8) {
+    function initialize() public reinitializer(9) {
+        version = 6;
+        masterContesterVoteAdder = 10; // 5 votes for master contesters
     }
 
     /// @notice Transfer ownership
@@ -297,6 +314,22 @@ contract V2_EngineV6 is OwnableUpgradeable {
     function setPaused(bool paused_) external onlyPauser {
         paused = paused_;
         emit PausedChanged(paused_);
+    }
+
+    /// @notice Set master contester registry (v6)
+    /// @param registry_ Address of the master contester registry
+    function setMasterContesterRegistry(address registry_) external onlyOwner {
+        require(registry_ != address(0), "invalid registry");
+        masterContesterRegistry = registry_;
+        emit MasterContesterRegistrySet(registry_);
+    }
+
+    /// @notice Set master contester vote adder (v6)
+    /// @param amount_ Vote adder for master contesters
+    function setMasterContesterVoteAdder(uint32 amount_) external onlyOwner {
+        require(amount_ >= 0 && amount_ <= 500, "invalid multiplier");
+        masterContesterVoteAdder = amount_;
+        emit MasterContesterVoteAdderSet(amount_);
     }
 
     /// @notice Set solution mineable rate
@@ -1039,11 +1072,11 @@ contract V2_EngineV6 is OwnableUpgradeable {
         _claimSolutionFeesAndReward(taskid_);
     }
 
-    /// @notice Contest a submitted solution
+    /// @notice Contest a submitted solution (v6: only master contesters can initiate)
     /// @param taskid_ Task hash
     function submitContestation(
         bytes32 taskid_
-    ) external notPaused onlyValidator {
+    ) external notPaused onlyMasterContester {
         require(
             solutions[taskid_].validator != address(0x0),
             "solution does not exist"
@@ -1058,6 +1091,8 @@ contract V2_EngineV6 is OwnableUpgradeable {
             "too late"
         );
         require(!solutions[taskid_].claimed, "wtf");
+
+        require(_onlyValidator(msg.sender), "master contester min staked too low");
 
         uint256 slashAmount = getSlashAmount();
 
@@ -1158,6 +1193,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
         address addr_
     ) internal {
         contestationVoted[taskid_][addr_] = true;
+
         if (yea_) {
             contestationVoteYeas[taskid_].push(addr_);
         } else {
@@ -1198,7 +1234,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
         // we need at least 1 iteration for special handling of 0 index
         require(amnt_ > 0, "amnt too small");
 
-        uint32 yeaAmount = uint32(contestationVoteYeas[taskid_].length);
+        uint32 yeaAmount = masterContesterVoteAdder + uint32(contestationVoteYeas[taskid_].length);
         uint32 nayAmount = uint32(contestationVoteNays[taskid_].length);
 
         uint32 start_idx = contestations[taskid_].finish_start_index;
