@@ -63,7 +63,7 @@ struct Contestation {
     uint256 slashAmount; // amount to slash
 }
 
-contract V2_EngineV5_2 is OwnableUpgradeable {
+contract V2_EngineV6 is OwnableUpgradeable {
     IBaseToken public baseToken;
 
     // where treasury fees/rewards go
@@ -920,7 +920,8 @@ contract V2_EngineV5_2 is OwnableUpgradeable {
             // avoid 0 value transfer and emitted event
             uint256 validatorFee = remainingFee - remainingTreasuryFee;
             if (validatorFee > 0) {
-                baseToken.transfer(solutions[taskid_].validator, validatorFee);
+                validators[solutions[taskid_].validator].staked += validatorFee; // v6
+                totalHeld += validatorFee; // v6
             }
 
             // we do not include treasuryFees in totalHeld reduction as not transferred here
@@ -953,6 +954,7 @@ contract V2_EngineV5_2 is OwnableUpgradeable {
                 gaugeMultiplier = 0;
             }
         }
+
         if (modelRate > 0 && gaugeMultiplier > 0) {
             // half of emissions are distributed to veStaking, divide by 1e18 due to modelRate and gaugeMultiplier, respectively
             uint256 total = (getReward() * modelRate * gaugeMultiplier) /
@@ -975,10 +977,8 @@ contract V2_EngineV5_2 is OwnableUpgradeable {
 
                 baseToken.transfer(treasury, treasuryReward);
                 baseToken.transfer(tasks[taskid_].owner, taskOwnerReward); // v3
-                baseToken.transfer(
-                    solutions[taskid_].validator,
-                    validatorReward
-                );
+                validators[solutions[taskid_].validator].staked += validatorReward; // v6
+                totalHeld += validatorReward; // v6
 
                 emit RewardsPaid(
                     total,
@@ -1221,11 +1221,9 @@ contract V2_EngineV5_2 is OwnableUpgradeable {
                     address a = contestationVoteYeas[taskid_][i];
                     validators[a].staked += slashAmount; // refund
                     if (i == 0) {
-                        baseToken.transfer(a, valToOriginator);
-                        totalHeld -= valToOriginator; // v3
+                        validators[a].staked += valToOriginator; // v6
                     } else {
-                        baseToken.transfer(a, valToOtherYeas);
-                        totalHeld -= valToOtherYeas; // v3
+                        validators[a].staked += valToOtherYeas; // v6
                     }
                 }
             }
@@ -1255,11 +1253,9 @@ contract V2_EngineV5_2 is OwnableUpgradeable {
                     address a = contestationVoteNays[taskid_][i];
                     validators[a].staked += slashAmount; // refund
                     if (i == 0) {
-                        baseToken.transfer(a, valToAccused);
-                        totalHeld -= valToAccused; // v3
+                        validators[a].staked += valToAccused; // v6
                     } else {
-                        baseToken.transfer(a, valToOtherNays);
-                        totalHeld -= valToOtherNays; // v3
+                        validators[a].staked += valToOtherNays; // v6
                     }
                 }
             }
