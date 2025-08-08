@@ -5,9 +5,6 @@ import ArbiusLogo from '@/app/assets/images/arbius_logo_team_page.svg';
 import TelegramIcon from '@/app/assets/images/telegram_icon_team.svg';
 import Image from 'next/image';
 
-import Paul from '@/app/assets/images/team/paul.png';
-import Cyrus from '@/app/assets/images/team/cyrus.png';
-import AbhiKakarot from '@/app/assets/images/team/abhikakarot.png';
 import Beskay from '@/app/assets/images/team/beskay.png';
 import MasterPig from '@/app/assets/images/team/master_pig.png';
 import Oscar from '@/app/assets/images/team/oscar.png';
@@ -38,34 +35,11 @@ export default function Team() {
       "title_bg": "bg-[#ffffff]/70"
     },
     {
-      "name": "Paul",
-      "title": "Growth Architect",
-      "telegram": "drsusse",
-      "image": Paul,
-      "telegram_bg": "bg-[#ffffff]/70",
-      "title_bg": "bg-[#ffffff]/70"
-    },
-    {
-      "name": "Hal",
-      "title": "Developer",
-      "telegram": "freewillisnotfree",
-      "image": Cyrus,
-      "telegram_bg": "bg-[#ffffff]/70",
-      "title_bg": "bg-[#ffffff]/70"
-    },
-    {
       "name": "Beskay",
       "title": "Developer",
       "telegram": "beskay0x",
       "image": Beskay,
       "telegram_bg": "bg-[#ffffff]/70",
-      "title_bg": "bg-[#ffffff]/70"
-    },
-    {
-      "name": "AbhiKakarot",
-      "title": "Developer",
-      "telegram": "",
-      "image": AbhiKakarot,
       "title_bg": "bg-[#ffffff]/70"
     },
     {
