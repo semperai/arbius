@@ -248,8 +248,8 @@ export default function Header() {
               <div className='item hover:text-purple-text'>Amica</div>
             </Link>
 
-            <Link href={'https://arbiusplayground.com/chat'} target='_blank'>
-              <div className='item hover:text-purple-text'>Playground</div>
+            <Link href={'https://effectiveacceleration.ai'} target='_blank'>
+              <div className='item hover:text-purple-text'>Marketplace</div>
             </Link>
 
             <div className='link-with-image group relative'>

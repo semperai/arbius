@@ -132,6 +132,7 @@ export default function ArbiusModels(){
 							<div className="text-black-text text-para text-subtext-one">Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).</div>
 						</Fade>
 						<div className="flex gap-[20px] items-center mt-[20px]">
+                            {/*
 							<Link href={'https://arbiusplayground.com/'} target='_blank'>
 								<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'>
 	                      			<div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-10 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
@@ -140,6 +141,7 @@ export default function ArbiusModels(){
 	                  				</div>
 	                    		</button>
 	                    	</Link>
+                            */}
 
 	                    	<Link href={'https://amica.arbius.ai/'} target='_blank'>
 	                    		<button type='button' className='group relative flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8'>

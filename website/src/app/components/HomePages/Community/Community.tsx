@@ -9,6 +9,7 @@ import { Fade } from 'react-awesome-reveal';
 
 export default function Community() {
   const platforms = [
+    /*
     {
       id: '1',
       name: '',
@@ -20,6 +21,7 @@ export default function Community() {
       nameImage: arbius_data,
       background: "bg-[url('../app/assets/images/arbiusdata_background.png')]",
     },
+    */
     {
       id: '2',
       name: 'AIUS Swap Market',
