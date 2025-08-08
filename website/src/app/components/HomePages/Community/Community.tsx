@@ -29,6 +29,7 @@ export default function Community() {
       content: 'Exchange AIUS in a decentralized way here.',
       buttonText: 'Visit Swap Market',
       link: 'https://swap.cow.fi/#/1/swap/ETH/0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852',
+      nameImage: '',
       background: "bg-[url('../app/assets/images/swap_market_background.png')]",
     },
   ];
