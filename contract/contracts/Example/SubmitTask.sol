@@ -23,12 +23,13 @@ contract SubmitTask {
 
     function submitTask() public {
         arbiusToken.approve(address(arbius), type(uint256).max);
-        bytes32 taskid = arbius.submitTask(
+        arbius.submitTask(
             0x0,
             address(this),
             model,
             0.1e18,
             input
         );
+        bytes32 taskid = arbius.prevhash();
     }
 }
