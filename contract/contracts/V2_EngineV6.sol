@@ -219,17 +219,25 @@ contract V2_EngineV6 is OwnableUpgradeable {
     event MasterContesterVoteAdderSet(uint32 adder); // v6
 
     event RewardsPaid(
+        bytes32 indexed model, // v6
+        bytes32 indexed task, // v6
+        address indexed validator, // v6
         uint256 totalRewards,
         uint256 treasuryReward,
         uint256 taskOwnerReward,
         uint256 validatorReward
     );
     event FeesPaid(
+        bytes32 indexed model, // v6
+        bytes32 indexed task, // v6
+        address indexed validator, // v6
         uint256 modelFee,
         uint256 treasuryFee,
         uint256 remainingFee,
         uint256 validatorFee
     );
+
+    event ContestationSuggested(address indexed addr, bytes32 indexed task); // v6
 
     /// @notice Modifier to restrict to only pauser
     modifier onlyPauser() {
@@ -961,7 +969,15 @@ contract V2_EngineV6 is OwnableUpgradeable {
             accruedFees += (treasuryFee + remainingTreasuryFee);
             totalHeld -= taskFee - (treasuryFee + remainingTreasuryFee); // v3
 
-            emit FeesPaid(modelFee, treasuryFee, remainingFee, validatorFee);
+            emit FeesPaid(
+                _model,
+                taskid_,
+                solutions[taskid_].validator,
+                modelFee,
+                treasuryFee,
+                remainingFee,
+                validatorFee
+            );
         }
 
         /* Reward distribution */
@@ -1014,6 +1030,9 @@ contract V2_EngineV6 is OwnableUpgradeable {
                 totalHeld += validatorReward; // v6
 
                 emit RewardsPaid(
+                    _model,
+                    taskid_,
+                    solutions[taskid_].validator,
                     total,
                     treasuryReward,
                     taskOwnerReward,
@@ -1118,6 +1137,31 @@ contract V2_EngineV6 is OwnableUpgradeable {
             // the accused validator automatically votes against
             _voteOnContestation(taskid_, false, solutions[taskid_].validator);
         }
+    }
+
+    /// @notice Suggest a contestation to master contesters
+    /// @dev This is used to notify master contesters that a contestation should be submitted
+    /// @param taskid_ Task hash
+    function suggestContestation(bytes32 taskid_) external notPaused {
+        // this is used to suggest a contestation to master contesters
+        // it does not do anything, but can be used to notify master contesters
+        // that a contestation should be submitted
+        require(
+            solutions[taskid_].validator != address(0x0),
+            "solution does not exist"
+        );
+        require(
+            contestations[taskid_].validator == address(0x0),
+            "contestation already exists"
+        );
+        require(
+            block.timestamp <
+                solutions[taskid_].blocktime + minClaimSolutionTime,
+            "too late"
+        );
+        require(!solutions[taskid_].claimed, "wtf");
+
+        emit ContestationSuggested(msg.sender, taskid_);
     }
 
     /// @notice Check if contestation voting period ended
