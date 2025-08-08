@@ -152,12 +152,17 @@ function Stake() {
         )
 
         const _userUNIV2Balance = await univ2Contract.methods.balanceOf(address).call()
+        console.log('## User UNIV2 Balance', _userUNIV2Balance)
 
         const _stakedBalance = await stakingContract.methods.balanceOf(address).call()
+        console.log('## Staked Balance', _stakedBalance)
 
         const _earned = await stakingContract.methods.earned(address).call()
+        console.log('## Earned', _earned)
 
         const _allowance = await univ2Contract.methods.allowance(address, StakingAddress).call()
+        console.log('## Allowance', _allowance)
+
 
         const _rewardPeriod = await stakingContract.methods.periodFinish().call()
 
@@ -166,12 +171,14 @@ function Stake() {
           "stakedBalance": _stakedBalance,
           "claimableRewards": _earned,
           "allowance": _allowance,
-          "rewardPeriod": 120//getDaysFromNow(_rewardPeriod)
+          "rewardPeriod": 0 // Set to 0 since program is not running
         })
       }catch(e){
         console.log("F1 error", e)
       }
     }
+
+    console.log("## Address", address)
 
     if(address){
       f1();
@@ -184,7 +191,7 @@ function Stake() {
         "stakedBalance": 0,
         "claimableRewards": 0,
         "allowance": 0,
-        "rewardPeriod": 120
+        "rewardPeriod": 0 // Set to 0 since program is not running
       })
     }
     setAmount(new Decimal(0))
@@ -193,120 +200,18 @@ function Stake() {
   },[address, updateValue])
 
   const handleStake = async () => {
-    if(!address){
-      return;
-    }
-    let amountInDec = amount; // already in decimal
-    let allowanceInDec = new Decimal(data?.allowance);
-
-    if (amountInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
-      // set allowance first
-      return;
-    }
-
-    try {
-      if (amountInDec) {
-        setShowPopUp(3);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-        const signer = provider.getSigner();
-
-        const stakingContract = new ethers.Contract(
-          StakingAddress,
-          stakingContractABI,
-          signer
-        );
-
-        const tx2 = await stakingContract.stake(
-          amountInDec.toFixed(0).toString()
-        );
-        setShowPopUp(4);
-        console.log('transaction hash:', tx2.hash);
-        await tx2.wait();
-        console.log('transaction confirmed');
-
-        setShowPopUp('Success');
-        console.log('transaction completed successfully');
-        getTransactionReceiptData(tx2.hash).then(function () {
-          setUpdateValue(prev => prev + 1);
-        });
-      } else {
-        // amount to be greater than 0
-      }
-    } catch (err) {
-      console.log(err)
-      setShowPopUp('Error');
-    }
+    // Disabled - staking program not running
+    return;
   };
 
   const handleApprove = async() => {
-    if(!address){
-      return;
-    }
-    let amountInDec = amount; // already setting in dec
-    let allowanceInDec = new Decimal(data?.allowance);
-
-    if (amountInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
-      try {
-        setShowPopUp(3);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-
-        const univ2Contract = new ethers.Contract(
-          UNIV2_ADDRESS,
-          univ2ContractABI,
-          signer
-        );
-
-        const tx1 = await univ2Contract.approve(
-          StakingAddress,
-          maxApproveAmount
-        );
-        setShowPopUp(4);
-        await tx1.wait();
-
-        console.log('First transaction confirmed');
-
-        setShowPopUp('Success');
-        getTransactionReceiptData(tx1.hash).then(function () {
-          setShowPopUp(false)
-          setUpdateValue(prev => prev + 1);
-        });
-      } catch (error) {
-        console.log(error)
-        setShowPopUp('Error');
-      }
-    }
+    // Disabled - staking program not running
+    return;
   }
 
   const setStakeAmount = (e) => {
-
-    if(Number(e.target.value)){
-      const amountInDec = new Decimal(e.target.value);
-      const balanceInDec = new Decimal(data?.userUNIV2Balance);
-      const AIUS_wei_InDec = new Decimal(AIUS_wei);
-      const amountInWei = amountInDec.mul(AIUS_wei_InDec);
-
-      if(amountInWei.comparedTo(balanceInDec) > 0){
-        setDisableStakeButton(true);
-      }else{
-        let allowanceInDec = new Decimal(data?.allowance);
-        if (amountInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
-          // Do nothing
-        }else{
-          setDisableStakeButton(false);
-        }
-      }
-
-      setAmount(amountInWei);
-    }else{
-      setAmount(new Decimal(0));
-      setDisableStakeButton(true);
-    }
+    // Keep disabled since staking is not available
+    setDisableStakeButton(true);
   }
 
   const setUnstakeAmount = (e) => {
@@ -330,23 +235,8 @@ function Stake() {
   }
 
   const setMaxAmount = () => {
-    if(!data?.userUNIV2Balance){
-      return;
-    }
-    const balanceInDec = new Decimal(data?.userUNIV2Balance);
-    const AIUS_wei_InDec = new Decimal(AIUS_wei);
-
-    setAmount(balanceInDec);
-    stakeInput.current.value = balanceInDec.div(AIUS_wei);
-
-    if(balanceInDec > 0){
-      let allowanceInDec = new Decimal(data?.allowance);
-      if (balanceInDec.comparedTo(allowanceInDec) > 0 || Number(data?.allowance) === 0) {
-        // Do nothing
-      }else{
-        setDisableStakeButton(false);
-      }
-    }
+    // Disabled - staking program not running
+    return;
   }
 
   const setMaxUnstakeAmount = () => {
@@ -498,34 +388,10 @@ function Stake() {
 
         setEarned(_earned);
 
-        const _stakedBalance = await stakingContract.methods.balanceOf(address).call()
-
+        // Don't update earned in real-time since rewards program is not running
         if (realtimeInterval) {
             clearInterval(realtimeInterval);
         }
-
-        const now = new Date();
-        let current_timestamp = Math.floor(now.getTime()); // milliseconds
-        current_timestamp = current_timestamp / 1000; // seconds
-
-        const _rewardPeriod = await stakingContract.methods.periodFinish().call()
-        if(current_timestamp > _rewardPeriod){
-          return;
-        }
-
-        const _rewardRate = await stakingContract.methods.rewardRate().call();
-        const _totalSupply = await stakingContract.methods.totalSupply().call();
-
-        const _rewardPerUNIV2PerSecond = Number(_rewardRate) / Number(_totalSupply);
-        const _rateOfIncreasePerSecond = Number(_rewardPerUNIV2PerSecond) * Number(_stakedBalance);
-
-        let newEarned = _earned;
-
-        let _interval = setInterval(async() => {
-            newEarned = Number(newEarned) + Number(_rateOfIncreasePerSecond);
-            setEarned(newEarned)
-        }, 1000);
-        setRealtimeInterval(_interval);
       }catch(err){
         console.log(err, "ERR in interval")
       }
@@ -598,11 +464,19 @@ function Stake() {
       <div className='m-[auto] grid w-mobile-section-width max-w-center-width grid-cols-1 gap-8 pt-4 pb-4 um:pb-8 um:pt-8 lg:w-section-width lg:grid-cols-2'>
         {true ? (
           <>
-            <div className='stake-card flex h-[auto] flex-col justify-between rounded-2xl bg-white-background p-4 um:p-6 lg:p-10'>
+            <div className='stake-card flex h-[auto] flex-col justify-between rounded-2xl bg-white-background p-4 um:p-6 lg:p-10 opacity-60'>
               <div>
                 <h1 className='text-[15px] font-medium text-[#4A28FF] lg:text-[20px]'>
                   Stake
                 </h1>
+                
+                {/* Program Not Running Notice */}
+                <div className='mt-4 p-3 bg-[#FFF3CD] border border-[#FFEAA7] rounded-lg'>
+                  <p className='text-[12px] text-[#856404] font-medium'>
+                    LP Staking program is currently not running
+                  </p>
+                </div>
+                
                 <div className='um:mt-6 flex items-end justify-between gap-6'>
                   <div className='mt-1 um:mt-6 max-h-[150px] w-1/2 rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 shadow-none transition-all hover:shadow-stats whitespace-nowrap'>
                     <div className='flex items-baseline justify-start'>
@@ -625,10 +499,7 @@ function Stake() {
                       id='RewardsPeriod'
                     >
                       <h1 className='text-[18px] um:text-[25px] font-medium text-purple-text'>
-                        { data?.rewardPeriod ?
-                            Number(data?.rewardPeriod)
-                          : 0
-                        }
+                        0
                       </h1>
                       <p className='ml-2 text-[11px] um:text-[14px] text-black-text'>Days</p>
                     </div>
@@ -636,20 +507,9 @@ function Stake() {
                     <h1 className='text-[8px] font-medium text-black-text lg:text-[13px]'>
                       Rewards Period
                     </h1>
-                    {/*<HintBox
-                      content={
-                        'The multiplier on your stake will increase from 1.00x to 3.00x over 90 days'
-                      }
-                      customStyle={{}}
-                      link={null}
-                      boxStyle={{ width: '200px', top: '50%', zIndex: 10 }}
-                      hoverId={'RewardsPeriod'}
-                      currentHoverId={currentHoverId}
-                      setCurrentHoverId={setCurrentHoverId}
-                    />*/}
                   </div>
                 </div>
-                <div className='mt-4 um:mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
+                <div className='mt-4 um:mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010] opacity-50'>
                   <div className='flex w-[25%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] py-1 um:py-2 px-2 lg:gap-2 lg:p-3'>
                     <h1 className='text-[10px] font-medium lg:text-[14px]'>
                       UNI-V2
@@ -659,14 +519,12 @@ function Stake() {
                     <div className='flex w-[80%] py-1 um:py-0 um:block'>
                       <input
                         ref={stakeInput}
-                        className='w-[100%] bg-original-white text-[11px] um:text-[13px] italic outline-none'
-                        placeholder='Amount of UNI-V2 to stake'
-                        onChange={(e) => setStakeAmount(e)}
+                        className='w-[100%] bg-original-white text-[11px] um:text-[13px] italic outline-none cursor-not-allowed'
+                        placeholder='Staking is currently unavailable'
+                        disabled
                       />
                     </div>
-                    <div className='maxButtonHover flex items-center rounded-full px-3 py-[1px] text-original-white'
-                    onClick={setMaxAmount}
-                    >
+                    <div className='flex items-center rounded-full px-3 py-[1px] text-original-white opacity-50 cursor-not-allowed'>
                       <p className='um:pb-[2px] text-[9px] lg:text-[13px]'>max</p>
                     </div>
                   </div>
@@ -674,40 +532,12 @@ function Stake() {
               </div>
 
               <div className='mt-3 um:mt-4 flex items-center justify-end gap-4 text-[#101010] md:mb-0'>
-                { ( (amount && amount > 0 && amount.comparedTo?.(data?.allowance ?? 0) > 0) || Number(data?.allowance) === 0 ) ? <button
-                  type='button'
-                  className='group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2'
-                  id={'approveUniV2'}
-                  onClick={() => {
-                    handleApprove()
-                  }}
-                >
-                  <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full bg-buy-hover px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100'></div>
-                  <p className='relative z-10 text-[15px] text-original-white'>
-                    Approve UNI-V2
-                  </p>
-                  {/*<HintBox
-                    content={
-                      'Approve the Pool to access $UNI-V2 in your wallet in order to stake'
-                    }
-                    customStyle={{ arrowLeft: '40%' }}
-                    link={null}
-                    boxStyle={{ width: '200px', top: '50%', zIndex: 10 }}
-                    hoverId={'approveUniV2'}
-                    currentHoverId={currentHoverId}
-                    setCurrentHoverId={setCurrentHoverId}
-                  />*/}
-                </button> : null}
-
                 <button
                   type='button'
-                  className={` ${disableStakeButton ? "opacity-10" : ""} group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2`}
-                  onClick={() => {
-                    disableStakeButton ? {} : handleStake()
-                  }}
+                  className='group relative flex items-center gap-3 rounded-full bg-[#121212] px-8 py-2 opacity-40 cursor-not-allowed'
+                  disabled
                 >
-                  <div className='absolute left-0 z-0 h-[100%] w-[100%] rounded-full px-8 py-2 opacity-0 transition-opacity duration-500 bg-buy-hover group-hover:opacity-100'></div>
-                  <p className={`relative z-10 text-[15px] ${disableStakeButton ? "text-original-white opacity-80" : "text-original-white"}`}>
+                  <p className='relative z-10 text-[15px] text-original-white'>
                     Stake
                   </p>
                 </button>
@@ -719,6 +549,14 @@ function Stake() {
                 <h1 className='text-[15px] font-medium text-[#4A28FF] lg:text-[20px]'>
                   Unstake
                 </h1>
+                
+                {/* You can still unstake notice */}
+                <div className='mt-4 p-3 bg-[#D4EDDA] border border-[#C3E6CB] rounded-lg'>
+                  <p className='text-[12px] text-[#155724] font-medium'>
+                    You can still unstake your tokens
+                  </p>
+                </div>
+                
                 <div className='um:mt-6 flex items-end justify-start gap-6 text-[#101010]'>
                   <div className='mt-2 um:mt-6 flex max-h-[150px] w-1/2 flex-col justify-center rounded-[10px] lp-stake-bg-gradient px-2 um:px-6 py-4 text-[#101010] shadow-none transition-all hover:cursor-pointer hover:shadow-stats whitespace-nowrap'>
                     <div
@@ -733,15 +571,6 @@ function Stake() {
                         &nbsp;
                       </h1>
                       <p className='text-[11px] um:text-[14px] text-black-text'>Uni-V2</p>
-                      {/*<HintBox
-                        content={'Total UNI-V2 you have staked in this Pool'}
-                        customStyle={{}}
-                        link={null}
-                        boxStyle={{ width: '200px', top: '50%', zIndex: 10 }}
-                        hoverId={'unstakeBalance'}
-                        currentHoverId={currentHoverId}
-                        setCurrentHoverId={setCurrentHoverId}
-                      />*/}
                     </div>
                     <h1 className='text-[8px] font-medium lg:text-[13px]'>
                       Staked
@@ -767,15 +596,6 @@ function Stake() {
                         &nbsp;
                       </h1>
                       <p className='text-[11px] um:text-[14px]'>AIUS</p>
-                      {/*<HintBox
-                        content={'Your estimated rewards if you unstake now'}
-                        customStyle={{}}
-                        link={null}
-                        boxStyle={{ width: '200px', top: '50%', zIndex: 10 }}
-                        hoverId={'claimableRewards'}
-                        currentHoverId={currentHoverId}
-                        setCurrentHoverId={setCurrentHoverId}
-                      />*/}
                     </div>
                     <h1 className='text-[8px] font-medium text-[#101010] lg:text-[13px]'>
                       Claimable Rewards
@@ -785,51 +605,6 @@ function Stake() {
 
                 <hr className='opacity-10' />
 
-                {/*<div className='mt-4 flex justify-center gap-[50px] text-[#101010]'>
-                  <div>
-                    <div className='flex flex-row gap-1'>
-                      <h1 className='lato-bold text-[25px] text-[#4A28FF]'>
-                        382
-                      </h1>
-                      <h1 className='mb-1 self-end text-[14px]'>AIUS</h1>
-                    </div>
-                    <h2 className='text-[15px] font-medium' id='globalUnlocked'>
-                      Global Unlocked
-                    </h2>
-                    <HintBox
-                      content={
-                        'Total AIUS currently unlocked for entire pool. This number is important to keep an eye on for timing your unstakes.'
-                      }
-                      customStyle={{ arrowLeft: '50%', marginBottom: '' }}
-                      link={null}
-                      boxStyle={{ width: '200px', top: '0%', zIndex: 10 }}
-                      hoverId={'globalUnlocked'}
-                      currentHoverId={currentHoverId}
-                      setCurrentHoverId={setCurrentHoverId}
-                    />
-                  </div>
-                  <div className='h-[60px] w-[1px] bg-[#5E40FD1A]'></div>
-                  <div>
-                    <div className='flex flex-row gap-1 text-[#101010]'>
-                      <h1 className='lato-bold text-[25px] text-[#4A28FF]'>
-                        1.25
-                      </h1>
-                      <h1 className='mb-1 self-end text-[14px]'>X</h1>
-                    </div>
-                    <h2 className='text-[15px] font-medium'>Total Mult</h2>
-                  </div>
-
-                  <div className='h-[60px] w-[1px] bg-[#5E40FD1A]'></div>
-                  <div>
-                    <div className='flex flex-row gap-1'>
-                      <h1 className='lato-bold text-[25px] text-[#4A28FF]'>
-                        10
-                      </h1>
-                      <h1 className='mb-1 self-end text-[14px]'>days</h1>
-                    </div>
-                    <h2 className='text-[15px] font-medium'>Time Staked</h2>
-                  </div>
-                </div>*/}
                 <div className='mt-4 um:mt-6 flex w-[100%] justify-center rounded-[25px] text-[#101010]'>
                   <div className='flex w-[25%] items-center justify-center gap-2 rounded-l-[25px] rounded-r-none border-[1px] border-l-0 bg-[#E6DFFF] py-1 um:py-2 px-2 lg:gap-2 lg:p-3'>
                     <h1 className='text-[10px] font-medium lg:text-[14px]'>

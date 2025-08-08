@@ -9,6 +9,7 @@ import { Fade } from 'react-awesome-reveal';
 
 export default function Community() {
   const platforms = [
+    /*
     {
       id: '1',
       name: '',
@@ -20,6 +21,7 @@ export default function Community() {
       nameImage: arbius_data,
       background: "bg-[url('../app/assets/images/arbiusdata_background.png')]",
     },
+    */
     {
       id: '2',
       name: 'AIUS Swap Market',
@@ -27,6 +29,7 @@ export default function Community() {
       content: 'Exchange AIUS in a decentralized way here.',
       buttonText: 'Visit Swap Market',
       link: 'https://swap.cow.fi/#/1/swap/ETH/0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852',
+      nameImage: '',
       background: "bg-[url('../app/assets/images/swap_market_background.png')]",
     },
   ];
