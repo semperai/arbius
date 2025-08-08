@@ -53,6 +53,7 @@ export default function MachineLearningSection() {
             </Fade>
             <Fade direction='up' triggerOnce={true}>
               <div className='mt-[30px] flex items-center gap-[20px]'>
+                {/*
                 <Link href={'https://arbiusplayground.com/chat'} target='_blank'>
                   <div>
                     <button
@@ -72,6 +73,7 @@ export default function MachineLearningSection() {
                     </button>
                   </div>
                 </Link>
+                */}
                 <Link href={'https://arbius.ai/paper.pdf'} target='_blank'>
                   <div>
                     <button
