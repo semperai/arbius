@@ -25,6 +25,15 @@ const nextConfig = {
         source: '/v1/:path*',
         destination: '/api/v1/:path*',
       },
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: '/roadmap',
+        destination: 'https://arbius.ai/roadmap',
+        permanent: true,
+      },
     ]
   },
 }
