@@ -60,7 +60,11 @@ const footerLinks: FooterLink[] = [
   {
     name: "Team",
     link: "/team"
-  }
+  },
+  {
+    name: "Roadmap",
+    link: "/roadmap",
+  },
 ].map((o, id) => ({ ...o, id }));
 
 type SocialIcon = {
