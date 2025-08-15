@@ -212,7 +212,7 @@ export const navigation = [
   {
     title: 'Resources',
     links: [
-      { title: 'Roadmap', href: '/roadmap', target:'_self' },
+      { title: 'Roadmap', href: 'https://arbius.ai/roadmap', target:'_blank' },
       { title: 'Team', href: 'https://arbius.ai/team', target:'_blank' },
       { title: 'Security', href: '/security', target:'_self' },
       { title: 'Contracts', href: '/ca', target:'_self' },
