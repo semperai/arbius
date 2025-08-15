@@ -223,12 +223,7 @@ export default function Roadmap() {
           </div>
   
           {/* Three Pillars Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '40px',
-            marginBottom: '80px'
-          }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-20">
             {/* EMPATHY Pillar */}
             <div style={{ position: 'relative' }}>
               {/* Vertical connecting line */}
@@ -381,12 +376,7 @@ export default function Roadmap() {
           </div>
   
           {/* Vision Statements */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '30px',
-            marginTop: '80px'
-          }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-20">
             <div style={{
               padding: '30px',
               background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%)',
