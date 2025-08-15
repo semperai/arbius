@@ -178,7 +178,7 @@ export default function Footer() {
               </div>
               <div>{footerLinks.slice(0, 3).map(FLink)}</div>
               <div>{footerLinks.slice(3, 6).map(FLink)}</div>
-              <div>{footerLinks.slice(6, 9).map(FLink)}</div>
+              <div>{footerLinks.slice(6, 10).map(FLink)}</div>
               <div>
                 <div
                   className='group flex cursor-pointer items-center gap-4'
@@ -234,7 +234,7 @@ export default function Footer() {
                     {footerLinks.slice(0, 5).map(FLink)}
                   </div>
                   <div className='mt-4 flex flex-col flex-wrap items-start gap-4 lm:mt-0 lm:gap-0 lg:flex-row'>
-                    {footerLinks.slice(-4).map(FLink)}
+                    {footerLinks.slice(-5).map(FLink)}
                   </div>
                 </div>
                 <div className='mt-6'>
