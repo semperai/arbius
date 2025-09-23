@@ -901,7 +901,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @param model_ Model hash
     /// @param fee_ Fee for task
     /// @param cid_ IPFS cid of task
-    function addTask(
+    function _addTask(
         uint8 version_,
         address owner_,
         bytes32 model_,
@@ -934,12 +934,12 @@ contract V2_EngineV6 is OwnableUpgradeable {
         bytes32 model_,
         uint256 fee_,
         bytes calldata input_
-    ) internal {
+    ) external notPaused {
         if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
         if (fee_ < models[model_].fee) revert LowerFeeThanModelFee();
 
         bytes memory cid = getIPFSCID(input_);
-        addTask(version_, owner_, model_, fee_, cid);
+        _addTask(version_, owner_, model_, fee_, cid);
 
         baseToken.transferFrom(msg.sender, address(this), fee_);
         totalHeld += fee_; // v3
@@ -967,7 +967,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
         bytes memory cid = getIPFSCID(input_);
 
         for (uint256 i = 0; i < n_; ++i) {
-            addTask(version_, owner_, model_, fee_, cid);
+            _addTask(version_, owner_, model_, fee_, cid);
         }
 
         baseToken.transferFrom(msg.sender, address(this), fee_ * n_);

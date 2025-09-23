@@ -14,7 +14,7 @@ import { V2EngineV6 } from "../typechain/V2EngineV5_2";
 const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
 const TESTBUF = '0x746573740a';
 
-describe("EngineV5_2 Unit Tests", () => {
+describe("EngineV6 Unit Tests", () => {
   let signers: SignerWithAddress[];
   let deployer: SignerWithAddress;
   let user1: SignerWithAddress;

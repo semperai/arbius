@@ -9,6 +9,15 @@ import {IMasterContesterRegistry} from "contracts/interfaces/IMasterContesterReg
 /// @notice Registry for managing elected Master Contesters with optimized sorting
 /// @dev Uses a min-heap to maintain top N candidates efficiently during voting
 contract MasterContesterRegistry is IMasterContesterRegistry, Ownable {
+    /* ========== CUSTOM ERRORS ========== */
+    
+    error NotTokenOwner();
+    error AlreadyVotedThisEpoch();
+    error NoVotingPower();
+    error EpochNotEnded();
+    error AlreadyMasterContester();
+    error NotMasterContester();
+
     /* ========== STATE VARIABLES ========== */
 
     address public immutable votingEscrow; // veAIUS token for voting
@@ -142,11 +151,17 @@ contract MasterContesterRegistry is IMasterContesterRegistry, Ownable {
     /// @param _candidates Array of candidate addresses to vote for
     /// @param tokenId veNFT token ID to vote with
     function vote(address[] calldata _candidates, uint256 tokenId) public onlyNewEpoch {
-        require(IVotingEscrow(votingEscrow).ownerOf(tokenId) == msg.sender, "Not token owner");
-        require(!hasVoted(currentEpoch, msg.sender), "Already voted this epoch");
+        if (IVotingEscrow(votingEscrow).ownerOf(tokenId) != msg.sender) {
+            revert NotTokenOwner();
+        }
+        if (hasVoted(currentEpoch, msg.sender)) {
+            revert AlreadyVotedThisEpoch();
+        }
 
         uint256 voteWeight = IVotingEscrow(votingEscrow).balanceOfNFT(tokenId);
-        require(voteWeight > 0, "No voting power");
+        if (voteWeight == 0) {
+            revert NoVotingPower();
+        }
 
         if (lastVoteEpoch[msg.sender] > 0 && lastVoteEpoch[msg.sender] < currentEpoch) {
             _undoPreviousVotes(msg.sender);
@@ -241,7 +256,9 @@ contract MasterContesterRegistry is IMasterContesterRegistry, Ownable {
 
     /// @notice Manually trigger epoch finalization if needed
     function finalizeEpoch() external {
-        require(isNewEpoch(), "Epoch not ended");
+        if (!isNewEpoch()) {
+            revert EpochNotEnded();
+        }
         _finalizeEpoch();
     }
 
@@ -392,7 +409,9 @@ contract MasterContesterRegistry is IMasterContesterRegistry, Ownable {
     /// @notice Emergency function to add a master contester
     /// @param _contester Address to add as master contester
     function emergencyAddMasterContester(address _contester) external onlyOwner {
-        require(!isMasterContester(_contester), "Already a master contester");
+        if (isMasterContester(_contester)) {
+            revert AlreadyMasterContester();
+        }
 
         masterContesters.push(_contester);
 
@@ -402,7 +421,9 @@ contract MasterContesterRegistry is IMasterContesterRegistry, Ownable {
     /// @notice Emergency function to remove a master contester
     /// @param _contester Address to remove from master contesters
     function emergencyRemoveMasterContester(address _contester) external onlyOwner {
-        require(isMasterContester(_contester), "Not a master contester");
+        if (!isMasterContester(_contester)) {
+            revert NotMasterContester();
+        }
 
         for (uint256 i = 0; i < masterContesters.length; i++) {
             if (masterContesters[i] == _contester) {
