@@ -47,6 +47,12 @@ interface IArbius {
         uint256 slashAmount;        // amount to slash (v6: added field)
     }
 
+    // v6: struct for model specific allow list for who can submit solutions
+    struct ModelAllowListEntry {
+        bool requiresAllowList;
+        mapping(address => bool) allowList;
+    }
+
     // ============ State Variables ============
 
     function baseToken() external view returns (IBaseToken);
@@ -113,6 +119,15 @@ interface IArbius {
     function contestationVoteNays(bytes32 taskid, uint256 idx) external view returns (address);
     function solutionsStake(bytes32 taskid) external view returns (uint256); // v2
 
+    // v6 mappings
+    function solutionModelFeePercentageOverride(bytes32 model) external view returns (uint256);
+    function modelRequiresAllowList(bytes32 model_) external view returns (bool);
+    function isSolverAllowed(bytes32 model_, address solver_) external view returns (bool);
+    function addToModelAllowList(bytes32 model_, address[] calldata solvers_) external;
+    function removeFromModelAllowList(bytes32 model_, address[] calldata solvers_) external;
+    function setModelAllowListRequired(bytes32 model_, bool required_) external;
+
+
     // ============ Events ============
 
     event ModelRegistered(bytes32 indexed id);
@@ -176,6 +191,8 @@ interface IArbius {
         uint256 validatorFee
     );
     event ContestationSuggested(address indexed addr, bytes32 indexed task);
+    event ModelAllowListUpdated(bytes32 indexed model, address[] solvers, bool added);
+    event ModelAllowListRequirementChanged(bytes32 indexed model, bool required);
 
     // ============ Admin Functions ============
 
@@ -186,6 +203,7 @@ interface IArbius {
     function setPaused(bool paused_) external;
     function setSolutionMineableRate(bytes32 model_, uint256 rate_) external;
     function setSolutionModelFeePercentage(uint256 solutionModelFeePercentage_) external;
+    function setSolutionModelFeePercentageOverride(bytes32 model_, uint256 solutionModelFeePercentage_) external; // v6
     function setVersion(uint256 version_) external;
     function setStartBlockTime(uint64 startBlockTime_) external;
     function setVeStaking(address veStaking_) external;
@@ -202,6 +220,12 @@ interface IArbius {
         uint256 fee_,
         bytes calldata template_
     ) external returns (bytes32);
+    function registerModelWithAllowList(
+        address addr_,
+        uint256 fee_,
+        bytes calldata template_,
+        address[] calldata allowList_
+    ) external returns (bytes32); // v6
 
     // ============ View/Pure Functions ============
 

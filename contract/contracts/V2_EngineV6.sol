@@ -64,6 +64,52 @@ struct Contestation {
     uint256 slashAmount; // amount to slash
 }
 
+// v6: struct for model specific allow list for who can submit solutions
+struct ModelAllowListEntry {
+    bool requiresAllowList;
+    mapping(address => bool) allowList;
+}
+
+// Custom errors for gas optimization
+error NotPauser();
+error Paused();
+error MinStakedTooLow();
+error NotMasterContester();
+error NotModelOwner();
+error InvalidRegistry();
+error InvalidMultiplier();
+error ModelDoesNotExist();
+error PercentageTooHigh();
+error AddressMustBeNonZero();
+error ModelAlreadyRegistered();
+error InsufficientStake();
+error RequestNotExist();
+error WaitLonger();
+error StakeInsufficient();
+error LowerFeeThanModelFee();
+error MinVals();
+error CommitmentExists();
+error TaskDoesNotExist();
+error SolutionAlreadySubmitted();
+error NonExistentCommitment();
+error CommitmentMustBeInPast();
+error NotAllowedToSubmitSolution();
+error SubmitSolutionCooldown();
+error SolutionRateLimit();
+error SolutionNotFound();
+error HasContestation();
+error NotEnoughDelay();
+error ClaimSolutionCooldown();
+error AlreadyClaimed();
+error ContestationAlreadyExists();
+error TooLate();
+error Wtf();
+error MasterContesterMinStakedTooLow();
+error ContestationDoesntExist();
+error VotingPeriodNotEnded();
+error AmntTooSmall();
+error NotAllowed();
+
 contract V2_EngineV6 is OwnableUpgradeable {
     IBaseToken public baseToken;
 
@@ -161,7 +207,13 @@ contract V2_EngineV6 is OwnableUpgradeable {
     address public masterContesterRegistry; // v6: registry contract for master contesters
     uint32 public masterContesterVoteAdder; // v6: vote weight adder for master contesters (e.g., 5e18 for +5 votes)
 
-    uint256[35] __gap; // upgradeable gap
+    // v6: model specific override for solutionModelFeePercentage
+    mapping(bytes32 => uint256) public solutionModelFeePercentageOverride;
+
+    // v6: task specific allow list for who can submit tasks
+    mapping(bytes32 => ModelAllowListEntry) public submitSolutionMinerAllowList;
+
+    uint256[33] __gap; // upgradeable gap
 
     event ModelRegistered(bytes32 indexed id);
     event ModelFeeChanged(bytes32 indexed id, uint256 fee);
@@ -239,15 +291,19 @@ contract V2_EngineV6 is OwnableUpgradeable {
 
     event ContestationSuggested(address indexed addr, bytes32 indexed task); // v6
 
+    event ModelAllowListUpdated(bytes32 indexed model, address[] solvers, bool added); // v6
+    event ModelAllowListRequirementChanged(bytes32 indexed model, bool required); // v6
+
+
     /// @notice Modifier to restrict to only pauser
     modifier onlyPauser() {
-        require(msg.sender == pauser, "not pauser");
+        if (msg.sender != pauser) revert NotPauser();
         _;
     }
 
     /// @notice Modifier to restrict to only not paused
     modifier notPaused() {
-        require(!paused, "paused");
+        if (paused) revert Paused();
         _;
     }
 
@@ -262,24 +318,22 @@ contract V2_EngineV6 is OwnableUpgradeable {
 
     /// @notice Modifier to restrict to only validators
     modifier onlyValidator() {
-        require(_onlyValidator(msg.sender), "min staked too low");
+        if (!_onlyValidator(msg.sender)) revert MinStakedTooLow();
         _;
     }
 
     /// @notice Modifier to restrict to only master contesters (v6)
     modifier onlyMasterContester() {
-        require(
-            IMasterContesterRegistry(masterContesterRegistry).isMasterContester(msg.sender),
-            "not master contester"
-        );
+        if (!IMasterContesterRegistry(masterContesterRegistry).isMasterContester(msg.sender)) {
+            revert NotMasterContester();
+        }
         _;
     }
 
     modifier onlyModelOwnerOrOwner(bytes32 model_) {
-        require(
-            models[model_].addr == msg.sender || msg.sender == owner(),
-            "not model owner"
-        );
+        if (models[model_].addr != msg.sender && msg.sender != owner()) {
+            revert NotModelOwner();
+        }
         _;
     }
 
@@ -327,7 +381,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @notice Set master contester registry (v6)
     /// @param registry_ Address of the master contester registry
     function setMasterContesterRegistry(address registry_) external onlyOwner {
-        require(registry_ != address(0), "invalid registry");
+        if (registry_ == address(0)) revert InvalidRegistry();
         masterContesterRegistry = registry_;
         emit MasterContesterRegistrySet(registry_);
     }
@@ -335,7 +389,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @notice Set master contester vote adder (v6)
     /// @param amount_ Vote adder for master contesters
     function setMasterContesterVoteAdder(uint32 amount_) external onlyOwner {
-        require(amount_ >= 0 && amount_ <= 500, "invalid multiplier");
+        if (amount_ > 500) revert InvalidMultiplier();
         masterContesterVoteAdder = amount_;
         emit MasterContesterVoteAdderSet(amount_);
     }
@@ -347,7 +401,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
         bytes32 model_,
         uint256 rate_
     ) external onlyOwner {
-        require(models[model_].addr != address(0x0), "model does not exist");
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
         models[model_].rate = rate_;
         emit SolutionMineableRateChange(model_, rate_);
     }
@@ -358,8 +412,21 @@ contract V2_EngineV6 is OwnableUpgradeable {
     function setSolutionModelFeePercentage(
         uint256 solutionModelFeePercentage_
     ) external onlyOwner {
-        require(solutionModelFeePercentage_ <= 1 ether, "percentage too high");
+        if (solutionModelFeePercentage_ > 1 ether) revert PercentageTooHigh();
         solutionModelFeePercentage = solutionModelFeePercentage_;
+    }
+
+    /// @notice Set the solution model fee percentage override for a specific model to send to treasury
+    /// @param model_ Model hash
+    /// @param solutionModelFeePercentage_ Percentage of model fee to send to treasury
+    /// @dev introduced in v6
+    function setSolutionModelFeePercentageOverride(
+        bytes32 model_,
+        uint256 solutionModelFeePercentage_
+    ) external onlyOwner {
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+        if (solutionModelFeePercentage_ > 1 ether) revert PercentageTooHigh();
+        solutionModelFeePercentageOverride[model_] = solutionModelFeePercentage_;
     }
 
     /// @notice Set version
@@ -428,9 +495,100 @@ contract V2_EngineV6 is OwnableUpgradeable {
     ) external onlyModelOwnerOrOwner(model_) {
         // we must have this check as models are checked to have an address for emptiness
         // if you wish to revoke a models owner set addr to 0x1
-        require(addr_ != address(0x0), "address must be non-zero");
+        if (addr_ == address(0x0)) revert AddressMustBeNonZero();
         models[model_].addr = addr_;
         emit ModelAddrChanged(model_, addr_);
+    }
+
+    /**
+     * @notice Check if a model requires an allow list for solution submission
+     * @param model_ The model hash to check
+     * @return True if the model requires an allow list, false otherwise
+     * @dev v6: New function to check if a model requires an allow list
+     */
+    function modelRequiresAllowList(bytes32 model_) external view returns (bool) {
+        return submitSolutionMinerAllowList[model_].requiresAllowList;
+    }
+
+    /**
+     * @notice Check if an address is allowed to submit solutions for a model
+     * @param model_ The model hash to check
+     * @param solver_ The address to check allowlist status for
+     * @return True if the address is allowed, false if not allowed
+     * @dev v6: Returns true if no allowlist is required for the model
+     */
+    function isSolverAllowed(bytes32 model_, address solver_) external view returns (bool) {
+        ModelAllowListEntry storage entry = submitSolutionMinerAllowList[model_];
+
+        // If no allowlist is required, everyone is allowed
+        if (!entry.requiresAllowList) {
+            return true;
+        }
+
+        // Check if the solver is on the allowlist
+        return entry.allowList[solver_];
+    }
+
+    /**
+     * @notice Add addresses to a model's allow list
+     * @param model_ The model hash
+     * @param solvers_ Array of addresses to add to the allow list
+     * @dev v6: Only callable by model owner or contract owner
+     */
+    function addToModelAllowList(
+        bytes32 model_,
+        address[] calldata solvers_
+    ) external onlyModelOwnerOrOwner(model_) {
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+
+        ModelAllowListEntry storage entry = submitSolutionMinerAllowList[model_];
+
+        for (uint256 i = 0; i < solvers_.length; ++i) {
+            entry.allowList[solvers_[i]] = true;
+        }
+
+        // Emit event for tracking
+        emit ModelAllowListUpdated(model_, solvers_, true);
+    }
+
+    /**
+     * @notice Remove addresses from a model's allow list
+     * @param model_ The model hash
+     * @param solvers_ Array of addresses to remove from the allow list
+     * @dev v6: Only callable by model owner or contract owner
+     */
+    function removeFromModelAllowList(
+        bytes32 model_,
+        address[] calldata solvers_
+    ) external onlyModelOwnerOrOwner(model_) {
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+
+        ModelAllowListEntry storage entry = submitSolutionMinerAllowList[model_];
+
+        for (uint256 i = 0; i < solvers_.length; ++i) {
+            entry.allowList[solvers_[i]] = false;
+        }
+
+        // Emit event for tracking
+        emit ModelAllowListUpdated(model_, solvers_, false);
+    }
+
+    /**
+     * @notice Enable or disable the allow list requirement for a model
+     * @param model_ The model hash
+     * @param required_ True to require allow list, false to disable requirement
+     * @dev v6: Only callable by model owner or contract owner
+     */
+    function setModelAllowListRequired(
+        bytes32 model_, 
+        bool required_
+    ) external onlyModelOwnerOrOwner(model_) {
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+
+        submitSolutionMinerAllowList[model_].requiresAllowList = required_;
+
+        // Emit event for tracking
+        emit ModelAllowListRequirementChanged(model_, required_);
     }
 
     /// @notice Get IPFS cid
@@ -493,7 +651,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @param ts Total supply
     /// @return Difficulty multiplier
     function diffMul(uint256 t, uint256 ts) public pure returns (uint256) {
-        require(t > 0 && ts > 0, "min vals");
+        if (t == 0 || ts == 0) revert MinVals();
 
         // e = target_ts(t)
         uint256 e = targetTs(t);
@@ -589,22 +747,58 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @param fee_ Base fee for model
     /// @param template_ data of template
     /// @return Model hash
-    function registerModel(
+    function _registerModel(
         address addr_,
         uint256 fee_,
         bytes calldata template_
-    ) external notPaused returns (bytes32) {
-        require(addr_ != address(0x0), "address must be non-zero");
+    ) internal returns (bytes32) {
+        if (addr_ == address(0x0)) revert AddressMustBeNonZero();
 
         bytes memory cid = getIPFSCID(template_);
 
         Model memory m = Model({addr: addr_, fee: fee_, cid: cid, rate: 0});
 
         bytes32 id = hashModel(m, msg.sender);
-        require(models[id].addr == address(0x0), "model already registered");
+        if (models[id].addr != address(0x0)) revert ModelAlreadyRegistered();
         models[id] = m;
 
         emit ModelRegistered(id);
+
+        return id;
+    }
+
+    /// @notice Registers a new model
+    /// @param addr_ Address of model for accruing fees
+    /// @param fee_ Base fee for model
+    /// @param template_ data of template
+    /// @return Model hash
+    function registerModel(
+        address addr_,
+        uint256 fee_,
+        bytes calldata template_
+    ) external notPaused returns (bytes32) {
+        return _registerModel(addr_, fee_, template_);
+    }
+
+    /// @notice Registers a new model with a allow list of who can submit solutions
+    /// @param addr_ Address of model for accruing fees
+    /// @param fee_ Base fee for model
+    /// @param template_ data of template
+    /// @param allowList_ List of addresses allowed to submit solutions
+    /// @return Model hash
+    function registerModelWithAllowList(
+        address addr_,
+        uint256 fee_,
+        bytes calldata template_,
+        address[] calldata allowList_
+    ) external notPaused returns (bytes32) {
+        bytes32 id = _registerModel(addr_, fee_, template_);
+
+        ModelAllowListEntry storage entry = submitSolutionMinerAllowList[id];
+        entry.requiresAllowList = true;
+        for (uint256 i = 0; i < allowList_.length; ++i) {
+            entry.allowList[allowList_[i]] = true;
+        }
 
         return id;
     }
@@ -646,12 +840,8 @@ contract V2_EngineV6 is OwnableUpgradeable {
     function initiateValidatorWithdraw(
         uint256 amount_
     ) external notPaused returns (uint256) {
-        require(
-            validators[msg.sender].staked -
-                validatorWithdrawPendingAmount[msg.sender] >=
-                amount_,
-            ""
-        );
+        if (validators[msg.sender].staked - validatorWithdrawPendingAmount[msg.sender] < amount_)
+            revert InsufficientStake();
 
         uint256 unlockTime = block.timestamp + exitValidatorMinUnlockTime;
 
@@ -676,7 +866,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
     function cancelValidatorWithdraw(uint256 count_) external notPaused {
         PendingValidatorWithdrawRequest
             memory req = pendingValidatorWithdrawRequests[msg.sender][count_];
-        require(req.unlockTime > 0, "request not exist");
+        if (req.unlockTime == 0) revert RequestNotExist();
 
         validatorWithdrawPendingAmount[msg.sender] -= req.amount;
         delete pendingValidatorWithdrawRequests[msg.sender][count_];
@@ -691,12 +881,9 @@ contract V2_EngineV6 is OwnableUpgradeable {
         PendingValidatorWithdrawRequest
             memory req = pendingValidatorWithdrawRequests[msg.sender][count_];
 
-        require(req.unlockTime > 0, "request not exist");
-        require(block.timestamp >= req.unlockTime, "wait longer");
-        require(
-            validators[msg.sender].staked >= req.amount,
-            "stake insufficient"
-        );
+        if (req.unlockTime == 0) revert RequestNotExist();
+        if (block.timestamp < req.unlockTime) revert WaitLonger();
+        if (validators[msg.sender].staked < req.amount) revert StakeInsufficient();
 
         baseToken.transfer(to_, req.amount);
         validators[msg.sender].staked -= req.amount;
@@ -747,12 +934,11 @@ contract V2_EngineV6 is OwnableUpgradeable {
         bytes32 model_,
         uint256 fee_,
         bytes calldata input_
-    ) external notPaused {
-        require(models[model_].addr != address(0x0), "model does not exist");
-        require(fee_ >= models[model_].fee, "lower fee than model fee");
+    ) internal {
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+        if (fee_ < models[model_].fee) revert LowerFeeThanModelFee();
 
         bytes memory cid = getIPFSCID(input_);
-
         addTask(version_, owner_, model_, fee_, cid);
 
         baseToken.transferFrom(msg.sender, address(this), fee_);
@@ -775,8 +961,8 @@ contract V2_EngineV6 is OwnableUpgradeable {
         bytes calldata input_,
         uint256 n_
     ) external notPaused {
-        require(models[model_].addr != address(0x0), "model does not exist");
-        require(fee_ >= models[model_].fee, "lower fee than model fee");
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+        if (fee_ < models[model_].fee) revert LowerFeeThanModelFee();
 
         bytes memory cid = getIPFSCID(input_);
 
@@ -816,7 +1002,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
         commitment is keccak256(abi.encode(validator, taskid_, cid_))
         any account may register a commitment on behalf of a validator */
     function signalCommitment(bytes32 commitment_) external notPaused {
-        require(commitments[commitment_] == 0, "commitment exists"); // do not allow commitment time to be reset
+        if (commitments[commitment_] != 0) revert CommitmentExists(); // do not allow commitment time to be reset
         commitments[commitment_] = getBlockNumberNow();
         emit SignalCommitment(msg.sender, commitment_);
     }
@@ -826,19 +1012,20 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @param taskid_ Task hash
     /// @param cid_ IPFS cid of solution
     function _submitSolution(bytes32 taskid_, bytes calldata cid_) internal {
-        require(tasks[taskid_].model != bytes32(0x0), "task does not exist");
-        require(
-            solutions[taskid_].validator == address(0x0),
-            "solution already submitted"
-        );
+        if (tasks[taskid_].model == bytes32(0x0)) revert TaskDoesNotExist();
+        if (solutions[taskid_].validator != address(0x0)) revert SolutionAlreadySubmitted();
 
         bytes32 commitment = generateCommitment(msg.sender, taskid_, cid_);
-        require(commitments[commitment] > 0, "non existent commitment");
+        if (commitments[commitment] == 0) revert NonExistentCommitment();
         // commitment must be in past while rewards are active
-        require(
-            commitments[commitment] < getBlockNumberNow(),
-            "commitment must be in past"
-        );
+        if (commitments[commitment] >= getBlockNumberNow()) revert CommitmentMustBeInPast();
+
+        // v6: if model has an allow list check that sender is on it
+        if (submitSolutionMinerAllowList[taskid_].requiresAllowList) {
+            if (!submitSolutionMinerAllowList[taskid_].allowList[msg.sender]) {
+                revert NotAllowedToSubmitSolution();
+            }
+        }
 
         solutions[taskid_] = Solution({
             validator: msg.sender,
@@ -857,13 +1044,13 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @param n_ Number of solutions to submit
     function _submitSolutionCommon(uint256 n_) internal {
         // v2 (solutions must have been submitted after last successful contestation));
-        require(
-            block.timestamp >
-                lastContestationLossTime[msg.sender] +
-                    minClaimSolutionTime +
-                    minContestationVotePeriodTime,
-            "submitSolution cooldown after lost contestation"
-        );
+        if (block.timestamp <=
+            lastContestationLossTime[msg.sender] +
+            minClaimSolutionTime +
+            minContestationVotePeriodTime
+        ) {
+            revert SubmitSolutionCooldown();
+        }
 
         // v2
         validators[msg.sender].staked -= solutionsStakeAmount * n_;
@@ -871,16 +1058,15 @@ contract V2_EngineV6 is OwnableUpgradeable {
         // v3
         // pat: strict greater than comparison to rate limit solution submissions
         // in sequential blocks having the same timestamp
-        require(
-            block.timestamp - lastSolutionSubmission[msg.sender] >
-                (solutionRateLimit * n_) / 1e18,
-            "solution rate limit"
-        );
+        if (block.timestamp - lastSolutionSubmission[msg.sender] <= (solutionRateLimit * n_) / 1e18) {
+            revert SolutionRateLimit();
+        }
+
         lastSolutionSubmission[msg.sender] = block.timestamp;
         // end v3
 
         // move onlyValidator check here to avoid duplicate work for bulkSubmitSolution
-        require(_onlyValidator(msg.sender), "min staked too low");
+        if (!_onlyValidator(msg.sender)) revert MinStakedTooLow();
     }
 
     /// @notice Submit a solution
@@ -1052,36 +1238,32 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @param taskid_ Task hash
     function claimSolution(bytes32 taskid_) external notPaused {
         // v2 (check if staked amount of validator is enough to claim)
-        require(
-            validators[solutions[taskid_].validator].staked -
-                validatorWithdrawPendingAmount[solutions[taskid_].validator] >=
-                getValidatorMinimum(),
-            "validator min staked too low"
-        );
-        require(
-            solutions[taskid_].validator != address(0x0),
-            "solution not found"
-        );
-        // if there is a failed contestation the claiming must be done from contestationVoteFinish
-        require(
-            contestations[taskid_].validator == address(0x0),
-            "has contestation"
-        );
-        require(
-            solutions[taskid_].blocktime <
-                block.timestamp - minClaimSolutionTime,
-            "not enough delay"
-        );
-        // v2 (solutions must have been submitted after last successful contestation)
-        require(
-            solutions[taskid_].blocktime >
-                lastContestationLossTime[solutions[taskid_].validator] +
-                    minClaimSolutionTime +
-                    minContestationVotePeriodTime,
-            "claimSolution cooldown after lost contestation"
-        );
+        if (validators[solutions[taskid_].validator].staked -
+            validatorWithdrawPendingAmount[solutions[taskid_].validator] <
+            getValidatorMinimum()
+        ) { 
+            revert MinStakedTooLow();
+        }
 
-        require(solutions[taskid_].claimed == false, "already claimed");
+        if (solutions[taskid_].validator == address(0x0)) revert SolutionNotFound();
+
+        // if there is a failed contestation the claiming must be done from contestationVoteFinish
+        if (contestations[taskid_].validator != address(0x0)) revert HasContestation();
+
+        if (solutions[taskid_].blocktime >= block.timestamp - minClaimSolutionTime) {
+            revert NotEnoughDelay();
+        }
+
+        // v2 (solutions must have been submitted after last successful contestation)
+        if (solutions[taskid_].blocktime <=
+            lastContestationLossTime[solutions[taskid_].validator] +
+            minClaimSolutionTime +
+            minContestationVotePeriodTime
+        ) {
+            revert ClaimSolutionCooldown();
+        }
+
+        if (solutions[taskid_].claimed) revert AlreadyClaimed();
 
         solutions[taskid_].claimed = true;
 
@@ -1096,22 +1278,12 @@ contract V2_EngineV6 is OwnableUpgradeable {
     function submitContestation(
         bytes32 taskid_
     ) external notPaused onlyMasterContester {
-        require(
-            solutions[taskid_].validator != address(0x0),
-            "solution does not exist"
-        );
-        require(
-            contestations[taskid_].validator == address(0x0),
-            "contestation already exists"
-        );
-        require(
-            block.timestamp <
-                solutions[taskid_].blocktime + minClaimSolutionTime,
-            "too late"
-        );
-        require(!solutions[taskid_].claimed, "wtf");
+        if (solutions[taskid_].validator == address(0x0)) revert SolutionNotFound();
+        if (contestations[taskid_].validator != address(0x0)) revert ContestationAlreadyExists();
+        if (block.timestamp >= solutions[taskid_].blocktime + minClaimSolutionTime) revert TooLate();
+        if (solutions[taskid_].claimed) revert Wtf();
 
-        require(_onlyValidator(msg.sender), "master contester min staked too low");
+        if (!_onlyValidator(msg.sender)) revert MasterContesterMinStakedTooLow();
 
         uint256 slashAmount = getSlashAmount();
 
@@ -1140,26 +1312,16 @@ contract V2_EngineV6 is OwnableUpgradeable {
     }
 
     /// @notice Suggest a contestation to master contesters
-    /// @dev This is used to notify master contesters that a contestation should be submitted
+    /// @dev v6: This is used to notify master contesters that a contestation should be submitted
     /// @param taskid_ Task hash
     function suggestContestation(bytes32 taskid_) external notPaused {
         // this is used to suggest a contestation to master contesters
         // it does not do anything, but can be used to notify master contesters
         // that a contestation should be submitted
-        require(
-            solutions[taskid_].validator != address(0x0),
-            "solution does not exist"
-        );
-        require(
-            contestations[taskid_].validator == address(0x0),
-            "contestation already exists"
-        );
-        require(
-            block.timestamp <
-                solutions[taskid_].blocktime + minClaimSolutionTime,
-            "too late"
-        );
-        require(!solutions[taskid_].claimed, "wtf");
+        if (solutions[taskid_].validator == address(0x0)) revert SolutionNotFound();
+        if (contestations[taskid_].validator != address(0x0)) revert ContestationAlreadyExists();
+        if (block.timestamp >= solutions[taskid_].blocktime + minClaimSolutionTime) revert TooLate();
+        if (solutions[taskid_].claimed) revert Wtf();
 
         emit ContestationSuggested(msg.sender, taskid_);
     }
@@ -1259,7 +1421,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
         bytes32 taskid_,
         bool yea_
     ) external notPaused onlyValidator {
-        require(validatorCanVote(msg.sender, taskid_) == 0x0, "not allowed");
+        if (validatorCanVote(msg.sender, taskid_) != 0x0) revert NotAllowed();
         _voteOnContestation(taskid_, yea_, msg.sender);
     }
 
@@ -1270,13 +1432,10 @@ contract V2_EngineV6 is OwnableUpgradeable {
         bytes32 taskid_,
         uint32 amnt_
     ) external notPaused {
-        require(
-            contestations[taskid_].validator != address(0x0),
-            "contestation doesn't exist"
-        );
-        require(votingPeriodEnded(taskid_), "voting period not ended");
+        if (contestations[taskid_].validator == address(0x0)) revert ContestationDoesntExist();
+        if (!votingPeriodEnded(taskid_)) revert VotingPeriodNotEnded();
         // we need at least 1 iteration for special handling of 0 index
-        require(amnt_ > 0, "amnt too small");
+        if (amnt_ == 0) revert AmntTooSmall();
 
         uint32 yeaAmount = masterContesterVoteAdder + uint32(contestationVoteYeas[taskid_].length);
         uint32 nayAmount = uint32(contestationVoteNays[taskid_].length);
