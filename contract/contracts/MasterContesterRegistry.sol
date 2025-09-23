@@ -9,17 +9,6 @@ import {IMasterContesterRegistry} from "contracts/interfaces/IMasterContesterReg
 /// @notice Registry for managing elected Master Contesters with optimized sorting
 /// @dev Uses a min-heap to maintain top N candidates efficiently during voting
 contract MasterContesterRegistry is IMasterContesterRegistry, Ownable {
-    /* ========== CUSTOM ERRORS ========== */
-    
-    error NotTokenOwner();
-    error AlreadyVotedThisEpoch();
-    error NoVotingPower();
-    error EpochNotEnded();
-    error AlreadyMasterContester();
-    error NotMasterContester();
-
-    /* ========== STATE VARIABLES ========== */
-
     address public immutable votingEscrow; // veAIUS token for voting
 
     uint256 public constant EPOCH_DURATION = 1 weeks; // voting epoch duration

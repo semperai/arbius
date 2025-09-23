@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {UD60x18, ud, unwrap} from "@prb/math/src/UD60x18.sol";
 import {SD59x18, sd, unwrap} from "@prb/math/src/SD59x18.sol";
-import "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
+import {ArbSys} from "@arbitrum/nitro-contracts/src/precompiles/ArbSys.sol";
 import {getIPFSCID} from "./libraries/IPFS.sol";
-import "./interfaces/IBaseToken.sol";
+import {IArbiusV6} from "contracts/interfaces/IArbiusV6.sol";
+import {IBaseToken} from "./interfaces/IBaseToken.sol";
 import {IVeStaking} from "contracts/interfaces/IVeStaking.sol";
 import {IVoter} from "contracts/interfaces/IVoter.sol";
 import {IMasterContesterRegistry} from "contracts/interfaces/IMasterContesterRegistry.sol";
@@ -70,47 +71,8 @@ struct ModelAllowListEntry {
     mapping(address => bool) allowList;
 }
 
-// Custom errors for gas optimization
-error NotPauser();
-error Paused();
-error MinStakedTooLow();
-error NotMasterContester();
-error NotModelOwner();
-error InvalidRegistry();
-error InvalidMultiplier();
-error ModelDoesNotExist();
-error PercentageTooHigh();
-error AddressMustBeNonZero();
-error ModelAlreadyRegistered();
-error InsufficientStake();
-error RequestNotExist();
-error WaitLonger();
-error StakeInsufficient();
-error LowerFeeThanModelFee();
-error MinVals();
-error CommitmentExists();
-error TaskDoesNotExist();
-error SolutionAlreadySubmitted();
-error NonExistentCommitment();
-error CommitmentMustBeInPast();
-error NotAllowedToSubmitSolution();
-error SubmitSolutionCooldown();
-error SolutionRateLimit();
-error SolutionNotFound();
-error HasContestation();
-error NotEnoughDelay();
-error ClaimSolutionCooldown();
-error AlreadyClaimed();
-error ContestationAlreadyExists();
-error TooLate();
-error Wtf();
-error MasterContesterMinStakedTooLow();
-error ContestationDoesntExist();
-error VotingPeriodNotEnded();
-error AmntTooSmall();
-error NotAllowed();
 
-contract V2_EngineV6 is OwnableUpgradeable {
+contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
     IBaseToken public baseToken;
 
     // where treasury fees/rewards go
@@ -215,86 +177,6 @@ contract V2_EngineV6 is OwnableUpgradeable {
 
     uint256[33] __gap; // upgradeable gap
 
-    event ModelRegistered(bytes32 indexed id);
-    event ModelFeeChanged(bytes32 indexed id, uint256 fee);
-    event ModelAddrChanged(bytes32 indexed id, address addr);
-
-    event ValidatorDeposit(
-        address indexed addr,
-        address indexed validator,
-        uint256 amount
-    );
-    event ValidatorWithdrawInitiated(
-        address indexed addr,
-        uint256 indexed count,
-        uint256 unlockTime,
-        uint256 amount
-    );
-    event ValidatorWithdrawCancelled(
-        address indexed addr,
-        uint256 indexed count
-    );
-    event ValidatorWithdraw(
-        address indexed addr,
-        address indexed to,
-        uint256 indexed count,
-        uint256 amount
-    );
-    event TaskSubmitted(
-        bytes32 indexed id,
-        bytes32 indexed model,
-        uint256 fee,
-        address indexed sender
-    );
-    event SignalCommitment(address indexed addr, bytes32 indexed commitment);
-    event SolutionSubmitted(address indexed addr, bytes32 indexed task);
-    event SolutionClaimed(address indexed addr, bytes32 indexed task);
-    event ContestationSubmitted(address indexed addr, bytes32 indexed task);
-    event ContestationVote(
-        address indexed addr,
-        bytes32 indexed task,
-        bool yea
-    );
-    event ContestationVoteFinish(
-        bytes32 indexed id,
-        uint32 indexed start_idx,
-        uint32 end_idx
-    );
-
-    event TreasuryTransferred(address indexed to);
-    event PauserTransferred(address indexed to);
-    event PausedChanged(bool indexed paused);
-    event SolutionMineableRateChange(bytes32 indexed id, uint256 rate);
-    event VersionChanged(uint256 version);
-    event StartBlockTimeChanged(uint64 indexed startBlockTime); // v2
-    event MasterContesterRegistrySet(address indexed registry); // v6
-    event MasterContesterVoteAdderSet(uint32 adder); // v6
-
-    event RewardsPaid(
-        bytes32 indexed model, // v6
-        bytes32 indexed task, // v6
-        address indexed validator, // v6
-        uint256 totalRewards,
-        uint256 treasuryReward,
-        uint256 taskOwnerReward,
-        uint256 validatorReward
-    );
-    event FeesPaid(
-        bytes32 indexed model, // v6
-        bytes32 indexed task, // v6
-        address indexed validator, // v6
-        uint256 modelFee,
-        uint256 treasuryFee,
-        uint256 remainingFee,
-        uint256 validatorFee
-    );
-
-    event ContestationSuggested(address indexed addr, bytes32 indexed task); // v6
-
-    event ModelAllowListUpdated(bytes32 indexed model, address[] solvers, bool added); // v6
-    event ModelAllowListRequirementChanged(bytes32 indexed model, bool required); // v6
-
-
     /// @notice Modifier to restrict to only pauser
     modifier onlyPauser() {
         if (msg.sender != pauser) revert NotPauser();
@@ -353,7 +235,7 @@ contract V2_EngineV6 is OwnableUpgradeable {
     /// @param to_ Address to transfer ownership to
     function transferOwnership(
         address to_
-    ) public override(OwnableUpgradeable) onlyOwner {
+    ) public override(IArbiusV6, OwnableUpgradeable) onlyOwner {
         super.transferOwnership(to_);
     }
 
