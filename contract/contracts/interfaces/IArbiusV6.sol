@@ -148,7 +148,7 @@ interface IArbiusV6 {
         uint256 validatorFee
     );
     event ContestationSuggested(address indexed addr, bytes32 indexed task);
-    event ModelAllowListUpdated(bytes32 indexed model, address[] solvers, bool added);
+    event ModelAllowListUpdated(bytes32 indexed model, address indexed solver, bool added);
     event ModelAllowListRequirementChanged(bytes32 indexed model, bool required);
 
     // ============ State Variables ============

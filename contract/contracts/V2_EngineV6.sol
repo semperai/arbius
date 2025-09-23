@@ -427,10 +427,8 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
 
         for (uint256 i = 0; i < solvers_.length; ++i) {
             entry.allowList[solvers_[i]] = true;
+            emit ModelAllowListUpdated(model_, solvers_[i], true);
         }
-
-        // Emit event for tracking
-        emit ModelAllowListUpdated(model_, solvers_, true);
     }
 
     /**
@@ -449,10 +447,8 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
 
         for (uint256 i = 0; i < solvers_.length; ++i) {
             entry.allowList[solvers_[i]] = false;
+            emit ModelAllowListUpdated(model_, solvers_[i], false);
         }
-
-        // Emit event for tracking
-        emit ModelAllowListUpdated(model_, solvers_, false);
     }
 
     /**
@@ -894,7 +890,8 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
     /// @param taskid_ Task hash
     /// @param cid_ IPFS cid of solution
     function _submitSolution(bytes32 taskid_, bytes calldata cid_) internal {
-        if (tasks[taskid_].model == bytes32(0x0)) revert TaskDoesNotExist();
+        bytes32 model = tasks[taskid_].model;
+        if (model == bytes32(0x0)) revert TaskDoesNotExist();
         if (solutions[taskid_].validator != address(0x0)) revert SolutionAlreadySubmitted();
 
         bytes32 commitment = generateCommitment(msg.sender, taskid_, cid_);
@@ -903,8 +900,8 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
         if (commitments[commitment] >= getBlockNumberNow()) revert CommitmentMustBeInPast();
 
         // v6: if model has an allow list check that sender is on it
-        if (submitSolutionMinerAllowList[taskid_].requiresAllowList) {
-            if (!submitSolutionMinerAllowList[taskid_].allowList[msg.sender]) {
+        if (submitSolutionMinerAllowList[model].requiresAllowList) {
+            if (!submitSolutionMinerAllowList[model].allowList[msg.sender]) {
                 revert NotAllowedToSubmitSolution();
             }
         }
@@ -987,13 +984,13 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
      * and contestationVoteFinish (for failed contestations)
      */
     function _claimSolutionFeesAndReward(bytes32 taskid_) internal {
-        bytes32 _model = tasks[taskid_].model;
+        bytes32 model = tasks[taskid_].model;
 
         /* Fee distribution */
 
         {
             // {code in brackets because of stack too deep}
-            uint256 modelFee = models[_model].fee;
+            uint256 modelFee = models[model].fee;
             uint256 taskFee = tasks[taskid_].fee;
             uint256 treasuryFee;
 
@@ -1014,7 +1011,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
 
                 if (modelFee - sendToTreasury > 0) {
                     baseToken.transfer(
-                        models[_model].addr,
+                        models[model].addr,
                         modelFee - sendToTreasury
                     );
                 }
@@ -1030,7 +1027,6 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
             uint256 validatorFee = remainingFee - remainingTreasuryFee;
             if (validatorFee > 0) {
                 validators[solutions[taskid_].validator].staked += validatorFee; // v6
-                totalHeld += validatorFee; // v6
             }
 
             // we do not include treasuryFees in totalHeld reduction as not transferred here
@@ -1038,7 +1034,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
             totalHeld -= taskFee - (treasuryFee + remainingTreasuryFee); // v3
 
             emit FeesPaid(
-                _model,
+                model,
                 taskid_,
                 solutions[taskid_].validator,
                 modelFee,
@@ -1058,14 +1054,14 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
             veRewards = 0;
         }
 
-        uint256 modelRate = models[_model].rate;
+        uint256 modelRate = models[model].rate;
         uint256 gaugeMultiplier = 1e18; // default to 1e18, so contract still works even if voter is not set
         if (voter != address(0)) {
             // v5
             // check if model has a gauge assigned
-            if (IVoter(voter).isGauge(_model)) {
+            if (IVoter(voter).isGauge(model)) {
                 // update gaugeMultiplier based on received votes in Voter.sol
-                gaugeMultiplier = IVoter(voter).getGaugeMultiplier(_model);
+                gaugeMultiplier = IVoter(voter).getGaugeMultiplier(model);
             } else {
                 // if model cant be voted on, set gaugeMultiplier to 0
                 gaugeMultiplier = 0;
@@ -1095,10 +1091,9 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
                 baseToken.transfer(treasury, treasuryReward);
                 baseToken.transfer(tasks[taskid_].owner, taskOwnerReward); // v3
                 validators[solutions[taskid_].validator].staked += validatorReward; // v6
-                totalHeld += validatorReward; // v6
 
                 emit RewardsPaid(
-                    _model,
+                    model,
                     taskid_,
                     solutions[taskid_].validator,
                     total,
@@ -1319,8 +1314,11 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
         // we need at least 1 iteration for special handling of 0 index
         if (amnt_ == 0) revert AmntTooSmall();
 
-        uint32 yeaAmount = masterContesterVoteAdder + uint32(contestationVoteYeas[taskid_].length);
-        uint32 nayAmount = uint32(contestationVoteNays[taskid_].length);
+        uint32 actualYeaVoters = uint32(contestationVoteYeas[taskid_].length);
+        uint32 actualNayVoters = uint32(contestationVoteNays[taskid_].length);
+
+        uint32 yeaVoteCount = masterContesterVoteAdder + actualYeaVoters;
+        uint32 nayVoteCount = actualNayVoters;
 
         uint32 start_idx = contestations[taskid_].finish_start_index;
         uint32 end_idx = contestations[taskid_].finish_start_index + amnt_;
@@ -1328,17 +1326,17 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
 
         // if equal in amount, we side with nays
         // this is for contestation succeeding
-        if (yeaAmount > nayAmount) {
-            uint256 totalVal = nayAmount * slashAmount;
-            uint256 valToOriginator = yeaAmount == 1
+        if (yeaVoteCount > nayVoteCount) {
+            uint256 totalVal = nayVoteCount * slashAmount;
+            uint256 valToOriginator = yeaVoteCount == 1
                 ? totalVal
                 : totalVal - (totalVal / 2);
-            uint256 valToOtherYeas = yeaAmount == 1
+            uint256 valToOtherYeas = yeaVoteCount == 1
                 ? 0
-                : (totalVal - valToOriginator) / (yeaAmount - 1);
+                : (totalVal - valToOriginator) / (actualYeaVoters - 1);
 
             for (uint256 i = start_idx; i < end_idx; i++) {
-                if (i < yeaAmount) {
+                if (i < actualYeaVoters) {
                     address a = contestationVoteYeas[taskid_][i];
                     validators[a].staked += slashAmount; // refund
                     if (i == 0) {
@@ -1363,14 +1361,14 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
             }
         } else {
             // this is for contestation failing
-            uint256 totalVal = yeaAmount * slashAmount;
-            uint256 valToAccused = nayAmount == 1 ? totalVal : totalVal / 2;
-            uint256 valToOtherNays = nayAmount == 1
+            uint256 totalVal = yeaVoteCount * slashAmount;
+            uint256 valToAccused = nayVoteCount == 1 ? totalVal : totalVal / 2;
+            uint256 valToOtherNays = nayVoteCount == 1
                 ? 0
-                : (totalVal - valToAccused) / (nayAmount - 1);
+                : (totalVal - valToAccused) / (actualNayVoters - 1);
 
             for (uint256 i = start_idx; i < end_idx; i++) {
-                if (i < nayAmount) {
+                if (i < actualNayVoters) {
                     address a = contestationVoteNays[taskid_][i];
                     validators[a].staked += slashAmount; // refund
                     if (i == 0) {

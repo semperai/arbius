@@ -2,15 +2,19 @@ import { ethers, upgrades } from "hardhat";
 import { BigNumber } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "./chai-setup";
-import { BaseTokenV1 as BaseToken } from "../typechain/BaseTokenV1";
-import { V2EngineV1 } from "../typechain/V2EngineV1";
-import { V2EngineV2 } from "../typechain/V2EngineV2";
-import { V2EngineV3 } from "../typechain/V2EngineV3";
-import { V2EngineV4 } from "../typechain/V2EngineV4";
-import { V2EngineV5 } from "../typechain/V2EngineV5";
-import { V2EngineV5_2 } from "../typechain/V2EngineV5_2";
-import { V2EngineV6 } from "../typechain/V2EngineV6";
-import { MasterContesterRegistry } from "../typechain/MasterContesterRegistry";
+import { BaseTokenV1 as BaseToken } from "../typechain/contracts/BaseTokenV1";
+import { V2_EngineV1 } from "../typechain/contracts/V2_EngineV1";
+import { V2_EngineV2 } from "../typechain/contracts/V2_EngineV2";
+import { V2_EngineV3 } from "../typechain/contracts/V2_EngineV3";
+import { V2_EngineV4 } from "../typechain/contracts/V2_EngineV4";
+import { V2_EngineV5 } from "../typechain/contracts/V2_EngineV5";
+import { V2_EngineV5_2 } from "../typechain/contracts/V2_EngineV5_2";
+import { V2_EngineV6 } from "../typechain/contracts/V2_EngineV6";
+import { MasterContesterRegistry } from "../typechain/contracts/MasterContesterRegistry";
+import { VeStaking } from "../typechain/contracts/ve/VeStaking";
+import { VotingEscrow } from "../typechain/contracts/ve/VotingEscrow";
+import { VeNFTRender } from "../typechain/contracts/ve/VeNFTRender";
+import { Voter } from "../typechain/contracts/ve/Voter";
 
 const TESTCID = '0x1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8';
 const TESTBUF = '0x746573740a';
@@ -30,8 +34,14 @@ describe("EngineV6 Comprehensive Tests", () => {
   let model1: SignerWithAddress;
 
   let baseToken: BaseToken;
-  let engine: V2EngineV6;
+  let engine: V2_EngineV6;
   let masterContesterRegistry: MasterContesterRegistry;
+
+  let veStaking: VeStaking;
+  let votingEscrow: VotingEscrow;
+  let veNFTRender: VeNFTRender;
+  let voter: Voter;
+
 
   beforeEach("Deploy and initialize", async () => {
     signers = await ethers.getSigners();
@@ -68,11 +78,11 @@ describe("EngineV6 Comprehensive Tests", () => {
     engine = (await upgrades.deployProxy(V2_EngineV1, [
       baseToken.address,
       await treasury.getAddress(),
-    ])) as V2EngineV1 as any;
+    ])) as V2_EngineV1 as any;
     await engine.deployed();
     
     // Upgrade to V2
-    engine = await upgrades.upgradeProxy(engine.address, V2_EngineV2) as V2EngineV2 as any;
+    engine = await upgrades.upgradeProxy(engine.address, V2_EngineV2) as V2_EngineV2 as any;
     
     // Set solution stake amount in V2
     await (
@@ -84,31 +94,67 @@ describe("EngineV6 Comprehensive Tests", () => {
     // Upgrade to V3
     engine = await upgrades.upgradeProxy(engine.address, V2_EngineV3, {
       call: "initialize",
-    }) as V2EngineV3 as any;
+    }) as V2_EngineV3 as any;
     
     // Upgrade to V4
     engine = await upgrades.upgradeProxy(engine.address, V2_EngineV4, {
       call: "initialize",
-    }) as V2EngineV4 as any;
+    }) as V2_EngineV4 as any;
     
     // Upgrade to V5
     engine = await upgrades.upgradeProxy(engine.address, V2_EngineV5, {
       call: "initialize",
-    }) as V2EngineV5 as any;
+    }) as V2_EngineV5 as any;
     
     // Upgrade to V5_2
     engine = await upgrades.upgradeProxy(engine.address, V2_EngineV5_2, {
       call: "initialize",
-    }) as V2EngineV5_2 as any;
+    }) as V2_EngineV5_2 as any;
     
     // Upgrade to V6
     engine = await upgrades.upgradeProxy(engine.address, V2_EngineV6, {
       call: "initialize",
-    }) as V2EngineV6;
+    }) as V2_EngineV6 as any;
+
+
+    const VeNFTRender = await ethers.getContractFactory("VeNFTRender");
+    veNFTRender = await VeNFTRender.deploy();
+    await veNFTRender.deployed();
+
+    const VotingEscrow = await ethers.getContractFactory("VotingEscrow");
+    votingEscrow = await VotingEscrow.deploy(
+      baseToken.address,
+      veNFTRender.address,
+      ethers.constants.AddressZero // veStaking will be set later
+    );
+    await votingEscrow.deployed();
+
+    const VeStaking = await ethers.getContractFactory("VeStaking");
+    veStaking = await VeStaking.deploy(baseToken.address, votingEscrow.address);
+    await veStaking.deployed();
+    
+    // Set veStaking in VotingEscrow
+    await votingEscrow.setVeStaking(veStaking.address);
+    
+    // Deploy Voter contract
+    const Voter = await ethers.getContractFactory("Voter");
+    voter = await Voter.deploy(votingEscrow.address);
+    await voter.deployed();
+    
+    // Set voter in VotingEscrow
+    await votingEscrow.setVoter(voter.address);
+
+    // Set VE contracts in engine
+    await engine.connect(deployer).setVeStaking(veStaking.address);
+    await engine.connect(deployer).setVoter(voter.address);
+    
+    // Set engine in veStaking
+    await veStaking.setEngine(engine.address);
+
 
     // Deploy the actual MasterContesterRegistry with zero address for VotingEscrow (for testing)
     const MasterContesterRegistry = await ethers.getContractFactory("MasterContesterRegistry");
-    masterContesterRegistry = await MasterContesterRegistry.deploy(ethers.constants.AddressZero);
+    masterContesterRegistry = await MasterContesterRegistry.deploy(votingEscrow.address);
     await masterContesterRegistry.deployed();
 
     // Set the master contester registry
@@ -218,7 +264,7 @@ describe("EngineV6 Comprehensive Tests", () => {
 
     it("should revert when setting zero address as registry", async () => {
       await expect(engine.connect(deployer).setMasterContesterRegistry(ethers.constants.AddressZero))
-        .to.be.revertedWith("InvalidRegistry");
+        .to.be.revertedWith("InvalidRegistry()");
     });
 
     it("should allow owner to set master contester vote adder", async () => {
@@ -231,7 +277,7 @@ describe("EngineV6 Comprehensive Tests", () => {
 
     it("should revert when vote adder exceeds 500", async () => {
       await expect(engine.connect(deployer).setMasterContesterVoteAdder(501))
-        .to.be.revertedWith("InvalidMultiplier");
+        .to.be.revertedWith("InvalidMultiplier()");
     });
   });
 
@@ -277,7 +323,7 @@ describe("EngineV6 Comprehensive Tests", () => {
 
       // Regular validator tries to submit contestation
       await expect(engine.connect(validator2).submitContestation(taskid))
-        .to.be.revertedWith("NotMasterContester");
+        .to.be.revertedWith("NotMasterContester()");
     });
 
     it("should revert when master contester is not a validator", async () => {
@@ -298,7 +344,7 @@ describe("EngineV6 Comprehensive Tests", () => {
 
       // Master contester without validator stake tries contestation
       await expect(engine.connect(user1).submitContestation(taskid))
-        .to.be.revertedWith("MasterContesterMinStakedTooLow");
+        .to.be.revertedWith("MasterContesterMinStakedTooLow()");
     });
 
     it("should apply master contester vote multiplier in contestation", async () => {
@@ -366,7 +412,7 @@ describe("EngineV6 Comprehensive Tests", () => {
       const fakeTaskId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("fake"));
       
       await expect(engine.connect(user1).suggestContestation(fakeTaskId))
-        .to.be.revertedWith("SolutionNotFound");
+        .to.be.revertedWith("SolutionNotFound()");
     });
 
     it("should revert suggest contestation when contestation already exists", async () => {
@@ -521,7 +567,7 @@ describe("EngineV6 Comprehensive Tests", () => {
           modelid,
           ethers.utils.parseEther("1.1") // 110%
         )
-      ).to.be.revertedWith("PercentageTooHigh");
+      ).to.be.revertedWith("PercentageTooHigh()");
     });
   });
 
@@ -734,7 +780,7 @@ describe("EngineV6 Comprehensive Tests", () => {
       
       // user2 is neither model owner nor contract owner
       await expect(engine.connect(user2).setModelFee(modelid, ethers.utils.parseEther("0.1")))
-        .to.be.revertedWith("NotModelOwner");
+        .to.be.revertedWith("NotModelOwner()");
     });
   });
 
