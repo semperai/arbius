@@ -1,4 +1,4 @@
-import { keccak256, toBytes, toHex, type Hex } from 'viem';
+import { keccak256, toBytes, type Hex } from 'viem';
 import { privateKeyToAccount, type PrivateKeyAccount } from 'viem/accounts';
 
 // Storage keys
@@ -41,7 +41,8 @@ export async function initDeterministicWallet(
         const account = privateKeyToAccount(parsed.derivedPrivateKey);
         return account;
       }
-    } catch (e) {
+    } catch (err) {
+      console.error('Failed to parse cached wallet, clearing cache:', err instanceof Error ? err.message : 'Unknown error');
       localStorage.removeItem(DERIVED_WALLET_STORAGE_KEY);
     }
   }
@@ -77,7 +78,8 @@ export function getCachedWalletAddress(ownerAddress: string): string | null {
     if (parsed.ownerAddress.toLowerCase() === ownerAddress.toLowerCase()) {
       return parsed.derivedAddress;
     }
-  } catch (e) {
+  } catch (err) {
+    console.error('Failed to get cached address:', err instanceof Error ? err.message : 'Unknown error');
     return null;
   }
 
@@ -93,7 +95,8 @@ export function getCachedWallet(address: string): PrivateKeyAccount | null {
     if (parsed.derivedAddress.toLowerCase() === address.toLowerCase()) {
       return privateKeyToAccount(parsed.derivedPrivateKey);
     }
-  } catch (e) {
+  } catch (err) {
+    console.error('Failed to get cached wallet:', err instanceof Error ? err.message : 'Unknown error');
     return null;
   }
 

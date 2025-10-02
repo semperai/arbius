@@ -1,49 +1,33 @@
-'use client'
+import { AIUSPageClient } from './page.client'
+import type { Metadata } from 'next'
 
-import { useState } from 'react'
-import { StakeSection } from '@/components/aius/StakeSection'
-import { InfoSection } from '@/components/aius/InfoSection'
-import { Tabs } from '@/components/aius/Tabs'
-import { Dashboard } from '@/components/aius/Dashboard'
-import { Gauge } from '@/components/aius/Gauge'
+export const metadata: Metadata = {
+  title: 'veAIUS Staking | Arbius',
+  description: 'Lock AIUS tokens to earn veAIUS and participate in governance. Vote on AI model rewards and earn staking yields.',
+  openGraph: {
+    title: 'veAIUS Staking | Arbius',
+    description: 'Lock AIUS tokens to earn veAIUS and participate in governance. Vote on AI model rewards and earn staking yields.',
+    url: 'https://arbius.ai/aius',
+    siteName: 'Arbius',
+    images: [
+      {
+        url: '/og-aius.png',
+        width: 1200,
+        height: 630,
+        alt: 'veAIUS Staking',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'veAIUS Staking | Arbius',
+    description: 'Lock AIUS tokens to earn veAIUS and participate in governance.',
+    images: ['/og-aius.png'],
+  },
+}
 
 export default function AIUSPage() {
-  const [selectedTab, setSelectedTab] = useState<'Dashboard' | 'Gauge'>('Dashboard')
-
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="py-16 lg:py-24">
-        <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
-          <h1 className="mb-8 text-[45px] font-bold text-black-text lg:text-[50px] 2xl:text-[70px]">
-            veAIUS Staking
-          </h1>
-
-          <div className="flex flex-col justify-between gap-6 lg:flex-row">
-            {/* Left: Stake Component */}
-            <div className="w-full lg:w-[48%]">
-              <StakeSection />
-            </div>
-
-            {/* Right: Info Components */}
-            <div className="w-full lg:w-[48%]">
-              <InfoSection />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs Section */}
-      <div className="bg-gradient-to-r from-blue-50/20 via-purple-50/20 to-pink-50/20">
-        <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
-          <Tabs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-
-          {/* Tab Content */}
-          <div className="py-12">
-            {selectedTab === 'Dashboard' ? <Dashboard /> : <Gauge />}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  return <AIUSPageClient />
 }

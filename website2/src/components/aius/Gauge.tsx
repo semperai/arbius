@@ -14,7 +14,6 @@ const AI_MODELS = [
   { id: MODELS.damo.id, name: 'DAMO', description: 'Text-to-video' },
 ]
 
-// Simple veAIUS ABI for getting user's NFT
 const VE_AIUS_ABI = parseAbi([
   'function balanceOf(address owner) view returns (uint256)',
   'function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)',
@@ -33,7 +32,7 @@ export function Gauge() {
   const veAIUSAddress = config?.veAIUSAddress
 
   // Get user's veAIUS NFT count
-  const { data: nftBalance } = useReadContract({
+  const { data: nftBalance, isLoading: isLoadingBalance } = useReadContract({
     address: veAIUSAddress,
     abi: VE_AIUS_ABI,
     functionName: 'balanceOf',
@@ -51,7 +50,7 @@ export function Gauge() {
   })
 
   // Get voting power for the NFT
-  const { data: votingPower } = useReadContract({
+  const { data: votingPower, isLoading: isLoadingPower } = useReadContract({
     address: veAIUSAddress,
     abi: VE_AIUS_ABI,
     functionName: 'balanceOfNFT',
@@ -59,17 +58,8 @@ export function Gauge() {
     query: { enabled: !!firstTokenId && !!veAIUSAddress },
   })
 
-  // Get lock info
-  const { data: lockInfo } = useReadContract({
-    address: veAIUSAddress,
-    abi: VE_AIUS_ABI,
-    functionName: 'locked',
-    args: firstTokenId ? [firstTokenId] : undefined,
-    query: { enabled: !!firstTokenId && !!veAIUSAddress },
-  })
-
-  // Get used weights (how much voting power already used)
-  const { data: usedWeights } = useReadContract({
+  // Get used weights (how much voting power already used) - THIS WAS UNUSED!
+  const { data: usedWeights, isLoading: isLoadingUsed } = useReadContract({
     address: voterAddress,
     abi: VoterABI.abi,
     functionName: 'usedWeights',
@@ -77,8 +67,8 @@ export function Gauge() {
     query: { enabled: !!firstTokenId && !!voterAddress },
   })
 
-  // Get current votes for each model
-  const { data: currentVotes } = useReadContract({
+  // Get current votes for each model - THIS WAS UNUSED!
+  const { data: currentVotes, isLoading: isLoadingVotes } = useReadContract({
     address: voterAddress,
     abi: VoterABI.abi,
     functionName: 'votes',
@@ -92,6 +82,25 @@ export function Gauge() {
     }
   }, [firstTokenId])
 
+  // Initialize votes from current on-chain votes
+  useEffect(() => {
+    if (currentVotes && Array.isArray(currentVotes)) {
+      const initialVotes: Record<string, number> = {}
+      // currentVotes is typically [addresses[], weights[]]
+      if (currentVotes.length >= 2) {
+        const addresses = currentVotes[0] as `0x${string}`[]
+        const weights = currentVotes[1] as bigint[]
+
+        addresses.forEach((addr, idx) => {
+          // Weights are in basis points (10000 = 100%)
+          const percentage = Number(weights[idx]) / 100
+          initialVotes[addr.toLowerCase()] = percentage
+        })
+      }
+      setVotes(initialVotes)
+    }
+  }, [currentVotes])
+
   const { write: submitVote, isPending, isSuccess } = useContractWriteHook()
 
   const handleVoteChange = (modelId: string, value: number) => {
@@ -104,190 +113,191 @@ export function Gauge() {
   const totalVotes = Object.values(votes).reduce((sum, val) => sum + val, 0)
   const canSubmit = totalVotes === 100
 
+  // Calculate remaining voting power
+  const votingPowerBigInt = votingPower as bigint | undefined
+  const usedWeightsBigInt = usedWeights as bigint | undefined
+  const remainingPower = votingPowerBigInt && usedWeightsBigInt
+    ? votingPowerBigInt - usedWeightsBigInt
+    : votingPowerBigInt || BigInt(0)
+
+  const usagePercentage = votingPowerBigInt && usedWeightsBigInt && votingPowerBigInt > BigInt(0)
+    ? (Number(usedWeightsBigInt) / Number(votingPowerBigInt)) * 100
+    : 0
+
   const handleSubmitVotes = async () => {
     if (!canSubmit || !tokenId || !voterAddress) return
 
     try {
-      // Prepare arrays for the vote function
       const modelVote: `0x${string}`[] = []
       const weights: bigint[] = []
 
       Object.entries(votes).forEach(([modelId, weight]) => {
         if (weight > 0) {
           modelVote.push(modelId as `0x${string}`)
-          // Weights are in basis points (100 = 1%)
           weights.push(BigInt(weight * 100))
         }
       })
 
-      if (modelVote.length === 0) {
-        alert('Please allocate votes to at least one model')
-        return
-      }
-
-      submitVote({
+      await submitVote({
         address: voterAddress,
         abi: VoterABI.abi,
         functionName: 'vote',
         args: [tokenId, modelVote, weights],
       })
     } catch (error) {
-      console.error('Vote submission error:', error)
+      console.error('Error submitting votes:', error)
     }
   }
 
-  useEffect(() => {
-    if (isSuccess) {
-      alert('Votes submitted successfully!')
-      setVotes({})
-    }
-  }, [isSuccess])
+  if (!isConnected) {
+    return (
+      <div className="rounded-2xl bg-white p-8 text-center shadow-lg">
+        <p className="text-gray-600">Connect your wallet to participate in gauge voting</p>
+      </div>
+    )
+  }
 
-  const hasVeAIUS = nftBalance && nftBalance > BigInt(0)
-  const lockEnd = lockInfo ? new Date(Number(lockInfo[1]) * 1000) : null
-  const isLockExpired = lockEnd && lockEnd < new Date()
+  if (isLoadingBalance) {
+    return (
+      <div className="rounded-2xl bg-white p-8 shadow-lg">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 w-1/2 rounded bg-gray-200"></div>
+          <div className="h-4 w-3/4 rounded bg-gray-200"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!nftBalance || nftBalance === BigInt(0)) {
+    return (
+      <div className="rounded-2xl bg-white p-8 text-center shadow-lg">
+        <p className="mb-2 text-lg font-semibold text-gray-800">No veAIUS Position</p>
+        <p className="text-gray-600">You need to lock AIUS tokens to participate in gauge voting</p>
+      </div>
+    )
+  }
+
+  const isLoading = isLoadingPower || isLoadingUsed || isLoadingVotes
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="mb-4 text-3xl font-bold text-black-text">Gauge Voting</h2>
-        <p className="text-gray-600">
-          Vote with your veAIUS to direct emissions to your preferred AI models.
-          Distribute 100% of your voting power across models.
-        </p>
+      {/* Voting Power Stats */}
+      <div className="rounded-2xl bg-white p-6 shadow-lg">
+        <h3 className="mb-4 text-xl font-bold text-black-text">Your Voting Power</h3>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-lg bg-purple-50 p-4">
+            <p className="text-sm text-gray-600">Total Power</p>
+            <p className="text-2xl font-bold text-purple-600">
+              {votingPowerBigInt ? formatEther(votingPowerBigInt) : '0'} veAIUS
+            </p>
+          </div>
+
+          <div className="rounded-lg bg-blue-50 p-4">
+            <p className="text-sm text-gray-600">Used Power</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {usedWeightsBigInt ? formatEther(usedWeightsBigInt) : '0'} veAIUS
+            </p>
+            <p className="text-xs text-gray-500">{usagePercentage.toFixed(2)}% used</p>
+          </div>
+
+          <div className="rounded-lg bg-green-50 p-4">
+            <p className="text-sm text-gray-600">Remaining</p>
+            <p className="text-2xl font-bold text-green-600">
+              {formatEther(remainingPower)} veAIUS
+            </p>
+          </div>
+        </div>
       </div>
 
-      {!isConnected ? (
-        <div className="rounded-lg bg-gray-50 p-12 text-center">
-          <p className="text-gray-600">Connect your wallet to vote on gauges</p>
-        </div>
-      ) : !hasVeAIUS ? (
-        <div className="rounded-lg bg-yellow-50 p-12 text-center">
-          <p className="mb-2 text-lg font-semibold text-yellow-900">No veAIUS NFT Found</p>
-          <p className="text-yellow-700">
-            You need to stake AIUS tokens to receive a veAIUS NFT and participate in gauge voting.
-          </p>
-        </div>
-      ) : isLockExpired ? (
-        <div className="rounded-lg bg-red-50 p-12 text-center">
-          <p className="mb-2 text-lg font-semibold text-red-900">veAIUS Lock Expired</p>
-          <p className="text-red-700">
-            Your veAIUS lock has expired. Please re-lock your tokens to participate in voting.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Voting Power Info */}
-          <div className="rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 p-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div>
-                <p className="text-sm text-gray-600">Your veAIUS NFT</p>
-                <p className="text-2xl font-bold text-purple-text">#{tokenId?.toString()}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Voting Power</p>
-                <p className="text-2xl font-bold text-purple-text">
-                  {votingPower ? formatEther(votingPower as bigint).slice(0, 8) : '0'} veAIUS
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Lock Expires</p>
-                <p className="text-2xl font-bold text-purple-text">
-                  {lockEnd ? lockEnd.toLocaleDateString() : 'N/A'}
-                </p>
-              </div>
-            </div>
-          </div>
+      {/* Current Vote Distribution */}
+      {currentVotes && Array.isArray(currentVotes) && currentVotes[0] && (currentVotes[0] as any[]).length > 0 && (
+        <div className="rounded-2xl bg-white p-6 shadow-lg">
+          <h3 className="mb-4 text-xl font-bold text-black-text">Current Vote Distribution</h3>
+          <div className="space-y-2">
+            {(currentVotes[0] as `0x${string}`[]).map((addr, idx) => {
+              const weight = (currentVotes[1] as bigint[])[idx]
+              const model = AI_MODELS.find(m => m.id.toLowerCase() === addr.toLowerCase())
+              const percentage = Number(weight) / 100
 
-          {/* Vote Allocation */}
-          <div className="rounded-2xl bg-white p-8 shadow-lg">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-semibold">Allocate Your Votes</h3>
-              <div className="rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 px-4 py-2">
-                <span className={`text-lg font-bold ${canSubmit ? 'text-green-600' : 'text-gray-600'}`}>
-                  {totalVotes}%
-                </span>
-                <span className="ml-1 text-sm text-gray-500">/ 100%</span>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {AI_MODELS.map((model) => {
-                const votePercentage = votes[model.id] || 0
-                return (
-                  <div key={model.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-black-text">{model.name}</h4>
-                        <p className="text-xs text-gray-500">{model.description}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={votePercentage}
-                          onChange={(e) => handleVoteChange(model.id, parseInt(e.target.value) || 0)}
-                          className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-center focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20"
-                        />
-                        <span className="text-sm text-gray-600">%</span>
-                      </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-text to-blue-500 transition-all duration-300"
-                        style={{ width: `${votePercentage}%` }}
-                      />
-                    </div>
+              return (
+                <div key={addr} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div>
+                    <p className="font-semibold">{model?.name || 'Unknown Model'}</p>
+                    <p className="text-xs text-gray-500">{model?.description}</p>
                   </div>
-                )
-              })}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmitVotes}
-              disabled={!canSubmit || isPending}
-              className="group relative mt-8 w-full overflow-hidden rounded-lg bg-black-background px-8 py-3 font-medium text-white disabled:opacity-50"
-            >
-              <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-purple-text to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-disabled:opacity-0"></div>
-              <span className="relative z-10">
-                {isPending
-                  ? 'Submitting...'
-                  : canSubmit
-                    ? 'Submit Votes'
-                    : `Allocate ${100 - totalVotes}% more to submit`
-                }
-              </span>
-            </button>
-          </div>
-
-          {/* Info Box */}
-          <div className="rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 p-6">
-            <h4 className="mb-3 font-semibold text-gray-900">How Gauge Voting Works</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex gap-2">
-                <span className="text-purple-text">•</span>
-                <span>Your voting power is determined by your veAIUS balance and lock duration</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-purple-text">•</span>
-                <span>Votes determine emission distribution to different AI models</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-purple-text">•</span>
-                <span>You must allocate exactly 100% of your voting power</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-purple-text">•</span>
-                <span>Voting resets weekly - you can change your votes each epoch</span>
-              </li>
-            </ul>
+                  <div className="text-right">
+                    <p className="text-lg font-bold text-purple-600">{percentage}%</p>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
+
+      {/* Vote Allocation UI */}
+      <div className="rounded-2xl bg-white p-6 shadow-lg">
+        <h3 className="mb-4 text-xl font-bold text-black-text">Allocate Your Votes</h3>
+        <p className="mb-6 text-sm text-gray-600">
+          Distribute 100% of your voting weight across AI models to direct rewards
+        </p>
+
+        <div className="space-y-4">
+          {AI_MODELS.map((model) => (
+            <div key={model.id} className="rounded-lg border border-gray-200 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-800">{model.name}</h4>
+                  <p className="text-sm text-gray-500">{model.description}</p>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={votes[model.id] || 0}
+                  onChange={(e) => handleVoteChange(model.id, Number(e.target.value))}
+                  className="w-20 rounded border border-gray-300 px-3 py-2 text-right"
+                  disabled={isLoading || isPending}
+                />
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={votes[model.id] || 0}
+                onChange={(e) => handleVoteChange(model.id, Number(e.target.value))}
+                className="w-full"
+                disabled={isLoading || isPending}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 rounded-lg bg-gray-50 p-4">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold">Total Allocated:</span>
+            <span className={`text-xl font-bold ${canSubmit ? 'text-green-600' : 'text-red-600'}`}>
+              {totalVotes}%
+            </span>
+          </div>
+          {!canSubmit && (
+            <p className="mt-2 text-sm text-red-600">You must allocate exactly 100%</p>
+          )}
+        </div>
+
+        <button
+          onClick={handleSubmitVotes}
+          disabled={!canSubmit || isPending || isLoading}
+          className={`mt-6 w-full rounded-full py-3 font-semibold text-white transition-colors ${
+            canSubmit && !isPending && !isLoading
+              ? 'bg-purple-600 hover:bg-purple-700'
+              : 'cursor-not-allowed bg-gray-400'
+          }`}
+        >
+          {isPending ? 'Submitting...' : isSuccess ? 'Votes Submitted!' : 'Submit Votes'}
+        </button>
+      </div>
     </div>
   )
 }

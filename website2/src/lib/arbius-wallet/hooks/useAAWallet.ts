@@ -74,7 +74,8 @@ export function useAAWallet() {
     try {
       const signature = await derivedAccount.signMessage({ message });
       return signature;
-    } catch (error) {
+    } catch (err) {
+      console.error('Failed to sign message:', err instanceof Error ? err.message : 'Unknown error');
       return null;
     }
   }, [derivedAccount]);

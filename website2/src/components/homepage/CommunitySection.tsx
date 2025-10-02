@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import communityBox from '@/app/assets/images/community_box.png'
 
 const platforms = [
   {
@@ -14,7 +15,7 @@ const platforms = [
 
 export function CommunitySection() {
   return (
-    <div className="bg-[url('/buy_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
+    <div className="bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] py-16 lg:py-24">
       <div className="mx-auto box-border w-[90%] max-w-[2000px] bg-white py-10 lg:w-[80%]">
         <div className="mb-6">
           <h2 className="mb-2 text-[45px] leading-[60px] text-black-text lg:text-[50px] lg:leading-none 2xl:text-[70px]">
@@ -25,7 +26,7 @@ export function CommunitySection() {
               Initiatives
             </h2>
             <Image
-              src="/community_box.png"
+              src={communityBox}
               width={40}
               height={40}
               alt="box"
@@ -73,7 +74,7 @@ export function CommunitySection() {
                     type="button"
                     className="group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2"
                   >
-                    <div className="absolute left-0 z-0 h-full w-full rounded-full bg-gradient-to-r from-purple-text to-blue-500 px-8 py-2 opacity-0 transition-opacity duration-500 md:group-hover:none lg:group-hover:opacity-100"></div>
+                    <div className="absolute left-0 z-0 h-full w-full rounded-full bg-[linear-gradient(96.52deg,#9162F7_-25.28%,#FB567E_94%)] px-8 py-2 opacity-0 transition-opacity duration-500 md:group-hover:none lg:group-hover:opacity-100"></div>
                     <p className="relative z-10 font-bold text-original-white">
                       {platform.buttonText}
                     </p>

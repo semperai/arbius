@@ -30,28 +30,30 @@ export function ModelsSection() {
   const [selectedModel, setSelectedModel] = useState<keyof typeof models>('Generative AI')
 
   return (
-    <div className="bg-gradient-to-r from-blue-50/20 via-purple-50/20 to-pink-50/20 py-24">
-      <div className="m-auto flex w-[90%] max-w-[2000px] flex-col items-center justify-between lg:w-[80%] lg:flex-row">
+    <div className="bg-purple-50/40 py-24">
+      <div className="m-auto flex w-[90%] max-w-[2000px] flex-col items-center justify-between gap-12 lg:w-[80%] lg:flex-row">
         <div className="w-full lg:w-[50%]">
-          <div className="Gradient-transparent-text mb-2 bg-gradient-to-r from-purple-600 to-pink-500 text-[16px] lg:mb-0 lg:text-[12px]">
+          <div className="Gradient-transparent-text mb-4 bg-gradient-to-r from-purple-600 to-pink-500 text-[14px] font-medium">
             Multi-Model Economy!
           </div>
 
-          <h2 className="mb-6 text-[45px] font-medium text-black-text lg:text-[50px] 2xl:text-[70px]">
+          <h2 className="mb-6 text-[45px] font-semibold text-black-text lg:text-[50px]">
             DeFi for AI
           </h2>
 
-          <p className="text-para text-subtext-two">
+          <p className="text-[16px] text-gray-700 leading-relaxed">
             OSS (open source software) models such as Llama 3, Deepseek R1 and others can now be part of a shared AI economy for all. Arbius handles accelerated compute matchmaking for each request, pairing the best solvers to each task for rewards. Through its utility, ecosystem participants can steer the economy and share in the value generated from AI.
           </p>
 
-          <div className="mt-[30px] hidden lg:block">
-            <div className="flex w-full justify-between border-b">
+          <div className="mt-8 hidden lg:block">
+            <div className="flex gap-8 border-b border-gray-200">
               {Object.keys(models).map((item) => (
                 <button
                   key={item}
-                  className={`cursor-pointer pb-[20px] text-[17px] text-subtext-two transition-colors hover:text-purple-text ${
-                    selectedModel === item ? 'border-b-2 gradient-border text-blue-text' : ''
+                  className={`cursor-pointer pb-3 text-[15px] transition-colors ${
+                    selectedModel === item
+                      ? 'border-b-2 border-purple-600 text-purple-600 font-medium'
+                      : 'text-gray-600 hover:text-purple-600'
                   }`}
                   onClick={() => setSelectedModel(item as keyof typeof models)}
                 >
@@ -60,11 +62,11 @@ export function ModelsSection() {
               ))}
             </div>
 
-            <div className="mt-[30px]">
-              <h3 className="text-[28px] font-medium text-blue-text transition-opacity duration-500">
+            <div className="mt-8 rounded-3xl bg-purple-50/60 p-8">
+              <h3 className="text-[24px] font-semibold text-purple-600">
                 {selectedModel}
               </h3>
-              <p className="mt-[10px] w-[80%] text-subtext-two lg:min-h-[180px]">
+              <p className="mt-4 text-[15px] text-gray-700 leading-relaxed">
                 {models[selectedModel].text}
               </p>
 
@@ -72,13 +74,9 @@ export function ModelsSection() {
                 <Link href={models[selectedModel].link!} target="_blank">
                   <button
                     type="button"
-                    className="group relative mt-[20px] flex items-center gap-3 overflow-hidden rounded-full bg-black-background px-8 py-2"
+                    className="mt-6 flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors"
                   >
-                    <div className="absolute left-0 z-0 h-full w-full rounded-full bg-gradient-to-r from-purple-text to-blue-500 px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
-                    <span className="relative z-10 font-bold text-original-white">
-                      Try now
-                    </span>
-                    <span className="relative z-10">→</span>
+                    Try now →
                   </button>
                 </Link>
               )}
@@ -86,24 +84,16 @@ export function ModelsSection() {
           </div>
         </div>
 
-        <div className="mt-8 w-full lg:mt-0 lg:w-[50%]">
-          <div className="relative ml-auto hidden h-[500px] w-[320px] items-center justify-center rounded-[50px] lg:flex">
-            <Image
-              src={models[selectedModel].image}
-              alt={selectedModel}
-              width={320}
-              height={500}
-              className="absolute left-0 top-0 h-[500px] w-auto rounded-[30px] object-cover transition-opacity duration-500"
-            />
-            <span className="absolute bottom-[20px] right-[20px]">
+        <div className="mt-8 w-full lg:mt-0 lg:w-[45%]">
+          <div className="relative ml-auto hidden h-[520px] w-full max-w-[440px] items-center justify-center rounded-[40px] bg-gradient-to-br from-purple-200 to-blue-200 p-2 lg:flex">
+            <div className="relative h-full w-full overflow-hidden rounded-[36px]">
               <Image
-                src="/arbius_logo_round.png"
-                alt="Arbius"
-                width={50}
-                height={50}
-                className="h-[50px] w-auto"
+                src={models[selectedModel].image}
+                alt={selectedModel}
+                fill
+                className="object-cover transition-opacity duration-500"
               />
-            </span>
+            </div>
           </div>
 
           {/* Mobile View */}
@@ -130,7 +120,7 @@ export function ModelsSection() {
                         type="button"
                         className="group relative mt-5 flex items-center gap-3 rounded-full bg-black-background px-8 py-2"
                       >
-                        <div className="absolute left-0 z-0 h-full w-full rounded-full bg-gradient-to-r from-purple-text to-blue-500 px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                        <div className="absolute left-0 z-0 h-full w-full rounded-full bg-[linear-gradient(96.52deg,#9162F7_-25.28%,#FB567E_94%)] px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
                         <span className="relative z-10 font-bold text-original-white">
                           Try now
                         </span>

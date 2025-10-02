@@ -1,5 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import tickImg from '@/app/assets/images/tick.png'
+import whiteLogo from '@/app/assets/images/white_logo.png'
 
 const info = [
   'Pay for AI generations',
@@ -12,7 +14,7 @@ const info = [
 
 export function BuySection() {
   return (
-    <div className="bg-white bg-[url('/buy_background.png')] bg-cover bg-no-repeat py-16 lg:py-24">
+    <div className="bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] py-16 lg:py-24">
       <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
         <div className="flex flex-col items-center justify-between lg:flex-row">
           <div className="w-full lg:w-[70%]">
@@ -35,7 +37,7 @@ export function BuySection() {
                   key={singleInfo}
                 >
                   <div className="mt-[1px] flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#DFECFF]">
-                    <Image src="/tick.png" alt="check mark" width={8} height={8} />
+                    <Image src={tickImg} alt="check mark" width={8} height={8} />
                   </div>
                   <p className="text-[16px] text-subtext-three">
                     {singleInfo}
@@ -54,7 +56,7 @@ export function BuySection() {
                   type="button"
                   className="group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2"
                 >
-                  <div className="absolute left-0 z-0 h-full w-full rounded-full bg-gradient-to-r from-purple-text to-blue-500 px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                  <div className="absolute left-0 z-0 h-full w-full rounded-full bg-[linear-gradient(96.52deg,#9162F7_-25.28%,#FB567E_94%)] px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
                   <p className="relative z-10 font-bold text-original-white">
                     Buy on Uniswap
                   </p>
@@ -66,7 +68,7 @@ export function BuySection() {
 
           <div className="hidden lg:block">
             <div className="ml-auto flex h-[220px] w-[220px] items-center justify-center rounded-full bg-purple-background">
-              <Image src="/white_logo.png" width={150} height={150} alt="arbius white" />
+              <Image src={whiteLogo} width={150} height={150} alt="arbius white" />
             </div>
           </div>
         </div>

@@ -6,6 +6,9 @@ import config from './config.json'
 export const contracts = {
   baseToken: config.v4_baseTokenAddress as Address,
   engine: config.v4_engineAddress as Address,
+  votingEscrow: config.votingEscrowAddress as Address,
+  veStaking: config.veStakingAddress as Address,
+  voter: config.voterAddress as Address,
   l1Token: config.l1TokenAddress as Address,
   v2Token: config.v2_baseTokenAddress as Address,
   v2Engine: config.v2_engineAddress as Address,

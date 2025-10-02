@@ -18,15 +18,8 @@
   font-display: swap;
 }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   /* Colors */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --color-black-text: #333333;
   --color-original-black: #000000;
   --color-original-white: #ffffff;
@@ -45,9 +38,8 @@
   --color-gray-text: #F3F3F3;
   --color-aius-tabs-gray: #8D8D8D;
 
-  /* Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Font families */
+  --font-lato: 'Lato', sans-serif;
   --font-geist-semibold: 'Geist-SemiBold', sans-serif;
   --font-geist-regular: 'Geist-Regular', sans-serif;
   --font-at-hauss: 'AtHaussAero-Light', sans-serif;
@@ -61,20 +53,9 @@
   --font-size-mobile-header: 45px;
   --font-size-large-description: 20px;
 
-  /* Breakpoints */
-  --breakpoint-2xl: 1800px;
-  --breakpoint-xl: 1200px;
-  --breakpoint-lg: 1023px;
-  --breakpoint-md: 767px;
-  --breakpoint-um: 475px;
-  --breakpoint-lm: 400px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Shadows */
+  --shadow-footer-icon: 0px 4px 10px rgba(0, 0, 0, 0.05);
+  --shadow-staking: 0px 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -83,24 +64,10 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-geist-regular), Arial, Helvetica, sans-serif;
 }
 
-/* Utility classes */
-.background-gradient {
-  background: linear-gradient(180deg, #4a28ff 16.5%, #9ed6ff 100%);
-}
-
-.header-gradient {
-  background: linear-gradient(180deg, #fbfbfb 70.03%, #4a28ff 330.54%);
-}
-
-.gradient-border {
-  border-image: linear-gradient(90deg, #4a28ff 16.5%, #9ed6ff 100%) 1;
-}
-
+/* Utility classes that can't be replicated with Tailwind */
 .Gradient-transparent-text {
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -117,4 +84,13 @@ input[type='number']::-webkit-outer-spin-button {
 
 input[type='number'] {
   -moz-appearance: textfield;
+}
+
+/* Hamburger menu animations */
+#menu.open #menu-bar1 {
+  transform: translateY(8px) rotate(45deg);
+}
+
+#menu.open #menu-bar3 {
+  transform: translateY(-8px) rotate(-45deg);
 }

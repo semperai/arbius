@@ -1,49 +1,62 @@
 'use client'
 
-import Image from 'next/image'
+import Image, { StaticImageData } from 'next/image'
+import kasumiImg from '@/app/assets/images/team/kasumi.png'
+import masterPigImg from '@/app/assets/images/team/master_pig.png'
+import beskayImg from '@/app/assets/images/team/beskay.png'
+import damienImg from '@/app/assets/images/team/damien.png'
+import deedazImg from '@/app/assets/images/team/deedaz.png'
+import charlieImg from '@/app/assets/images/team/charlie.png'
+import oscarImg from '@/app/assets/images/team/oscar.png'
+import teamBackgroundImg from '@/app/assets/images/team/team_background.jpg'
 
-const teamMembers = [
+const teamMembers: Array<{
+  name: string
+  title: string
+  telegram: string
+  image: StaticImageData
+}> = [
   {
     name: 'Kasumi',
     title: 'Founder & Vision Lead',
     telegram: 'kasumi_null',
-    image: '/team/kasumi.png',
+    image: kasumiImg,
   },
   {
     name: 'J Master Pig',
     title: 'Operations Lead',
     telegram: 'slowsynapse',
-    image: '/team/master_pig.png',
+    image: masterPigImg,
   },
   {
     name: 'Beskay',
     title: 'Developer',
     telegram: 'beskay0x',
-    image: '/team/beskay.png',
+    image: beskayImg,
   },
   {
     name: 'Damien',
     title: 'Developer',
     telegram: '',
-    image: '/team/damien.png',
+    image: damienImg,
   },
   {
     name: 'DeeDaz',
     title: 'UX Designer',
     telegram: '',
-    image: '/team/deedaz.png',
+    image: deedazImg,
   },
   {
     name: 'Charlie',
     title: 'Social Media Manager',
     telegram: 'charliesjv',
-    image: '/team/charlie.png',
+    image: charlieImg,
   },
   {
     name: 'Oscar',
     title: 'Graphics & Video Lead',
     telegram: 'osalas08',
-    image: '/team/oscar.png',
+    image: oscarImg,
   },
 ]
 
@@ -51,7 +64,7 @@ export default function TeamPage() {
   return (
     <div
       className="min-h-screen bg-cover bg-center py-16"
-      style={{ backgroundImage: "url('/team/team_background.jpg')" }}
+      style={{ backgroundImage: `url(${teamBackgroundImg.src})` }}
     >
       <div className="mx-auto w-[90%] max-w-[1300px] md:w-[80%]">
         {/* Header */}

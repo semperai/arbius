@@ -1,56 +1,66 @@
 'use client'
 
-import Image from 'next/image'
+import Image, { StaticImageData } from 'next/image'
+import arbitrumImg from '@/app/assets/images/arbitrum.png'
+import labsImg from '@/app/assets/images/labs.png'
+import nosanaImg from '@/app/assets/images/nosana.png'
+import poloniexImg from '@/app/assets/images/poloniex.png'
+import coinexImg from '@/app/assets/images/coinex.png'
+import exabitsImg from '@/app/assets/images/exabits.png'
+import weboasisImg from '@/app/assets/images/weboasis.png'
+import unicrowImg from '@/app/assets/images/unicrow_logo.png'
+import independentAiImg from '@/app/assets/images/independent_ai.jpg'
+import img6079 from '@/app/assets/images/6079.jpg'
 
-const partnersData = [
+const partnersData: { name: string; image: StaticImageData; url: string }[] = [
   {
     name: 'Arbitrum',
-    image: '/arbitrum.png',
+    image: arbitrumImg,
     url: 'https://arbitrum.io/',
   },
   {
     name: 'Alignment Lab',
-    image: '/labs.png',
+    image: labsImg,
     url: 'https://alignmentlab.ai/',
   },
   {
     name: 'Nosana',
-    image: '/nosana.png',
+    image: nosanaImg,
     url: 'https://nosana.io/',
   },
   {
     name: 'Poloniex',
-    image: '/poloniex.png',
+    image: poloniexImg,
     url: 'https://poloniex.com/',
   },
   {
     name: 'CoinEx',
-    image: '/coinex.png',
+    image: coinexImg,
     url: 'https://www.coinex.com/en',
   },
   {
     name: 'Exabits',
-    image: '/exabits.png',
+    image: exabitsImg,
     url: 'https://www.exabits.ai/',
   },
   {
     name: 'Web Oasis',
-    image: '/weboasis.png',
+    image: weboasisImg,
     url: 'https://weboasis.io/',
   },
   {
     name: 'Unicrow',
-    image: '/unicrow_logo.png',
+    image: unicrowImg,
     url: 'https://unicrow.io/',
   },
   {
     name: 'Independent AI',
-    image: '/independent_ai.jpg',
+    image: independentAiImg,
     url: 'https://independentai.institute/',
   },
   {
     name: '6079',
-    image: '/6079.jpg',
+    image: img6079,
     url: 'https://6079.ai/',
   },
 ]
@@ -67,9 +77,8 @@ export function Partners() {
                 <Image
                   src={partner.image}
                   alt={partner.name}
-                  width={100}
-                  height={40}
                   className="h-[30px] w-auto object-contain"
+                  priority={index < 3}
                 />
               </a>
             </div>
@@ -84,9 +93,8 @@ export function Partners() {
                 <Image
                   src={partner.image}
                   alt={partner.name}
-                  width={100}
-                  height={40}
                   className="h-[30px] w-auto object-contain"
+                  priority={index < 3}
                 />
               </a>
             </div>

@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useAccount, useBalance, useWalletClient, usePublicClient, useReadContract } from 'wagmi';
 import { parseEther, formatEther, formatUnits, isAddress } from 'viem';
 import { arbitrum } from 'viem/chains';
-import { XMarkIcon, QrCodeIcon, EyeIcon, EyeSlashIcon, KeyIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, EyeSlashIcon, KeyIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { ArrowUpRight, ArrowDownLeft, RefreshCw, Copy, Check } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { getCachedWallet } from '../utils/viemWalletUtils';
+import Image from 'next/image';
 
 const AIUS_TOKEN_ADDRESS = '0x4a24B101728e07A52053c13FB4dB2BcF490CAbc3';
 const ARBITRUM_CHAIN_ID = 42161;
@@ -164,7 +165,6 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [showQR, setShowQR] = useState(false);
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
@@ -462,7 +462,8 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
       if (parsed.derivedAddress.toLowerCase() === smartAccountAddress.toLowerCase()) {
         return parsed.derivedPrivateKey;
       }
-    } catch (e) {
+    } catch (err) {
+      console.error('Failed to retrieve private key:', err instanceof Error ? err.message : 'Unknown error');
       return 'Private key not available';
     }
 
@@ -590,7 +591,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                 <div className="space-y-2">
                   <div className="bg-gray-50 rounded-xl p-3 flex justify-between items-center">
                     <div className="flex items-center space-x-2">
-                      <img src="https://assets.coingecko.com/coins/images/279/standard/ethereum.png" alt="ETH" className="h-5 w-5 rounded-full" />
+                      <Image src="https://assets.coingecko.com/coins/images/279/standard/ethereum.png" alt="ETH" className="h-5 w-5 rounded-full" width={20} height={20} unoptimized />
                       <span className="text-sm text-gray-600">ETH</span>
                     </div>
                     <span className="text-lg font-semibold text-gray-900">
@@ -599,7 +600,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                   </div>
                   <div className="bg-gray-50 rounded-xl p-3 flex justify-between items-center">
                     <div className="flex items-center space-x-2">
-                      <img src="https://assets.coingecko.com/coins/images/35246/standard/arbius-200x-logo.png" alt="AIUS" className="h-5 w-5 rounded-full" />
+                      <Image src="https://assets.coingecko.com/coins/images/35246/standard/arbius-200x-logo.png" alt="AIUS" className="h-5 w-5 rounded-full" width={20} height={20} unoptimized />
                       <span className="text-sm text-gray-600">AIUS</span>
                     </div>
                     <span className="text-lg font-semibold text-gray-900">

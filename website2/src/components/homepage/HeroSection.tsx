@@ -1,42 +1,64 @@
+'use client'
+
 import Link from 'next/link'
+import { Fade } from 'react-awesome-reveal'
 
 export function HeroSection() {
   return (
-    <div className="mt-[72px] bg-[url('/peer_background.jpg')] bg-cover lg:flex lg:h-[75vh] lg:items-center">
+    <div className="font-[family-name:var(--font-lato)] font-bold mt-[72px] bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] lg:flex lg:h-[75vh] lg:items-center">
       <div className="m-auto w-[90%] max-w-[2000px] py-16 lg:w-[80%] lg:p-0 lg:py-24">
         <div className="w-full xl:w-[65%]">
-          <div className="Gradient-transparent-text mb-2 bg-gradient-to-r from-purple-text to-blue-500 text-[16px] lg:mb-0 lg:text-[12px]">
-            Welcome to Arbius!
+          <Fade direction="up" triggerOnce={true}>
+            <div className="Gradient-transparent-text mb-2 bg-[linear-gradient(90deg,#4A28FF_0.5%,#9ED6FF_50%)] text-[16px] lg:mb-0 lg:text-[12px]">
+              Welcome to Arbius!
+            </div>
+          </Fade>
+
+          <div className="hidden text-[45px] text-black-text lg:block lg:text-[50px]">
+            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+              Peer-to-peer
+            </Fade>
+          </div>
+          <div className="mb-6 mt-[-15px] hidden text-[45px] text-black-text lg:block lg:text-[50px]">
+            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+              machine learning
+            </Fade>
+          </div>
+          <div className="mb-6 text-[45px] leading-[50px] text-black-text lg:hidden lg:leading-none">
+            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={500}>
+              Peer-to-peer machine learning
+            </Fade>
           </div>
 
-          <h1 className="mb-6 text-[45px] leading-[50px] text-black-text lg:text-[50px] lg:leading-none">
-            Peer-to-peer machine learning
-          </h1>
-
           <div>
-            <p className="text-para text-subtext-one lg:w-[105%]">
-              Arbius is a decentralized network for machine learning and a
-              token with a fixed total supply like Bitcoin. New coins are
-              generated with GPU power by participating in the network. There
-              is no central authority to create new coins. Arbius is fully
-              open-source. Holders vote on-chain for protocol upgrades.
-              Models operate as DAOs with custom rules for distribution and rewards,
-              providing a way for model creators to earn income.
-            </p>
-
-            <div className="mt-[30px] flex items-center gap-[20px]">
-              <Link href="https://arbius.ai/paper.pdf" target="_blank">
-                <button
-                  type="button"
-                  className="group relative flex items-center gap-3 rounded-full border border-original-black bg-transparent px-5 py-2 text-original-black hover:border-transparent hover:text-white lg:px-8"
-                >
-                  <div className="absolute left-0 z-0 h-full w-full rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
-                  <div className="relative z-10 lg:text-[100%]">
-                    Read Whitepaper
+            <Fade direction="up" triggerOnce={true}>
+              <div className="font-[family-name:var(--font-lato)] font-normal text-[16px] text-subtext-one">
+                Arbius is a decentralized network for machine learning and a
+                token with a fixed total supply like Bitcoin. New coins are
+                generated with GPU power by participating in the network. There
+                is no central authority to create new coins. Arbius is fully
+                open-source. Holders vote on-chain for protocol upgrades.
+                Models operate as DAOs with custom rules for distribution and rewards,
+                providing a way for model creators to earn income.
+              </div>
+            </Fade>
+            <Fade direction="up" triggerOnce={true}>
+              <div className="mt-[30px] flex items-center gap-[20px]">
+                <Link href="https://arbius.ai/paper.pdf" target="_blank">
+                  <div>
+                    <button
+                      type="button"
+                      className="group relative flex items-center gap-3 rounded-full border-[1px] border-black bg-transparent px-5 py-2 text-black hover:border-transparent hover:text-white lg:px-8"
+                    >
+                      <div className="absolute left-0 z-0 h-full w-full rounded-full bg-[linear-gradient(96.52deg,#9162F7_-25.28%,#FB567E_94%)] px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                      <div className="font-[family-name:var(--font-lato)] font-normal relative z-10 lg:text-[100%]">
+                        Read Whitepaper
+                      </div>
+                    </button>
                   </div>
-                </button>
-              </Link>
-            </div>
+                </Link>
+              </div>
+            </Fade>
           </div>
         </div>
       </div>

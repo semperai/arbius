@@ -263,13 +263,14 @@ async function getCurrentChainId(): Promise<number> {
   try {
     const chainIdHex = await originalEthereum.request({ method: 'eth_chainId' });
     return parseInt(chainIdHex, 16);
-  } catch (error) {
+  } catch (err) {
+    console.error('Failed to get chain ID:', err instanceof Error ? err.message : 'Unknown error');
     // Fall back to the default chain ID from config
     const config = getConfig();
     if (config) {
       return config.defaultChainId;
     }
-    
+
     // Default to Ethereum mainnet if all else fails
     return 1;
   }

@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useAccount, useChainId } from 'wagmi'
 import { AAWalletDisplay, useAAWallet } from '@/lib/arbius-wallet'
 import { parseEther, encodePacked, keccak256 } from 'viem'
-import V2_EngineV6ABI from '@/abis/V2_EngineV6.json'
 import { ARBIUS_CONFIG, MODELS, IPFS_GATEWAY } from '@/config/arbius'
 import { Send, Loader2, Image as ImageIcon, FileText } from 'lucide-react'
+import Image from 'next/image'
+import arbiusLogoRound from '@/app/assets/images/arbius_logo_round.png'
 
 const TEMPLATES = [
   'kandinsky2',
@@ -199,10 +200,13 @@ export default function PlaygroundPage() {
                       <ImageIcon className="h-3 w-3" />
                       <span>Image Output</span>
                     </div>
-                    <img
+                    <Image
                       src={output.url}
                       alt="Generated output"
                       className="w-full rounded"
+                      width={512}
+                      height={512}
+                      unoptimized
                     />
                   </div>
                 ) : (
@@ -231,7 +235,7 @@ export default function PlaygroundPage() {
             Chat with AI models on the Arbius network
           </p>
         </div>
-        {isConnected && <AAWalletDisplay arbiusLogoSrc="/arbius_logo_round.png" />}
+        {isConnected && <AAWalletDisplay arbiusLogoSrc={arbiusLogoRound.src} />}
       </div>
 
       {/* Model Selector */}
