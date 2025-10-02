@@ -219,7 +219,47 @@ This is the template schema used for Kandinsky 2 model on Arbius.
 }
 ```
 
-## Registering model with Arbius 
+## Model Allow Lists (V6+)
+
+<Note>
+  **New in V6**: You can register models with allow lists to control who can submit solutions. This is perfect for quality control during launch phases or private deployments.
+</Note>
+
+### What are Allow Lists?
+
+Allow lists let you restrict which validators can submit solutions for your model. This provides:
+
+- **Quality assurance** during model launch phases
+- **Private deployments** for enterprise or sensitive models
+- **Gradual rollouts** from trusted miners to permissionless
+- **Controlled solver network** for model token launches (Amica Personas)
+
+### When to Use Allow Lists
+
+**Use allow lists when:**
+- Launching a new model and want to test with trusted miners first
+- Building a private/enterprise model that shouldn't be public
+- Creating a model token and need controlled quality during bonding curve phase
+- Model requires specific hardware/setup that only certain miners have
+
+**Don't use allow lists if:**
+- You want maximum decentralization and permissionless access
+- Your model is already well-tested and production-ready
+- You're comfortable with any validator attempting to solve tasks
+
+### Allow List Lifecycle
+
+1. **Register model with allow list** - Start with restricted access
+2. **Add/remove validators** as needed - Manage permissions dynamically
+3. **Open to all** (optional) - Disable allow list when ready for permissionless operation
+
+<Warning>
+**Important**: Once you disable an allow list with `disableModelAllowList()`, it **cannot be re-enabled**. This is a security feature to prevent "rug pulls" where access is restricted after being opened.
+</Warning>
+
+---
+
+## Registering model with Arbius
 
 ### Get Ethereum on Arbitrum One
 
@@ -286,6 +326,8 @@ Which will result in a `CID` (Content IDentifier). Others miners are likely to m
 Make sure you read the [Model Tokens](/model-tokens) guide before continuing if you would like to tokenize your model.
 </Warning>
 
+#### Option 1: Register without allow list (permissionless)
+
 The following line will register a model with 0 fee, and it uses an unused address for the simplicity of this article.
 
 ```bash
@@ -295,7 +337,25 @@ npx hardhat --network arbitrum engine:registerModel \
 --template templates/[your-template-file].json
 ```
 
-This will result in a line like:
+#### Option 2: Register with allow list (V6+)
+
+To register a model with an allow list of approved solvers:
+
+```bash
+npx hardhat --network arbitrum engine:registerModelWithAllowList \
+--address "0x0000000000000000000000000000000000000001" \
+--fee "0" \
+--template templates/[your-template-file].json \
+--allowlist "0xValidator1Address,0xValidator2Address,0xValidator3Address"
+```
+
+<Note>
+Separate validator addresses with commas (no spaces). Only these addresses will be able to submit solutions initially.
+</Note>
+
+#### Registration Output
+
+Either command will result in a line like:
 
 ```text
 Model registered: 0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf
@@ -304,6 +364,54 @@ Add the following to...
 ```
 
 Follow the instructions generated to store in the `arbius/contract/scripts/config.json` file. Use a lowercase alphanumeric name for the key field as this will be used in code.
+
+### Managing Allow Lists (V6+)
+
+After registering with an allow list, you can manage it using these commands:
+
+#### Add validators to allow list
+
+```bash
+npx hardhat --network arbitrum engine:addToModelAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf" \
+--solvers "0xNewValidator1,0xNewValidator2"
+```
+
+#### Remove validators from allow list
+
+```bash
+npx hardhat --network arbitrum engine:removeFromModelAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf" \
+--solvers "0xOldValidator1,0xOldValidator2"
+```
+
+#### Disable allow list (open to all validators)
+
+```bash
+npx hardhat --network arbitrum engine:disableModelAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf"
+```
+
+<Warning>
+**This action is irreversible!** Once disabled, the allow list cannot be re-enabled. Only use this when you're ready to make your model permanently permissionless.
+</Warning>
+
+#### Check allow list status
+
+To check if a validator can submit solutions:
+
+```bash
+npx hardhat --network arbitrum engine:isSolverAllowed \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf" \
+--solver "0xValidatorAddress"
+```
+
+To check if a model requires an allow list:
+
+```bash
+npx hardhat --network arbitrum engine:modelRequiresAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf"
+```
 
 ## Adding model to the generate interface
 

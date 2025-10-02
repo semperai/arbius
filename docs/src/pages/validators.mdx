@@ -5,11 +5,11 @@ export const description = 'On this page, we’ll dive into the different messag
 Validators or solvers solve tasks and vote on validity of solved tasks.
  
 ## The Validator model
- 
+
 The Validator model contains all information about Validator
- 
+
 ### Properties
- 
+
 <Properties>
   <Property name="staked" type="uint256">
     How much the validator has staked
@@ -17,7 +17,43 @@ The Validator model contains all information about Validator
   <Property name="addr" type="address">
     Address of the validator
   </Property>
+  <Property name="since" type="uint256">
+    Timestamp when validator first staked minimum amount (V2+)
+  </Property>
 </Properties>
+
+---
+
+## Validator Stake Compounding (V6+)
+
+<Note>
+  **V6 Change**: Validator rewards and fees are now automatically added to your staked balance instead of being transferred. This provides automatic compounding and increases your voting power over time.
+</Note>
+
+### What Changed in V6
+
+Previously, validators received rewards via direct token transfers. In V6:
+
+- **Solution fees** → Added directly to validator stake
+- **Mining rewards** → Added directly to validator stake
+- **Contestation rewards** → Added directly to validator stake
+
+### Benefits
+
+- **Automatic compounding** - No manual restaking required
+- **Gas efficient** - No transfer transactions needed
+- **Increased voting power** - Your stake grows with earnings
+- **Simplified operations** - One less thing to manage
+
+### How to Access Your Earnings
+
+To withdraw your accumulated earnings:
+
+1. Initiate a validator withdraw request with `initiateValidatorWithdraw(amount)`
+2. Wait for the unlock period (`exitValidatorMinUnlockTime` - typically 24 hours)
+3. Call `validatorWithdraw(count, recipient)` to receive your tokens
+
+Your staked balance includes all your original stake plus all accumulated rewards.
  
 ---
 
@@ -80,11 +116,19 @@ The Validator model contains all information about Validator
 
 ---
 
-## Become validator {{ tag: 'WRITE', label: 'Engine' }}
+## Deposit to become validator {{ tag: 'WRITE', label: 'Engine' }}
 
 <Row>
   <Col>
-    Users who want to be validators must deposit `validatorDeposit` Arbius to become a validator. At the beginning, this is 0 for bootstrapping of network. To continue being a validator, you must keep a staked balance of at least `validatorMinimum` which is some number less than `validatorDeposit`. The only thing that reduces your staked balance is being slashed on a task or vote, which reduces your staked balance by `slashAmount`.
+    Anyone can deposit AIUS tokens for any address to help them become or remain a validator. To be an active validator, you must maintain a staked balance of at least `validatorMinimum` (a percentage of total supply).
+
+    The only things that reduce your staked balance are:
+    - Being slashed for losing a contestation vote
+    - Initiating a withdraw request
+
+    <Note>
+      **V6**: All validator earnings (fees and rewards) automatically compound into your stake. This increases your voting power over time without manual restaking.
+    </Note>
   </Col>
   <Col sticky>
 
@@ -93,7 +137,8 @@ The Validator model contains all information about Validator
     ```js {{ title: 'ethers' }}
     import { ethers } from 'ethers'
     import Config from './config.json'
-    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+    import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json';
+    import BaseTokenArtifact from './artifacts/BaseToken.sol/BaseToken.json';
 
     const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
 
@@ -108,28 +153,41 @@ The Validator model contains all information about Validator
       wallet,
     )
 
-    // ensure you have granted BaseToken allowance of getValidatorMinimum()
-    const tx = await engine.becomeValidator()
+    const baseToken = new ethers.Contract(
+      Config.baseTokenAddress,
+      BaseTokenArtifact.abi,
+      wallet,
+    )
+
+    // Get minimum validator stake required
+    const minStake = await engine.getValidatorMinimum()
+
+    // Approve tokens
+    await baseToken.approve(engine.address, minStake)
+
+    // Deposit for yourself (or another address)
+    const validatorAddress = wallet.address
+    const tx = await engine.validatorDeposit(validatorAddress, minStake)
     const receipt = await tx.wait();
     ```
 
     ```solidity {{ title: 'solidity' }}
     pragma solidity ^0.8.13;
-    import "./IArbius.sol";
+    import "./IArbiusV6.sol";
     import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-    contract BecomeValidator {
-        IArbius arbius;
+    contract DepositValidator {
+        IArbiusV6 arbius;
         IERC20 arbiusToken;
 
-        constructor(IArbius _arbius, IERC20 _arbiusToken) {
+        constructor(IArbiusV6 _arbius, IERC20 _arbiusToken) {
             arbius = _arbius;
             arbiusToken = _arbiusToken;
         }
 
-        function becomeValidator() public {
-            arbiusToken.approve(address(arbius), type(uint256).max);
-            arbius.becomeValidator();
+        function depositForValidator(address validator, uint256 amount) public {
+            arbiusToken.approve(address(arbius), amount);
+            arbius.validatorDeposit(validator, amount);
         }
     }
     ```
@@ -141,11 +199,34 @@ The Validator model contains all information about Validator
 
 ---
 
-## Exit Validation {{ tag: 'WRITE', label: 'Engine' }}
+## Withdraw validator stake {{ tag: 'WRITE', label: 'Engine' }}
 
 <Row>
   <Col>
-    Validators who wish to withdraw their staked balance and cease being validators must first perform a call to `initiateExitValidator`, and after a period of time (`exitValidatorMinUnlockTime`) may call `exitValidator` to withdraw staked funds.
+    <Note>
+      **V6 Three-Step Withdraw Process**: Validators must initiate a withdraw request, wait for the unlock period, then complete the withdrawal.
+    </Note>
+
+    Withdrawing your stake is a three-step process:
+
+    **Step 1: Initiate Withdraw**
+    - Call `initiateValidatorWithdraw(amount)`
+    - Receive a request ID (counter)
+    - Tokens are locked but still count toward your stake
+
+    **Step 2: Wait for Unlock**
+    - Wait `exitValidatorMinUnlockTime` (typically 24 hours)
+    - Check unlock time via `pendingValidatorWithdrawRequests`
+    - You can cancel the request if needed
+
+    **Step 3: Complete Withdraw**
+    - Call `validatorWithdraw(requestId, recipientAddress)`
+    - Tokens are transferred to recipient
+    - Your staked balance is reduced
+
+    <Warning>
+      If your staked balance minus pending withdraws falls below `validatorMinimum`, you cannot submit solutions or vote on contestations.
+    </Warning>
   </Col>
   <Col sticky>
 
@@ -154,7 +235,7 @@ The Validator model contains all information about Validator
     ```js {{ title: 'ethers' }}
     import { ethers } from 'ethers'
     import Config from './config.json'
-    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+    import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json';
 
     const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
 
@@ -169,40 +250,51 @@ The Validator model contains all information about Validator
       wallet,
     )
 
-    const tx = await engine.initiateExitValidator()
-    const receipt = await tx.wait();
+    // Step 1: Initiate withdraw
+    const withdrawAmount = ethers.utils.parseEther('100')
+    const initTx = await engine.initiateValidatorWithdraw(withdrawAmount)
+    const initReceipt = await initTx.wait()
 
-    // after waiting 1 day
-    const tx = await engine.exitValidator()
-    const receipt = await tx.wait();
+    // Get the request ID from the event
+    const event = initReceipt.events.find(e => e.event === 'ValidatorWithdrawInitiated')
+    const requestId = event.args.count
 
+    // Step 2: Check unlock time
+    const request = await engine.pendingValidatorWithdrawRequests(
+      wallet.address,
+      requestId
+    )
+    console.log('Unlock time:', new Date(request.unlockTime * 1000))
+
+    // Optional: Cancel the request
+    // await engine.cancelValidatorWithdraw(requestId)
+
+    // Step 3: After unlock time passes, complete withdraw
+    const withdrawTx = await engine.validatorWithdraw(requestId, wallet.address)
+    const withdrawReceipt = await withdrawTx.wait()
     ```
 
     ```solidity {{ title: 'solidity' }}
     pragma solidity ^0.8.13;
-    import "./IArbius.sol";
-    import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+    import "./IArbiusV6.sol";
 
-    contract BecomeAndExitValidator {
-        IArbius arbius;
-        IERC20 arbiusToken;
+    contract ValidatorWithdraw {
+        IArbiusV6 arbius;
 
-        constructor(IArbius _arbius, IERC20 _arbiusToken) {
+        constructor(IArbiusV6 _arbius) {
             arbius = _arbius;
-            arbiusToken = _arbiusToken;
         }
 
-        function becomeValidator() public {
-            arbiusToken.approve(address(arbius), type(uint256).max);
-            arbius.becomeValidator();
+        function initiateWithdraw(uint256 amount) public returns (uint256) {
+            return arbius.initiateValidatorWithdraw(amount);
         }
 
-        function initiateExitValidator() public {
-            arbius.initiateExitValidator();
+        function cancelWithdraw(uint256 requestId) public {
+            arbius.cancelValidatorWithdraw(requestId);
         }
 
-        function exitValidator() public {
-            arbius.exitValidator();
+        function completeWithdraw(uint256 requestId, address recipient) public {
+            arbius.validatorWithdraw(requestId, recipient);
         }
     }
     ```

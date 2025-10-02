@@ -1,15 +1,15 @@
 export const description = 'Documentation on contestation mechanism of Arbius'
- 
+
 # Contestations
- 
+
 Contestations represent arguments over the validity of proposed solutions
- 
+
 ## The Contestation model
- 
+
 The Contestation model contains everything needed to verify a solution
- 
+
 ### Properties
- 
+
 <Properties>
   <Property name="validator" type="address">
     Validator that provided solution
@@ -20,7 +20,36 @@ The Contestation model contains everything needed to verify a solution
   <Property name="finish_start_index" type="uint32">
     What index position to start iteration at for dispersement of value from contestation
   </Property>
+  <Property name="slashAmount" type="uint256">
+    Amount to slash from losing voters (V6+)
+  </Property>
 </Properties>
+
+---
+
+## Master Contester System (V6+)
+
+<Note>
+  **V6 introduces master contesters** - a curated group of trusted validators who can initiate contestations. This provides an additional security layer for the network.
+</Note>
+
+### What are Master Contesters?
+
+Master contesters are authorized validators who:
+- Can initiate contestations on suspicious solutions
+- Receive +50 vote weight (configurable via `masterContesterVoteAdder`)
+- Must maintain minimum validator stake requirements
+- Are managed through the Master Contester Registry contract
+
+### Why Master Contesters?
+
+The master contester system provides:
+- **Rapid response** to invalid solutions
+- **Quality protection** for model reputation and token value
+- **Specialized expertise** in detecting fraud
+- **Community oversight** through the suggestion mechanism
+
+Anyone can suggest a contestation via `suggestContestation()`, but only master contesters can officially initiate them.
  
 ---
 
@@ -79,21 +108,17 @@ The Contestation model contains everything needed to verify a solution
 
 ---
 
-## Submit contestation {{ tag: 'WRITE', label: 'Engine' }}
+## Suggest contestation (V6+) {{ tag: 'WRITE', label: 'Engine' }}
 
 <Row>
   <Col>
-    A contestation may be submitted when a solver detects a submitted solution to a task is invalid.
+    <Note>
+      **New in V6**: Anyone can suggest a contestation to alert master contesters of a potentially invalid solution.
+    </Note>
 
-    Contestations freeze the claiming process for a solution, and initiate a binary vote, the contestor must achieve more votes for their contest to win.
+    This function doesn't create an actual contestation - it only emits an event that master contesters can monitor. This allows the community to participate in quality control without requiring master contester privileges.
 
-    Whichever side loses, each forfeits the current `slashAmount` (currently 1 Arbius). This is distributed to the winners, in which the first voter (the original solver or contestor) receives 50% of the rewards, with the other winning voters receiving equal shares of the remaining slashed funds.
-    
-    If the contestor wins, the task submitter is refunded their fee they paid.
-
-    If the contestor loses, the original solver automatically collects their normal fee and reward.
-
-    Internally, submitting adds you as a vote for, and the original submitter against, the contestation.
+    Suggested contestations must meet the same timing requirements as regular contestations (before `minClaimSolutionTime` expires).
   </Col>
   <Col sticky>
 
@@ -102,7 +127,85 @@ The Contestation model contains everything needed to verify a solution
     ```js {{ title: 'ethers' }}
     import { ethers } from 'ethers'
     import Config from './config.json'
-    import EngineArtifact from './artifacts/EngineV1.sol/EngineV1.json';
+    import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const wallet = new ethers.Wallet(
+      process.env.PRIVATE_KEY,
+      provider,
+    );
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      wallet,
+    )
+
+    const taskid = 'task id to suggest contestation for'
+
+    const tx = await engine.suggestContestation(taskid)
+    const receipt = await tx.wait()
+
+    // Listen for ContestationSuggested event
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbiusV6.sol";
+
+    contract SuggestContestation {
+        IArbiusV6 arbius;
+
+        constructor(IArbiusV6 _arbius) {
+            arbius = _arbius;
+        }
+
+        function suggestContestation(bytes32 _taskid) public {
+            arbius.suggestContestation(_taskid);
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Submit contestation (Master Contesters Only - V6+) {{ tag: 'WRITE', label: 'Engine' }}
+
+<Row>
+  <Col>
+    <Note>
+      **V6 Change**: Only master contesters can submit contestations. Regular validators should use `suggestContestation()` instead.
+    </Note>
+
+    A contestation may be submitted when a master contester detects a submitted solution to a task is invalid.
+
+    Contestations freeze the claiming process for a solution, and initiate a binary vote. The master contester receives a vote weight bonus (default +50 votes) to help ensure quick resolution.
+
+    Whichever side loses, each forfeits the current `slashAmount`. This is distributed to the winners, in which the first voter (the original solver or contestor) receives 50% of the rewards, with the other winning voters receiving equal shares of the remaining slashed funds.
+
+    If the contestor wins, the task submitter is refunded their fee they paid.
+
+    If the contestor loses, the original solver automatically collects their normal fee and reward.
+
+    Internally, submitting adds you as a vote for, and the original submitter against, the contestation.
+
+    **Requirements:**
+    - Must be registered as a master contester
+    - Must maintain minimum validator stake
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="WRITE" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json';
 
     const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
 
@@ -119,22 +222,24 @@ The Contestation model contains everything needed to verify a solution
 
     const taskid = 'task id we are contesting'
 
+    // Only works if wallet is a master contester
     const tx = await engine.submitContestation(taskid)
     const receipt = await tx.wait()
     ```
 
     ```solidity {{ title: 'solidity' }}
     pragma solidity ^0.8.13;
-    import "./IArbius.sol";
+    import "./IArbiusV6.sol";
 
     contract SubmitContestation {
-        IArbius arbius;
+        IArbiusV6 arbius;
 
-        constructor(IArbius _arbius) {
+        constructor(IArbiusV6 _arbius) {
             arbius = _arbius;
         }
 
         function submitContestation(bytes32 _taskid) public {
+            // Requires msg.sender to be a master contester
             arbius.submitContestation(_taskid);
         }
     }

@@ -1,107 +1,269 @@
-export const description =
-  'This guide will get you all set up and ready to use the Arbius Protocol.'
+export const description = 'Understanding task rewards and fee distribution in Arbius'
 
-# Quickstart
+# Task Rewards and Fee Distribution
 
-This guide will get you all set up and ready to use the Semper API. We'll cover how to get started using one of our API clients and how to make your first API request. We'll also look at where to go next to find all the information you need to take full advantage of our powerful REST API. {{ className: 'lead' }}
+When a validator successfully solves a task for a mineable model, they receive both fees from the task submitter and mining rewards from the protocol. Understanding how these are calculated and distributed is essential for validators and model creators.
+
+---
+
+## Fee Distribution (V6)
 
 <Note>
-  Before you can make requests to the Semper API, you will need to grab your
-  API key from the dashboard. You find it under [siwe](/siwe).
+  **V6 Change**: Validator earnings now automatically compound into their stake instead of being transferred. This increases voting power and simplifies operations.
 </Note>
 
-## Choose your client
+### Fee Components
 
-Before making your first API request, you need to pick which API client you will use. In addition to good ol' cURL HTTP requests, Semper allows you to use the OpenAI clients for JavaScript and Python. In the following example, you can see how to install each client.
+Every task has two fee components:
 
-<CodeGroup>
+1. **Model Fee** (`model.fee`) - Set by the model owner
+2. **Task Fee** (`task.fee`) - Set by the task submitter
 
-```bash {{ title: 'cURL' }}
-# cURL is most likely already installed on your machine
-curl --version
+**Total Fee = Model Fee + Task Fee**
+
+### Distribution Flow
+
+#### 1. Model Fee Split
+
+The model fee is split between the treasury and model owner:
+
+```
+Model Fee Distribution:
+├─ Treasury Fee = modelFee × solutionModelFeePercentage
+│  (goes to treasury)
+└─ Model Owner Fee = modelFee - Treasury Fee
+   (goes to model.addr)
 ```
 
-```bash {{ language: 'js' }}
-# Install the OpenAI JavaScript SDK
-npm install openai
+**Per-Model Override (V6):**
+- Default: Uses global `solutionModelFeePercentage`
+- Override: Uses `solutionModelFeePercentageOverride[modelId]` if set by owner
+
+#### 2. Task Fee Split
+
+The remaining task fee (after model fee) is split between treasury and validator:
+
+```
+Task Fee Distribution:
+├─ Treasury Fee = (taskFee - modelFee) × solutionFeePercentage
+│  (goes to treasury)
+└─ Validator Fee = remainder
+   (added to validator stake - V6)
 ```
 
-```bash {{ language: 'python' }}
-# Install the OpenAI Python SDK
-pip install openai
+### Complete Example
+
+**Scenario:**
+- Model fee: 1 AIUS
+- Task fee: 2 AIUS
+- `solutionModelFeePercentage`: 50% (0.5e18)
+- `solutionFeePercentage`: 10% (0.1e18)
+
+**Distribution:**
+```
+Total: 2 AIUS
+
+Model Fee (1 AIUS):
+├─ Treasury: 0.5 AIUS (50% of model fee)
+└─ Model Owner: 0.5 AIUS
+
+Task Fee (2 - 1 = 1 AIUS):
+├─ Treasury: 0.1 AIUS (10% of task fee)
+└─ Validator Stake: 0.9 AIUS (added to stake, not transferred)
+
+Final Distribution:
+- Treasury: 0.6 AIUS total
+- Model Owner: 0.5 AIUS
+- Validator Stake: +0.9 AIUS
 ```
 
-</CodeGroup>
+### V6 Stake Compounding
 
-<div className="not-prose">
-  <Button
-    href="/sdks"
-    variant="text"
-    arrow="right"
-    children="Check out our list of SDKs"
-  />
-</div>
+**Critical Change in V6:**
 
-## Making your first API request
+All validator earnings are **added to their stake**, not transferred:
+- Solution fees → Added to `validators[address].staked`
+- Mining rewards → Added to `validators[address].staked`
+- Contestation rewards → Added to `validators[address].staked`
 
-After picking your preferred client, you are ready to make your first call to the Semper API. Below, you can see how to send a GET request to the Completions endpoint to generate text. In the cURL example, results are limited to seven tokens.
+**Benefits:**
+- Automatic compounding of earnings
+- Increased voting power over time
+- Gas savings (no transfer transactions)
+- Simplified validator operations
 
-<CodeGroup tag="GET" label="/v1/completions">
+**To Access Earnings:**
+Use the three-step withdraw process (see [Validators](/validators))
 
-```bash {{ title: 'cURL' }}
-curl https://api.semper.ai/v1/completions \
-  -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer {token}' \
-  -d '{
-    "model": "text-davinci-001",
-    "prompt": "Say this is a test",
-    "max_tokens": 7,
-    "temperature": 0
-  }'
+---
+
+## Mining Rewards
+
+When a task is solved for a mineable model (one with `rate > 0`), the validator also receives mining rewards based on the emission schedule.
+
+### Reward Calculation
+
+```solidity
+reward = baseReward × modelRate × gaugeMultiplier / (2 × 1e18 × 1e18)
 ```
 
-```js
-const { Configuration, OpenAIApi } = require("openai");
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-  basePath: 'https://api.semper.ai/v1',
-});
-const openai = new OpenAIApi(configuration);
-const response = await openai.createCompletion({
-  model: "text-davinci-001",
-  prompt: "Say this is a test",
-  max_tokens: 7,
-  temperature: 0,
-});
+Where:
+- `baseReward` = Current emission reward based on `targetTs()` and `diffMul()`
+- `modelRate` = Model's mining rate (set by governance)
+- `gaugeMultiplier` = Vote weight from veAIUS holders (V5+)
+
+### Reward Distribution (V3+)
+
+Mining rewards are split three ways:
+
+```
+Total Mining Reward
+├─ Treasury Reward = total × treasuryRewardPercentage
+│  (transferred to treasury)
+├─ Task Owner Reward = total × taskOwnerRewardPercentage
+│  (transferred to task.owner)
+└─ Validator Reward = remainder
+   (added to validator stake - V6)
 ```
 
-```python
-import os
-import openai
-openai.api_base = 'https://api.semper.ai/v1'
-openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.Completion.create(
-  model="text-davinci-001",
-  prompt="Say this is a test",
-  max_tokens=7,
-  temperature=0
-)
+**Example:**
+- Total reward: 10 AIUS
+- `treasuryRewardPercentage`: 10% (0.1e18)
+- `taskOwnerRewardPercentage`: 5% (0.05e18)
+
+**Distribution:**
+```
+├─ Treasury: 1 AIUS
+├─ Task Owner: 0.5 AIUS
+└─ Validator Stake: +8.5 AIUS
 ```
 
-</CodeGroup>
+### veStaking Share (V4+)
 
-<div className="not-prose">
-  <Button
-    href="/completions"
-    variant="text"
-    arrow="right"
-    children="Read the docs for the Completions endpoint"
-  />
-</div>
+Half of all mining rewards go to veStaking for veAIUS holders:
 
-## What's next?
+```
+Total Emissions:
+├─ 50% → veStaking (for veAIUS holders)
+└─ 50% → Task rewards (distributed as above)
+```
 
-Great, you're now set up with an API client and have made your first request to the API. Here are a few links that might be handy as you venture further into the Semper API:
+The engine accumulates rewards in `veRewards` and transfers them to veStaking when `periodFinish()` expires.
 
-- [Check out the Completions endpoint](/completions)
-- [Check out the Images endpoint](/images)
+---
+
+## Gauge System (V5+)
+
+<Note>
+  veAIUS holders can vote on which models receive mining rewards through the gauge system.
+</Note>
+
+### How It Works
+
+1. **Gauge Creation:** Models can have gauges created for them
+2. **veAIUS Voting:** veAIUS holders vote to direct emissions
+3. **Multiplier Calculation:** Vote weight determines `gaugeMultiplier`
+4. **Reward Distribution:** Models with higher votes receive more rewards
+
+### Impact on Mining
+
+**If model has NO gauge:**
+- `gaugeMultiplier = 0`
+- **No mining rewards** (only fees)
+
+**If model has gauge:**
+- `gaugeMultiplier` based on vote weight
+- Mining rewards proportional to votes received
+
+This allows the community to direct emissions to the most valuable models.
+
+---
+
+## Emission Schedule
+
+### Current Schedule (V5+)
+
+<Note>
+  The emission schedule was **doubled in V5** to extend the mining period and increase sustainability.
+</Note>
+
+**Formula:**
+```
+targetTs(t) = STARTING_AMOUNT × (1 - 1 / 2^(t / (60×60×24×365×2)))
+```
+
+Where `t` = seconds since `startBlockTime`
+
+**Key Points:**
+- **2-year halving period** (doubled from 1 year in V5)
+- ~14 years to reach 99% of supply (extended from ~7 years)
+- Lower immediate inflation
+- More sustainable long-term incentives
+
+### Difficulty Multiplier
+
+The `diffMul()` function adjusts rewards based on actual vs target supply:
+
+- **Mining behind target** → Difficulty decreases (more rewards)
+- **Mining ahead of target** → Difficulty increases (fewer rewards)
+- **At target** → Normal rewards (1x multiplier)
+
+This creates a self-balancing emission system.
+
+---
+
+## Additional Costs for Validators
+
+### Solution Stake (V2+)
+
+When submitting solutions, validators must have:
+
+1. Validator minimum stake (percentage of supply)
+2. **Additional `solutionsStakeAmount` per solution**
+
+This stake is:
+- Temporarily locked when solution submitted
+- Returned when solution successfully claimed
+- Forfeited to contestation initiator if contestation succeeds
+
+**Purpose:** Prevents frivolous solution submissions
+
+### Solution Rate Limit (V3+)
+
+Validators cannot submit solutions too quickly:
+
+```
+Minimum wait = (solutionRateLimit × numberOfSolutions) / 1e18
+```
+
+**Example:**
+- `solutionRateLimit = 60e18` (60 seconds)
+- Single solution: Wait 60 seconds between submissions
+- 10 bulk solutions: Wait 600 seconds since last submission
+
+**Purpose:** Fair distribution of mining opportunities
+
+---
+
+## Summary
+
+**For Task Submitters:**
+- Pay `task.fee` to have task solved
+- Receive `taskOwnerRewardPercentage` of mining rewards (if mineable)
+- Higher fee = faster solution (validators prioritize)
+
+**For Model Owners:**
+- Set `model.fee` to earn from each task
+- Split with treasury based on `solutionModelFeePercentage`
+- Can negotiate custom splits via fee overrides (admin only)
+
+**For Validators:**
+- Earn fees from tasks (automatically added to stake - V6)
+- Earn mining rewards from mineable models (added to stake - V6)
+- Higher stake = more voting power
+- Use withdraw process to access accumulated earnings
+
+**For veAIUS Holders:**
+- Receive 50% of all mining rewards via veStaking
+- Vote on gauge weights to direct model emissions
+- Earn proportional to lock duration and amount

@@ -84,6 +84,30 @@ The Model model contains all the information about the Model, such as its fees, 
 
 ---
 
+## Model Allow Lists (V6+)
+
+<Note>
+  **New in V6**: Model creators can restrict who can submit solutions to their models. Perfect for quality control during launch phases or private deployments.
+</Note>
+
+### What are Model Allow Lists?
+
+Model allow lists enable creators to control which validators can submit solutions. This provides:
+
+- **Quality assurance** during model launch phases
+- **Private deployments** for enterprise models
+- **Gradual rollouts** from trusted miners to permissionless
+- **Controlled solver network** for model token launches
+
+### Key Points
+
+- Allow lists are **optional** - models work permissionlessly by default
+- Only **model owner or contract owner** can manage the allow list
+- Once disabled with `disableModelAllowList()`, **cannot be re-enabled** (security feature)
+- Validators can check permissions with `isSolverAllowed()` and `modelRequiresAllowList()`
+
+---
+
 ## Register model {{ tag: 'WRITE', label: 'Engine' }}
 
 <Row>
@@ -132,12 +156,12 @@ The Model model contains all the information about the Model, such as its fees, 
 
     ```solidity {{ title: 'solidity' }}
     pragma solidity ^0.8.13;
-    import "./IArbius.sol";
+    import "./IArbiusV6.sol";
 
     contract RegisterModel {
-        IArbius arbius;
+        IArbiusV6 arbius;
 
-        constructor(IArbius _arbius) {
+        constructor(IArbiusV6 _arbius) {
             arbius = _arbius;
         }
 
@@ -145,6 +169,236 @@ The Model model contains all the information about the Model, such as its fees, 
             public
         {
             bytes32 modelid = arbius.registerModel(address(this), 0.1e18, _template);
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Register model with allow list (V6+) {{ tag: 'WRITE', label: 'Engine' }}
+
+<Row>
+  <Col>
+    <Note>
+      **New in V6**: Register a model with an allow list to restrict who can submit solutions.
+    </Note>
+
+    This function registers a model and immediately sets up an allow list of approved solvers. Only addresses in the allow list will be able to submit solutions for this model.
+
+    **Use cases:**
+    - Quality assurance during model launch
+    - Private enterprise models
+    - Gradual rollouts from trusted miners to permissionless
+    - Model token launches requiring controlled solver network
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="WRITE" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const wallet = new ethers.Wallet(
+      process.env.PRIVATE_KEY,
+      provider,
+    );
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      wallet,
+    )
+
+    const params = {
+      addr: wallet.address,
+      fee: ethers.utils.parseEther('0.1'),
+      template: {},
+      allowList: [
+        '0x1111111111111111111111111111111111111111',
+        '0x2222222222222222222222222222222222222222',
+      ]
+    }
+
+    const tx = await engine.registerModelWithAllowList(
+      params.addr,
+      params.fee,
+      ethers.utils.hexlify(ethers.utils.toUtf8Bytes(params.template)),
+      params.allowList,
+    )
+    const receipt = await tx.wait();
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbiusV6.sol";
+
+    contract RegisterModelWithAllowList {
+        IArbiusV6 arbius;
+
+        constructor(IArbiusV6 _arbius) {
+            arbius = _arbius;
+        }
+
+        function registerModel(bytes memory _template, address[] memory _allowList)
+            public
+        {
+            bytes32 modelid = arbius.registerModelWithAllowList(
+                address(this),
+                0.1e18,
+                _template,
+                _allowList
+            );
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Check solver permissions (V6+) {{ tag: 'READ', label: 'Engine' }}
+
+<Row>
+  <Col>
+    Check if a solver is allowed to submit solutions for a model. Returns `true` if the model doesn't have an allow list, or if the solver is on the allow list.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="READ" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      provider,
+    )
+
+    const modelid = '0x...'
+    const solver = '0x...'
+
+    const isAllowed = await engine.isSolverAllowed(modelid, solver);
+    const requiresAllowList = await engine.modelRequiresAllowList(modelid);
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbiusV6.sol";
+
+    contract CheckSolverAllowed {
+        IArbiusV6 arbius;
+
+        constructor(IArbiusV6 _arbius) {
+            arbius = _arbius;
+        }
+
+        function checkSolver(bytes32 modelid, address solver)
+            public
+            view
+            returns (bool)
+        {
+            return arbius.isSolverAllowed(modelid, solver);
+        }
+    }
+    ```
+
+    </CodeGroup>
+
+  </Col>
+</Row>
+
+---
+
+## Manage model allow list (V6+) {{ tag: 'WRITE', label: 'Engine (Model Owner)' }}
+
+<Row>
+  <Col>
+    <Note>
+      **Model owner or contract owner only**: These functions can only be called by the model's registered address or the contract owner.
+    </Note>
+
+    Model owners can add or remove solvers from their model's allow list. Only works if the model has an active allow list.
+
+    **Important**: Once disabled with `disableModelAllowList()`, the allow list cannot be re-enabled for security reasons.
+  </Col>
+  <Col sticky>
+
+    <CodeGroup title="Request" tag="WRITE" label="Engine">
+
+    ```js {{ title: 'ethers' }}
+    import { ethers } from 'ethers'
+    import Config from './config.json'
+    import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json';
+
+    const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+
+    const wallet = new ethers.Wallet(
+      process.env.PRIVATE_KEY,
+      provider,
+    );
+
+    const engine = new ethers.Contract(
+      Config.engineAddress,
+      EngineArtifact.abi,
+      wallet,
+    )
+
+    const modelid = '0x...'
+
+    // Add solvers to allow list
+    const solversToAdd = ['0x...', '0x...']
+    let tx = await engine.addToModelAllowList(modelid, solversToAdd)
+    await tx.wait()
+
+    // Remove solvers from allow list
+    const solversToRemove = ['0x...']
+    tx = await engine.removeFromModelAllowList(modelid, solversToRemove)
+    await tx.wait()
+
+    // Disable allow list (irreversible!)
+    tx = await engine.disableModelAllowList(modelid)
+    await tx.wait()
+    ```
+
+    ```solidity {{ title: 'solidity' }}
+    pragma solidity ^0.8.13;
+    import "./IArbiusV6.sol";
+
+    contract ManageModelAllowList {
+        IArbiusV6 arbius;
+
+        constructor(IArbiusV6 _arbius) {
+            arbius = _arbius;
+        }
+
+        function addSolvers(bytes32 modelid, address[] memory solvers) public {
+            arbius.addToModelAllowList(modelid, solvers);
+        }
+
+        function removeSolvers(bytes32 modelid, address[] memory solvers) public {
+            arbius.removeFromModelAllowList(modelid, solvers);
+        }
+
+        function disableAllowList(bytes32 modelid) public {
+            // This is irreversible!
+            arbius.disableModelAllowList(modelid);
         }
     }
     ```

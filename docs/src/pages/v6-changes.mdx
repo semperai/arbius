@@ -1,0 +1,264 @@
+export const description = 'Summary of changes and new features in Arbius V6'
+
+# V6 Changes and New Features
+
+Arbius V6 introduces major upgrades focused on security, access control, and enabling the model token economy described in the original whitepaper.
+
+## Overview
+
+V6 is a foundational upgrade that enables:
+- **Model tokens** - Models can operate as economic entities with tradeable tokens
+- **Quality control** - Enhanced security through master contesters and model allow lists
+- **Flexible economics** - Per-model fee structures and automatic stake compounding
+- **Scalability** - Infrastructure for the Amica Personas platform
+
+---
+
+## Master Contester System
+
+<Note>
+  A curated group of trusted validators who specialize in detecting invalid solutions.
+</Note>
+
+### What Changed
+
+- **Only master contesters** can initiate contestations (previously all validators could)
+- Master contesters receive **+50 vote weight** (configurable via `masterContesterVoteAdder`)
+- **Anyone can suggest** contestations via `suggestContestation()`
+- Master contesters must maintain minimum validator stake
+
+### Why It Matters
+
+- **Rapid response** to invalid solutions protects model reputation
+- **Specialized expertise** in fraud detection
+- **Community participation** through contestation suggestions
+- **Model token value** depends on inference quality
+
+### Functions
+
+```solidity
+// Master Contester Only
+submitContestation(bytes32 taskid)
+
+// Anyone Can Suggest
+suggestContestation(bytes32 taskid)
+
+// Admin Only
+setMasterContesterRegistry(address registry)
+setMasterContesterVoteAdder(uint32 amount)
+```
+
+**Learn more:** [Contestations](/contestations)
+
+---
+
+## Model Allow Lists
+
+<Note>
+  Model creators can restrict who can submit solutions to their models.
+</Note>
+
+### What Changed
+
+- Register models with **allow lists** from the start
+- **Add/remove solvers** dynamically from allow list
+- **Check permissions** before submitting solutions
+- **Disable allow list** to open model to all (irreversible)
+
+### Use Cases
+
+- **Quality assurance** during model launch phases
+- **Private deployments** for enterprise models
+- **Gradual rollouts** from trusted miners to permissionless
+- **Model token launches** requiring controlled solver network
+
+### Functions
+
+```solidity
+// Register with allow list
+registerModelWithAllowList(
+  address addr,
+  uint256 fee,
+  bytes calldata template,
+  address[] calldata allowList
+)
+
+// Check permissions
+isSolverAllowed(bytes32 model, address solver) → bool
+modelRequiresAllowList(bytes32 model) → bool
+
+// Manage allow list (model owner or contract owner only)
+addToModelAllowList(bytes32 model, address[] calldata solvers)
+removeFromModelAllowList(bytes32 model, address[] calldata solvers)
+disableModelAllowList(bytes32 model) // irreversible!
+```
+
+**Learn more:** [Models](/models)
+
+---
+
+## Validator Stake Compounding
+
+<Note>
+  Rewards automatically compound into validator stakes instead of being transferred.
+</Note>
+
+### What Changed
+
+Previously, validators received rewards via direct token transfers. In V6:
+
+- **Solution fees** → Added to validator stake
+- **Mining rewards** → Added to validator stake
+- **Contestation rewards** → Added to validator stake
+
+### Benefits
+
+- **Automatic compounding** - No manual restaking required
+- **Gas efficient** - No transfer transactions needed
+- **Increased voting power** - Stake grows with earnings
+- **Simplified operations** - One less thing to manage
+
+### How to Withdraw
+
+Your staked balance includes all accumulated rewards. To access earnings:
+
+1. `initiateValidatorWithdraw(amount)` - Start unlock timer
+2. Wait `exitValidatorMinUnlockTime` (typically 24 hours)
+3. `validatorWithdraw(count, recipient)` - Receive tokens
+
+**Learn more:** [Validators](/validators)
+
+---
+
+## Per-Model Fee Overrides
+
+<Note>
+  Contract owner can set custom treasury fee percentages for specific models (admin-only feature).
+</Note>
+
+### What Changed
+
+- Default: Model fees follow global `solutionModelFeePercentage`
+- V6: Set model-specific overrides for negotiated deals
+- Clear override to return to global default
+
+### Functions (Owner Only)
+
+```solidity
+// Set custom fee percentage for a model
+setSolutionModelFeePercentageOverride(
+  bytes32 model,
+  uint256 percentage
+)
+
+// Clear override to use global default
+clearSolutionModelFeePercentageOverride(bytes32 model)
+```
+
+This enables flexible revenue structures for different model types and business models.
+
+---
+
+## Technical Changes
+
+### New State Variables
+
+```solidity
+// Master Contester System
+address public masterContesterRegistry
+uint32 public masterContesterVoteAdder // default: 50
+
+// Model Fee Overrides
+mapping(bytes32 => uint256) public solutionModelFeePercentageOverride
+mapping(bytes32 => bool) public hasSolutionModelFeePercentageOverride
+
+// Model Allow Lists
+mapping(bytes32 => ModelAllowListEntry) public submitSolutionMinerAllowList
+```
+
+### Modified Functions
+
+- `submitContestation()` - Now restricted to master contesters only
+- `_submitSolution()` - Enforces allow list checks (L922-927)
+- `_claimSolutionFeesAndReward()` - Compounds earnings to validator stake
+
+### New Events
+
+```solidity
+event MasterContesterRegistrySet(address indexed registry)
+event MasterContesterVoteAdderSet(uint32 adder)
+event ContestationSuggested(address indexed addr, bytes32 indexed task)
+event ModelAllowListUpdated(bytes32 indexed model, address indexed solver, bool added)
+event ModelAllowListRequirementChanged(bytes32 indexed model, bool required)
+event SolutionModelFeePercentageOverrideCleared(bytes32 indexed model)
+```
+
+---
+
+## Migration from V5
+
+V6 is backward compatible with V5. No action required for:
+- Existing validators (stake compounding happens automatically)
+- Existing models (continue working permissionlessly)
+- Task submitters (no changes to task flow)
+
+### What Changes for Validators
+
+- Earnings automatically compound to stake
+- Use withdraw system to access accumulated rewards
+- Master contesters selected from high-performing validators
+
+### What Changes for Model Owners
+
+- Optional: Register new models with allow lists
+- Optional: Manage solver permissions for existing models
+- Fee structures may be customized (by contract owner)
+
+---
+
+## Model Token Economy
+
+V6 provides the infrastructure for the model token economy described in the Arbius whitepaper:
+
+> *"Models can optionally have a flat-fee they charge for each use, which accrues in the models specified address. This allows models to operate as DAOs, with their own token dynamics... Interesting and useful model tokens may have high speculative value due to their potential to accrue a large portion of fees over time."*
+
+### How V6 Enables This
+
+✅ **Quality Control** - Allow lists and master contesters protect model reputation
+✅ **Flexible Economics** - Per-model fee structures enable diverse business models
+✅ **Governance** - Model fees accrue on-chain to model addresses
+✅ **Scalability** - Infrastructure proven for 10+ models in playground
+
+### Amica Personas
+
+**Launching 3-4 weeks after V6** - Platform for tradeable model tokens:
+
+- Fair launch via bonding curves
+- Automatic Uniswap graduation
+- Burn & claim revenue distribution
+- AIUS as reserve currency
+
+**Preview:** [personas.heyamica.com](https://personas.heyamica.com/)
+
+---
+
+## Resources
+
+- **Contract:** `/Users/jt/code/kasumi-arbius/contract/contracts/V2_EngineV6.sol`
+- **Interface:** `/Users/jt/code/kasumi-arbius/contract/contracts/interfaces/IArbiusV6.sol`
+- **V6 Announcement:** `/Users/jt/code/kasumi-arbius/announcements/ARBIUS_V6_ANNOUNCEMENT.md`
+- **V6 Summary:** `/Users/jt/code/kasumi-arbius/announcements/ARBIUS_V6_SUMMARY.md`
+- **Whitepaper:** [arbius.ai/paper](https://arbius.ai/paper)
+- **Discord:** [discord.gg/arbius](https://discord.gg/arbius)
+
+---
+
+## Key Takeaways
+
+1. **Master contesters** provide specialized security layer with vote weight bonus
+2. **Model allow lists** enable quality control during launches and private deployments
+3. **Stake compounding** simplifies validator operations and increases voting power
+4. **V6 infrastructure** enables the model token economy from the whitepaper
+5. **Amica Personas** makes model tokens tradeable (launching soon)
+
+V6 is live. The model token economy starts now.
