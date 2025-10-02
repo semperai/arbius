@@ -7,6 +7,8 @@ import { ThemeProvider } from 'next-themes'
 import { useState, useEffect } from 'react'
 import { AAWalletProvider, init } from '@/lib/arbius-wallet'
 import { arbitrum } from 'viem/chains'
+import { RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowkit'
+import '@rainbow-me/rainbowkit/styles.css'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient())
@@ -28,18 +30,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {isWalletInitialized ? (
-            <AAWalletProvider>{children}</AAWalletProvider>
-          ) : (
-            children
-          )}
-        </ThemeProvider>
+        <RainbowKitProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {isWalletInitialized ? (
+              <AAWalletProvider>{children}</AAWalletProvider>
+            ) : (
+              children
+            )}
+          </ThemeProvider>
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   )

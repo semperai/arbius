@@ -1,13 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { WalletConnect } from './WalletConnect'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { AAWalletDisplay } from '@/lib/arbius-wallet/components/AAWalletDisplay'
+import { useAccount } from 'wagmi'
 
 export function Navbar() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { isConnected } = useAccount()
 
   useEffect(() => {
     setMounted(true)
@@ -69,7 +72,10 @@ export function Navbar() {
                 {theme === 'dark' ? '🌞' : '🌙'}
               </button>
             )}
-            <WalletConnect />
+            <div className="flex items-center gap-2">
+              <ConnectButton />
+              {isConnected && <AAWalletDisplay arbiusLogoSrc="/arbius_logo_round.png" />}
+            </div>
           </div>
         </div>
       </div>
