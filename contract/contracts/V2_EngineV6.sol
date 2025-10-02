@@ -172,10 +172,13 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
     // v6: model specific override for solutionModelFeePercentage
     mapping(bytes32 => uint256) public solutionModelFeePercentageOverride;
 
+    // v6: track which models have an explicit override set
+    mapping(bytes32 => bool) public hasSolutionModelFeePercentageOverride;
+
     // v6: task specific allow list for who can submit tasks
     mapping(bytes32 => ModelAllowListEntry) public submitSolutionMinerAllowList;
 
-    uint256[33] __gap; // upgradeable gap
+    uint256[32] __gap; // upgradeable gap
 
     /// @notice Modifier to restrict to only pauser
     modifier onlyPauser() {
@@ -309,6 +312,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
         if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
         if (solutionModelFeePercentage_ > 1 ether) revert PercentageTooHigh();
         solutionModelFeePercentageOverride[model_] = solutionModelFeePercentage_;
+        hasSolutionModelFeePercentageOverride[model_] = true;
     }
 
     /// @notice Set version
@@ -1002,7 +1006,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
             // v5 we split the model fee between the model owner and treasury
             if (modelFee > 0) {
                 uint256 modelFeePercentage = solutionModelFeePercentage;
-                if (solutionModelFeePercentageOverride[model] != 0) {
+                if (hasSolutionModelFeePercentageOverride[model]) {
                     modelFeePercentage = solutionModelFeePercentageOverride[model];
                 }
 
