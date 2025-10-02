@@ -357,7 +357,7 @@ export default function PlaygroundPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="mb-2 text-4xl font-bold text-gray-900">Arbius Playground</h1>
+          <h1 className="mb-2 text-4xl font-bold text-gray-900">Playground</h1>
           <p className="text-gray-700">
             Chat with AI models on the Arbius network
           </p>
