@@ -75,7 +75,7 @@ export function Navbar() {
             {/* Staking Dropdown */}
             <div className="relative group">
               <button
-                className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1"
+                className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
                 onMouseEnter={() => setStakingDropdownOpen(true)}
                 onMouseLeave={() => setStakingDropdownOpen(false)}
                 aria-expanded={stakingDropdownOpen}
@@ -165,7 +165,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-3 text-gray-700 hover:text-primary"
+            className="lg:hidden p-3 text-gray-700 hover:text-primary cursor-pointer"
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             <div className="w-6 h-5 flex flex-col justify-between">
@@ -185,7 +185,7 @@ export function Navbar() {
             <div>
               <button
                 onClick={() => setStakingDropdownOpen(!stakingDropdownOpen)}
-                className="w-full flex items-center justify-between text-2xl font-medium text-black"
+                className="w-full flex items-center justify-between text-2xl font-medium text-black cursor-pointer"
               >
                 Staking
                 <svg
@@ -207,7 +207,7 @@ export function Navbar() {
                     className="block p-4 rounded-xl bg-gray-50"
                   >
                     <Image src={arbiusLogoWithoutName} alt="" width={20} height={20} className="mb-2" />
-                    <div className="font-bold mb-1">LP Staking</div>
+                    <div className="font-bold mb-1 text-gray-900">LP Staking</div>
                     <div className="text-sm text-gray-600">Provide liquidity, earn AIUS rewards.</div>
                   </Link>
 
@@ -218,7 +218,7 @@ export function Navbar() {
                     className="block p-4 rounded-xl bg-gray-50"
                   >
                     <Image src={arbiusLogoWithoutName} alt="" width={20} height={20} className="mb-2" />
-                    <div className="font-bold mb-1">veAIUS</div>
+                    <div className="font-bold mb-1 text-gray-900">veAIUS</div>
                     <div className="text-sm text-gray-600">Lock AIUS, earn rewards over time.</div>
                   </Link>
                 </div>
