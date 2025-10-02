@@ -1,5 +1,4 @@
 import { mdxAnnotations } from 'mdx-annotations'
-import recmaNextjsStaticProps from 'recma-nextjs-static-props'
 
 function recmaRemoveNamedExports() {
   return (tree) => {
@@ -15,5 +14,4 @@ function recmaRemoveNamedExports() {
 export const recmaPlugins = [
   mdxAnnotations.recma,
   recmaRemoveNamedExports,
-  recmaNextjsStaticProps,
 ]

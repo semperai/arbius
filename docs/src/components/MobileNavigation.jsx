@@ -1,3 +1,5 @@
+'use client'
+
 import { createContext, Fragment, useContext } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { motion } from 'framer-motion'

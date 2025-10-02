@@ -1,0 +1,169 @@
+export const description = 'Understanding model tokens in Arbius - ERC20 tokens for each AI model'
+
+# Model Tokens
+
+Every model registered in Arbius automatically gets its own ERC20 token. These tokens represent fractional ownership in the model and its fee revenue.
+
+---
+
+## What are Model Tokens?
+
+When you register a model in Arbius, the protocol automatically deploys an ERC20 token contract for that model. These tokens:
+
+- Are created at model registration
+- Follow the ERC20 standard
+- Can be traded freely
+- Entitle holders to model fee revenue
+- Represent fractional ownership
+
+## Token Distribution
+
+The initial token supply goes to the model creator:
+
+```solidity
+// At registration, all tokens minted to msg.sender
+modelToken.mint(msg.sender, INITIAL_SUPPLY)
+```
+
+**Default Supply**: 1,000,000 tokens (configurable)
+
+## Fee Revenue Sharing
+
+Model token holders receive a share of the fees generated when their model is used:
+
+### How it Works
+
+1. User submits task for your model
+2. Task is solved by validator
+3. Model fee is collected
+4. Treasury takes percentage (via `solutionModelFeePercentage`)
+5. **Remainder goes to model owner address**
+
+### Distribution to Token Holders
+
+The model owner (token holder) receives fees to the model's registered address. If you want to distribute these fees to all token holders:
+
+**Option 1: Manual Distribution**
+- Collect fees to owner address
+- Manually distribute to token holders proportionally
+
+**Option 2: Fee Distributor Contract**
+- Deploy a fee distributor contract as the model owner
+- Contract automatically splits fees to token holders
+
+**Option 3: Staking Contract**
+- Create a staking contract for model tokens
+- Distribute fees to stakers
+
+## Use Cases
+
+### 1. Model Ownership Transfer
+
+Transfer ownership by selling model tokens:
+
+```typescript
+// Sell tokens = transfer ownership share
+await modelToken.transfer(buyer, amount)
+```
+
+### 2. Fractional Ownership
+
+Multiple parties can co-own a model:
+
+```typescript
+// Initial creator holds 1,000,000 tokens
+await modelToken.transfer(partner1, 300_000) // 30%
+await modelToken.transfer(partner2, 200_000) // 20%
+// Creator retains 500_000 (50%)
+```
+
+### 3. Community Models
+
+Distribute tokens to community:
+
+```typescript
+// Airdrop tokens to community members
+for (const member of community) {
+  await modelToken.transfer(member, allocation)
+}
+```
+
+### 4. Liquidity Provision
+
+Provide liquidity on DEXs:
+
+```typescript
+// Add liquidity on Uniswap/Sushiswap
+await modelToken.approve(router, amount)
+await router.addLiquidity(modelToken, WETH, ...)
+```
+
+## Getting Model Token Address
+
+Find the token contract for any model:
+
+```typescript
+// Get model token address
+const model = await engine.models(modelId)
+const tokenAddress = model.token
+
+// Interact with token
+const ModelToken = await ethers.getContractAt('ERC20', tokenAddress)
+const balance = await ModelToken.balanceOf(holder)
+```
+
+## Token Holders and Governance
+
+While token holders receive fee revenue, they do **not** automatically get:
+
+- Ability to change model parameters (only original owner)
+- Ability to pause the model (only original owner)
+- Governance rights over model settings
+
+The model owner address retains administrative control. Token ownership is purely financial.
+
+## Best Practices
+
+### For Model Creators
+
+1. **Consider tokenomics early** - Plan distribution before launch
+2. **Set up fee distribution** - Implement automatic distribution if desired
+3. **Provide liquidity** - Make tokens tradeable on DEXs
+4. **Communicate clearly** - Explain token utility to holders
+
+### For Token Holders
+
+1. **Understand the model** - Research what the model does
+2. **Check fee revenue** - Verify the model generates usage
+3. **Monitor performance** - Track model task volume
+4. **Liquidity awareness** - Understand token liquidity before buying
+
+## Advanced: Fee Distributor Contract
+
+Example distributor contract for model tokens:
+
+```solidity
+contract ModelFeeDistributor {
+    IERC20 public modelToken;
+
+    // Receive fees from model
+    receive() external payable {}
+
+    // Claim proportional fees
+    function claim() external {
+        uint256 balance = modelToken.balanceOf(msg.sender);
+        uint256 totalSupply = modelToken.totalSupply();
+        uint256 share = (address(this).balance * balance) / totalSupply;
+
+        payable(msg.sender).transfer(share);
+    }
+}
+```
+
+Set this contract as the model owner to automatically collect and distribute fees.
+
+## Related
+
+- See [Models](/models) for model registration
+- See [Register Model](/register-model) for registration guide
+- See [Task Rewards](/task-rewards) for fee distribution details

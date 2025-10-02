@@ -1,6 +1,8 @@
+'use client'
+
 import { forwardRef, Fragment, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import { Transition } from '@headlessui/react'
 
 import { Button } from '@/components/Button'
@@ -124,7 +126,7 @@ function PageLink({ label, page, previous = false }) {
 }
 
 function PageNavigation() {
-  let router = useRouter()
+  let router = usePathname()
   let allPages = navigation.flatMap((group) => group.links)
   let currentPageIndex = allPages.findIndex(
     (page) => page.href === router.pathname
@@ -231,7 +233,7 @@ function SmallPrint() {
 }
 
 export function Footer() {
-  let router = useRouter()
+  let router = usePathname()
 
   return (
     <footer className="mx-auto max-w-2xl space-y-10 pb-16 lg:max-w-5xl">

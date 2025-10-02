@@ -1,3 +1,5 @@
+'use client'
+
 import { GridPattern } from '@/components/GridPattern'
 
 export function HeroPattern() {

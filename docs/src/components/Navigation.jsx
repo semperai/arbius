@@ -1,6 +1,8 @@
+'use client'
+
 import { useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
 import { AnimatePresence, motion, useIsPresent } from 'framer-motion'
 
@@ -111,13 +113,13 @@ function NavigationGroup({ group, className }) {
   // state, so that the state does not change during the close animation.
   // The state will still update when we re-open (re-render) the navigation.
   let isInsideMobileNavigation = useIsInsideMobileNavigation()
-  let [router, sections] = useInitialValue(
-    [useRouter(), useSectionStore((s) => s.sections)],
+  let [pathname, sections] = useInitialValue(
+    [usePathname(), useSectionStore((s) => s.sections)],
     isInsideMobileNavigation
   )
 
   let isActiveGroup =
-    group.links.findIndex((link) => link.href === router.pathname) !== -1
+    group.links.findIndex((link) => link.href === pathname) !== -1
 
   return (
     <li className={clsx('relative mt-6', className)}>
@@ -130,7 +132,7 @@ function NavigationGroup({ group, className }) {
       <div className="relative mt-3 pl-2">
         <AnimatePresence initial={!isInsideMobileNavigation}>
           {isActiveGroup && (
-            <VisibleSectionHighlight group={group} pathname={router.pathname} />
+            <VisibleSectionHighlight group={group} pathname={pathname} />
           )}
         </AnimatePresence>
         <motion.div
@@ -139,17 +141,17 @@ function NavigationGroup({ group, className }) {
         />
         <AnimatePresence initial={false}>
           {isActiveGroup && (
-            <ActivePageMarker group={group} pathname={router.pathname} />
+            <ActivePageMarker group={group} pathname={pathname} />
           )}
         </AnimatePresence>
         <ul role="list" className="border-l border-transparent">
           {group.links.map((link) => (
             <motion.li key={link.href} layout="position" className="relative">
-              <NavLink href={link.href} active={link.href === router.pathname} target={link.target}>
+              <NavLink href={link.href} active={link.href === pathname} target={link.target}>
                 {link.title}
               </NavLink>
               <AnimatePresence mode="popLayout" initial={false}>
-                {link.href === router.pathname && sections.length > 0 && (
+                {link.href === pathname && sections.length > 0 && (
                   <motion.ul
                     role="list"
                     initial={{ opacity: 0 }}
@@ -207,12 +209,13 @@ export const navigation = [
       { title: 'Tasks', href: '/tasks', target:'_self' },
       { title: 'Solutions', href: '/solutions', target:'_self' },
       { title: 'Contestations', href: '/contestations', target:'_self' },
+      { title: 'Task Rewards', href: '/task-rewards', target:'_self' },
     ],
   },
   {
     title: 'Resources',
     links: [
-      { title: 'Roadmap', href: '/roadmap', target:'_self' },
+      { title: 'Roadmap', href: 'https://arbius.ai/roadmap', target:'_blank' },
       { title: 'Team', href: 'https://arbius.ai/team', target:'_blank' },
       { title: 'Security', href: '/security', target:'_self' },
       { title: 'Contracts', href: '/ca', target:'_self' },
