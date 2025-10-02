@@ -1,17 +1,72 @@
-import { Model, Task } from '@/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
-import { SearchIcon, ChevronRightIcon } from 'lucide-react';
+import {
+  SearchIcon,
+  AlertCircleIcon,
+  TrendingUpIcon,
+  CoinsIcon,
+  ShieldCheckIcon,
+  ActivityIcon,
+  DollarSignIcon,
+  NetworkIcon,
+  FileTextIcon
+} from 'lucide-react';
+import { getContractInfo, getReward, getPsuedoTotalSupply, getValidatorMinimum } from '@/lib/contract';
+import { ethers } from 'ethers';
+import { CopyButton } from '@/components/CopyButton';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { truncateString } from '@/lib/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [contractStats, setContractStats] = useState({
+    version: 0,
+    paused: false,
+    totalSupply: '0',
+    currentReward: '0',
+    accruedFees: '0',
+    validatorMinimum: '0',
+    baseToken: '',
+    treasury: '',
+    startBlockTime: null as Date | null,
+    loading: true
+  });
+
+  useEffect(() => {
+    async function loadContractStats() {
+      try {
+        const info = await getContractInfo();
+        if (!info) {
+          setContractStats(prev => ({ ...prev, loading: false }));
+          return;
+        }
+
+        const totalSupply = await getPsuedoTotalSupply();
+        const currentReward = await getReward();
+        const validatorMinimum = await getValidatorMinimum();
+
+        setContractStats({
+          version: info.version,
+          paused: info.paused,
+          totalSupply: totalSupply ? ethers.formatEther(totalSupply) : '0',
+          currentReward: currentReward ? ethers.formatEther(currentReward) : '0',
+          accruedFees: info.accruedFees,
+          validatorMinimum: validatorMinimum ? ethers.formatEther(validatorMinimum) : '0',
+          baseToken: info.baseToken,
+          treasury: info.treasury,
+          startBlockTime: info.startBlockTime,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error loading contract stats:', error);
+        setContractStats(prev => ({ ...prev, loading: false }));
+      }
+    }
+
+    loadContractStats();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,51 +133,156 @@ export default function Home() {
       {/* Metrics Section */}
       <section className="py-12">
         <div className="container px-4 mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard title="Total Tasks" value="1,234" description="Active AI tasks" />
-            <MetricCard title="Active Models" value="89" description="Available AI models" />
-            <MetricCard title="Validators" value="156" description="Network validators" />
-            <MetricCard title="Solutions" value="10.5k" description="Completed tasks" />
+          <h2 className="text-2xl font-bold mb-6">Network Statistics</h2>
+
+          {/* Primary Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <MetricCard
+              title="Total Supply"
+              value={contractStats.loading ? "..." : parseFloat(contractStats.totalSupply).toLocaleString(undefined, {maximumFractionDigits: 0})}
+              description="AIUS mined"
+              icon={<CoinsIcon className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Current Reward"
+              value={contractStats.loading ? "..." : parseFloat(contractStats.currentReward).toLocaleString(undefined, {maximumFractionDigits: 4})}
+              description="AIUS per solution"
+              icon={<TrendingUpIcon className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Accrued Fees"
+              value={contractStats.loading ? "..." : parseFloat(contractStats.accruedFees).toLocaleString(undefined, {maximumFractionDigits: 2})}
+              description="AIUS in treasury fees"
+              icon={<DollarSignIcon className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Status"
+              value={contractStats.loading ? "..." : (contractStats.paused ? "Paused" : "Active")}
+              description="Network status"
+              icon={<ActivityIcon className="h-5 w-5" />}
+              variant={contractStats.paused ? "destructive" : "success"}
+            />
           </div>
+
+          {/* Secondary Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <MetricCard
+              title="Validator Minimum"
+              value={contractStats.loading ? "..." : parseFloat(contractStats.validatorMinimum).toLocaleString(undefined, {maximumFractionDigits: 0})}
+              description="AIUS to stake"
+              icon={<ShieldCheckIcon className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Engine Version"
+              value={contractStats.loading ? "..." : `v${contractStats.version}`}
+              description="Contract version"
+              icon={<NetworkIcon className="h-5 w-5" />}
+            />
+            <MetricCard
+              title="Launch Date"
+              value={contractStats.loading ? "..." : contractStats.startBlockTime ? new Date(contractStats.startBlockTime).toLocaleDateString() : "N/A"}
+              description="First block time"
+              icon={<FileTextIcon className="h-5 w-5" />}
+            />
+          </div>
+
+          {/* Contract Addresses */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Base Token (AIUS)</CardTitle>
+                <CardDescription>ERC-20 token contract</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <code className="text-sm bg-muted/40 rounded px-2 py-1 font-mono flex-1 truncate">
+                    {contractStats.loading ? "Loading..." : contractStats.baseToken}
+                  </code>
+                  {!contractStats.loading && contractStats.baseToken && (
+                    <CopyButton text={contractStats.baseToken} label="Copy token address" size="sm" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Treasury</CardTitle>
+                <CardDescription>Protocol treasury address</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <code className="text-sm bg-muted/40 rounded px-2 py-1 font-mono flex-1 truncate">
+                    {contractStats.loading ? "Loading..." : contractStats.treasury}
+                  </code>
+                  {!contractStats.loading && contractStats.treasury && (
+                    <CopyButton text={contractStats.treasury} label="Copy treasury address" size="sm" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Indexer Notice */}
+          <Card className="mt-6 border-yellow-500/50 bg-yellow-500/5">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircleIcon className="h-5 w-5 text-yellow-500 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-sm">Limited Data Available</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Listing tasks, models, and validators requires an external indexer.
+                    You can search for specific items by their ID or address using the search bar above.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      {/* Recent Tasks Section */}
-      <section className="py-12">
-        <div className="container px-4 mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Recent Tasks</h2>
-            <Link href="/task" passHref>
-              <Button variant="ghost" className="gap-1">
-                View All <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockRecentTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Models Section */}
+      {/* Search Instructions Section */}
       <section className="py-12 border-t">
         <div className="container px-4 mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Popular Models</h2>
-            <Link href="/models" passHref>
-              <Button variant="ghost" className="gap-1">
-                View All <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
+          <h2 className="text-2xl font-bold mb-6">How to Use the Explorer</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Search Tasks</CardTitle>
+                <CardDescription>View task details and solutions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Enter a task ID (66 character hex string starting with 0x) to view task details,
+                  solutions, and contestations.
+                </p>
+              </CardContent>
+            </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockPopularModels.map((model) => (
-              <ModelCard key={model.id} model={model} />
-            ))}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Search Models</CardTitle>
+                <CardDescription>Explore AI model information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Enter a model hash to view model details including fee, owner address, and emission rate.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Search Validators</CardTitle>
+                <CardDescription>Check validator status</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Enter a validator address (42 character address starting with 0x) to view staking
+                  information and validator status.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -131,193 +291,53 @@ export default function Home() {
 }
 
 // Helper Components
-function MetricCard({ title, value, description }: { title: string; value: string; description: string }) {
+function MetricCard({
+  title,
+  value,
+  description,
+  icon,
+  variant = 'default'
+}: {
+  title: string;
+  value: string;
+  description: string;
+  icon?: React.ReactNode;
+  variant?: 'default' | 'success' | 'destructive';
+}) {
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'success':
+        return 'border-green-500/50 bg-green-500/5';
+      case 'destructive':
+        return 'border-red-500/50 bg-red-500/5';
+      default:
+        return '';
+    }
+  };
+
+  const getValueColor = () => {
+    switch (variant) {
+      case 'success':
+        return 'text-green-600 dark:text-green-400';
+      case 'destructive':
+        return 'text-red-600 dark:text-red-400';
+      default:
+        return '';
+    }
+  };
+
   return (
-    <Card>
+    <Card className={getVariantStyles()}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">{title}</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">{title}</CardTitle>
+          {icon && <div className="text-muted-foreground">{icon}</div>}
+        </div>
       </CardHeader>
       <CardContent>
-        <p className="text-3xl font-bold">{value}</p>
+        <p className={`text-2xl sm:text-3xl font-bold break-all ${getValueColor()}`}>{value}</p>
         <p className="text-sm text-muted-foreground mt-1">{description}</p>
       </CardContent>
     </Card>
   );
 }
-
-function TaskCard({ task }: { task: Task }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg truncate">
-          <Link href={`/task/${task.id}`} className="hover:text-primary transition-colors">
-            {truncateString(task.id, 16)}
-          </Link>
-        </CardTitle>
-        <CardDescription>Created {task.time} ago</CardDescription>
-      </CardHeader>
-      <CardContent className="pb-2">
-        <div className="flex flex-col space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Model:</span>
-            <Link href={`/model/${task.model}`} className="font-medium truncate max-w-[180px]">
-              {truncateString(task.model, 16)}
-            </Link>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Fee:</span>
-            <span className="font-medium">{task.fee}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Status:</span>
-            <TaskStatusBadge status={task.status!} />
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Link href={`/task/${task.id}`} passHref className="w-full">
-          <Button variant="outline" className="w-full">View Details</Button>
-        </Link>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function ModelCard({ model }: { model: Model }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg truncate">
-          <Link href={`/model/${model.id}`} className="hover:text-primary transition-colors">
-            {model.name}
-          </Link>
-        </CardTitle>
-        <CardDescription>{truncateString(model.id, 16)}</CardDescription>
-      </CardHeader>
-      <CardContent className="pb-2">
-        <div className="flex flex-col space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Base Fee:</span>
-            <span className="font-medium">{model.fee}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Usage:</span>
-            <span className="font-medium">{model.usage} tasks</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Success Rate:</span>
-            <span className="font-medium">{model.successRate}%</span>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Link href={`/models/${model.id}`} passHref className="w-full">
-          <Button variant="outline" className="w-full">View Model</Button>
-        </Link>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function TaskStatusBadge({ status }: { status: string }) {
-  const getVariant = () => {
-    switch (status) {
-      case 'Completed':
-        return 'outline';
-      case 'Pending':
-        return 'secondary';
-      case 'Contested':
-        return 'destructive';
-      default:
-        return 'outline';
-    }
-  };
-
-  return (
-    <Badge variant={getVariant()}>
-      {status}
-    </Badge>
-  );
-}
-
-// Helper function to truncate strings
-const mockRecentTasks: Task[] = [
-  {
-    id: '0x1309128093aa6234231eee34234234eff7778aa8a',
-    model: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    fee: '0.25 AIUS',
-    time: '3h',
-    status: 'Completed',
-  },
-  {
-    id: '0x2409338762aa8734231eee34298734eff7734fa8b',
-    model: '0x8f23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    fee: '0.15 AIUS',
-    time: '5h',
-    status: 'Pending'
-  },
-  {
-    id: '0x34093aa762aa8734231eee34298734eff7734fa8c',
-    model: '0x9a25f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    fee: '0.32 AIUS',
-    time: '6h',
-    status: 'Contested'
-  },
-  {
-    id: '0x44093aa762aa8734231eee34298734eff7734fa8d',
-    model: '0xac25f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    fee: '0.08 AIUS',
-    time: '12h',
-    status: 'Completed'
-  },
-  {
-    id: '0x54093aa762aa8734231eee34298734eff7734fa8e',
-    model: '0xbc25f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    fee: '0.45 AIUS',
-    time: '1d',
-    status: 'Pending'
-  },
-  {
-    id: '0x64093aa762aa8734231eee34298734eff7734fa8f',
-    model: '0xdc25f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    fee: '0.18 AIUS',
-    time: '1d',
-    status: 'Completed'
-  }
-].map((task) => ({
-  ...task,
-  owner: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
-  blocktime: 1634567890,
-  version: 1,
-  cid: 'QmXyZaBcD1234'
-}) as Task);
-
-const mockPopularModels: Model[] = [
-  {
-    id: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    name: 'InferenceAI-V1',
-    fee: '0.15 AIUS',
-    usage: '2,345',
-    successRate: 98,
-    addr: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
-    rate: 0.25,
-  },
-  {
-    id: '0x8c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    name: 'StableDiffusion-XL',
-    fee: '0.25 AIUS',
-    usage: '1,872',
-    successRate: 96,
-    addr: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
-    rate: 0.6,
-  },
-  {
-    id: '0x9c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    name: 'GPT-Arbius',
-    fee: '0.18 AIUS',
-    usage: '1,653',
-    successRate: 94,
-    addr: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
-    rate: 0.15,
-  }
-];

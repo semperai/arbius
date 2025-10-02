@@ -18,11 +18,14 @@ import {
   FileIcon
 } from 'lucide-react';
 import { Model, ModelSchema, Task } from '@/types';
+import { getModel, parseIPFSCid } from '@/lib/contract';
+import { fetchModelTemplate, ModelTemplate, formatInputParameters, getExpectedOutputs } from '@/lib/templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { CopyButton } from '@/components/CopyButton';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -53,6 +56,7 @@ export default function ModelDetail() {
 
   const [loading, setLoading] = useState(true);
   const [model, setModel] = useState<Model | null>(null);
+  const [modelTemplate, setModelTemplate] = useState<ModelTemplate | null>(null);
   const [schema, setSchema] = useState<ModelSchema | null>(null);
   const [taskCount, setTaskCount] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
@@ -63,30 +67,62 @@ export default function ModelDetail() {
 
       try {
         setLoading(true);
+        setError(null);
 
-        // In a real implementation, you would connect to the contract and fetch data
-        // const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-        // const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-        // const modelData = await contract.models(id);
+        // Fetch model from contract
+        const modelData = await getModel(id);
 
-        // Mock model data
-        setTimeout(() => {
-          const mockModel = getMockModel(id as string);
-          setModel(mockModel);
-
-          // In real implementation, you would fetch the schema from IPFS using the CID
-          // For now, we'll use the mock schema
-          setSchema(getMockSchema());
-
-          // Mock task count
-          setTaskCount(1248);
-
+        if (!modelData) {
+          setError("Model not found. Please verify the model hash is correct.");
           setLoading(false);
-        }, 1000);
+          return;
+        }
+
+        // Check if model exists (addr should not be zero address)
+        if (modelData.addr === ethers.ZeroAddress) {
+          setError("Model not found. This model hash does not exist on the blockchain.");
+          setLoading(false);
+          return;
+        }
+
+        // Convert to UI format
+        const modelCid = parseIPFSCid(modelData.cid) || '';
+
+        setModel({
+          id: modelData.id,
+          name: `Model ${truncateMiddle(modelData.id, 8)}`, // No name in contract, use truncated ID
+          addr: modelData.addr,
+          fee: modelData.fee,
+          rate: parseFloat(modelData.rate),
+          cid: modelCid,
+          usage: 0, // Task count requires an indexer
+          successRate: 0 // Success rate requires an indexer
+        });
+
+        // Fetch model template using model ID (hash) - checks local cache first
+        try {
+          const template = await fetchModelTemplate(id);
+          if (template) {
+            setModelTemplate(template);
+            // Update model name with template title if available
+            setModel(prev => prev ? { ...prev, name: template.meta.title } : null);
+          }
+        } catch (err) {
+          console.error('Error fetching model template:', err);
+        }
+
+        // Schema would be fetched from IPFS using the CID
+        // For now, we'll note that it requires IPFS access
+        setSchema(null);
+
+        // Task count requires an indexer
+        setTaskCount(0);
+
+        setLoading(false);
 
       } catch (err) {
         console.error("Error fetching model data:", err);
-        setError("Failed to load model data. Please try again later.");
+        setError("Failed to load model data. Please check your connection and try again.");
         setLoading(false);
       }
     }
@@ -170,13 +206,13 @@ export default function ModelDetail() {
         {/* Header with Model name */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-3xl font-bold">{schema?.meta.title || model.name}</h1>
-            {schema?.meta.version && (
-              <Badge variant="outline">v{schema.meta.version}</Badge>
+            <h1 className="text-3xl font-bold">{modelTemplate?.meta.title || model.name}</h1>
+            {modelTemplate?.meta.version && (
+              <Badge variant="outline">v{modelTemplate.meta.version}</Badge>
             )}
           </div>
           <p className="text-muted-foreground max-w-3xl">
-            {schema?.meta.description || 'No description available'}
+            {modelTemplate?.meta.description || 'No description available'}
           </p>
         </div>
 
@@ -192,15 +228,23 @@ export default function ModelDetail() {
                 <InfoItem
                   icon={<CodeIcon className="h-4 w-4" />}
                   label="Model Hash"
-                  value={truncateMiddle(id as string, 20)}
+                  value={
+                    <div className="flex items-center gap-1">
+                      <span>{truncateMiddle(id as string, 20)}</span>
+                      <CopyButton text={id as string} label="Copy model hash" size="icon" />
+                    </div>
+                  }
                 />
                 <InfoItem
                   icon={<UserIcon className="h-4 w-4" />}
                   label="Owner"
                   value={
-                    <Link href={`/address/${model.addr}`} className="text-primary hover:underline">
-                      {truncateMiddle(model.addr, 16)}
-                    </Link>
+                    <div className="flex items-center gap-1">
+                      <Link href={`/address/${model.addr}`} className="text-primary hover:underline">
+                        {truncateMiddle(model.addr, 16)}
+                      </Link>
+                      <CopyButton text={model.addr} label="Copy owner address" size="icon" />
+                    </div>
                   }
                 />
                 <InfoItem
@@ -213,13 +257,13 @@ export default function ModelDetail() {
                   label="Reward Rate"
                   value={model.rate.toString()}
                 />
-                {schema?.meta.git && (
+                {modelTemplate?.meta.git && (
                   <InfoItem
                     icon={<FileIcon className="h-4 w-4" />}
                     label="Repository"
                     value={
                       <a
-                        href={schema.meta.git}
+                        href={modelTemplate.meta.git}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline flex items-center gap-1"
@@ -235,15 +279,18 @@ export default function ModelDetail() {
                     icon={<FileTextIcon className="h-4 w-4" />}
                     label="IPFS CID"
                     value={
-                      <a
-                        href={`https://ipfs.arbius.org/ipfs/${model.cid}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline flex items-center gap-1"
-                      >
-                        {truncateMiddle(model.cid, 16)}
-                        <ExternalLinkIcon className="h-3 w-3" />
-                      </a>
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={`https://ipfs.arbius.org/ipfs/${model.cid}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline flex items-center gap-1"
+                        >
+                          {truncateMiddle(model.cid, 16)}
+                          <ExternalLinkIcon className="h-3 w-3" />
+                        </a>
+                        <CopyButton text={model.cid} label="Copy IPFS CID" size="icon" />
+                      </div>
                     }
                   />
                 )}
@@ -284,13 +331,13 @@ export default function ModelDetail() {
           </Card>
         </div>
 
-        {/* Model tabs - Schema, Inputs, Outputs */}
-        {schema && (
+        {/* Model tabs - Template, Inputs, Outputs */}
+        {modelTemplate && (
           <Tabs defaultValue="inputs" className="mb-8">
-            <TabsList className="mb-4">
-              <TabsTrigger value="inputs">Input Parameters</TabsTrigger>
-              <TabsTrigger value="outputs">Outputs</TabsTrigger>
-              {schema.meta.docker && <TabsTrigger value="docker">Implementation</TabsTrigger>}
+            <TabsList className="mb-4 w-full sm:w-auto overflow-x-auto flex-nowrap">
+              <TabsTrigger value="inputs" className="whitespace-nowrap">Input Parameters</TabsTrigger>
+              <TabsTrigger value="outputs" className="whitespace-nowrap">Outputs</TabsTrigger>
+              {modelTemplate.meta.docker && <TabsTrigger value="docker" className="whitespace-nowrap">Implementation</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="inputs" className="space-y-4">
@@ -300,46 +347,48 @@ export default function ModelDetail() {
                   <CardDescription>Configuration options for this model</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Parameter</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Required</TableHead>
-                        <TableHead>Default</TableHead>
-                        <TableHead>Description</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {schema.input.map((input, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{input.variable}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="capitalize">
-                              {input.type.replace('_', ' ')}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {input.required ? (
-                              <Badge>Required</Badge>
-                            ) : (
-                              <Badge variant="secondary">Optional</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {input.default !== undefined && input.default !== '' ? (
-                              <code className="bg-muted/40 rounded px-1 py-0.5 text-xs">
-                                {JSON.stringify(input.default)}
-                              </code>
-                            ) : (
-                              <span className="text-muted-foreground">None</span>
-                            )}
-                          </TableCell>
-                          <TableCell>{input.description || 'No description'}</TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[120px]">Parameter</TableHead>
+                          <TableHead className="min-w-[100px]">Type</TableHead>
+                          <TableHead className="min-w-[100px]">Required</TableHead>
+                          <TableHead className="min-w-[100px]">Default</TableHead>
+                          <TableHead className="min-w-[200px]">Description</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {modelTemplate.input.map((input, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">{input.variable}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="capitalize whitespace-nowrap">
+                                {input.type.replace('_', ' ')}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {input.required ? (
+                                <Badge className="whitespace-nowrap">Required</Badge>
+                              ) : (
+                                <Badge variant="secondary" className="whitespace-nowrap">Optional</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {input.default !== undefined && input.default !== '' ? (
+                                <code className="bg-muted/40 rounded px-1 py-0.5 text-xs whitespace-nowrap">
+                                  {JSON.stringify(input.default)}
+                                </code>
+                              ) : (
+                                <span className="text-muted-foreground">None</span>
+                              )}
+                            </TableCell>
+                            <TableCell>{input.description || 'No description'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -350,7 +399,7 @@ export default function ModelDetail() {
                 </CardHeader>
                 <CardContent>
                   <Accordion type="single" collapsible className="w-full">
-                    {schema.input.map((input, index) => (
+                    {modelTemplate.input.map((input, index) => (
                       <AccordionItem value={`item-${index}`} key={index}>
                         <AccordionTrigger>
                           <div className="flex items-center gap-2">
@@ -423,7 +472,7 @@ export default function ModelDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {schema.output.map((output, index) => (
+                    {modelTemplate.output.map((output, index) => (
                       <Card key={index}>
                         <CardHeader className="pb-2">
                           <div className="flex items-center justify-between">
@@ -448,7 +497,7 @@ export default function ModelDetail() {
               </Card>
             </TabsContent>
 
-            {schema.meta.docker && (
+            {modelTemplate.meta.docker && (
               <TabsContent value="docker" className="space-y-4">
                 <Card>
                   <CardHeader>
@@ -457,7 +506,7 @@ export default function ModelDetail() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {schema.meta.git && (
+                      {modelTemplate.meta.git && (
                         <div>
                           <h3 className="text-lg font-medium mb-2">Source Code</h3>
                           <p className="text-sm text-muted-foreground mb-2">

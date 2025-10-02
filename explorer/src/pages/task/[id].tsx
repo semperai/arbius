@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
+import { getTask, getModel, parseIPFSCid } from '@/lib/contract';
+import { fetchModelTemplate, getExpectedOutputType, ModelTemplate } from '@/lib/templates';
 import {
   ClockIcon,
   UserIcon,
@@ -22,6 +24,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { IPFSContentRenderer } from '@/components/IPFSContentRenderer';
+import { CopyButton } from '@/components/CopyButton';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -41,6 +45,7 @@ export default function TaskDetail() {
   const [solution, setSolution] = useState<Solution | null>(null);
   const [contestation, setContestation] = useState<Contestation | null>(null);
   const [model, setModel] = useState<Model | null>(null);
+  const [modelTemplate, setModelTemplate] = useState<ModelTemplate | null>(null);
   const [incentiveEvents, setIncentiveEvents] = useState<IncentiveEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,36 +55,89 @@ export default function TaskDetail() {
 
       try {
         setLoading(true);
+        setError(null);
 
-        // In a real implementation, you would connect to the contract and fetch data
-        // const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-        // const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-        // const taskData = await contract.tasks(id);
+        // Fetch task from contract
+        const taskData = await getTask(id);
 
-        // For demo purposes, we're using mock data
-        setTimeout(() => {
-          const mockTask = getMockTask(id);
-          setTask(mockTask);
-
-          if (mockTask.hasSolution) {
-            setSolution(getMockSolution(id));
-          }
-
-          if (mockTask.hasContestation) {
-            setContestation(getMockContestation(id));
-          }
-
-          setModel(getMockModel(mockTask.model));
-
-          // Mock incentive events
-          setIncentiveEvents(getMockIncentiveEvents(id));
-
+        if (!taskData) {
+          setError("Task not found. Please verify the task ID is correct.");
           setLoading(false);
-        }, 1000);
+          return;
+        }
+
+        // Check if task exists (model should not be zero address)
+        if (taskData.model === ethers.ZeroHash) {
+          setError("Task not found. This task ID does not exist on the blockchain.");
+          setLoading(false);
+          return;
+        }
+
+        // Convert to UI format
+        const uiTask: Task = {
+          id: id,
+          model: taskData.model,
+          fee: taskData.fee,
+          owner: taskData.owner,
+          blocktime: taskData.blocktime.getTime() / 1000,
+          version: taskData.version,
+          cid: parseIPFSCid(taskData.cid) || '',
+          hasSolution: taskData.solution.validator !== ethers.ZeroAddress,
+          hasContestation: taskData.hasContestation
+        };
+
+        setTask(uiTask);
+
+        // Set solution if it exists
+        if (taskData.solution.validator !== ethers.ZeroAddress) {
+          setSolution({
+            validator: taskData.solution.validator,
+            blocktime: taskData.solution.blocktime,
+            claimed: taskData.solution.claimed,
+            cid: parseIPFSCid(taskData.solution.cid || '') || ''
+          });
+        }
+
+        // Set contestation if it exists
+        if (taskData.hasContestation && taskData.contestation.validator !== ethers.ZeroAddress) {
+          setContestation({
+            validator: taskData.contestation.validator,
+            blocktime: taskData.contestation.blocktime,
+            finish_start_index: taskData.contestation.finish_start_index,
+            slashAmount: taskData.contestation.slashAmount
+          });
+        }
+
+        // Fetch model data
+        const modelData = await getModel(taskData.model);
+        if (modelData) {
+          const modelCid = parseIPFSCid(modelData.cid) || '';
+          setModel({
+            id: modelData.id,
+            fee: modelData.fee,
+            addr: modelData.addr,
+            rate: modelData.rate,
+            cid: modelCid
+          });
+
+          // Fetch model template using model ID (hash) - checks local cache first
+          try {
+            const template = await fetchModelTemplate(taskData.model);
+            setModelTemplate(template);
+          } catch (err) {
+            console.error('Error fetching model template:', err);
+            // Continue without template
+          }
+        }
+
+        // Incentive events require an indexer
+        setIncentiveEvents([]);
+
+        setLoading(false);
 
       } catch (err) {
         console.error("Error fetching task data:", err);
-        setError("Failed to load task data. Please try again later.");
+        setError("Failed to load task data. Please check your connection and try again.");
         setLoading(false);
       }
     }
@@ -167,6 +225,7 @@ export default function TaskDetail() {
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className="px-3 py-1 text-xs">Task ID</Badge>
             <code className="text-sm bg-muted p-1 rounded font-mono">{id as string}</code>
+            <CopyButton text={id as string} label="Copy Task ID" size="sm" />
             <TaskStatusBadge status={getTaskStatus(task)} />
             {totalIncentives > 0 && (
               <Badge variant="secondary" className="px-3 py-1 gap-1 flex items-center">
@@ -194,33 +253,42 @@ export default function TaskDetail() {
                   icon={<UserIcon className="h-4 w-4" />}
                   label="Owner"
                   value={
-                    <Link href={`/address/${task.owner}`} className="text-primary hover:underline">
-                      {truncateMiddle(task.owner, 16)}
-                    </Link>
+                    <div className="flex items-center gap-1">
+                      <Link href={`/address/${task.owner}`} className="text-primary hover:underline">
+                        {truncateMiddle(task.owner, 16)}
+                      </Link>
+                      <CopyButton text={task.owner} label="Copy address" size="icon" />
+                    </div>
                   }
                 />
                 <InfoItem
                   icon={<BoxIcon className="h-4 w-4" />}
                   label="Model"
                   value={
-                    <Link href={`/model/${task.model}`} className="text-primary hover:underline">
-                      {model ? model.name : truncateMiddle(task.model, 16)}
-                    </Link>
+                    <div className="flex items-center gap-1">
+                      <Link href={`/model/${task.model}`} className="text-primary hover:underline">
+                        {model ? model.name : truncateMiddle(task.model, 16)}
+                      </Link>
+                      <CopyButton text={task.model} label="Copy model hash" size="icon" />
+                    </div>
                   }
                 />
                 <InfoItem
                   icon={<FileIcon className="h-4 w-4" />}
                   label="IPFS CID"
                   value={
-                    <a
-                      href={`https://ipfs.arbius.org/ipfs/${task.cid}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline flex items-center gap-1"
-                    >
-                      {truncateMiddle(task.cid, 16)}
-                      <ExternalLinkIcon className="h-3 w-3" />
-                    </a>
+                    <div className="flex items-center gap-1">
+                      <a
+                        href={`https://ipfs.arbius.org/ipfs/${task.cid}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                        {truncateMiddle(task.cid, 16)}
+                        <ExternalLinkIcon className="h-3 w-3" />
+                      </a>
+                      <CopyButton text={task.cid} label="Copy IPFS CID" size="icon" />
+                    </div>
                   }
                 />
                 <InfoItem
@@ -265,9 +333,12 @@ export default function TaskDetail() {
                   <InfoItem
                     label="Address"
                     value={
-                      <Link href={`/address/${model.addr}`} className="text-primary hover:underline">
-                        {truncateMiddle(model.addr, 16)}
-                      </Link>
+                      <div className="flex items-center gap-1">
+                        <Link href={`/address/${model.addr}`} className="text-primary hover:underline">
+                          {truncateMiddle(model.addr, 16)}
+                        </Link>
+                        <CopyButton text={model.addr} label="Copy address" size="icon" />
+                      </div>
                     }
                   />
                   <div className="pt-4">
@@ -293,6 +364,14 @@ export default function TaskDetail() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
+            {/* Task Input Content */}
+            {task.cid && task.cid.length > 0 && !task.cid.startsWith('ipfs://') && (
+              <IPFSContentRenderer
+                cid={task.cid}
+                title="Task Input"
+              />
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Task Timeline</CardTitle>
@@ -371,52 +450,69 @@ export default function TaskDetail() {
 
           <TabsContent value="solution" className="space-y-4">
             {solution && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Solution Details</CardTitle>
-                  <CardDescription>Information about the submitted solution</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <InfoItem
-                      label="Validator"
-                      value={
-                        <Link href={`/address/${solution.validator}`} className="text-primary hover:underline">
-                          {truncateMiddle(solution.validator, 16)}
-                        </Link>
-                      }
-                    />
-                    <InfoItem
-                      label="Submitted"
-                      value={formatDate(solution.blocktime)}
-                    />
-                    <InfoItem
-                      label="Status"
-                      value={solution.claimed ? "Claimed" : "Pending Claim"}
-                    />
-                    <InfoItem
-                      label="IPFS CID"
-                      value={
-                        <a
-                          href={`https://ipfs.arbius.org/ipfs/${solution.cid}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline flex items-center gap-1"
-                        >
-                          {truncateMiddle(solution.cid, 16)}
-                          <ExternalLinkIcon className="h-3 w-3" />
-                        </a>
-                      }
-                    />
-                    {solution.claimed && (
+              <>
+                {/* Solution Output Content */}
+                {solution.cid && solution.cid.length > 0 && !solution.cid.startsWith('ipfs://') && (
+                  <IPFSContentRenderer
+                    cid={solution.cid}
+                    title="Solution Output"
+                    expectedType={getExpectedOutputType(modelTemplate)}
+                  />
+                )}
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Solution Details</CardTitle>
+                    <CardDescription>Information about the submitted solution</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <InfoItem
-                        label="Claimed At"
-                        value={formatDate(solution.claimedAt!)}
+                        label="Validator"
+                        value={
+                          <div className="flex items-center gap-1">
+                            <Link href={`/address/${solution.validator}`} className="text-primary hover:underline">
+                              {truncateMiddle(solution.validator, 16)}
+                            </Link>
+                            <CopyButton text={solution.validator} label="Copy validator address" size="icon" />
+                          </div>
+                        }
                       />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      <InfoItem
+                        label="Submitted"
+                        value={formatDate(solution.blocktime)}
+                      />
+                      <InfoItem
+                        label="Status"
+                        value={solution.claimed ? "Claimed" : "Pending Claim"}
+                      />
+                      <InfoItem
+                        label="IPFS CID"
+                        value={
+                          <div className="flex items-center gap-1">
+                            <a
+                              href={`https://ipfs.arbius.org/ipfs/${solution.cid}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline flex items-center gap-1"
+                            >
+                              {truncateMiddle(solution.cid, 16)}
+                              <ExternalLinkIcon className="h-3 w-3" />
+                            </a>
+                            <CopyButton text={solution.cid} label="Copy IPFS CID" size="icon" />
+                          </div>
+                        }
+                      />
+                      {solution.claimed && (
+                        <InfoItem
+                          label="Claimed At"
+                          value={formatDate(solution.claimedAt!)}
+                        />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
             )}
           </TabsContent>
 
@@ -432,9 +528,12 @@ export default function TaskDetail() {
                     <InfoItem
                       label="Contesting Validator"
                       value={
-                        <Link href={`/address/${contestation.validator}`} className="text-primary hover:underline">
-                          {truncateMiddle(contestation.validator, 16)}
-                        </Link>
+                        <div className="flex items-center gap-1">
+                          <Link href={`/address/${contestation.validator}`} className="text-primary hover:underline">
+                            {truncateMiddle(contestation.validator, 16)}
+                          </Link>
+                          <CopyButton text={contestation.validator} label="Copy validator address" size="icon" />
+                        </div>
                       }
                     />
                     <InfoItem

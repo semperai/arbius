@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
+import { getValidator } from '@/lib/contract';
 import {
   ArrowLeftIcon,
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
   AlertTriangleIcon,
-  FileTextIcon
+  FileTextIcon,
+  AlertCircleIcon,
+  ShieldIcon,
+  CoinsIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -33,6 +37,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { truncateMiddle, formatDuration } from '@/lib/utils';
+import { CopyButton } from '@/components/CopyButton';
 
 // Types
 interface Validator {
@@ -76,22 +81,65 @@ export default function ValidatorDetail() {
   const [initiatedContestations, setInitiatedContestations] = useState<Contestation[]>([]);
 
   useEffect(() => {
-    if (!address) return;
+    if (!address || typeof address !== 'string') return;
 
     async function fetchValidatorData() {
       try {
         setLoading(true);
 
-        // In a real implementation, you would fetch validator data from the contract
-        // For now, we'll use mock data
-        setTimeout(() => {
-          const mockValidator = getMockValidator(address as string);
-          setValidator(mockValidator);
-          setSolutions(getMockSolutions(address as string));
-          setContestations(getMockContestations(address as string, false));
-          setInitiatedContestations(getMockContestations(address as string, true));
+        // Fetch validator data from contract
+        const validatorData = await getValidator(address);
+
+        if (!validatorData) {
+          // Address exists but not a validator
+          setValidator({
+            address: address,
+            staked: BigInt(0),
+            since: 0,
+            active: false,
+            tasksValidated: 0,
+            successRate: 0,
+            pendingWithdrawals: []
+          });
           setLoading(false);
-        }, 1000);
+          return;
+        }
+
+        // Check if this is actually a validator (staked > 0)
+        const stakedAmount = ethers.parseEther(validatorData.staked);
+        const isValidator = stakedAmount > 0 || validatorData.since !== null;
+
+        if (!isValidator) {
+          // Address exists but is not a validator
+          setValidator({
+            address: address,
+            staked: BigInt(0),
+            since: 0,
+            active: false,
+            tasksValidated: 0,
+            successRate: 0,
+            pendingWithdrawals: []
+          });
+          setLoading(false);
+          return;
+        }
+
+        // Convert to UI format
+        setValidator({
+          address: validatorData.address,
+          staked: stakedAmount,
+          since: validatorData.since ? validatorData.since.getTime() / 1000 : 0,
+          active: validatorData.since !== null && stakedAmount > 0,
+          tasksValidated: 0, // Requires indexer
+          successRate: 0, // Requires indexer
+          pendingWithdrawals: [] // Requires separate contract calls
+        });
+
+        // Solutions and contestations require an indexer
+        setSolutions([]);
+        setContestations([]);
+        setInitiatedContestations([]);
+        setLoading(false);
 
       } catch (error) {
         console.error("Error fetching validator data:", error);
@@ -127,7 +175,7 @@ export default function ValidatorDetail() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
-        <Breadcrumb className="mb-6">
+        <Breadcrumb className="mb-6 overflow-x-auto">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/">Home</BreadcrumbLink>
@@ -138,7 +186,9 @@ export default function ValidatorDetail() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink>{truncateMiddle(address as string, 8)}</BreadcrumbLink>
+              <BreadcrumbLink className="max-w-[150px] sm:max-w-none truncate">
+                {truncateMiddle(address as string, 8)}
+              </BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -155,12 +205,17 @@ export default function ValidatorDetail() {
           </Button>
         </div>
 
-        {/* Header with Task ID */}
+        {/* Header with Address */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Validator Details</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            {validator && validator.active ? 'Validator Details' : 'Address Details'}
+          </h1>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className="px-3 py-1 text-xs">Account</Badge>
+            <Badge variant="outline" className="px-3 py-1 text-xs">
+              {validator && validator.active ? 'Validator' : 'Address'}
+            </Badge>
             <code className="text-sm bg-muted p-1 rounded font-mono">{address}</code>
+            <CopyButton text={address as string} label="Copy address" size="sm" />
           </div>
         </div>
 
@@ -175,24 +230,26 @@ export default function ValidatorDetail() {
                   {/* Address and Status */}
                   <div className="space-y-2 lg:col-span-4">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-xl font-medium break-all">{validator.address}</h2>
+                      <h2 className="text-lg sm:text-xl font-medium break-all">{validator.address}</h2>
                       {validator.active ? (
                         <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">Active</Badge>
                       ) : (
                         <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Inactive</Badge>
                       )}
                     </div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                      <ClockIcon className="h-3 w-3" /> Validator since {new Date(validator.since * 1000).toLocaleDateString()}
-                      {" • "}
-                      <span>{formatDuration(Math.floor(Date.now() / 1000) - validator.since)}</span>
-                    </div>
+                    {validator.since > 0 && (
+                      <div className="text-sm text-muted-foreground flex items-center gap-1">
+                        <ClockIcon className="h-3 w-3" /> Validator since {new Date(validator.since * 1000).toLocaleDateString()}
+                        {" • "}
+                        <span>{formatDuration(Math.floor(Date.now() / 1000) - validator.since)}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Key Stats */}
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Total Staked</div>
-                    <div className="text-2xl font-bold">{stakedAmount} AIUS</div>
+                    <div className="text-xl sm:text-2xl font-bold break-all">{stakedAmount} AIUS</div>
                     {totalPendingWithdrawals > BigInt(0) && (
                       <div className="text-sm text-yellow-500 flex items-center gap-1">
                         <AlertTriangleIcon className="h-3 w-3" />
@@ -206,38 +263,74 @@ export default function ValidatorDetail() {
 
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Tasks Validated</div>
-                    <div className="text-2xl font-bold">{validator.tasksValidated.toLocaleString()}</div>
+                    <div className="text-xl sm:text-2xl font-bold">
+                      {validator.tasksValidated > 0 ? validator.tasksValidated.toLocaleString() : 'N/A'}
+                    </div>
                     <div className="text-sm text-muted-foreground">
-                      Avg {Math.round(validator.tasksValidated / (Math.floor(Date.now() / 1000) - validator.since) * 86400)} per day
+                      {validator.tasksValidated > 0 && validator.since > 0 ? (
+                        `Avg ${Math.round(validator.tasksValidated / ((Math.floor(Date.now() / 1000) - validator.since) / 86400))} per day`
+                      ) : (
+                        'Requires indexer'
+                      )}
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Success Rate</div>
-                    <div className="text-2xl font-bold">{validator.successRate}%</div>
-                    <Progress value={validator.successRate} className="h-2 w-full mt-2" />
+                    <div className="text-xl sm:text-2xl font-bold">
+                      {validator.successRate > 0 ? `${validator.successRate}%` : 'N/A'}
+                    </div>
+                    {validator.successRate > 0 ? (
+                      <Progress value={validator.successRate} className="h-2 w-full mt-2" />
+                    ) : (
+                      <div className="text-sm text-muted-foreground mt-2">Requires indexer</div>
+                    )}
                   </div>
 
                   <div className="space-y-1">
                     <div className="text-sm text-muted-foreground">Total Earnings</div>
-                    <div className="text-2xl font-bold">
-                      {parseFloat(ethers.formatEther(totalEarnings)).toLocaleString(undefined, { maximumFractionDigits: 2 })} AIUS
+                    <div className="text-xl sm:text-2xl font-bold break-all">
+                      {solutions.length > 0
+                        ? `${parseFloat(ethers.formatEther(totalEarnings)).toLocaleString(undefined, { maximumFractionDigits: 2 })} AIUS`
+                        : 'N/A'
+                      }
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      From {solutions.filter(s => s.claimed).length} claimed solutions
+                      {solutions.length > 0
+                        ? `From ${solutions.filter(s => s.claimed).length} claimed solutions`
+                        : 'Requires indexer'
+                      }
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Indexer Notice */}
+            {validator.active && (
+              <Card className="mb-6 border-yellow-500/50 bg-yellow-500/5">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircleIcon className="h-5 w-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h3 className="font-semibold text-sm">Limited Data Available</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Solution history, contestations, and detailed validator activity require an external indexer.
+                        The data shown above is fetched directly from the blockchain.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Tabs for different data views */}
             <Tabs defaultValue="solutions" className="mb-8">
-              <TabsList className="mb-4">
-                <TabsTrigger value="solutions">Solutions</TabsTrigger>
-                <TabsTrigger value="contestations">Received Contestations</TabsTrigger>
-                <TabsTrigger value="initiated">Initiated Contestations</TabsTrigger>
-                <TabsTrigger value="withdrawals">Pending Withdrawals</TabsTrigger>
+              <TabsList className="mb-4 w-full overflow-x-auto flex-nowrap">
+                <TabsTrigger value="solutions" className="whitespace-nowrap">Solutions</TabsTrigger>
+                <TabsTrigger value="contestations" className="whitespace-nowrap">Received</TabsTrigger>
+                <TabsTrigger value="initiated" className="whitespace-nowrap">Initiated</TabsTrigger>
+                <TabsTrigger value="withdrawals" className="whitespace-nowrap">Withdrawals</TabsTrigger>
               </TabsList>
 
               {/* Solutions Tab */}
@@ -249,17 +342,18 @@ export default function ValidatorDetail() {
                   </CardHeader>
                   <CardContent>
                     {solutions.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Task Hash</TableHead>
-                            <TableHead>Timestamp</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Fee Earned</TableHead>
-                            <TableHead>IPFS CID</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="min-w-[120px]">Task Hash</TableHead>
+                              <TableHead className="min-w-[180px]">Timestamp</TableHead>
+                              <TableHead className="min-w-[100px]">Status</TableHead>
+                              <TableHead className="min-w-[120px]">Fee Earned</TableHead>
+                              <TableHead className="min-w-[120px]">IPFS CID</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
                           {solutions.map((solution) => (
                             <TableRow key={solution.taskHash}>
                               <TableCell className="font-medium">
@@ -301,6 +395,7 @@ export default function ValidatorDetail() {
                           ))}
                         </TableBody>
                       </Table>
+                      </div>
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         No solutions submitted by this validator yet.
@@ -319,17 +414,18 @@ export default function ValidatorDetail() {
                   </CardHeader>
                   <CardContent>
                     {contestations.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Task Hash</TableHead>
-                            <TableHead>Timestamp</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Slash Amount</TableHead>
-                            <TableHead>Votes</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="min-w-[120px]">Task Hash</TableHead>
+                              <TableHead className="min-w-[180px]">Timestamp</TableHead>
+                              <TableHead className="min-w-[100px]">Status</TableHead>
+                              <TableHead className="min-w-[130px]">Slash Amount</TableHead>
+                              <TableHead className="min-w-[100px]">Votes</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
                           {contestations.map((contestation) => (
                             <TableRow key={contestation.taskHash}>
                               <TableCell className="font-medium">
@@ -374,6 +470,7 @@ export default function ValidatorDetail() {
                           ))}
                         </TableBody>
                       </Table>
+                      </div>
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         No contestations against this validator.
@@ -392,17 +489,18 @@ export default function ValidatorDetail() {
                   </CardHeader>
                   <CardContent>
                     {initiatedContestations.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Task Hash</TableHead>
-                            <TableHead>Timestamp</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Slash Amount</TableHead>
-                            <TableHead>Votes</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="min-w-[120px]">Task Hash</TableHead>
+                              <TableHead className="min-w-[180px]">Timestamp</TableHead>
+                              <TableHead className="min-w-[100px]">Status</TableHead>
+                              <TableHead className="min-w-[130px]">Slash Amount</TableHead>
+                              <TableHead className="min-w-[100px]">Votes</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
                           {initiatedContestations.map((contestation) => (
                             <TableRow key={contestation.taskHash}>
                               <TableCell className="font-medium">
@@ -447,6 +545,7 @@ export default function ValidatorDetail() {
                           ))}
                         </TableBody>
                       </Table>
+                      </div>
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         No contestations initiated by this validator.
@@ -465,16 +564,17 @@ export default function ValidatorDetail() {
                   </CardHeader>
                   <CardContent>
                     {validator.pendingWithdrawals && validator.pendingWithdrawals.length > 0 ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Unlock Time</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Time Remaining</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="min-w-[120px]">Amount</TableHead>
+                              <TableHead className="min-w-[180px]">Unlock Time</TableHead>
+                              <TableHead className="min-w-[120px]">Status</TableHead>
+                              <TableHead className="min-w-[150px]">Time Remaining</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
                           {validator.pendingWithdrawals.map((withdrawal, index) => {
                             const now = Math.floor(Date.now() / 1000);
                             const isUnlocked = now >= withdrawal.unlockTime;
@@ -511,6 +611,7 @@ export default function ValidatorDetail() {
                           })}
                         </TableBody>
                       </Table>
+                      </div>
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         No pending withdrawals for this validator.
@@ -522,17 +623,47 @@ export default function ValidatorDetail() {
             </Tabs>
           </>
         ) : (
-          <div className="text-center py-12">
-            <h2 className="text-xl font-bold mb-2">Validator Not Found</h2>
-            <p className="text-muted-foreground">
-              The validator with address {address} could not be found.
-            </p>
-            <Link href="/validators">
-              <Button className="mt-4">
-                Return to Validators List
-              </Button>
-            </Link>
-          </div>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-full bg-muted">
+                  <ShieldIcon className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <CardTitle>Not a Validator</CardTitle>
+                  <CardDescription>This address has no staked AIUS tokens</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-4 border rounded-lg bg-muted/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CoinsIcon className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium text-sm">Staked Amount</span>
+                  </div>
+                  <div className="text-2xl font-bold">0 AIUS</div>
+                </div>
+
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <p>
+                    This address has not staked any AIUS tokens and is therefore not registered as a validator
+                    in the Arbius network.
+                  </p>
+                  <p>
+                    To become a validator and earn rewards by validating AI inference tasks, this address would need
+                    to stake the minimum required amount of AIUS tokens.
+                  </p>
+                </div>
+
+                <div className="pt-4">
+                  <Button variant="outline" onClick={() => router.push('/')}>
+                    Return to Explorer
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </>
@@ -591,6 +722,7 @@ function ValidatorDetailSkeleton() {
 }
 
 // Mock data functions
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getMockValidator(address: string): Validator {
   const now = Math.floor(Date.now() / 1000);
 
@@ -670,6 +802,7 @@ function getMockSolutions(address: string): Solution[] {
   ];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getMockContestations(address: string, initiated: boolean): Contestation[] {
   const now = Math.floor(Date.now() / 1000);
 

@@ -62,12 +62,13 @@ export default function TasksPage() {
       try {
         setLoading(true);
 
-        // In a real implementation, you would fetch tasks from the contract
-        // For now, we'll use mock data
+        // Task enumeration requires an external indexer
+        // The blockchain doesn't provide a way to list all tasks directly
+        // For now, we'll show an empty list with a message
         setTimeout(() => {
-          setTasks(getMockTasks());
+          setTasks([]);
           setLoading(false);
-        }, 1000);
+        }, 500);
 
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -125,11 +126,11 @@ export default function TasksPage() {
 
   // Calculate statistics
   const stats = {
-    total: tasks.length,
-    completed: tasks.filter(t => t.status === 'Completed').length,
-    pending: tasks.filter(t => t.status === 'Pending').length,
-    contested: tasks.filter(t => t.status === 'Contested').length,
-    totalFees: tasks.reduce((sum, task) => sum + task.fee, BigInt(0))
+    total: 0,
+    completed: 0,
+    pending: 0,
+    contested: 0,
+    totalFees: BigInt(0)
   };
 
   return (
@@ -321,20 +322,16 @@ export default function TasksPage() {
             </div>
           )
         ) : (
-          <div className="text-center py-12 border rounded-lg">
-            <AlertTriangleIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-4">No tasks found matching your search criteria.</p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchQuery('');
-                setStatusFilter('all');
-                setTimeFilter('all');
-                setSortBy('recent');
-              }}
-            >
-              Clear Filters
-            </Button>
+          <div className="text-center py-12 border rounded-lg bg-yellow-500/5 border-yellow-500/50">
+            <AlertTriangleIcon className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Task Listing Requires an Indexer</h3>
+            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+              Enumerating all tasks from the blockchain requires an external indexing service.
+              You can search for a specific task by entering its task ID in the search box above.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Task IDs are 66-character hexadecimal strings starting with 0x
+            </p>
           </div>
         )}
       </div>
@@ -512,128 +509,3 @@ function TaskCardSkeleton() {
   );
 }
 
-// Mock data functions
-function getMockTasks(): Task[] {
-  const now = Math.floor(Date.now() / 1000);
-
-  return [
-    {
-      id: '0x1309128093aa6234231eee34234234eff7778aa8a',
-      model: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'Kandinsky 2',
-      fee: ethers.parseEther('0.25'),
-      owner: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      blocktime: now - 3600, // 1 hour ago
-      version: 1,
-      cid: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG',
-      status: 'Completed',
-      solution: {
-        validator: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-        blocktime: now - 1800,
-        claimed: true
-      }
-    },
-    {
-      id: '0x2409338762aa8734231eee34298734eff7734fa8b',
-      model: '0x8c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'StableDiffusion-XL',
-      fee: ethers.parseEther('0.15'),
-      owner: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-      blocktime: now - 7200, // 2 hours ago
-      version: 1,
-      cid: 'QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX',
-      status: 'Pending'
-    },
-    {
-      id: '0x34093aa762aa8734231eee34298734eff7734fa8c',
-      model: '0x9c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'GPT-Arbius',
-      fee: ethers.parseEther('0.32'),
-      owner: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-      blocktime: now - 10800, // 3 hours ago
-      version: 1,
-      cid: 'QmZ8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      status: 'Contested',
-      solution: {
-        validator: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65',
-        blocktime: now - 7200,
-        claimed: false
-      }
-    },
-    {
-      id: '0x44093aa762aa8734231eee34298734eff7734fa8d',
-      model: '0xac23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'Whisper Transcription',
-      fee: ethers.parseEther('0.08'),
-      owner: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-      blocktime: now - 43200, // 12 hours ago
-      version: 1,
-      cid: 'QmS8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      status: 'Completed',
-      solution: {
-        validator: '0x976EA74026E726554dB657fA54763abd0C3a0aa9',
-        blocktime: now - 39600,
-        claimed: true
-      }
-    },
-    {
-      id: '0x54093aa762aa8734231eee34298734eff7734fa8e',
-      model: '0xbc23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'DALL-E 3 Clone',
-      fee: ethers.parseEther('0.45'),
-      owner: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc',
-      blocktime: now - 86400, // 24 hours ago
-      version: 1,
-      cid: 'QmT8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      status: 'Pending'
-    },
-    {
-      id: '0x64093aa762aa8734231eee34298734eff7734fa8f',
-      model: '0xcc23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'ArbiusGPT-Vision',
-      fee: ethers.parseEther('0.18'),
-      owner: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      blocktime: now - 172800, // 48 hours ago
-      version: 1,
-      cid: 'QmU8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      status: 'Completed',
-      solution: {
-        validator: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-        blocktime: now - 169200,
-        claimed: true
-      }
-    },
-    {
-      id: '0x74093aa762aa8734231eee34298734eff7734fa8g',
-      model: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'Kandinsky 2',
-      fee: ethers.parseEther('0.22'),
-      owner: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65',
-      blocktime: now - 259200, // 72 hours ago
-      version: 1,
-      cid: 'QmV8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      status: 'Completed',
-      solution: {
-        validator: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-        blocktime: now - 255600,
-        claimed: true
-      }
-    },
-    {
-      id: '0x84093aa762aa8734231eee34298734eff7734fa8h',
-      model: '0x8c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      modelName: 'StableDiffusion-XL',
-      fee: ethers.parseEther('0.35'),
-      owner: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-      blocktime: now - 345600, // 4 days ago
-      version: 1,
-      cid: 'QmW8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      status: 'Contested',
-      solution: {
-        validator: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc',
-        blocktime: now - 342000,
-        claimed: false
-      }
-    }
-  ];
-}

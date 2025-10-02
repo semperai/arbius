@@ -57,7 +57,7 @@ export interface ContractInfo {
   treasuryRewardPercentage: string;
 }
 
-// Arbius ABI - This is a simplified ABI with just the functions we need
+// V2_EngineV6 ABI - This is a simplified ABI with just the functions we need
 const ARBIUS_ABI = [
   // Task functions
   "function tasks(bytes32) view returns (bytes32 model, uint256 fee, address owner, uint64 blocktime, uint8 version, bytes cid)",
@@ -70,7 +70,7 @@ const ARBIUS_ABI = [
   // Validator functions
   "function validators(address) view returns (uint256 staked, uint256 since, address addr)",
 
-  // Other getters
+  // Contract info getters
   "function baseToken() view returns (address)",
   "function treasury() view returns (address)",
   "function paused() view returns (bool)",
@@ -82,18 +82,30 @@ const ARBIUS_ABI = [
   "function solutionFeePercentage() view returns (uint256)",
   "function retractionFeePercentage() view returns (uint256)",
   "function treasuryRewardPercentage() view returns (uint256)",
+
+  // Additional helper functions
+  "function getReward() view returns (uint256)",
+  "function getPsuedoTotalSupply() view returns (uint256)",
+  "function getValidatorMinimum() view returns (uint256)",
+  "function getSlashAmount() view returns (uint256)",
+  "function prevhash() view returns (bytes32)",
+  "function masterContesterRegistry() view returns (address)",
+  "function voter() view returns (address)",
+  "function veStaking() view returns (address)",
 ];
 
-// Contract address on Arbitrum One
-// Note: Replace with the actual contract address
-const ARBIUS_CONTRACT_ADDRESS = "0xYourArbiusContractAddress";
+// Get contract address from environment or use default (Arbitrum One mainnet)
+const ARBIUS_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_ENGINE_ADDRESS || "0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66";
+
+// Get RPC URL from environment or use default (Arbitrum One mainnet)
+const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "https://arb1.arbitrum.io/rpc";
 
 // Provider setup - using a singleton pattern to avoid multiple providers
 let provider: ethers.JsonRpcProvider | null = null;
 
 export async function getProvider(): Promise<ethers.JsonRpcProvider> {
   if (!provider) {
-    provider = new ethers.JsonRpcProvider("https://arb1.arbitrum.io/rpc");
+    provider = new ethers.JsonRpcProvider(RPC_URL);
   }
   return provider;
 }
@@ -226,11 +238,38 @@ export async function getContractInfo(): Promise<ContractInfo | null> {
   }
 }
 
-// Helper function to parse IPFS CID
+// Helper function to parse IPFS CID from bytes
 export function parseIPFSCid(cid: string | Uint8Array): string | null {
-  if (!cid || cid === '0x' || cid === '') return null;
+  if (!cid) return null;
+
   try {
-    return typeof cid === 'string' ? cid : ethers.toUtf8String(cid);
+    // If it's a hex string (bytes), convert it
+    if (typeof cid === 'string') {
+      if (cid === '0x' || cid === '' || cid === '0x00') return null;
+
+      // Remove 0x prefix if present
+      const hex = cid.startsWith('0x') ? cid.slice(2) : cid;
+
+      // If the hex is empty or too short, return null
+      if (hex.length < 4) return null;
+
+      // Convert hex to base58 IPFS CID
+      // The contract stores IPFS CIDs as bytes, typically in the format:
+      // 0x1220<hash> where 0x12 is the multicodec, 0x20 is the length
+      // For now, we'll try to decode as UTF8 or return the hex
+      try {
+        const decoded = ethers.toUtf8String('0x' + hex);
+        if (decoded && decoded.length > 0) {
+          return decoded;
+        }
+      } catch {
+        // If UTF8 decoding fails, return a shortened hex representation
+        return 'ipfs://' + hex.slice(0, 32) + '...';
+      }
+    }
+
+    // If it's already a Uint8Array, convert to string
+    return ethers.toUtf8String(cid);
   } catch (error) {
     console.error("Error parsing IPFS CID:", error);
     return null;
@@ -261,6 +300,39 @@ export function isValidTaskId(taskId: string): boolean {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return false;
+  }
+}
+
+// Get pseudo total supply
+export async function getPsuedoTotalSupply(): Promise<bigint | null> {
+  const contract = await getContract();
+  try {
+    return await contract.getPsuedoTotalSupply();
+  } catch (error) {
+    console.error("Error fetching total supply:", error);
+    return null;
+  }
+}
+
+// Get current reward
+export async function getReward(): Promise<bigint | null> {
+  const contract = await getContract();
+  try {
+    return await contract.getReward();
+  } catch (error) {
+    console.error("Error fetching reward:", error);
+    return null;
+  }
+}
+
+// Get validator minimum stake
+export async function getValidatorMinimum(): Promise<bigint | null> {
+  const contract = await getContract();
+  try {
+    return await contract.getValidatorMinimum();
+  } catch (error) {
+    console.error("Error fetching validator minimum:", error);
+    return null;
   }
 }
 
