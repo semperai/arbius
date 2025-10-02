@@ -1,6 +1,5 @@
 {
-  "v2_baseTokenAddress": "0x68903B30e75e7a49134E91ABC19Bfb170643a659",
-  "v2_engineAddress": "0xab5E383A89ec907Bca01618352376C3C451d7012",
+  "v4baseTokenAddress": "0x8D9753e0af7ed426c63c7D6f0424d83f257C7821",
   "models": {
     "kandinsky2": {
       "id": "0x3ac907e782b35cf2096eadcbd5d347fb7705db98526adcd2232ea560abbbef90",
