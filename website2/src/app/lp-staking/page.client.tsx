@@ -1,16 +1,11 @@
-import { createMetadata } from '@/lib/metadata'
-import LPStakingPageClient from './page.client'
+'use client'
 
-export const metadata = createMetadata({
-  title: 'LP Staking',
-  description: 'Provide liquidity on Uniswap and stake your LP tokens to earn AIUS rewards. Join the Arbius liquidity mining program.',
-  path: '/lp-staking',
-  keywords: ['LP Staking', 'Liquidity Mining', 'Uniswap', 'DeFi', 'Yield Farming'],
-})
+import { useState } from 'react'
+import { HeaderSection } from '@/components/lp-staking/HeaderSection'
+import { StakeSection } from '@/components/lp-staking/StakeSection'
+import { StatsSection } from '@/components/lp-staking/StatsSection'
 
-export default function LPStakingPage() {
-  return <LPStakingPageClient />
-}
+export default function LPStakingPageClient() {
   const [selectedTab, setSelectedTab] = useState<'Stake' | 'Stats'>('Stake')
 
   return (
@@ -33,6 +28,7 @@ export default function LPStakingPage() {
                       ? 'border-b-2 border-primary text-primary'
                       : 'text-gray-600 hover:text-primary'
                   }`}
+                  aria-label={`Switch to ${tab} tab`}
                 >
                   {tab}
                 </button>
@@ -40,7 +36,7 @@ export default function LPStakingPage() {
             </div>
           </div>
 
-          {/* Tab Content */}
+          {/* Content */}
           {selectedTab === 'Stake' ? <StakeSection /> : <StatsSection />}
         </div>
       </div>

@@ -634,7 +634,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                     value={fundAmount}
                     onChange={(e) => setFundAmount(e.target.value)}
                     placeholder="0.0"
-                    className={`flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
+                    className={`flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent text-gray-900 bg-white ${
                       fundAmount && !isValidAmount(fundAmount)
                         ? 'border-red-300 focus:ring-red-500'
                         : fundAmount && parseFloat(fundAmount) > getAvailableBalance(fundCoin, 'fund')
@@ -645,7 +645,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                   <select
                     value={fundCoin}
                     onChange={(e) => setFundCoin(e.target.value as 'eth' | 'aius')}
-                    className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ring-primary focus:border-transparent text-sm font-medium"
+                    className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ring-primary focus:border-transparent text-sm font-medium text-gray-900 bg-white"
                   >
                     <option value="eth">ETH</option>
                     <option value="aius">AIUS</option>
@@ -692,7 +692,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                     value={sendToAddress}
                     onChange={(e) => setSendToAddress(e.target.value)}
                     placeholder="0x..."
-                    className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
+                    className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent text-gray-900 bg-white ${
                       sendToAddress && !isAddress(sendToAddress)
                         ? 'border-red-300 focus:ring-red-500'
                         : 'border-gray-300 focus:ring-ring-primary'
@@ -710,7 +710,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                       value={sendAmount}
                       onChange={(e) => setSendAmount(e.target.value)}
                       placeholder="0.0"
-                      className={`flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
+                      className={`flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent text-gray-900 bg-white ${
                         sendAmount && !isValidAmount(sendAmount)
                           ? 'border-red-300 focus:ring-red-500'
                           : sendAmount && parseFloat(sendAmount) > getAvailableBalance(sendCoin, 'send')
@@ -721,7 +721,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                     <select
                       value={sendCoin}
                       onChange={(e) => setSendCoin(e.target.value as 'eth' | 'aius')}
-                      className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ring-primary focus:border-transparent text-sm font-medium"
+                      className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ring-primary focus:border-transparent text-sm font-medium text-gray-900 bg-white"
                     >
                       <option value="eth">ETH</option>
                       <option value="aius">AIUS</option>

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,9 +37,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${lato.variable} antialiased flex min-h-screen flex-col bg-white`}
       >
+        <GoogleAnalytics />
         <Providers>
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[10000] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">
+            Skip to main content
+          </a>
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1" role="main">
+            {children}
+          </main>
           <Footer />
         </Providers>
       </body>

@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://arbius.ai/sitemap.xml
+
+# Crawl delay (optional - prevents aggressive crawling)
+Crawl-delay: 1

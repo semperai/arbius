@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useAccount, useChainId, useBalance, usePublicClient } from 'wagmi'
+import { useAccount, useChainId, useBalance, usePublicClient, useSwitchChain } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { AAWalletDisplay, useAAWallet } from '@/lib/arbius-wallet'
 import { parseEther, encodePacked, keccak256, formatEther } from 'viem'
+import { arbitrum } from 'viem/chains'
 import { ARBIUS_CONFIG, MODELS, IPFS_GATEWAY } from '@/config/arbius'
 import { PLAYGROUND_MODELS, MODEL_FEES, BASE_MINER_FEE, MODEL_MINER_FEES, type ModelCategory } from '@/config/playground'
 import { Send, Loader2, Image as ImageIcon, FileText, AlertCircle } from 'lucide-react'
@@ -31,6 +32,7 @@ interface Task {
 export default function PlaygroundPage() {
   const { isConnected } = useAccount()
   const chainId = useChainId()
+  const { switchChain } = useSwitchChain()
   const { smartAccountAddress, derivedAccount, estimateGas, error: aaWalletError } = useAAWallet()
   const publicClient = usePublicClient()
 
@@ -165,8 +167,14 @@ export default function PlaygroundPage() {
     estimateTaskGas()
   }, [selectedModel, smartAccountAddress, estimateGas, chainId, totalCost, publicClient])
 
-  // Check balances before submission
+  // Check network and balances before submission
   useEffect(() => {
+    // Check if on correct network first
+    if (isConnected && chainId !== arbitrum.id) {
+      setBalanceWarning('wrong-network')
+      return
+    }
+
     if (!smartAccountAddress || !ethBalance || !aiusBalance) {
       setBalanceWarning(null)
       return
@@ -183,7 +191,7 @@ export default function PlaygroundPage() {
     } else {
       setBalanceWarning(null)
     }
-  }, [smartAccountAddress, ethBalance, aiusBalance, totalCost, estimatedGasCost])
+  }, [smartAccountAddress, ethBalance, aiusBalance, totalCost, estimatedGasCost, isConnected, chainId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -392,7 +400,7 @@ export default function PlaygroundPage() {
                 key={modelName}
                 type="button"
                 onClick={() => setSelectedModel(modelName)}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -471,12 +479,12 @@ export default function PlaygroundPage() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter your prompt..."
               disabled={isSubmitting || !!balanceWarning || !!aaWalletError}
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring-primary/20 disabled:bg-gray-100"
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-900 bg-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring-primary/20 disabled:bg-gray-100 disabled:text-gray-500"
             />
             <button
               type="submit"
               disabled={!prompt.trim() || isSubmitting || !!balanceWarning || !!aaWalletError}
-              className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -494,40 +502,66 @@ export default function PlaygroundPage() {
         </>
       )}
 
-      {/* Cost Info */}
+      {/* Cost Info / Wrong Network Warning */}
       {isConnected && !aaWalletError && (
-        <div className={`mt-4 rounded-lg border p-4 text-xs ${
-          balanceWarning
-            ? 'border-orange-200 bg-orange-50'
-            : 'border-gray-200 bg-gray-50'
-        }`}>
-          {balanceWarning && (
-            <div className="mb-3 flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 flex-shrink-0 text-orange-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-orange-800">{balanceWarning}</p>
-                <p className="mt-1 text-xs text-orange-700">
-                  AA Wallet Address: <code className="rounded bg-orange-100 px-1 py-0.5 font-mono">{smartAccountAddress}</code>
-                </p>
-              </div>
-            </div>
-          )}
-          <div>
-            <div className="flex items-center justify-between">
-              <span className={balanceWarning ? 'text-orange-700' : 'text-gray-600'}>
-                Estimated cost per task:
-              </span>
-              <div className="text-right">
-                <span className={`font-mono font-semibold ${balanceWarning ? 'text-orange-900' : 'text-gray-900'}`}>
-                  {formatEther(totalCost)} AIUS + ~{formatEther(estimatedGasCost || parseEther('0.0001'))} ETH
-                </span>
-                <div className={`mt-1 text-xs ${balanceWarning ? 'text-orange-600' : 'text-gray-500'}`}>
-                  ({modelFee} model fee + {minerFee} miner fee)
+        <>
+          {balanceWarning === 'wrong-network' ? (
+            <div className="mt-4 rounded-lg border-2 border-red-300 bg-red-50 p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-red-900">Wrong Network</p>
+                  <p className="mt-1 text-xs text-red-800">
+                    Playground only works on <strong>Arbitrum One</strong>. Please switch networks to continue.
+                  </p>
+                  <button
+                    onClick={() => switchChain({ chainId: arbitrum.id })}
+                    className="mt-3 flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 cursor-pointer"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6.5 21.5L14 8L21.5 21.5H6.5Z" fill="currentColor"/>
+                      <path d="M14 13L10.5 19H17.5L14 13Z" fill="#213147"/>
+                    </svg>
+                    Switch to Arbitrum One
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          ) : (
+            <div className={`mt-4 rounded-lg border p-4 text-xs ${
+              balanceWarning
+                ? 'border-orange-200 bg-orange-50'
+                : 'border-gray-200 bg-gray-50'
+            }`}>
+              {balanceWarning && (
+                <div className="mb-3 flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0 text-orange-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-orange-800">{balanceWarning}</p>
+                    <p className="mt-1 text-xs text-orange-700">
+                      AA Wallet Address: <code className="rounded bg-orange-100 px-1 py-0.5 font-mono">{smartAccountAddress}</code>
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className={balanceWarning ? 'text-orange-700' : 'text-gray-600'}>
+                    Estimated cost per task:
+                  </span>
+                  <div className="text-right">
+                    <span className={`font-mono font-semibold ${balanceWarning ? 'text-orange-900' : 'text-gray-900'}`}>
+                      {formatEther(totalCost)} AIUS + ~{formatEther(estimatedGasCost || parseEther('0.0001'))} ETH
+                    </span>
+                    <div className={`mt-1 text-xs ${balanceWarning ? 'text-orange-600' : 'text-gray-500'}`}>
+                      ({modelFee} model fee + {minerFee} miner fee)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Info */}

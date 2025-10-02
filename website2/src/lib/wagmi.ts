@@ -1,11 +1,12 @@
 import { http, createConfig } from 'wagmi'
-import { mainnet, arbitrum, arbitrumSepolia, arbitrumNova, sepolia } from 'wagmi/chains'
+import { mainnet, arbitrum, arbitrumNova } from 'wagmi/chains'
 import { injected, walletConnect } from 'wagmi/connectors'
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || ''
 
+// All production chains
 export const config = createConfig({
-  chains: [mainnet, arbitrum, arbitrumNova, arbitrumSepolia, sepolia],
+  chains: [arbitrum, mainnet, arbitrumNova],
   connectors: [
     injected(),
     walletConnect({ projectId }),
@@ -14,10 +15,11 @@ export const config = createConfig({
     [mainnet.id]: http(),
     [arbitrum.id]: http(),
     [arbitrumNova.id]: http(),
-    [arbitrumSepolia.id]: http(),
-    [sepolia.id]: http(),
   },
 })
+
+// Export individual chains for page-specific filtering
+export { mainnet, arbitrum, arbitrumNova }
 
 declare module 'wagmi' {
   interface Register {

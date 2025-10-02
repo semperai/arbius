@@ -50,6 +50,8 @@ export function Navbar() {
   return (
     <>
       <nav
+        role="navigation"
+        aria-label="Main navigation"
         className={`fixed top-0 left-0 right-0 z-[9999] bg-white border-b border-gray-100 transition-all duration-300 ${
           isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
         }`}
@@ -76,6 +78,8 @@ export function Navbar() {
                 className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1"
                 onMouseEnter={() => setStakingDropdownOpen(true)}
                 onMouseLeave={() => setStakingDropdownOpen(false)}
+                aria-expanded={stakingDropdownOpen}
+                aria-haspopup="true"
               >
                 Staking
                 <svg
@@ -104,7 +108,7 @@ export function Navbar() {
                   >
                     <Image
                       src={arbiusLogoWithoutName}
-                      alt=""
+                      alt="Arbius logo icon"
                       width={20}
                       height={20}
                       className="mb-2"
@@ -120,7 +124,7 @@ export function Navbar() {
                   >
                     <Image
                       src={arbiusLogoWithoutName}
-                      alt=""
+                      alt="Arbius logo icon"
                       width={20}
                       height={20}
                       className="mb-2"
@@ -131,6 +135,10 @@ export function Navbar() {
                 </div>
               </div>
             </div>
+
+            <Link href="/playground" className="text-gray-700 hover:text-primary transition-colors">
+              Playground
+            </Link>
 
             <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors">
               Amica
@@ -216,6 +224,10 @@ export function Navbar() {
                 </div>
               )}
             </div>
+
+            <Link href="/playground" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+              Playground
+            </Link>
 
             <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
               Amica
