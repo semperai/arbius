@@ -1001,8 +1001,13 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
 
             // v5 we split the model fee between the model owner and treasury
             if (modelFee > 0) {
+                uint256 modelFeePercentage = solutionModelFeePercentage;
+                if (solutionModelFeePercentageOverride[model] != 0) {
+                    modelFeePercentage = solutionModelFeePercentageOverride[model];
+                }
+
                 uint256 sendToTreasury = modelFee -
-                    (modelFee * (1e18 - solutionModelFeePercentage)) /
+                    (modelFee * (1e18 - modelFeePercentage)) /
                     1e18;
 
                 if (sendToTreasury > 0) {
@@ -1331,9 +1336,10 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
             uint256 valToOriginator = yeaVoteCount == 1
                 ? totalVal
                 : totalVal - (totalVal / 2);
-            uint256 valToOtherYeas = yeaVoteCount == 1
-                ? 0
-                : (totalVal - valToOriginator) / (actualYeaVoters - 1);
+            uint256 valToOtherYeas = 0;
+            if (actualYeaVoters > 1) {
+                valToOtherYeas = (totalVal - valToOriginator) / (actualYeaVoters - 1);
+            }
 
             for (uint256 i = start_idx; i < end_idx; i++) {
                 if (i < actualYeaVoters) {
@@ -1363,9 +1369,10 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
             // this is for contestation failing
             uint256 totalVal = yeaVoteCount * slashAmount;
             uint256 valToAccused = nayVoteCount == 1 ? totalVal : totalVal / 2;
-            uint256 valToOtherNays = nayVoteCount == 1
-                ? 0
-                : (totalVal - valToAccused) / (actualNayVoters - 1);
+            uint256 valToOtherNays = 0;
+            if (actualNayVoters > 1) {
+                valToOtherNays = (totalVal - valToAccused) / (actualNayVoters - 1);
+            }
 
             for (uint256 i = start_idx; i < end_idx; i++) {
                 if (i < actualNayVoters) {

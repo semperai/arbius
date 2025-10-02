@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Geist-SemiBold';
+  src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1715256918/Geist-SemiBold_h3w290.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist-Regular';
+  src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1715232194/Geist-Regular_vvwe3i.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'AtHaussAero-Light';
+  src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/AtHaussAero-Light_iwko9o.ttf');
+  font-display: swap;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  /* Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-black-text: #333333;
+  --color-original-black: #000000;
+  --color-original-white: #ffffff;
+  --color-blue-text: #2100D0;
+  --color-subtext-one: #2B2B2B;
+  --color-subtext-two: #555555;
+  --color-purple-text: #4A28FF;
+  --color-subtext-three: #777777;
+  --color-card-heading: #454545;
+  --color-footer-text: #979797;
+  --color-grey-text: #c2c2c2;
+  --color-copyright-text: #39393980;
+  --color-stake: #1A1A1A;
+  --color-available: #5B5B5B;
+  --color-aius: #0E0E0E;
+  --color-gray-text: #F3F3F3;
+  --color-aius-tabs-gray: #8D8D8D;
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-geist-semibold: 'Geist-SemiBold', sans-serif;
+  --font-geist-regular: 'Geist-Regular', sans-serif;
+  --font-at-hauss: 'AtHaussAero-Light', sans-serif;
+
+  /* Font Sizes */
+  --font-size-header-2xl: 70px;
+  --font-size-header-xl: 60px;
+  --font-size-header: 50px;
+  --font-size-header-md: 40px;
+  --font-size-para: 16px;
+  --font-size-mobile-header: 45px;
+  --font-size-large-description: 20px;
+
+  /* Breakpoints */
+  --breakpoint-2xl: 1800px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-lg: 1023px;
+  --breakpoint-md: 767px;
+  --breakpoint-um: 475px;
+  --breakpoint-lm: 400px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-regular), Arial, Helvetica, sans-serif;
+}
+
+/* Utility classes */
+.background-gradient {
+  background: linear-gradient(180deg, #4a28ff 16.5%, #9ed6ff 100%);
+}
+
+.header-gradient {
+  background: linear-gradient(180deg, #fbfbfb 70.03%, #4a28ff 330.54%);
+}
+
+.gradient-border {
+  border-image: linear-gradient(90deg, #4a28ff 16.5%, #9ed6ff 100%) 1;
+}
+
+.Gradient-transparent-text {
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+/* Hide arrows in number inputs */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
