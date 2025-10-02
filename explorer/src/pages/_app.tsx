@@ -57,15 +57,15 @@ function Header() {
           <Image
             src={logoDark}
             alt="Arbius"
-            className="h-8 w-auto dark:hidden"
-            height={32}
+            className="h-6 w-auto dark:hidden"
+            height={24}
             priority
           />
           <Image
             src={logoLight}
             alt="Arbius"
-            className="h-8 w-auto hidden dark:block"
-            height={32}
+            className="h-6 w-auto hidden dark:block"
+            height={24}
             priority
           />
         </Link>
@@ -202,12 +202,12 @@ function Footer() {
             <h3 className="font-semibold mb-3">Community</h3>
             <div className="flex flex-col space-y-2">
               <a
-                href="https://discord.gg/arbius"
+                href="https://t.me/arbius_ai"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Discord
+                Telegram
               </a>
               <a
                 href="https://twitter.com/arbius_ai"
