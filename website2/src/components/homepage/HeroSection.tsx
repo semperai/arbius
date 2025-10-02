@@ -14,22 +14,22 @@ export function HeroSection() {
             </div>
           </Fade>
 
-          <div className="hidden text-[45px] text-black-text lg:block lg:text-[50px]">
+          <div className="hidden text-[45px] text-gray-900 lg:block lg:text-[50px]">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Peer-to-peer
             </Fade>
           </div>
-          <div className="mb-6 mt-[-15px] hidden text-[45px] text-black-text lg:block lg:text-[50px]">
+          <div className="mb-6 mt-[-15px] hidden text-[45px] text-gray-900 lg:block lg:text-[50px]">
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
               machine learning
             </Fade>
           </div>
-          <div className="text-[45px] text-black-text lg:hidden">
+          <div className="text-[45px] text-gray-900 lg:hidden">
             <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
               Peer-to-peer
             </Fade>
           </div>
-          <div className="mb-6 mt-[-15px] text-[45px] text-black-text lg:hidden">
+          <div className="mb-6 mt-[-15px] text-[45px] text-gray-900 lg:hidden">
             <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
               machine learning
             </Fade>
@@ -37,7 +37,7 @@ export function HeroSection() {
 
           <div>
             <Fade direction="up" triggerOnce={true}>
-              <div className="font-[family-name:var(--font-lato)] font-normal text-[16px] text-subtext-one">
+              <div className="font-[family-name:var(--font-lato)] font-normal text-[16px] text-gray-950">
                 Arbius is a decentralized network for machine learning and a
                 token with a fixed total supply like Bitcoin. New coins are
                 generated with GPU power by participating in the network. There

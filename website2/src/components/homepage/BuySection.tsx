@@ -18,12 +18,12 @@ export function BuySection() {
       <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
         <div className="flex flex-col items-center justify-between lg:flex-row">
           <div className="w-full lg:w-[70%]">
-            <h2 className="mb-6 text-[45px] text-black-text lg:text-[50px] 2xl:text-[70px]">
+            <h2 className="mb-6 text-[45px] text-gray-900 lg:text-[50px] 2xl:text-[70px]">
               Buy Arbius (AIUS)
             </h2>
 
             <div className="mb-6">
-              <p className="text-para text-subtext-three">
+              <p className="text-para text-gray-600">
                 Arbius is still at an early experimental stage. No
                 expectation of future income is implied. Join our community
                 and see what there is to offer.
@@ -39,7 +39,7 @@ export function BuySection() {
                   <div className="mt-[1px] flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#DFECFF]">
                     <Image src={tickImg} alt="check mark" width={8} height={8} />
                   </div>
-                  <p className="text-[16px] text-subtext-three">
+                  <p className="text-[16px] text-gray-600">
                     {singleInfo}
                   </p>
                 </div>

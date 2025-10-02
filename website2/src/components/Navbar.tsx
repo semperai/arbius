@@ -73,7 +73,7 @@ export function Navbar() {
             {/* Staking Dropdown */}
             <div className="relative group">
               <button
-                className="text-gray-700 hover:text-purple-text transition-colors flex items-center gap-1"
+                className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1"
                 onMouseEnter={() => setStakingDropdownOpen(true)}
                 onMouseLeave={() => setStakingDropdownOpen(false)}
               >
@@ -132,24 +132,24 @@ export function Navbar() {
               </div>
             </div>
 
-            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors">
+            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors">
               Amica
             </Link>
 
-            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors">
+            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors">
               Marketplace
             </Link>
 
-            <Link href="https://docs.arbius.ai/" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors flex items-center gap-1">
+            <Link href="https://docs.arbius.ai/" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1">
               Docs
               <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
-            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors">
+            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors">
               Bridge
             </Link>
 
-            <Link href="/media" target="_blank" className="text-gray-700 hover:text-purple-text transition-colors">
+            <Link href="/media" target="_blank" className="text-gray-700 hover:text-primary transition-colors">
               Media
             </Link>
           </div>
@@ -157,7 +157,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-3 text-gray-700 hover:text-purple-text"
+            className="lg:hidden p-3 text-gray-700 hover:text-primary"
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             <div className="w-6 h-5 flex flex-col justify-between">

@@ -69,7 +69,7 @@ export default function TeamPage() {
       <div className="mx-auto w-[90%] max-w-[1300px] md:w-[80%]">
         {/* Header */}
         <div className="mb-12 pt-12">
-          <h1 className="mb-4 text-[48px] font-bold text-black-text lg:text-[60px]">
+          <h1 className="mb-4 text-[48px] font-bold text-gray-900 lg:text-[60px]">
             Meet Our Team
           </h1>
           <p className="max-w-md text-lg text-gray-700">

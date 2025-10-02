@@ -177,18 +177,18 @@ export function StakeSection() {
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Stake Section */}
       <div className="rounded-2xl bg-white p-8 shadow-lg">
-        <h2 className="mb-6 text-2xl font-bold text-black-text">Stake UNI-V2</h2>
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">Stake UNI-V2</h2>
 
         {/* Balance Display */}
         <div className="mb-6 rounded-lg bg-gray-50 p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Available</p>
-              <p className="text-xl font-bold text-black-text">{parseFloat(univ2BalanceFormatted).toFixed(4)}</p>
+              <p className="text-xl font-bold text-gray-900">{parseFloat(univ2BalanceFormatted).toFixed(4)}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Staked</p>
-              <p className="text-xl font-bold text-purple-text">{parseFloat(stakedBalanceFormatted).toFixed(4)}</p>
+              <p className="text-xl font-bold text-primary">{parseFloat(stakedBalanceFormatted).toFixed(4)}</p>
             </div>
           </div>
         </div>
@@ -202,7 +202,7 @@ export function StakeSection() {
               value={stakeAmount}
               onChange={(e) => setStakeAmount(e.target.value)}
               placeholder="0.0"
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20"
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring-primary/20"
             />
             <button
               onClick={() => setStakeAmount(univ2BalanceFormatted)}
@@ -228,7 +228,7 @@ export function StakeSection() {
             disabled={isPending || isStaking || !stakeAmount || parseFloat(stakeAmount) === 0}
             className="group relative w-full overflow-hidden rounded-lg bg-black-background px-8 py-3 font-medium text-white disabled:opacity-50"
           >
-            <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-purple-text to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+            <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-primary to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
             <span className="relative z-10">{isPending && isStaking ? 'Staking...' : 'Stake'}</span>
           </button>
         )}
@@ -238,7 +238,7 @@ export function StakeSection() {
       <div className="space-y-6">
         {/* Unstake */}
         <div className="rounded-2xl bg-white p-8 shadow-lg">
-          <h2 className="mb-6 text-2xl font-bold text-black-text">Unstake UNI-V2</h2>
+          <h2 className="mb-6 text-2xl font-bold text-gray-900">Unstake UNI-V2</h2>
 
           <div className="mb-4">
             <label className="mb-2 block text-sm font-medium text-gray-700">Amount to Unstake</label>
@@ -248,7 +248,7 @@ export function StakeSection() {
                 value={unstakeAmount}
                 onChange={(e) => setUnstakeAmount(e.target.value)}
                 placeholder="0.0"
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring-primary/20"
               />
               <button
                 onClick={() => setUnstakeAmount(stakedBalanceFormatted)}
@@ -270,10 +270,10 @@ export function StakeSection() {
 
         {/* Rewards */}
         <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 p-8 shadow-lg">
-          <h2 className="mb-4 text-2xl font-bold text-black-text">Rewards</h2>
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Rewards</h2>
           <div className="mb-6">
             <p className="text-sm text-gray-600">Earned AIUS</p>
-            <p className="text-4xl font-bold text-purple-text">{parseFloat(earnedFormatted).toFixed(4)}</p>
+            <p className="text-4xl font-bold text-primary">{parseFloat(earnedFormatted).toFixed(4)}</p>
           </div>
 
           <button
@@ -281,7 +281,7 @@ export function StakeSection() {
             disabled={isPending || isClaiming || parseFloat(earnedFormatted) === 0}
             className="group relative w-full overflow-hidden rounded-lg bg-black-background px-8 py-3 font-medium text-white disabled:opacity-50"
           >
-            <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-purple-text to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+            <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-primary to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
             <span className="relative z-10">{isPending && isClaiming ? 'Claiming...' : 'Claim Rewards'}</span>
           </button>
         </div>

@@ -15,7 +15,7 @@ export function AIUSPageClient() {
       {/* Hero Section */}
       <div className="bg-white py-16 lg:py-24">
         <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
-          <h1 className="mb-8 text-[45px] font-bold text-black-text lg:text-[50px] 2xl:text-[70px]">
+          <h1 className="mb-8 text-[45px] font-bold text-gray-900 lg:text-[50px] 2xl:text-[70px]">
             veAIUS Staking
           </h1>
 

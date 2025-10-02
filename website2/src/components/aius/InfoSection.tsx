@@ -13,7 +13,7 @@ export function InfoSection() {
         <div className="space-y-4">
           {steps.map((step, index) => (
             <div key={index} className="flex items-start gap-4">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-purple-text to-blue-500 text-sm font-bold text-white">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-primary to-blue-500 text-sm font-bold text-white">
                 {index + 1}
               </div>
               <p className="pt-1 text-sm text-gray-700">{step}</p>
@@ -25,7 +25,7 @@ export function InfoSection() {
       {/* Process Overview */}
       <div className="rounded-2xl bg-white p-8 shadow-lg">
         <div>
-          <p className="mb-4 font-semibold text-black-text">veAIUS Process Overview:</p>
+          <p className="mb-4 font-semibold text-gray-900">veAIUS Process Overview:</p>
           <div className="space-y-2 text-sm text-gray-700">
             <p>Lock AIUS: Receive veAIUS NFTs, earning rewards.</p>
             <p>Vote: veAIUS holders vote weekly for AI models.</p>

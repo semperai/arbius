@@ -130,7 +130,7 @@ export function Dashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="mb-2 text-3xl font-bold text-black-text">Dashboard</h2>
+        <h2 className="mb-2 text-3xl font-bold text-gray-900">Dashboard</h2>
         <p className="text-gray-600">
           Protocol statistics and your veAIUS position overview
         </p>
@@ -165,7 +165,7 @@ export function Dashboard() {
                   className={`rounded-2xl bg-gradient-to-br ${stat.gradient} p-6 shadow-md`}
                 >
                   <h3 className="mb-2 text-sm font-medium text-gray-600">{stat.title}</h3>
-                  <p className="mb-1 text-3xl font-bold text-black-text">{stat.value}</p>
+                  <p className="mb-1 text-3xl font-bold text-gray-900">{stat.value}</p>
                   <p className="text-xs text-gray-500">{stat.subtitle}</p>
                 </div>
               ))}
@@ -175,7 +175,7 @@ export function Dashboard() {
           {/* Lock Positions Table */}
           {nftCount > 0 ? (
             <div className="rounded-2xl bg-white p-6 shadow-lg">
-              <h3 className="mb-4 text-xl font-semibold text-black-text">Your Lock Positions</h3>
+              <h3 className="mb-4 text-xl font-semibold text-gray-900">Your Lock Positions</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -197,7 +197,7 @@ export function Dashboard() {
                     ) : userPositions.length > 0 ? (
                       userPositions.map((position) => (
                         <tr key={position.tokenId.toString()} className="border-b border-gray-100">
-                          <td className="py-4 text-sm font-medium text-black-text">
+                          <td className="py-4 text-sm font-medium text-gray-900">
                             #{position.tokenId.toString()}
                           </td>
                           <td className="py-4 text-sm text-gray-700">

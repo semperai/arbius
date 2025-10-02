@@ -12,7 +12,7 @@ export default function NotFound() {
         </div>
 
         {/* Message */}
-        <h2 className="mb-4 text-2xl font-semibold text-black-text md:text-3xl">
+        <h2 className="mb-4 text-2xl font-semibold text-gray-900 md:text-3xl">
           Page Not Found
         </h2>
         <p className="mb-8 text-gray-600 md:text-lg">
@@ -23,7 +23,7 @@ export default function NotFound() {
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/"
-            className="rounded-full border-2 border-purple-text bg-purple-text px-8 py-3 font-semibold text-white transition-all hover:opacity-90"
+            className="rounded-full border-2 border-primary bg-primary px-8 py-3 font-semibold text-white transition-all hover:opacity-90"
           >
             Go Home
           </Link>

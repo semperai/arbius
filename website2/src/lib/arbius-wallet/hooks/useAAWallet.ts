@@ -80,11 +80,31 @@ export function useAAWallet() {
     }
   }, [derivedAccount]);
 
+  const estimateGas = useCallback(async (to: `0x${string}`, data: `0x${string}`, value: bigint = BigInt(0)): Promise<bigint | null> => {
+    if (!smartAccountAddress || !publicClient) {
+      return null;
+    }
+
+    try {
+      const gasEstimate = await publicClient.estimateGas({
+        account: smartAccountAddress as `0x${string}`,
+        to,
+        data,
+        value,
+      });
+      return gasEstimate;
+    } catch (err) {
+      console.error('Failed to estimate gas:', err instanceof Error ? err.message : 'Unknown error');
+      return null;
+    }
+  }, [smartAccountAddress, publicClient]);
+
   return {
     ...context,
     smartAccountAddress,
     derivedAccount,
     signMessageWithAAWallet,
+    estimateGas,
     isInitializing,
     error,
   };

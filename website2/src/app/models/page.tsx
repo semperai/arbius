@@ -51,11 +51,11 @@ export default function ModelsPage() {
         {/* Header Section */}
         <div className="mb-12 flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <h1 className="mb-4 text-5xl font-bold text-black-text">Arbius Models</h1>
+            <h1 className="mb-4 text-5xl font-bold text-gray-900">Arbius Models</h1>
             <p className="max-w-2xl text-gray-700">
               Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).
             </p>
-            <Link href="https://docs.arbius.ai/register-model" target="_blank" rel="noopener noreferrer" className="inline-block pt-4 font-bold text-purple-text hover:text-purple-600">
+            <Link href="https://docs.arbius.ai/register-model" target="_blank" rel="noopener noreferrer" className="inline-block pt-4 font-bold text-primary hover:text-purple-600">
               Register your model →
             </Link>
           </div>

@@ -25,8 +25,8 @@ export default function LPStakingPage() {
                   onClick={() => setSelectedTab(tab)}
                   className={`pb-4 text-lg font-semibold transition-colors ${
                     selectedTab === tab
-                      ? 'border-b-2 border-purple-text text-purple-text'
-                      : 'text-gray-600 hover:text-purple-text'
+                      ? 'border-b-2 border-primary text-primary'
+                      : 'text-gray-600 hover:text-primary'
                   }`}
                 >
                   {tab}

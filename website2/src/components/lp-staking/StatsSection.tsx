@@ -87,7 +87,7 @@ export function StatsSection() {
     <div className="space-y-8">
       {/* Protocol Stats */}
       <div>
-        <h2 className="mb-4 text-2xl font-bold text-black-text">Protocol Statistics</h2>
+        <h2 className="mb-4 text-2xl font-bold text-gray-900">Protocol Statistics</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {protocolStats.map((stat, idx) => (
             <div
@@ -95,7 +95,7 @@ export function StatsSection() {
               className="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 p-6 shadow-lg"
             >
               <h3 className="mb-2 text-sm font-medium text-gray-600">{stat.title}</h3>
-              <p className="mb-1 text-2xl font-bold text-black-text">{stat.value}</p>
+              <p className="mb-1 text-2xl font-bold text-gray-900">{stat.value}</p>
               <p className="text-xs text-gray-500">{stat.subtitle}</p>
             </div>
           ))}
@@ -105,7 +105,7 @@ export function StatsSection() {
       {/* User Stats */}
       {isConnected && (
         <div>
-          <h2 className="mb-4 text-2xl font-bold text-black-text">Your Statistics</h2>
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">Your Statistics</h2>
           <div className="grid gap-6 md:grid-cols-2">
             {userStats.map((stat, idx) => (
               <div
@@ -113,7 +113,7 @@ export function StatsSection() {
                 className="rounded-2xl bg-white p-8 shadow-lg"
               >
                 <h3 className="mb-2 text-sm font-medium text-gray-600">{stat.title}</h3>
-                <p className="mb-1 text-3xl font-bold text-purple-text">{stat.value}</p>
+                <p className="mb-1 text-3xl font-bold text-primary">{stat.value}</p>
                 <p className="text-xs text-gray-500">{stat.subtitle}</p>
               </div>
             ))}

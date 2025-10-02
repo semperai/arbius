@@ -183,7 +183,7 @@ export function Gauge() {
     <div className="space-y-6">
       {/* Voting Power Stats */}
       <div className="rounded-2xl bg-white p-6 shadow-lg">
-        <h3 className="mb-4 text-xl font-bold text-black-text">Your Voting Power</h3>
+        <h3 className="mb-4 text-xl font-bold text-gray-900">Your Voting Power</h3>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-lg bg-purple-50 p-4">
@@ -213,7 +213,7 @@ export function Gauge() {
       {/* Current Vote Distribution */}
       {currentVotes && Array.isArray(currentVotes) && currentVotes[0] && (currentVotes[0] as any[]).length > 0 && (
         <div className="rounded-2xl bg-white p-6 shadow-lg">
-          <h3 className="mb-4 text-xl font-bold text-black-text">Current Vote Distribution</h3>
+          <h3 className="mb-4 text-xl font-bold text-gray-900">Current Vote Distribution</h3>
           <div className="space-y-2">
             {(currentVotes[0] as `0x${string}`[]).map((addr, idx) => {
               const weight = (currentVotes[1] as bigint[])[idx]
@@ -238,7 +238,7 @@ export function Gauge() {
 
       {/* Vote Allocation UI */}
       <div className="rounded-2xl bg-white p-6 shadow-lg">
-        <h3 className="mb-4 text-xl font-bold text-black-text">Allocate Your Votes</h3>
+        <h3 className="mb-4 text-xl font-bold text-gray-900">Allocate Your Votes</h3>
         <p className="mb-6 text-sm text-gray-600">
           Distribute 100% of your voting weight across AI models to direct rewards
         </p>

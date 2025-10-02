@@ -79,7 +79,7 @@ export const Footer = memo(function Footer() {
                   rel={link.external ? "noopener noreferrer" : undefined}
                   key={link.link}
                 >
-                  <p className="text-right text-[16px] font-medium text-gray-700 transition-colors hover:text-purple-text">
+                  <p className="text-right text-[16px] font-medium text-gray-700 transition-colors hover:text-primary">
                     {link.name}
                   </p>
                 </Link>
@@ -95,7 +95,7 @@ export const Footer = memo(function Footer() {
                   rel={link.external ? "noopener noreferrer" : undefined}
                   key={link.link}
                 >
-                  <p className="text-right text-[16px] font-medium text-gray-700 transition-colors hover:text-purple-text">
+                  <p className="text-right text-[16px] font-medium text-gray-700 transition-colors hover:text-primary">
                     {link.name}
                   </p>
                 </Link>
@@ -111,7 +111,7 @@ export const Footer = memo(function Footer() {
                   rel={link.external ? "noopener noreferrer" : undefined}
                   key={link.link}
                 >
-                  <p className="text-right text-[16px] font-medium text-gray-700 transition-colors hover:text-purple-text">
+                  <p className="text-right text-[16px] font-medium text-gray-700 transition-colors hover:text-primary">
                     {link.name}
                   </p>
                 </Link>
@@ -125,7 +125,7 @@ export const Footer = memo(function Footer() {
                 onClick={scrollTop}
                 aria-label="Scroll back to top of page"
               >
-                <p className="text-[14px] text-gray-700 transition-colors group-hover:text-purple-text">
+                <p className="text-[14px] text-gray-700 transition-colors group-hover:text-primary">
                   Back to top
                 </p>
                 <Image
@@ -183,7 +183,7 @@ export const Footer = memo(function Footer() {
                     rel={link.external ? "noopener noreferrer" : undefined}
                     key={link.link}
                   >
-                    <p className="text-[16px] font-medium text-gray-700 hover:text-purple-text">
+                    <p className="text-[16px] font-medium text-gray-700 hover:text-primary">
                       {link.name}
                     </p>
                   </Link>
@@ -195,7 +195,7 @@ export const Footer = memo(function Footer() {
                     rel={link.external ? "noopener noreferrer" : undefined}
                     key={link.link}
                   >
-                    <p className="text-[16px] font-medium text-gray-700 hover:text-purple-text">
+                    <p className="text-[16px] font-medium text-gray-700 hover:text-primary">
                       {link.name}
                     </p>
                   </Link>
@@ -211,7 +211,7 @@ export const Footer = memo(function Footer() {
                     rel={link.external ? "noopener noreferrer" : undefined}
                     key={link.link}
                   >
-                    <p className="text-[16px] font-medium text-gray-700 hover:text-purple-text">
+                    <p className="text-[16px] font-medium text-gray-700 hover:text-primary">
                       {link.name}
                     </p>
                   </Link>

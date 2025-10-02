@@ -58,10 +58,10 @@ export default function MediaPage() {
         {/* Header */}
         <div className="mb-16">
           <div className="mb-8">
-            <h1 className="mb-4 text-[45px] font-bold text-black-text lg:text-[60px]">
+            <h1 className="mb-4 text-[45px] font-bold text-gray-900 lg:text-[60px]">
               Arbius Media
             </h1>
-            <p className="max-w-2xl text-lg text-subtext-three">
+            <p className="max-w-2xl text-lg text-gray-600">
               See what&apos;s happening across the Arbius Ecosystem.
             </p>
           </div>
@@ -69,7 +69,7 @@ export default function MediaPage() {
           <Link
             href="https://x.com/arbius_ai"
             target="_blank"
-            className="group inline-flex items-center gap-3 rounded-full border-2 border-black-text bg-white px-8 py-3 font-semibold text-black-text transition-all hover:bg-black-text hover:text-white"
+            className="group inline-flex items-center gap-3 rounded-full border-2 border-gray-900 bg-white px-8 py-3 font-semibold text-gray-900 transition-all hover:bg-gray-900 hover:text-white"
           >
             <span>View more</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -98,7 +98,7 @@ export default function MediaPage() {
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg">
                     <svg
-                      className="h-8 w-8 text-purple-text"
+                      className="h-8 w-8 text-primary"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -110,7 +110,7 @@ export default function MediaPage() {
 
               {/* Post Info */}
               <div className="p-6">
-                <h3 className="mb-2 text-xl font-bold text-black-text group-hover:text-purple-text">
+                <h3 className="mb-2 text-xl font-bold text-gray-900 group-hover:text-primary">
                   {post.title}
                 </h3>
                 <p className="mb-3 text-sm text-gray-500">{post.date}</p>

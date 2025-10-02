@@ -18,11 +18,11 @@ export function CommunitySection() {
     <div className="bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] py-16 lg:py-24">
       <div className="mx-auto box-border w-[90%] max-w-[2000px] bg-white py-10 lg:w-[80%]">
         <div className="mb-6">
-          <h2 className="mb-2 text-[45px] leading-[60px] text-black-text lg:text-[50px] lg:leading-none 2xl:text-[70px]">
+          <h2 className="mb-2 text-[45px] leading-[60px] text-gray-900 lg:text-[50px] lg:leading-none 2xl:text-[70px]">
             dApps & Community
           </h2>
           <div className="flex items-center gap-4">
-            <h2 className="text-[45px] text-black-text lg:text-[50px] 2xl:text-[70px]">
+            <h2 className="text-[45px] text-gray-900 lg:text-[50px] 2xl:text-[70px]">
               Initiatives
             </h2>
             <Image
@@ -36,7 +36,7 @@ export function CommunitySection() {
         </div>
 
         <div className="mb-12">
-          <p className="w-full text-para text-subtext-three lg:w-[70%]">
+          <p className="w-full text-para text-gray-600 lg:w-[70%]">
             Discover diverse dApps and community initiatives on the Arbius
             Network, each supported by our DAO and enhancing our
             blockchain ecosystem with innovative and collaborative
@@ -60,7 +60,7 @@ export function CommunitySection() {
                 {platform.name}
               </h3>
 
-              <p className="mt-6 text-[16px] text-card-heading">
+              <p className="mt-6 text-[16px] text-gray-800">
                 {platform.content}
               </p>
 

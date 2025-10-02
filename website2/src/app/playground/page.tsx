@@ -31,7 +31,7 @@ interface Task {
 export default function PlaygroundPage() {
   const { isConnected } = useAccount()
   const chainId = useChainId()
-  const { smartAccountAddress, derivedAccount, error: aaWalletError } = useAAWallet()
+  const { smartAccountAddress, derivedAccount, estimateGas, error: aaWalletError } = useAAWallet()
   const publicClient = usePublicClient()
 
   const [selectedCategory, setSelectedCategory] = useState<ModelCategory>('text')
@@ -40,19 +40,36 @@ export default function PlaygroundPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [balanceWarning, setBalanceWarning] = useState<string | null>(null)
+  const [estimatedGasCost, setEstimatedGasCost] = useState<bigint | null>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
   // Check AA wallet balance
-  const { data: ethBalance } = useBalance({
+  const { data: ethBalance, refetch: refetchEthBalance } = useBalance({
     address: smartAccountAddress as `0x${string}` | undefined,
     chainId,
   })
 
-  const { data: aiusBalance } = useBalance({
+  const { data: aiusBalance, refetch: refetchAiusBalance } = useBalance({
     address: smartAccountAddress as `0x${string}` | undefined,
     token: ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.baseTokenAddress as `0x${string}` | undefined,
     chainId,
   })
+
+  // Listen for AA wallet balance updates
+  useEffect(() => {
+    const handleBalanceUpdate = () => {
+      console.log('AA wallet balance updated event received')
+      refetchEthBalance()
+      refetchAiusBalance()
+    }
+
+    window.addEventListener('aa-wallet-balance-updated', handleBalanceUpdate)
+    console.log('Added aa-wallet-balance-updated listener')
+    return () => {
+      window.removeEventListener('aa-wallet-balance-updated', handleBalanceUpdate)
+      console.log('Removed aa-wallet-balance-updated listener')
+    }
+  }, [])
 
   // Update selected model when category changes
   useEffect(() => {
@@ -99,6 +116,55 @@ export default function PlaygroundPage() {
   const modelFee = MODEL_FEES[selectedModel] || '0'
   const minerFee = MODEL_MINER_FEES[selectedModel] || BASE_MINER_FEE
 
+  // Estimate gas for submitTask transaction
+  useEffect(() => {
+    const estimateTaskGas = async () => {
+      if (!smartAccountAddress || !estimateGas || !chainId) {
+        setEstimatedGasCost(null)
+        return
+      }
+
+      const engineAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.engineAddress
+      if (!engineAddress || engineAddress === '0x0000000000000000000000000000000000000000') {
+        setEstimatedGasCost(null)
+        return
+      }
+
+      // Get model ID
+      const modelId = MODELS[selectedModel as keyof typeof MODELS]?.id || MODELS.kandinsky2.id
+
+      // Build submitTask transaction data
+      const input = encodePacked(['string'], ['test prompt'])
+      const data = encodePacked(
+        ['bytes4', 'uint8', 'address', 'bytes32', 'uint256', 'bytes'],
+        [
+          '0x' + keccak256(encodePacked(['string'], ['submitTask(uint8,address,bytes32,uint256,bytes)'])).slice(2, 10) as `0x${string}`,
+          1, // version
+          smartAccountAddress as `0x${string}`,
+          modelId,
+          totalCost,
+          input,
+        ]
+      )
+
+      try {
+        const gasEstimate = await estimateGas(engineAddress as `0x${string}`, data, BigInt(0))
+        if (gasEstimate && publicClient) {
+          const gasPrice = await publicClient.getGasPrice()
+          // Add 20% buffer
+          const gasCostWithBuffer = (gasEstimate * gasPrice * BigInt(120)) / BigInt(100)
+          setEstimatedGasCost(gasCostWithBuffer)
+        }
+      } catch (err) {
+        console.error('Failed to estimate gas:', err)
+        // Fallback to default estimate
+        setEstimatedGasCost(parseEther('0.0001'))
+      }
+    }
+
+    estimateTaskGas()
+  }, [selectedModel, smartAccountAddress, estimateGas, chainId, totalCost, publicClient])
+
   // Check balances before submission
   useEffect(() => {
     if (!smartAccountAddress || !ethBalance || !aiusBalance) {
@@ -106,7 +172,7 @@ export default function PlaygroundPage() {
       return
     }
 
-    const requiredETH = parseEther('0.0001') // Estimated gas
+    const requiredETH = estimatedGasCost || parseEther('0.0001')
 
     if (aiusBalance.value < totalCost && ethBalance.value < requiredETH) {
       setBalanceWarning('Your AA wallet needs AIUS tokens for fees and ETH for gas. Send funds to your AA wallet address.')
@@ -117,7 +183,7 @@ export default function PlaygroundPage() {
     } else {
       setBalanceWarning(null)
     }
-  }, [smartAccountAddress, ethBalance, aiusBalance, totalCost])
+  }, [smartAccountAddress, ethBalance, aiusBalance, totalCost, estimatedGasCost])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -158,9 +224,6 @@ export default function PlaygroundPage() {
       // Encode input based on model type
       const input = encodePacked(['string'], [prompt.trim()])
 
-      // Calculate fee (0.01 AIUS as example)
-      const fee = parseEther('0.01')
-
       // Sign and submit transaction using AA wallet
       const tx = await derivedAccount.signTransaction({
         to: engineAddress,
@@ -171,7 +234,7 @@ export default function PlaygroundPage() {
             1, // version
             smartAccountAddress as `0x${string}`,
             modelId,
-            fee,
+            totalCost,
             input,
           ]
         ),
@@ -286,8 +349,8 @@ export default function PlaygroundPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="mb-2 text-4xl font-bold text-black-text">Arbius Playground</h1>
-          <p className="text-subtext-two">
+          <h1 className="mb-2 text-4xl font-bold text-gray-900">Arbius Playground</h1>
+          <p className="text-gray-700">
             Chat with AI models on the Arbius network
           </p>
         </div>
@@ -312,7 +375,7 @@ export default function PlaygroundPage() {
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value as ModelCategory)}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20"
+          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring-primary/20"
         >
           <option value="text">Text</option>
           <option value="image">Image</option>
@@ -331,7 +394,7 @@ export default function PlaygroundPage() {
                 onClick={() => setSelectedModel(modelName)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                   isSelected
-                    ? 'bg-purple-text text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
@@ -408,12 +471,12 @@ export default function PlaygroundPage() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter your prompt..."
               disabled={isSubmitting || !!balanceWarning || !!aaWalletError}
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20 disabled:bg-gray-100"
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring-primary/20 disabled:bg-gray-100"
             />
             <button
               type="submit"
               disabled={!prompt.trim() || isSubmitting || !!balanceWarning || !!aaWalletError}
-              className="flex items-center gap-2 rounded-lg bg-purple-text px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -449,16 +512,18 @@ export default function PlaygroundPage() {
               </div>
             </div>
           )}
-          <div className="flex items-center justify-between">
-            <span className={balanceWarning ? 'text-orange-700' : 'text-gray-600'}>
-              Estimated cost per task:
-            </span>
-            <div className="text-right">
-              <span className={`font-mono font-semibold ${balanceWarning ? 'text-orange-900' : 'text-gray-900'}`}>
-                {formatEther(totalCost)} AIUS
+          <div>
+            <div className="flex items-center justify-between">
+              <span className={balanceWarning ? 'text-orange-700' : 'text-gray-600'}>
+                Estimated cost per task:
               </span>
-              <div className={`mt-1 text-xs ${balanceWarning ? 'text-orange-600' : 'text-gray-500'}`}>
-                ({modelFee} model fee + {minerFee} miner fee)
+              <div className="text-right">
+                <span className={`font-mono font-semibold ${balanceWarning ? 'text-orange-900' : 'text-gray-900'}`}>
+                  {formatEther(totalCost)} AIUS + ~{formatEther(estimatedGasCost || parseEther('0.0001'))} ETH
+                </span>
+                <div className={`mt-1 text-xs ${balanceWarning ? 'text-orange-600' : 'text-gray-500'}`}>
+                  ({modelFee} model fee + {minerFee} miner fee)
+                </div>
               </div>
             </div>
           </div>

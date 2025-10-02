@@ -63,8 +63,8 @@ export function ModelCard({
 
       {/* Model Info */}
       <div className="p-6">
-        <h3 className="text-xl font-bold text-black-text">{name}</h3>
-        <p className="mt-1 text-sm font-medium text-purple-text">{role}</p>
+        <h3 className="text-xl font-bold text-gray-900">{name}</h3>
+        <p className="mt-1 text-sm font-medium text-primary">{role}</p>
         <p className="mt-3 text-sm text-gray-600">{description}</p>
 
         {/* Contract Info */}
@@ -92,9 +92,9 @@ export function ModelCard({
               <div className="rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">Your Balance:</span>
-                  <span className="text-lg font-bold text-purple-text">{balanceFormatted}</span>
+                  <span className="text-lg font-bold text-primary">{balanceFormatted}</span>
                 </div>
-                <button className="mt-3 w-full rounded-lg bg-gradient-to-r from-purple-text to-blue-500 px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+                <button className="mt-3 w-full rounded-lg bg-gradient-to-r from-primary to-blue-500 px-4 py-2 text-sm font-medium text-white hover:opacity-90">
                   Swap Tokens
                 </button>
               </div>
@@ -103,7 +103,7 @@ export function ModelCard({
             {/* CID Details Toggle */}
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-sm text-purple-text hover:underline"
+              className="text-sm text-primary hover:underline"
             >
               {showDetails ? 'Hide Details' : 'Show Details'}
             </button>

@@ -194,7 +194,7 @@ export default function UpgradePage() {
           <div className="space-y-6">
             {/* V1 Balance */}
             <div className="rounded-2xl bg-white p-8 shadow-lg">
-              <h3 className="mb-4 text-xl font-semibold text-black-text">Your V1 Balance</h3>
+              <h3 className="mb-4 text-xl font-semibold text-gray-900">Your V1 Balance</h3>
               <div className="flex items-center gap-4">
                 <input
                   type="text"
@@ -208,7 +208,7 @@ export default function UpgradePage() {
 
             {/* Action Buttons */}
             <div className="rounded-2xl bg-white p-8 shadow-lg">
-              <h3 className="mb-4 text-xl font-semibold text-black-text">Upgrade Action</h3>
+              <h3 className="mb-4 text-xl font-semibold text-gray-900">Upgrade Action</h3>
               {v1BalanceBigInt === BigInt(0) ? (
                 <button
                   disabled
@@ -222,7 +222,7 @@ export default function UpgradePage() {
                   disabled={isPending || isApproving}
                   className="group relative w-full overflow-hidden rounded-lg bg-black-background px-8 py-3 font-medium text-white disabled:opacity-50"
                 >
-                  <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-purple-text to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                  <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-primary to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
                   <span className="relative z-10">
                     {isPending && isApproving ? 'Approving...' : 'Approve V1 Tokens'}
                   </span>
@@ -233,7 +233,7 @@ export default function UpgradePage() {
                   disabled={isPending || isSwapping}
                   className="group relative w-full overflow-hidden rounded-lg bg-black-background px-8 py-3 font-medium text-white disabled:opacity-50"
                 >
-                  <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-purple-text to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                  <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-primary to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
                   <span className="relative z-10">
                     {isPending && isSwapping ? 'Upgrading...' : 'Upgrade to V2'}
                   </span>
@@ -243,15 +243,15 @@ export default function UpgradePage() {
 
             {/* V2 Balance */}
             <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 p-8 shadow-lg">
-              <h3 className="mb-4 text-xl font-semibold text-black-text">Your V2 Balance</h3>
+              <h3 className="mb-4 text-xl font-semibold text-gray-900">Your V2 Balance</h3>
               <div className="flex items-center gap-4">
                 <input
                   type="text"
                   value={parseFloat(v2BalanceFormatted).toFixed(4)}
                   readOnly
-                  className="flex-1 rounded-lg border border-purple-300 bg-white px-4 py-3 text-lg font-semibold text-purple-text"
+                  className="flex-1 rounded-lg border border-purple-300 bg-white px-4 py-3 text-lg font-semibold text-primary"
                 />
-                <span className="text-lg font-medium text-purple-text">AIUS V2</span>
+                <span className="text-lg font-medium text-primary">AIUS V2</span>
               </div>
             </div>
 

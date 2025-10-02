@@ -15,7 +15,7 @@ export function WalletConnect() {
         </span>
         <button
           onClick={() => disconnect()}
-          className="rounded-lg bg-purple-text px-4 py-2 text-sm font-medium text-white hover:bg-blue-text transition-colors"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
         >
           Disconnect
         </button>
@@ -29,7 +29,7 @@ export function WalletConnect() {
         <button
           key={connector.uid}
           onClick={() => connect({ connector })}
-          className="rounded-lg bg-purple-text px-4 py-2 text-sm font-medium text-white hover:bg-blue-text transition-colors"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
         >
           Connect {connector.name}
         </button>

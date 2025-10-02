@@ -37,20 +37,20 @@ export function DemocraticSection() {
   return (
     <div className="bg-[linear-gradient(78.34deg,rgba(146,189,255,0.02)_-6.48%,rgba(81,54,255,0.1)_45.24%,rgba(212,179,255,0.2)_106.31%)] py-24">
       <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
-        <h2 className="font-[family-name:var(--font-lato)] font-bold mb-6 text-[35px] leading-tight text-black-text lg:text-[50px] 2xl:text-[70px]">
+        <h2 className="font-[family-name:var(--font-lato)] font-bold mb-6 text-[35px] leading-tight text-gray-900 lg:text-[50px] 2xl:text-[70px]">
           <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
             We dream of open and accessible AI
           </Fade>
         </h2>
         <Fade direction="up" triggerOnce={true}>
-          <p className="font-[family-name:var(--font-lato)] font-normal w-full text-[16px] text-subtext-three lg:w-[70%]">
+          <p className="font-[family-name:var(--font-lato)] font-normal w-full text-[16px] text-gray-600 lg:w-[70%]">
             Arbius is controlled by its users, not monopolized by large
             corporations and governments. The design of Arbius makes it
             difficult or impossible to censor usage, allowing for anyone
             in the world to interact with AI models permissionlessly.
           </p>
           <br />
-          <p className="font-[family-name:var(--font-lato)] font-normal w-full text-[16px] text-subtext-three lg:w-[70%]">
+          <p className="font-[family-name:var(--font-lato)] font-normal w-full text-[16px] text-gray-600 lg:w-[70%]">
             AI model owners can now utilize a distributed network of
             miners and attribute request origins, ensuring high uptime and
             integrity. By decentralizing the hosting process, Arbius
@@ -70,10 +70,10 @@ export function DemocraticSection() {
                 <div className="mb-10">
                   <Image src={card.icon} alt={card.title} width={20} height={20} />
                 </div>
-                <h3 className="font-[family-name:var(--font-lato)] font-bold relative z-10 text-[25px] text-card-heading">
+                <h3 className="font-[family-name:var(--font-lato)] font-bold relative z-10 text-[25px] text-gray-800">
                   {card.title}
                 </h3>
-                <p className="font-[family-name:var(--font-lato)] font-normal relative z-10 mt-6 text-[16px] text-card-heading">
+                <p className="font-[family-name:var(--font-lato)] font-normal relative z-10 mt-6 text-[16px] text-gray-800">
                   {card.content}
                 </p>
               </div>
@@ -91,10 +91,10 @@ export function DemocraticSection() {
               <div className="mb-6">
                 <Image src={card.icon} alt={card.title} width={20} height={20} />
               </div>
-              <h3 className="font-[family-name:var(--font-lato)] font-bold text-[25px] text-card-heading">
+              <h3 className="font-[family-name:var(--font-lato)] font-bold text-[25px] text-gray-800">
                 {card.title}
               </h3>
-              <p className="font-[family-name:var(--font-lato)] font-normal mt-4 text-[16px] text-card-heading">
+              <p className="font-[family-name:var(--font-lato)] font-normal mt-4 text-[16px] text-gray-800">
                 {card.content}
               </p>
             </div>

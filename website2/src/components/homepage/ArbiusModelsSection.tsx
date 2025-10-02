@@ -51,7 +51,7 @@ export function ArbiusModelsSection() {
         <div className="mb-12 flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
             <div className="mb-6 flex items-center gap-3">
-              <h2 className="text-5xl font-bold text-black-text">Arbius Models</h2>
+              <h2 className="text-5xl font-bold text-gray-900">Arbius Models</h2>
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-600">
                 <Image src="/logo.png" alt="Arbius" width={40} height={40} className="brightness-0 invert" />
               </div>

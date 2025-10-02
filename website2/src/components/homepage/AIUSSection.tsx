@@ -6,16 +6,16 @@ import modelInferenceImg from '@/app/assets/images/model_inference.png'
 
 export function AIUSSection() {
   return (
-    <div className="bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] py-16 text-black-text lg:py-24">
+    <div className="bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] py-16 text-gray-900 lg:py-24">
       <div className="m-auto w-[90%] lg:w-[80%]">
-        <div className="mb-6 flex items-center gap-4 text-[45px] font-medium text-black-text lg:text-[50px] 2xl:text-[70px]">
+        <div className="mb-6 flex items-center gap-4 text-[45px] font-medium text-gray-900 lg:text-[50px] 2xl:text-[70px]">
           <Image src={aiusSquareLogo} alt="AIUS" width={60} height={60} />
           <h2>veAIUS</h2>
         </div>
 
         <div className="mt-[30px] flex flex-col-reverse items-start justify-between lg:flex-row lg:items-center">
           <div className="basis-[30%]">
-            <h3 className="mb-6 text-[45px] font-medium text-black-text lg:text-[50px] 2xl:text-[70px]">
+            <h3 className="mb-6 text-[45px] font-medium text-gray-900 lg:text-[50px] 2xl:text-[70px]">
               Shared Inference Fees
             </h3>
             <p>
@@ -58,7 +58,7 @@ export function AIUSSection() {
           </div>
 
           <div className="basis-[40%]">
-            <h3 className="mb-6 text-[45px] font-medium text-black-text lg:text-[50px] 2xl:text-[70px]">
+            <h3 className="mb-6 text-[45px] font-medium text-gray-900 lg:text-[50px] 2xl:text-[70px]">
               Boosting AI Model Inference
             </h3>
             <p>

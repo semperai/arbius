@@ -220,7 +220,7 @@ export function StakeSection() {
   return (
     <div className="rounded-2xl bg-white p-6 shadow-lg lg:p-8">
       <div className="mb-6">
-        <h2 className="mb-2 text-2xl font-bold text-black-text">Lock AIUS for veAIUS</h2>
+        <h2 className="mb-2 text-2xl font-bold text-gray-900">Lock AIUS for veAIUS</h2>
         <p className="text-sm text-gray-600">
           Lock your AIUS tokens to receive veAIUS and earn governance rights
         </p>
@@ -242,7 +242,7 @@ export function StakeSection() {
           <div className="grid gap-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 p-4 sm:grid-cols-2">
             <div>
               <p className="text-xs text-gray-600">Available AIUS</p>
-              <p className="text-xl font-bold text-black-text">
+              <p className="text-xl font-bold text-gray-900">
                 {parseFloat(balanceFormatted).toFixed(4)}
               </p>
             </div>
@@ -277,12 +277,12 @@ export function StakeSection() {
                 className={`w-full rounded-lg border-2 px-4 py-3 pr-20 text-lg focus:outline-none focus:ring-2 ${
                   validationError
                     ? 'border-red-300 focus:border-red-400 focus:ring-red-200'
-                    : 'border-gray-200 focus:border-purple-text focus:ring-purple-text/20'
+                    : 'border-gray-200 focus:border-primary focus:ring-ring-primary/20'
                 }`}
               />
               <button
                 onClick={() => setAmount(balanceFormatted)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-purple-100 px-3 py-1 text-sm font-semibold text-purple-text hover:bg-purple-200"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-purple-100 px-3 py-1 text-sm font-semibold text-primary hover:bg-purple-200"
                 aria-label="Set amount to maximum balance"
               >
                 MAX
@@ -356,7 +356,7 @@ export function StakeSection() {
             <div className="mt-4 rounded-lg bg-gray-50 p-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-gray-600">Total Lock:</span>
-                <span className="font-bold text-black-text">
+                <span className="font-bold text-gray-900">
                   {months} months, {weeks} weeks ({(totalWeeks / 52).toFixed(2)} years)
                 </span>
               </div>

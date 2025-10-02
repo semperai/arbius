@@ -93,10 +93,10 @@ export function HeaderSection() {
   return (
     <div className="py-16 lg:py-24">
       <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
-        <h1 className="mb-4 text-[45px] font-bold text-black-text lg:text-[50px] 2xl:text-[70px]">
+        <h1 className="mb-4 text-[45px] font-bold text-gray-900 lg:text-[50px] 2xl:text-[70px]">
           AIUS Uniswap V2 LP Staking
         </h1>
-        <p className="mb-8 text-para text-subtext-three">
+        <p className="mb-8 text-para text-gray-600">
           Stake AIUS and ETH, earn AIUS rewards.
         </p>
 
@@ -107,7 +107,7 @@ export function HeaderSection() {
               key={idx}
               className="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 p-6 shadow-lg"
             >
-              <p className="mb-2 text-3xl font-bold text-black-text">{stat.value}</p>
+              <p className="mb-2 text-3xl font-bold text-gray-900">{stat.value}</p>
               <p className="text-sm font-medium text-gray-700">
                 {stat.label} {stat.sublabel}
               </p>
@@ -118,7 +118,7 @@ export function HeaderSection() {
         <Link
           href="https://app.uniswap.org/add/v2/0x8afe4055ebc86bd2afb3940c0095c9aca511d852/ETH?chain=mainnet"
           target="_blank"
-          className="inline-block font-medium text-purple-text hover:underline"
+          className="inline-block font-medium text-primary hover:underline"
         >
           Get UNI-V2 by providing liquidity on Uniswap →
         </Link>

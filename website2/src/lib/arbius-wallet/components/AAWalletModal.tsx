@@ -335,6 +335,12 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
       refetchAABalance();
       refetchAiusBalance();
       refetchConnectedAiusBalance();
+
+      // Emit event for external listeners
+      console.log('Dispatching aa-wallet-balance-updated event')
+      window.dispatchEvent(new CustomEvent('aa-wallet-balance-updated', {
+        detail: { address: smartAccountAddress }
+      }));
     } catch (err: any) {
       setError(err.message || 'Failed to fund wallet');
     } finally {
@@ -400,6 +406,12 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
       // Refetch balances immediately
       refetchAABalance();
       refetchAiusBalance();
+
+      // Emit event for external listeners
+      console.log('Dispatching aa-wallet-balance-updated event')
+      window.dispatchEvent(new CustomEvent('aa-wallet-balance-updated', {
+        detail: { address: smartAccountAddress }
+      }));
     } catch (err: any) {
       setError(err.message || 'Failed to send transaction');
     } finally {
@@ -492,7 +504,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 font-[family-name:var(--font-family-fredoka)]">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900">Amica Wallet</h2>
+          <h2 className="text-2xl font-semibold text-gray-900">Arbius Wallet</h2>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowAdvanced(true)}
@@ -627,13 +639,13 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                         ? 'border-red-300 focus:ring-red-500'
                         : fundAmount && parseFloat(fundAmount) > getAvailableBalance(fundCoin, 'fund')
                         ? 'border-orange-300 focus:ring-orange-500'
-                        : 'border-gray-300 focus:ring-primary'
+                        : 'border-gray-300 focus:ring-ring-primary'
                     }`}
                   />
                   <select
                     value={fundCoin}
                     onChange={(e) => setFundCoin(e.target.value as 'eth' | 'aius')}
-                    className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-medium"
+                    className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ring-primary focus:border-transparent text-sm font-medium"
                   >
                     <option value="eth">ETH</option>
                     <option value="aius">AIUS</option>
@@ -641,7 +653,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                   <button
                     onClick={handleFund}
                     disabled={isFunding || !canFund()}
-                    className="px-6 py-2 bg-primary text-white rounded-xl font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                    className="px-6 py-2 bg-primary text-white rounded-xl font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors whitespace-nowrap min-w-[100px]"
                   >
                     {isFunding ? 'Funding...' : 'Fund'}
                   </button>
@@ -683,7 +695,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                     className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
                       sendToAddress && !isAddress(sendToAddress)
                         ? 'border-red-300 focus:ring-red-500'
-                        : 'border-gray-300 focus:ring-primary'
+                        : 'border-gray-300 focus:ring-ring-primary'
                     }`}
                   />
                   {sendToAddress && !isAddress(sendToAddress) && (
@@ -703,13 +715,13 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                           ? 'border-red-300 focus:ring-red-500'
                           : sendAmount && parseFloat(sendAmount) > getAvailableBalance(sendCoin, 'send')
                           ? 'border-orange-300 focus:ring-orange-500'
-                          : 'border-gray-300 focus:ring-primary'
+                          : 'border-gray-300 focus:ring-ring-primary'
                       }`}
                     />
                     <select
                       value={sendCoin}
                       onChange={(e) => setSendCoin(e.target.value as 'eth' | 'aius')}
-                      className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-medium"
+                      className="px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-ring-primary focus:border-transparent text-sm font-medium"
                     >
                       <option value="eth">ETH</option>
                       <option value="aius">AIUS</option>
@@ -717,7 +729,7 @@ export function AAWalletModal({ isOpen, onClose, smartAccountAddress }: AAWallet
                     <button
                       onClick={handleSendOut}
                       disabled={isSending || !canSend()}
-                      className="px-6 py-2 bg-primary text-white rounded-xl font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                      className="px-6 py-2 bg-primary text-white rounded-xl font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors whitespace-nowrap min-w-[100px]"
                     >
                       {isSending ? 'Sending...' : 'Send'}
                     </button>

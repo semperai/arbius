@@ -37,7 +37,7 @@ export function ModelsSection() {
             Multi-Model Economy!
           </div>
 
-          <h2 className="mb-6 text-[45px] font-semibold text-black-text lg:text-[50px]">
+          <h2 className="mb-6 text-[45px] font-semibold text-gray-900 lg:text-[50px]">
             DeFi for AI
           </h2>
 
@@ -110,10 +110,10 @@ export function ModelsSection() {
                   />
                 </div>
                 <div className="mt-[10px]">
-                  <h3 className="mb-4 mt-4 text-[28px] font-medium text-blue-text">
+                  <h3 className="mb-4 mt-4 text-[28px] font-medium text-secondary">
                     {name}
                   </h3>
-                  <p className="mb-[10px] text-subtext-two">{model.text}</p>
+                  <p className="mb-[10px] text-gray-700">{model.text}</p>
                   {model.link && (
                     <Link href={model.link} target="_blank">
                       <button

@@ -5,13 +5,13 @@ import eaccImage from '@/app/assets/images/eacc_image.svg'
 
 export function EACCSection() {
   return (
-    <div className="bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] py-16 text-black-text lg:py-24">
+    <div className="bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] py-16 text-gray-900 lg:py-24">
       <div className="m-auto w-[90%] lg:w-[80%]">
         <div className="flex flex-col justify-between lg:flex-row lg:items-center">
           <div className="basis-[55%]">
             <Image src={eaccLogo} alt="EACC" width={80} height={80} className="mb-4" />
 
-            <h2 className="mb-6 text-[45px] font-medium text-black-text lg:text-[50px] 2xl:text-[70px]">
+            <h2 className="mb-6 text-[45px] font-medium text-gray-900 lg:text-[50px] 2xl:text-[70px]">
               EACC (Effective Acceleration Marketplace)
             </h2>
 

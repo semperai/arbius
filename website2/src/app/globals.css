@@ -19,14 +19,48 @@
 }
 
 @theme inline {
-  /* Colors */
-  --color-black-text: #333333;
-  --color-original-black: #000000;
-  --color-original-white: #ffffff;
+  /* Primary Brand Colors */
+  --color-primary: #4A28FF;
+  --color-primary-hover: #3a1fe6;
+  --color-primary-light: #92BDFF;
+
+  /* Secondary Colors */
+  --color-secondary: #2100D0;
+
+  /* Neutral Colors */
+  --color-gray-50: #F3F3F3;
+  --color-gray-100: #E5E5E5;
+  --color-gray-200: #CCCCCC;
+  --color-gray-300: #c2c2c2;
+  --color-gray-400: #979797;
+  --color-gray-500: #8D8D8D;
+  --color-gray-600: #777777;
+  --color-gray-700: #5B5B5B;
+  --color-gray-800: #454545;
+  --color-gray-900: #333333;
+  --color-gray-950: #2B2B2B;
+
+  /* Black & White */
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  /* State Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Focus Ring Colors */
+  --color-ring-primary: #4A28FF33;
+  --color-ring-error: #ef444433;
+  --color-ring-warning: #f59e0b33;
+
+  /* Legacy aliases for backwards compatibility */
+  --color-purple-text: #4A28FF;
   --color-blue-text: #2100D0;
+  --color-black-text: #333333;
   --color-subtext-one: #2B2B2B;
   --color-subtext-two: #555555;
-  --color-purple-text: #4A28FF;
   --color-subtext-three: #777777;
   --color-card-heading: #454545;
   --color-footer-text: #979797;
@@ -37,6 +71,8 @@
   --color-aius: #0E0E0E;
   --color-gray-text: #F3F3F3;
   --color-aius-tabs-gray: #8D8D8D;
+  --color-original-black: #000000;
+  --color-original-white: #ffffff;
 
   /* Font families */
   --font-lato: 'Lato', sans-serif;
