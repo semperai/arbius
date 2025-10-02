@@ -43,6 +43,9 @@ interface IArbiusV6 {
     error VotingPeriodNotEnded();
     error AmntTooSmall();
     error NotAllowed();
+    error AllowListNotEnabled();
+    error CannotReenableAllowList();
+    error NoOverrideExists();
 
     // ============ Structs ============
     struct Model {
@@ -150,6 +153,8 @@ interface IArbiusV6 {
     event ContestationSuggested(address indexed addr, bytes32 indexed task);
     event ModelAllowListUpdated(bytes32 indexed model, address indexed solver, bool added);
     event ModelAllowListRequirementChanged(bytes32 indexed model, bool required);
+    event SolutionModelFeePercentageChanged(uint256 percentage);
+    event SolutionModelFeePercentageOverrideCleared(bytes32 indexed model);
 
     // ============ State Variables ============
 
@@ -262,6 +267,7 @@ interface IArbiusV6 {
 
     // v6 mappings
     function solutionModelFeePercentageOverride(bytes32 model) external view returns (uint256);
+    function hasSolutionModelFeePercentageOverride(bytes32 model) external view returns (bool);
     function modelRequiresAllowList(bytes32 model_) external view returns (bool);
     function isSolverAllowed(bytes32 model_, address solver_) external view returns (bool);
 
@@ -275,6 +281,7 @@ interface IArbiusV6 {
     function setSolutionMineableRate(bytes32 model_, uint256 rate_) external;
     function setSolutionModelFeePercentage(uint256 solutionModelFeePercentage_) external;
     function setSolutionModelFeePercentageOverride(bytes32 model_, uint256 solutionModelFeePercentage_) external; // v6
+    function clearSolutionModelFeePercentageOverride(bytes32 model_) external; // v6
     function setVersion(uint256 version_) external;
     function setStartBlockTime(uint64 startBlockTime_) external;
     function setVeStaking(address veStaking_) external;
@@ -288,7 +295,7 @@ interface IArbiusV6 {
     function setModelAddr(bytes32 model_, address addr_) external;
     function addToModelAllowList(bytes32 model_, address[] calldata solvers_) external;
     function removeFromModelAllowList(bytes32 model_, address[] calldata solvers_) external;
-    function setModelAllowListRequired(bytes32 model_, bool required_) external;
+    function disableModelAllowList(bytes32 model_) external;
     function registerModel(
         address addr_,
         uint256 fee_,

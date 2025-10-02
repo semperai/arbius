@@ -231,7 +231,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
     /// @dev For upgradeable contracts this function necessary
     function initialize() public reinitializer(9) {
         version = 6;
-        masterContesterVoteAdder = 10; // 5 votes for master contesters
+        masterContesterVoteAdder = 50; // 50 additional votes for master contesters
     }
 
     /// @notice Transfer ownership
@@ -299,6 +299,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
     ) external onlyOwner {
         if (solutionModelFeePercentage_ > 1 ether) revert PercentageTooHigh();
         solutionModelFeePercentage = solutionModelFeePercentage_;
+        emit SolutionModelFeePercentageChanged(solutionModelFeePercentage_);
     }
 
     /// @notice Set the solution model fee percentage override for a specific model to send to treasury
@@ -313,6 +314,20 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
         if (solutionModelFeePercentage_ > 1 ether) revert PercentageTooHigh();
         solutionModelFeePercentageOverride[model_] = solutionModelFeePercentage_;
         hasSolutionModelFeePercentageOverride[model_] = true;
+    }
+
+    /// @notice Clear the solution model fee percentage override for a specific model
+    /// @param model_ Model hash
+    /// @dev introduced in v6. This removes the override and returns to using the global default percentage.
+    function clearSolutionModelFeePercentageOverride(
+        bytes32 model_
+    ) external onlyOwner {
+        if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+        if (!hasSolutionModelFeePercentageOverride[model_]) revert NoOverrideExists();
+
+        solutionModelFeePercentageOverride[model_] = 0;
+        hasSolutionModelFeePercentageOverride[model_] = false;
+        emit SolutionModelFeePercentageOverrideCleared(model_);
     }
 
     /// @notice Set version
@@ -419,7 +434,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
      * @notice Add addresses to a model's allow list
      * @param model_ The model hash
      * @param solvers_ Array of addresses to add to the allow list
-     * @dev v6: Only callable by model owner or contract owner
+     * @dev v6: Only callable by model owner or contract owner. Allow list must be enabled.
      */
     function addToModelAllowList(
         bytes32 model_,
@@ -428,6 +443,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
         if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
 
         ModelAllowListEntry storage entry = submitSolutionMinerAllowList[model_];
+        if (!entry.requiresAllowList) revert AllowListNotEnabled();
 
         for (uint256 i = 0; i < solvers_.length; ++i) {
             entry.allowList[solvers_[i]] = true;
@@ -439,7 +455,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
      * @notice Remove addresses from a model's allow list
      * @param model_ The model hash
      * @param solvers_ Array of addresses to remove from the allow list
-     * @dev v6: Only callable by model owner or contract owner
+     * @dev v6: Only callable by model owner or contract owner. Allow list must be enabled.
      */
     function removeFromModelAllowList(
         bytes32 model_,
@@ -448,6 +464,7 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
         if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
 
         ModelAllowListEntry storage entry = submitSolutionMinerAllowList[model_];
+        if (!entry.requiresAllowList) revert AllowListNotEnabled();
 
         for (uint256 i = 0; i < solvers_.length; ++i) {
             entry.allowList[solvers_[i]] = false;
@@ -456,21 +473,20 @@ contract V2_EngineV6 is IArbiusV6, OwnableUpgradeable {
     }
 
     /**
-     * @notice Enable or disable the allow list requirement for a model
+     * @notice Disable the allow list requirement for a model
      * @param model_ The model hash
-     * @param required_ True to require allow list, false to disable requirement
-     * @dev v6: Only callable by model owner or contract owner
+     * @dev v6: Only callable by model owner or contract owner. Once disabled, cannot be re-enabled for security.
      */
-    function setModelAllowListRequired(
-        bytes32 model_, 
-        bool required_
+    function disableModelAllowList(
+        bytes32 model_
     ) external onlyModelOwnerOrOwner(model_) {
         if (models[model_].addr == address(0x0)) revert ModelDoesNotExist();
+        if (!submitSolutionMinerAllowList[model_].requiresAllowList) revert AllowListNotEnabled();
 
-        submitSolutionMinerAllowList[model_].requiresAllowList = required_;
+        submitSolutionMinerAllowList[model_].requiresAllowList = false;
 
         // Emit event for tracking
-        emit ModelAllowListRequirementChanged(model_, required_);
+        emit ModelAllowListRequirementChanged(model_, false);
     }
 
     /// @notice Get IPFS cid

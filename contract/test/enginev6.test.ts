@@ -94,7 +94,7 @@ describe("EngineV6 Upgrade Validation", () => {
       expect(await engine.version()).to.equal(6);
 
       // Verify V6 specific initialization
-      expect(await engine.masterContesterVoteAdder()).to.equal(10);
+      expect(await engine.masterContesterVoteAdder()).to.equal(50);
     });
 
     it("should validate storage layout compatibility from V5_2 to V6", async () => {
@@ -158,7 +158,7 @@ describe("EngineV6 Upgrade Validation", () => {
       
       // Verify V6 initialization
       expect(await engine.version()).to.equal(6);
-      expect(await engine.masterContesterVoteAdder()).to.equal(10);
+      expect(await engine.masterContesterVoteAdder()).to.equal(50);
     });
 
     it("should allow setting V6-specific parameters after upgrade", async () => {

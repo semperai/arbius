@@ -159,11 +159,11 @@ describe("EngineV6 Focused Security Tests", () => {
   describe("V6 Core Features", () => {
     it("should verify V6 initialization", async () => {
       expect(await engine.version()).to.equal(6);
-      expect(await engine.masterContesterVoteAdder()).to.equal(10);
+      expect(await engine.masterContesterVoteAdder()).to.equal(50);
       expect(await engine.masterContesterRegistry()).to.equal(masterContesterRegistry.address);
     });
 
-    it("should handle master contester contestation with vote multiplier", async () => {
+    it("should handle master contester contestation with vote adder", async () => {
       // Setup validators
       for (const v of [validator1, validator2, masterContester1]) {
         await baseToken.connect(deployer).transfer(v.address, ethers.utils.parseEther("10"));
@@ -378,8 +378,8 @@ describe("EngineV6 Focused Security Tests", () => {
         .to.emit(engine, "SolutionSubmitted");
     });
 
-    it("should manage allow list after model creation", async () => {
-      // Deploy model first
+    it("should manage allow list with model created with allowlist", async () => {
+      // Deploy model with empty allow list
       const modelAddr = await model1.getAddress();
       const modelid = await engine.hashModel({
         addr: modelAddr,
@@ -388,23 +388,13 @@ describe("EngineV6 Focused Security Tests", () => {
         cid: TESTCID,
       }, user1.address);
 
-      await engine.connect(user1).registerModel(modelAddr, ethers.utils.parseEther('0'), TESTBUF);
+      await engine.connect(user1).registerModelWithAllowList(modelAddr, ethers.utils.parseEther('0'), TESTBUF, []);
 
-      // Initially no allow list required
-      expect(await engine.modelRequiresAllowList(modelid)).to.be.false;
-      expect(await engine.isSolverAllowed(modelid, validator1.address)).to.be.true;
-
-      // Enable allow list requirement (must be called by model owner, which is model1)
-      await expect(
-        engine.connect(model1).setModelAllowListRequired(modelid, true)
-      ).to.emit(engine, "ModelAllowListRequirementChanged")
-        .withArgs(modelid, true);
-
-      // Now requires allow list but no one is allowed yet
+      // Initially requires allow list but no one is on it
       expect(await engine.modelRequiresAllowList(modelid)).to.be.true;
       expect(await engine.isSolverAllowed(modelid, validator1.address)).to.be.false;
 
-      // Add validator1 to allow list (called by model owner)
+      // Add validator1 to allow list (called by model owner, model1)
       await expect(
         engine.connect(model1).addToModelAllowList(modelid, [validator1.address])
       ).to.emit(engine, "ModelAllowListUpdated")

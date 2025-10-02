@@ -63,8 +63,8 @@ describe("EngineV6 Core Tests", () => {
       expect(await engine.version()).to.equal(6);
     });
 
-    it("should initialize masterContesterVoteAdder to 10", async () => {
-      expect(await engine.masterContesterVoteAdder()).to.equal(10);
+    it("should initialize masterContesterVoteAdder to 50", async () => {
+      expect(await engine.masterContesterVoteAdder()).to.equal(50);
     });
 
     it("should have masterContesterRegistry set", async () => {

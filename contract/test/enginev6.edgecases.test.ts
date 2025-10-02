@@ -283,7 +283,7 @@ describe("EngineV6 Additional Edge Cases", () => {
         await engine.connect(v).validatorDeposit(v.address, ethers.utils.parseEther("40"));
       }
 
-      // Register model
+      // Register model with empty allow list
       const modelAddr = await model1.getAddress();
       modelid = await engine.hashModel({
         addr: modelAddr,
@@ -291,12 +291,12 @@ describe("EngineV6 Additional Edge Cases", () => {
         rate: ethers.utils.parseEther('0'),
         cid: TESTCID,
       }, model1.address);
-      await engine.connect(model1).registerModel(modelAddr, ethers.utils.parseEther('0'), TESTBUF);
+      // Register with empty allow list
+      await engine.connect(model1).registerModelWithAllowList(modelAddr, ethers.utils.parseEther('0'), TESTBUF, []);
     });
 
     it("should handle empty allow list when required", async () => {
-      // Enable allow list but don't add anyone
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
+      // Model was created with empty allow list
       expect(await engine.modelRequiresAllowList(modelid)).to.be.true;
 
       // No one should be allowed
@@ -332,8 +332,6 @@ describe("EngineV6 Additional Edge Cases", () => {
     });
 
     it("should handle adding duplicate addresses to allow list", async () => {
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
-
       // Add validator1 twice
       await engine.connect(model1).addToModelAllowList(modelid, [validator1.address]);
       await engine.connect(model1).addToModelAllowList(modelid, [validator1.address]);
@@ -343,8 +341,6 @@ describe("EngineV6 Additional Edge Cases", () => {
     });
 
     it("should handle removing address not in allow list", async () => {
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
-
       // Remove validator1 who was never added
       await engine.connect(model1).removeFromModelAllowList(modelid, [validator1.address]);
 
@@ -352,26 +348,24 @@ describe("EngineV6 Additional Edge Cases", () => {
       expect(await engine.isSolverAllowed(modelid, validator1.address)).to.be.false;
     });
 
-    it("should handle toggling allow list requirement multiple times", async () => {
-      // Enable
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
+    it("should allow disabling allow list permanently", async () => {
+      // Model starts with allow list enabled
       expect(await engine.modelRequiresAllowList(modelid)).to.be.true;
       expect(await engine.isSolverAllowed(modelid, validator1.address)).to.be.false;
 
-      // Disable
-      await engine.connect(model1).setModelAllowListRequired(modelid, false);
+      // Disable once
+      await engine.connect(model1).disableModelAllowList(modelid);
       expect(await engine.modelRequiresAllowList(modelid)).to.be.false;
       expect(await engine.isSolverAllowed(modelid, validator1.address)).to.be.true;
 
-      // Enable again
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
-      expect(await engine.modelRequiresAllowList(modelid)).to.be.true;
-      expect(await engine.isSolverAllowed(modelid, validator1.address)).to.be.false;
+      // Cannot re-enable
+      await expect(engine.connect(model1).disableModelAllowList(modelid))
+        .to.be.revertedWith("AllowListNotEnabled()");
     });
 
     it("should reject non-owner modifying allow list", async () => {
       // user1 is not the model owner
-      await expect(engine.connect(user1).setModelAllowListRequired(modelid, true))
+      await expect(engine.connect(user1).disableModelAllowList(modelid))
         .to.be.reverted;
 
       await expect(engine.connect(user1).addToModelAllowList(modelid, [validator1.address]))
@@ -383,9 +377,6 @@ describe("EngineV6 Additional Edge Cases", () => {
 
     it("should allow contract owner to modify allow list", async () => {
       // Deployer is the contract owner
-      await expect(engine.connect(deployer).setModelAllowListRequired(modelid, true))
-        .to.emit(engine, "ModelAllowListRequirementChanged");
-
       await expect(engine.connect(deployer).addToModelAllowList(modelid, [validator1.address]))
         .to.emit(engine, "ModelAllowListUpdated");
 
@@ -393,7 +384,6 @@ describe("EngineV6 Additional Edge Cases", () => {
     });
 
     it("should handle batch operations on allow list", async () => {
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
 
       // Add multiple addresses at once
       await engine.connect(model1).addToModelAllowList(
@@ -564,7 +554,7 @@ describe("EngineV6 Additional Edge Cases", () => {
 
       await masterContesterRegistry.connect(deployer).emergencyAddMasterContester(masterContester1.address);
 
-      // Register model
+      // Register model with allow list
       const modelAddr = await model1.getAddress();
       modelid = await engine.hashModel({
         addr: modelAddr,
@@ -572,12 +562,11 @@ describe("EngineV6 Additional Edge Cases", () => {
         rate: ethers.utils.parseEther('0'),
         cid: TESTCID,
       }, model1.address);
-      await engine.connect(model1).registerModel(modelAddr, ethers.utils.parseEther('0.1'), TESTBUF);
+      await engine.connect(model1).registerModelWithAllowList(modelAddr, ethers.utils.parseEther('0.1'), TESTBUF, []);
     });
 
     it("should handle allow list + master contester contestation", async () => {
-      // Enable allow list and add only validator1
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
+      // Add only validator1 to allow list
       await engine.connect(model1).addToModelAllowList(modelid, [validator1.address]);
 
       // Submit task
@@ -618,6 +607,9 @@ describe("EngineV6 Additional Edge Cases", () => {
     });
 
     it("should handle fee override + contestation + vote adder", async () => {
+      // Add validator1 to allow list
+      await engine.connect(model1).addToModelAllowList(modelid, [validator1.address]);
+
       // Set 0% treasury fee (all to model owner)
       await engine.connect(deployer).setSolutionModelFeePercentageOverride(
         modelid,
@@ -662,13 +654,12 @@ describe("EngineV6 Additional Edge Cases", () => {
       const contestation = await engine.contestations(taskid);
       expect(contestation.validator).to.equal(masterContester1.address);
       expect(await engine.hasSolutionModelFeePercentageOverride(modelid)).to.be.true;
-      expect(await engine.masterContesterVoteAdder()).to.equal(10);
+      expect(await engine.masterContesterVoteAdder()).to.equal(10); // Was set to 10 in this test
     });
 
     it("should handle all v6 features together", async () => {
       // Enable all v6 features:
-      // 1. Allow list
-      await engine.connect(model1).setModelAllowListRequired(modelid, true);
+      // 1. Allow list - add only validator1
       await engine.connect(model1).addToModelAllowList(modelid, [validator1.address]);
 
       // 2. Fee override

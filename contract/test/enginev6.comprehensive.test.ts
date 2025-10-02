@@ -189,8 +189,8 @@ describe("EngineV6 Comprehensive Tests", () => {
       expect(await engine.version()).to.equal(6);
     });
 
-    it("should initialize masterContesterVoteAdder to 10", async () => {
-      expect(await engine.masterContesterVoteAdder()).to.equal(10);
+    it("should initialize masterContesterVoteAdder to 50", async () => {
+      expect(await engine.masterContesterVoteAdder()).to.equal(50);
     });
 
     it("should have masterContesterRegistry set", async () => {
@@ -302,7 +302,7 @@ describe("EngineV6 Comprehensive Tests", () => {
         .to.be.revertedWith("MasterContesterMinStakedTooLow()");
     });
 
-    it("should apply master contester vote multiplier in contestation", async () => {
+    it("should apply master contester vote adder in contestation", async () => {
       const modelid = await deployBootstrapModel();
       const taskid = await deployBootstrapTask(modelid);
 
@@ -318,19 +318,19 @@ describe("EngineV6 Comprehensive Tests", () => {
       // Master contester submits contestation (auto-votes yes)
       await engine.connect(masterContester1).submitContestation(taskid);
 
-      // Add another yes voter to test multiplier effect
+      // Add another yes voter to test adder effect
       await engine.connect(validator2).voteOnContestation(taskid, true);
 
       // Fast forward and finish voting
       await ethers.provider.send("evm_increaseTime", [4000]);
       await ethers.provider.send("evm_mine", []);
 
-      // With multiplier of 10, master contester + validator2 get 12 effective votes (2 + 10)
+      // With vote adder of 50, master contester + validator2 get 52 effective votes (2 + 50)
       // vs 1 nay vote from solution submitter
       await expect(engine.connect(validator1).contestationVoteFinish(taskid, 3))
         .to.emit(engine, "ContestationVoteFinish");
 
-      // Verify contestation succeeded due to vote multiplier
+      // Verify contestation succeeded due to vote adder
       const lastLossTime = await engine.lastContestationLossTime(validator1.address);
       expect(lastLossTime).to.be.gt(0);
     });
@@ -546,26 +546,26 @@ describe("EngineV6 Comprehensive Tests", () => {
       expect(await engine.isSolverAllowed(modelid, validator3.address)).to.be.true;
     });
 
-    it("should allow toggling allow list requirement on and off", async () => {
+    it("should allow disabling allow list requirement", async () => {
       // Initially requires allow list
       expect(await engine.modelRequiresAllowList(modelid)).to.be.true;
-      
+
       // Only validator1 can submit
       const taskid1 = await deployBootstrapTask(modelid);
       const cid = TESTCID;
-      
+
       const commitment2 = await engine.generateCommitment(validator2.address, taskid1, cid);
       await engine.connect(validator2).signalCommitment(commitment2);
       await ethers.provider.send("evm_mine", []);
-      
+
       await expect(engine.connect(validator2).submitSolution(taskid1, cid))
         .to.be.revertedWith("NotAllowedToSubmitSolution()");
 
       // Disable allow list requirement
-      await expect(engine.connect(model1).setModelAllowListRequired(modelid, false))
+      await expect(engine.connect(model1).disableModelAllowList(modelid))
         .to.emit(engine, "ModelAllowListRequirementChanged")
         .withArgs(modelid, false);
-      
+
       expect(await engine.modelRequiresAllowList(modelid)).to.be.false;
 
       // Now any validator can submit
@@ -573,16 +573,9 @@ describe("EngineV6 Comprehensive Tests", () => {
       const commitment3 = await engine.generateCommitment(validator2.address, taskid2, cid);
       await engine.connect(validator2).signalCommitment(commitment3);
       await ethers.provider.send("evm_mine", []);
-      
+
       await expect(engine.connect(validator2).submitSolution(taskid2, cid))
         .to.emit(engine, "SolutionSubmitted");
-
-      // Re-enable allow list requirement
-      await expect(engine.connect(model1).setModelAllowListRequired(modelid, true))
-        .to.emit(engine, "ModelAllowListRequirementChanged")
-        .withArgs(modelid, true);
-      
-      expect(await engine.modelRequiresAllowList(modelid)).to.be.true;
     });
 
     it("should handle empty allow list correctly", async () => {
@@ -619,6 +612,33 @@ describe("EngineV6 Comprehensive Tests", () => {
       
       expect(await engine.isSolverAllowed(modelid, validator4.address)).to.be.false;
     });
+
+    it("should revert when trying to add to allow list that is disabled", async () => {
+      // Disable the allow list
+      await engine.connect(model1).disableModelAllowList(modelid);
+
+      // Try to add to disabled allow list
+      await expect(engine.connect(model1).addToModelAllowList(modelid, [validator4.address]))
+        .to.be.revertedWith("AllowListNotEnabled()");
+    });
+
+    it("should revert when trying to remove from allow list that is disabled", async () => {
+      // Disable the allow list
+      await engine.connect(model1).disableModelAllowList(modelid);
+
+      // Try to remove from disabled allow list
+      await expect(engine.connect(model1).removeFromModelAllowList(modelid, [validator1.address]))
+        .to.be.revertedWith("AllowListNotEnabled()");
+    });
+
+    it("should revert when trying to disable already disabled allow list", async () => {
+      // Disable the allow list
+      await engine.connect(model1).disableModelAllowList(modelid);
+
+      // Try to disable again
+      await expect(engine.connect(model1).disableModelAllowList(modelid))
+        .to.be.revertedWith("AllowListNotEnabled()");
+    });
   });
 
   describe("Multiple Master Contesters", () => {
@@ -654,9 +674,9 @@ describe("EngineV6 Comprehensive Tests", () => {
       await ethers.provider.send("evm_increaseTime", [4000]);
       await ethers.provider.send("evm_mine", []);
 
-      // With 2 master contesters voting yes (2 actual + 10 multiplier = 12)
+      // With 2 master contesters voting yes (2 actual + 50 adder = 52)
       // vs 3 nay votes (validator1 auto-vote, validator2, validator3)
-      // Yes should win: 12 > 3
+      // Yes should win: 52 > 3
       await expect(engine.connect(validator1).contestationVoteFinish(taskid, 5))
         .to.emit(engine, "ContestationVoteFinish");
 
@@ -687,9 +707,9 @@ describe("EngineV6 Comprehensive Tests", () => {
       await ethers.provider.send("evm_increaseTime", [4000]);
       await ethers.provider.send("evm_mine", []);
 
-      // masterContester2 + validator1 voting yes: 2 actual + 10 multiplier = 12
+      // masterContester2 + validator1 voting yes: 2 actual + 50 adder = 52
       // masterContester1 (auto-vote) + validator2 voting no: 2 actual
-      // Yes should win: 12 > 2
+      // Yes should win: 52 > 2
       await expect(engine.connect(validator1).contestationVoteFinish(taskid, 4))
         .to.emit(engine, "ContestationVoteFinish");
 
@@ -717,9 +737,9 @@ describe("EngineV6 Comprehensive Tests", () => {
       await ethers.provider.send("evm_increaseTime", [4000]);
       await ethers.provider.send("evm_mine", []);
 
-      // masterContester1 voting yes: 1 actual + 10 multiplier = 11
+      // masterContester1 voting yes: 1 actual + 50 adder = 51
       // validator1 (auto-vote) voting no: 1 actual
-      // Yes should win: 11 > 1
+      // Yes should win: 51 > 1
       await expect(engine.connect(validator1).contestationVoteFinish(taskid, 2))
         .to.emit(engine, "ContestationVoteFinish");
 
@@ -755,13 +775,52 @@ describe("EngineV6 Comprehensive Tests", () => {
 
     it("should revert when percentage exceeds 100%", async () => {
       const modelid = await deployBootstrapModel();
-      
+
       await expect(
         engine.connect(deployer).setSolutionModelFeePercentageOverride(
           modelid,
           ethers.utils.parseEther("1.1") // 110%
         )
       ).to.be.revertedWith("PercentageTooHigh()");
+    });
+
+    it("should clear model fee percentage override", async () => {
+      const modelid = await deployBootstrapModel();
+
+      // Set override
+      await engine.connect(deployer).setSolutionModelFeePercentageOverride(
+        modelid,
+        ethers.utils.parseEther("0.5")
+      );
+
+      expect(await engine.hasSolutionModelFeePercentageOverride(modelid)).to.be.true;
+
+      // Clear override
+      await expect(engine.connect(deployer).clearSolutionModelFeePercentageOverride(modelid))
+        .to.emit(engine, "SolutionModelFeePercentageOverrideCleared")
+        .withArgs(modelid);
+
+      expect(await engine.hasSolutionModelFeePercentageOverride(modelid)).to.be.false;
+      expect(await engine.solutionModelFeePercentageOverride(modelid)).to.equal(0);
+    });
+
+    it("should revert when clearing non-existent override", async () => {
+      const modelid = await deployBootstrapModel();
+
+      // No override set
+      await expect(
+        engine.connect(deployer).clearSolutionModelFeePercentageOverride(modelid)
+      ).to.be.revertedWith("NoOverrideExists()");
+    });
+
+    it("should emit event when setting global solution model fee percentage", async () => {
+      const newPercentage = ethers.utils.parseEther("0.25"); // 25%
+
+      await expect(engine.connect(deployer).setSolutionModelFeePercentage(newPercentage))
+        .to.emit(engine, "SolutionModelFeePercentageChanged")
+        .withArgs(newPercentage);
+
+      expect(await engine.solutionModelFeePercentage()).to.equal(newPercentage);
     });
   });
 
@@ -1024,8 +1083,8 @@ describe("EngineV6 Comprehensive Tests", () => {
       expect(currentStakeAmount).to.be.gt(0);
     });
 
-    it("should handle zero vote multiplier", async () => {
-      // Set multiplier to 0
+    it("should handle zero vote adder", async () => {
+      // Set adder to 0
       await engine.connect(deployer).setMasterContesterVoteAdder(0);
       
       await masterContesterRegistry.connect(deployer).emergencyAddMasterContester(masterContester1.address);
@@ -1051,7 +1110,7 @@ describe("EngineV6 Comprehensive Tests", () => {
       await ethers.provider.send("evm_increaseTime", [4000]);
       await ethers.provider.send("evm_mine", []);
 
-      // With 0 multiplier: 2 yes votes vs 2 no votes = tie (no wins on tie)
+      // With 0 adder: 2 yes votes vs 2 no votes = tie (nay wins on tie)
       await expect(engine.connect(validator1).contestationVoteFinish(taskid, 4))
         .to.emit(engine, "ContestationVoteFinish");
 
@@ -1364,7 +1423,7 @@ describe("EngineV6 Comprehensive Tests", () => {
       await engine.connect(validator2).voteOnContestation(taskid, true);
       await engine.connect(validator3).voteOnContestation(taskid, false);
 
-      // With vote multiplier, master contester should win (12 vs 2)
+      // With vote adder, master contester should win (52 vs 2)
       await ethers.provider.send("evm_increaseTime", [4000]);
       await ethers.provider.send("evm_mine", []);
 
@@ -1408,7 +1467,7 @@ describe("EngineV6 Comprehensive Tests", () => {
     });
 
     it("should handle case with zero actualYeaVoters but high vote count", async () => {
-      // Set very high multiplier
+      // Set very high adder
       await engine.connect(deployer).setMasterContesterVoteAdder(100);
       
       const modelid = await deployBootstrapModel();
