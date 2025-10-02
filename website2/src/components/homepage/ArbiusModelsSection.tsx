@@ -7,7 +7,8 @@ import Link from 'next/link'
 const models = [
   {
     id: 'qwen-qwq-32b',
-    icon: '🧠',
+    icon: 'Q',
+    iconBg: 'from-purple-500 to-blue-500',
     name: 'Qwen QwQ 32b',
     description: 'A multilingual large language model with strong reasoning and coding capabilities.',
     emissions: '22.1%',
@@ -17,7 +18,8 @@ const models = [
   },
   {
     id: 'wai-sdxl-nsfw',
-    icon: '🎨',
+    icon: 'W',
+    iconBg: 'from-pink-500 to-purple-500',
     name: 'WAI SDXL (NSFW)',
     description: 'Stable Diffusion XL model optimized for generation of NSFW waifu-style images.',
     emissions: '58.6%',
@@ -27,7 +29,8 @@ const models = [
   },
   {
     id: 'm8b-uncensored',
-    icon: '💬',
+    icon: 'M',
+    iconBg: 'from-blue-500 to-cyan-500',
     name: 'M8B-uncensored',
     description: 'Uncensored instruct model, optimized for GGUF with obliterated constraints removed.',
     emissions: '19.3%',
@@ -56,7 +59,7 @@ export function ArbiusModelsSection() {
             <p className="max-w-2xl text-gray-700 mb-6">
               Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).
             </p>
-            <Link href="https://amica.arbius.ai" target="_blank">
+            <Link href="https://personas.heyamica.com" target="_blank">
               <button className="rounded-full bg-black px-8 py-3 font-medium text-white transition-colors hover:bg-gray-800">
                 Amica
               </button>
@@ -112,9 +115,9 @@ export function ArbiusModelsSection() {
               className="group overflow-hidden rounded-3xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
             >
               {/* Card Header */}
-              <div className="bg-gradient-to-br from-purple-600 to-blue-600 p-6">
+              <div className={`bg-gradient-to-br ${model.iconBg} p-6`}>
                 <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm text-3xl">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/90 text-3xl font-bold text-purple-600">
                     {model.icon}
                   </div>
                   <div className="flex-1">

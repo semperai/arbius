@@ -1,21 +1,16 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useAccount, useChainId } from 'wagmi'
+import { useAccount, useChainId, useBalance, usePublicClient } from 'wagmi'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { AAWalletDisplay, useAAWallet } from '@/lib/arbius-wallet'
-import { parseEther, encodePacked, keccak256 } from 'viem'
+import { parseEther, encodePacked, keccak256, formatEther } from 'viem'
 import { ARBIUS_CONFIG, MODELS, IPFS_GATEWAY } from '@/config/arbius'
-import { Send, Loader2, Image as ImageIcon, FileText } from 'lucide-react'
+import { PLAYGROUND_MODELS, MODEL_FEES, BASE_MINER_FEE, MODEL_MINER_FEES, type ModelCategory } from '@/config/playground'
+import { Send, Loader2, Image as ImageIcon, FileText, AlertCircle } from 'lucide-react'
 import Image from 'next/image'
 import arbiusLogoRound from '@/app/assets/images/arbius_logo_round.png'
-
-const TEMPLATES = [
-  'kandinsky2',
-  'qwen_qwq_32b',
-  'wai_v120',
-  'damo',
-  'robust_video_matting',
-] as const
+import baseTokenAbi from '@/abis/baseTokenV1.json'
 
 type TaskStatus = 'pending' | 'submitted' | 'completed' | 'failed'
 
@@ -36,16 +31,42 @@ interface Task {
 export default function PlaygroundPage() {
   const { isConnected } = useAccount()
   const chainId = useChainId()
-  const { smartAccountAddress, derivedAccount } = useAAWallet()
+  const { smartAccountAddress, derivedAccount, error: aaWalletError } = useAAWallet()
+  const publicClient = usePublicClient()
 
+  const [selectedCategory, setSelectedCategory] = useState<ModelCategory>('text')
   const [selectedModel, setSelectedModel] = useState<string>('qwen_qwq_32b')
   const [prompt, setPrompt] = useState('')
   const [tasks, setTasks] = useState<Task[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [balanceWarning, setBalanceWarning] = useState<string | null>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
+  // Check AA wallet balance
+  const { data: ethBalance } = useBalance({
+    address: smartAccountAddress as `0x${string}` | undefined,
+    chainId,
+  })
+
+  const { data: aiusBalance } = useBalance({
+    address: smartAccountAddress as `0x${string}` | undefined,
+    token: ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.baseTokenAddress as `0x${string}` | undefined,
+    chainId,
+  })
+
+  // Update selected model when category changes
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const modelsInCategory = PLAYGROUND_MODELS[selectedCategory]
+    if (modelsInCategory.length > 0 && !modelsInCategory.includes(selectedModel as any)) {
+      setSelectedModel(modelsInCategory[0])
+    }
+  }, [selectedCategory, selectedModel])
+
+  useEffect(() => {
+    const container = document.getElementById('chat-container')
+    if (container && chatEndRef.current) {
+      container.scrollTop = container.scrollHeight
+    }
   }, [tasks])
 
   // Load tasks from localStorage
@@ -67,10 +88,45 @@ export default function PlaygroundPage() {
     }
   }, [tasks])
 
+  // Calculate total cost for selected model
+  const calculateTotalCost = (modelName: string) => {
+    const modelFee = parseEther(MODEL_FEES[modelName] || '0')
+    const minerFee = parseEther(MODEL_MINER_FEES[modelName] || BASE_MINER_FEE)
+    return modelFee + minerFee
+  }
+
+  const totalCost = calculateTotalCost(selectedModel)
+  const modelFee = MODEL_FEES[selectedModel] || '0'
+  const minerFee = MODEL_MINER_FEES[selectedModel] || BASE_MINER_FEE
+
+  // Check balances before submission
+  useEffect(() => {
+    if (!smartAccountAddress || !ethBalance || !aiusBalance) {
+      setBalanceWarning(null)
+      return
+    }
+
+    const requiredETH = parseEther('0.0001') // Estimated gas
+
+    if (aiusBalance.value < totalCost && ethBalance.value < requiredETH) {
+      setBalanceWarning('Your AA wallet needs AIUS tokens for fees and ETH for gas. Send funds to your AA wallet address.')
+    } else if (aiusBalance.value < totalCost) {
+      setBalanceWarning(`Your AA wallet needs at least ${formatEther(totalCost)} AIUS. Send AIUS to your AA wallet address.`)
+    } else if (ethBalance.value < requiredETH) {
+      setBalanceWarning('Your AA wallet needs ETH for gas. Send ETH to your AA wallet address.')
+    } else {
+      setBalanceWarning(null)
+    }
+  }, [smartAccountAddress, ethBalance, aiusBalance, totalCost])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!prompt.trim() || !isConnected || !derivedAccount || !smartAccountAddress) {
+      return
+    }
+
+    if (balanceWarning) {
       return
     }
 
@@ -226,39 +282,68 @@ export default function PlaygroundPage() {
   }
 
   return (
-    <div className="mx-auto flex h-screen max-w-6xl flex-col px-4 py-8">
+    <div className="mx-auto flex h-screen max-w-6xl flex-col px-4 pt-24 pb-8">
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="mb-2 text-4xl font-bold text-black-text">AI Playground</h1>
+          <h1 className="mb-2 text-4xl font-bold text-black-text">Arbius Playground</h1>
           <p className="text-subtext-two">
             Chat with AI models on the Arbius network
           </p>
         </div>
-        {isConnected && <AAWalletDisplay arbiusLogoSrc={arbiusLogoRound.src} />}
+        {isConnected && (
+          <div className="flex items-center gap-3">
+            <ConnectButton
+              chainStatus="icon"
+              showBalance={false}
+              accountStatus={{
+                smallScreen: 'avatar',
+                largeScreen: 'full',
+              }}
+            />
+            <AAWalletDisplay arbiusLogoSrc={arbiusLogoRound.src} />
+          </div>
+        )}
       </div>
 
       {/* Model Selector */}
-      <div className="mb-4">
-        <label className="mb-2 block text-sm font-medium">Select Model</label>
+      <div className="mb-4 flex items-center gap-3">
+        {/* Category Dropdown */}
         <select
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value as ModelCategory)}
+          className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20"
         >
-          {TEMPLATES.map((modelName) => {
+          <option value="text">Text</option>
+          <option value="image">Image</option>
+          <option value="video">Video</option>
+        </select>
+
+        {/* Model Buttons */}
+        <div className="flex flex-wrap gap-2">
+          {PLAYGROUND_MODELS[selectedCategory].map((modelName) => {
             const modelInfo = MODELS[modelName as keyof typeof MODELS]
+            const isSelected = selectedModel === modelName
             return (
-              <option key={modelName} value={modelName}>
+              <button
+                key={modelName}
+                type="button"
+                onClick={() => setSelectedModel(modelName)}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                  isSelected
+                    ? 'bg-purple-text text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
                 {modelInfo?.name || modelName.replace(/_/g, ' ').toUpperCase()}
-              </option>
+              </button>
             )
           })}
-        </select>
+        </div>
       </div>
 
       {/* Chat History */}
-      <div className="mb-4 flex-1 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4">
+      <div className="mb-4 flex-1 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4" id="chat-container">
         {tasks.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-400">
             <p>No tasks yet. Enter a prompt to get started!</p>
@@ -293,37 +378,92 @@ export default function PlaygroundPage() {
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSubmit} className="flex gap-3">
-        <input
-          type="text"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder={
-            isConnected
-              ? 'Enter your prompt...'
-              : 'Connect wallet to submit tasks'
-          }
-          disabled={!isConnected || isSubmitting}
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20 disabled:bg-gray-100"
-        />
-        <button
-          type="submit"
-          disabled={!isConnected || !prompt.trim() || isSubmitting}
-          className="flex items-center gap-2 rounded-lg bg-black-background px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Sending...</span>
-            </>
-          ) : (
-            <>
-              <Send className="h-5 w-5" />
-              <span>Send</span>
-            </>
+      {!isConnected ? (
+        <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-8">
+          <div className="text-center">
+            <p className="mb-4 text-gray-600">Connect your wallet to start using the playground</p>
+            <ConnectButton />
+          </div>
+        </div>
+      ) : (
+        <>
+          {aaWalletError && (
+            <div className="mb-3 rounded-lg border border-red-200 bg-red-50 p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-800">Failed to initialize AA wallet</p>
+                  <p className="mt-1 text-xs text-red-700">
+                    You need to sign a message to create your AA wallet. Please refresh the page and try again.
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
-        </button>
-      </form>
+
+          <form onSubmit={handleSubmit} className="flex gap-3">
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Enter your prompt..."
+              disabled={isSubmitting || !!balanceWarning || !!aaWalletError}
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:border-purple-text focus:outline-none focus:ring-2 focus:ring-purple-text/20 disabled:bg-gray-100"
+            />
+            <button
+              type="submit"
+              disabled={!prompt.trim() || isSubmitting || !!balanceWarning || !!aaWalletError}
+              className="flex items-center gap-2 rounded-lg bg-purple-text px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="h-5 w-5" />
+                  <span>Send</span>
+                </>
+              )}
+            </button>
+          </form>
+        </>
+      )}
+
+      {/* Cost Info */}
+      {isConnected && !aaWalletError && (
+        <div className={`mt-4 rounded-lg border p-4 text-xs ${
+          balanceWarning
+            ? 'border-orange-200 bg-orange-50'
+            : 'border-gray-200 bg-gray-50'
+        }`}>
+          {balanceWarning && (
+            <div className="mb-3 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 text-orange-600" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-orange-800">{balanceWarning}</p>
+                <p className="mt-1 text-xs text-orange-700">
+                  AA Wallet Address: <code className="rounded bg-orange-100 px-1 py-0.5 font-mono">{smartAccountAddress}</code>
+                </p>
+              </div>
+            </div>
+          )}
+          <div className="flex items-center justify-between">
+            <span className={balanceWarning ? 'text-orange-700' : 'text-gray-600'}>
+              Estimated cost per task:
+            </span>
+            <div className="text-right">
+              <span className={`font-mono font-semibold ${balanceWarning ? 'text-orange-900' : 'text-gray-900'}`}>
+                {formatEther(totalCost)} AIUS
+              </span>
+              <div className={`mt-1 text-xs ${balanceWarning ? 'text-orange-600' : 'text-gray-500'}`}>
+                ({modelFee} model fee + {minerFee} miner fee)
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Info */}
       <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800">

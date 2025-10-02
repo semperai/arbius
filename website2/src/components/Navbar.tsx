@@ -2,203 +2,244 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState, useRef } from 'react'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { AAWalletDisplay } from '@/lib/arbius-wallet/components/AAWalletDisplay'
-import { useAccount } from 'wagmi'
+import { useState, useEffect, useRef } from 'react'
 import arbiusLogo from '@/app/assets/images/arbius_logo.png'
 import externalLink from '@/app/assets/images/external_link.png'
-import downArrow from '@/app/assets/images/down_arrow.png'
 import arbiusLogoWithoutName from '@/app/assets/images/arbius_logo_without_name.png'
-import arbiusLogoRound from '@/app/assets/images/arbius_logo_round.png'
 
 export function Navbar() {
-  const [headerOpen, setHeaderOpen] = useState(false)
-  const [stakingOpen, setStakingOpen] = useState(true)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [stakingDropdownOpen, setStakingDropdownOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const lastScrollTopRef = useRef(0)
-  const { isConnected } = useAccount()
 
+  // Close mobile menu on window resize
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-      setStakingOpen(false)
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false)
+      }
     }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Handle scroll to hide/show navbar
   useEffect(() => {
-    function handleScroll() {
-      const st = window.pageYOffset || document.documentElement.scrollTop
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
 
-      // Hide navbar when scrolling down, show when scrolling up
-      if (st > lastScrollTopRef.current && !headerOpen && st > 80) {
+      if (scrollTop > lastScrollTopRef.current && !mobileMenuOpen && scrollTop > 80) {
         setIsVisible(false)
       } else {
         setIsVisible(true)
       }
 
-      lastScrollTopRef.current = st <= 0 ? 0 : st
+      lastScrollTopRef.current = scrollTop <= 0 ? 0 : scrollTop
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [headerOpen])
+  }, [mobileMenuOpen])
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false)
+  }
 
   return (
-    <nav
-      className="fixed top-0 z-[9999] w-full bg-white transition-all duration-300"
-      style={{ opacity: isVisible ? 1 : 0 }}
-      aria-label="Main navigation"
-    >
-      <div className="m-auto flex w-[90%] max-w-[2000px] justify-between py-3">
-        <div className="flex items-center">
-          <Link href="/" aria-label="Arbius home">
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-[9999] bg-white border-b border-gray-100 transition-all duration-300 ${
+          isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+        }`}
+      >
+        <div className="max-w-[2000px] mx-auto px-6 lg:px-[5%]">
+          <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0">
             <Image
-              className="h-[40px] w-auto"
               src={arbiusLogo}
               alt="Arbius Logo"
               width={124}
               height={40}
+              className="h-10 w-auto"
               priority
             />
           </Link>
-        </div>
-        <div
-          className={`${
-            headerOpen ? 'w-full pb-[90px] lg:pb-0' : 'w-0'
-          } ${headerOpen ? 'fixed top-0 left-0 right-0 h-screen bg-white z-[9998] pt-[72px]' : 'lg:static lg:h-auto lg:pt-0'} flex flex-col overflow-auto lg:flex-row lg:items-center lg:overflow-visible`}
-          role="navigation"
-        >
-          <div className="m-auto mt-[30px] flex w-full flex-col items-start justify-between gap-[40px] text-[24px] text-black lg:m-auto lg:w-auto lg:flex-row lg:items-center lg:text-[16px] lg:text-gray-700">
-            <div className="group relative w-auto">
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex lg:items-center lg:gap-8">
+            {/* Staking Dropdown */}
+            <div className="relative group">
               <button
-                className="cursor-pointer hover:text-purple-text lg:block"
-                onClick={() => setStakingOpen(!stakingOpen)}
-                aria-expanded={stakingOpen}
-                aria-label="Staking menu"
+                className="text-gray-700 hover:text-purple-text transition-colors flex items-center gap-1"
+                onMouseEnter={() => setStakingDropdownOpen(true)}
+                onMouseLeave={() => setStakingDropdownOpen(false)}
               >
                 Staking
-                <Image
-                  className="ml-1 inline-block hidden brightness-0 saturate-100 max-w-[unset] lg:block"
-                  src={externalLink}
-                  alt="external link icon"
-                  width={12}
-                  height={12}
-                />
-                <Image
-                  className={`${
-                    stakingOpen ? 'mb-1 rotate-180' : ''
-                  } h-auto mt-2 block transition lg:hidden`}
-                  src={downArrow}
-                  alt={stakingOpen ? 'collapse menu' : 'expand menu'}
-                />
+                <svg
+                  className={`w-4 h-4 transition-transform ${stakingDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
-              <div className="absolute left-[-18px] bg-black p-[15px_50px] opacity-0"></div>
+
+              {/* Dropdown Menu */}
               <div
-                className={`${stakingOpen ? 'block' : 'hidden'} lg:hidden lg:absolute lg:bg-white lg:rounded-2xl lg:shadow-[0px_4px_20px_rgba(0,0,0,0.1)] lg:p-5 lg:gap-4 lg:flex-col lg:z-[10000] lg:translate-x-[-30%] lg:translate-y-[25px] lg:group-hover:flex`}
-                role="menu"
-                aria-label="Staking options"
+                className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl transition-all duration-200 ${
+                  stakingDropdownOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
+                }`}
+                onMouseEnter={() => setStakingDropdownOpen(true)}
+                onMouseLeave={() => setStakingDropdownOpen(false)}
               >
-                <Link
-                  href="/lp-staking"
-                  onClick={() => setHeaderOpen(!headerOpen)}
-                  target="_blank"
-                  role="menuitem"
-                  aria-label="LP Staking - Provide liquidity, earn AIUS rewards"
-                >
-                  <div className="p-5 rounded-xl bg-[#F9F9F9] transition-all duration-300 cursor-pointer min-w-[200px] relative hover:bg-[linear-gradient(95.28deg,#4A28FF_17.25%,#92BDFF_123.27%)] hover:text-white">
+                <div className="p-3 space-y-2">
+                  <Link
+                    href="/lp-staking"
+                    target="_blank"
+                    className="block p-4 rounded-xl bg-gray-50 text-gray-900 hover:bg-gradient-to-r hover:from-[#4A28FF] hover:to-[#92BDFF] hover:text-white transition-all duration-300 group/item"
+                  >
                     <Image
-                      className="h-auto w-[20px] lg:h-[20px] lg:w-auto"
                       src={arbiusLogoWithoutName}
-                      alt="Arbius logo icon"
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="mb-2"
                     />
-                    <div className="font-[family-name:var(--font-lato)] font-bold">LP Staking</div>
-                    <div>Provide liquidity, earn AIUS rewards.</div>
-                  </div>
-                </Link>
-                <Link
-                  href="/aius"
-                  onClick={() => setHeaderOpen(!headerOpen)}
-                  target="_blank"
-                  role="menuitem"
-                  aria-label="veAIUS - Lock AIUS, earn rewards over time"
-                >
-                  <div className="p-5 rounded-xl bg-[#F9F9F9] transition-all duration-300 cursor-pointer min-w-[200px] relative hover:bg-[linear-gradient(95.28deg,#4A28FF_17.25%,#92BDFF_123.27%)] hover:text-white">
+                    <div className="font-bold mb-1">LP Staking</div>
+                    <div className="text-sm opacity-90">Provide liquidity, earn AIUS rewards.</div>
+                  </Link>
+
+                  <Link
+                    href="/aius"
+                    target="_blank"
+                    className="block p-4 rounded-xl bg-gray-50 text-gray-900 hover:bg-gradient-to-r hover:from-[#4A28FF] hover:to-[#92BDFF] hover:text-white transition-all duration-300 group/item"
+                  >
                     <Image
-                      className="h-auto w-[20px] lg:h-[20px] lg:w-auto"
                       src={arbiusLogoWithoutName}
-                      alt="Arbius logo icon"
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="mb-2"
                     />
-                    <div>veAIUS</div>
-                    <div>Lock AIUS, earn rewards over time.</div>
-                  </div>
-                </Link>
+                    <div className="font-bold mb-1">veAIUS</div>
+                    <div className="text-sm opacity-90">Lock AIUS, earn rewards over time.</div>
+                  </Link>
+                </div>
               </div>
             </div>
 
-            <Link href="https://heyamica.com/" target="_blank" rel="noopener noreferrer">
-              <div className="hover:text-purple-text">Amica</div>
+            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors">
+              Amica
             </Link>
 
-            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer">
-              <div className="hover:text-purple-text">Marketplace</div>
+            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors">
+              Marketplace
             </Link>
 
-            <Link href="/mining">
-              <div className="hover:text-purple-text">Mining</div>
+            <Link href="https://docs.arbius.ai/" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors flex items-center gap-1">
+              Docs
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
-            <Link href="https://docs.arbius.ai/" target="_blank" rel="noopener noreferrer" aria-label="Documentation (opens in new tab)">
-              <div className="hover:text-purple-text">
-                Docs
-                <Image className="ml-1 inline-block brightness-0 saturate-100" src={externalLink} alt="external link icon" width={12} height={12} />
-              </div>
+            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-purple-text transition-colors">
+              Bridge
             </Link>
 
-            <Link
-              href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="hover:text-purple-text">Bridge</div>
-            </Link>
-
-            <Link
-              href="/media"
-              onClick={() => setHeaderOpen(!headerOpen)}
-              target="_blank"
-            >
-              <div className="lg:block hover:text-purple-text">
-                Media
-              </div>
+            <Link href="/media" target="_blank" className="text-gray-700 hover:text-purple-text transition-colors">
+              Media
             </Link>
           </div>
-          <div className="relative mb-[100px] mt-[20px] hidden lg:mb-0 lg:ml-[40px] lg:mt-0 lg:block">
-            <div className="flex items-center gap-2">
-              <ConnectButton />
-              {isConnected && <AAWalletDisplay arbiusLogoSrc={arbiusLogoRound.src} />}
-            </div>
-          </div>
-        </div>
-        <div className="MobileHeader flex items-center lg:hidden">
+
+          {/* Mobile Menu Button */}
           <button
-            id="menu"
-            className={`relative ${headerOpen ? 'open' : ''} right-1`}
-            onClick={() => setHeaderOpen(!headerOpen)}
-            aria-label={headerOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={headerOpen}
-            aria-controls="mobile-navigation"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-3 text-gray-700 hover:text-purple-text"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
-            <div
-              id="menu-bar1"
-              className="my-2 h-[2px] w-[29px] rounded-[20px] bg-[#333333] transition-all duration-500 ease-in-out"
-            ></div>
-            <div
-              id="menu-bar3"
-              className="my-2 h-[2px] w-[29px] rounded-[20px] bg-[#333333] transition-all duration-500 ease-in-out"
-            ></div>
+            <div className="w-6 h-5 flex flex-col justify-between">
+              <span className={`block h-0.5 w-full bg-current transition-transform duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`block h-0.5 w-full bg-current transition-transform duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </div>
           </button>
         </div>
       </div>
-    </nav>
+      </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 top-16 bg-white z-[10000] overflow-y-auto">
+          <div className="px-8 py-8 space-y-8">
+            {/* Staking Section */}
+            <div>
+              <button
+                onClick={() => setStakingDropdownOpen(!stakingDropdownOpen)}
+                className="w-full flex items-center justify-between text-2xl font-medium text-black"
+              >
+                Staking
+                <svg
+                  className={`w-6 h-6 transition-transform ${stakingDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {stakingDropdownOpen && (
+                <div className="mt-6 space-y-4 pl-6">
+                  <Link
+                    href="/lp-staking"
+                    target="_blank"
+                    onClick={closeMobileMenu}
+                    className="block p-4 rounded-xl bg-gray-50"
+                  >
+                    <Image src={arbiusLogoWithoutName} alt="" width={20} height={20} className="mb-2" />
+                    <div className="font-bold mb-1">LP Staking</div>
+                    <div className="text-sm text-gray-600">Provide liquidity, earn AIUS rewards.</div>
+                  </Link>
+
+                  <Link
+                    href="/aius"
+                    target="_blank"
+                    onClick={closeMobileMenu}
+                    className="block p-4 rounded-xl bg-gray-50"
+                  >
+                    <Image src={arbiusLogoWithoutName} alt="" width={20} height={20} className="mb-2" />
+                    <div className="font-bold mb-1">veAIUS</div>
+                    <div className="text-sm text-gray-600">Lock AIUS, earn rewards over time.</div>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+              Amica
+            </Link>
+
+            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+              Marketplace
+            </Link>
+
+            <Link href="https://docs.arbius.ai/" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black flex items-center gap-2">
+              Docs
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
+            </Link>
+
+            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+              Bridge
+            </Link>
+
+            <Link href="/media" target="_blank" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+              Media
+            </Link>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

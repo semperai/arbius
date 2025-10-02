@@ -11,9 +11,9 @@ export function AIUSPageClient() {
   const [selectedTab, setSelectedTab] = useState<'Dashboard' | 'Gauge'>('Dashboard')
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="py-16 lg:py-24">
+      <div className="bg-white py-16 lg:py-24">
         <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
           <h1 className="mb-8 text-[45px] font-bold text-black-text lg:text-[50px] 2xl:text-[70px]">
             veAIUS Staking

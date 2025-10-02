@@ -1,11 +1,11 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useAccount, useReadContract, useChainId } from 'wagmi'
+import { useAccount, useReadContract } from 'wagmi'
 import { formatUnits, parseAbi } from 'viem'
 import { ARBIUS_CONFIG } from '@/config/arbius'
 import { GanttChart } from './GanttChart'
-import { useVeAIUSBalance, useTokenBalance, useNFTPositions, useTokenStats } from '@/hooks'
+import { useVeAIUSBalance, useTokenBalance, useNFTPositions, useTokenStats, useActiveChainId } from '@/hooks'
 
 const VE_AIUS_ABI = parseAbi([
   'function supply() view returns (uint256)',
@@ -13,7 +13,7 @@ const VE_AIUS_ABI = parseAbi([
 
 export function Dashboard() {
   const { isConnected } = useAccount()
-  const chainId = useChainId()
+  const chainId = useActiveChainId()
 
   const config = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]
   const veAIUSAddress = config?.veAIUSAddress
@@ -24,11 +24,13 @@ export function Dashboard() {
   const { positions: userPositions, isLoading: isLoadingPositions, count: nftCount } = useNFTPositions()
   const tokenStats = useTokenStats()
 
-  // Protocol-wide stats
+  // Protocol-wide stats - works without wallet connection
   const { data: totalVeSupply, isLoading: loadingSupply } = useReadContract({
     address: veAIUSAddress,
     abi: VE_AIUS_ABI,
     functionName: 'supply',
+    chainId: chainId,
+    query: { enabled: !!veAIUSAddress },
   })
 
   // Placeholder values for now - these would come from veStaking contract
@@ -71,7 +73,6 @@ export function Dashboard() {
       gradient: tokenStats.priceChange24h && tokenStats.priceChange24h > 0
         ? 'from-green-500 to-green-600'
         : 'from-red-500 to-red-600',
-      icon: '💰',
     },
     {
       title: 'Market Cap',
@@ -80,14 +81,12 @@ export function Dashboard() {
         : '$--',
       subtitle: 'Total market value',
       gradient: 'from-blue-500 to-blue-600',
-      icon: '📊',
     },
     {
       title: 'Total veAIUS Supply',
       value: parseFloat(totalVeSupplyFormatted).toFixed(2),
       subtitle: 'Protocol voting power',
       gradient: 'from-purple-500 to-purple-600',
-      icon: '🏛️',
     },
   ], [totalVeSupplyFormatted, tokenStats])
 
@@ -146,7 +145,6 @@ export function Dashboard() {
               key={idx}
               className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${stat.gradient} p-6 shadow-lg transition-transform hover:scale-105`}
             >
-              <div className="absolute right-4 top-4 text-4xl opacity-20">{stat.icon}</div>
               <h3 className="mb-2 text-sm font-medium text-white/80">{stat.title}</h3>
               <p className="mb-1 text-3xl font-bold text-white">{stat.value}</p>
               <p className="text-xs text-white/70">{stat.subtitle}</p>
@@ -240,7 +238,11 @@ export function Dashboard() {
             </div>
           ) : (
             <div className="rounded-2xl bg-white p-12 text-center shadow-lg">
-              <div className="mx-auto mb-4 text-6xl">🔒</div>
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
+                <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
               <h3 className="mb-2 text-xl font-semibold text-gray-800">No Active Locks</h3>
               <p className="text-gray-600">Lock AIUS tokens to create your first veAIUS position</p>
             </div>
@@ -248,7 +250,11 @@ export function Dashboard() {
         </>
       ) : (
         <div className="rounded-2xl bg-white p-12 text-center shadow-lg">
-          <div className="mx-auto mb-4 text-6xl">👛</div>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+            <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
           <h3 className="mb-2 text-xl font-semibold text-gray-800">Connect Wallet</h3>
           <p className="text-gray-600">Connect your wallet to view your veAIUS position</p>
         </div>
@@ -291,8 +297,7 @@ export function Dashboard() {
         <h3 className="mb-4 text-lg font-semibold text-gray-900">veAIUS Mechanics</h3>
         <div className="grid gap-6 md:grid-cols-3">
           <div>
-            <h4 className="mb-3 flex items-center text-sm font-medium text-gray-700">
-              <span className="mr-2 text-lg">💰</span>
+            <h4 className="mb-3 text-sm font-semibold text-gray-800">
               Earn Rewards
             </h4>
             <ul className="space-y-2 text-sm text-gray-600">
@@ -302,8 +307,7 @@ export function Dashboard() {
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 flex items-center text-sm font-medium text-gray-700">
-              <span className="mr-2 text-lg">🗳️</span>
+            <h4 className="mb-3 text-sm font-semibold text-gray-800">
               Governance Power
             </h4>
             <ul className="space-y-2 text-sm text-gray-600">
@@ -313,8 +317,7 @@ export function Dashboard() {
             </ul>
           </div>
           <div>
-            <h4 className="mb-3 flex items-center text-sm font-medium text-gray-700">
-              <span className="mr-2 text-lg">⏱️</span>
+            <h4 className="mb-3 text-sm font-semibold text-gray-800">
               Lock Duration
             </h4>
             <ul className="space-y-2 text-sm text-gray-600">

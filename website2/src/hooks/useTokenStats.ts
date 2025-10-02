@@ -1,11 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useReadContract, useChainId } from 'wagmi'
-import { formatUnits, parseAbi } from 'viem'
-import { ARBIUS_CONFIG } from '@/config/arbius'
-
-const ERC20_ABI = parseAbi([
-  'function totalSupply() view returns (uint256)',
-])
 
 interface TokenStats {
   price: number | null
@@ -13,19 +6,16 @@ interface TokenStats {
   volume24h: number | null
   priceChange24h: number | null
   circulatingSupply: number | null
-  totalSupply: number | null
+  totalSupply: number
   isLoading: boolean
   error: string | null
 }
 
 /**
- * Hook to fetch AIUS token statistics from CoinGecko API and contract
+ * Hook to fetch AIUS token statistics from CoinGecko API
  * @returns Token statistics including price, market cap, volume, and supply data
  */
 export function useTokenStats(): TokenStats {
-  const chainId = useChainId()
-  const config = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]
-  const baseTokenAddress = config?.baseTokenAddress
 
   const [apiStats, setApiStats] = useState<{
     price: number | null
@@ -41,17 +31,8 @@ export function useTokenStats(): TokenStats {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch total supply from contract
-  const { data: totalSupplyData } = useReadContract({
-    address: baseTokenAddress,
-    abi: ERC20_ABI,
-    functionName: 'totalSupply',
-    query: { enabled: !!baseTokenAddress },
-  })
-
-  const totalSupply = totalSupplyData
-    ? parseFloat(formatUnits(totalSupplyData as bigint, 18))
-    : null
+  // Total supply is fixed at 1M AIUS
+  const totalSupply = 1_000_000
 
   // Fetch price data from CoinGecko API
   useEffect(() => {
@@ -61,9 +42,9 @@ export function useTokenStats(): TokenStats {
         setError(null)
 
         // CoinGecko free API for AIUS token
-        // Using the contract address to fetch data
+        // Using the coin ID "arbius" for better reliability
         const response = await fetch(
-          `https://api.coingecko.com/api/v3/coins/arbitrum-one/contract/${baseTokenAddress?.toLowerCase()}`,
+          'https://api.coingecko.com/api/v3/coins/arbius',
           {
             headers: {
               'Accept': 'application/json',
@@ -91,13 +72,12 @@ export function useTokenStats(): TokenStats {
       }
     }
 
-    if (baseTokenAddress) {
-      fetchTokenStats()
-      // Refresh every 60 seconds
-      const interval = setInterval(fetchTokenStats, 60000)
-      return () => clearInterval(interval)
-    }
-  }, [baseTokenAddress])
+    // Fetch immediately on mount
+    fetchTokenStats()
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchTokenStats, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Calculate circulating supply from market cap and price
   const circulatingSupply =

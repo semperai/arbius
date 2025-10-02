@@ -24,9 +24,14 @@ export function HeroSection() {
               machine learning
             </Fade>
           </div>
-          <div className="mb-6 text-[45px] leading-[50px] text-black-text lg:hidden lg:leading-none">
-            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true} duration={500}>
-              Peer-to-peer machine learning
+          <div className="text-[45px] text-black-text lg:hidden">
+            <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+              Peer-to-peer
+            </Fade>
+          </div>
+          <div className="mb-6 mt-[-15px] text-[45px] text-black-text lg:hidden">
+            <Fade delay={0.1} cascade damping={0.1} triggerOnce={true}>
+              machine learning
             </Fade>
           </div>
 

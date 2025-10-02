@@ -49,8 +49,8 @@ export default function UpgradePage() {
         setV2TokenAddress(config.v2_l1TokenAddress as Address)
         setOneToOneAddress(config.l1OneToOneAddress as Address)
       }
-      // Arbitrum (42161)
-      else if (chainId === 42161) {
+      // Arbitrum Nova (42170)
+      else if (chainId === 42170) {
         setV1TokenAddress(config.baseTokenAddress as Address)
         setV2TokenAddress(config.v2_baseTokenAddress as Address)
         setOneToOneAddress(config.l2OneToOneAddress as Address)
@@ -167,12 +167,27 @@ export default function UpgradePage() {
       <div className="mx-auto max-w-4xl px-6 py-16 lg:px-8">
         {!isConnected ? (
           <div className="rounded-2xl bg-white p-12 text-center shadow-lg">
-            <p className="text-gray-600">Connect your wallet to upgrade your AIUS tokens</p>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
+              <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <p className="mb-6 text-lg text-gray-600">Connect your wallet to upgrade your AIUS tokens</p>
+            <w3m-button />
           </div>
-        ) : chainId !== 1 && chainId !== 42161 ? (
-          <div className="rounded-2xl bg-yellow-50 p-12 text-center shadow-lg">
+        ) : chainId !== 1 && chainId !== 42170 ? (
+          <div className="rounded-2xl bg-yellow-50 p-12 text-center shadow-lg border-2 border-yellow-200">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
+              <svg className="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-xl font-semibold text-yellow-900">Wrong Network</h3>
             <p className="font-medium text-yellow-800">
-              Please switch to Ethereum Mainnet or Arbitrum to upgrade your tokens
+              Please switch to <strong>Ethereum Mainnet</strong> or <strong>Arbitrum Nova</strong> to upgrade your tokens.
+            </p>
+            <p className="mt-2 text-sm text-yellow-700">
+              The upgrade contract is available on these networks.
             </p>
           </div>
         ) : (

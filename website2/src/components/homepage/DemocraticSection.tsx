@@ -37,7 +37,7 @@ export function DemocraticSection() {
   return (
     <div className="bg-[linear-gradient(78.34deg,rgba(146,189,255,0.02)_-6.48%,rgba(81,54,255,0.1)_45.24%,rgba(212,179,255,0.2)_106.31%)] py-24">
       <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
-        <h2 className="font-[family-name:var(--font-lato)] font-bold mb-6 text-[45px] text-black-text lg:text-[50px] 2xl:text-[70px]">
+        <h2 className="font-[family-name:var(--font-lato)] font-bold mb-6 text-[35px] leading-tight text-black-text lg:text-[50px] 2xl:text-[70px]">
           <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
             We dream of open and accessible AI
           </Fade>

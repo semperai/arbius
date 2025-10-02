@@ -58,11 +58,6 @@
   --shadow-staking: 0px 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-}
-
 body {
   font-family: var(--font-geist-regular), Arial, Helvetica, sans-serif;
 }

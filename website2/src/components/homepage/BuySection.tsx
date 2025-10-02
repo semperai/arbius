@@ -54,13 +54,13 @@ export function BuySection() {
               >
                 <button
                   type="button"
-                  className="group relative flex items-center gap-3 rounded-full bg-black-background px-8 py-2"
+                  className="group relative flex items-center gap-3 rounded-full bg-black px-8 py-3 text-white"
                 >
-                  <div className="absolute left-0 z-0 h-full w-full rounded-full bg-[linear-gradient(96.52deg,#9162F7_-25.28%,#FB567E_94%)] px-8 py-2 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
-                  <p className="relative z-10 font-bold text-original-white">
+                  <div className="absolute inset-0 z-0 rounded-full bg-gradient-to-r from-[#9162F7] to-[#FB567E] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                  <p className="relative z-10 font-bold">
                     Buy on Uniswap
                   </p>
-                  <span className="relative z-10">→</span>
+                  <span className="relative z-10 text-white">→</span>
                 </button>
               </Link>
             </div>
