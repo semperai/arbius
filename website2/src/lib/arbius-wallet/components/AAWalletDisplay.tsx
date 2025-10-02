@@ -34,7 +34,7 @@ export function AAWalletDisplay({ arbiusLogoSrc }: AAWalletDisplayProps) {
     <>
       <button
         onClick={handleClick}
-        className="text-base text-gray-700 font-[family-name:var(--font-family-fredoka)] font-medium bg-white rounded-xl px-3 py-2 shadow-sm h-10 flex items-center gap-2 hover:bg-gray-50 hover:scale-105 transition-all cursor-pointer"
+        className="text-base text-gray-700 font-[family-name:var(--font-family-fredoka)] font-medium bg-white rounded-xl px-3 py-2 shadow-sm h-10 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer"
       >
         {arbiusLogoSrc && (
           <Image src={arbiusLogoSrc} alt="Arbius" className="h-6 w-6 rounded-full" width={24} height={24} />
