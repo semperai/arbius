@@ -4,6 +4,7 @@ import { sendTransaction } from './transactionQueue';
 
 // Store the original ethereum object
 let originalEthereum: any = null;
+let proxySetupFailed: boolean = false;
 
 // Constants for message signing
 const ALLOWED_DOMAINS = ['arbius.xyz', 'playground.arbius.xyz']; // Add your domains
@@ -27,32 +28,64 @@ interface SignedMessage {
 /**
  * Setup the ethereum proxy to intercept window.ethereum calls
  */
-export function setupEthereumProxy(): void {
+export function setupEthereumProxy(): boolean {
   // Ensure the wallet is initialized
   if (!isInitialized()) {
-    throw new Error('AA Wallet must be initialized before setting up ethereum proxy');
+    console.error('AA Wallet must be initialized before setting up ethereum proxy');
+    return false;
   }
-  
+
   // Check if window.ethereum exists
   if (typeof window === 'undefined' || !window.ethereum) {
     console.warn('window.ethereum not found. Ethereum proxy not set up.');
-    return;
+    return false;
   }
-  
-  // Store the original ethereum object
+
+  // Store the original ethereum object first
   originalEthereum = window.ethereum;
-  
-  // Create the proxy
-  const ethereumProxy = createEthereumProxy(originalEthereum);
-  
-  // Replace window.ethereum with our proxy
-  Object.defineProperty(window, 'ethereum', {
-    value: ethereumProxy,
-    writable: true,
-    configurable: true,
-  });
-  
-  console.log('Ethereum proxy set up successfully');
+
+  try {
+    // Create the proxy
+    const ethereumProxy = createEthereumProxy(originalEthereum);
+
+    // Replace window.ethereum with our proxy
+    Object.defineProperty(window, 'ethereum', {
+      value: ethereumProxy,
+      writable: true,
+      configurable: true,
+    });
+
+    console.log('Ethereum proxy set up successfully');
+    return true;
+  } catch (error) {
+    console.error('Failed to setup ethereum proxy:', error);
+    console.warn('AA Wallet will fall back to using the standard wallet provider');
+    proxySetupFailed = true;
+
+    // Restore original ethereum if it was saved
+    if (originalEthereum) {
+      try {
+        Object.defineProperty(window, 'ethereum', {
+          value: originalEthereum,
+          writable: true,
+          configurable: true,
+        });
+        console.log('Original ethereum provider restored successfully');
+      } catch (restoreError) {
+        console.error('Failed to restore original ethereum:', restoreError);
+        // If we can't restore via defineProperty, the original should still be accessible
+        // since we stored it before the failed attempt
+      }
+    }
+    return false;
+  }
+}
+
+/**
+ * Check if the proxy setup failed and we're in fallback mode
+ */
+export function isProxyFailed(): boolean {
+  return proxySetupFailed;
 }
 
 /**

@@ -9,4 +9,4 @@ export { useAAWallet } from './hooks/useAAWallet';
 export * from './types';
 
 // Core
-export { init, isInitialized, getConfig } from './core/init';
+export { init, isInitialized, getConfig, isEthereumProxyActive } from './core/init';

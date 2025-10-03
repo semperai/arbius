@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useAccount, useChainId, useBalance, usePublicClient, useSwitchChain } from 'wagmi'
+import { useState, useEffect, useRef, useContext } from 'react'
+import { useAccount, useChainId, useBalance, usePublicClient, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { AAWalletDisplay, useAAWallet } from '@/lib/arbius-wallet'
+import { AAWalletStatusContext } from '@/components/providers'
 import { parseEther, encodePacked, keccak256, formatEther } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { ARBIUS_CONFIG, MODELS, IPFS_GATEWAY } from '@/config/arbius'
