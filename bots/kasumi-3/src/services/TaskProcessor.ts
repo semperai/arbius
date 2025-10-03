@@ -2,6 +2,8 @@ import { TaskJob, MiningConfig, ModelConfig } from '../types';
 import { BlockchainService } from './BlockchainService';
 import { ModelHandlerFactory } from './ModelHandler';
 import { JobQueue } from './JobQueue';
+import { UserService } from './UserService';
+import { GasAccountingService } from './GasAccountingService';
 import { log } from '../log';
 import { pinFileToIPFS } from '../ipfs';
 import { expretry } from '../utils';
@@ -14,15 +16,21 @@ export class TaskProcessor {
   private blockchain: BlockchainService;
   private miningConfig: MiningConfig;
   private jobQueue: JobQueue;
+  private userService?: UserService;
+  private gasAccounting?: GasAccountingService;
 
   constructor(
     blockchain: BlockchainService,
     miningConfig: MiningConfig,
-    jobQueue: JobQueue
+    jobQueue: JobQueue,
+    userService?: UserService,
+    gasAccounting?: GasAccountingService
   ) {
     this.blockchain = blockchain;
     this.miningConfig = miningConfig;
     this.jobQueue = jobQueue;
+    this.userService = userService;
+    this.gasAccounting = gasAccounting;
   }
 
   /**
@@ -95,26 +103,128 @@ export class TaskProcessor {
     } catch (error: any) {
       log.error(`Failed to process task ${job.taskid}: ${error.message}`);
       this.jobQueue.updateJobStatus(job.id, 'failed', { error: error.message });
+
+      // Refund user if payment system is enabled
+      if (this.userService) {
+        const refunded = this.userService.refundTask(job.taskid);
+        if (refunded) {
+          log.info(`Refunded user for failed task ${job.taskid}`);
+        }
+      }
+
       throw error;
     }
   }
 
   /**
+   * Refund a task (can be called manually for admin refunds)
+   */
+  refundTask(taskid: string): boolean {
+    if (!this.userService) {
+      log.warn('Cannot refund task: UserService not configured');
+      return false;
+    }
+
+    return this.userService.refundTask(taskid);
+  }
+
+  /**
    * Submit a new task to the blockchain and add to queue
+   * If userService is configured, charges the user's balance
    */
   async submitAndQueueTask(
     modelConfig: ModelConfig,
     input: Record<string, any>,
     additionalFee: bigint = 0n,
-    metadata?: { chatId?: number; messageId?: number }
-  ): Promise<{ taskid: string; job: TaskJob }> {
+    metadata?: { chatId?: number; messageId?: number; telegramId?: number }
+  ): Promise<{ taskid: string; job: TaskJob; estimatedCost?: bigint }> {
     log.info(`Submitting task for model ${modelConfig.name}`);
+
+    let estimatedGasCost: bigint | undefined;
+    let estimatedTotal: bigint | undefined;
+
+    // If payment system is enabled, check balance and estimate costs
+    if (this.userService && this.gasAccounting && metadata?.telegramId) {
+      const telegramId = metadata.telegramId;
+
+      // Get model fee from blockchain
+      const model = await this.blockchain.getArbiusContract().models(modelConfig.id);
+      const modelFee = model.fee + additionalFee;
+
+      // Estimate gas cost for submitTask transaction
+      const gasEstimate = 200_000n; // Approximate gas for submitTask
+      estimatedGasCost = await this.gasAccounting.estimateGasCostInAius(
+        gasEstimate,
+        this.blockchain.getProvider()
+      );
+
+      estimatedTotal = modelFee + estimatedGasCost;
+
+      // Check if user has sufficient balance
+      const balance = this.userService.getBalance(telegramId);
+
+      if (balance < estimatedTotal) {
+        throw new Error(
+          `Insufficient balance. Need ${ethers.formatEther(estimatedTotal)} AIUS ` +
+          `(${ethers.formatEther(modelFee)} model fee + ${ethers.formatEther(estimatedGasCost)} estimated gas), ` +
+          `but only have ${ethers.formatEther(balance)} AIUS`
+        );
+      }
+
+      log.info(
+        `User ${telegramId} balance check: ${ethers.formatEther(balance)} AIUS >= ` +
+        `${ethers.formatEther(estimatedTotal)} AIUS (estimated)`
+      );
+    }
 
     // Submit task to blockchain
     const inputStr = JSON.stringify(input);
     const taskid = await this.blockchain.submitTask(modelConfig.id, inputStr, additionalFee);
 
     log.info(`Task submitted with ID: ${taskid}`);
+
+    // If payment system enabled, charge user after successful submission
+    if (this.userService && this.gasAccounting && metadata?.telegramId) {
+      const telegramId = metadata.telegramId;
+
+      // Get transaction receipt to calculate actual gas cost
+      const txData = await this.blockchain.findTransactionByTaskId(taskid);
+      if (txData?.txHash) {
+        const receipt = await this.blockchain.getProvider().getTransactionReceipt(txData.txHash);
+        if (receipt) {
+          const gasData = await this.gasAccounting.calculateGasCostInAius(receipt);
+
+          // Get model fee
+          const model = await this.blockchain.getArbiusContract().models(modelConfig.id);
+          const modelFee = model.fee + additionalFee;
+
+          // Total cost = model fee + gas cost
+          const totalCost = modelFee + gasData.gasCostAius;
+
+          // Debit user balance
+          const success = this.userService.debitBalance(
+            telegramId,
+            totalCost,
+            taskid,
+            gasData.gasCostAius,
+            Number(gasData.gasUsed),
+            gasData.gasPrice,
+            gasData.aiusPerEth,
+            txData.txHash
+          );
+
+          if (!success) {
+            log.error(`Failed to debit user ${telegramId} after task submission!`);
+            // Task is already submitted, so we continue but log the error
+          } else {
+            log.info(
+              `Charged user ${telegramId}: ${ethers.formatEther(totalCost)} AIUS ` +
+              `(${ethers.formatEther(modelFee)} model + ${ethers.formatEther(gasData.gasCostAius)} gas)`
+            );
+          }
+        }
+      }
+    }
 
     // Add to job queue
     const job = await this.jobQueue.addJob({
@@ -125,7 +235,7 @@ export class TaskProcessor {
       messageId: metadata?.messageId,
     });
 
-    return { taskid, job };
+    return { taskid, job, estimatedCost: estimatedTotal };
   }
 
   /**

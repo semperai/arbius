@@ -334,28 +334,34 @@ class Kasumi3Bot {
   private async sendCompletedResult(ctx: any, responseCtx: any, job: TaskJob): Promise<void> {
     const outputType = job.modelConfig.template.output[0].type;
     const outputFilename = job.modelConfig.template.output[0].filename;
-    const imageUrl = `https://ipfs.arbius.org/ipfs/${cidify(job.cid!)}/${outputFilename}`;
+    const fileUrl = `https://ipfs.arbius.org/ipfs/${cidify(job.cid!)}/${outputFilename}`;
 
-    log.info(`Task completed: ${imageUrl}`);
+    log.info(`Task completed: ${fileUrl}`);
 
     try {
       // Verify the file is accessible
-      await axios.get(imageUrl, { timeout: 30 * 1000 });
+      await axios.get(fileUrl, { timeout: 30 * 1000 });
+
+      const caption = `✅ Task ${job.taskid} completed\nView: ${fileUrl}`;
 
       if (outputType === 'image') {
-        await ctx.replyWithPhoto(Input.fromURL(imageUrl), {
-          caption: `✅ Task ${job.taskid} completed\nView: ${imageUrl}`,
-        });
+        await ctx.replyWithPhoto(Input.fromURL(fileUrl), { caption });
+      } else if (outputType === 'video') {
+        await ctx.replyWithVideo(Input.fromURL(fileUrl), { caption });
+      } else if (outputType === 'audio') {
+        await ctx.replyWithAudio(Input.fromURL(fileUrl), { caption });
       } else if (outputType === 'text') {
-        const response = await axios.get(imageUrl, { timeout: 30 * 1000 });
+        const response = await axios.get(fileUrl, { timeout: 30 * 1000 });
         const text = response.data;
         ctx.reply(`✅ Task ${job.taskid} completed\n\n${text.substring(0, 4000)}`);
       } else {
-        ctx.reply(`✅ Task ${job.taskid} completed\nResult: ${imageUrl}`);
+        // Unknown type - send as document
+        await ctx.replyWithDocument(Input.fromURL(fileUrl), { caption });
       }
-    } catch (err) {
-      log.error(`Failed to fetch result from IPFS: ${err}`);
-      ctx.reply(`✅ Task completed but couldn't fetch result.\nIPFS: ${imageUrl}`);
+    } catch (err: any) {
+      log.error(`Failed to send result via Telegram: ${err.message}`);
+      // Fallback to link if Telegram upload fails
+      ctx.reply(`✅ Task completed but couldn't upload to Telegram.\n\nDownload: ${fileUrl}`);
     }
   }
 
