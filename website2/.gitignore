@@ -45,3 +45,6 @@ next-env.d.ts
 /playwright-report/
 /playwright/.cache/
 .playwright-mcp/
+
+# Sentry Config File
+.env.sentry-build-plugin
