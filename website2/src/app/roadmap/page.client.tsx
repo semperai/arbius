@@ -288,52 +288,28 @@ export default function RoadmapPageClient() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '80px' }} className={mounted ? 'fade-in' : ''}>
           <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '50%',
             marginBottom: '40px',
-            padding: '20px',
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.2)',
-            position: 'relative'
+            display: 'flex',
+            justifyContent: 'center'
           }}>
-            <div style={{
-              position: 'absolute',
-              inset: '-2px',
-              borderRadius: '50%',
-              padding: '2px',
-              background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #10b981)',
-              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-              opacity: 0.5
-            }}></div>
             <Image
               src={ArbiusLogo}
               alt="Arbius Logo"
-              style={{ width: '80px', height: 'auto', position: 'relative', zIndex: 1 }}
+              style={{ width: '80px', height: 'auto' }}
             />
           </div>
 
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '24px'
+          <h1 style={{
+            fontSize: '56px',
+            fontWeight: '900',
+            marginBottom: '24px',
+            background: 'linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #8b5cf6 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            letterSpacing: '-0.02em'
           }}>
-            <h1 style={{
-              fontSize: '56px',
-              fontWeight: '900',
-              background: 'linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #8b5cf6 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              letterSpacing: '-0.02em'
-            }}>
-              Roadmap
-            </h1>
-            <SparklesIcon className="w-8 h-8" style={{ color: '#3b82f6', marginTop: '8px' }} />
-          </div>
+            Roadmap
+          </h1>
 
           <p style={{
             fontSize: '18px',
