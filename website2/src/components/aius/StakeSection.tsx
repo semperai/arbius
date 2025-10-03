@@ -68,8 +68,16 @@ export function StakeSection() {
 
   const votingPower = calculateVotingPower()
 
-  // Simple APR estimate (this would be more complex in production)
-  const estimatedAPR = 15.5 // Placeholder - should be fetched from contract
+  // APR calculation over 2 year period
+  // If someone locks for 2 years (63072000 seconds), they get 100% APR
+  // Calculation: (lock_time / 2_years) * 100% = APR
+  const calculateAPR = () => {
+    if (totalLockSeconds === 0) return 0
+    const TWO_YEARS_IN_SECONDS = 63072000 // 2 years in seconds
+    return (totalLockSeconds / TWO_YEARS_IN_SECONDS) * 100
+  }
+
+  const estimatedAPR = calculateAPR()
 
   // Validation functions
   const validateAmount = useCallback((): string | null => {

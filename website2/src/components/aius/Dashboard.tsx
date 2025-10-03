@@ -1,11 +1,14 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useAccount, useReadContract } from 'wagmi'
 import { formatUnits, parseAbi } from 'viem'
 import { ARBIUS_CONFIG } from '@/config/arbius'
 import { GanttChart } from './GanttChart'
 import { useVeAIUSBalance, useTokenBalance, useNFTPositions, useTokenStats, useActiveChainId } from '@/hooks'
+import { useContractWriteHook } from '@/hooks/useContractWrite'
+import veStakingAbi from '@/abis/veStaking.json'
+import votingEscrowAbi from '@/abis/votingEscrow.json'
 
 const VE_AIUS_ABI = parseAbi([
   'function supply() view returns (uint256)',
@@ -19,13 +22,40 @@ const VE_STAKING_ABI = parseAbi([
   'function getRewardForDuration() view returns (uint256)',
 ])
 
+// Component to display earned rewards for a single position
+function PositionEarnedRewards({ tokenId, veStakingAddress }: { tokenId: bigint; veStakingAddress: `0x${string}` | undefined }) {
+  const { data: earned, refetch } = useReadContract({
+    address: veStakingAddress,
+    abi: VE_STAKING_ABI,
+    functionName: 'earned',
+    args: [tokenId],
+    query: {
+      enabled: !!veStakingAddress,
+      refetchInterval: 3000, // Refresh every 3 seconds for real-time updates
+    },
+  })
+
+  const earnedFormatted = earned ? parseFloat(formatUnits(earned as bigint, 18)).toFixed(8) : '0.00000000'
+
+  return (
+    <span className="font-semibold text-green-600">
+      {earnedFormatted} AIUS
+    </span>
+  )
+}
+
 export function Dashboard() {
   const { isConnected } = useAccount()
   const chainId = useActiveChainId()
+  const [claimingTokenId, setClaimingTokenId] = useState<bigint | null>(null)
+  const [withdrawingTokenId, setWithdrawingTokenId] = useState<bigint | null>(null)
 
   const config = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]
   const veAIUSAddress = config?.veAIUSAddress
   const veStakingAddress = config?.veStakingAddress
+
+  const { write: claimRewards, isPending: isClaimPending, isSuccess: isClaimSuccess } = useContractWriteHook()
+  const { write: withdrawStake, isPending: isWithdrawPending, isSuccess: isWithdrawSuccess } = useContractWriteHook()
 
   // Use custom hooks for cleaner code
   const { balance: veBalance, formatted: veBalanceFormatted } = useVeAIUSBalance()
@@ -94,6 +124,46 @@ export function Dashboard() {
     if (!periodFinish) return false
     return Number(periodFinish) > Math.floor(Date.now() / 1000)
   }, [periodFinish])
+
+  // Handle claiming rewards
+  const handleClaimRewards = async (tokenId: bigint) => {
+    if (!veStakingAddress) return
+
+    setClaimingTokenId(tokenId)
+
+    try {
+      await claimRewards({
+        address: veStakingAddress,
+        abi: veStakingAbi.abi,
+        functionName: 'getReward',
+        args: [tokenId],
+      })
+    } catch (error) {
+      console.error('Error claiming rewards:', error)
+    } finally {
+      setClaimingTokenId(null)
+    }
+  }
+
+  // Handle withdrawing expired stake
+  const handleWithdraw = async (tokenId: bigint) => {
+    if (!veAIUSAddress) return
+
+    setWithdrawingTokenId(tokenId)
+
+    try {
+      await withdrawStake({
+        address: veAIUSAddress,
+        abi: votingEscrowAbi.abi,
+        functionName: 'withdraw',
+        args: [tokenId],
+      })
+    } catch (error) {
+      console.error('Error withdrawing stake:', error)
+    } finally {
+      setWithdrawingTokenId(null)
+    }
+  }
 
   const votingPowerPercentage = useMemo(() => {
     if (totalVeSupply && veBalance && totalVeSupply !== BigInt(0)) {
@@ -234,8 +304,8 @@ export function Dashboard() {
                       <th className="pb-3 text-left text-sm font-medium text-gray-600">NFT ID</th>
                       <th className="pb-3 text-left text-sm font-medium text-gray-600">Amount Locked</th>
                       <th className="pb-3 text-left text-sm font-medium text-gray-600">Voting Power</th>
+                      <th className="pb-3 text-left text-sm font-medium text-gray-600">Rewards</th>
                       <th className="pb-3 text-left text-sm font-medium text-gray-600">Unlock Date</th>
-                      <th className="pb-3 text-left text-sm font-medium text-gray-600">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -246,31 +316,72 @@ export function Dashboard() {
                         </td>
                       </tr>
                     ) : userPositions.length > 0 ? (
-                      userPositions.map((position) => (
-                        <tr key={position.tokenId.toString()} className="border-b border-gray-100">
-                          <td className="py-4 text-sm font-medium text-gray-900">
-                            #{position.tokenId.toString()}
-                          </td>
-                          <td className="py-4 text-sm text-gray-700">
-                            {parseFloat(formatUnits(position.amount, 18)).toFixed(4)} AIUS
-                          </td>
-                          <td className="py-4 text-sm font-semibold text-purple-600">
-                            {parseFloat(formatUnits(position.votingPower, 18)).toFixed(4)} veAIUS
-                          </td>
-                          <td className="py-4 text-sm text-gray-700">
-                            {new Date(Number(position.unlockTime) * 1000).toLocaleDateString()}
-                          </td>
-                          <td className="py-4">
-                            <span className={`rounded-full px-3 py-1 text-xs font-medium ${
-                              Number(position.unlockTime) < Date.now() / 1000
-                                ? 'bg-gray-100 text-gray-700'
-                                : 'bg-green-100 text-green-700'
-                            }`}>
-                              {Number(position.unlockTime) < Date.now() / 1000 ? 'Expired' : 'Active'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
+                      userPositions.map((position) => {
+                        const isExpired = Number(position.unlockTime) < Date.now() / 1000
+                        const isWithdrawn = position.amount === BigInt(0)
+                        const canWithdraw = isExpired && !isWithdrawn
+                        return (
+                          <tr key={position.tokenId.toString()} className="border-b border-gray-100">
+                            <td className="py-4 text-sm font-medium">
+                              <a
+                                href={`https://opensea.io/assets/arbitrum/${veAIUSAddress?.toLowerCase()}/${position.tokenId.toString()}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                #{position.tokenId.toString()}
+                              </a>
+                            </td>
+                            <td className="py-4 text-sm text-gray-700">
+                              {parseFloat(formatUnits(position.amount, 18)).toFixed(4)} AIUS
+                            </td>
+                            <td className="py-4 text-sm font-semibold text-purple-600">
+                              {parseFloat(formatUnits(position.votingPower, 18)).toFixed(4)} veAIUS
+                            </td>
+                            <td className="py-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-green-600">
+                                  <PositionEarnedRewards tokenId={position.tokenId} veStakingAddress={veStakingAddress} />
+                                </span>
+                                <button
+                                  onClick={() => handleClaimRewards(position.tokenId)}
+                                  disabled={isClaimPending && claimingTokenId === position.tokenId}
+                                  className="cursor-pointer rounded bg-green-600 px-2 py-1 text-xs font-semibold text-white transition-opacity hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {isClaimPending && claimingTokenId === position.tokenId ? 'Claiming...' : 'Claim'}
+                                </button>
+                              </div>
+                            </td>
+                            <td className="py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-sm text-gray-700">
+                                    {new Date(Number(position.unlockTime) * 1000).toLocaleDateString()}
+                                  </span>
+                                  <span className={`inline-block w-fit rounded-full px-2 py-0.5 text-xs font-medium ${
+                                    isWithdrawn
+                                      ? 'bg-purple-100 text-purple-700'
+                                      : isExpired
+                                      ? 'bg-gray-100 text-gray-700'
+                                      : 'bg-green-100 text-green-700'
+                                  }`}>
+                                    {isWithdrawn ? 'Withdrawn' : isExpired ? 'Expired' : 'Active'}
+                                  </span>
+                                </div>
+                                {canWithdraw && (
+                                  <button
+                                    onClick={() => handleWithdraw(position.tokenId)}
+                                    disabled={isWithdrawPending && withdrawingTokenId === position.tokenId}
+                                    className="cursor-pointer rounded bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    {isWithdrawPending && withdrawingTokenId === position.tokenId ? 'Withdrawing...' : 'Withdraw'}
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })
                     ) : (
                       <tr>
                         <td colSpan={5} className="py-8 text-center text-gray-500">
