@@ -74,9 +74,6 @@ export function ArbiusModelsSection() {
             >
               {/* Model Info */}
               <div className="flex items-center gap-4 flex-1">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${model.iconBg} text-lg font-bold text-white`}>
-                  {model.icon}
-                </div>
                 <div className="flex-1">
                   <h3 className="text-base font-semibold text-gray-900">{model.name}</h3>
                   <p className="text-xs text-gray-500 line-clamp-1">{model.description}</p>

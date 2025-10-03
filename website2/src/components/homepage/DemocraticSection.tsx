@@ -37,11 +37,11 @@ export function DemocraticSection() {
   return (
     <div className="bg-[linear-gradient(78.34deg,rgba(146,189,255,0.02)_-6.48%,rgba(81,54,255,0.1)_45.24%,rgba(212,179,255,0.2)_106.31%)] py-24">
       <div className="mx-auto w-[90%] max-w-[2000px] lg:w-[80%]">
-        <h2 className="font-[family-name:var(--font-lato)] font-bold mb-6 text-[35px] leading-tight text-gray-900 lg:text-[50px] 2xl:text-[70px]">
-          <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+        <Fade delay={0.1} cascade damping={0.05} triggerOnce={true}>
+          <h2 className="font-[family-name:var(--font-lato)] font-bold mb-6 break-words text-[35px] leading-tight text-gray-900 lg:text-[50px] 2xl:text-[70px]">
             We dream of open and accessible AI
-          </Fade>
-        </h2>
+          </h2>
+        </Fade>
         <Fade direction="up" triggerOnce={true}>
           <p className="font-[family-name:var(--font-lato)] font-normal w-full text-[16px] text-gray-600 lg:w-[70%]">
             Arbius is controlled by its users, not monopolized by large
