@@ -5,6 +5,9 @@ import { isInitialized, getConfig } from '../core/init';
 import { walletReducer, initialState } from '../reducers/walletReducer';
 import { WALLET_CONNECT, WALLET_DISCONNECT, WALLET_SWITCH_CHAIN, TRANSACTION_ADD, TRANSACTION_UPDATE } from '../reducers/walletActions';
 import { broadcastWalletState } from '../utils/broadcastChannel';
+import { safeLocalStorageRemove } from '../utils/safeStorage';
+import { setupTransactionQueue, setCurrentAddress } from '../core/transactionQueue';
+import toast from 'react-hot-toast';
 
 export const AAWalletContext = createContext<AAWalletContextValue>({
   isConnected: false,
@@ -45,15 +48,36 @@ export const AAWalletProvider: React.FC<AAWalletProviderProps> = ({ children }) 
 
     const handleAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
+        // Clear derived wallet cache on disconnect
+        safeLocalStorageRemove('arbiuswallet_derivedWalletCache');
+        setCurrentAddress(null);
         dispatch({ type: WALLET_DISCONNECT });
+        toast.info('Wallet disconnected');
       } else {
+        // Check if wallet address changed (user switched wallets)
+        const isWalletSwitch = state.address && accounts[0] !== state.address;
+        if (isWalletSwitch) {
+          // Clear old wallet's cache when switching
+          safeLocalStorageRemove('arbiuswallet_derivedWalletCache');
+          toast.info(`Switched to wallet ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
+        } else if (!state.address) {
+          // First time connecting
+          toast.success(`Wallet connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
+        }
+
         const newState: WalletState = {
           address: accounts[0] as Address,
           chainId: state.chainId ?? null,
           isConnected: true,
           transactions: state.transactions
         };
-        
+
+        // Set current address for transaction storage
+        setCurrentAddress(accounts[0]);
+
+        // Setup transaction queue for this address
+        setupTransactionQueue(accounts[0]);
+
         dispatch({ type: WALLET_CONNECT, payload: newState });
       }
     };

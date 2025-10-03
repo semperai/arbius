@@ -1,6 +1,8 @@
 import { ProxyEthereum } from '../types';
 import { getConfig, isInitialized } from './init';
 import { sendTransaction } from './transactionQueue';
+import { safeLocalStorageSet, safeLocalStorageGet } from '../utils/safeStorage';
+import toast from 'react-hot-toast';
 
 // Store the original ethereum object
 let originalEthereum: any = null;
@@ -39,6 +41,12 @@ export function setupEthereumProxy(): boolean {
   if (typeof window === 'undefined' || !window.ethereum) {
     console.warn('window.ethereum not found. Ethereum proxy not set up.');
     return false;
+  }
+
+  // Check if proxy is already set up (prevent double-wrapping)
+  if (window.ethereum.isAA) {
+    console.log('Ethereum proxy already set up, skipping re-initialization');
+    return true;
   }
 
   // Store the original ethereum object first
@@ -114,7 +122,14 @@ function createEthereumProxy(target: any): ProxyEthereum {
           
           // Intercept personal_sign requests
           if (prop === 'request' && args[0]?.method === 'personal_sign') {
-            return handlePersonalSign(args[0]);
+            return handlePersonalSign(args[0]).catch((error) => {
+              // Toast for user-facing errors (if not already shown)
+              const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+              if (!errorMsg.includes('User rejected') && !errorMsg.includes('Signature rejected')) {
+                toast.error(`Signature failed: ${errorMsg}`);
+              }
+              throw error;
+            });
           }
           
           // Pass through all other requests
@@ -222,7 +237,9 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
   
   // Validate domain
   if (!validateDomain(websiteName)) {
-    throw new Error(`Unauthorized domain: ${websiteName}. Please use an official Arbius domain.`);
+    const error = `Unauthorized domain: ${websiteName}`;
+    toast.error(`Signature rejected: ${error}`);
+    throw new Error(`${error}. Please use an official Arbius domain.`);
   }
   
   // Check if the message already follows EIP-4361 format
@@ -236,12 +253,19 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
     
     // Store nonce in localStorage with expiration
     const nonceKey = `arbiuswallet_nonce_${nonce}`;
-    localStorage.setItem(nonceKey, JSON.stringify({
+    const nonceStored = safeLocalStorageSet(nonceKey, JSON.stringify({
       address,
       issuedAt,
       expiresAt: expirationTime
     }));
+
+    if (!nonceStored) {
+      console.warn('Failed to store nonce. Signature validation may not work properly.');
+    }
     
+    // Get current chain ID dynamically
+    const currentChainId = await getCurrentChainId();
+
     // Create EIP-4361 compliant message
     const signedMessage: SignedMessage = {
       domain: websiteName,
@@ -252,7 +276,7 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
       statement: 'Arbius Wallet wants you to create a deterministic wallet',
       uri: websiteUrl,
       version: '1',
-      chainId: 42161 // Arbitrum
+      chainId: currentChainId // Dynamic chain ID
     };
     
     const enhancedMessage = formatEIP4361Message(signedMessage);
@@ -273,12 +297,21 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
   if (nonceLine) {
     const nonce = nonceLine.split('Nonce:')[1].trim();
     const nonceKey = `arbiuswallet_nonce_${nonce}`;
-    const storedNonce = localStorage.getItem(nonceKey);
-    
+    const storedNonce = safeLocalStorageGet(nonceKey);
+
     if (storedNonce) {
-      const { expiresAt } = JSON.parse(storedNonce);
-      if (new Date(expiresAt) < new Date()) {
-        throw new Error('Message has expired. Please sign a new message.');
+      try {
+        const { expiresAt } = JSON.parse(storedNonce);
+        if (new Date(expiresAt) < new Date()) {
+          const errorMsg = 'Message has expired. Please sign a new message.';
+          toast.error(`Signature error: ${errorMsg}`);
+          throw new Error(errorMsg);
+        }
+      } catch (error) {
+        console.warn('Failed to parse stored nonce:', error);
+        if (error instanceof Error && error.message.includes('expired')) {
+          throw error; // Re-throw if it's our expiry error
+        }
       }
     }
   }

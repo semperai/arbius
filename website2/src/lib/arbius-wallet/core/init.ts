@@ -2,6 +2,8 @@ import { AAWalletConfig } from '../types';
 import { setupEthereumProxy } from './ethereumProxy';
 import { setupTransactionQueue } from './transactionQueue';
 import { validateConfig } from './configValidator';
+import { startPeriodicNonceCleanup } from '../utils/nonceCleanup';
+import toast from 'react-hot-toast';
 
 // Global state to store the configuration
 let globalConfig: AAWalletConfig | null = null;
@@ -23,15 +25,30 @@ export function init(config: AAWalletConfig): boolean {
     // Setup the ethereum proxy
     ethereumProxySuccess = setupEthereumProxy();
 
-    // Setup the transaction queue
+    if (!ethereumProxySuccess) {
+      toast.error('Failed to initialize wallet: Ethereum provider not found');
+    }
+
+    // Setup the transaction queue (even if proxy fails, for fallback mode)
     setupTransactionQueue();
+
+    // Start periodic nonce cleanup
+    startPeriodicNonceCleanup();
 
     console.log('AA Wallet initialized with config:', config);
     console.log('Ethereum proxy setup:', ethereumProxySuccess ? 'successful' : 'failed');
 
+    if (ethereumProxySuccess) {
+      toast.success('Wallet initialized successfully');
+    }
+
     return ethereumProxySuccess;
   } catch (error) {
     console.error('Failed to initialize AA Wallet:', error);
+
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    toast.error(`Failed to initialize wallet: ${errorMessage}`);
+
     globalConfig = null;
     ethereumProxySuccess = false;
     return false;
