@@ -252,10 +252,10 @@ export function Dashboard() {
                             #{position.tokenId.toString()}
                           </td>
                           <td className="py-4 text-sm text-gray-700">
-                            {formatUnits(position.amount, 18)} AIUS
+                            {parseFloat(formatUnits(position.amount, 18)).toFixed(4)} AIUS
                           </td>
                           <td className="py-4 text-sm font-semibold text-purple-600">
-                            {formatUnits(position.votingPower, 18)} veAIUS
+                            {parseFloat(formatUnits(position.votingPower, 18)).toFixed(4)} veAIUS
                           </td>
                           <td className="py-4 text-sm text-gray-700">
                             {new Date(Number(position.unlockTime) * 1000).toLocaleDateString()}

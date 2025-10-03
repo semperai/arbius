@@ -248,7 +248,7 @@ export function StakeSection() {
             </div>
             <div>
               <p className="text-xs text-gray-600">Estimated APR</p>
-              <p className="text-xl font-bold text-green-600">{estimatedAPR}%</p>
+              <p className="text-xl font-bold text-green-600">{estimatedAPR.toFixed(2)}%</p>
             </div>
           </div>
 
@@ -399,7 +399,7 @@ export function StakeSection() {
               <button
                 onClick={handleApprove}
                 disabled={isPending || isApproving || !amount || parseFloat(amount) === 0}
-                className="w-full rounded-lg bg-black px-8 py-4 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                className="w-full cursor-pointer rounded-lg bg-black px-8 py-4 font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Approve AIUS tokens for locking"
               >
                 {isPending && isApproving ? 'Approving...' : 'Approve AIUS'}
@@ -408,7 +408,7 @@ export function StakeSection() {
               <button
                 onClick={handleLock}
                 disabled={isPending || isStaking || !amount || parseFloat(amount) === 0 || totalLockSeconds === 0}
-                className="group relative w-full overflow-hidden rounded-lg bg-black px-8 py-4 font-semibold text-white disabled:opacity-50"
+                className="group relative w-full cursor-pointer overflow-hidden rounded-lg bg-black px-8 py-4 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label={`Lock ${amount || '0'} AIUS for ${months} months and ${weeks} weeks`}
               >
                 <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-disabled:opacity-0"></div>

@@ -189,14 +189,14 @@ export function Gauge() {
           <div className="rounded-lg bg-purple-50 p-4">
             <p className="text-sm text-gray-600">Total Power</p>
             <p className="text-2xl font-bold text-purple-600">
-              {votingPowerBigInt ? formatEther(votingPowerBigInt) : '0'} veAIUS
+              {votingPowerBigInt ? parseFloat(formatEther(votingPowerBigInt)).toFixed(4) : '0'} veAIUS
             </p>
           </div>
 
           <div className="rounded-lg bg-blue-50 p-4">
             <p className="text-sm text-gray-600">Used Power</p>
             <p className="text-2xl font-bold text-blue-600">
-              {usedWeightsBigInt ? formatEther(usedWeightsBigInt) : '0'} veAIUS
+              {usedWeightsBigInt ? parseFloat(formatEther(usedWeightsBigInt)).toFixed(4) : '0'} veAIUS
             </p>
             <p className="text-xs text-gray-500">{usagePercentage.toFixed(2)}% used</p>
           </div>
@@ -204,7 +204,7 @@ export function Gauge() {
           <div className="rounded-lg bg-green-50 p-4">
             <p className="text-sm text-gray-600">Remaining</p>
             <p className="text-2xl font-bold text-green-600">
-              {formatEther(remainingPower)} veAIUS
+              {parseFloat(formatEther(remainingPower)).toFixed(4)} veAIUS
             </p>
           </div>
         </div>

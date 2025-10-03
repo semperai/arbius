@@ -13,7 +13,7 @@ export function Tabs({ selectedTab, setSelectedTab }: TabsProps) {
           <button
             key={tab}
             onClick={() => setSelectedTab(tab)}
-            className={`pb-4 pt-8 text-lg font-semibold transition-colors ${
+            className={`cursor-pointer pb-4 pt-8 text-lg font-semibold transition-colors ${
               selectedTab === tab
                 ? 'border-b-2 border-primary text-primary'
                 : 'text-gray-600 hover:text-primary'
