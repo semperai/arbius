@@ -7,5 +7,6 @@
   "v5_timelockAddress": "0x21F3d28f4932aEb593630196C6632b9D1C52d1Fb",
   "v5_governorAddress": "0xE82F6F2F8cD967dfBE4915c9C996e938A3a12755",
   "v5_voterAddress": "0x80E9B3dA81258705eC7C3DC89a799b78f2c68968",
-  "arbiusRouterV1Address": "0xecAba4E6a4bC1E3DE3e996a8B2c89e8B0626C9a1"
+  "arbiusRouterV1Address": "0xecAba4E6a4bC1E3DE3e996a8B2c89e8B0626C9a1",
+  "v6_masterContesterRegistryAddress": "0x64Dd63B7e41D0DfD3B55fC9ae5990464a7890F9D"
 }
