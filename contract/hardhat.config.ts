@@ -1,10 +1,11 @@
-import "hardhat-tracer";
 import { envconfig } from "./utils/config";
 import { HardhatUserConfig } from "hardhat/config";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
+// NOTE: you will need to comment out hardhat-upgrades if you are using hardhat-verify
+// and vice versa as they have a dependency conflict
 import "@openzeppelin/hardhat-upgrades";
-import "@nomicfoundation/hardhat-verify";
+// import "@nomicfoundation/hardhat-verify";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
