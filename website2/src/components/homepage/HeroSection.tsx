@@ -2,10 +2,14 @@
 
 import Link from 'next/link'
 import { Fade } from 'react-awesome-reveal'
+import heroBackground from '@/app/assets/images/hero-background.webp'
 
 export function HeroSection() {
   return (
-    <div className="font-[family-name:var(--font-lato)] font-bold mt-[72px] bg-[linear-gradient(180deg,#fbfbfb_70.03%,#4a28ff_330.54%)] lg:flex lg:h-[75vh] lg:items-center">
+    <div
+      className="font-[family-name:var(--font-lato)] font-bold pt-[72px] bg-cover bg-center bg-no-repeat lg:flex lg:h-[75vh] lg:items-center"
+      style={{ backgroundImage: `url(${heroBackground.src})` }}
+    >
       <div className="m-auto w-[90%] max-w-[2000px] py-16 lg:w-[80%] lg:p-0 lg:py-24">
         <div className="w-full xl:w-[65%]">
           <Fade direction="up" triggerOnce={true}>

@@ -55,7 +55,7 @@ export function BuySection() {
               >
                 <button
                   type="button"
-                  className="group relative flex items-center gap-3 rounded-full bg-black px-8 py-3 text-white"
+                  className="group relative flex items-center gap-3 rounded-full bg-black px-8 py-3 text-white cursor-pointer"
                 >
                   <div className="absolute inset-0 z-0 rounded-full bg-gradient-to-r from-[#9162F7] to-[#FB567E] opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
                   <p className="relative z-10 font-bold">

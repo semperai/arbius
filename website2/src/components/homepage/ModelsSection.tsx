@@ -3,26 +3,36 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import aiGenerationDesktop from '@/app/assets/images/ai_generation.png'
+import aiGenerationMobile from '@/app/assets/images/ai_generation_mobile.png'
+import amicaDesktop from '@/app/assets/images/amica.png'
+import amicaMobile from '@/app/assets/images/amica_mobile.png'
+import marketplaceDesktop from '@/app/assets/images/marketplace.png'
+import marketplaceMobile from '@/app/assets/images/marketplace_mobile.png'
 
 type ModelInfo = {
   text: string
-  image: string
+  imageDesktop: string
+  imageMobile: string
   link?: string
 }
 
 const models: Record<string, ModelInfo> = {
   'Generative AI': {
     text: 'Be part of the burgeoning AI economy! Users can now share in the value generated from AI, and model creators are now able to monetize their creations, or choose to host them free of cost. Our generative AI is handled by a global decentralized network of accelerated compute solvers.',
-    image: '/ai_background.png',
+    imageDesktop: aiGenerationDesktop.src,
+    imageMobile: aiGenerationMobile.src,
   },
   'Amica': {
     text: 'Amica is an open source AI persona chatbot interface that provides emotion, bi-directional text to speech, audial interpretation, and visual recognition based interactions.',
-    image: '/ai_background.png',
+    imageDesktop: amicaDesktop.src,
+    imageMobile: amicaMobile.src,
     link: 'https://personas.heyamica.com',
   },
   'Marketplace': {
     text: 'Arbius has created a one of a kind ecosystem where agents for the first time can source their own compute. True autonomy starts here! Utilizing decentralized escrow, fully autonomous agents can earn as well as purchase services from other agents and humans alike.',
-    image: '/eacc_background.png',
+    imageDesktop: marketplaceDesktop.src,
+    imageMobile: marketplaceMobile.src,
   },
 }
 
@@ -30,10 +40,10 @@ export function ModelsSection() {
   const [selectedModel, setSelectedModel] = useState<keyof typeof models>('Generative AI')
 
   return (
-    <div className="bg-purple-50/40 py-24">
+    <div className="py-24" style={{ backgroundImage: 'linear-gradient(142.65deg, rgba(146, 189, 255, .02) -27.23%, rgba(81, 54, 255, .1) 31.69%, hsla(0, 0%, 100%, .159) 60.92%, rgba(212, 179, 255, .2) 101.25%)' }}>
       <div className="m-auto flex w-[90%] max-w-[2000px] flex-col items-center justify-between gap-12 lg:w-[80%] lg:flex-row">
         <div className="w-full lg:w-[50%]">
-          <div className="Gradient-transparent-text mb-4 bg-gradient-to-r from-purple-600 to-pink-500 text-[14px] font-medium">
+          <div className="Gradient-transparent-text mb-4 bg-gradient-to-r from-purple-600 to-pink-500 text-[14px] font-bold">
             Multi-Model Economy!
           </div>
 
@@ -88,7 +98,7 @@ export function ModelsSection() {
           <div className="relative ml-auto hidden h-[520px] w-full max-w-[440px] items-center justify-center rounded-[40px] bg-gradient-to-br from-purple-200 to-blue-200 p-2 lg:flex">
             <div className="relative h-full w-full overflow-hidden rounded-[36px]">
               <Image
-                src={models[selectedModel].image}
+                src={models[selectedModel].imageDesktop}
                 alt={selectedModel}
                 fill
                 className="object-cover transition-opacity duration-500"
@@ -102,7 +112,7 @@ export function ModelsSection() {
               <div key={name}>
                 <div className="relative flex h-[240px] w-full items-center justify-center rounded-[50px]">
                   <Image
-                    src={model.image}
+                    src={model.imageMobile}
                     alt={name}
                     width={400}
                     height={240}
