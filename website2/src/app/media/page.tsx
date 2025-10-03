@@ -1,8 +1,6 @@
 import { createMetadata } from '@/lib/metadata'
 import MediaPageClient from './page.client'
 
-export const dynamic = 'force-dynamic'
-
 export const metadata = createMetadata({
   title: 'Media & Press',
   description: 'Arbius media kit, press releases, brand assets, and latest news. Download logos, guidelines, and resources for media coverage.',

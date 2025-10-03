@@ -59,7 +59,7 @@ export function ArbiusModelsSection() {
             <p className="max-w-2xl text-gray-700 mb-6">
               Explore the advanced AI models of Arbius, a decentralized machine learning network powered by AIUS and Proof-of-Useful-Work (PoUW).
             </p>
-            <Link href="https://personas.heyamica.com" target="_blank">
+            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer">
               <button className="rounded-full bg-black px-8 py-3 font-medium text-white transition-colors hover:bg-gray-800">
                 Amica
               </button>
@@ -150,6 +150,7 @@ export function ArbiusModelsSection() {
                 <Link
                   href={model.repositoryUrl}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 font-medium text-white transition-all hover:bg-purple-600"
                 >
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

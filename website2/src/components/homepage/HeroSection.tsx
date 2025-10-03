@@ -49,7 +49,7 @@ export function HeroSection() {
             </Fade>
             <Fade direction="up" triggerOnce={true}>
               <div className="mt-[30px] flex items-center gap-[20px]">
-                <Link href="https://arbius.ai/paper.pdf" target="_blank">
+                <Link href="https://arbius.ai/paper.pdf" target="_blank" rel="noopener noreferrer">
                   <div>
                     <button
                       type="button"

@@ -103,7 +103,6 @@ export function Navbar() {
                 <div className="p-3 space-y-2">
                   <Link
                     href="/lp-staking"
-                    target="_blank"
                     className="block p-4 rounded-xl bg-gray-50 text-gray-900 hover:bg-gradient-to-r hover:from-[#4A28FF] hover:to-[#92BDFF] hover:text-white transition-all duration-300 group/item"
                   >
                     <Image
@@ -119,7 +118,6 @@ export function Navbar() {
 
                   <Link
                     href="/aius"
-                    target="_blank"
                     className="block p-4 rounded-xl bg-gray-50 text-gray-900 hover:bg-gradient-to-r hover:from-[#4A28FF] hover:to-[#92BDFF] hover:text-white transition-all duration-300 group/item"
                   >
                     <Image
@@ -157,7 +155,7 @@ export function Navbar() {
               Bridge
             </Link>
 
-            <Link href="/media" target="_blank" className="text-gray-700 hover:text-primary transition-colors">
+            <Link href="/media" className="text-gray-700 hover:text-primary transition-colors">
               Media
             </Link>
           </div>
@@ -202,7 +200,6 @@ export function Navbar() {
                 <div className="mt-6 space-y-4 pl-6">
                   <Link
                     href="/lp-staking"
-                    target="_blank"
                     onClick={closeMobileMenu}
                     className="block p-4 rounded-xl bg-gray-50"
                   >
@@ -213,7 +210,6 @@ export function Navbar() {
 
                   <Link
                     href="/aius"
-                    target="_blank"
                     onClick={closeMobileMenu}
                     className="block p-4 rounded-xl bg-gray-50"
                   >
@@ -246,7 +242,7 @@ export function Navbar() {
               Bridge
             </Link>
 
-            <Link href="/media" target="_blank" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+            <Link href="/media" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
               Media
             </Link>
           </div>

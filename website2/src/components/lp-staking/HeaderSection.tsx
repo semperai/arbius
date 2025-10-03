@@ -118,6 +118,7 @@ export function HeaderSection() {
         <Link
           href="https://app.uniswap.org/add/v2/0x8afe4055ebc86bd2afb3940c0095c9aca511d852/ETH?chain=mainnet"
           target="_blank"
+          rel="noopener noreferrer"
           className="inline-block font-medium text-primary hover:underline"
         >
           Get UNI-V2 by providing liquidity on Uniswap →

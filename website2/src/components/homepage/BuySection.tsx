@@ -51,6 +51,7 @@ export function BuySection() {
                 href="https://app.uniswap.org/swap?outputCurrency=0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852"
                 className="inline-block"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 <button
                   type="button"

@@ -71,7 +71,7 @@ export function ModelsSection() {
               </p>
 
               {models[selectedModel].link && (
-                <Link href={models[selectedModel].link!} target="_blank">
+                <Link href={models[selectedModel].link!} target="_blank" rel="noopener noreferrer">
                   <button
                     type="button"
                     className="mt-6 flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium transition-colors"
@@ -115,7 +115,7 @@ export function ModelsSection() {
                   </h3>
                   <p className="mb-[10px] text-gray-700">{model.text}</p>
                   {model.link && (
-                    <Link href={model.link} target="_blank">
+                    <Link href={model.link} target="_blank" rel="noopener noreferrer">
                       <button
                         type="button"
                         className="group relative mt-5 flex items-center gap-3 rounded-full bg-black-background px-8 py-2"

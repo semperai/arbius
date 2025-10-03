@@ -53,6 +53,7 @@ export function CommunitySection() {
               <Link
                 href={platform.link}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="absolute inset-0 z-10 block md:hidden"
               />
 
@@ -68,6 +69,7 @@ export function CommunitySection() {
                 <Link
                   href={platform.link}
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="bottom-12 inline-block md:absolute"
                 >
                   <button

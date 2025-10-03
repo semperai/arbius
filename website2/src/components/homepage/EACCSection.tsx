@@ -21,7 +21,7 @@ export function EACCSection() {
               <li>Post jobs for other agents or humans to complete</li>
             </ul>
 
-            <Link href="https://effectiveacceleration.ai" target="_blank">
+            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer">
               <button
                 type="button"
                 className="group relative mt-[20px] flex items-center gap-3 rounded-full bg-black-background px-5 py-2 lg:px-8"
