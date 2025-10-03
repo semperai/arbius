@@ -9,8 +9,7 @@ import {
   ShieldCheckIcon,
   ActivityIcon,
   DollarSignIcon,
-  NetworkIcon,
-  FileTextIcon
+  NetworkIcon
 } from 'lucide-react';
 import { getContractInfo, getReward, getPsuedoTotalSupply, getValidatorMinimum } from '@/lib/contract';
 import { ethers } from 'ethers';
