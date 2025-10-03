@@ -142,8 +142,9 @@ export class TaskProcessor {
 
     let estimatedGasCost: bigint | undefined;
     let estimatedTotal: bigint | undefined;
+    let reservationId: string | null = null;
 
-    // If payment system is enabled, check balance and estimate costs
+    // If payment system is enabled, reserve balance BEFORE blockchain submission
     if (this.userService && this.gasAccounting && metadata?.telegramId) {
       const telegramId = metadata.telegramId;
 
@@ -160,69 +161,100 @@ export class TaskProcessor {
 
       estimatedTotal = modelFee + estimatedGasCost;
 
-      // Check if user has sufficient balance
-      const balance = this.userService.getBalance(telegramId);
+      // Type guard to ensure estimatedTotal is defined
+      if (!estimatedTotal) {
+        throw new Error('Failed to estimate total transaction cost');
+      }
 
-      if (balance < estimatedTotal) {
+      // Reserve balance BEFORE submitting to blockchain
+      // Reservation expires in 5 minutes (enough time for blockchain tx)
+      reservationId = this.userService.reserveBalance(telegramId, estimatedTotal, 300000);
+
+      if (!reservationId) {
+        const availableBalance = this.userService.getAvailableBalance(telegramId);
         throw new Error(
           `Insufficient balance. Need ${ethers.formatEther(estimatedTotal)} AIUS ` +
           `(${ethers.formatEther(modelFee)} model fee + ${ethers.formatEther(estimatedGasCost)} estimated gas), ` +
-          `but only have ${ethers.formatEther(balance)} AIUS`
+          `but only have ${ethers.formatEther(availableBalance)} AIUS available`
         );
       }
 
       log.info(
-        `User ${telegramId} balance check: ${ethers.formatEther(balance)} AIUS >= ` +
-        `${ethers.formatEther(estimatedTotal)} AIUS (estimated)`
+        `Reserved ${ethers.formatEther(estimatedTotal)} AIUS for user ${telegramId} ` +
+        `(reservation: ${reservationId})`
       );
     }
 
-    // Submit task to blockchain
-    const inputStr = JSON.stringify(input);
-    const taskid = await this.blockchain.submitTask(modelConfig.id, inputStr, additionalFee);
+    let taskid: string;
 
-    log.info(`Task submitted with ID: ${taskid}`);
+    try {
+      // Submit task to blockchain
+      const inputStr = JSON.stringify(input);
+      taskid = await this.blockchain.submitTask(modelConfig.id, inputStr, additionalFee);
 
-    // If payment system enabled, charge user after successful submission
-    if (this.userService && this.gasAccounting && metadata?.telegramId) {
+      log.info(`Task submitted with ID: ${taskid}`);
+    } catch (error: any) {
+      // Cancel reservation if blockchain submission fails
+      if (reservationId && this.userService) {
+        this.userService.cancelReservation(reservationId);
+        log.info(`Cancelled reservation ${reservationId} due to blockchain submission failure`);
+      }
+      throw error;
+    }
+
+    // If payment system enabled, finalize the reservation with actual cost
+    if (this.userService && this.gasAccounting && metadata?.telegramId && reservationId) {
       const telegramId = metadata.telegramId;
 
-      // Get transaction receipt to calculate actual gas cost
-      const txData = await this.blockchain.findTransactionByTaskId(taskid);
-      if (txData?.txHash) {
-        const receipt = await this.blockchain.getProvider().getTransactionReceipt(txData.txHash);
-        if (receipt) {
-          const gasData = await this.gasAccounting.calculateGasCostInAius(receipt);
+      try {
+        // Get transaction receipt to calculate actual gas cost
+        const txData = await this.blockchain.findTransactionByTaskId(taskid);
+        if (txData?.txHash) {
+          const receipt = await this.blockchain.getProvider().getTransactionReceipt(txData.txHash);
+          if (receipt) {
+            const gasData = await this.gasAccounting.calculateGasCostInAius(receipt);
 
-          // Get model fee
-          const model = await this.blockchain.getArbiusContract().models(modelConfig.id);
-          const modelFee = model.fee + additionalFee;
+            // Get model fee
+            const model = await this.blockchain.getArbiusContract().models(modelConfig.id);
+            const modelFee = model.fee + additionalFee;
 
-          // Total cost = model fee + gas cost
-          const totalCost = modelFee + gasData.gasCostAius;
+            // Total cost = model fee + gas cost
+            const totalCost = modelFee + gasData.gasCostAius;
 
-          // Debit user balance
-          const success = this.userService.debitBalance(
-            telegramId,
-            totalCost,
-            taskid,
-            gasData.gasCostAius,
-            Number(gasData.gasUsed),
-            gasData.gasPrice,
-            gasData.aiusPerEth,
-            txData.txHash
-          );
-
-          if (!success) {
-            log.error(`Failed to debit user ${telegramId} after task submission!`);
-            // Task is already submitted, so we continue but log the error
-          } else {
-            log.info(
-              `Charged user ${telegramId}: ${ethers.formatEther(totalCost)} AIUS ` +
-              `(${ethers.formatEther(modelFee)} model + ${ethers.formatEther(gasData.gasCostAius)} gas)`
+            // Finalize reservation with actual cost
+            const success = this.userService.finalizeReservation(
+              reservationId,
+              totalCost,
+              taskid,
+              gasData.gasCostAius,
+              Number(gasData.gasUsed),
+              gasData.gasPrice,
+              gasData.aiusPerEth,
+              txData.txHash
             );
+
+            if (!success) {
+              log.error(
+                `Failed to finalize reservation ${reservationId} for user ${telegramId}! ` +
+                `Task ${taskid} was submitted but payment failed. Manual intervention required.`
+              );
+            } else {
+              log.info(
+                `Charged user ${telegramId}: ${ethers.formatEther(totalCost)} AIUS ` +
+                `(${ethers.formatEther(modelFee)} model + ${ethers.formatEther(gasData.gasCostAius)} gas)`
+              );
+            }
+          } else {
+            log.error(`Could not get receipt for task ${taskid}, cancelling reservation`);
+            this.userService.cancelReservation(reservationId);
           }
+        } else {
+          log.error(`Could not find transaction for task ${taskid}, cancelling reservation`);
+          this.userService.cancelReservation(reservationId);
         }
+      } catch (error: any) {
+        log.error(`Error finalizing payment for task ${taskid}: ${error.message}`);
+        // Keep reservation in place - it will expire automatically
       }
     }
 

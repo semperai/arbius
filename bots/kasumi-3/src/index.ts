@@ -14,6 +14,7 @@ import { ModelRegistry } from './services/ModelRegistry';
 import { BlockchainService } from './services/BlockchainService';
 import { JobQueue } from './services/JobQueue';
 import { TaskProcessor } from './services/TaskProcessor';
+import { RateLimiter } from './services/RateLimiter';
 import { TaskJob } from './types';
 
 /**
@@ -27,6 +28,7 @@ class Kasumi3Bot {
   private taskProcessor: TaskProcessor;
   private miningConfig: any;
   private startupTime: number;
+  private rateLimiter: RateLimiter;
 
   constructor(
     botToken: string,
@@ -43,11 +45,30 @@ class Kasumi3Bot {
     this.taskProcessor = taskProcessor;
     this.miningConfig = miningConfig;
     this.startupTime = now();
+    this.rateLimiter = new RateLimiter({ maxRequests: 5, windowMs: 60000 });
 
     this.setupHandlers();
   }
 
   private setupHandlers(): void {
+    // Rate limiting middleware
+    this.bot.use(async (ctx, next) => {
+      const userId = ctx.from?.id;
+      if (!userId) {
+        return next();
+      }
+
+      if (!this.rateLimiter.checkLimit(userId)) {
+        const resetTime = this.rateLimiter.getResetTime(userId);
+        await ctx.reply(
+          `⏱️ Rate limit exceeded. Please wait ${resetTime} seconds before trying again.\n\n` +
+          `Limit: 5 requests per minute`
+        );
+        return;
+      }
+
+      return next();
+    });
     this.bot.start(ctx => {
       ctx.reply(
         `Hello! I am Kasumi-3, an AI inference bot powered by Arbius.\n\n` +

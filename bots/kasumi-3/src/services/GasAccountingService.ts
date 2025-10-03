@@ -105,7 +105,7 @@ export class GasAccountingService {
     const gasUsed = receipt.gasUsed;
 
     // Use effectiveGasPrice (EIP-1559) as primary, fallback to gasPrice
-    const gasPrice = receipt.effectiveGasPrice || receipt.gasPrice;
+    const gasPrice = (receipt as any).effectiveGasPrice || receipt.gasPrice;
 
     if (!gasPrice || gasPrice === 0n) {
       throw new Error('Cannot determine gas price from transaction receipt');

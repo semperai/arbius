@@ -8,10 +8,17 @@ export class JobQueue implements IJobQueue {
   private maxConcurrent: number;
   private processingJobs: Set<string> = new Set();
   private onJobComplete?: (job: TaskJob) => Promise<void>;
+  private jobTimeouts: Map<string, NodeJS.Timeout> = new Map();
+  private jobTimeoutMs: number;
 
-  constructor(maxConcurrent: number = 3, onJobComplete?: (job: TaskJob) => Promise<void>) {
+  constructor(
+    maxConcurrent: number = 3,
+    onJobComplete?: (job: TaskJob) => Promise<void>,
+    jobTimeoutMs: number = 15 * 60 * 1000 // 15 minutes default
+  ) {
     this.maxConcurrent = maxConcurrent;
     this.onJobComplete = onJobComplete;
+    this.jobTimeoutMs = jobTimeoutMs;
   }
 
   addJob(job: Omit<TaskJob, 'id' | 'status' | 'createdAt'>): Promise<TaskJob> {
@@ -67,6 +74,14 @@ export class JobQueue implements IJobQueue {
     if (status === 'completed' || status === 'failed') {
       job.completedAt = Date.now();
       this.processingJobs.delete(id);
+
+      // Clear timeout for this job
+      const timeout = this.jobTimeouts.get(id);
+      if (timeout) {
+        clearTimeout(timeout);
+        this.jobTimeouts.delete(id);
+      }
+
       log.info(`Job ${id} ${status} for task ${job.taskid}`);
 
       // Trigger next processing
@@ -91,7 +106,15 @@ export class JobQueue implements IJobQueue {
     this.processingJobs.add(job.id);
     this.updateJobStatus(job.id, 'processing', { processedAt: Date.now() });
 
-    log.info(`Starting processing job ${job.id} for task ${job.taskid}`);
+    log.info(`Starting processing job ${job.id} for task ${job.taskid} (timeout: ${this.jobTimeoutMs}ms)`);
+
+    // Set timeout for this job
+    const timeoutId = setTimeout(() => {
+      log.error(`Job ${job.id} timed out after ${this.jobTimeoutMs}ms`);
+      this.updateJobStatus(job.id, 'failed', { error: `Job timed out after ${this.jobTimeoutMs}ms` });
+    }, this.jobTimeoutMs);
+
+    this.jobTimeouts.set(job.id, timeoutId);
 
     // Process the job asynchronously
     if (this.onJobComplete) {
@@ -134,6 +157,13 @@ export class JobQueue implements IJobQueue {
         job.completedAt &&
         now - job.completedAt > maxAge
       ) {
+        // Clear any remaining timeout
+        const timeout = this.jobTimeouts.get(id);
+        if (timeout) {
+          clearTimeout(timeout);
+          this.jobTimeouts.delete(id);
+        }
+
         this.jobs.delete(id);
         cleared++;
       }
@@ -142,5 +172,24 @@ export class JobQueue implements IJobQueue {
     if (cleared > 0) {
       log.info(`Cleared ${cleared} old jobs from queue`);
     }
+  }
+
+  /**
+   * Clean up all timeouts (call this on shutdown)
+   */
+  shutdown(): void {
+    // Clear all active timeouts
+    for (const timeout of this.jobTimeouts.values()) {
+      clearTimeout(timeout);
+    }
+    this.jobTimeouts.clear();
+    log.info('JobQueue shut down, cleared all timeouts');
+  }
+
+  /**
+   * Get timeout configuration
+   */
+  getTimeoutMs(): number {
+    return this.jobTimeoutMs;
   }
 }

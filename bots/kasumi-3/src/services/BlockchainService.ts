@@ -227,6 +227,9 @@ export class BlockchainService implements IBlockchainService {
     );
 
     const receipt = await tx.wait();
+    if (!receipt) {
+      throw new Error('Transaction receipt is null');
+    }
     log.info(`submitTask tx: ${tx.hash}`);
 
     // Extract taskid from logs
@@ -289,6 +292,9 @@ export class BlockchainService implements IBlockchainService {
         })
       );
       const receipt = await tx.wait();
+      if (!receipt) {
+        throw new Error('Transaction receipt is null');
+      }
       log.info(`submitSolution tx: ${receipt.hash}`);
     } catch (e) {
       log.error(`submitSolution failed: ${e}`);

@@ -29,6 +29,26 @@ export interface Transaction {
   timestamp: number;
 }
 
+export interface BalanceReservation {
+  id: string;
+  telegram_id: number;
+  reserved_amount: string;
+  created_at: number;
+  expires_at: number;
+}
+
+export interface UnclaimedDeposit {
+  id: number;
+  from_address: string;
+  amount_aius: string;
+  tx_hash: string;
+  block_number: number;
+  timestamp: number;
+  claimed: boolean;
+  claimed_by_telegram_id: number | null;
+  claimed_at: number | null;
+}
+
 /**
  * Database service for managing users and transactions
  */
@@ -84,6 +104,34 @@ export class DatabaseService {
       )
     `);
 
+    // Create balance reservations table
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS balance_reservations (
+        id TEXT PRIMARY KEY,
+        telegram_id INTEGER NOT NULL,
+        reserved_amount TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        expires_at INTEGER NOT NULL,
+        FOREIGN KEY (telegram_id) REFERENCES users(telegram_id)
+      )
+    `);
+
+    // Create unclaimed deposits table
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS unclaimed_deposits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_address TEXT NOT NULL,
+        amount_aius TEXT NOT NULL,
+        tx_hash TEXT UNIQUE NOT NULL,
+        block_number INTEGER NOT NULL,
+        timestamp INTEGER NOT NULL,
+        claimed INTEGER DEFAULT 0,
+        claimed_by_telegram_id INTEGER,
+        claimed_at INTEGER,
+        FOREIGN KEY (claimed_by_telegram_id) REFERENCES users(telegram_id)
+      )
+    `);
+
     // Create indexes for performance
     this.db.exec(`
       CREATE INDEX IF NOT EXISTS idx_users_wallet ON users(wallet_address);
@@ -92,6 +140,11 @@ export class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_transactions_taskid ON transactions(taskid);
       CREATE INDEX IF NOT EXISTS idx_transactions_tx_hash ON transactions(tx_hash);
       CREATE INDEX IF NOT EXISTS idx_transactions_timestamp ON transactions(timestamp);
+      CREATE INDEX IF NOT EXISTS idx_reservations_telegram_id ON balance_reservations(telegram_id);
+      CREATE INDEX IF NOT EXISTS idx_reservations_expires_at ON balance_reservations(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_unclaimed_from_address ON unclaimed_deposits(from_address);
+      CREATE INDEX IF NOT EXISTS idx_unclaimed_claimed ON unclaimed_deposits(claimed);
+      CREATE INDEX IF NOT EXISTS idx_unclaimed_tx_hash ON unclaimed_deposits(tx_hash);
     `);
 
     log.info('Database tables initialized');
@@ -270,5 +323,133 @@ export class DatabaseService {
    */
   getDb(): Database.Database {
     return this.db;
+  }
+
+  /**
+   * Create a balance reservation
+   */
+  createReservation(id: string, telegramId: number, amount: bigint, expiresInMs: number = 300000): void {
+    const now = Date.now();
+    const stmt = this.db.prepare(`
+      INSERT INTO balance_reservations (id, telegram_id, reserved_amount, created_at, expires_at)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    stmt.run(id, telegramId, amount.toString(), now, now + expiresInMs);
+  }
+
+  /**
+   * Get reservation by ID
+   */
+  getReservation(id: string): BalanceReservation | null {
+    const stmt = this.db.prepare('SELECT * FROM balance_reservations WHERE id = ?');
+    return (stmt.get(id) as BalanceReservation) || null;
+  }
+
+  /**
+   * Delete a reservation
+   */
+  deleteReservation(id: string): void {
+    const stmt = this.db.prepare('DELETE FROM balance_reservations WHERE id = ?');
+    stmt.run(id);
+  }
+
+  /**
+   * Get total reserved balance for a user
+   */
+  getTotalReserved(telegramId: number): bigint {
+    // Clean up expired reservations first
+    const now = Date.now();
+    this.db.prepare('DELETE FROM balance_reservations WHERE expires_at < ?').run(now);
+
+    // Sum up active reservations
+    const stmt = this.db.prepare(`
+      SELECT COALESCE(SUM(CAST(reserved_amount AS TEXT)), '0') as total
+      FROM balance_reservations
+      WHERE telegram_id = ? AND expires_at >= ?
+    `);
+    const result = stmt.get(telegramId, now) as any;
+    return BigInt(result.total || '0');
+  }
+
+  /**
+   * Clean up expired reservations
+   */
+  cleanupExpiredReservations(): number {
+    const stmt = this.db.prepare('DELETE FROM balance_reservations WHERE expires_at < ?');
+    const result = stmt.run(Date.now());
+    return result.changes;
+  }
+
+  /**
+   * Add an unclaimed deposit
+   */
+  addUnclaimedDeposit(deposit: {
+    from_address: string;
+    amount_aius: string;
+    tx_hash: string;
+    block_number: number;
+    timestamp: number;
+  }): number {
+    const stmt = this.db.prepare(`
+      INSERT INTO unclaimed_deposits (from_address, amount_aius, tx_hash, block_number, timestamp)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    const result = stmt.run(
+      deposit.from_address,
+      deposit.amount_aius,
+      deposit.tx_hash,
+      deposit.block_number,
+      deposit.timestamp
+    );
+    return result.lastInsertRowid as number;
+  }
+
+  /**
+   * Get unclaimed deposits by address
+   */
+  getUnclaimedDepositsByAddress(address: string): UnclaimedDeposit[] {
+    const stmt = this.db.prepare(`
+      SELECT * FROM unclaimed_deposits
+      WHERE from_address = ? AND claimed = 0
+      ORDER BY timestamp DESC
+    `);
+    return stmt.all(address) as UnclaimedDeposit[];
+  }
+
+  /**
+   * Get all unclaimed deposits
+   */
+  getAllUnclaimedDeposits(): UnclaimedDeposit[] {
+    const stmt = this.db.prepare(`
+      SELECT * FROM unclaimed_deposits
+      WHERE claimed = 0
+      ORDER BY timestamp DESC
+    `);
+    return stmt.all() as UnclaimedDeposit[];
+  }
+
+  /**
+   * Claim an unclaimed deposit
+   */
+  claimDeposit(depositId: number, telegramId: number): boolean {
+    const stmt = this.db.prepare(`
+      UPDATE unclaimed_deposits
+      SET claimed = 1, claimed_by_telegram_id = ?, claimed_at = ?
+      WHERE id = ? AND claimed = 0
+    `);
+    const result = stmt.run(telegramId, Date.now(), depositId);
+    return result.changes > 0;
+  }
+
+  /**
+   * Check if deposit tx_hash exists (claimed or unclaimed)
+   */
+  depositExists(txHash: string): boolean {
+    const stmt = this.db.prepare(`
+      SELECT 1 FROM unclaimed_deposits WHERE tx_hash = ?
+      UNION
+      SELECT 1 FROM transactions WHERE tx_hash = ?
+    `);
+    return !!stmt.get(txHash, txHash);
   }
 }

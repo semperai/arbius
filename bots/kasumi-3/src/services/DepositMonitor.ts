@@ -133,9 +133,9 @@ export class DepositMonitor {
         `(tx: ${txHash}, block: ${blockNumber})`
       );
 
-      // Check if already processed
-      const existing = this.userService['db'].getTransactionByHash(txHash);
-      if (existing) {
+      // Check if already processed (check both regular transactions and unclaimed deposits)
+      const db = (this.userService as any).db;
+      if (db.depositExists(txHash)) {
         log.debug(`Deposit ${txHash} already processed, skipping`);
         return;
       }
@@ -149,7 +149,9 @@ export class DepositMonitor {
           `Amount: ${ethers.formatEther(amount)} AIUS. ` +
           `User must link wallet first to claim.`
         );
-        // TODO: Store unclaimed deposits for later
+
+        // Store unclaimed deposit for later claiming
+        this.userService.storeUnclaimedDeposit(from, amount, txHash, blockNumber);
         return;
       }
 

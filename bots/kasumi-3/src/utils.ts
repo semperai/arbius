@@ -99,7 +99,7 @@ export function hydrateInput(
 
       // check range for numbers
       if (row.type === 'int' || row.type === 'decimal') {
-        if (col < row.min || row > col.max) {
+        if (col < row.min || col > row.max) {
           return e(`input out of bounds (${row.variable})`);
         }
       }
