@@ -62,13 +62,18 @@ export const AAWalletProvider: React.FC<AAWalletProviderProps> = ({ children }) 
       const chainId = parseInt(chainIdHex, 16);
       dispatch({ type: WALLET_SWITCH_CHAIN, payload: chainId });
     };
-    
-    window.ethereum.on('accountsChanged', handleAccountsChanged);
-    window.ethereum.on('chainChanged', handleChainChanged);
-    
+
+    const ethereum = window.ethereum;
+    if (ethereum && typeof ethereum.on === 'function') {
+      ethereum.on('accountsChanged', handleAccountsChanged);
+      ethereum.on('chainChanged', handleChainChanged);
+    }
+
     return () => {
-      window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
-      window.ethereum?.removeListener('chainChanged', handleChainChanged);
+      if (ethereum && typeof ethereum.removeListener === 'function') {
+        ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        ethereum.removeListener('chainChanged', handleChainChanged);
+      }
     };
   }, []);
   
