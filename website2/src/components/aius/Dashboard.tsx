@@ -29,7 +29,6 @@ export function Dashboard() {
     address: veAIUSAddress,
     abi: VE_AIUS_ABI,
     functionName: 'supply',
-    chainId: chainId,
     query: { enabled: !!veAIUSAddress },
   })
 

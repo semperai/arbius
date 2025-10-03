@@ -234,7 +234,7 @@ export function StakeSection() {
             </svg>
           </div>
           <p className="mb-4 text-gray-600">Connect your wallet to lock AIUS tokens</p>
-          <w3m-button />
+          <div dangerouslySetInnerHTML={{ __html: '<w3m-button />' }} />
         </div>
       ) : (
         <div className="space-y-6">

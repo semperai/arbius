@@ -23,8 +23,30 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Arbius",
-  description: "Arbius - Decentralized Machine Learning",
+  title: {
+    default: "Arbius - Decentralized Machine Learning",
+    template: "%s | Arbius",
+  },
+  description: "Arbius - Decentralized Machine Learning Network",
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+    ],
+  },
+  manifest: '/site.webmanifest',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://arbius.ai',
+    siteName: 'Arbius',
+    title: 'Arbius - Decentralized Machine Learning',
+    description: 'Arbius - Decentralized Machine Learning Network',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Arbius - Decentralized Machine Learning',
+    description: 'Arbius - Decentralized Machine Learning Network',
+  },
 };
 
 export default function RootLayout({

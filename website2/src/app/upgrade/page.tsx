@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import UpgradePageClient from './page.client'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Upgrade AIUS Tokens | Arbius',
   description: 'Upgrade your AIUS v1 tokens to v2. Deposit your v1 tokens and receive new AIUS in exchange, 1:1. Available on Ethereum Mainnet and Arbitrum Nova.',

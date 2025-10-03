@@ -1,6 +1,8 @@
 import { AIUSPageClient } from './page.client'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'veAIUS Staking | Arbius',
   description: 'Lock AIUS tokens to earn veAIUS and participate in governance. Vote on AI model rewards and earn staking yields.',

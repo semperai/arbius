@@ -1,12 +1,4 @@
-import { HeroSection } from '@/components/homepage/HeroSection'
-import { Partners } from '@/components/homepage/Partners'
-import { ModelsSection } from '@/components/homepage/ModelsSection'
-import { ArbiusModelsSection } from '@/components/homepage/ArbiusModelsSection'
-import { DemocraticSection } from '@/components/homepage/DemocraticSection'
-import { AIUSSection } from '@/components/homepage/AIUSSection'
-import { EACCSection } from '@/components/homepage/EACCSection'
-import { CommunitySection } from '@/components/homepage/CommunitySection'
-import { BuySection } from '@/components/homepage/BuySection'
+import HomePageClient from './page.client'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -39,17 +31,5 @@ export const metadata: Metadata = {
 }
 
 export default function Home() {
-  return (
-    <div>
-      <HeroSection />
-      <Partners />
-      <ModelsSection />
-      <ArbiusModelsSection />
-      <DemocraticSection />
-      <AIUSSection />
-      <EACCSection />
-      <CommunitySection />
-      <BuySection />
-    </div>
-  )
+  return <HomePageClient />
 }

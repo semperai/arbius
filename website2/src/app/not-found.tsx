@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 
 export default function NotFound() {
@@ -16,7 +18,7 @@ export default function NotFound() {
           Page Not Found
         </h2>
         <p className="mb-8 text-gray-600 md:text-lg">
-          The page you're looking for doesn't exist or has been moved.
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
 
         {/* Navigation Links */}
