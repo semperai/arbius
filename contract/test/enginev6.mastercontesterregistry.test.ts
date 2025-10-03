@@ -798,5 +798,372 @@ describe("MasterContesterRegistry Tests", () => {
       await expect(masterContesterRegistry.finalizeEpoch())
         .to.be.revertedWith("EpochNotEnded");
     });
+
+    it("should handle vote weight not dividing evenly among candidates", async () => {
+      // Create veNFT with amount that won't divide evenly by 3
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+      const tokenId2 = await votingEscrow.connect(user2).callStatic.create_lock(
+        ethers.utils.parseEther("10"),
+        lockDuration
+      );
+      await votingEscrow.connect(user2).create_lock(ethers.utils.parseEther("10"), lockDuration);
+
+      // Get voting power BEFORE voting (it may decay slightly during the vote tx)
+      const votingPowerBefore = await votingEscrow.balanceOfNFT(tokenId2);
+
+      // Vote for 3 candidates (power may not divide evenly)
+      const candidates = [validator1.address, validator2.address, validator3.address];
+      await masterContesterRegistry.connect(user2).vote(candidates, tokenId2);
+
+      // Get actual voting power used from the recorded vote weight
+      const actualVotingPowerUsed = await masterContesterRegistry.lastVoteWeight(user2.address);
+      const expectedVotePerCandidate = actualVotingPowerUsed.div(3);
+
+      // Sum of all votes should be <= votingPower (due to integer division)
+      let totalDistributed = BigNumber.from(0);
+      for (const candidate of candidates) {
+        const votes = await masterContesterRegistry.candidateVotes(candidate);
+        expect(votes).to.equal(expectedVotePerCandidate);
+        totalDistributed = totalDistributed.add(votes);
+      }
+
+      // Total distributed should be less than or equal to actual voting power used
+      expect(totalDistributed).to.be.lte(actualVotingPowerUsed);
+    });
+
+    it("should handle changing masterContesterCount mid-epoch", async () => {
+      // Set initial count to 2
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(2);
+
+      // Create multiple veNFTs and vote
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+      const tokenId2 = await votingEscrow.connect(user2).callStatic.create_lock(
+        ethers.utils.parseEther("10"),
+        lockDuration
+      );
+      await votingEscrow.connect(user2).create_lock(ethers.utils.parseEther("10"), lockDuration);
+
+      const tokenId3 = await votingEscrow.connect(user3).callStatic.create_lock(
+        ethers.utils.parseEther("10"),
+        lockDuration
+      );
+      await votingEscrow.connect(user3).create_lock(ethers.utils.parseEther("10"), lockDuration);
+
+      await masterContesterRegistry.connect(user1).vote([validator1.address], tokenId1);
+      await masterContesterRegistry.connect(user2).vote([validator2.address], tokenId2);
+
+      // Only 2 are in heap at this point since count is 2
+      let topCandidates = await masterContesterRegistry.getTopCandidates();
+      expect(topCandidates.addresses.length).to.equal(2);
+
+      // Change count to 3 mid-epoch BEFORE third vote
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(3);
+
+      // Now vote for third candidate
+      await masterContesterRegistry.connect(user3).vote([validator3.address], tokenId3);
+
+      // Finalize and check all 3 are elected
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await ethers.provider.send("evm_mine", []);
+      await masterContesterRegistry.finalizeEpoch();
+
+      const masterContesters = await masterContesterRegistry.getMasterContesters();
+      expect(masterContesters.length).to.equal(3);
+    });
+  });
+
+  describe("Advanced Heap Tests", () => {
+    beforeEach(async () => {
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+
+      // Create multiple veNFTs with different amounts
+      tokenId1 = await votingEscrow.connect(user1).callStatic.create_lock(
+        ethers.utils.parseEther("50"),
+        lockDuration
+      );
+      await votingEscrow.connect(user1).create_lock(ethers.utils.parseEther("50"), lockDuration);
+
+      tokenId2 = await votingEscrow.connect(user2).callStatic.create_lock(
+        ethers.utils.parseEther("30"),
+        lockDuration
+      );
+      await votingEscrow.connect(user2).create_lock(ethers.utils.parseEther("30"), lockDuration);
+
+      tokenId3 = await votingEscrow.connect(user3).callStatic.create_lock(
+        ethers.utils.parseEther("20"),
+        lockDuration
+      );
+      await votingEscrow.connect(user3).create_lock(ethers.utils.parseEther("20"), lockDuration);
+    });
+
+    it("should properly remove candidate from heap when votes reduced to zero", async () => {
+      // Set count to 2 for easier testing
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(2);
+
+      // Vote in first epoch
+      await masterContesterRegistry.connect(user1).vote([validator1.address], tokenId1);
+      await masterContesterRegistry.connect(user2).vote([validator2.address], tokenId2);
+
+      // Verify both are in heap
+      let topCandidates = await masterContesterRegistry.getTopCandidates();
+      expect(topCandidates.addresses.length).to.equal(2);
+      expect(topCandidates.addresses).to.include(validator1.address);
+
+      // Move to next epoch and user1 changes vote completely
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      // User1 votes for different candidate, should undo validator1 votes
+      await masterContesterRegistry.connect(user1).vote([validator3.address], tokenId1);
+
+      // validator1 should have 0 votes and be removed from heap
+      const validator1Votes = await masterContesterRegistry.candidateVotes(validator1.address);
+      expect(validator1Votes).to.equal(0);
+
+      // Check heap no longer contains validator1
+      topCandidates = await masterContesterRegistry.getTopCandidates();
+      // Heap should contain validator2 and validator3, not validator1
+      expect(topCandidates.addresses).to.not.include(validator1.address);
+    });
+
+    it("should maintain heap property after multiple vote reductions", async () => {
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(3);
+
+      // Initial votes
+      await masterContesterRegistry.connect(user1).vote([validator1.address], tokenId1); // 50
+      await masterContesterRegistry.connect(user2).vote([validator2.address], tokenId2); // 30
+      await masterContesterRegistry.connect(user3).vote([validator3.address], tokenId3); // 20
+
+      // Move to next epoch
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      // User1 changes vote (reduces validator1, increases validator4)
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+      await baseToken.connect(deployer).transfer(validator4.address, ethers.utils.parseEther("100"));
+      await baseToken.connect(validator4).approve(votingEscrow.address, ethers.constants.MaxUint256);
+
+      await masterContesterRegistry.connect(user1).vote([validator4.address], tokenId1);
+
+      // Get top candidates - should be properly sorted
+      const topCandidates = await masterContesterRegistry.getTopCandidates();
+
+      // Verify sorting (descending order)
+      for (let i = 0; i < topCandidates.votes.length - 1; i++) {
+        expect(topCandidates.votes[i]).to.be.gte(topCandidates.votes[i + 1]);
+      }
+    });
+
+    it("should handle heap when candidate gets bumped out by new higher-voted candidate", async () => {
+      // Set count to 2
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(2);
+
+      // Vote for 2 candidates
+      await masterContesterRegistry.connect(user2).vote([validator2.address], tokenId2); // 30
+      await masterContesterRegistry.connect(user3).vote([validator3.address], tokenId3); // 20
+
+      let topCandidates = await masterContesterRegistry.getTopCandidates();
+      expect(topCandidates.addresses.length).to.equal(2);
+      expect(topCandidates.addresses).to.include(validator2.address);
+      expect(topCandidates.addresses).to.include(validator3.address);
+
+      // Now user1 votes for validator1 with highest power
+      await masterContesterRegistry.connect(user1).vote([validator1.address], tokenId1); // 50
+
+      // validator3 should be bumped out, validator1 and validator2 remain
+      topCandidates = await masterContesterRegistry.getTopCandidates();
+      expect(topCandidates.addresses.length).to.equal(2);
+      expect(topCandidates.addresses).to.include(validator1.address);
+      expect(topCandidates.addresses).to.include(validator2.address);
+      expect(topCandidates.addresses).to.not.include(validator3.address);
+    });
+
+    it("should handle heap updates when same candidate receives votes from multiple voters", async () => {
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(2);
+
+      // Multiple users vote for same candidate
+      await masterContesterRegistry.connect(user1).vote([validator1.address], tokenId1); // 50
+      const user1VotePower = await masterContesterRegistry.lastVoteWeight(user1.address);
+
+      await masterContesterRegistry.connect(user2).vote([validator1.address], tokenId2); // 30
+      const user2VotePower = await masterContesterRegistry.lastVoteWeight(user2.address);
+
+      await masterContesterRegistry.connect(user3).vote([validator2.address], tokenId3); // 20
+
+      const topCandidates = await masterContesterRegistry.getTopCandidates();
+
+      // validator1 should be at top with combined votes
+      expect(topCandidates.addresses[0]).to.equal(validator1.address);
+
+      const validator1Votes = await masterContesterRegistry.candidateVotes(validator1.address);
+
+      // Votes should equal sum of actual voting powers used
+      const expectedTotal = user1VotePower.add(user2VotePower);
+      expect(validator1Votes).to.equal(expectedTotal);
+    });
+  });
+
+  describe("voteMultiple Function", () => {
+    let tokenId4: BigNumber;
+
+    beforeEach(async () => {
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+      const lockAmount = ethers.utils.parseEther("10");
+
+      // Create multiple veNFTs for user1
+      tokenId1 = await votingEscrow.connect(user1).callStatic.create_lock(lockAmount, lockDuration);
+      await votingEscrow.connect(user1).create_lock(lockAmount, lockDuration);
+
+      // Give user1 more tokens for second veNFT
+      await baseToken.connect(deployer).transfer(user1.address, ethers.utils.parseEther("20"));
+
+      tokenId4 = await votingEscrow.connect(user1).callStatic.create_lock(lockAmount, lockDuration);
+      await votingEscrow.connect(user1).create_lock(lockAmount, lockDuration);
+    });
+
+    it("should reject voteMultiple when trying to vote twice in same epoch with different tokens", async () => {
+      const candidates = [validator1.address];
+
+      // First vote should succeed
+      await masterContesterRegistry.connect(user1).vote(candidates, tokenId1);
+
+      // Second vote with different token in same epoch should fail
+      await expect(
+        masterContesterRegistry.connect(user1).voteMultiple(candidates, [tokenId4])
+      ).to.be.revertedWith("AlreadyVotedThisEpoch()");
+    });
+
+    it("should allow voteMultiple in different epochs with same user", async () => {
+      const candidates = [validator1.address];
+
+      // Vote in first epoch
+      await masterContesterRegistry.connect(user1).vote(candidates, tokenId1);
+
+      // Move to next epoch
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      // Now should be able to vote with different token
+      await expect(
+        masterContesterRegistry.connect(user1).vote(candidates, tokenId4)
+      ).to.not.be.reverted;
+    });
+
+    it("should handle voteMultiple with empty tokenIds array", async () => {
+      const candidates = [validator1.address];
+
+      // Empty array should just do nothing
+      await masterContesterRegistry.connect(user1).voteMultiple(candidates, []);
+
+      // User should not have voted yet
+      expect(await masterContesterRegistry.hasVoted(1, user1.address)).to.be.false;
+    });
+  });
+
+  describe("Heap Boundary Conditions", () => {
+    it("should handle setting masterContesterCount to 0", async () => {
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(0);
+      expect(await masterContesterRegistry.masterContesterCount()).to.equal(0);
+
+      // Create veNFT and vote
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+      const tokenId = await votingEscrow.connect(user1).callStatic.create_lock(
+        ethers.utils.parseEther("10"),
+        lockDuration
+      );
+      await votingEscrow.connect(user1).create_lock(ethers.utils.parseEther("10"), lockDuration);
+
+      // Voting with count=0 will cause heap operations to fail
+      // The contract has a bug where it tries to access heap[0] when heap is empty
+      // This test verifies the current behavior (which is it reverts)
+      await expect(
+        masterContesterRegistry.connect(user1).vote([validator1.address], tokenId)
+      ).to.be.reverted;
+
+      // Verify heap is empty
+      const topCandidates = await masterContesterRegistry.getTopCandidates();
+      expect(topCandidates.addresses.length).to.equal(0);
+
+      // Finalize epoch without votes
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await ethers.provider.send("evm_mine", []);
+      await masterContesterRegistry.finalizeEpoch();
+
+      // No master contesters should be elected
+      const masterContesters = await masterContesterRegistry.getMasterContesters();
+      expect(masterContesters.length).to.equal(0);
+    });
+
+    it("should handle setting masterContesterCount to 1", async () => {
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(1);
+
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+
+      const tokenId1 = await votingEscrow.connect(user1).callStatic.create_lock(
+        ethers.utils.parseEther("30"),
+        lockDuration
+      );
+      await votingEscrow.connect(user1).create_lock(ethers.utils.parseEther("30"), lockDuration);
+
+      const tokenId2 = await votingEscrow.connect(user2).callStatic.create_lock(
+        ethers.utils.parseEther("20"),
+        lockDuration
+      );
+      await votingEscrow.connect(user2).create_lock(ethers.utils.parseEther("20"), lockDuration);
+
+      // Vote for different candidates
+      await masterContesterRegistry.connect(user1).vote([validator1.address], tokenId1);
+      await masterContesterRegistry.connect(user2).vote([validator2.address], tokenId2);
+
+      // Only top 1 should be in heap
+      const topCandidates = await masterContesterRegistry.getTopCandidates();
+      expect(topCandidates.addresses.length).to.equal(1);
+      expect(topCandidates.addresses[0]).to.equal(validator1.address);
+
+      // Finalize epoch
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await ethers.provider.send("evm_mine", []);
+      await masterContesterRegistry.finalizeEpoch();
+
+      // Only 1 master contester
+      const masterContesters = await masterContesterRegistry.getMasterContesters();
+      expect(masterContesters.length).to.equal(1);
+      expect(masterContesters[0]).to.equal(validator1.address);
+    });
+
+    it("should handle very large masterContesterCount", async () => {
+      // Set to very large number
+      await masterContesterRegistry.connect(deployer).setMasterContesterCount(100);
+
+      const lockDuration = 52 * 7 * 24 * 60 * 60;
+      const tokenId1 = await votingEscrow.connect(user1).callStatic.create_lock(
+        ethers.utils.parseEther("10"),
+        lockDuration
+      );
+      await votingEscrow.connect(user1).create_lock(ethers.utils.parseEther("10"), lockDuration);
+
+      const tokenId2 = await votingEscrow.connect(user2).callStatic.create_lock(
+        ethers.utils.parseEther("10"),
+        lockDuration
+      );
+      await votingEscrow.connect(user2).create_lock(ethers.utils.parseEther("10"), lockDuration);
+
+      // Vote for 2 candidates only
+      await masterContesterRegistry.connect(user1).vote([validator1.address], tokenId1);
+      await masterContesterRegistry.connect(user2).vote([validator2.address], tokenId2);
+
+      // Heap should only have 2 elements (not 100)
+      const topCandidates = await masterContesterRegistry.getTopCandidates();
+      expect(topCandidates.addresses.length).to.equal(2);
+
+      // Finalize
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60 + 1]);
+      await ethers.provider.send("evm_mine", []);
+      await masterContesterRegistry.finalizeEpoch();
+
+      // Should elect both
+      const masterContesters = await masterContesterRegistry.getMasterContesters();
+      expect(masterContesters.length).to.equal(2);
+    });
   });
 });
