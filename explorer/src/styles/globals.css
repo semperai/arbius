@@ -7,6 +7,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Font faces for custom fonts */
+@font-face {
+  font-family: 'Geist-SemiBold';
+  src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1715256918/Geist-SemiBold_h3w290.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist-Regular';
+  src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1715232194/Geist-Regular_vvwe3i.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'AtHaussAero-Light';
+  src: url('https://res.cloudinary.com/aniket98571/raw/upload/v1717580903/AtHaussAero-Light_iwko9o.ttf');
+  font-display: swap;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -32,14 +51,6 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
@@ -66,21 +77,16 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @theme inline {
+  /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Theme colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -104,14 +110,37 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Arbius Brand Colors */
+  --color-arbius-primary: #4A28FF;
+  --color-arbius-primary-hover: #3a1fe6;
+  --color-arbius-primary-light: #92BDFF;
+  --color-arbius-secondary: #2100D0;
+
+  /* Neutral Colors */
+  --color-gray-50: #F3F3F3;
+  --color-gray-100: #E5E5E5;
+  --color-gray-200: #CCCCCC;
+  --color-gray-300: #c2c2c2;
+  --color-gray-400: #979797;
+  --color-gray-500: #8D8D8D;
+  --color-gray-600: #777777;
+  --color-gray-700: #5B5B5B;
+  --color-gray-800: #454545;
+  --color-gray-900: #333333;
+  --color-gray-950: #2B2B2B;
+
+  /* State Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Font families */
+  --font-lato: 'Lato', sans-serif;
+  --font-geist-semibold: 'Geist-SemiBold', sans-serif;
+  --font-geist-regular: 'Geist-Regular', sans-serif;
+  --font-at-hauss: 'AtHaussAero-Light', sans-serif;
 }
 
 @layer base {
@@ -120,5 +149,25 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-regular), Arial, Helvetica, sans-serif;
   }
+}
+
+/* Utility classes */
+.Gradient-transparent-text {
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+/* Hide arrows in number inputs */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
 }

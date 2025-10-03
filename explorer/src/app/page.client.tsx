@@ -161,7 +161,7 @@ export function HomePage() {
           </div>
 
           {/* Secondary Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <MetricCard
               title="Validator Minimum"
               value={contractStats.loading ? "..." : parseFloat(contractStats.validatorMinimum).toLocaleString(undefined, {maximumFractionDigits: 0})}
@@ -174,49 +174,47 @@ export function HomePage() {
               description="Contract version"
               icon={<NetworkIcon className="h-5 w-5" />}
             />
-            <MetricCard
-              title="Launch Date"
-              value={contractStats.loading ? "..." : contractStats.startBlockTime ? new Date(contractStats.startBlockTime).toLocaleDateString() : "N/A"}
-              description="First block time"
-              icon={<FileTextIcon className="h-5 w-5" />}
-            />
           </div>
 
           {/* Contract Addresses */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Base Token (AIUS)</CardTitle>
-                <CardDescription>ERC-20 token contract</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <code className="text-sm bg-muted/40 rounded px-2 py-1 font-mono flex-1 truncate">
-                    {contractStats.loading ? "Loading..." : contractStats.baseToken}
-                  </code>
-                  {!contractStats.loading && contractStats.baseToken && (
-                    <CopyButton text={contractStats.baseToken} label="Copy token address" size="sm" />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Base Token:</span>
+              {contractStats.loading ? (
+                <span>Loading...</span>
+              ) : (
+                <>
+                  <a
+                    href={`https://arbiscan.io/token/${contractStats.baseToken}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-blue-600 dark:text-blue-400 hover:underline truncate"
+                  >
+                    {contractStats.baseToken}
+                  </a>
+                  <CopyButton text={contractStats.baseToken} label="Copy" size="sm" />
+                </>
+              )}
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Treasury</CardTitle>
-                <CardDescription>Protocol treasury address</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <code className="text-sm bg-muted/40 rounded px-2 py-1 font-mono flex-1 truncate">
-                    {contractStats.loading ? "Loading..." : contractStats.treasury}
-                  </code>
-                  {!contractStats.loading && contractStats.treasury && (
-                    <CopyButton text={contractStats.treasury} label="Copy treasury address" size="sm" />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Treasury:</span>
+              {contractStats.loading ? (
+                <span>Loading...</span>
+              ) : (
+                <>
+                  <a
+                    href={`https://arbiscan.io/address/${contractStats.treasury}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-blue-600 dark:text-blue-400 hover:underline truncate"
+                  >
+                    {contractStats.treasury}
+                  </a>
+                  <CopyButton text={contractStats.treasury} label="Copy" size="sm" />
+                </>
+              )}
+            </div>
           </div>
 
           {/* Indexer Notice */}
