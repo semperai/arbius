@@ -29,9 +29,9 @@ export default function ModelsPage() {
         setLoading(true);
 
         // In a real implementation, you would fetch models from the contract
-        // For now, we'll use mock data
+        // For now, return empty array (requires indexer)
         setTimeout(() => {
-          setModels(getMockModels());
+          setModels([]);
           setLoading(false);
         }, 1000);
 
@@ -236,68 +236,3 @@ function SuccessRateBadge({ rate }: { rate: number }) {
   );
 }
 
-// Mock data functions
-function getMockModels(): Model[] {
-  return [
-    {
-      id: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      name: 'Kandinsky 2',
-      fee: ethers.parseEther('0.15'),
-      addr: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-      rate: 100,
-      cid: 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn',
-      usage: '2,345',
-      successRate: 98
-    },
-    {
-      id: '0x8c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      name: 'StableDiffusion-XL',
-      fee: ethers.parseEther('0.25'),
-      addr: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      rate: 120,
-      cid: 'QmV5ZVQxXbPZudAcx6RXvH4tETtEhKL8dFzWh3jgNrUUJR',
-      usage: '1,872',
-      successRate: 96
-    },
-    {
-      id: '0x9c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      name: 'GPT-Arbius',
-      fee: ethers.parseEther('0.18'),
-      addr: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-      rate: 80,
-      cid: 'QmZ8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      usage: '1,653',
-      successRate: 94
-    },
-    {
-      id: '0xac23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      name: 'Whisper Transcription',
-      fee: ethers.parseEther('0.08'),
-      addr: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-      rate: 60,
-      cid: 'QmS8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      usage: '984',
-      successRate: 99
-    },
-    {
-      id: '0xbc23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      name: 'DALL-E 3 Clone',
-      fee: ethers.parseEther('0.22'),
-      addr: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-      rate: 110,
-      cid: 'QmT8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      usage: '1,237',
-      successRate: 92
-    },
-    {
-      id: '0xcc23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-      name: 'ArbiusGPT-Vision',
-      fee: ethers.parseEther('0.30'),
-      addr: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-      rate: 150,
-      cid: 'QmU8yrHLBLTmQqdDdRxEYrHLcM6KAc78fZyBtvC5gB8Yrk',
-      usage: '763',
-      successRate: 88
-    }
-  ];
-}

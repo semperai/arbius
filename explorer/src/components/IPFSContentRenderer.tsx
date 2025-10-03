@@ -25,7 +25,7 @@ export function IPFSContentRenderer({ cid, title = "Content", className = "", ex
   const [error, setError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<ContentMetadata | null>(null);
   const [textContent, setTextContent] = useState<string>('');
-  const [jsonContent, setJsonContent] = useState<any>(null);
+  const [jsonContent, setJsonContent] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     async function loadContent() {
@@ -110,7 +110,7 @@ export function IPFSContentRenderer({ cid, title = "Content", className = "", ex
     }
 
     loadContent();
-  }, [cid]);
+  }, [cid, expectedType]);
 
   if (loading) {
     return (
@@ -174,6 +174,7 @@ export function IPFSContentRenderer({ cid, title = "Content", className = "", ex
       <CardContent>
         {metadata.type === 'image' && (
           <div className="rounded-md overflow-hidden border">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={metadata.url}
               alt="IPFS Content"

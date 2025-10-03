@@ -92,7 +92,7 @@ export default function TaskDetail() {
         if (taskData.solution.validator !== ethers.ZeroAddress) {
           setSolution({
             validator: taskData.solution.validator,
-            blocktime: taskData.solution.blocktime,
+            blocktime: taskData.solution.blocktime ? taskData.solution.blocktime.getTime() / 1000 : 0,
             claimed: taskData.solution.claimed,
             cid: parseIPFSCid(taskData.solution.cid || '') || ''
           });
@@ -102,9 +102,13 @@ export default function TaskDetail() {
         if (taskData.hasContestation && taskData.contestation.validator !== ethers.ZeroAddress) {
           setContestation({
             validator: taskData.contestation.validator,
-            blocktime: taskData.contestation.blocktime,
+            blocktime: taskData.contestation.blocktime ? taskData.contestation.blocktime.getTime() / 1000 : 0,
             finish_start_index: taskData.contestation.finish_start_index,
-            slashAmount: taskData.contestation.slashAmount
+            slashAmount: taskData.contestation.slashAmount,
+            status: 'In Progress', // Default status
+            votesYea: 0,
+            votesNay: 0,
+            voteEndTime: 0
           });
         }
 
@@ -114,9 +118,10 @@ export default function TaskDetail() {
           const modelCid = parseIPFSCid(modelData.cid) || '';
           setModel({
             id: modelData.id,
+            name: `Model ${modelData.id.slice(0, 8)}`,
             fee: modelData.fee,
             addr: modelData.addr,
-            rate: modelData.rate,
+            rate: parseInt(modelData.rate) || 0,
             cid: modelCid
           });
 
@@ -906,124 +911,4 @@ function getTaskStatus(task: Task): string {
     return 'Pending';
   }
   return 'Pending';
-}
-
-// Mock data functions - Replace these with actual contract calls in production
-function getMockTask(id: string): Task {
-  return {
-    id: id,
-    model: '0x5c23f5ca27a3e9a75340e2282e0a853d4fe591d7',
-    fee: ethers.parseEther('0.25'),
-    owner: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-    blocktime: Math.floor(Date.now() / 1000) - 86400, // 1 day ago
-    version: 1,
-    cid: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG',
-    hasSolution: true,
-    hasContestation: id.endsWith('a') ? true : false, // Just for demo variety
-    solutionClaimed: id.endsWith('b') ? true : false,
-  };
-}
-
-function getMockSolution(id: string) {
-  return {
-    validator: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-    blocktime: Math.floor(Date.now() / 1000) - 43200, // 12 hours ago
-    claimed: id.endsWith('b') ? true : false,
-    claimedAt: Math.floor(Date.now() / 1000) - 21600, // 6 hours ago
-    cid: 'QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX'
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getMockContestation(id: string): Contestation {
-  return {
-    validator: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-    blocktime: Math.floor(Date.now() / 1000) - 36000, // 10 hours ago
-    finish_start_index: 0,
-    slashAmount: ethers.parseEther('0.05'),
-    status: 'In Progress',
-    votesYea: 3,
-    votesNay: 2,
-    voteEndTime: Math.floor(Date.now() / 1000) + 86400, // 1 day from now
-    recentVotes: [
-      { validator: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65', vote: 'Yea' },
-      { validator: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc', vote: 'Nay' },
-      { validator: '0x976EA74026E726554dB657fA54763abd0C3a0aa9', vote: 'Yea' },
-      { validator: '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955', vote: 'Yea' },
-      { validator: '0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f', vote: 'Nay' }
-    ]
-  };
-}
-
-function getMockModel(id: string) {
-  return {
-    id: id,
-    name: 'InferenceAI-V1',
-    fee: ethers.parseEther('0.15'),
-    addr: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-    rate: 100,
-    cid: 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
-  };
-}
-
-// New mock data function for incentive events
-function getMockIncentiveEvents(id: string): IncentiveEvent[] {
-  // Base timestamp to work from
-  const baseTime = Math.floor(Date.now() / 1000) - 86400; // 1 day ago
-
-  // Generate some mock events
-  const events: IncentiveEvent[] = [
-    {
-      taskId: id,
-      type: 'added',
-      amount: ethers.parseEther('0.2'),
-      from: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', // Same as task owner
-      blocktime: baseTime + 3600, // 1 hour after task creation
-      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-    },
-    {
-      taskId: id,
-      type: 'added',
-      amount: ethers.parseEther('0.05'),
-      from: '0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2', // Different address
-      blocktime: baseTime + 7200, // 2 hours after task creation
-      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-    },
-    {
-      taskId: id,
-      type: 'added',
-      amount: ethers.parseEther('0.1'),
-      from: '0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db', // Different address
-      blocktime: baseTime + 14400, // 4 hours after task creation
-      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-    }
-  ];
-
-  // Add a claimed event if the task ID ends with 'b'
-  if (id.endsWith('b')) {
-    events.push({
-      taskId: id,
-      type: 'claimed',
-      amount: ethers.parseEther('0.35'), // Total of all added incentives
-      to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // Same as solution validator
-      blocktime: baseTime + 50400, // 14 hours after task creation
-      transactionHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
-      signatures: [
-        {
-          signer: '0x5B38Da6a701c568545dCfcB03FcB875f56beddC4',
-          signature: '0x' + Array(130).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-        },
-        {
-          signer: '0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2',
-          signature: '0x' + Array(130).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-        },
-        {
-          signer: '0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db',
-          signature: '0x' + Array(130).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-        }
-      ]
-    });
-  }
-
-  return events;
 }

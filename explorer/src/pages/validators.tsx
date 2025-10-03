@@ -43,9 +43,9 @@ export default function ValidatorsPage() {
         setLoading(true);
 
         // In a real implementation, you would fetch validators from the contract
-        // For now, we'll use mock data
+        // For now, return empty array (requires indexer)
         setTimeout(() => {
-          setValidators(getMockValidators());
+          setValidators([]);
           setLoading(false);
         }, 1000);
 
@@ -311,66 +311,3 @@ function ValidatorCardSkeleton() {
   );
 }
 
-// Mock data functions
-function getMockValidators(): Validator[] {
-  return [
-    {
-      address: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-      staked: ethers.parseEther('150'),
-      since: Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60, // 30 days ago
-      active: true,
-      tasksValidated: 2345,
-      successRate: 98
-    },
-    {
-      address: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-      staked: ethers.parseEther('220'),
-      since: Math.floor(Date.now() / 1000) - 60 * 24 * 60 * 60, // 60 days ago
-      active: true,
-      tasksValidated: 4782,
-      successRate: 96
-    },
-    {
-      address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-      staked: ethers.parseEther('75'),
-      since: Math.floor(Date.now() / 1000) - 15 * 24 * 60 * 60, // 15 days ago
-      active: true,
-      tasksValidated: 987,
-      successRate: 92
-    },
-    {
-      address: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-      staked: ethers.parseEther('50'),
-      since: Math.floor(Date.now() / 1000) - 10 * 24 * 60 * 60, // 10 days ago
-      active: false,
-      tasksValidated: 432,
-      successRate: 87,
-      pendingWithdrawals: 25
-    },
-    {
-      address: '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65',
-      staked: ethers.parseEther('180'),
-      since: Math.floor(Date.now() / 1000) - 45 * 24 * 60 * 60, // 45 days ago
-      active: true,
-      tasksValidated: 3124,
-      successRate: 97
-    },
-    {
-      address: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc',
-      staked: ethers.parseEther('110'),
-      since: Math.floor(Date.now() / 1000) - 25 * 24 * 60 * 60, // 25 days ago
-      active: true,
-      tasksValidated: 1876,
-      successRate: 95
-    },
-    {
-      address: '0x976EA74026E726554dB657fA54763abd0C3a0aa9',
-      staked: ethers.parseEther('40'),
-      since: Math.floor(Date.now() / 1000) - 5 * 24 * 60 * 60, // 5 days ago
-      active: false,
-      tasksValidated: 183,
-      successRate: 82,
-      pendingWithdrawals: 40
-    }
-  ];
-}

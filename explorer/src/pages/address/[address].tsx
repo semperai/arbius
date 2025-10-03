@@ -88,12 +88,12 @@ export default function ValidatorDetail() {
         setLoading(true);
 
         // Fetch validator data from contract
-        const validatorData = await getValidator(address);
+        const validatorData = await getValidator(address as string);
 
         if (!validatorData) {
           // Address exists but not a validator
           setValidator({
-            address: address,
+            address: address as string,
             staked: BigInt(0),
             since: 0,
             active: false,
@@ -112,7 +112,7 @@ export default function ValidatorDetail() {
         if (!isValidator) {
           // Address exists but is not a validator
           setValidator({
-            address: address,
+            address: address as string,
             staked: BigInt(0),
             since: 0,
             active: false,
@@ -721,138 +721,3 @@ function ValidatorDetailSkeleton() {
   );
 }
 
-// Mock data functions
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getMockValidator(address: string): Validator {
-  const now = Math.floor(Date.now() / 1000);
-
-  // For the example address, create a validator with pending withdrawals
-  if (address === '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199' || address === '0x976EA74026E726554dB657fA54763abd0C3a0aa9') {
-    return {
-      address,
-      staked: ethers.parseEther('50'),
-      since: now - 10 * 24 * 60 * 60, // 10 days ago
-      active: false,
-      tasksValidated: 432,
-      successRate: 87,
-      pendingWithdrawals: [
-        {
-          unlockTime: now + 3 * 24 * 60 * 60, // 3 days from now
-          amount: ethers.parseEther('15')
-        },
-        {
-          unlockTime: now - 1 * 24 * 60 * 60, // 1 day ago (already unlocked)
-          amount: ethers.parseEther('10')
-        }
-      ]
-    };
-  }
-
-  // Otherwise, create a basic active validator
-  return {
-    address,
-    staked: ethers.parseEther('180'),
-    since: now - 45 * 24 * 60 * 60, // 45 days ago
-    active: true,
-    tasksValidated: 3124,
-    successRate: 97
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getMockSolutions(address: string): Solution[] {
-  const now = Math.floor(Date.now() / 1000);
-
-  return [
-    {
-      taskHash: ethers.keccak256(ethers.toUtf8Bytes('task1')),
-      timestamp: now - 3 * 24 * 60 * 60, // 3 days ago
-      claimed: true,
-      cid: 'QmV9tSDx9UiPeWExXEeH6aoDvmihvx6jD5eLb4jbTaKGps',
-      taskFee: ethers.parseEther('0.15')
-    },
-    {
-      taskHash: ethers.keccak256(ethers.toUtf8Bytes('task2')),
-      timestamp: now - 5 * 24 * 60 * 60, // 5 days ago
-      claimed: true,
-      cid: 'QmSgvgwxZGaBLqkGyLcyN7XpuJVGRhNSxvkCLnNjYUa84c',
-      taskFee: ethers.parseEther('0.22')
-    },
-    {
-      taskHash: ethers.keccak256(ethers.toUtf8Bytes('task3')),
-      timestamp: now - 1 * 24 * 60 * 60, // 1 day ago
-      claimed: false,
-      cid: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG',
-      taskFee: ethers.parseEther('0.18')
-    },
-    {
-      taskHash: ethers.keccak256(ethers.toUtf8Bytes('task4')),
-      timestamp: now - 7 * 24 * 60 * 60, // 7 days ago
-      claimed: true,
-      cid: 'QmZTR5bcpQD7cFgTorqxZDYaew1Wqgfbd2ud9QqGPAkK2V',
-      taskFee: ethers.parseEther('0.12')
-    },
-    {
-      taskHash: ethers.keccak256(ethers.toUtf8Bytes('task5')),
-      timestamp: now - 2 * 24 * 60 * 60, // 2 days ago
-      claimed: false,
-      cid: 'QmNZiPk974vDsPmQii3YbrMKfi12KTSNM7XMiYyiea4VYZ',
-      taskFee: ethers.parseEther('0.25')
-    }
-  ];
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getMockContestations(address: string, initiated: boolean): Contestation[] {
-  const now = Math.floor(Date.now() / 1000);
-
-  if (initiated) {
-    // Contestations initiated by this validator
-    return [
-      {
-        taskHash: ethers.keccak256(ethers.toUtf8Bytes('contestation1')),
-        timestamp: now - 6 * 24 * 60 * 60, // 6 days ago
-        status: 'won',
-        slashAmount: ethers.parseEther('2.5'),
-        votesFor: 7,
-        votesAgainst: 2
-      },
-      {
-        taskHash: ethers.keccak256(ethers.toUtf8Bytes('contestation2')),
-        timestamp: now - 2 * 24 * 60 * 60, // 2 days ago
-        status: 'ongoing',
-        slashAmount: ethers.parseEther('1.8'),
-        votesFor: 3,
-        votesAgainst: 2
-      }
-    ];
-  } else {
-    // Contestations against this validator
-    return [
-      {
-        taskHash: ethers.keccak256(ethers.toUtf8Bytes('contestation3')),
-        timestamp: now - 8 * 24 * 60 * 60, // 8 days ago
-        status: 'lost',
-        slashAmount: ethers.parseEther('3.0'),
-        votesFor: 8,
-        votesAgainst: 3
-      },
-      {
-        taskHash: ethers.keccak256(ethers.toUtf8Bytes('contestation4')),
-        timestamp: now - 4 * 24 * 60 * 60, // 4 days ago
-        status: 'won',
-        slashAmount: ethers.parseEther('2.2'),
-        votesFor: 2,
-        votesAgainst: 6
-      },
-      {
-        taskHash: ethers.keccak256(ethers.toUtf8Bytes('contestation5')),
-        timestamp: now - 1 * 24 * 60 * 60, // 1 day ago
-        status: 'ongoing',
-        slashAmount: ethers.parseEther('1.5'),
-        votesFor: 4,
-        votesAgainst: 4
-      }
-    ];
-  }
-}

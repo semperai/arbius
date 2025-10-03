@@ -17,9 +17,9 @@ import {
   AlertTriangleIcon,
   FileIcon
 } from 'lucide-react';
-import { Model, ModelSchema, Task } from '@/types';
+import { Model, ModelSchema } from '@/types';
 import { getModel, parseIPFSCid } from '@/lib/contract';
-import { fetchModelTemplate, ModelTemplate, formatInputParameters, getExpectedOutputs } from '@/lib/templates';
+import { fetchModelTemplate, ModelTemplate } from '@/lib/templates';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -432,7 +432,7 @@ export default function ModelDetail() {
                             )}
 
                             {/* Display choices for enum types */}
-                            {(input.type === 'string_enum' || input.type === 'int_enum') && 'choices' in input && (
+                            {(input.type === 'string_enum' || input.type === 'int_enum') && input.choices && (
                               <div className="mt-2">
                                 <span className="text-sm font-medium">Available options:</span>
                                 <div className="flex flex-wrap gap-2 mt-1">
@@ -513,12 +513,12 @@ export default function ModelDetail() {
                             The source code for this model is available on GitHub:
                           </p>
                           <a
-                            href={schema.meta.git}
+                            href={modelTemplate.meta.git}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-primary hover:underline"
                           >
-                            {schema.meta.git}
+                            {modelTemplate.meta.git}
                             <ExternalLinkIcon className="h-3 w-3" />
                           </a>
                         </div>
@@ -532,7 +532,7 @@ export default function ModelDetail() {
                           Docker image used for running this model:
                         </p>
                         <code className="block p-3 bg-muted/40 rounded text-sm font-mono overflow-x-auto">
-                          {schema.meta.docker}
+                          {modelTemplate.meta.docker}
                         </code>
                       </div>
 
@@ -573,9 +573,9 @@ export default function ModelDetail() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockRecentTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
-            ))}
+            <div className="text-center py-8 text-muted-foreground">
+              No recent task data available. Task history requires an external indexer.
+            </div>
           </div>
         </div>
       </div>
@@ -609,63 +609,6 @@ function OutputTypeIcon({ type }: { type: string }) {
     default:
       return <FileIcon className="h-4 w-4 text-muted-foreground" />;
   }
-}
-
-function TaskCard({ task }: { task: Task }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg truncate">
-          <Link href={`/task/${task.id}`} className="hover:text-primary transition-colors">
-            {truncateMiddle(task.id, 16)}
-          </Link>
-        </CardTitle>
-        <CardDescription>Created {task.time} ago</CardDescription>
-      </CardHeader>
-      <CardContent className="pb-2">
-        <div className="flex flex-col space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Owner:</span>
-            <span className="font-medium truncate max-w-[180px]">{truncateMiddle(task.owner, 16)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Fee:</span>
-            <span className="font-medium">{task.fee}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Status:</span>
-            <TaskStatusBadge status={task.status!} />
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Link href={`/task/${task.id}`} passHref className="w-full">
-          <Button variant="outline" className="w-full">View Details</Button>
-        </Link>
-      </CardFooter>
-    </Card>
-  );
-}
-
-function TaskStatusBadge({ status }: { status: string }) {
-  const getVariant = () => {
-    switch (status) {
-      case 'Completed':
-        return 'default';
-      case 'Pending':
-        return 'secondary';
-      case 'Contested':
-        return 'destructive';
-      default:
-        return 'outline';
-    }
-  };
-
-  return (
-    <Badge variant={getVariant()}>
-      {status}
-    </Badge>
-  );
 }
 
 function ModelDetailSkeleton() {
@@ -738,146 +681,3 @@ function ModelDetailSkeleton() {
   );
 }
 
-// Mock data functions - Replace these with actual data
-function getMockModel(id: string): Model {
-  return {
-    id,
-    name: 'Kandinsky 2',
-    fee: ethers.parseEther('0.15'),
-    addr: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-    rate: 100,
-    cid: 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn',
-    usage: '2,345',
-    successRate: 96
-  };
-}
-
-function getMockSchema(): ModelSchema {
-  return {
-    meta: {
-      title: "Kandinsky 2",
-      description: "text2img model trained on LAION HighRes and fine-tuned on internal datasets",
-      git: "https://github.com/kasumi-1/Kandinsky-2/tree/aa5ee2f68a1785b0833d32c27dff097b9b5e8f47",
-      docker: "https://r8.im/kasumi-1/kandinsky-2@sha256:4e9a10fe1e84e0ac79c7ffabef8f66e1159dd405cd01a38750e128e7d0d52622",
-      version: 1
-    },
-    input: [
-      {
-        variable: "prompt",
-        type: "string",
-        required: true,
-        default: "",
-        description: "Input prompt"
-      },
-      {
-        variable: "num_inference_steps",
-        type: "int",
-        required: false,
-        min: 1,
-        max: 500,
-        default: 100,
-        description: "Number of denoising steps (minimum: 1; maximum: 500)"
-      },
-      {
-        variable: "guidance_scale",
-        type: "decimal",
-        required: false,
-        min: 1,
-        max: 20,
-        default: 4,
-        description: "Scale for classifier-free guidance (minimum: 1; maximum: 20)"
-      },
-      {
-        variable: "scheduler",
-        type: "string_enum",
-        required: false,
-        choices: [
-          "p_sampler",
-          "ddim_sampler",
-          "pims_sampler"
-        ],
-        default: "p_sampler",
-        description: "Choose a scheduler."
-      },
-      {
-        variable: "prior_cf_scale",
-        type: "int",
-        required: false,
-        min: 1,
-        max: 50,
-        default: 4,
-        description: ""
-      },
-      {
-        variable: "prior_steps",
-        type: "string",
-        required: false,
-        default: "5",
-        description: ""
-      },
-      {
-        variable: "width",
-        type: "int_enum",
-        required: false,
-        choices: [
-          256,
-          512,
-          768,
-          1024
-        ],
-        default: 768,
-        description: "Width of output image."
-      },
-      {
-        variable: "height",
-        type: "int_enum",
-        required: false,
-        choices: [
-          256,
-          512,
-          768,
-          1024
-        ],
-        default: 768,
-        description: "Height of output image."
-      }
-    ],
-    output: [
-      {
-        filename: "out-1.png",
-        type: "image"
-      }
-    ]
-  };
-}
-
-// Mock task data
-const mockRecentTasks = [
-  {
-    id: '0x1309128093aa6234231eee34234234eff7778aa8a',
-    owner: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
-    fee: '0.25 AIUS',
-    time: '3h',
-    status: 'Completed'
-  },
-  {
-    id: '0x2409338762aa8734231eee34298734eff7734fa8b',
-    owner: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
-    fee: '0.15 AIUS',
-    time: '5h',
-    status: 'Pending'
-  },
-  {
-    id: '0x34093aa762aa8734231eee34298734eff7734fa8c',
-    owner: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-    fee: '0.32 AIUS',
-    time: '6h',
-    status: 'Contested'
-  }
-].map((task) => ({
-  ...task,
-  owner: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
-  blocktime: 1634567890,
-  version: 1,
-  cid: 'QmXyZaBcD1234'
-}) as Task);

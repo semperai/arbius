@@ -10,11 +10,11 @@ export interface ModelTemplate {
     variable: string;
     type: string;
     required: boolean;
-    default?: any;
+    default?: string | number | boolean;
     description: string;
     min?: number;
     max?: number;
-    choices?: any[];
+    choices?: Array<string | number>;
   }>;
   output: Array<{
     filename: string;
@@ -30,7 +30,7 @@ interface ModelMapping {
 }
 
 // Cache for templates and mapping
-let templateCache: { [key: string]: ModelTemplate } = {};
+const templateCache: { [key: string]: ModelTemplate } = {};
 let modelMapping: ModelMapping | null = null;
 
 /**
@@ -148,13 +148,13 @@ export async function fetchModelTemplate(modelIdOrCid: string): Promise<ModelTem
 /**
  * Get the expected output type from a model template
  */
-export function getExpectedOutputType(template: ModelTemplate | null): 'image' | 'video' | 'text' | 'json' | 'unknown' {
+export function getExpectedOutputType(template: ModelTemplate | null): 'image' | 'video' | 'text' | 'json' | undefined {
   if (!template || !template.output || template.output.length === 0) {
-    return 'unknown';
+    return undefined;
   }
 
   // Return the first output type
-  return template.output[0].type || 'unknown';
+  return template.output[0].type || undefined;
 }
 
 /**
