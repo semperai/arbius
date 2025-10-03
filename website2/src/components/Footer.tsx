@@ -20,6 +20,7 @@ const footerColumns = {
     { name: 'Docs', link: 'https://docs.arbius.ai/', external: true },
     { name: 'Blog', link: 'https://blog.arbius.ai/', external: true },
     { name: 'Team', link: '/team', external: false },
+    { name: 'Roadmap', link: '/roadmap', external: false },
   ],
   staking: [
     { name: 'veAIUS', link: '/aius', external: false },
