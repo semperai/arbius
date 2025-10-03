@@ -11,12 +11,21 @@ const VE_AIUS_ABI = parseAbi([
   'function supply() view returns (uint256)',
 ])
 
+const VE_STAKING_ABI = parseAbi([
+  'function totalSupply() view returns (uint256)',
+  'function rewardRate() view returns (uint256)',
+  'function periodFinish() view returns (uint256)',
+  'function earned(uint256 tokenId) view returns (uint256)',
+  'function getRewardForDuration() view returns (uint256)',
+])
+
 export function Dashboard() {
   const { isConnected } = useAccount()
   const chainId = useActiveChainId()
 
   const config = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]
   const veAIUSAddress = config?.veAIUSAddress
+  const veStakingAddress = config?.veStakingAddress
 
   // Use custom hooks for cleaner code
   const { balance: veBalance, formatted: veBalanceFormatted } = useVeAIUSBalance()
@@ -32,14 +41,40 @@ export function Dashboard() {
     query: { enabled: !!veAIUSAddress },
   })
 
-  // Placeholder values for now - these would come from veStaking contract
-  const rewardRate = null
-  const totalStaked = null
+  // Staking contract data
+  const { data: totalStaked } = useReadContract({
+    address: veStakingAddress,
+    abi: VE_STAKING_ABI,
+    functionName: 'totalSupply',
+    query: { enabled: !!veStakingAddress },
+  })
 
-  // Calculate APR (simplified - real calculation would be more complex)
+  const { data: rewardRate } = useReadContract({
+    address: veStakingAddress,
+    abi: VE_STAKING_ABI,
+    functionName: 'rewardRate',
+    query: { enabled: !!veStakingAddress },
+  })
+
+  const { data: periodFinish } = useReadContract({
+    address: veStakingAddress,
+    abi: VE_STAKING_ABI,
+    functionName: 'periodFinish',
+    query: { enabled: !!veStakingAddress },
+  })
+
+  // Calculate APR based on reward rate and total staked
   const apr = useMemo(() => {
     if (rewardRate && totalStaked && totalStaked > BigInt(0)) {
-      return (Number(rewardRate) / Number(totalStaked)) * 100 * 365 * 24 * 3600
+      // Convert from wei to token units
+      const ratePerSecond = Number(formatUnits(rewardRate as bigint, 18))
+      const totalStakedTokens = Number(formatUnits(totalStaked as bigint, 18))
+
+      // APR = (reward per veAIUS per second) * seconds in year * 100
+      const rewardPerTokenPerSecond = ratePerSecond / totalStakedTokens
+      const aprValue = rewardPerTokenPerSecond * 31536000 * 100 // 31536000 = seconds in a year
+
+      return aprValue
     }
     return 0
   }, [rewardRate, totalStaked])
@@ -54,6 +89,11 @@ export function Dashboard() {
     () => totalStaked ? formatUnits(totalStaked as bigint, 18) : '0',
     [totalStaked]
   )
+
+  const isRewardsActive = useMemo(() => {
+    if (!periodFinish) return false
+    return Number(periodFinish) > Math.floor(Date.now() / 1000)
+  }, [periodFinish])
 
   const votingPowerPercentage = useMemo(() => {
     if (totalVeSupply && veBalance && totalVeSupply !== BigInt(0)) {
@@ -87,7 +127,19 @@ export function Dashboard() {
       subtitle: 'Protocol voting power',
       gradient: 'from-purple-500 to-purple-600',
     },
-  ], [totalVeSupplyFormatted, tokenStats])
+    {
+      title: 'Total Staked',
+      value: parseFloat(totalStakedFormatted).toFixed(2),
+      subtitle: 'AIUS locked in veStaking',
+      gradient: 'from-indigo-500 to-indigo-600',
+    },
+    {
+      title: 'Staking APR',
+      value: `${apr.toFixed(2)}%`,
+      subtitle: isRewardsActive ? 'Current annual rate' : 'No active rewards',
+      gradient: 'from-green-500 to-green-600',
+    },
+  ], [totalVeSupplyFormatted, totalStakedFormatted, apr, isRewardsActive, tokenStats])
 
   const userStats = useMemo(() => [
     {
