@@ -13,24 +13,24 @@ async function getMinerAddress(hre: HardhatRuntimeEnvironment) {
 }
 
 async function getEngine(hre: HardhatRuntimeEnvironment) {
-  const Engine = await hre.ethers.getContractFactory("V2_EngineV4");
+  const Engine = await hre.ethers.getContractFactory("V2_EngineV6");
   if (hre.network.name === 'hardhat') {
     console.log('You are on hardhat network, try localhost');
     process.exit(1);
   }
     
   if (hre.network.name === 'localhost') {
-    const engine = await Engine.attach(LocalConfig.v5_engineAddress);
+    const engine = await Engine.attach(LocalConfig.v6_engineAddress);
     return engine;
   }
 
   if (hre.network.name === 'arbitrum') {
-    const engine = await Engine.attach(Config.v5_engineAddress);
+    const engine = await Engine.attach(Config.v6_engineAddress);
     return engine;
   }
 
   if (hre.network.name === 'arbsepolia') {
-    const engine = await Engine.attach(ArbSepoliaConfig.v5_engineAddress);
+    const engine = await Engine.attach(ArbSepoliaConfig.v6_engineAddress);
     return engine;
   }
 
@@ -46,17 +46,17 @@ async function getBaseToken(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    const baseToken = await BaseToken.attach(LocalConfig.v5_baseTokenAddress);
+    const baseToken = await BaseToken.attach(LocalConfig.v6_baseTokenAddress);
     return baseToken;
   }
 
   if (hre.network.name === 'arbitrum') {
-    const baseToken = await BaseToken.attach(Config.v5_baseTokenAddress);
+    const baseToken = await BaseToken.attach(Config.v6_baseTokenAddress);
     return baseToken;
   }
 
   if (hre.network.name === 'arbsepolia') {
-    const baseToken = await BaseToken.attach(ArbSepoliaConfig.v5_baseTokenAddress);
+    const baseToken = await BaseToken.attach(ArbSepoliaConfig.v6_baseTokenAddress);
     return baseToken;
   }
 
@@ -72,15 +72,15 @@ async function getVeStaking(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    return await VeStaking.attach(LocalConfig.v5_veStakingAddress);
+    return await VeStaking.attach(LocalConfig.v6_veStakingAddress);
   }
 
   if (hre.network.name === 'arbitrum') {
-    return await VeStaking.attach(Config.v5_veStakingAddress);
+    return await VeStaking.attach(Config.v6_veStakingAddress);
   }
 
   if (hre.network.name === 'arbsepolia') {
-    return await VeStaking.attach(ArbSepoliaConfig.v5_veStakingAddress);
+    return await VeStaking.attach(ArbSepoliaConfig.v6_veStakingAddress);
   }
 
   console.log('Unknown network');
@@ -114,15 +114,15 @@ async function getVotingEscrow(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    return await VotingEscrow.attach(LocalConfig.v5_votingEscrowAddress);
+    return await VotingEscrow.attach(LocalConfig.v6_votingEscrowAddress);
   }
 
   if (hre.network.name === 'arbitrum') {
-    return await VotingEscrow.attach(Config.v5_votingEscrowAddress);
+    return await VotingEscrow.attach(Config.v6_votingEscrowAddress);
   }
 
   if (hre.network.name === 'arbsepolia') {
-    return await VotingEscrow.attach(ArbSepoliaConfig.v5_votingEscrowAddress);
+    return await VotingEscrow.attach(ArbSepoliaConfig.v6_votingEscrowAddress);
   }
 
   console.log('Unknown network');
@@ -137,15 +137,15 @@ async function getVoter(hre: HardhatRuntimeEnvironment) {
   }
 
   if (hre.network.name === 'localhost') {
-    return await Voter.attach(LocalConfig.v5_voterAddress);
+    return await Voter.attach(LocalConfig.v6_voterAddress);
   }
 
   if (hre.network.name === 'arbitrum') {
-    return await Voter.attach(Config.v5_voterAddress);
+    return await Voter.attach(Config.v6_voterAddress);
   }
 
   if (hre.network.name === 'arbsepolia') {
-    return await Voter.attach(ArbSepoliaConfig.v5_voterAddress);
+    return await Voter.attach(ArbSepoliaConfig.v6_voterAddress);
   }
 
   console.log('Unknown network');
@@ -295,7 +295,7 @@ task("decode-tx", "Extract input from a submitTask transaction")
 .addParam("txid", "transaction hash")
 .setAction(async ({ txid }, hre) => {
   const Engine = await hre.ethers.getContractFactory("EngineV1");
-  const engine = await Engine.attach(Config.v5_engineAddress);
+  const engine = await Engine.attach(Config.v6_engineAddress);
 
   const tx = await hre.ethers.provider.getTransaction(txid);
   // console.log(tx);
@@ -311,8 +311,9 @@ task("local:mint", "Mint tokens")
 .addParam("to", "address")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
+    console.log(await getMinerAddress(hre));
     const BaseToken = await hre.ethers.getContractFactory("BaseTokenV1");
-    const baseToken = await BaseToken.attach(LocalConfig.v5_baseTokenAddress);
+    const baseToken = await BaseToken.attach(LocalConfig.v6_baseTokenAddress);
     const tx = await baseToken.bridgeMint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
@@ -323,7 +324,7 @@ task("test:mint", "Mint tokens")
 .addParam("amount", "amount")
 .setAction(async ({ to, amount }, hre) => {
     const TestnetToken = await hre.ethers.getContractFactory("TestnetToken");
-    const testnetToken = await TestnetToken.attach(Config.v5_baseTokenAddress);
+    const testnetToken = await TestnetToken.attach(Config.v6_baseTokenAddress);
     const tx = await testnetToken.mint(to, hre.ethers.utils.parseEther(amount));
     await tx.wait();
     console.log(`minted ${amount} tokens to ${to}`);
@@ -382,9 +383,9 @@ task("mining:allowance", "Set allowance for miner")
 .setAction(async ({ }, hre) => {
   const baseToken = await getBaseToken(hre);
   const minerAddress = await getMinerAddress(hre);
-  const tx = await baseToken.approve(Config.v5_engineAddress, hre.ethers.constants.MaxUint256);
+  const tx = await baseToken.approve(Config.v6_engineAddress, hre.ethers.constants.MaxUint256);
   await tx.wait();
-  const allowance = await baseToken.allowance(minerAddress, Config.v5_engineAddress);
+  const allowance = await baseToken.allowance(minerAddress, Config.v6_engineAddress);
   console.log(`allowance ${hre.ethers.utils.formatEther(allowance)}`);
 });
 
@@ -733,6 +734,7 @@ task("modeltoken:deployModel", "Deploy model")
 .addParam("fee", "Fee")
 .addParam("template", "Template")
 .setAction(async ({ address, fee, template }, hre) => {
+  console.log(`address: ${await getMinerAddress(hre)}`);
   const engine = await getEngine(hre);
 
   const templateBuf = fs.readFileSync(template);
