@@ -1,0 +1,6 @@
+{
+  "comment": "Maps model ID (hash) to template filename. Auto-generated, do not edit directly.",
+  "models": {
+    "0x3ac907e782b35cf2096eadcbd5d347fb7705db98526adcd2232ea560abbbef90": "kandinsky2.json"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "title": "Qwen QwQ 32B",
+    "description": "",
+    "git": "",
+    "docker": "r8.im/kasumi-1/qwen-qwq-32b@sha256:b40d2f7d3ec3278b96cb010a51fa0abd397247613f1e38454adad34b4890eb82",
+    "version": 1
+  },
+  "input": [
+    {
+      "variable": "prompt",
+      "type": "string",
+      "required": true,
+      "default": "",
+      "description": "Input prompt"
+    }
+  ],
+  "output": [
+    {
+      "filename": "out-1.txt",
+      "type": "text"
+    }
+  ]
+}

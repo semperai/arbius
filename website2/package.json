@@ -1,0 +1,45 @@
+{
+  "name": "website2",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint",
+    "test:screenshots": "playwright test",
+    "screenshots": "playwright test --headed",
+    "screenshots:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@next/third-parties": "^15.5.4",
+    "@rainbow-me/rainbowkit": "^2.2.8",
+    "@sentry/nextjs": "^10.17.0",
+    "@tanstack/react-query": "^5.71.5",
+    "@web3modal/wagmi": "^5.1.11",
+    "lucide-react": "^0.544.0",
+    "next": "15.5.4",
+    "next-themes": "^0.2.1",
+    "react": "19.1.0",
+    "react-awesome-reveal": "^4.3.1",
+    "react-dom": "19.1.0",
+    "react-hot-toast": "^2.6.0",
+    "react-qr-code": "^2.0.18",
+    "viem": "^2.25.0",
+    "wagmi": "^2.14.16"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.55.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

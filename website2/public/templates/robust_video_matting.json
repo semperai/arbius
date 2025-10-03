@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "Robust video matting",
+    "description": "extract foreground of a video",
+    "git": "https://github.com/PeterL1n/RobustVideoMatting",
+    "docker": "https://r8.im/arielreplicate/robust_video_matting@sha256:73d2128a371922d5d1abf0712a1d974be0e4e2358cc1218e4e34714767232bac"
+  },
+  "input": [
+    {
+      "variable": "input_video",
+      "type": "file",
+      "required": true,
+      "default": "",
+      "description": "Video to segment"
+    },
+    {
+      "variable": "output_type",
+      "type": "string_enum",
+      "required": false,
+      "default": "",
+      "choices": ["", "green-screen", "alpha-mask", "foreground-mask"],
+      "description": "An enumeration"
+    }
+  ],
+  "output": [
+    {
+      "filename": "out-1.mp4",
+      "type": "video"
+    }
+  ]
+}

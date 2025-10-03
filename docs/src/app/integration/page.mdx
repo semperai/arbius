@@ -1,0 +1,398 @@
+export const description = 'Guide for integrating Arbius into your application'
+
+# Integration Guide
+
+This guide covers how to integrate Arbius V6 into your applications, including listening for events, interacting with contracts, and handling the model token economy.
+
+---
+
+## Contract Addresses
+
+### Arbitrum One (Mainnet)
+
+```
+Engine V6: 0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66
+Base Token (AIUS): [check config.json]
+veStaking: [check config.json]
+Voter: [check config.json]
+Master Contester Registry: [check config.json]
+```
+
+### Getting Latest Addresses
+
+```javascript
+import Config from '@/contract/scripts/config.json'
+
+const engineAddress = Config.engineAddress
+const baseTokenAddress = Config.baseTokenAddress
+```
+
+---
+
+## Events Reference
+
+### V6 New Events
+
+#### Master Contester Events
+
+```solidity
+// Emitted when master contester registry is set
+event MasterContesterRegistrySet(address indexed registry)
+
+// Emitted when master contester vote adder is changed
+event MasterContesterVoteAdderSet(uint32 adder)
+
+// Emitted when anyone suggests a contestation
+event ContestationSuggested(
+    address indexed addr,
+    bytes32 indexed task
+)
+```
+
+#### Model Allow List Events
+
+```solidity
+// Emitted when solver is added/removed from allow list
+event ModelAllowListUpdated(
+    bytes32 indexed model,
+    address indexed solver,
+    bool added  // true = added, false = removed
+)
+
+// Emitted when allow list is enabled/disabled
+event ModelAllowListRequirementChanged(
+    bytes32 indexed model,
+    bool required  // false when disabled
+)
+```
+
+#### Fee and Reward Events (Enhanced in V6)
+
+```solidity
+// Emitted when rewards are distributed
+event RewardsPaid(
+    bytes32 indexed model,
+    bytes32 indexed task,
+    address indexed validator,
+    uint256 totalRewards,
+    uint256 treasuryReward,
+    uint256 taskOwnerReward,
+    uint256 validatorReward
+)
+
+// Emitted when fees are distributed
+event FeesPaid(
+    bytes32 indexed model,
+    bytes32 indexed task,
+    address indexed validator,
+    uint256 modelFee,
+    uint256 treasuryFee,
+    uint256 remainingFee,
+    uint256 validatorFee
+)
+
+// Emitted when model fee percentage is changed
+event SolutionModelFeePercentageChanged(uint256 percentage)
+
+// Emitted when per-model fee override is cleared
+event SolutionModelFeePercentageOverrideCleared(bytes32 indexed model)
+```
+
+### Core Events
+
+#### Model Events
+
+```solidity
+event ModelRegistered(bytes32 indexed id)
+
+event ModelFeeChanged(bytes32 indexed id, uint256 fee)
+
+event ModelAddrChanged(bytes32 indexed id, address addr)
+```
+
+#### Validator Events
+
+```solidity
+event ValidatorDeposit(
+    address indexed addr,
+    address indexed validator,
+    uint256 amount
+)
+
+event ValidatorWithdrawInitiated(
+    address indexed addr,
+    uint256 indexed count,
+    uint256 unlockTime,
+    uint256 amount
+)
+
+event ValidatorWithdrawCancelled(
+    address indexed addr,
+    uint256 indexed count
+)
+
+event ValidatorWithdraw(
+    address indexed addr,
+    address indexed to,
+    uint256 indexed count,
+    uint256 amount
+)
+```
+
+#### Task and Solution Events
+
+```solidity
+event TaskSubmitted(
+    bytes32 indexed id,
+    bytes32 indexed model,
+    uint256 fee,
+    address indexed sender
+)
+
+event SignalCommitment(
+    address indexed addr,
+    bytes32 indexed commitment
+)
+
+event SolutionSubmitted(
+    address indexed addr,
+    bytes32 indexed task
+)
+
+event SolutionClaimed(
+    address indexed addr,
+    bytes32 indexed task
+)
+```
+
+#### Contestation Events
+
+```solidity
+event ContestationSubmitted(
+    address indexed addr,
+    bytes32 indexed task
+)
+
+event ContestationVote(
+    address indexed addr,
+    bytes32 indexed task,
+    bool yea
+)
+
+event ContestationVoteFinish(
+    bytes32 indexed id,
+    uint32 indexed start_idx,
+    uint32 end_idx
+)
+```
+
+---
+
+## Listening for Events
+
+### Example: Monitor Task Submissions
+
+```javascript
+import { ethers } from 'ethers'
+import EngineArtifact from './artifacts/V2_EngineV6.sol/V2_EngineV6.json'
+import Config from './config.json'
+
+const provider = new ethers.providers.JsonRpcProvider(ARBITRUM_RPC_URL)
+
+const engine = new ethers.Contract(
+    Config.engineAddress,
+    EngineArtifact.abi,
+    provider
+)
+
+// Listen for new tasks
+engine.on('TaskSubmitted', (taskId, modelId, fee, sender, event) => {
+    console.log('New task submitted:', {
+        taskId,
+        modelId,
+        fee: ethers.utils.formatEther(fee),
+        sender,
+        blockNumber: event.blockNumber
+    })
+})
+
+// Listen for solutions
+engine.on('SolutionSubmitted', (validator, taskId, event) => {
+    console.log('Solution submitted:', {
+        validator,
+        taskId,
+        blockNumber: event.blockNumber
+    })
+})
+
+// Listen for contestation suggestions (V6)
+engine.on('ContestationSuggested', (suggester, taskId, event) => {
+    console.log('Contestation suggested:', {
+        suggester,
+        taskId,
+        blockNumber: event.blockNumber
+    })
+
+    // Master contesters should check this task
+})
+```
+
+### Example: Monitor Model Allow Lists (V6)
+
+```javascript
+// Listen for allow list updates
+engine.on('ModelAllowListUpdated', (modelId, solver, added, event) => {
+    console.log('Allow list updated:', {
+        modelId,
+        solver,
+        action: added ? 'Added' : 'Removed',
+        blockNumber: event.blockNumber
+    })
+})
+
+// Listen for allow list changes
+engine.on('ModelAllowListRequirementChanged', (modelId, required, event) => {
+    console.log('Allow list requirement changed:', {
+        modelId,
+        status: required ? 'Enabled' : 'Disabled',
+        blockNumber: event.blockNumber
+    })
+})
+```
+
+### Example: Track Fee and Reward Distribution
+
+```javascript
+// Listen for detailed fee distribution (V6)
+engine.on('FeesPaid', (
+    modelId,
+    taskId,
+    validator,
+    modelFee,
+    treasuryFee,
+    remainingFee,
+    validatorFee,
+    event
+) => {
+    console.log('Fees distributed:', {
+        modelId,
+        taskId,
+        validator,
+        modelFee: ethers.utils.formatEther(modelFee),
+        treasuryFee: ethers.utils.formatEther(treasuryFee),
+        validatorFee: ethers.utils.formatEther(validatorFee),
+        blockNumber: event.blockNumber
+    })
+})
+
+// Listen for mining rewards (V6)
+engine.on('RewardsPaid', (
+    modelId,
+    taskId,
+    validator,
+    totalRewards,
+    treasuryReward,
+    taskOwnerReward,
+    validatorReward,
+    event
+) => {
+    console.log('Rewards distributed:', {
+        modelId,
+        taskId,
+        validator,
+        total: ethers.utils.formatEther(totalRewards),
+        treasury: ethers.utils.formatEther(treasuryReward),
+        taskOwner: ethers.utils.formatEther(taskOwnerReward),
+        validator: ethers.utils.formatEther(validatorReward),
+        blockNumber: event.blockNumber
+    })
+})
+```
+
+---
+
+## Reading Contract State
+
+### Check Validator Status
+
+```javascript
+const validatorAddress = '0x...'
+
+// Get validator info
+const validator = await engine.validators(validatorAddress)
+console.log('Validator stake:', ethers.utils.formatEther(validator.staked))
+console.log('Validator since:', new Date(validator.since * 1000))
+
+// Get validator minimum
+const minStake = await engine.getValidatorMinimum()
+console.log('Minimum stake required:', ethers.utils.formatEther(minStake))
+
+// Check if address is validator
+const isValidator = validator.staked >= minStake
+console.log('Is validator:', isValidator)
+```
+
+### Check Model Allow List (V6)
+
+```javascript
+const modelId = '0x...'
+const solverAddress = '0x...'
+
+// Check if model requires allow list
+const requiresAllowList = await engine.modelRequiresAllowList(modelId)
+console.log('Requires allow list:', requiresAllowList)
+
+// Check if solver is allowed
+const isAllowed = await engine.isSolverAllowed(modelId, solverAddress)
+console.log('Solver allowed:', isAllowed)
+```
+
+### Get Task and Solution Info
+
+```javascript
+const taskId = '0x...'
+
+// Get task details
+const task = await engine.tasks(taskId)
+console.log('Task model:', task.model)
+console.log('Task fee:', ethers.utils.formatEther(task.fee))
+console.log('Task owner:', task.owner)
+
+// Get solution details
+const solution = await engine.solutions(taskId)
+console.log('Solution validator:', solution.validator)
+console.log('Solution claimed:', solution.claimed)
+```
+
+---
+
+## Error Handling
+
+### Common Errors and Solutions
+
+```javascript
+try {
+    await engine.submitSolution(taskId, solutionCid)
+} catch (error) {
+    if (error.message.includes('NotAllowedToSubmitSolution')) {
+        console.error('You are not on the model allow list')
+    } else if (error.message.includes('MinStakedTooLow')) {
+        console.error('Insufficient validator stake')
+    } else if (error.message.includes('SolutionRateLimit')) {
+        console.error('Submitting solutions too quickly')
+    } else if (error.message.includes('CommitmentMustBeInPast')) {
+        console.error('Commitment must be from previous block')
+    } else {
+        console.error('Unexpected error:', error)
+    }
+}
+```
+
+---
+
+## Resources
+
+- **Contract ABIs:** `/contract/artifacts/V2_EngineV6.sol/V2_EngineV6.json`
+- **TypeScript Types:** `/contract/typechain/V2_EngineV6.ts`
+- **Example Integration:** Check the Arbius website source code
+- **Discord:** [discord.gg/arbius](https://discord.gg/arbius) for technical support

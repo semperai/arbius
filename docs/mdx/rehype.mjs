@@ -1,7 +1,7 @@
 import { mdxAnnotations } from 'mdx-annotations'
 import { visit } from 'unist-util-visit'
 import rehypeMdxTitle from 'rehype-mdx-title'
-import shiki from 'shiki'
+import { getHighlighter, bundledLanguages } from 'shiki'
 import { toString } from 'mdast-util-to-string'
 import * as acorn from 'acorn'
 import { slugifyWithCounter } from '@sindresorhus/slugify'
@@ -23,8 +23,12 @@ let highlighter
 
 function rehypeShiki() {
   return async (tree) => {
-    highlighter =
-      highlighter ?? (await shiki.getHighlighter({ theme: 'css-variables' }))
+    if (!highlighter) {
+      highlighter = await getHighlighter({
+        themes: ['dark-plus'],
+        langs: Object.keys(bundledLanguages),
+      })
+    }
 
     visit(tree, 'element', (node) => {
       if (node.tagName === 'pre' && node.children[0]?.tagName === 'code') {
@@ -34,18 +38,24 @@ function rehypeShiki() {
         node.properties.code = textNode.value
 
         if (node.properties.language) {
-          let tokens = highlighter.codeToThemedTokens(
-            textNode.value,
-            node.properties.language
-          )
+          try {
+            const html = highlighter.codeToHtml(textNode.value, {
+              lang: node.properties.language,
+              theme: 'dark-plus',
+            })
 
-          textNode.value = shiki.renderToHtml(tokens, {
-            elements: {
-              pre: ({ children }) => children,
-              code: ({ children }) => children,
-              line: ({ children }) => `<span>${children}</span>`,
-            },
-          })
+            // Extract just the code content without pre/code wrappers
+            const match = html.match(/<code[^>]*>([\s\S]*?)<\/code>/)
+            if (match) {
+              textNode.value = match[1]
+                .split('\n')
+                .map(line => `<span>${line}</span>`)
+                .join('\n')
+            }
+          } catch (e) {
+            // If language not supported, leave as is
+            console.warn(`Shiki: Language '${node.properties.language}' not supported`)
+          }
         }
       }
     })

@@ -1,0 +1,29 @@
+{
+  "l1TokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
+  "baseTokenAddress": "0xe3DBC4F88EAa632DDF9708732E2832EEaA6688AB",
+  "engineAddress": "0x399511EDEB7ca4A8328E801b1B3D0fe232aBc996",
+  "v2_l1TokenAddress": "0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852",
+  "v2_baseTokenAddress": "0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852",
+  "l1OneToOneAddress": "0x5080a6A0F0b0E21A895841456e5Ed77d26332262",
+  "l2OneToOneAddress": "0x5080a6A0F0b0E21A895841456e5Ed77d26332262",
+  "v2_engineAddress": "0x3BF6050327Fa280Ee1B5F3e8Fd5EA2EfE8A6472a",
+  "v4_baseTokenAddress": "0x4a24b101728e07a52053c13fb4db2bcf490cabc3",
+  "v4_engineAddress": "0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66",
+  "votingEscrowAddress": "0x3A7e6915f997Cdbc8BFB090051AA22E37Dab345d",
+  "veStakingAddress": "0x1c0a14cAC52ebDe9c724e5627162a90A26B85E15",
+  "voterAddress": "0x80E9B3dA81258705eC7C3DC89a799b78f2c68968",
+  "proxyAdminAddress": "0xF392fEA506efB6ED445253594DC81a0CB7cD3562",
+  "models": {
+    "kandinsky2": {
+      "id": "0x98617a8cd4a11db63100ad44bea4e5e296aecfd78b2ef06aee3e364c7307f212",
+      "mineable": true,
+      "contracts": {},
+      "params": {
+        "addr": "0x0000000000000000000000000000000000000001",
+        "fee": "0",
+        "rate": "1000000000000000000",
+        "cid": "0x1220511fdf0e88fa9adba98a7693cca89b5d9f3181da4815b0f0500aa4315b38d17d"
+      }
+    }
+  }
+}

@@ -1,0 +1,451 @@
+export const description =
+  'This guide will teach you how to launch a model on the Arbius network.'
+
+
+# Adding Models
+
+You should be familiar with basic software packaging and basic usage of linux. If you have any questions please join our telegram. This guide aims to help you deploy a model onto Arbius assuming little prerequisite knowledge of how Arbius or blockchains function.
+
+## Software requirements
+
+Arbius uses a templating system that is built on top of `cog`, `docker`, and `ipfs`. First let's install these so we don't have to worry about installing them halfway through the guide.
+
+1. Install [nvidia-docker](https://github.com/NVIDIA/nvidia-docker)
+
+2. Install [cog](https://github.com/replicate/cog)
+
+3. Install [IPFS](https://ipfs.tech/).
+
+4. Install [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+## Write or modify cog model 
+
+Cog provides a standardized http interface for clients to interact with your model. You **must** ensure there is a `seed` parameter which takes an `int` argument.
+
+You can see an example of a commit which implements `seed` [here](https://github.com/kasumi-1/Kandinsky-2/commit/aa5ee2f68a1785b0833d32c27dff097b9b5e8f47).
+
+If you are unfamiliar with cog, [this guide](https://replicate.com/docs/guides/push-a-model) on writing your first cog file should be followed prior to continuing with this guide.
+
+### Build and run container
+
+```bash
+cog build
+docker run -d -p 5000:5000 --gpus all <your-model-name>
+```
+
+### Verify reproducibility
+
+In addition to normal testing of model, you must ensure seed results in reproducible results. You can easily do this by passing same seed value in multiple times with curl and checking output. For example, this is how you may do it for a model:
+
+```bash
+curl --verbose http://127.0.0.1:5000/predictions -X POST -H "Content-Type: application/json" -d  '{"input":{"prompt":"turtle in heaven", "width": 768, "height": 768, "seed": 33111, "num_inference_steps": 50}}'  | jq -r ".output[0][22:]" | base64 --decode | sha256sum -
+```
+
+<Note>Make sure you restart container after testing and test again.</Note>
+
+
+## Uploading to replicate
+
+This allows anyone to easily use your model and to and test it using the replicate interface.
+
+https://replicate.com/create
+
+```bash
+cog login
+cog push r8.im/<your-username>/<your-model-name>
+```
+
+Navigate to [https://replicate.com/\<your-username\>/\<your-model-name\>/edit](https://replicate.com/\<your-username\>/\<your-model-name\>/edit) and set the description, git repo, hardware, and public status.
+
+
+## Writing template schema
+
+Arbius uses a template schema file to know which parameters a model takes, and what sort of data a model generates.
+
+This closely follows the cog spec, but has some certain differences.
+
+### `meta` property
+
+Contains `title` , `description`, `git`, `docker` and `version` properties.
+
+* `title` refers to the models name. Please ensure it is unique by affixing suffix if it has some slight modification from existing model in use in Arbius.
+* `description` provides information about the model.
+* `git` refers to git repository.  On github you can press `y` for url to change to link to most recent commit
+* `docker` refers to docker repository. You can populate this with the link generated from `cog push`.
+
+<Danger>
+It is very common for different hardware to produce different results. You should include your specific hardware configuration (specifically GPU) in the title and/or description.
+</Danger>
+
+
+### `input` property
+
+Each input in the schema is provided in a list of `input`. All of these contain the following properties:
+
+* `variable` name of the variable
+* `type` one of:
+* * `string`
+* * `int`
+* * `decimal`
+* * `string_enum`
+* * `int_enum`
+
+* `required` whether or not the property is required or optional. usually only the prompt is required.
+* `default` the default value for the input
+* `description` the description shown to users under the variable name
+
+Some types take additional properties:
+
+`*_enum` types take a `choices` property which lists the values for the enum.
+
+`int` and `decimal` take `min` and `max` properties.
+
+### `output` property
+
+Each file output has an entry in the `output` property. Each of these items contain two properties:
+
+* `filename` the filename referenced from the IPFS folder / output
+
+* `type` which is one of:
+* * `image`
+* * `video`
+* * `text`
+* * `audio`
+
+Setting these correctly will allow interfaces to render an appropriate player for the output type.
+
+### Example template schema
+
+This is the template schema used for Kandinsky 2 model on Arbius.
+
+```json
+{
+  "meta": {
+    "title": "Kandinsky 2",
+    "description": "text2img model trained on LAION HighRes and fine-tuned on internal datasets",
+    "git": "https://github.com/kasumi-1/Kandinsky-2/tree/aa5ee2f68a1785b0833d32c27dff097b9b5e8f47",
+    "docker": "https://r8.im/kasumi-1/kandinsky-2@sha256:4e9a10fe1e84e0ac79c7ffabef8f66e1159dd405cd01a38750e128e7d0d52622",
+    "version": 1
+  },
+  "input": [
+    {
+      "variable": "prompt",
+      "type": "string",
+      "required": true,
+      "default": "",
+      "description": "Input prompt"
+    },
+    {
+      "variable": "num_inference_steps",
+      "type": "int",
+      "required": false,
+      "min": 1,
+      "max": 500,
+      "default": 100,
+      "description": "Number of denoising steps (minimum: 1; maximum: 500)"
+    },
+    {
+      "variable": "guidance_scale",
+      "type": "decimal",
+      "required": false,
+      "min": 1,
+      "max": 20,
+      "default": 4,
+      "description": "Scale for classifier-free guidance (minimum: 1; maximum: 20)"
+    },
+    {
+      "variable": "scheduler",
+      "type": "string_enum",
+      "required": false,
+      "choices": [
+        "p_sampler",
+        "ddim_sampler",
+        "pims_sampler"
+      ],
+      "default": "p_sampler",
+      "description": "Choose a scheduler."
+    },
+    {
+      "variable": "prior_cf_scale",
+      "type": "int",
+      "required": false,
+      "min": 1,
+      "max": 50,
+      "default": 4,
+      "description": ""
+    },
+    {
+      "variable": "prior_steps",
+      "type": "string",
+      "required": false,
+      "default": "5",
+      "description": ""
+    },
+    {
+      "variable": "width",
+      "type": "int_enum",
+      "required": false,
+      "choices": [
+        256,
+        512,
+        768,
+        1024
+      ],
+      "default": 768,
+      "description": "Width of output image."
+    },
+    {
+      "variable": "height",
+      "type": "int_enum",
+      "required": false,
+      "choices": [
+        256,
+        512,
+        768,
+        1024
+      ],
+      "default": 768,
+      "description": "Height of output image."
+    }
+  ],
+  "output": [
+    {
+      "filename": "out-1.png",
+      "type": "image"
+    }
+  ]
+}
+```
+
+## Model Allow Lists (V6+)
+
+<Note>**New in V6**: You can register models with allow lists to control who can submit solutions. This is perfect for quality control during launch phases or private deployments.</Note>
+
+### What are Allow Lists?
+
+Allow lists let you restrict which validators can submit solutions for your model. This provides:
+
+- **Quality assurance** during model launch phases
+- **Private deployments** for enterprise or sensitive models
+- **Gradual rollouts** from trusted miners to permissionless
+- **Controlled solver network** for model token launches (Amica Personas)
+
+### When to Use Allow Lists
+
+**Use allow lists when:**
+- Launching a new model and want to test with trusted miners first
+- Building a private/enterprise model that shouldn't be public
+- Creating a model token and need controlled quality during bonding curve phase
+- Model requires specific hardware/setup that only certain miners have
+
+**Don't use allow lists if:**
+- You want maximum decentralization and permissionless access
+- Your model is already well-tested and production-ready
+- You're comfortable with any validator attempting to solve tasks
+
+### Allow List Lifecycle
+
+1. **Register model with allow list** - Start with restricted access
+2. **Add/remove validators** as needed - Manage permissions dynamically
+3. **Open to all** (optional) - Disable allow list when ready for permissionless operation
+
+<Warning>
+**Important**: Once you disable an allow list with `disableModelAllowList()`, it **cannot be re-enabled**. This is a security feature to prevent "rug pulls" where access is restricted after being opened.
+</Warning>
+
+---
+
+## Registering model with Arbius
+
+### Get Ethereum on Arbitrum One
+
+To register a model you will need some amount of Eth on the Arbitrum One network.
+
+For bridging assets, you have a few options:
+
+* [Official bridge](https://bridge.arbitrum.io/?l2chainId=42161)
+* [SideShift](https://sideshift.ai/)
+* [Multichain](https://multichain.org/)
+
+On Arbitrum One transactions are usually very inexpensive. A few dollar equivalent in Eth is fine for all experimentation and deployment.
+
+### Set up Arbius locally
+
+Next, you will want to set up Arbius which provides a command to register models. 
+
+
+```bash
+git clone https://github.com/semperai/arbius.git
+cd arbius/contract
+cp env.example .env
+$(EDITOR) .env
+```
+
+Replace `ARBITRUM_PRIVATE_KEY='REPLACEME'` with your private key
+Your private key can be found in MetaMask by clicking "account details".
+
+<Note>Your private key should not start with `0x` if it does you can just remove it as "0x" is just representation to indicate the hexadecimal format.</Note>
+
+Next, complete installation of Arbius cli tools by running:
+
+
+```bash
+nvm use
+npm i -g yarn # optional if you already have it installed
+yarn
+```
+
+
+### Finalize template file
+
+Place your template file in `/arbius/templates/<your-model-name>.json`. You should remove all unused whitespace by running:
+
+```bash
+cat [your-template-file].json | jq -c > templates/[your-template-file].json
+```
+
+### Upload template to IPFS
+
+All Arbius files are accessible over IPFS. You can pin your template file locally by running:
+
+```bash
+ipfs add templates/[your-template-file].json
+```
+
+Which will result in a `CID` (Content IDentifier). Others miners are likely to mirror this too.
+
+### Register model
+
+<Warning>
+Make sure you read the [Model Tokens](/model-tokens) guide before continuing if you would like to tokenize your model.
+</Warning>
+
+#### Option 1: Register without allow list (permissionless)
+
+The following line will register a model with 0 fee, and it uses an unused address for the simplicity of this article.
+
+```bash
+npx hardhat --network arbitrum engine:registerModel \
+--address "0x0000000000000000000000000000000000000001" \
+--fee "0" \
+--template templates/[your-template-file].json
+```
+
+#### Option 2: Register with allow list (V6+)
+
+To register a model with an allow list of approved solvers:
+
+```bash
+npx hardhat --network arbitrum engine:registerModelWithAllowList \
+--address "0x0000000000000000000000000000000000000001" \
+--fee "0" \
+--template templates/[your-template-file].json \
+--allowlist "0xValidator1Address,0xValidator2Address,0xValidator3Address"
+```
+
+<Note>
+Separate validator addresses with commas (no spaces). Only these addresses will be able to submit solutions initially.
+</Note>
+
+#### Registration Output
+
+Either command will result in a line like:
+
+```text
+Model registered: 0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf
+
+Add the following to...
+```
+
+Follow the instructions generated to store in the `arbius/contract/scripts/config.json` file. Use a lowercase alphanumeric name for the key field as this will be used in code.
+
+### Managing Allow Lists (V6+)
+
+After registering with an allow list, you can manage it using these commands:
+
+#### Add validators to allow list
+
+```bash
+npx hardhat --network arbitrum engine:addToModelAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf" \
+--solvers "0xNewValidator1,0xNewValidator2"
+```
+
+#### Remove validators from allow list
+
+```bash
+npx hardhat --network arbitrum engine:removeFromModelAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf" \
+--solvers "0xOldValidator1,0xOldValidator2"
+```
+
+#### Disable allow list (open to all validators)
+
+```bash
+npx hardhat --network arbitrum engine:disableModelAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf"
+```
+
+<Warning>
+**This action is irreversible!** Once disabled, the allow list cannot be re-enabled. Only use this when you're ready to make your model permanently permissionless.
+</Warning>
+
+#### Check allow list status
+
+To check if a validator can submit solutions:
+
+```bash
+npx hardhat --network arbitrum engine:isSolverAllowed \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf" \
+--solver "0xValidatorAddress"
+```
+
+To check if a model requires an allow list:
+
+```bash
+npx hardhat --network arbitrum engine:modelRequiresAllowList \
+--model "0x873de8267de30d5650091ef5467f682b3d2736522ed58ee3fc40f1244941feaf"
+```
+
+## Adding model to the generate interface
+
+1. **Import your model.** Add a line like:
+```javascript
+import ModelNameTemplate from '@/templates/modelname.json';
+```
+to the top of the file.
+
+2. **Update the `models` array**. Add a line like:
+```javascript
+[Config.models.modelname.id, 'Model Name'],
+```
+
+to the list of models.
+
+3. **Update `getModelTemplate`**. Add a new case section like:
+
+```javascript
+case Config.models.modelname.id:
+  return ModelNameTemplate;
+```
+
+---
+
+You should now be able to start the web server and view the template in the generation page:
+
+```bash
+cd arbius/website
+nvm use
+yarn
+yarn dev
+```
+
+Now open `http://127.0.0.1:3000/generate` and see your model in the dropdown. Woohoo!
+
+## Send PR to enable in interface
+
+Please make a PR including your model to [https://github.com/semperai/arbius](https://github.com/semperai/arbius) so the website may be updated. 
+
+## Next steps
+
+If you are not a miner, at this point you should be requesting that other miners enable your model for mining. Reach out to the Arbius mining group on telegram. If you are one, continue to the [Mining guide](/mining) to see how you can enable this model for mining.

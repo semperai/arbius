@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "title": "WAI-NSFW-illustrious-SDXL-v120",
+    "description": "Anime image generation model",
+    "git": "https://github.com/kasumi-1/cog-wai-v120",
+    "docker": "r8.im/kasumi-1/cog-wai-v120@sha256:41dc96a3fbc0915d621e94e698ddfb9d8581bea5c97c322ec8c7600fafaa9b24",
+    "version": 1
+  },
+  "input": [
+    {
+      "variable": "prompt",
+      "type": "string",
+      "required": true,
+      "default": "",
+      "description": "Input prompt"
+    }
+  ],
+  "output": [
+    {
+      "filename": "out-1.png",
+      "type": "image"
+    }
+  ]
+}

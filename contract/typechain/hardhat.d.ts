@@ -297,6 +297,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IArbius__factory>;
     getContractFactory(
+      name: "IArbiusV6",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IArbiusV6__factory>;
+    getContractFactory(
       name: "IArbToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IArbToken__factory>;
@@ -328,6 +332,10 @@ declare module "hardhat/types/runtime" {
       name: "IERC721Permit",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC721Permit__factory>;
+    getContractFactory(
+      name: "IMasterContesterRegistry",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMasterContesterRegistry__factory>;
     getContractFactory(
       name: "IMulticall",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -425,6 +433,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.L1Token__factory>;
     getContractFactory(
+      name: "MasterContesterRegistry",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MasterContesterRegistry__factory>;
+    getContractFactory(
       name: "AmicaModelToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AmicaModelToken__factory>;
@@ -496,6 +508,10 @@ declare module "hardhat/types/runtime" {
       name: "V2_EngineV5",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.V2_EngineV5__factory>;
+    getContractFactory(
+      name: "V2_EngineV6",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.V2_EngineV6__factory>;
     getContractFactory(
       name: "VeNFTRender",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -869,6 +885,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IArbius>;
     getContractAt(
+      name: "IArbiusV6",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IArbiusV6>;
+    getContractAt(
       name: "IArbToken",
       address: string,
       signer?: ethers.Signer
@@ -908,6 +929,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC721Permit>;
+    getContractAt(
+      name: "IMasterContesterRegistry",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMasterContesterRegistry>;
     getContractAt(
       name: "IMulticall",
       address: string,
@@ -1029,6 +1055,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.L1Token>;
     getContractAt(
+      name: "MasterContesterRegistry",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MasterContesterRegistry>;
+    getContractAt(
       name: "AmicaModelToken",
       address: string,
       signer?: ethers.Signer
@@ -1118,6 +1149,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.V2_EngineV5>;
+    getContractAt(
+      name: "V2_EngineV6",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.V2_EngineV6>;
     getContractAt(
       name: "VeNFTRender",
       address: string,

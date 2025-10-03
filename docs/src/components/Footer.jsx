@@ -1,6 +1,8 @@
+'use client'
+
 import { forwardRef, Fragment, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import { Transition } from '@headlessui/react'
 
 import { Button } from '@/components/Button'
@@ -56,8 +58,8 @@ const FeedbackThanks = forwardRef(function FeedbackThanks(_props, ref) {
       ref={ref}
       className="absolute inset-0 flex justify-center md:justify-start"
     >
-      <div className="flex items-center gap-3 rounded-full bg-indigo-50/50 py-1 pr-3 pl-1.5 text-sm text-indigo-900 ring-1 ring-inset ring-indigo-500/20 dark:bg-indigo-500/5 dark:text-indigo-200 dark:ring-indigo-500/30">
-        <CheckIcon className="h-5 w-5 flex-none fill-indigo-500 stroke-white dark:fill-indigo-200/20 dark:stroke-indigo-200" />
+      <div className="flex items-center gap-3 rounded-full bg-purple-50/50 py-1 pr-3 pl-1.5 text-sm text-purple-900 ring-1 ring-inset ring-purple-500/20 dark:bg-purple-500/5 dark:text-purple-200 dark:ring-purple-500/30">
+        <CheckIcon className="h-5 w-5 flex-none fill-purple-500 stroke-white dark:fill-purple-200/20 dark:stroke-purple-200" />
         Thanks for your feedback!
       </div>
     </div>
@@ -124,7 +126,7 @@ function PageLink({ label, page, previous = false }) {
 }
 
 function PageNavigation() {
-  let router = useRouter()
+  let router = usePathname()
   let allPages = navigation.flatMap((group) => group.links)
   let currentPageIndex = allPages.findIndex(
     (page) => page.href === router.pathname
@@ -231,7 +233,7 @@ function SmallPrint() {
 }
 
 export function Footer() {
-  let router = useRouter()
+  let router = usePathname()
 
   return (
     <footer className="mx-auto max-w-2xl space-y-10 pb-16 lg:max-w-5xl">
