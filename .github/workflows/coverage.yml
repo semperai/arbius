@@ -1,0 +1,53 @@
+name: Coverage
+
+on:
+  push:
+    branches: [main, master, kasumi3-updates]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [contract, website, explorer, announcements, docs, website2]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/jod'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+
+      - name: Install dependencies
+        run: cd ${{ matrix.package }} && npm ci
+
+      - name: Run coverage
+        run: cd ${{ matrix.package }} && npm run coverage
+        continue-on-error: true
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: ${{ matrix.package }}
+          parallel: true
+          base-path: ${{ matrix.package }}
+          path-to-lcov: ${{ matrix.package }}/coverage/lcov.info
+        continue-on-error: true
+
+  finish:
+    needs: coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
+          carryforward: "contract,website,explorer,announcements,docs,website2"
