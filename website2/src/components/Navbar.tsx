@@ -138,12 +138,14 @@ export function Navbar() {
               Playground
             </Link>
 
-            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors">
+            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1">
               Amica
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
-            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors">
+            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1">
               Marketplace
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
             <Link href="https://docs.arbius.ai/" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1">
@@ -151,8 +153,9 @@ export function Navbar() {
               <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
-            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors">
+            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-primary transition-colors flex items-center gap-1">
               Bridge
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
             <Link href="/media" className="text-gray-700 hover:text-primary transition-colors">
@@ -225,12 +228,14 @@ export function Navbar() {
               Playground
             </Link>
 
-            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+            <Link href="https://personas.heyamica.com" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black flex items-center gap-2">
               Amica
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
-            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+            <Link href="https://effectiveacceleration.ai" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black flex items-center gap-2">
               Marketplace
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
             <Link href="https://docs.arbius.ai/" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black flex items-center gap-2">
@@ -238,8 +243,9 @@ export function Navbar() {
               <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
-            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
+            <Link href="https://bridge.arbitrum.io/?destinationChain=arbitrum-one&sourceChain=ethereum" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu} className="block text-2xl font-medium text-black flex items-center gap-2">
               Bridge
+              <Image src={externalLink} alt="" width={12} height={12} className="w-3 h-3 opacity-60" />
             </Link>
 
             <Link href="/media" onClick={closeMobileMenu} className="block text-2xl font-medium text-black">
