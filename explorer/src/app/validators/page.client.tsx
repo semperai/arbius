@@ -1,5 +1,6 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
 import { SearchIcon, ClockIcon } from 'lucide-react';
@@ -30,7 +31,7 @@ interface Validator {
   pendingWithdrawals?: number;
 }
 
-export default function ValidatorsPage() {
+export default function ValidatorsPageClient() {
   const [loading, setLoading] = useState(true);
   const [validators, setValidators] = useState<Validator[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -96,140 +97,133 @@ export default function ValidatorsPage() {
   const activeValidatorsCount = validators.filter(v => v.active).length;
 
   return (
-    <>
-      <Head>
-        <title>Validators | Arbius Explorer</title>
-        <meta name="description" content="Browse validators in the Arbius decentralized AI system." />
-      </Head>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Network Validators</h1>
-          <p className="text-muted-foreground">
-            Browse validators securing the Arbius decentralized AI system
-          </p>
-        </div>
-
-        {/* Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Total Validators</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between">
-                <div className="text-3xl font-bold">{validators.length}</div>
-                <div className="text-sm text-muted-foreground">
-                  {activeValidatorsCount} active ({Math.round((activeValidatorsCount / validators.length) * 100)}%)
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Total Staked</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between">
-                <div className="text-3xl font-bold">
-                  {parseFloat(ethers.formatEther(totalStaked)).toLocaleString(undefined, { maximumFractionDigits: 2 })} AIUS
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Securing the network
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Average Success Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between">
-                <div className="text-3xl font-bold">
-                  {validators.length > 0 ? Math.round(validators.reduce((sum, v) => sum + v.successRate, 0) / validators.length) : '??'}%
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Task validation success
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by validator address..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Select value={filterActive} onValueChange={setFilterActive}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Validators</SelectItem>
-                <SelectItem value="active">Active Only</SelectItem>
-                <SelectItem value="inactive">Inactive Only</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="staked">Most Staked</SelectItem>
-                <SelectItem value="success">Success Rate</SelectItem>
-                <SelectItem value="tasks">Tasks Validated</SelectItem>
-                <SelectItem value="recent">Most Recent</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Validators List */}
-        {loading ? (
-          <div className="space-y-4">
-            {[...Array(5)].map((_, index) => (
-              <ValidatorCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : sortedValidators.length > 0 ? (
-          <div className="space-y-4">
-            {sortedValidators.map((validator) => (
-              <ValidatorCard key={validator.address} validator={validator} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No validators found matching your search criteria.</p>
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => {
-                setSearchQuery('');
-                setFilterActive('all');
-                setSortBy('staked');
-              }}
-            >
-              Clear Filters
-            </Button>
-          </div>
-        )}
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Network Validators</h1>
+        <p className="text-muted-foreground">
+          Browse validators securing the Arbius decentralized AI system
+        </p>
       </div>
-    </>
+
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Total Validators</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-bold">{validators.length}</div>
+              <div className="text-sm text-muted-foreground">
+                {activeValidatorsCount} active ({Math.round((activeValidatorsCount / validators.length) * 100)}%)
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Total Staked</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-bold">
+                {parseFloat(ethers.formatEther(totalStaked)).toLocaleString(undefined, { maximumFractionDigits: 2 })} AIUS
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Securing the network
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Average Success Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-bold">
+                {validators.length > 0 ? Math.round(validators.reduce((sum, v) => sum + v.successRate, 0) / validators.length) : '??'}%
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Task validation success
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="relative flex-1">
+          <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by validator address..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Select value={filterActive} onValueChange={setFilterActive}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Validators</SelectItem>
+              <SelectItem value="active">Active Only</SelectItem>
+              <SelectItem value="inactive">Inactive Only</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="staked">Most Staked</SelectItem>
+              <SelectItem value="success">Success Rate</SelectItem>
+              <SelectItem value="tasks">Tasks Validated</SelectItem>
+              <SelectItem value="recent">Most Recent</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Validators List */}
+      {loading ? (
+        <div className="space-y-4">
+          {[...Array(5)].map((_, index) => (
+            <ValidatorCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : sortedValidators.length > 0 ? (
+        <div className="space-y-4">
+          {sortedValidators.map((validator) => (
+            <ValidatorCard key={validator.address} validator={validator} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No validators found matching your search criteria.</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => {
+              setSearchQuery('');
+              setFilterActive('all');
+              setSortBy('staked');
+            }}
+          >
+            Clear Filters
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -310,4 +304,3 @@ function ValidatorCardSkeleton() {
     </Card>
   );
 }
-

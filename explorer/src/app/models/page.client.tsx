@@ -1,5 +1,6 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
 import { SearchIcon, SlidersIcon } from 'lucide-react';
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { truncateMiddle } from '@/lib/utils';
 
-export default function ModelsPage() {
+export function ModelsPage() {
   const [loading, setLoading] = useState(true);
   const [models, setModels] = useState<Model[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,81 +76,74 @@ export default function ModelsPage() {
   });
 
   return (
-    <>
-      <Head>
-        <title>Models | Arbius Explorer</title>
-        <meta name="description" content="Browse AI models available on the Arbius decentralized AI system." />
-      </Head>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">AI Models</h1>
-          <p className="text-muted-foreground">
-            Browse available models in the Arbius decentralized AI system
-          </p>
-        </div>
-
-        {/* Search and Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by model name or ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <SlidersIcon className="h-4 w-4 text-muted-foreground" />
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="popularity">Most Popular</SelectItem>
-                <SelectItem value="name">Name (A-Z)</SelectItem>
-                <SelectItem value="fee-low">Fee (Low to High)</SelectItem>
-                <SelectItem value="fee-high">Fee (High to Low)</SelectItem>
-                <SelectItem value="success">Success Rate</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Models Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, index) => (
-              <ModelCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : sortedModels.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedModels.map((model) => (
-              <ModelCard key={model.id} model={model} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No models found matching your search criteria.</p>
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => {
-                setSearchQuery('');
-                setSortBy('popularity');
-              }}
-            >
-              Clear Filters
-            </Button>
-          </div>
-        )}
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">AI Models</h1>
+        <p className="text-muted-foreground">
+          Browse available models in the Arbius decentralized AI system
+        </p>
       </div>
-    </>
+
+      {/* Search and Filter */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="relative flex-1">
+          <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by model name or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <SlidersIcon className="h-4 w-4 text-muted-foreground" />
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="popularity">Most Popular</SelectItem>
+              <SelectItem value="name">Name (A-Z)</SelectItem>
+              <SelectItem value="fee-low">Fee (Low to High)</SelectItem>
+              <SelectItem value="fee-high">Fee (High to Low)</SelectItem>
+              <SelectItem value="success">Success Rate</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Models Grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, index) => (
+            <ModelCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : sortedModels.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedModels.map((model) => (
+            <ModelCard key={model.id} model={model} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No models found matching your search criteria.</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => {
+              setSearchQuery('');
+              setSortBy('popularity');
+            }}
+          >
+            Clear Filters
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -235,4 +229,3 @@ function SuccessRateBadge({ rate }: { rate: number }) {
     </span>
   );
 }
-

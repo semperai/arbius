@@ -1,5 +1,6 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
 import {
   SearchIcon,
   AlertCircleIcon,
@@ -19,7 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function Home() {
+export function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [contractStats, setContractStats] = useState({
     version: 0,
@@ -92,11 +93,6 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Arbius Explorer | Decentralized AI System</title>
-        <meta name="description" content="Explore tasks, models, and validators in the Arbius decentralized AI system." />
-      </Head>
-
       {/* Hero Section */}
       <section className="border-b">
         <div className="container px-4 py-16 md:py-24 lg:py-32 mx-auto space-y-10 text-center">

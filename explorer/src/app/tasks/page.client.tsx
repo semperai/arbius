@@ -1,5 +1,6 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import { ethers } from 'ethers';
 import { SearchIcon, SlidersIcon, CheckCircleIcon, ClockIcon, AlertTriangleIcon } from 'lucide-react';
@@ -48,7 +49,7 @@ interface Task {
   };
 }
 
-export default function TasksPage() {
+export default function TasksPageClient() {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,208 +135,201 @@ export default function TasksPage() {
   };
 
   return (
-    <>
-      <Head>
-        <title>Tasks | Arbius Explorer</title>
-        <meta name="description" content="Browse AI tasks in the Arbius decentralized AI system." />
-      </Head>
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">AI Tasks</h1>
+        <p className="text-muted-foreground">
+          Browse tasks submitted to the Arbius decentralized AI system
+        </p>
+      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">AI Tasks</h1>
-          <p className="text-muted-foreground">
-            Browse tasks submitted to the Arbius decentralized AI system
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground">Total Tasks</div>
+                <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-full">
+                <ClockIcon className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground">Completed</div>
+                <div className="text-2xl font-bold">{stats.completed.toLocaleString()}</div>
+              </div>
+              <div className="p-2 bg-green-500/10 rounded-full">
+                <CheckCircleIcon className="h-5 w-5 text-green-500" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground">Pending</div>
+                <div className="text-2xl font-bold">{stats.pending.toLocaleString()}</div>
+              </div>
+              <div className="p-2 bg-yellow-500/10 rounded-full">
+                <ClockIcon className="h-5 w-5 text-yellow-500" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground">Total Fees</div>
+                <div className="text-2xl font-bold">
+                  {parseFloat(ethers.formatEther(stats.totalFees)).toLocaleString(undefined, {
+                    maximumFractionDigits: 2
+                  })} AIUS
+                </div>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-primary"
+                >
+                  <path d="M12 2v6.5l1 1 1-1V2" />
+                  <path d="M16.8 6.8a5 5 0 0 1 0 7.1L12 18.6l-4.8-4.7a5 5 0 0 1 0-7.1 4.8 4.8 0 0 1 6.4-.4l.4.4.4-.4a4.9 4.9 0 0 1 6.4.4" />
+                  <path d="M12 13v9" />
+                </svg>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by task ID, model, or owner..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[130px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="contested">Contested</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={timeFilter} onValueChange={setTimeFilter}>
+            <SelectTrigger className="w-[130px]">
+              <SelectValue placeholder="Time" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="24h">Last 24 Hours</SelectItem>
+              <SelectItem value="7d">Last 7 Days</SelectItem>
+              <SelectItem value="30d">Last 30 Days</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Most Recent</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="fee-high">Highest Fee</SelectItem>
+              <SelectItem value="fee-low">Lowest Fee</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <SlidersIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setViewMode('table')}>
+                Table View
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setViewMode('cards')}>
+                Card View
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Results Count */}
+      <div className="text-sm text-muted-foreground mb-4">
+        Showing {sortedTasks.length} of {tasks.length} tasks
+      </div>
+
+      {/* Tasks List */}
+      {loading ? (
+        viewMode === 'table' ? (
+          <TasksTableSkeleton />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, index) => (
+              <TaskCardSkeleton key={index} />
+            ))}
+          </div>
+        )
+      ) : sortedTasks.length > 0 ? (
+        viewMode === 'table' ? (
+          <TasksTable tasks={sortedTasks} />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sortedTasks.map((task) => (
+              <TaskCard key={task.id} task={task} />
+            ))}
+          </div>
+        )
+      ) : (
+        <div className="text-center py-12 border rounded-lg bg-yellow-500/5 border-yellow-500/50">
+          <AlertTriangleIcon className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Task Listing Requires an Indexer</h3>
+          <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+            Enumerating all tasks from the blockchain requires an external indexing service.
+            You can search for a specific task by entering its task ID in the search box above.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Task IDs are 66-character hexadecimal strings starting with 0x
           </p>
         </div>
-
-        {/* Stats Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-muted-foreground">Total Tasks</div>
-                  <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
-                </div>
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <ClockIcon className="h-5 w-5 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-muted-foreground">Completed</div>
-                  <div className="text-2xl font-bold">{stats.completed.toLocaleString()}</div>
-                </div>
-                <div className="p-2 bg-green-500/10 rounded-full">
-                  <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-muted-foreground">Pending</div>
-                  <div className="text-2xl font-bold">{stats.pending.toLocaleString()}</div>
-                </div>
-                <div className="p-2 bg-yellow-500/10 rounded-full">
-                  <ClockIcon className="h-5 w-5 text-yellow-500" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-muted-foreground">Total Fees</div>
-                  <div className="text-2xl font-bold">
-                    {parseFloat(ethers.formatEther(stats.totalFees)).toLocaleString(undefined, {
-                      maximumFractionDigits: 2
-                    })} AIUS
-                  </div>
-                </div>
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-primary"
-                  >
-                    <path d="M12 2v6.5l1 1 1-1V2" />
-                    <path d="M16.8 6.8a5 5 0 0 1 0 7.1L12 18.6l-4.8-4.7a5 5 0 0 1 0-7.1 4.8 4.8 0 0 1 6.4-.4l.4.4.4-.4a4.9 4.9 0 0 1 6.4.4" />
-                    <path d="M12 13v9" />
-                  </svg>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by task ID, model, or owner..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[130px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="contested">Contested</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={timeFilter} onValueChange={setTimeFilter}>
-              <SelectTrigger className="w-[130px]">
-                <SelectValue placeholder="Time" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Time</SelectItem>
-                <SelectItem value="24h">Last 24 Hours</SelectItem>
-                <SelectItem value="7d">Last 7 Days</SelectItem>
-                <SelectItem value="30d">Last 30 Days</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Most Recent</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
-                <SelectItem value="fee-high">Highest Fee</SelectItem>
-                <SelectItem value="fee-low">Lowest Fee</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <SlidersIcon className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setViewMode('table')}>
-                  Table View
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setViewMode('cards')}>
-                  Card View
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Results Count */}
-        <div className="text-sm text-muted-foreground mb-4">
-          Showing {sortedTasks.length} of {tasks.length} tasks
-        </div>
-
-        {/* Tasks List */}
-        {loading ? (
-          viewMode === 'table' ? (
-            <TasksTableSkeleton />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, index) => (
-                <TaskCardSkeleton key={index} />
-              ))}
-            </div>
-          )
-        ) : sortedTasks.length > 0 ? (
-          viewMode === 'table' ? (
-            <TasksTable tasks={sortedTasks} />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} />
-              ))}
-            </div>
-          )
-        ) : (
-          <div className="text-center py-12 border rounded-lg bg-yellow-500/5 border-yellow-500/50">
-            <AlertTriangleIcon className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Task Listing Requires an Indexer</h3>
-            <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-              Enumerating all tasks from the blockchain requires an external indexing service.
-              You can search for a specific task by entering its task ID in the search box above.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Task IDs are 66-character hexadecimal strings starting with 0x
-            </p>
-          </div>
-        )}
-      </div>
-    </>
+      )}
+    </div>
   );
 }
 
@@ -508,4 +502,3 @@ function TaskCardSkeleton() {
     </Card>
   );
 }
-
