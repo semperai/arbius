@@ -64,15 +64,31 @@ export const AAWalletProvider: React.FC<AAWalletProviderProps> = ({ children }) 
     };
 
     const ethereum = window.ethereum;
-    if (ethereum && typeof ethereum.on === 'function') {
-      ethereum.on('accountsChanged', handleAccountsChanged);
-      ethereum.on('chainChanged', handleChainChanged);
+    if (ethereum) {
+      try {
+        // Use the ethereum object directly for event listeners
+        // Some providers use Proxy which can cause issues with .on()
+        const provider = ethereum;
+        if (typeof provider.on === 'function') {
+          provider.on('accountsChanged', handleAccountsChanged);
+          provider.on('chainChanged', handleChainChanged);
+        }
+      } catch (error) {
+        console.warn('Failed to attach ethereum event listeners:', error);
+      }
     }
 
     return () => {
-      if (ethereum && typeof ethereum.removeListener === 'function') {
-        ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        ethereum.removeListener('chainChanged', handleChainChanged);
+      if (ethereum) {
+        try {
+          const provider = ethereum;
+          if (typeof provider.removeListener === 'function') {
+            provider.removeListener('accountsChanged', handleAccountsChanged);
+            provider.removeListener('chainChanged', handleChainChanged);
+          }
+        } catch (error) {
+          console.warn('Failed to remove ethereum event listeners:', error);
+        }
       }
     };
   }, []);
