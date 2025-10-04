@@ -11,7 +11,7 @@
     "build": "yarn prettier '**/*.sol' --write && yarn clean:contracts && yarn compile",
     "test": "forge test",
     "test:hardhat": "npx hardhat test",
-    "test:coverage": "forge coverage --ir-minimum --report lcov --no-match-path 'contracts/{V2_EngineV[1-5]*,EngineV1,GovernorV1,TimelockV1}.sol'",
+    "test:coverage": "forge coverage --ir-minimum --report lcov",
     "size": "npx hardhat size-contracts",
     "prettier:check": "prettier --check .",
     "prettier:lint": "prettier --write .",
