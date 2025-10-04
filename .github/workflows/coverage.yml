@@ -4,7 +4,6 @@ on:
   push:
     branches: [main, master, kasumi3-updates]
   pull_request:
-    branches: [main, master]
 
 jobs:
   coverage:
