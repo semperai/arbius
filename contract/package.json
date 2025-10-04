@@ -14,7 +14,7 @@
     "prettier:check": "prettier --check .",
     "prettier:lint": "prettier --write .",
     "slither": "slither --solc-remaps \"@openzeppelin/=$(pwd)/node_modules/@openzeppelin/ @prb=node_modules/@prb @arbitrum=node_modules/@arbitrum\"",
-    "coverage": "npx hardhat coverage --network localhost",
+    "coverage": "npx hardhat coverage --via-ir",
     "forge-test": "forge test --fork-url http://localhost:8545 --fork-block-number 18",
     "forge-test-v": "forge test --fork-url http://localhost:8545 --fork-block-number 18 -vvv"
   },
