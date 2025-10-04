@@ -79,8 +79,8 @@ export class BlockchainService implements IBlockchainService {
         const provider = new ethers.JsonRpcProvider(url);
         const nonce = await provider.getTransactionCount(this.wallet.address, 'pending');
         return nonce;
-      } catch (err) {
-        log.warn(`Failed to get nonce from ${url}: ${err}`);
+      } catch (err: any) {
+        log.warn(`Failed to get nonce from ${url}, trying next RPC: ${err.message}`);
         return 0;
       }
     });
@@ -263,8 +263,8 @@ export class BlockchainService implements IBlockchainService {
       );
       log.info(`signalCommitment tx: ${tx.hash}`);
       await tx.wait();
-    } catch (e) {
-      log.warn(`signalCommitment failed: ${e}`);
+    } catch (e: any) {
+      log.error(`Failed to signal commitment: ${e.message}`);
       throw e;
     }
   }
@@ -276,8 +276,8 @@ export class BlockchainService implements IBlockchainService {
     // Signal commitment first
     try {
       await this.signalCommitment(commitment);
-    } catch (e) {
-      log.warn(`signalCommitment failed, continuing: ${e}`);
+    } catch (e: any) {
+      log.warn(`Commitment signal failed, continuing without commitment: ${e.message}`);
     }
 
     // Sleep to avoid nonce issues
@@ -317,7 +317,7 @@ export class BlockchainService implements IBlockchainService {
     };
   }
 
-  async findTransactionByTaskId(taskid: string): Promise<{ txHash: string; prompt: string } | null> {
+  async findTransactionByTaskId(taskid: string): Promise<{ txHash: string; prompt: string; modelId: string } | null> {
     try {
       const filter = this.arbius.filters.TaskSubmitted(taskid);
       const currentBlock = await this.provider.getBlockNumber();
@@ -328,7 +328,7 @@ export class BlockchainService implements IBlockchainService {
       const logs = await this.arbius.queryFilter(filter, fromBlock, currentBlock);
 
       if (logs.length === 0) {
-        log.warn(`No TaskSubmitted event found for taskid: ${taskid}`);
+        log.error(`No TaskSubmitted event found for taskid: ${taskid}`);
         return null;
       }
 
@@ -348,12 +348,15 @@ export class BlockchainService implements IBlockchainService {
           return null;
         }
 
-        const inputBytes = decodedData.args[4];
+        // Extract model ID and input from submitTask call
+        // submitTask(uint8 version, address owner, bytes32 model, uint256 fee, bytes input, uint256 cid_ipfs_only_test_param, uint256 gasLimit)
+        const modelId = decodedData.args[2]; // model is arg index 2
+        const inputBytes = decodedData.args[4]; // input is arg index 4
         const inputString = ethers.toUtf8String(inputBytes);
         const inputJson = JSON.parse(inputString);
         const prompt = inputJson.prompt;
 
-        return { txHash, prompt };
+        return { txHash, prompt, modelId };
       } catch (decodeError) {
         log.error(`Failed to decode transaction data: ${decodeError}`);
         return null;

@@ -278,8 +278,9 @@ describe('TaskProcessor', () => {
       );
 
       const mockContract = {
-        models: jest.fn().mockResolvedValue({ fee: BigInt('1000000000000000000') }),
+        models: jest.fn(),
       };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
       mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
       mockBlockchain.getProvider.mockReturnValue({} as any);
       mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
@@ -288,6 +289,7 @@ describe('TaskProcessor', () => {
       mockBlockchain.findTransactionByTaskId.mockResolvedValue({
         txHash: '0xtxhash',
         prompt: 'test',
+        modelId: '0xmodel1',
       });
       mockBlockchain.getProvider.mockReturnValue({
         getTransactionReceipt: jest.fn().mockResolvedValue({
@@ -336,8 +338,9 @@ describe('TaskProcessor', () => {
       );
 
       const mockContract = {
-        models: jest.fn().mockResolvedValue({ fee: BigInt('1000000000000000000') }),
+        models: jest.fn(),
       };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
       mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
       mockBlockchain.getProvider.mockReturnValue({} as any);
       mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
@@ -366,8 +369,9 @@ describe('TaskProcessor', () => {
       );
 
       const mockContract = {
-        models: jest.fn().mockResolvedValue({ fee: BigInt('1000000000000000000') }),
+        models: jest.fn(),
       };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
       mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
       mockBlockchain.getProvider.mockReturnValue({} as any);
       mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
@@ -390,6 +394,7 @@ describe('TaskProcessor', () => {
       mockBlockchain.findTransactionByTaskId.mockResolvedValue({
         txHash: '0xtxhash',
         prompt: 'existing prompt',
+        modelId: '0xmodel1',
       });
       mockJobQueue.addJob.mockResolvedValue({
         id: 'job-existing',

@@ -47,8 +47,8 @@ class Kasumi3Listener {
     contract.on('TaskSubmitted', async (taskid, modelId, fee, sender, event) => {
       try {
         await this.handleTaskSubmitted(taskid, modelId, fee, sender, event);
-      } catch (err) {
-        log.error(`Error handling TaskSubmitted event: ${err}`);
+      } catch (err: any) {
+        log.error(`Error handling TaskSubmitted event: ${err.message}`);
       }
     });
 
@@ -177,8 +177,8 @@ async function main() {
   const queueWithProcessor = new JobQueue(3, async (job: TaskJob) => {
     try {
       await taskProcessor.processTask(job);
-    } catch (err) {
-      log.error(`Failed to process job ${job.id}: ${err}`);
+    } catch (err: any) {
+      log.error(`Failed to process job ${job.id}: ${err.message}`);
     }
   });
 

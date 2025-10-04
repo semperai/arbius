@@ -8,13 +8,14 @@ import axios from 'axios';
 
 import { initializeLogger, log } from './log';
 import { initializeIpfsClient } from './ipfs';
-import { now, cidify } from './utils';
+import { now, cidify, expretry } from './utils';
 import { ConfigLoader, loadModelsConfig } from './config';
 import { ModelRegistry } from './services/ModelRegistry';
 import { BlockchainService } from './services/BlockchainService';
 import { JobQueue } from './services/JobQueue';
 import { TaskProcessor } from './services/TaskProcessor';
 import { RateLimiter } from './services/RateLimiter';
+import { HealthCheckServer } from './services/HealthCheckServer';
 import { TaskJob } from './types';
 
 /**
@@ -29,6 +30,8 @@ class Kasumi3Bot {
   private miningConfig: any;
   private startupTime: number;
   private rateLimiter: RateLimiter;
+  private cleanupInterval: NodeJS.Timeout | null = null;
+  private healthCheckServer: HealthCheckServer | null = null;
 
   constructor(
     botToken: string,
@@ -36,7 +39,8 @@ class Kasumi3Bot {
     modelRegistry: ModelRegistry,
     jobQueue: JobQueue,
     taskProcessor: TaskProcessor,
-    miningConfig: any
+    miningConfig: any,
+    rateLimitConfig?: { maxRequests: number; windowMs: number }
   ) {
     this.bot = new Telegraf(botToken);
     this.blockchain = blockchain;
@@ -45,7 +49,12 @@ class Kasumi3Bot {
     this.taskProcessor = taskProcessor;
     this.miningConfig = miningConfig;
     this.startupTime = now();
-    this.rateLimiter = new RateLimiter({ maxRequests: 5, windowMs: 60000 });
+    this.rateLimiter = new RateLimiter(
+      rateLimitConfig || {
+        maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '5'),
+        windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000')
+      }
+    );
 
     this.setupHandlers();
   }
@@ -60,6 +69,7 @@ class Kasumi3Bot {
 
       if (!this.rateLimiter.checkLimit(userId)) {
         const resetTime = this.rateLimiter.getResetTime(userId);
+        log.debug(`User ${userId} rate limited, ${resetTime}s until reset`);
         await ctx.reply(
           `⏱️ Rate limit exceeded. Please wait ${resetTime} seconds before trying again.\n\n` +
           `Limit: 5 requests per minute`
@@ -86,6 +96,7 @@ class Kasumi3Bot {
         modelCommands + `\n\n` +
         `  /submit <model> <prompt> - Submit task without waiting\n` +
         `  /process <taskid> - Process an existing task\n` +
+        `  /status - Show bot health and diagnostics\n` +
         `  /kasumi - Show Kasumi-3's wallet status\n` +
         `  /queue - Show job queue status\n\n` +
         `Examples:\n` +
@@ -126,6 +137,72 @@ class Kasumi3Bot {
         `Completed: ${stats.completed}\n` +
         `Failed: ${stats.failed}`
       );
+    });
+
+    this.bot.command('status', async ctx => {
+      try {
+        // Get blockchain info
+        const address = this.blockchain.getWalletAddress();
+        const arbiusBalance = await this.blockchain.getBalance();
+        const ethBalance = await this.blockchain.getEthBalance();
+        const validatorStaked = await this.blockchain.getValidatorStake();
+        const validatorMinimum = await this.blockchain.getValidatorMinimum();
+
+        // Get queue stats
+        const queueStats = this.jobQueue.getQueueStats();
+
+        // Get rate limiter stats
+        const rateLimiterStats = this.rateLimiter.getStats();
+
+        // Calculate uptime
+        const uptimeSeconds = now() - this.startupTime;
+        const uptimeMinutes = Math.floor(uptimeSeconds / 60);
+        const uptimeHours = Math.floor(uptimeMinutes / 60);
+
+        // Check health indicators
+        const hasEnoughGas = ethBalance > ethers.parseEther('0.01'); // 0.01 ETH minimum
+        const hasEnoughAius = arbiusBalance > ethers.parseEther('1'); // 1 AIUS minimum
+        const isStakedEnough = validatorStaked >= validatorMinimum;
+        const queueHealthy = queueStats.processing < 10; // Less than 10 processing
+
+        const healthStatus = hasEnoughGas && hasEnoughAius && isStakedEnough && queueHealthy
+          ? '✅ Healthy'
+          : '⚠️ Needs Attention';
+
+        const warnings = [];
+        if (!hasEnoughGas) warnings.push('⚠️ Low ETH (need gas for transactions)');
+        if (!hasEnoughAius) warnings.push('⚠️ Low AIUS balance');
+        if (!isStakedEnough) warnings.push('⚠️ Not staked enough for validation');
+        if (!queueHealthy) warnings.push('⚠️ High queue processing load');
+
+        const warningsText = warnings.length > 0 ? '\n\n' + warnings.join('\n') : '';
+
+        ctx.reply(
+          `🔍 Kasumi-3 Status\n\n` +
+          `${healthStatus}\n\n` +
+          `**Wallet**\n` +
+          `Address: \`${address.slice(0, 10)}...${address.slice(-8)}\`\n` +
+          `AIUS: ${ethers.formatEther(arbiusBalance)} ${hasEnoughAius ? '✅' : '⚠️'}\n` +
+          `ETH: ${ethers.formatEther(ethBalance)} ${hasEnoughGas ? '✅' : '⚠️'}\n` +
+          `Staked: ${ethers.formatEther(validatorStaked)} / ${ethers.formatEther(validatorMinimum)} ${isStakedEnough ? '✅' : '⚠️'}\n\n` +
+          `**Job Queue**\n` +
+          `Total: ${queueStats.total}\n` +
+          `Pending: ${queueStats.pending}\n` +
+          `Processing: ${queueStats.processing} ${queueHealthy ? '✅' : '⚠️'}\n` +
+          `Completed: ${queueStats.completed}\n` +
+          `Failed: ${queueStats.failed}\n\n` +
+          `**System**\n` +
+          `Uptime: ${uptimeHours}h ${uptimeMinutes % 60}m\n` +
+          `Active Users: ${rateLimiterStats.activeUsers}\n` +
+          `Models: ${this.modelRegistry.getAllModels().length}\n` +
+          `Rate Limit: ${rateLimiterStats.config.maxRequests} req/${rateLimiterStats.config.windowMs / 1000}s` +
+          warningsText,
+          { parse_mode: 'Markdown' }
+        );
+      } catch (err: any) {
+        log.error(`Error in /status command: ${err.message}`);
+        ctx.reply('❌ Failed to fetch status');
+      }
     });
 
     this.bot.command('submit', async ctx => {
@@ -183,8 +260,8 @@ class Kasumi3Bot {
         caption: `🔄 Processing with ${modelConfig.template.meta.title}...`,
       });
     } catch (e) {
-      log.error(`Failed to send initial photo: ${e}`);
-      ctx.reply(`🔄 Processing with ${modelConfig.template.meta.title}...`);
+      log.debug(`Failed to send initial photo, using text fallback: ${e}`);
+      responseCtx = await ctx.reply(`🔄 Processing with ${modelConfig.template.meta.title}...`);
     }
 
     try {
@@ -193,7 +270,11 @@ class Kasumi3Bot {
         modelConfig,
         { prompt },
         0n,
-        { chatId: ctx.chat.id, messageId: responseCtx?.message_id }
+        {
+          chatId: ctx.chat.id,
+          messageId: responseCtx?.message_id,
+          telegramId: ctx.from?.id
+        }
       );
 
       const taskUrl = `https://arbius.ai/task/${taskid}`;
@@ -208,7 +289,7 @@ class Kasumi3Bot {
             `⏳ Task submitted: ${taskUrl}`
           );
         } catch (e) {
-          log.error(`Failed to update message: ${e}`);
+          log.warn(`Failed to update message caption: ${e}`);
         }
       }
 
@@ -294,9 +375,12 @@ class Kasumi3Bot {
         return;
       }
 
-      // Try to determine which model this is for (for now, default to first model)
-      const models = this.modelRegistry.getAllModels();
-      const modelConfig = models[0]; // TODO: extract model ID from transaction
+      // Find the model by ID extracted from transaction
+      const modelConfig = this.modelRegistry.getModelById(txData.modelId);
+      if (!modelConfig) {
+        ctx.reply(`❌ Unknown model ID: ${txData.modelId}. This model is not registered.`);
+        return;
+      }
 
       if (responseCtx) {
         try {
@@ -307,7 +391,7 @@ class Kasumi3Bot {
             `⏳ Found task! Processing...`
           );
         } catch (e) {
-          log.error(`Failed to update message: ${e}`);
+          log.warn(`Failed to update message caption: ${e}`);
         }
       }
 
@@ -324,32 +408,49 @@ class Kasumi3Bot {
   }
 
   private async waitForJobCompletion(job: TaskJob, ctx: any, responseCtx?: any): Promise<void> {
-    // Poll for job completion
-    const maxWaitTime = 15 * 60 * 1000; // 15 minutes
-    const pollInterval = 5000; // 5 seconds
-    const startTime = Date.now();
+    const maxWaitTime = parseInt(process.env.JOB_WAIT_TIMEOUT_MS || '900000'); // 15 minutes default
 
-    while (Date.now() - startTime < maxWaitTime) {
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        cleanup();
+        ctx.reply(`⏰ Task is taking longer than expected. Check back later with /queue`);
+        resolve();
+      }, maxWaitTime);
+
+      const onStatusChange = async (updatedJob: TaskJob) => {
+        if (updatedJob.id !== job.id) return;
+
+        if (updatedJob.status === 'completed' && updatedJob.cid) {
+          cleanup();
+          await this.sendCompletedResult(ctx, responseCtx, updatedJob);
+          resolve();
+        } else if (updatedJob.status === 'failed') {
+          cleanup();
+          ctx.reply(`❌ Task failed: ${updatedJob.error || 'Unknown error'}`);
+          resolve();
+        }
+      };
+
+      const cleanup = () => {
+        clearTimeout(timeout);
+        this.jobQueue.off('jobStatusChange', onStatusChange);
+      };
+
+      this.jobQueue.on('jobStatusChange', onStatusChange);
+
+      // Check if job is already completed (race condition)
       const currentJob = this.jobQueue.getJob(job.id);
-      if (!currentJob) {
-        log.warn(`Job ${job.id} disappeared from queue`);
-        break;
+      if (currentJob) {
+        if (currentJob.status === 'completed' && currentJob.cid) {
+          cleanup();
+          this.sendCompletedResult(ctx, responseCtx, currentJob).then(resolve);
+        } else if (currentJob.status === 'failed') {
+          cleanup();
+          ctx.reply(`❌ Task failed: ${currentJob.error || 'Unknown error'}`);
+          resolve();
+        }
       }
-
-      if (currentJob.status === 'completed' && currentJob.cid) {
-        await this.sendCompletedResult(ctx, responseCtx, currentJob);
-        return;
-      }
-
-      if (currentJob.status === 'failed') {
-        ctx.reply(`❌ Task failed: ${currentJob.error || 'Unknown error'}`);
-        return;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, pollInterval));
-    }
-
-    ctx.reply(`⏰ Task is taking longer than expected. Check back later with /queue`);
+    });
   }
 
   private async sendCompletedResult(ctx: any, responseCtx: any, job: TaskJob): Promise<void> {
@@ -360,8 +461,17 @@ class Kasumi3Bot {
     log.info(`Task completed: ${fileUrl}`);
 
     try {
-      // Verify the file is accessible
-      await axios.get(fileUrl, { timeout: 30 * 1000 });
+      // Verify the file is accessible with retry logic
+      const verifyFile = async () => {
+        const response = await axios.get(fileUrl, { timeout: 60 * 1000 });
+        return response;
+      };
+
+      const fileResponse = await expretry('verifyIPFSFile', verifyFile, 3, 2);
+
+      if (!fileResponse) {
+        throw new Error('Failed to verify file accessibility after retries');
+      }
 
       const caption = `✅ Task ${job.taskid} completed\nView: ${fileUrl}`;
 
@@ -372,8 +482,7 @@ class Kasumi3Bot {
       } else if (outputType === 'audio') {
         await ctx.replyWithAudio(Input.fromURL(fileUrl), { caption });
       } else if (outputType === 'text') {
-        const response = await axios.get(fileUrl, { timeout: 30 * 1000 });
-        const text = response.data;
+        const text = fileResponse.data;
         ctx.reply(`✅ Task ${job.taskid} completed\n\n${text.substring(0, 4000)}`);
       } else {
         // Unknown type - send as document
@@ -391,14 +500,56 @@ class Kasumi3Bot {
     this.startupTime = now();
     log.info('Telegram bot launched successfully');
 
+    // Start health check server if port is configured
+    const healthCheckPort = parseInt(process.env.HEALTH_CHECK_PORT || '0');
+    if (healthCheckPort > 0) {
+      this.healthCheckServer = new HealthCheckServer(
+        healthCheckPort,
+        this.blockchain,
+        this.jobQueue,
+        this.startupTime
+      );
+      await this.healthCheckServer.start();
+    }
+
     // Graceful shutdown
-    process.once('SIGINT', () => this.bot.stop('SIGINT'));
-    process.once('SIGTERM', () => this.bot.stop('SIGTERM'));
+    const shutdown = async (signal: string) => {
+      log.info(`Received ${signal}, shutting down gracefully...`);
+      await this.shutdown();
+      this.bot.stop(signal);
+    };
+
+    process.once('SIGINT', () => shutdown('SIGINT'));
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
 
     // Periodic cleanup of old jobs
-    setInterval(() => {
+    this.cleanupInterval = setInterval(() => {
       this.jobQueue.clearOldJobs(24 * 60 * 60 * 1000); // 24 hours
     }, 60 * 60 * 1000); // every hour
+  }
+
+  async shutdown(): Promise<void> {
+    log.info('Shutting down bot services...');
+
+    // Shutdown health check server
+    if (this.healthCheckServer) {
+      await this.healthCheckServer.shutdown();
+      this.healthCheckServer = null;
+    }
+
+    // Clear cleanup interval
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
+
+    // Shutdown job queue
+    this.jobQueue.shutdown();
+
+    // Shutdown rate limiter
+    this.rateLimiter.shutdown();
+
+    log.info('Bot services shut down successfully');
   }
 }
 
@@ -448,14 +599,17 @@ async function main() {
   log.info(`Registered ${modelRegistry.getAllModels().length} models`);
 
   // Initialize job queue with processor callback
+  const maxConcurrent = parseInt(process.env.JOB_MAX_CONCURRENT || '3');
+  const jobTimeoutMs = parseInt(process.env.JOB_TIMEOUT_MS || '900000');
+
   const taskProcessor = new TaskProcessor(blockchain, miningConfig, null as any);
-  const jobQueue = new JobQueue(3, async (job: TaskJob) => {
+  const jobQueue = new JobQueue(maxConcurrent, async (job: TaskJob) => {
     try {
       await taskProcessor.processTask(job);
-    } catch (err) {
-      log.error(`Failed to process job ${job.id}: ${err}`);
+    } catch (err: any) {
+      log.error(`Failed to process job ${job.id}: ${err.message}`);
     }
-  });
+  }, jobTimeoutMs);
 
   // Set the job queue in task processor
   (taskProcessor as any).jobQueue = jobQueue;

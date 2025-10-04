@@ -1,236 +1,197 @@
 # Kasumi-3: Multi-Model Telegram Bot for Arbius
 
-A production-ready, extensible Telegram bot that interfaces with the Arbius decentralized AI network, supporting multiple AI models with dynamic command routing and a robust job queue system.
+A production-ready Telegram bot for the Arbius decentralized AI network with multi-model support, job queue management, and health monitoring.
 
 ## Features
 
-✨ **Multi-Model Support** - Easy model registration via configuration
-🔄 **Job Queue System** - Concurrent task processing with status tracking
-🤖 **Dynamic Commands** - Automatic `/[model_name]` command generation
-📊 **V6 Contract Compatible** - Latest Arbius protocol support
-🏗️ **Clean Architecture** - Dependency injection, service layer, type safety
-🧪 **Comprehensive Tests** - 60+ unit and integration tests
-🔧 **Developer Friendly** - TypeScript, hot reload, extensive logging
+- ✨ **Multi-Model Support** - Dynamic command generation for all registered models
+- 🔄 **Job Queue System** - Concurrent processing with configurable limits
+- 🤖 **V6 Contract Compatible** - Latest Arbius protocol
+- 📊 **Health Monitoring** - HTTP endpoint + `/status` command
+- 🧪 **Well Tested** - 325 tests, 78% coverage
+- 🏗️ **Clean Architecture** - Service layer, dependency injection, TypeScript
 
 ## Quick Start
 
-### Prerequisites
-
-- Node.js v22+ (LTS/Jod)
-- npm (included with Node.js)
-- Telegram Bot Token
-- Arbius network access
-- Replicate.com API token (optional)
-
-### Installation
-
 ```bash
-# Install dependencies
+# Install
 npm install
 
-# Copy environment template
+# Configure
 cp .env.example .env
-
 # Edit .env with your credentials
-nano .env
 
-# Build TypeScript
+# Run
 npm run build
+npm start
 ```
 
-### Configuration
+## Configuration
 
-1. **Environment Variables** (`.env`)
+### Environment Variables
+
+**Arbitrum One (Mainnet):**
 ```bash
 BOT_TOKEN='your-telegram-bot-token'
-RPC_URL='https://sepolia-rollup.arbitrum.io/rpc'
+RPC_URL='https://arb1.arbitrum.io/rpc'
 PRIVATE_KEY='your-wallet-private-key'
-ARBIUS_ADDRESS='0xBb388FACEffd52941a789610a931CeaDb043B885'
-ARBIUS_ROUTER_ADDRESS='0xb3D381D6eA21e04fe2eC3d712Fd512e80e5945fe'
-TOKEN_ADDRESS='0x8D9753e0af7ed426c63c7D6F0424d83f257C7821'
+ARBIUS_ADDRESS='0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66'
+ARBIUS_ROUTER_ADDRESS='0xecAba4E6a4bC1E3DE3e996a8B2c89e8B0626C9a1'
+TOKEN_ADDRESS='0x4a24b101728e07a52053c13fb4db2bcf490cabc3'
 REPLICATE_API_TOKEN='your-replicate-token'
 PINATA_JWT='your-pinata-jwt'
 ```
 
-2. **Mining Configuration** (`MiningConfig.json`)
-```json
-{
-  "cache_path": "cache",
-  "ml": {
-    "strategy": "replicate",
-    "replicate": {
-      "api_token": "ENV:REPLICATE_API_TOKEN"
-    }
-  },
-  "ipfs": {
-    "strategy": "pinata",
-    "pinata": {
-      "jwt": "ENV:PINATA_JWT"
-    }
-  }
-}
+**Arbitrum Sepolia (Testnet):**
+```bash
+RPC_URL='https://sepolia-rollup.arbitrum.io/rpc'
+ARBIUS_ADDRESS='0xBb388FACEffd52941a789610a931CeaDb043B885'
+ARBIUS_ROUTER_ADDRESS='0xb3D381D6eA21e04fe2eC3d712Fd512e80e5945fe'
+TOKEN_ADDRESS='0x8D9753e0af7ed426c63c7D6F0424d83f257C7821'
 ```
 
-3. **Models Configuration** (`ModelsConfig.json`)
+**Optional Settings:**
+```bash
+RATE_LIMIT_MAX_REQUESTS=5
+RATE_LIMIT_WINDOW_MS=60000
+JOB_MAX_CONCURRENT=3
+JOB_TIMEOUT_MS=900000
+HEALTH_CHECK_PORT=3000  # 0 to disable
+```
+
+### Model Configuration
+
+Edit `ModelsConfig.json`:
 ```json
 {
   "models": [
     {
-      "id": "0xefa2d138185cf4f840630a3d323ffde028ed7d01867324f027d513cc2c7d7c32",
+      "id": "0xmodel_id_from_blockchain",
       "name": "qwen",
-      "templatePath": "../../templates/qwen_sepolia.json",
+      "templatePath": "../../templates/qwen.json",
       "replicateModel": "qwen/qwen-image"
     }
   ]
 }
 ```
 
-### Running
+## Commands
+
+### User Commands
+
+```
+/qwen <prompt>           - Generate with Qwen
+/wai <prompt>            - Generate with WAI
+/qwq <prompt>            - Reasoning with QwQ
+/status                  - Health check
+/kasumi                  - Wallet status
+/queue                   - Queue statistics
+/submit <model> <prompt> - Submit without waiting
+/process <taskid>        - Process existing task
+/help                    - Show all commands
+```
+
+### Status Command
+
+```
+/status
+```
+
+Shows:
+- ✅/⚠️ Overall health
+- ETH/AIUS balances
+- Validator stake
+- Queue statistics
+- System uptime
+- Active users
+
+Warnings appear when:
+- ETH < 0.01 (low gas)
+- AIUS < 1 (low balance)
+- Stake < minimum (can't validate)
+- Queue > 10 processing (overload)
+
+### Health Check API
+
+HTTP endpoint for monitoring tools:
 
 ```bash
-# Development mode (with hot reload)
-npm run start:dev
+# Enable
+HEALTH_CHECK_PORT=3000
 
-# Listener mode (process network events)
-npm run start:listener
-
-# Production mode
-npm start
+# Check
+curl http://localhost:3000/health
+curl http://localhost:3000/ping
 ```
 
-## Usage
-
-### Telegram Bot Commands
-
-**Dynamic Model Commands:**
-```
-/qwen <prompt>          - Generate with Qwen model
-/wai <prompt>           - Generate with WAI anime model
-/qwq <prompt>           - Reasoning with QwQ model
-```
-
-**Utility Commands:**
-```
-/start                  - Welcome message and available models
-/help                   - Show all commands and examples
-/kasumi                 - Show bot wallet status
-/queue                  - View job queue statistics
-/submit <model> <prompt> - Submit task without waiting
-/process <taskid>       - Process an existing task
+**Response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": 1696352123,
+  "uptime": 18723,
+  "checks": {
+    "eth": { "ok": true, "balance": "0.5" },
+    "aius": { "ok": true, "balance": "100.0" },
+    "stake": { "ok": true, "staked": "50.0" },
+    "queue": { "ok": true, "stats": {...} }
+  },
+  "warnings": []
+}
 ```
 
-### Examples
-
-```
-User: /qwen a beautiful sunset over mountains
-Bot: [submits task, generates image, returns result]
-
-User: /submit qwen a cat playing piano
-Bot: ✅ Task submitted! TaskID: 0x... Process with: /process 0x...
-
-User: /queue
-Bot: 📊 Queue Status:
-     Total: 5, Pending: 2, Processing: 1, Completed: 2
-
-User: /kasumi
-Bot: Kasumi-3's address: 0x...
-     Balances: 100 AIUS, 0.5 ETH, 50 AIUS Staked
-```
+Use with Docker, Kubernetes, Prometheus, etc.
 
 ## Architecture
 
-### Directory Structure
-
 ```
-src/
-├── types/
-│   └── index.ts              # TypeScript type definitions
-├── services/
-│   ├── BlockchainService.ts  # Blockchain interactions
-│   ├── ModelRegistry.ts      # Model management
-│   ├── ModelHandler.ts       # Inference handlers
-│   ├── JobQueue.ts           # Queue management
-│   └── TaskProcessor.ts      # Task orchestration
-├── config.ts                 # Configuration loader
-├── index.ts                  # Telegram bot entry point
-├── listener.ts               # Event listener entry point
-├── utils.ts                  # Utility functions
-├── ipfs.ts                   # IPFS operations
-└── log.ts                    # Logging setup
+Telegram Bot (Telegraf)
+    ├─► Rate Limiter (5 req/min)
+    ├─► Command Handlers
+    └─► Dynamic Model Commands
+            │
+            ▼
+    Service Layer
+        ├─► ModelRegistry
+        ├─► BlockchainService
+        ├─► JobQueue (FIFO, concurrent)
+        ├─► TaskProcessor
+        └─► ModelHandler (Replicate/Cog)
+            │
+            ▼
+    External APIs
+        ├─► Arbius Contract (Ethereum)
+        ├─► Replicate API
+        └─► IPFS (Pinata)
 ```
 
-### Service Layer
+**Key Services:**
+- **BlockchainService** - Task submission, solution posting, stake management
+- **ModelRegistry** - Dynamic model loading and lookup
+- **JobQueue** - Concurrent processing (default: 3), event-driven
+- **TaskProcessor** - Orchestrates submit → process → pin → solve
+- **HealthCheckServer** - HTTP monitoring endpoint
 
-**BlockchainService** - Handles all blockchain interactions
-- Task submission
-- Solution submission
-- Validator staking
-- Event listening
+## Development
 
-**ModelRegistry** - Manages available models
-- Dynamic model loading
-- Name-based and ID-based lookups
-- Template management
-
-**JobQueue** - Concurrent task processing
-- Configurable concurrency (default: 3)
-- Status tracking
-- Automatic cleanup
-
-**TaskProcessor** - Orchestrates task workflow
-- Submit tasks to blockchain
-- Process with appropriate model handler
-- Pin results to IPFS
-
-**ModelHandler** - Inference execution
-- ReplicateModelHandler - Replicate.com API
-- CogModelHandler - Self-hosted Cog models
-- Factory pattern for extensibility
-
-## Testing
-
-### Run Tests
+### Scripts
 
 ```bash
-# All tests
-npm test
-
-# With coverage
-npm run test:coverage
-
-# Watch mode
-npm run test:watch
-
-# Unit tests only
-npm run test:unit
-
-# Integration tests only
-npm run test:integration
+npm run start:dev       # Hot reload
+npm run start:listener  # Event listener
+npm test                # All tests
+npm run test:coverage   # Coverage report
+npm run build           # Compile TypeScript
 ```
 
-## Adding New Models
+### Adding Models
 
-1. Create template file in `../../templates/`:
+1. Create `../../templates/mymodel.json`:
 ```json
 {
-  "meta": {
-    "title": "My Model",
-    "description": "Description",
-    "version": 1
-  },
-  "input": [
-    {
-      "variable": "prompt",
-      "type": "string",
-      "required": true
-    }
-  ],
-  "output": [
-    {
-      "filename": "out-1.png",
-      "type": "image"
-    }
-  ]
+  "meta": { "title": "My Model", "version": 1 },
+  "input": [{ "variable": "prompt", "type": "string" }],
+  "output": [{ "filename": "out.png", "type": "image" }]
 }
 ```
 
@@ -240,56 +201,46 @@ npm run test:integration
   "id": "0x...",
   "name": "mymodel",
   "templatePath": "../../templates/mymodel.json",
-  "replicateModel": "owner/model-name"
+  "replicateModel": "owner/model"
 }
 ```
 
-3. Restart bot - `/mymodel` command is now available!
+3. Restart → `/mymodel` command available!
 
-## Development
-
-### Scripts
+### Testing
 
 ```bash
-npm run build          # Compile TypeScript
-npm run start:dev      # Development with hot reload
-npm run start:listener # Event listener
-npm test               # Run test suite
-npm run test:coverage  # Coverage report
+npm test                 # All tests (325)
+npm run test:watch       # Watch mode
+npm run test:unit        # Unit tests only
+npm run test:integration # Integration tests
 ```
 
-### Code Style
+Coverage: 78.27% (exceeds 70% goal)
+
+### Code Standards
 
 - TypeScript strict mode
-- ES2020 target
-- CommonJS modules
-- Prettier/ESLint ready
+- Service layer architecture
+- Dependency injection
+- Error handling with retries
+- Comprehensive logging
+- Event-driven job completion
 
 ## Deployment
 
-### Production Checklist
-
-- [ ] Set all environment variables in `.env`
-- [ ] Configure models in `ModelsConfig.json`
-- [ ] Ensure wallet has AIUS tokens staked
-- [ ] Test with `/kasumi` command
-- [ ] Monitor logs for errors
-- [ ] Set up process manager (PM2, systemd)
-
-### PM2 Example
+### PM2 (Recommended)
 
 ```bash
 # Install PM2
 npm install -g pm2
 
-# Start bot
+# Start services
 pm2 start npm --name kasumi3-bot -- start
-
-# Start listener
 pm2 start npm --name kasumi3-listener -- run start:listener
 
 # Monitor
-pm2 logs
+pm2 logs kasumi3-bot
 pm2 monit
 
 # Auto-restart on reboot
@@ -297,37 +248,92 @@ pm2 startup
 pm2 save
 ```
 
+### Docker Healthcheck
+
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD curl -f http://localhost:3000/ping || exit 1
+```
+
+### Production Checklist
+
+- [ ] Set `.env` variables (BOT_TOKEN, PRIVATE_KEY, etc.)
+- [ ] Configure `ModelsConfig.json`
+- [ ] Ensure wallet has AIUS staked (check minimum with `/status`)
+- [ ] Test with `/kasumi` and `/status`
+- [ ] Set up PM2 or systemd
+- [ ] Configure health check port
+- [ ] Monitor logs
+
 ## Troubleshooting
 
 ### Bot not responding
-- Check `BOT_TOKEN` is correct
-- Verify bot is running: `pm2 list`
-- Check logs: `tail -f log.txt`
+```bash
+pm2 list                # Check if running
+pm2 logs kasumi3-bot    # Check logs
+tail -f log.txt         # View bot logs
+```
 
 ### Tasks failing
-- Verify wallet has AIUS staked: `/kasumi`
-- Check Replicate API token
-- Verify model configuration
+1. Check `/status` for warnings
+2. Verify `/kasumi` shows staked AIUS
+3. Check ETH balance for gas
+4. Verify model configuration
+
+### Low balance warnings
+```bash
+# Check with /status command
+# Deposit ETH (minimum 0.01 for gas)
+# Deposit AIUS (minimum 1 for tasks)
+# Stake AIUS (check minimum in /status)
+```
 
 ### IPFS errors
-- Check `PINATA_JWT` is valid
-- Verify Pinata account has space
-- Try alternative IPFS strategy
+- Verify `PINATA_JWT` is valid
+- Check Pinata account quota
+- Increase timeout: `JOB_TIMEOUT_MS=1800000`
 
-## Documentation
+## FAQ
 
-- [UPGRADE.md](./UPGRADE.md) - V6 upgrade guide and architecture
-- [.env.example](./.env.example) - Environment variables template
+**Q: How much AIUS do I need staked?**
+A: Check with `/status` - typically 600 AIUS minimum.
+
+**Q: Can I run multiple models?**
+A: Yes! Add all models to `ModelsConfig.json`.
+
+**Q: How do I switch networks?**
+A: Change `RPC_URL` and contract addresses in `.env`.
+
+**Q: What's the rate limit?**
+A: Default 5 requests/minute per user (configurable).
+
+**Q: How do I monitor the bot?**
+A: Use `/status` command or HTTP health endpoint on port 3000.
+
+**Q: Can I use custom ML providers?**
+A: Yes! Implement `IModelHandler` interface.
 
 ## Contributing
 
 1. Fork the repository
 2. Create feature branch: `git checkout -b feature/my-feature`
-3. Write tests for new functionality
-4. Ensure all tests pass: `npm test`
-5. Commit changes: `git commit -am 'Add feature'`
-6. Push to branch: `git push origin feature/my-feature`
-7. Submit pull request
+3. Write tests: `npm test`
+4. Build: `npm run build`
+5. Commit: `git commit -m "feat: description"`
+6. Push and create PR
+
+**Code Standards:**
+- TypeScript strict mode
+- Service layer pattern
+- Comprehensive tests
+- Clear commit messages
+
+## Links
+
+- [Arbius Website](https://arbius.ai)
+- [Contract Addresses](https://docs.arbius.ai/ca)
+- [Arbius Discord](https://discord.gg/arbius)
+- [GitHub Issues](https://github.com/semperai/arbius/issues)
 
 ## License
 

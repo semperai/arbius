@@ -28,14 +28,17 @@ export async function expretry<T>(
   for (let retry=0; retry<tries; ++retry) {
     try {
       return await fn();
-    } catch (e) {
+    } catch (e: any) {
       const seconds = base**retry;
-      log.warn(`retry request failed (${tag}), retrying in ${seconds}`);
-      log.debug(JSON.stringify(e));
-      await sleep(1000 * seconds);
+      if (retry < tries - 1) {
+        log.warn(`${tag} failed (attempt ${retry + 1}/${tries}), retrying in ${seconds}s: ${e.message}`);
+        log.debug(JSON.stringify(e));
+        await sleep(1000 * seconds);
+      } else {
+        log.error(`${tag} failed after ${tries} attempts: ${e.message}`);
+      }
     }
   }
-  log.error(`retry request failed ${tries} times`);
 
   return null;
 }

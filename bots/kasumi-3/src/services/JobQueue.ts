@@ -1,8 +1,9 @@
 import { IJobQueue, TaskJob } from '../types';
 import { log } from '../log';
 import { v4 as uuidv4 } from 'uuid';
+import { EventEmitter } from 'events';
 
-export class JobQueue implements IJobQueue {
+export class JobQueue extends EventEmitter implements IJobQueue {
   private jobs: Map<string, TaskJob> = new Map();
   private processing: boolean = false;
   private maxConcurrent: number;
@@ -16,6 +17,13 @@ export class JobQueue implements IJobQueue {
     onJobComplete?: (job: TaskJob) => Promise<void>,
     jobTimeoutMs: number = 15 * 60 * 1000 // 15 minutes default
   ) {
+    super();
+
+    // Validate maxConcurrent
+    if (maxConcurrent <= 0) {
+      throw new Error('maxConcurrent must be greater than 0');
+    }
+
     this.maxConcurrent = maxConcurrent;
     this.onJobComplete = onJobComplete;
     this.jobTimeoutMs = jobTimeoutMs;
@@ -83,6 +91,14 @@ export class JobQueue implements IJobQueue {
       }
 
       log.info(`Job ${id} ${status} for task ${job.taskid}`);
+
+      // Emit event for listeners
+      this.emit('jobStatusChange', job);
+      if (status === 'completed') {
+        this.emit('jobCompleted', job);
+      } else if (status === 'failed') {
+        this.emit('jobFailed', job);
+      }
 
       // Trigger next processing
       this.processNext();

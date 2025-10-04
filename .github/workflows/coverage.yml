@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [contract, website, explorer, announcements, docs, website2]
+        package: [contract, website, explorer, announcements, docs, website2, bots/kasumi-3]
 
     steps:
       - name: Checkout code
@@ -50,4 +50,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-          carryforward: "contract,website,explorer,announcements,docs,website2"
+          carryforward: "contract,website,explorer,announcements,docs,website2,bots/kasumi-3"

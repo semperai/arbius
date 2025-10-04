@@ -157,7 +157,7 @@ export interface IBlockchainService {
   submitSolution(taskid: string, cid: string): Promise<void>;
   signalCommitment(commitment: string): Promise<void>;
   getSolution(taskid: string): Promise<{ validator: string; cid: string }>;
-  findTransactionByTaskId(taskid: string): Promise<{ txHash: string; prompt: string } | null>;
+  findTransactionByTaskId(taskid: string): Promise<{ txHash: string; prompt: string; modelId: string } | null>;
 }
 
 export interface IIPFSService {
