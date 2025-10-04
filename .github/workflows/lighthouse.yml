@@ -1,0 +1,54 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        site:
+          - name: website2
+            url: http://localhost:3000
+          - name: explorer
+            url: http://localhost:3001
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.site.name }}/package-lock.json
+
+      - name: Install dependencies
+        run: cd ${{ matrix.site.name }} && npm ci
+
+      - name: Build site
+        run: cd ${{ matrix.site.name }} && npm run build
+
+      - name: Start server
+        run: |
+          cd ${{ matrix.site.name }}
+          if [ "${{ matrix.site.name }}" = "website2" ]; then
+            npm start &
+          else
+            PORT=3001 npm start &
+          fi
+          npx wait-on ${{ matrix.site.url }} --timeout 60000
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            ${{ matrix.site.url }}
+          uploadArtifacts: false
+          temporaryPublicStorage: true
+          configPath: ./${{ matrix.site.name }}/lighthouserc.js

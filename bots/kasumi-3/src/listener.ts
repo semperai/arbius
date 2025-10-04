@@ -1,247 +1,209 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import * as fs from 'fs';
-import { ILogObj, Logger } from 'tslog';
-import { Telegraf, Telegram, Input } from 'telegraf';
-import { message } from 'telegraf/filters';
-import { Contract, Wallet, ethers } from 'ethers';
-import ArbiusAbi from './abis/arbius.json';
-import ERC20Abi from './abis/erc20.json';
-import { base58, base64 } from '@scure/base';
-import axios from 'axios';
+
+import { ethers } from 'ethers';
 import { initializeLogger, log } from './log';
-import {
-  hydrateInput,
-  taskid2Seed,
-  expretry,
-  generateCommitment,
-  cidify,
-  now,
-} from './utils';
-import { initializeIpfsClient, pinFileToIPFS, pinFilesToIPFS } from './ipfs';
-import QwenTemplate from "./templates/qwen_sepolia.json"
+import { initializeIpfsClient } from './ipfs';
+import { ConfigLoader, loadModelsConfig } from './config';
+import { ModelRegistry } from './services/ModelRegistry';
+import { BlockchainService } from './services/BlockchainService';
+import { JobQueue } from './services/JobQueue';
+import { TaskProcessor } from './services/TaskProcessor';
+import { TaskJob } from './types';
 
-let c: any; // MiningConfig;
+/**
+ * Kasumi-3 Listener - Listens for TaskSubmitted events and processes them
+ */
+class Kasumi3Listener {
+  private blockchain: BlockchainService;
+  private modelRegistry: ModelRegistry;
+  private jobQueue: JobQueue;
+  private taskProcessor: TaskProcessor;
+  private miningConfig: any;
 
-const modelId = process.env.MODEL_ID!;
-
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL!);
-const wallet = new Wallet(process.env.PRIVATE_KEY!, provider);
-const arbius = new Contract(process.env.ARBIUS_ADDRESS!, ArbiusAbi, wallet);
-const token = new Contract(process.env.TOKEN_ADDRESS!, ERC20Abi, wallet);
-
-const QwenModel = {
-  id:       modelId,
-  template: QwenTemplate,
-  getfiles: async (m: any, taskid: string, input: any) => {
-    const url = c.ml.cog[modelId].url;
-
-    let res = null;
-    try {
-      res = await axios.post(url, { input });
-    } catch (e) {
-      log.error('error occurred during post');
-      console.error(e);
-    }
-
-    if (! res) {
-      throw new Error('unable to getfiles');
-    }
-
-
-    if (res.data.output.length != 1) {
-      throw new Error('unable to getfiles -- data.output length not 1');
-    }
-
-    const data = res.data.output[0];
-    const buf = Buffer.from(data, 'utf-8');
-
-    const path = 'out-1.txt';
-    fs.writeFileSync(`${__dirname}/../cache/${path}`, buf);
-
-    return [path];
-  },
-  getcid: async (
-    c: any,
-    model: any,
-    taskid: string,
-    input: any
-  ) => {
-    const paths = await expretry('getfiles', async () => await model.getfiles(model, taskid, input));
-    if (! paths) {
-      throw new Error('cannot get paths');
-    }
-    // TODO calculate cid and pin async
-    const cid58 = await expretry('getcid pinfiles', async () => await pinFilesToIPFS(c, taskid, paths));
-    log.debug(`Pinned files to ipfs: ${cid58}`);
-    if (! cid58) {
-      throw new Error('cannot pin files to retrieve cid');
-    }
-    const cid = '0x'+Buffer.from(base58.decode(cid58)).toString('hex');
-    return cid;
-  },
-};
-
-async function verifyTask({
-  taskid,
-  taskInputData,
-}: {
-  taskid: string;
-  taskInputData: any;
-}): Promise<string | null> {
-  const hydrated = hydrateInput(taskInputData, QwenModel.template);
-  if (hydrated.err) {
-    log.warn(`Task (${taskid}) hydration error ${hydrated.errmsg}`);
-    return null;
+  constructor(
+    blockchain: BlockchainService,
+    modelRegistry: ModelRegistry,
+    jobQueue: JobQueue,
+    taskProcessor: TaskProcessor,
+    miningConfig: any
+  ) {
+    this.blockchain = blockchain;
+    this.modelRegistry = modelRegistry;
+    this.jobQueue = jobQueue;
+    this.taskProcessor = taskProcessor;
+    this.miningConfig = miningConfig;
   }
 
-  hydrated.input.seed = taskid2Seed(taskid);
+  async start(): Promise<void> {
+    const contract = this.blockchain.getArbiusContract();
 
-  const cid = await QwenModel.getcid(
-    c,
-    QwenModel,
-    taskid,
-    hydrated.input
-  );
-  if (!cid) {
-    log.error(`Task (${taskid}) CID could not be generated`);
-    return null;
-  }
-  log.info(`CID ${cid} generated`);
+    log.info('Starting event listener...');
 
-  {
-    const solution = await expretry('solutions', async () => arbius.solutions(taskid));
-    if (solution.validator != ethers.ZeroAddress) {
-      if (solution.cid != cid) {
-        log.error(`Task ${taskid} already solved with different CID`);
-        return null;
-      } else {
-        log.info(`Task ${taskid} already solved`);
-        return cid;
+    // Listen for TaskSubmitted events for all registered models
+    const models = this.modelRegistry.getAllModels();
+    log.info(`Listening for ${models.length} models`);
+
+    contract.on('TaskSubmitted', async (taskid, modelId, fee, sender, event) => {
+      try {
+        await this.handleTaskSubmitted(taskid, modelId, fee, sender, event);
+      } catch (err: any) {
+        log.error(`Error handling TaskSubmitted event: ${err.message}`);
       }
-    }
-    log.debug(`Task ${taskid} not solved yet, attempting...`);
-  }
-
-  const commitment = generateCommitment(wallet.address, taskid, cid);
-  log.debug(`Commitment ${commitment} generated`);
-  try {
-    const tx = await arbius.signalCommitment(commitment, {
-      gasLimit: 450_000,
     });
-    log.info(`signalCommitment txHash: ${tx.hash}`);
-  } catch (e) {
-    log.warn(`signalCommitment failed: ${e}`);
-    return cid;
+
+    log.info('Event listener started successfully');
   }
 
-  try {
-    const tx = await arbius.submitSolution(taskid, cid, {
-      gasLimit: 500_000,
-    });
-    const receipt = await tx.wait();
-    log.info(`submitSolution txHash: ${receipt.hash}`);
-  } catch (e) {
-    log.warn(`submitSolution failed: ${e}`);
-    return cid;
-  }
-  
-  return cid;
-}
+  private async handleTaskSubmitted(
+    taskid: string,
+    modelId: string,
+    fee: bigint,
+    sender: string,
+    event: any
+  ): Promise<void> {
+    log.info(`Task ${taskid} submitted by ${sender} for model ${modelId}`);
 
-async function bootupChecks() {
-  log.info(`Wallet address: ${wallet.address}`);
-  const balance = await token.balanceOf(wallet.address);
-  log.info(`Arbius balance: ${ethers.formatEther(balance)}`);
-
-  const validatorMinimum = await arbius.getValidatorMinimum();
-  log.info('Validator Minimum Stake:', ethers.formatEther(validatorMinimum));
-
-  const validatorStaked = await arbius.validators(wallet.address);
-  log.info('Validator Staked:', ethers.formatEther(validatorStaked.staked));
-
-  const allowance = await token.allowance(wallet.address, process.env.ARBIUS_ADDRESS!);
-  log.info('Allowance:', ethers.formatEther(allowance));
-  if (allowance < balance) {
-    log.info('Approving Arbius to spend tokens');
-    const tx = await token.approve(process.env.ARBIUS_ADDRESS!, ethers.MaxUint256);
-    const receipt = await tx.wait();
-    log.info('tx:', receipt.transactionHash);
-  }
-
-  if (validatorStaked.staked < validatorMinimum) {
-    log.info('Validator has not staked enough');
-
-    const tx = await arbius.validatorDeposit(wallet.address, balance);
-    const receipt = await tx.wait();
-    log.info('tx:', receipt.transactionHash);
-  }
-}
-
-let startupTime = now();
-let lastMessageTime = 0;
-
-async function main(configPath: string) {
-  await initializeLogger('log.txt', 0);
-  log.info('kasumi-3 is starting');
-
-
-  try {
-    const mconf = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    c = mconf;
-  } catch (e) {
-    console.error(`unable to parse ${configPath}`);
-    process.exit(1);
-  }
-  await initializeIpfsClient(c);
-
-  await bootupChecks();
-
-  const filter = arbius.filters.TaskSubmitted(null, c.modelId, null, null);
-
-  arbius.on('TaskSubmitted', async (taskid, modelId_, fee, sender, event) => {
-    log.info(`Task ${taskid} submitted by ${sender}`);
-    console.log('TaskSubmitted', taskid, modelId_, fee, sender);
-
-    if (modelId_ != modelId) {
-      console.error(`Task ${taskid} modelId ${modelId_} does not match ${modelId}`);
+    // Check if we support this model
+    const modelConfig = this.modelRegistry.getModelById(modelId);
+    if (!modelConfig) {
+      log.debug(`Ignoring task ${taskid} - unsupported model ${modelId}`);
       return;
     }
 
-    // sleep for 1 second to allow the task to be processed
+    // Check if already in queue
+    if (this.jobQueue.getJobByTaskId(taskid)) {
+      log.warn(`Task ${taskid} already in queue, skipping`);
+      return;
+    }
+
+    // Wait a bit to allow the transaction to be confirmed
     await new Promise(resolve => setTimeout(resolve, 5000));
 
-    const txid = event.log.transactionHash;
-    const tx = await expretry('get_transaction', async () => await event.log.getTransaction());
-    if (! tx) {
-      throw new Error('unable to retrieve tx');
-    }
-    const parsed = arbius.interface.parseTransaction(tx);
-    let preprocessed_str = '';
-    let preprocessed_obj = {};
     try {
-      preprocessed_str = Buffer.from(parsed!.args.input_.substring(2), 'hex').toString();
-      preprocessed_obj = JSON.parse(preprocessed_str);
-    } catch (e) {
-      console.error(`Task (${taskid}) request was unable to be parsed`);
-      return;
-    }
+      // Fetch transaction to get input data
+      const txHash = event.log.transactionHash;
+      const tx = await this.blockchain.getProvider().getTransaction(txHash);
 
-    try {
-      const cid = await verifyTask({
+      if (!tx) {
+        log.error(`Could not fetch transaction ${txHash}`);
+        return;
+      }
+
+      // Parse transaction to get input
+      const contract = this.blockchain.getArbiusContract();
+      const parsed = contract.interface.parseTransaction({ data: tx.data });
+
+      if (!parsed) {
+        log.error(`Could not parse transaction ${txHash}`);
+        return;
+      }
+
+      let input: Record<string, any>;
+      try {
+        const inputStr = Buffer.from(parsed.args.input_.substring(2), 'hex').toString();
+        input = JSON.parse(inputStr);
+      } catch (e) {
+        log.error(`Failed to parse task input for ${taskid}: ${e}`);
+        return;
+      }
+
+      log.info(`Processing task ${taskid} with model ${modelConfig.name}`);
+
+      // Add to queue
+      await this.jobQueue.addJob({
         taskid,
-        taskInputData: preprocessed_obj,
+        modelConfig,
+        input,
       });
-    } catch (e) {
-      log.error(`failed to verify task: ${e}`);
-      return;
+
+      log.info(`Task ${taskid} added to queue`);
+    } catch (err: any) {
+      log.error(`Failed to process TaskSubmitted event for ${taskid}: ${err.message}`);
+    }
+  }
+}
+
+async function main() {
+  const configPath = process.argv[2] || 'MiningConfig.json';
+  const modelsConfigPath = process.argv[3] || 'ModelsConfig.json';
+
+  await initializeLogger('log.txt', 0);
+  log.info('Kasumi-3 Listener is starting...');
+
+  // Load configuration
+  const configLoader = new ConfigLoader(configPath);
+  const miningConfig = configLoader.getMiningConfig();
+  const modelsConfig = loadModelsConfig(modelsConfigPath);
+
+  // Initialize IPFS
+  await initializeIpfsClient(miningConfig);
+
+  // Initialize blockchain service
+  const blockchain = new BlockchainService(
+    ConfigLoader.getEnvVar('RPC_URL'),
+    ConfigLoader.getEnvVar('PRIVATE_KEY'),
+    ConfigLoader.getEnvVar('ARBIUS_ADDRESS'),
+    ConfigLoader.getEnvVar('ARBIUS_ROUTER_ADDRESS'),
+    ConfigLoader.getEnvVar('TOKEN_ADDRESS')
+  );
+
+  // Perform startup checks
+  log.info(`Wallet address: ${blockchain.getWalletAddress()}`);
+  const balance = await blockchain.getBalance();
+  log.info(`Balance: ${ethers.formatEther(balance)} AIUS`);
+
+  const validatorMinimum = await blockchain.getValidatorMinimum();
+  log.info(`Validator minimum: ${ethers.formatEther(validatorMinimum)} AIUS`);
+
+  const validatorStaked = await blockchain.getValidatorStake();
+  log.info(`Validator staked: ${ethers.formatEther(validatorStaked)} AIUS`);
+
+  // Ensure approvals and staking
+  await blockchain.ensureApproval();
+  await blockchain.ensureValidatorStake();
+
+  // Initialize model registry
+  const modelRegistry = new ModelRegistry();
+  modelRegistry.loadModelsFromConfig(modelsConfig.models);
+
+  log.info(`Registered ${modelRegistry.getAllModels().length} models`);
+
+  // Initialize job queue and task processor
+  const jobQueue = new JobQueue(3); // max 3 concurrent jobs
+  const taskProcessor = new TaskProcessor(blockchain, miningConfig, jobQueue);
+
+  // Set up job processor
+  const queueWithProcessor = new JobQueue(3, async (job: TaskJob) => {
+    try {
+      await taskProcessor.processTask(job);
+    } catch (err: any) {
+      log.error(`Failed to process job ${job.id}: ${err.message}`);
     }
   });
+
+  // Initialize and start listener
+  const listener = new Kasumi3Listener(
+    blockchain,
+    modelRegistry,
+    queueWithProcessor,
+    taskProcessor,
+    miningConfig
+  );
+
+  await listener.start();
+
+  // Periodic cleanup of old jobs
+  setInterval(() => {
+    queueWithProcessor.clearOldJobs(24 * 60 * 60 * 1000); // 24 hours
+  }, 60 * 60 * 1000); // every hour
+
+  log.info('Kasumi-3 Listener is ready!');
 }
 
-if (process.argv.length < 3) {
-  console.error('usage: yarn start:listener MiningConfig.json');
-  process.exit(1);
+if (require.main === module) {
+  main().catch(err => {
+    console.error('Fatal error:', err);
+    process.exit(1);
+  });
 }
-
-main(process.argv[2]);

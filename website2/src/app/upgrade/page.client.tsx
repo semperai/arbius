@@ -9,10 +9,10 @@ import baseTokenAbi from '@/abis/baseTokenV1.json'
 import { formatUnits } from 'viem'
 import { mainnet, arbitrumNova } from 'viem/chains'
 import type { Abi, Address } from 'viem'
-import config from '@/config.json'
+import { config } from '@/lib/contracts'
 import Image from 'next/image'
 import upgradeHeroImage from '@/app/assets/images/upgrade-hero.jpg'
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import { BalanceCardSkeleton, ActionCardSkeleton } from '@/components/ui/Skeleton'
 
 // OneToOneConvert ABI (simplified for swap function)

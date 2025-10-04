@@ -1,0 +1,42 @@
+version: 2
+updates:
+  # Contract dependencies
+  - package-ecosystem: "npm"
+    directory: "/contract"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Explorer dependencies
+  - package-ecosystem: "npm"
+    directory: "/explorer"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Website2 dependencies
+  - package-ecosystem: "npm"
+    directory: "/website2"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Kasumi-3 bot dependencies
+  - package-ecosystem: "npm"
+    directory: "/bots/kasumi-3"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # IPFS Oracle bot dependencies
+  - package-ecosystem: "npm"
+    directory: "/bots/ipfs-oracle"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

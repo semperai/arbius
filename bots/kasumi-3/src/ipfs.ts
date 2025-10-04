@@ -13,6 +13,54 @@ const ipfsOptions: any = {
   rawLeaves: false,
 };
 
+// Default IPFS gateways for parallel fetching
+const DEFAULT_IPFS_GATEWAYS = [
+  'https://ipfs.arbius.org',
+  'https://ipfs.io',
+  'https://dweb.link',
+  'https://cloudflare-ipfs.com',
+  'https://gateway.pinata.cloud',
+];
+
+/**
+ * Fetch content from IPFS using Promise.any with multiple gateways
+ * This improves reliability and speed by racing multiple gateways
+ */
+export async function fetchFromIPFS(
+  cid: string,
+  gateways: string[] = DEFAULT_IPFS_GATEWAYS,
+  timeoutMs: number = 10000
+): Promise<Buffer> {
+  const fetchPromises = gateways.map(async (gateway) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const url = `${gateway}/ipfs/${cid}`;
+      const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+        signal: controller.signal,
+        timeout: timeoutMs,
+      });
+
+      clearTimeout(timeoutId);
+      return Buffer.from(response.data);
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      throw new Error(`${gateway} failed: ${error.message}`);
+    }
+  });
+
+  try {
+    // Promise.any returns the first successful promise
+    const result = await Promise.any(fetchPromises);
+    return result;
+  } catch (error: any) {
+    // All gateways failed
+    throw new Error(`Failed to fetch ${cid} from all IPFS gateways: ${error.errors?.map((e: Error) => e.message).join(', ')}`);
+  }
+}
+
 export function initializeIpfsClient(c: any) {
   if (ipfsClient == undefined) {
     ipfsClient = create({

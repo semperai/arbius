@@ -8,10 +8,8 @@ import VoterABI from '@/abis/voter.json'
 import { ARBIUS_CONFIG, MODELS } from '@/config/arbius'
 
 const AI_MODELS = [
-  { id: MODELS.kandinsky2.id, name: 'Kandinsky 2', description: 'Text-to-image generation' },
   { id: MODELS.qwen_qwq_32b.id, name: 'Qwen QwQ 32B', description: 'Large language model' },
   { id: MODELS.wai_v120.id, name: 'WAI v1.2.0', description: 'Waifu generation' },
-  { id: MODELS.damo.id, name: 'DAMO', description: 'Text-to-video' },
 ]
 
 const VE_AIUS_ABI = parseAbi([
@@ -211,12 +209,13 @@ export function Gauge() {
       </div>
 
       {/* Current Vote Distribution */}
-      {currentVotes && Array.isArray(currentVotes) && currentVotes[0] && (currentVotes[0] as any[]).length > 0 && (
+      {currentVotes && Array.isArray(currentVotes) && currentVotes[0] && Array.isArray(currentVotes[0]) && currentVotes[0].length > 0 && (
         <div className="rounded-2xl bg-white p-6 shadow-lg">
           <h3 className="mb-4 text-xl font-bold text-gray-900">Current Vote Distribution</h3>
           <div className="space-y-2">
             {(currentVotes[0] as `0x${string}`[]).map((addr, idx) => {
-              const weight = (currentVotes[1] as bigint[])[idx]
+              const weights = currentVotes[1] as bigint[]
+              const weight = weights[idx]
               const model = AI_MODELS.find(m => m.id.toLowerCase() === addr.toLowerCase())
               const percentage = Number(weight) / 100
 

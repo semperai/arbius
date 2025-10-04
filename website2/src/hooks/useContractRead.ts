@@ -2,7 +2,7 @@ import { useReadContract } from 'wagmi'
 import { type Address, type Abi } from 'viem'
 
 /**
- * Hook for reading from contracts using viem
+ * Simple wrapper around wagmi's useReadContract for consistency
  * Example usage:
  *
  * const { data, isLoading } = useContractRead({
@@ -12,20 +12,21 @@ import { type Address, type Abi } from 'viem'
  *   args: [address],
  * })
  */
-export function useContractReadHook<TAbi extends Abi, TFunctionName extends string>(config: {
+export function useContractReadHook(config: {
   address: Address
-  abi: TAbi
-  functionName: TFunctionName
+  abi: Abi
+  functionName: string
   args?: readonly unknown[]
   enabled?: boolean
 }) {
+  const { enabled, ...contractConfig } = config
   return useReadContract({
-    address: config.address,
-    abi: config.abi,
-    functionName: config.functionName,
-    args: config.args as any,
+    address: contractConfig.address,
+    abi: contractConfig.abi,
+    functionName: contractConfig.functionName,
+    args: contractConfig.args,
     query: {
-      enabled: config.enabled,
+      enabled,
     },
-  } as any)
+  })
 }

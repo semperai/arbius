@@ -2,4 +2,7 @@ node_modules
 build
 .env
 log.txt
+test-log.txt
 MiningConfig.json
+coverage
+*.log

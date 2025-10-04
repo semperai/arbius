@@ -1,9 +1,12 @@
 import { ProxyEthereum } from '../types';
 import { getConfig, isInitialized } from './init';
 import { sendTransaction } from './transactionQueue';
+import { safeLocalStorageSet, safeLocalStorageGet } from '../utils/safeStorage';
+import { toast } from 'sonner';
 
 // Store the original ethereum object
 let originalEthereum: any = null;
+let proxySetupFailed: boolean = false;
 
 // Constants for message signing
 const ALLOWED_DOMAINS = ['arbius.xyz', 'playground.arbius.xyz']; // Add your domains
@@ -27,32 +30,70 @@ interface SignedMessage {
 /**
  * Setup the ethereum proxy to intercept window.ethereum calls
  */
-export function setupEthereumProxy(): void {
+export function setupEthereumProxy(): boolean {
   // Ensure the wallet is initialized
   if (!isInitialized()) {
-    throw new Error('AA Wallet must be initialized before setting up ethereum proxy');
+    console.error('AA Wallet must be initialized before setting up ethereum proxy');
+    return false;
   }
-  
+
   // Check if window.ethereum exists
   if (typeof window === 'undefined' || !window.ethereum) {
     console.warn('window.ethereum not found. Ethereum proxy not set up.');
-    return;
+    return false;
   }
-  
-  // Store the original ethereum object
+
+  // Check if proxy is already set up (prevent double-wrapping)
+  if (window.ethereum.isAA) {
+    console.log('Ethereum proxy already set up, skipping re-initialization');
+    return true;
+  }
+
+  // Store the original ethereum object first
   originalEthereum = window.ethereum;
-  
-  // Create the proxy
-  const ethereumProxy = createEthereumProxy(originalEthereum);
-  
-  // Replace window.ethereum with our proxy
-  Object.defineProperty(window, 'ethereum', {
-    value: ethereumProxy,
-    writable: true,
-    configurable: true,
-  });
-  
-  console.log('Ethereum proxy set up successfully');
+
+  try {
+    // Create the proxy
+    const ethereumProxy = createEthereumProxy(originalEthereum);
+
+    // Replace window.ethereum with our proxy
+    Object.defineProperty(window, 'ethereum', {
+      value: ethereumProxy,
+      writable: true,
+      configurable: true,
+    });
+
+    console.log('Ethereum proxy set up successfully');
+    return true;
+  } catch (error) {
+    console.error('Failed to setup ethereum proxy:', error);
+    console.warn('AA Wallet will fall back to using the standard wallet provider');
+    proxySetupFailed = true;
+
+    // Restore original ethereum if it was saved
+    if (originalEthereum) {
+      try {
+        Object.defineProperty(window, 'ethereum', {
+          value: originalEthereum,
+          writable: true,
+          configurable: true,
+        });
+        console.log('Original ethereum provider restored successfully');
+      } catch (restoreError) {
+        console.error('Failed to restore original ethereum:', restoreError);
+        // If we can't restore via defineProperty, the original should still be accessible
+        // since we stored it before the failed attempt
+      }
+    }
+    return false;
+  }
+}
+
+/**
+ * Check if the proxy setup failed and we're in fallback mode
+ */
+export function isProxyFailed(): boolean {
+  return proxySetupFailed;
 }
 
 /**
@@ -81,7 +122,14 @@ function createEthereumProxy(target: any): ProxyEthereum {
           
           // Intercept personal_sign requests
           if (prop === 'request' && args[0]?.method === 'personal_sign') {
-            return handlePersonalSign(args[0]);
+            return handlePersonalSign(args[0]).catch((error) => {
+              // Toast for user-facing errors (if not already shown)
+              const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+              if (!errorMsg.includes('User rejected') && !errorMsg.includes('Signature rejected')) {
+                toast.error(`Signature failed: ${errorMsg}`);
+              }
+              throw error;
+            });
           }
           
           // Pass through all other requests
@@ -189,7 +237,9 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
   
   // Validate domain
   if (!validateDomain(websiteName)) {
-    throw new Error(`Unauthorized domain: ${websiteName}. Please use an official Arbius domain.`);
+    const error = `Unauthorized domain: ${websiteName}`;
+    toast.error(`Signature rejected: ${error}`);
+    throw new Error(`${error}. Please use an official Arbius domain.`);
   }
   
   // Check if the message already follows EIP-4361 format
@@ -203,12 +253,19 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
     
     // Store nonce in localStorage with expiration
     const nonceKey = `arbiuswallet_nonce_${nonce}`;
-    localStorage.setItem(nonceKey, JSON.stringify({
+    const nonceStored = safeLocalStorageSet(nonceKey, JSON.stringify({
       address,
       issuedAt,
       expiresAt: expirationTime
     }));
+
+    if (!nonceStored) {
+      console.warn('Failed to store nonce. Signature validation may not work properly.');
+    }
     
+    // Get current chain ID dynamically
+    const currentChainId = await getCurrentChainId();
+
     // Create EIP-4361 compliant message
     const signedMessage: SignedMessage = {
       domain: websiteName,
@@ -219,7 +276,7 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
       statement: 'Arbius Wallet wants you to create a deterministic wallet',
       uri: websiteUrl,
       version: '1',
-      chainId: 42161 // Arbitrum
+      chainId: currentChainId // Dynamic chain ID
     };
     
     const enhancedMessage = formatEIP4361Message(signedMessage);
@@ -240,12 +297,21 @@ async function handlePersonalSign(request: { method: string; params: any[] }): P
   if (nonceLine) {
     const nonce = nonceLine.split('Nonce:')[1].trim();
     const nonceKey = `arbiuswallet_nonce_${nonce}`;
-    const storedNonce = localStorage.getItem(nonceKey);
-    
+    const storedNonce = safeLocalStorageGet(nonceKey);
+
     if (storedNonce) {
-      const { expiresAt } = JSON.parse(storedNonce);
-      if (new Date(expiresAt) < new Date()) {
-        throw new Error('Message has expired. Please sign a new message.');
+      try {
+        const { expiresAt } = JSON.parse(storedNonce);
+        if (new Date(expiresAt) < new Date()) {
+          const errorMsg = 'Message has expired. Please sign a new message.';
+          toast.error(`Signature error: ${errorMsg}`);
+          throw new Error(errorMsg);
+        }
+      } catch (error) {
+        console.warn('Failed to parse stored nonce:', error);
+        if (error instanceof Error && error.message.includes('expired')) {
+          throw error; // Re-throw if it's our expiry error
+        }
       }
     }
   }

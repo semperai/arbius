@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "id": "0xefa2d138185cf4f840630a3d323ffde028ed7d01867324f027d513cc2c7d7c32",
+      "name": "qwen",
+      "templatePath": "../../templates/qwen_sepolia.json",
+      "replicateModel": "qwen/qwen-image",
+      "cogUrl": "http://150.136.215.9:8000/predictions"
+    },
+    {
+      "id": "0x98617a8cd4a11db63100ad44bea4e5e296aecfd78b2ef06aee3e364c7307f212",
+      "name": "qwq",
+      "templatePath": "../../templates/qwen_qwq_32b.json",
+      "replicateModel": "qwen/qwq-32b-preview"
+    },
+    {
+      "id": "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "name": "wai",
+      "templatePath": "../../templates/wai_v120.json",
+      "replicateModel": "kasumi-1/wai-v120"
+    }
+  ]
+}

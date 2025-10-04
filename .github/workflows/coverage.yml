@@ -1,0 +1,69 @@
+name: Coverage
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [contract, explorer, website2, bots/kasumi-3, bots/ipfs-oracle]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+
+      - name: Install Foundry
+        if: matrix.package == 'contract'
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: cd ${{ matrix.package }} && npm ci
+
+      - name: Run coverage
+        run: cd ${{ matrix.package }} && npm run test:coverage
+
+      - name: Determine lcov path
+        id: lcov-path
+        run: |
+          if [ -f "${{ matrix.package }}/lcov.info" ]; then
+            echo "path=${{ matrix.package }}/lcov.info" >> $GITHUB_OUTPUT
+          elif [ -f "${{ matrix.package }}/coverage/lcov.info" ]; then
+            echo "path=${{ matrix.package }}/coverage/lcov.info" >> $GITHUB_OUTPUT
+          else
+            echo "path=${{ matrix.package }}/lcov.info" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: ${{ matrix.package }}
+          parallel: true
+          file: ${{ steps.lcov-path.outputs.path }}
+        continue-on-error: true
+
+  finish:
+    needs: coverage
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
+          carryforward: true

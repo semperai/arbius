@@ -126,6 +126,7 @@ __pycache__
 cache
 out
 cache_forge
+lcov.info
 
 #foundry script run output files
 broadcast/

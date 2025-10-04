@@ -7,7 +7,7 @@ To install dependencies and compile contracts:
 ```bash
 git clone https://github.com/semperai/arbius
 cd arbius/contract/
-yarn
+npm install
 ```
 
 Create a skeleton `config.local.json` file:
@@ -21,7 +21,7 @@ Insert an empty json object:
 {}
 ```
 
-Create a .env file according to the example file, then, run `yarn compile`. 
+Create a .env file according to the example file, then, run `npm run compile`. 
 
 ## Tests
 
@@ -49,7 +49,7 @@ To test `Governance.t.sol` and `V2_EngineV4.sol` you need to deploy the contract
 ```bash
 npx hardhat node
 npx hardhat test test/enginev4.test.ts --network localhost
-yarn forge-test
+npm run forge-test
 ```
 
 ## Local Development
