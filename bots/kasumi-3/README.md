@@ -208,13 +208,6 @@ npm run test:unit
 npm run test:integration
 ```
 
-### Test Coverage
-
-- **60 tests** covering utils, services, and integration
-- **>70% code coverage**
-- Mocked external dependencies for fast execution
-- See [TESTING.md](./TESTING.md) for details
-
 ## Adding New Models
 
 1. Create template file in `../../templates/`:
@@ -324,7 +317,6 @@ pm2 save
 ## Documentation
 
 - [UPGRADE.md](./UPGRADE.md) - V6 upgrade guide and architecture
-- [TESTING.md](./TESTING.md) - Comprehensive testing guide
 - [.env.example](./.env.example) - Environment variables template
 
 ## Contributing
@@ -340,20 +332,3 @@ pm2 save
 ## License
 
 MIT License - See LICENSE file for details
-
-## Support
-
-- GitHub Issues: Report bugs and feature requests
-- Arbius Discord: Community support
-- Documentation: Check UPGRADE.md and TESTING.md
-
-## Acknowledgments
-
-Built for the Arbius decentralized AI network with ❤️ by the community.
-
----
-
-**Status:** Production Ready ✅
-**Tests:** 60/60 Passing ✅
-**Coverage:** >70% ✅
-**Node:** v22+ LTS ✅

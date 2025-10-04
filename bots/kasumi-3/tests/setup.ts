@@ -8,6 +8,9 @@ dotenv.config({ path: '.env.test' });
 // Set test timeout
 jest.setTimeout(30000);
 
+// Unmock ethers for address validation
+jest.unmock('ethers');
+
 // Mock uuid module
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'test-uuid-' + Math.random().toString(36).substring(7)),

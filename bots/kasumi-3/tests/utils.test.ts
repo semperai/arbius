@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import {
   taskid2Seed,
   generateCommitment,
@@ -6,10 +6,24 @@ import {
   cidify,
   now,
   sleep,
+  expretry,
 } from '../src/utils';
 import { ethers } from 'ethers';
 
+// Mock logger
+jest.mock('../src/log', () => ({
+  log: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
+
 describe('Utils', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   describe('taskid2Seed', () => {
     it('should convert taskid to seed within safe range', () => {
       const taskid = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
@@ -70,6 +84,50 @@ describe('Utils', () => {
     });
   });
 
+  describe('expretry', () => {
+    it('should return result on first success', async () => {
+      const fn = jest.fn<() => Promise<string>>().mockResolvedValue('success');
+      const result = await expretry('test', fn as any);
+
+      expect(result).toBe('success');
+      expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it('should retry on failure and eventually succeed', async () => {
+      const fn = jest.fn<() => Promise<string>>()
+        .mockRejectedValueOnce(new Error('fail 1'))
+        .mockRejectedValueOnce(new Error('fail 2'))
+        .mockResolvedValueOnce('success');
+
+      const result = await expretry('test', fn as any, 5, 1.1);
+
+      expect(result).toBe('success');
+      expect(fn).toHaveBeenCalledTimes(3);
+    });
+
+    it('should return null after all retries fail', async () => {
+      const fn = jest.fn<() => Promise<string>>().mockRejectedValue(new Error('fail'));
+
+      const result = await expretry('test', fn as any, 3, 1.1);
+
+      expect(result).toBeNull();
+      expect(fn).toHaveBeenCalledTimes(3);
+    });
+
+    it('should use exponential backoff', async () => {
+      const fn = jest.fn<() => Promise<string>>()
+        .mockRejectedValueOnce(new Error('fail'))
+        .mockResolvedValueOnce('success');
+
+      const start = Date.now();
+      await expretry('test', fn as any, 5, 1.5);
+      const elapsed = Date.now() - start;
+
+      // First retry should wait ~1.5 seconds (base^1), allow some margin
+      expect(elapsed).toBeGreaterThan(1000);
+    });
+  });
+
   describe('hydrateInput', () => {
     const template = {
       input: [
@@ -93,6 +151,21 @@ describe('Utils', () => {
           required: false,
           default: 'sdxl',
           choices: ['sd15', 'sdxl', 'sd3'],
+        },
+        {
+          variable: 'guidance',
+          type: 'decimal',
+          required: false,
+          default: 7.5,
+          min: 1.0,
+          max: 20.0,
+        },
+        {
+          variable: 'sampler',
+          type: 'int_enum',
+          required: false,
+          default: 1,
+          choices: [1, 2, 3],
         },
       ],
     };
@@ -134,7 +207,18 @@ describe('Utils', () => {
       expect(result.errmsg).toContain('prompt');
     });
 
-    it('should error on wrong type', () => {
+    it('should error on wrong type for string', () => {
+      const input = {
+        prompt: 123, // Should be string
+      };
+
+      const result = hydrateInput(input, template);
+
+      expect(result.err).toBe(true);
+      expect(result.errmsg).toContain('prompt');
+    });
+
+    it('should error on wrong type for int', () => {
       const input = {
         prompt: 'test',
         num_steps: 'not a number',
@@ -146,7 +230,43 @@ describe('Utils', () => {
       expect(result.errmsg).toContain('num_steps');
     });
 
-    it('should error on invalid enum value', () => {
+    it('should error on wrong type for decimal', () => {
+      const input = {
+        prompt: 'test',
+        guidance: 'not a number',
+      };
+
+      const result = hydrateInput(input, template);
+
+      expect(result.err).toBe(true);
+      expect(result.errmsg).toContain('guidance');
+    });
+
+    it('should error on out of range int', () => {
+      const input = {
+        prompt: 'test',
+        num_steps: 150, // Max is 100
+      };
+
+      const result = hydrateInput(input, template);
+
+      expect(result.err).toBe(true);
+      expect(result.errmsg).toContain('out of bounds');
+    });
+
+    it('should error on out of range decimal', () => {
+      const input = {
+        prompt: 'test',
+        guidance: 25.0, // Max is 20.0
+      };
+
+      const result = hydrateInput(input, template);
+
+      expect(result.err).toBe(true);
+      expect(result.errmsg).toContain('out of bounds');
+    });
+
+    it('should error on invalid string_enum value', () => {
       const input = {
         prompt: 'test',
         model: 'invalid_model',
@@ -156,6 +276,42 @@ describe('Utils', () => {
 
       expect(result.err).toBe(true);
       expect(result.errmsg).toContain('enum');
+    });
+
+    it('should error on invalid int_enum value', () => {
+      const input = {
+        prompt: 'test',
+        sampler: 99, // Not in choices
+      };
+
+      const result = hydrateInput(input, template);
+
+      expect(result.err).toBe(true);
+      expect(result.errmsg).toContain('enum');
+    });
+
+    it('should accept valid string_enum value', () => {
+      const input = {
+        prompt: 'test',
+        model: 'sd3',
+      };
+
+      const result = hydrateInput(input, template);
+
+      expect(result.err).toBe(false);
+      expect(result.input.model).toBe('sd3');
+    });
+
+    it('should accept valid int_enum value', () => {
+      const input = {
+        prompt: 'test',
+        sampler: 2,
+      };
+
+      const result = hydrateInput(input, template);
+
+      expect(result.err).toBe(false);
+      expect(result.input.sampler).toBe(2);
     });
   });
 

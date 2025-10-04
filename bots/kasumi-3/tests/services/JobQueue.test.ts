@@ -12,6 +12,13 @@ describe('JobQueue', () => {
     queue = new JobQueue(2, mockCallback as any);
   });
 
+  afterEach(() => {
+    // Clean up all timers to prevent open handles
+    if (queue) {
+      queue.shutdown();
+    }
+  });
+
   describe('addJob', () => {
     it('should add job to queue', async () => {
       const job = await queue.addJob({

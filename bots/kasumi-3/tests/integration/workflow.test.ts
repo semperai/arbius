@@ -73,9 +73,20 @@ const mockMiningConfig: MiningConfig = {
 
 describe('Integration: End-to-End Workflow', () => {
   let modelRegistry: ModelRegistry;
-  let jobQueue: JobQueue;
+  let jobQueue: JobQueue | null = null;
   let taskProcessor: TaskProcessor;
   let mockBlockchain: any;
+  let allQueues: JobQueue[] = [];
+
+  afterEach(() => {
+    // Clean up all job queues to prevent timer leaks
+    allQueues.forEach(queue => queue.shutdown());
+    allQueues = [];
+    if (jobQueue) {
+      jobQueue.shutdown();
+      jobQueue = null;
+    }
+  });
 
   beforeAll(() => {
     modelRegistry = new ModelRegistry();
@@ -149,6 +160,7 @@ describe('Integration: End-to-End Workflow', () => {
       });
 
       const queue = new JobQueue(1, mockProcessor as any);
+      allQueues.push(queue);
 
       // Add multiple jobs
       await queue.addJob({
@@ -179,6 +191,7 @@ describe('Integration: End-to-End Workflow', () => {
       });
 
       const queue = new JobQueue(2, mockProcessor as any);
+      allQueues.push(queue);
 
       // Add 3 jobs
       await queue.addJob({
@@ -226,6 +239,7 @@ describe('Integration: End-to-End Workflow', () => {
   describe('Task Submission and Processing Flow', () => {
     it('should submit task and add to queue', async () => {
       const queue = new JobQueue(1);
+      allQueues.push(queue);
       const processor = new TaskProcessor(mockBlockchain, mockMiningConfig, queue);
       (processor as any).jobQueue = queue;
 
@@ -245,6 +259,7 @@ describe('Integration: End-to-End Workflow', () => {
 
     it('should retrieve job by taskid', async () => {
       const queue = new JobQueue(1);
+      allQueues.push(queue);
       const processor = new TaskProcessor(mockBlockchain, mockMiningConfig, queue);
       (processor as any).jobQueue = queue;
 
@@ -267,6 +282,7 @@ describe('Integration: End-to-End Workflow', () => {
       const errorQueue = new JobQueue(1, async (job) => {
         throw new Error('Processing failed');
       });
+      allQueues.push(errorQueue);
 
       const job = await errorQueue.addJob({
         taskid: '0xerror',
@@ -290,6 +306,7 @@ describe('Integration: End-to-End Workflow', () => {
         }
         await new Promise(resolve => setTimeout(resolve, 50));
       });
+      allQueues.push(partialErrorQueue);
 
       await partialErrorQueue.addJob({
         taskid: '0xfail',
@@ -315,6 +332,7 @@ describe('Integration: End-to-End Workflow', () => {
       const statsQueue = new JobQueue(2, async (job) => {
         await new Promise(resolve => setTimeout(resolve, 100));
       });
+      allQueues.push(statsQueue);
 
       const job1 = await statsQueue.addJob({
         taskid: '0x001',

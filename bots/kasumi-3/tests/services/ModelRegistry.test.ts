@@ -212,4 +212,141 @@ describe('ModelRegistry', () => {
       expect(registry.hasModelByName('nonexistent')).toBe(false);
     });
   });
+
+  describe('loadModelFromTemplate', () => {
+    const fs = require('fs');
+
+    beforeEach(() => {
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
+        meta: { title: 'Loaded Model', description: 'Test', git: '', docker: '', version: 1 },
+        input: [{ variable: 'prompt', type: 'string', required: true }],
+        output: [],
+      }));
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should load model from template file', () => {
+      registry.loadModelFromTemplate('0x456', 'loaded-model', '/path/to/template.json');
+
+      const model = registry.getModelById('0x456');
+      expect(model).toBeDefined();
+      expect(model?.name).toBe('loaded-model');
+      expect(model?.template.meta.title).toBe('Loaded Model');
+    });
+
+    it('should load model with replicate option', () => {
+      registry.loadModelFromTemplate('0x789', 'replicate-model', '/path/to/template.json', {
+        replicateModel: 'some/model',
+      });
+
+      const model = registry.getModelById('0x789');
+      expect(model?.replicateModel).toBe('some/model');
+    });
+
+    it('should load model with cog URL option', () => {
+      registry.loadModelFromTemplate('0xabc', 'cog-model', '/path/to/template.json', {
+        cogUrl: 'http://localhost:5000',
+      });
+
+      const model = registry.getModelById('0xabc');
+      expect(model?.cogUrl).toBe('http://localhost:5000');
+    });
+
+    it('should throw error if template file is invalid JSON', () => {
+      jest.spyOn(fs, 'readFileSync').mockReturnValue('invalid json');
+
+      expect(() => {
+        registry.loadModelFromTemplate('0xbad', 'bad-model', '/path/to/bad.json');
+      }).toThrow();
+    });
+
+    it('should throw error if template file cannot be read', () => {
+      jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        throw new Error('ENOENT: no such file');
+      });
+
+      expect(() => {
+        registry.loadModelFromTemplate('0xmissing', 'missing-model', '/path/to/missing.json');
+      }).toThrow();
+    });
+  });
+
+  describe('loadModelsFromConfig', () => {
+    const fs = require('fs');
+
+    beforeEach(() => {
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
+        meta: { title: 'Test Model', description: '', git: '', docker: '', version: 1 },
+        input: [],
+        output: [],
+      }));
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should load multiple models from config', () => {
+      const config = [
+        { id: '0x111', name: 'model1', templatePath: '/path/to/template1.json' },
+        { id: '0x222', name: 'model2', templatePath: '/path/to/template2.json' },
+      ];
+
+      registry.loadModelsFromConfig(config);
+
+      expect(registry.hasModel('0x111')).toBe(true);
+      expect(registry.hasModel('0x222')).toBe(true);
+      expect(registry.getAllModels()).toHaveLength(2);
+    });
+
+    it('should continue loading even if one model fails', () => {
+      let callCount = 0;
+      jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        callCount++;
+        if (callCount === 2) {
+          throw new Error('File not found');
+        }
+        return JSON.stringify({
+          meta: { title: 'Test', description: '', git: '', docker: '', version: 1 },
+          input: [],
+          output: [],
+        });
+      });
+
+      const config = [
+        { id: '0x111', name: 'model1', templatePath: '/path/to/template1.json' },
+        { id: '0x222', name: 'model2', templatePath: '/path/to/bad.json' },
+        { id: '0x333', name: 'model3', templatePath: '/path/to/template3.json' },
+      ];
+
+      registry.loadModelsFromConfig(config);
+
+      // Should have loaded model1 and model3, but not model2
+      expect(registry.hasModel('0x111')).toBe(true);
+      expect(registry.hasModel('0x222')).toBe(false);
+      expect(registry.hasModel('0x333')).toBe(true);
+      expect(registry.getAllModels()).toHaveLength(2);
+    });
+
+    it('should load models with options', () => {
+      const config = [
+        {
+          id: '0x111',
+          name: 'model1',
+          templatePath: '/path/to/template.json',
+          replicateModel: 'some/model',
+          cogUrl: 'http://localhost:5000',
+        },
+      ];
+
+      registry.loadModelsFromConfig(config);
+
+      const model = registry.getModelById('0x111');
+      expect(model?.replicateModel).toBe('some/model');
+      expect(model?.cogUrl).toBe('http://localhost:5000');
+    });
+  });
 });

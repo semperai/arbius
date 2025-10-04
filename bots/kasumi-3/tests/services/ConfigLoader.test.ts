@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { ConfigLoader } from '../../src/config';
+import { ConfigLoader, loadModelsConfig } from '../../src/config';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -109,6 +109,33 @@ describe('ConfigLoader', () => {
 
       fs.unlinkSync(missingEnvPath);
     });
+
+    it('should resolve ENV vars in arrays', () => {
+      process.env.TEST_GATEWAY = 'https://gateway.test.com';
+      const configWithArray = {
+        cache_path: testCachePath,
+        blockchain: {
+          rpc_url: 'https://test.rpc.url',
+        },
+        ml: { strategy: 'replicate' },
+        ipfs: {
+          strategy: 'pinata',
+          pinata: { jwt: 'test-jwt' },
+          gateways: ['ENV:TEST_GATEWAY', 'https://ipfs.io'],
+        },
+      };
+
+      const arrayPath = path.join(__dirname, '../fixtures/array-config.json');
+      fs.writeFileSync(arrayPath, JSON.stringify(configWithArray));
+
+      const loader = new ConfigLoader(arrayPath);
+      const config: any = loader.getMiningConfig();
+
+      expect(config.ipfs.gateways).toEqual(['https://gateway.test.com', 'https://ipfs.io']);
+
+      fs.unlinkSync(arrayPath);
+      delete process.env.TEST_GATEWAY;
+    });
   });
 
   describe('validateConfig', () => {
@@ -133,6 +160,81 @@ describe('ConfigLoader', () => {
 
       fs.unlinkSync(invalidPath);
     });
+
+    it('should throw error for missing blockchain.rpc_url', () => {
+      const invalidConfig = {
+        cache_path: testCachePath,
+        blockchain: {},
+        ml: { strategy: 'replicate' },
+        ipfs: { strategy: 'pinata' },
+      };
+
+      const invalidPath = path.join(__dirname, '../fixtures/no-rpc-config.json');
+      fs.writeFileSync(invalidPath, JSON.stringify(invalidConfig));
+
+      expect(() => {
+        new ConfigLoader(invalidPath);
+      }).toThrow('Missing blockchain.rpc_url in config');
+
+      fs.unlinkSync(invalidPath);
+    });
+
+    it('should throw error for missing ml.strategy', () => {
+      const invalidConfig = {
+        cache_path: testCachePath,
+        blockchain: { rpc_url: 'https://test.rpc' },
+        ml: {},
+        ipfs: { strategy: 'pinata' },
+      };
+
+      const invalidPath = path.join(__dirname, '../fixtures/no-ml-strategy-config.json');
+      fs.writeFileSync(invalidPath, JSON.stringify(invalidConfig));
+
+      expect(() => {
+        new ConfigLoader(invalidPath);
+      }).toThrow('Missing ml.strategy in config');
+
+      fs.unlinkSync(invalidPath);
+    });
+
+    it('should throw error for missing ipfs.strategy', () => {
+      const invalidConfig = {
+        cache_path: testCachePath,
+        blockchain: { rpc_url: 'https://test.rpc' },
+        ml: { strategy: 'replicate' },
+        ipfs: {},
+      };
+
+      const invalidPath = path.join(__dirname, '../fixtures/no-ipfs-strategy-config.json');
+      fs.writeFileSync(invalidPath, JSON.stringify(invalidConfig));
+
+      expect(() => {
+        new ConfigLoader(invalidPath);
+      }).toThrow('Missing ipfs.strategy in config');
+
+      fs.unlinkSync(invalidPath);
+    });
+
+    it('should throw error for pinata strategy without jwt', () => {
+      const invalidConfig = {
+        cache_path: testCachePath,
+        blockchain: { rpc_url: 'https://test.rpc' },
+        ml: { strategy: 'replicate' },
+        ipfs: {
+          strategy: 'pinata',
+          pinata: {},
+        },
+      };
+
+      const invalidPath = path.join(__dirname, '../fixtures/no-pinata-jwt-config.json');
+      fs.writeFileSync(invalidPath, JSON.stringify(invalidConfig));
+
+      expect(() => {
+        new ConfigLoader(invalidPath);
+      }).toThrow('Pinata strategy selected but jwt not configured');
+
+      fs.unlinkSync(invalidPath);
+    });
   });
 
   describe('getEnvVar', () => {
@@ -154,5 +256,52 @@ describe('ConfigLoader', () => {
       const value = ConfigLoader.getEnvVar('MISSING_OPTIONAL_VAR', false);
       expect(value).toBe('');
     });
+  });
+});
+
+describe('loadModelsConfig', () => {
+  const testModelsPath = path.join(__dirname, '../fixtures/test-models.json');
+
+  afterEach(() => {
+    if (fs.existsSync(testModelsPath)) {
+      fs.unlinkSync(testModelsPath);
+    }
+  });
+
+  it('should load models config successfully', () => {
+    const modelsConfig = {
+      models: [
+        {
+          id: '0xmodel1',
+          name: 'test-model',
+          templatePath: '/path/to/template.json',
+          replicateModel: 'owner/model',
+        },
+      ],
+    };
+
+    fs.mkdirSync(path.dirname(testModelsPath), { recursive: true });
+    fs.writeFileSync(testModelsPath, JSON.stringify(modelsConfig));
+
+    const config = loadModelsConfig(testModelsPath);
+
+    expect(config.models).toHaveLength(1);
+    expect(config.models[0].id).toBe('0xmodel1');
+    expect(config.models[0].name).toBe('test-model');
+  });
+
+  it('should throw error for non-existent file', () => {
+    expect(() => {
+      loadModelsConfig('/non/existent/models.json');
+    }).toThrow('Failed to load models config');
+  });
+
+  it('should throw error for invalid JSON', () => {
+    fs.mkdirSync(path.dirname(testModelsPath), { recursive: true });
+    fs.writeFileSync(testModelsPath, 'invalid json{');
+
+    expect(() => {
+      loadModelsConfig(testModelsPath);
+    }).toThrow('Failed to load models config');
   });
 });

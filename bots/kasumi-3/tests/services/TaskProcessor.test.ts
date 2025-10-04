@@ -1,0 +1,427 @@
+import { TaskProcessor } from '../../src/services/TaskProcessor';
+import { BlockchainService } from '../../src/services/BlockchainService';
+import { JobQueue } from '../../src/services/JobQueue';
+import { UserService } from '../../src/services/UserService';
+import { GasAccountingService } from '../../src/services/GasAccountingService';
+import { ModelHandlerFactory } from '../../src/services/ModelHandler';
+import { ethers } from 'ethers';
+
+// Mock dependencies
+jest.mock('../../src/log');
+jest.mock('../../src/services/ModelHandler');
+jest.mock('../../src/ipfs');
+
+describe('TaskProcessor', () => {
+  let taskProcessor: TaskProcessor;
+  let mockBlockchain: jest.Mocked<BlockchainService>;
+  let mockJobQueue: jest.Mocked<JobQueue>;
+  let mockUserService: jest.Mocked<UserService>;
+  let mockGasAccounting: jest.Mocked<GasAccountingService>;
+  let mockModelHandler: any;
+
+  const mockMiningConfig: any = {
+    replicateApiKey: 'test-key',
+    ipfsGateways: ['https://gateway1.com', 'https://gateway2.com'],
+    log_path: './test.log',
+    db_path: './test.db',
+    stake_buffer_percent: 10,
+    stake_buffer_topup_percent: 5,
+    models: [],
+    rpc_url: 'http://test-rpc.com',
+    private_key: '0x1234',
+    arbius_address: '0xarbius',
+    arbius_router_address: '0xrouter',
+    token_address: '0xtoken',
+  };
+
+  const mockModelConfig: any = {
+    id: '0xmodel123',
+    name: 'test-model',
+    template: {
+      meta: { title: 'Test Model', description: '', git: '', docker: '', version: 1 },
+      input: [{
+        variable: 'prompt',
+        type: 'string' as const,
+        required: true,
+        default: '',
+        description: 'Test prompt',
+      }],
+      output: [],
+    },
+  };
+
+  beforeEach(() => {
+    // Mock BlockchainService
+    mockBlockchain = {
+      getSolution: jest.fn(),
+      submitSolution: jest.fn(),
+      submitTask: jest.fn(),
+      getArbiusContract: jest.fn(),
+      getProvider: jest.fn(),
+      findTransactionByTaskId: jest.fn(),
+    } as any;
+
+    // Mock JobQueue
+    mockJobQueue = {
+      addJob: jest.fn(),
+      updateJobStatus: jest.fn(),
+    } as any;
+
+    // Mock UserService
+    mockUserService = {
+      reserveBalance: jest.fn(),
+      cancelReservation: jest.fn(),
+      finalizeReservation: jest.fn(),
+      getAvailableBalance: jest.fn(),
+      refundTask: jest.fn(),
+    } as any;
+
+    // Mock GasAccountingService
+    mockGasAccounting = {
+      estimateGasCostInAius: jest.fn(),
+      calculateGasCostInAius: jest.fn(),
+    } as any;
+
+    // Mock ModelHandler
+    mockModelHandler = {
+      getCid: jest.fn(),
+    };
+
+    (ModelHandlerFactory.createHandler as jest.Mock) = jest.fn().mockReturnValue(mockModelHandler);
+
+    taskProcessor = new TaskProcessor(
+      mockBlockchain,
+      mockMiningConfig,
+      mockJobQueue
+    );
+  });
+
+  describe('processTask', () => {
+    const mockJob = {
+      id: 'job-123',
+      taskid: '0xtask123',
+      modelConfig: mockModelConfig,
+      input: { prompt: 'test prompt' },
+      status: 'pending' as const,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    it('should skip if task already solved', async () => {
+      mockBlockchain.getSolution.mockResolvedValue({
+        validator: '0xvalidator',
+        cid: '0xcid123',
+      });
+
+      await taskProcessor.processTask(mockJob);
+
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'completed',
+        { cid: '0xcid123' }
+      );
+      expect(mockModelHandler.getCid).not.toHaveBeenCalled();
+    });
+
+    it('should process task and submit solution', async () => {
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+
+      await taskProcessor.processTask(mockJob);
+
+      expect(mockModelHandler.getCid).toHaveBeenCalledWith('0xtask123', mockJob.input);
+      expect(mockBlockchain.submitSolution).toHaveBeenCalledWith('0xtask123', '0xnewcid');
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'completed',
+        { cid: '0xnewcid' }
+      );
+    });
+
+    it('should handle case where another validator solved with different CID', async () => {
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: '0xother', cid: '0xothercid' });
+
+      mockModelHandler.getCid.mockResolvedValue('0xmycid');
+
+      await taskProcessor.processTask(mockJob);
+
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'failed',
+        { error: 'Task solved by another validator', cid: '0xmycid' }
+      );
+      expect(mockBlockchain.submitSolution).not.toHaveBeenCalled();
+    });
+
+    it('should handle case where another validator solved with same CID', async () => {
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: '0xother', cid: '0xsamecid' });
+
+      mockModelHandler.getCid.mockResolvedValue('0xsamecid');
+
+      await taskProcessor.processTask(mockJob);
+
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'completed',
+        { cid: '0xsamecid' }
+      );
+      expect(mockBlockchain.submitSolution).not.toHaveBeenCalled();
+    });
+
+    it('should throw error if CID generation fails', async () => {
+      mockBlockchain.getSolution.mockResolvedValue({ validator: ethers.ZeroAddress, cid: '' } as any);
+      mockModelHandler.getCid.mockResolvedValue(null);
+
+      await expect(taskProcessor.processTask(mockJob)).rejects.toThrow('Failed to generate CID');
+
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'failed',
+        expect.objectContaining({ error: expect.any(String) })
+      );
+    });
+
+    it('should mark job as failed and throw on error', async () => {
+      mockBlockchain.getSolution.mockRejectedValue(new Error('Blockchain error'));
+
+      await expect(taskProcessor.processTask(mockJob)).rejects.toThrow('Blockchain error');
+
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'failed',
+        { error: 'Blockchain error' }
+      );
+    });
+
+    it('should refund user on task failure when userService is configured', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      mockBlockchain.getSolution.mockRejectedValue(new Error('Task failed'));
+      mockUserService.refundTask.mockReturnValue(true);
+
+      await expect(processorWithUser.processTask(mockJob)).rejects.toThrow('Task failed');
+
+      expect(mockUserService.refundTask).toHaveBeenCalledWith('0xtask123');
+    });
+  });
+
+  describe('refundTask', () => {
+    it('should refund task when userService is configured', () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      mockUserService.refundTask.mockReturnValue(true);
+
+      const result = processorWithUser.refundTask('0xtask123');
+
+      expect(result).toBe(true);
+      expect(mockUserService.refundTask).toHaveBeenCalledWith('0xtask123');
+    });
+
+    it('should return false when userService not configured', () => {
+      const result = taskProcessor.refundTask('0xtask123');
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('submitAndQueueTask', () => {
+    it('should submit task without payment system', async () => {
+      mockBlockchain.submitTask.mockResolvedValue('0xnewtask');
+      mockJobQueue.addJob.mockResolvedValue({
+        id: 'job-new',
+        taskid: '0xnewtask',
+        modelConfig: mockModelConfig,
+        input: { prompt: 'test' },
+        status: 'pending',
+        createdAt: Date.now(),
+      });
+
+      const result = await taskProcessor.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test prompt' }
+      );
+
+      expect(result.taskid).toBe('0xnewtask');
+      expect(result.job.id).toBe('job-new');
+      expect(mockBlockchain.submitTask).toHaveBeenCalledWith(
+        '0xmodel123',
+        JSON.stringify({ prompt: 'test prompt' }),
+        0n
+      );
+      expect(mockJobQueue.addJob).toHaveBeenCalled();
+    });
+
+    it('should reserve balance and submit task with payment system', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: jest.fn().mockResolvedValue({ fee: BigInt('1000000000000000000') }),
+      };
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.getProvider.mockReturnValue({} as any);
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockBlockchain.submitTask.mockResolvedValue('0xnewtask');
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'test',
+      });
+      mockBlockchain.getProvider.mockReturnValue({
+        getTransactionReceipt: jest.fn().mockResolvedValue({
+          gasUsed: 150000n,
+          gasPrice: 50000000000n,
+        }),
+      } as any);
+      mockGasAccounting.calculateGasCostInAius.mockResolvedValue({
+        gasCostAius: BigInt('8000000000000000'),
+        gasCostWei: BigInt('400000000000000'),
+        gasUsed: 150000n,
+        gasPrice: 50000000000n,
+        aiusPerEth: BigInt('100000000000000000000'),
+      });
+      mockUserService.finalizeReservation.mockReturnValue(true);
+      mockJobQueue.addJob.mockResolvedValue({
+        id: 'job-paid',
+        taskid: '0xnewtask',
+        modelConfig: mockModelConfig,
+        input: { prompt: 'test' },
+        status: 'pending',
+        createdAt: Date.now(),
+      });
+
+      const result = await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'paid task' },
+        0n,
+        { telegramId: 123, chatId: 456, messageId: 789 }
+      );
+
+      expect(mockUserService.reserveBalance).toHaveBeenCalled();
+      expect(mockBlockchain.submitTask).toHaveBeenCalled();
+      expect(mockUserService.finalizeReservation).toHaveBeenCalled();
+      expect(result.taskid).toBe('0xnewtask');
+      expect(result.estimatedCost).toBeDefined();
+    });
+
+    it('should cancel reservation if blockchain submission fails', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: jest.fn().mockResolvedValue({ fee: BigInt('1000000000000000000') }),
+      };
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.getProvider.mockReturnValue({} as any);
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockBlockchain.submitTask.mockRejectedValue(new Error('Blockchain error'));
+
+      await expect(
+        processorWithPayment.submitAndQueueTask(
+          mockModelConfig,
+          { prompt: 'test' },
+          0n,
+          { telegramId: 123 }
+        )
+      ).rejects.toThrow('Blockchain error');
+
+      expect(mockUserService.cancelReservation).toHaveBeenCalledWith('res_123');
+    });
+
+    it('should throw if insufficient balance', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: jest.fn().mockResolvedValue({ fee: BigInt('1000000000000000000') }),
+      };
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.getProvider.mockReturnValue({} as any);
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue(null); // Insufficient balance
+      mockUserService.getAvailableBalance.mockReturnValue(BigInt('100000000000000000'));
+
+      await expect(
+        processorWithPayment.submitAndQueueTask(
+          mockModelConfig,
+          { prompt: 'test' },
+          0n,
+          { telegramId: 123 }
+        )
+      ).rejects.toThrow('Insufficient balance');
+    });
+  });
+
+  describe('processExistingTask', () => {
+    it('should process existing task from blockchain', async () => {
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'existing prompt',
+      });
+      mockJobQueue.addJob.mockResolvedValue({
+        id: 'job-existing',
+        taskid: '0xexistingtask',
+        modelConfig: mockModelConfig,
+        input: { prompt: 'existing prompt' },
+        status: 'pending',
+        createdAt: Date.now(),
+      });
+
+      const result = await taskProcessor.processExistingTask(
+        '0xexistingtask',
+        mockModelConfig,
+        { chatId: 123, messageId: 456 }
+      );
+
+      expect(result.id).toBe('job-existing');
+      expect(mockJobQueue.addJob).toHaveBeenCalledWith({
+        taskid: '0xexistingtask',
+        modelConfig: mockModelConfig,
+        input: { prompt: 'existing prompt' },
+        chatId: 123,
+        messageId: 456,
+      });
+    });
+
+    it('should throw if transaction not found', async () => {
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue(null);
+
+      await expect(
+        taskProcessor.processExistingTask('0xnonexistent', mockModelConfig)
+      ).rejects.toThrow('Could not find transaction data');
+    });
+  });
+});
