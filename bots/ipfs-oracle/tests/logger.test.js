@@ -26,12 +26,15 @@ describe('initializeLogger', () => {
     expect(logger).toBeTruthy();
   });
 
-  test('should create logger with file transport', () => {
+  test('should create logger with file transport', async () => {
     const logger = initializeLogger(testLogPath, 0);
     expect(logger).toBeTruthy();
 
     // Write a log message
     logger.info('Test message');
+
+    // Wait a bit for async transport to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Check if file was created
     expect(fs.existsSync(testLogPath)).toBe(true);
@@ -42,11 +45,14 @@ describe('initializeLogger', () => {
     expect(logContent).toContain('Test message');
   });
 
-  test('should append multiple log messages to file', () => {
+  test('should append multiple log messages to file', async () => {
     const logger = initializeLogger(testLogPath, 0);
 
     logger.info('First message');
     logger.warn('Second message');
+
+    // Wait a bit for async transport to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     const logContent = fs.readFileSync(testLogPath, 'utf-8');
     expect(logContent).toContain('First message');
