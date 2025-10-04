@@ -135,6 +135,93 @@ describe('ipfs', () => {
   });
 
   describe('pinFilesToIPFS', () => {
+    describe('http_client strategy', () => {
+      const httpClientConfig = {
+        cache_path: 'cache',
+        ipfs: {
+          strategy: 'http_client',
+          http_client: {
+            url: 'http://localhost:5001',
+          },
+        },
+      };
+
+      it('should pin files using http_client successfully', async () => {
+        const mockAddAll = jest.fn().mockImplementation(async function* () {
+          yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
+          yield { path: 'file2.png', cid: { toString: () => 'QmFile2' } };
+          yield { path: '', cid: { toString: () => 'QmDirectory123' } };
+        });
+
+        const mockClient = {
+          add: jest.fn(),
+          addAll: mockAddAll,
+        };
+
+        mockCreate.mockReturnValue(mockClient as any);
+        mockFs.readFileSync = jest.fn().mockReturnValue(Buffer.from('test content'));
+
+        const result = await pinFilesToIPFS(
+          httpClientConfig,
+          '0xtask123',
+          ['file1.png', 'file2.png']
+        );
+
+        expect(result).toBe('QmDirectory123');
+        expect(mockCreate).toHaveBeenCalledWith({
+          url: 'http://localhost:5001',
+        });
+        expect(mockAddAll).toHaveBeenCalledWith(
+          expect.arrayContaining([
+            expect.objectContaining({ path: 'file1.png' }),
+            expect.objectContaining({ path: 'file2.png' }),
+          ]),
+          expect.objectContaining({ wrapWithDirectory: true })
+        );
+      });
+
+      it('should throw error if no directory CID is found', async () => {
+        const mockAddAll = jest.fn().mockImplementation(async function* () {
+          yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
+          // No empty path entry
+        });
+
+        const mockClient = {
+          add: jest.fn(),
+          addAll: mockAddAll,
+        };
+
+        mockCreate.mockReturnValue(mockClient as any);
+        mockFs.readFileSync = jest.fn().mockReturnValue(Buffer.from('test content'));
+
+        await expect(
+          pinFilesToIPFS(httpClientConfig, '0xtask123', ['file1.png'])
+        ).rejects.toThrow('ipfs cid extract failed');
+      });
+
+      it('should throw error if client not initialized', async () => {
+        // Reset the module to clear the client
+        jest.resetModules();
+        const { pinFilesToIPFS } = require('../../src/ipfs');
+
+        const brokenConfig = {
+          cache_path: 'cache',
+          ipfs: {
+            strategy: 'http_client',
+            http_client: {
+              url: 'http://localhost:5001',
+            },
+          },
+        };
+
+        // Mock create to return undefined
+        mockCreate.mockReturnValueOnce(undefined as any);
+
+        await expect(
+          pinFilesToIPFS(brokenConfig, '0xtask123', ['file1.png'])
+        ).rejects.toThrow('ipfs client not initialized');
+      });
+    });
 
     describe('pinata strategy', () => {
       const pinataConfig = {
@@ -219,6 +306,67 @@ describe('ipfs', () => {
   });
 
   describe('pinFileToIPFS', () => {
+    describe('http_client strategy', () => {
+      const httpClientConfig = {
+        ipfs: {
+          strategy: 'http_client',
+          http_client: {
+            url: 'http://localhost:5001',
+          },
+        },
+      };
+
+      it('should pin single file using http_client successfully', async () => {
+        const mockAdd = jest.fn().mockResolvedValue({
+          cid: { toString: () => 'QmSingleFile123' },
+        });
+
+        const mockClient = {
+          add: mockAdd,
+          addAll: jest.fn(),
+        };
+
+        mockCreate.mockReturnValue(mockClient as any);
+
+        const content = Buffer.from('test content');
+        const result = await pinFileToIPFS(
+          httpClientConfig,
+          content,
+          'test.json'
+        );
+
+        expect(result).toBe('QmSingleFile123');
+        expect(mockAdd).toHaveBeenCalledWith(
+          content,
+          expect.objectContaining({
+            cidVersion: 0,
+            hashAlg: 'sha2-256',
+          })
+        );
+      });
+
+      it('should throw error if client not initialized', async () => {
+        // Reset the module to clear the client
+        jest.resetModules();
+        const { pinFileToIPFS } = require('../../src/ipfs');
+
+        const brokenConfig = {
+          ipfs: {
+            strategy: 'http_client',
+            http_client: {
+              url: 'http://localhost:5001',
+            },
+          },
+        };
+
+        // Mock create to return undefined
+        mockCreate.mockReturnValueOnce(undefined as any);
+
+        await expect(
+          pinFileToIPFS(brokenConfig, Buffer.from('test'), 'test.json')
+        ).rejects.toThrow('ipfs client not initialized');
+      });
+    });
 
     describe('pinata strategy', () => {
       const pinataConfig = {

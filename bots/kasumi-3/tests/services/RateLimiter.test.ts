@@ -1,5 +1,14 @@
 import { RateLimiter } from '../../src/services/RateLimiter';
 
+// Mock the log module
+jest.mock('../../src/log', () => ({
+  log: {
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
+
 describe('RateLimiter', () => {
   let rateLimiter: RateLimiter;
 
@@ -31,6 +40,25 @@ describe('RateLimiter', () => {
 
       // 4th request should be blocked
       expect(rateLimiter.checkLimit(userId)).toBe(false);
+    });
+
+    it('should log warning when rate limit is exceeded', () => {
+      const { log } = require('../../src/log');
+      const userId = 123;
+
+      jest.clearAllMocks();
+
+      // Use up the 3 allowed requests
+      rateLimiter.checkLimit(userId);
+      rateLimiter.checkLimit(userId);
+      rateLimiter.checkLimit(userId);
+
+      // 4th request should be blocked and logged
+      rateLimiter.checkLimit(userId);
+
+      expect(log.warn).toHaveBeenCalledWith(
+        expect.stringContaining(`Rate limit exceeded for user ${userId}`)
+      );
     });
 
     it('should track different users separately', () => {
@@ -143,6 +171,25 @@ describe('RateLimiter', () => {
       // Should be allowed again
       expect(rateLimiter.checkLimit(userId)).toBe(true);
     });
+
+    it('should log info when resetting user rate limit', () => {
+      const { log } = require('../../src/log');
+      const userId = 123;
+
+      jest.clearAllMocks();
+
+      // Use up the limit
+      rateLimiter.checkLimit(userId);
+      rateLimiter.checkLimit(userId);
+      rateLimiter.checkLimit(userId);
+
+      // Reset the user
+      rateLimiter.reset(userId);
+
+      expect(log.info).toHaveBeenCalledWith(
+        expect.stringContaining(`Reset rate limit for user ${userId}`)
+      );
+    });
   });
 
   describe('getStats', () => {
@@ -180,6 +227,47 @@ describe('RateLimiter', () => {
       // The old entries should be gone when we check remaining
       expect(rateLimiter.getRemaining(123)).toBe(3); // Reset since expired
       expect(rateLimiter.getRemaining(456)).toBe(3); // Reset since expired
+    });
+
+    it('should run cleanup interval automatically', async () => {
+      const { log } = require('../../src/log');
+
+      // Create a rate limiter with very short cleanup interval for testing
+      const testLimiter = new RateLimiter({ maxRequests: 3, windowMs: 100 });
+
+      // Add some entries
+      testLimiter.checkLimit(123);
+      testLimiter.checkLimit(456);
+
+      expect(testLimiter.getStats().activeUsers).toBe(2);
+
+      // Wait for entries to expire
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      // Manually trigger cleanup by accessing private method via bracket notation
+      (testLimiter as any).cleanup();
+
+      // Verify cleanup logged
+      expect(log.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Cleaned up 2 expired rate limit entries')
+      );
+
+      // Verify entries were removed
+      expect(testLimiter.getStats().activeUsers).toBe(0);
+
+      testLimiter.shutdown();
+    });
+
+    it('should not log when no entries are cleaned up', () => {
+      const { log } = require('../../src/log');
+
+      jest.clearAllMocks();
+
+      // Manually trigger cleanup when no entries are expired
+      (rateLimiter as any).cleanup();
+
+      // Should not log anything
+      expect(log.debug).not.toHaveBeenCalled();
     });
   });
 
