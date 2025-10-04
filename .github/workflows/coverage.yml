@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [contract, website, explorer, announcements, docs, website2, bots/kasumi-3]
+        package: [contract, explorer, website2, bots/kasumi-3]
 
     steps:
       - name: Checkout code
@@ -28,7 +28,7 @@ jobs:
         run: cd ${{ matrix.package }} && npm ci
 
       - name: Run coverage
-        run: cd ${{ matrix.package }} && npm run coverage
+        run: cd ${{ matrix.package }} && npm run test:coverage
         continue-on-error: true
 
       - name: Upload coverage to Coveralls
@@ -50,4 +50,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-          carryforward: "contract,website,explorer,announcements,docs,website2,bots/kasumi-3"
+          carryforward: "contract,explorer,website2,bots/kasumi-3"
