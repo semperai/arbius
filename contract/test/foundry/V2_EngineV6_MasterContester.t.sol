@@ -23,6 +23,18 @@ import "contracts/interfaces/IArbiusV6.sol";
  * - Edge cases and stake requirements
  * - Division by zero prevention
  */
+
+// Minimal mock for VeStaking
+contract MockVeStaking {
+    function periodFinish() external pure returns (uint256) {
+        return 0;
+    }
+
+    function notifyRewardAmount(uint256) external pure {
+        // Do nothing
+    }
+}
+
 contract V2_EngineV6_MasterContesterTest is Test {
     BaseTokenV1 public baseToken;
     V2_EngineV6TestHelper public engine;
@@ -47,10 +59,9 @@ contract V2_EngineV6_MasterContesterTest is Test {
     event ContestationSuggested(address indexed suggestor, bytes32 indexed taskid);
     event ContestationVote(address indexed validator, bytes32 indexed taskid, bool yea);
     event ContestationVoteFinish(
-        bytes32 indexed taskid,
-        uint256 start_idx,
-        uint256 end_idx,
-        bool rewarded
+        bytes32 indexed id,
+        uint32 indexed start_idx,
+        uint32 end_idx
     );
     event MasterContesterVoteAdderSet(uint32 amount);
 
@@ -94,6 +105,10 @@ contract V2_EngineV6_MasterContesterTest is Test {
         // Deploy MasterContesterRegistry
         masterContesterRegistry = new MasterContesterRegistry(address(0));
         engine.setMasterContesterRegistry(address(masterContesterRegistry));
+
+        // Deploy VeStaking mock
+        MockVeStaking mockVeStaking = new MockVeStaking();
+        engine.setVeStaking(address(mockVeStaking));
 
         // Setup tokens
         baseToken.bridgeMint(deployer, 2000 ether);
@@ -256,7 +271,7 @@ contract V2_EngineV6_MasterContesterTest is Test {
         // vs 1 nay vote from solution submitter
         vm.prank(validator1);
         vm.expectEmit(true, false, false, false);
-        emit ContestationVoteFinish(taskId, 0, 3, true);
+        emit ContestationVoteFinish(taskId, 0, 3);
         engine.contestationVoteFinish(taskId, 3);
 
         // Verify contestation succeeded due to vote adder
@@ -464,7 +479,7 @@ contract V2_EngineV6_MasterContesterTest is Test {
         // This should NOT revert with division by zero
         vm.prank(validator1);
         vm.expectEmit(true, false, false, false);
-        emit ContestationVoteFinish(taskId, 0, 2, true);
+        emit ContestationVoteFinish(taskId, 0, 2);
         engine.contestationVoteFinish(taskId, 2);
     }
 

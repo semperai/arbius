@@ -52,7 +52,12 @@ contract V2_EngineV6_AccountingTest is Test {
     bytes public constant TESTCID = hex"1220f4ad8a3bd3189da2ad909ee41148d6893d8c629c410f7f2c7e3fae75aade79c8";
     bytes public constant TESTBUF = hex"746573740a";
 
-    event ValidatorWithdraw(address indexed validator, uint256 amount);
+    event ValidatorWithdraw(
+        address indexed addr,
+        address indexed to,
+        uint256 indexed count,
+        uint256 amount
+    );
 
     function setUp() public {
         deployer = address(this);
@@ -227,8 +232,8 @@ contract V2_EngineV6_AccountingTest is Test {
         uint256 finalTotalHeld = engine.totalHeld();
         uint256 accruedFees = engine.accruedFees();
 
-        // Total held should equal accrued fees (all task fees distributed or held as fees)
-        assertEq(finalTotalHeld, accruedFees);
+        // Total held should return to initial + remaining fees (validator got their reward, only treasury fee remains)
+        assertEq(finalTotalHeld, initialTotalHeld + accruedFees);
     }
 
     // ============================================
@@ -395,8 +400,8 @@ contract V2_EngineV6_AccountingTest is Test {
 
         // First withdraw should work
         vm.prank(validator1);
-        vm.expectEmit(true, false, false, true);
-        emit ValidatorWithdraw(validator1, withdrawAmount);
+        vm.expectEmit(true, true, true, true);
+        emit ValidatorWithdraw(validator1, validator1, count, withdrawAmount);
         engine.validatorWithdraw(count, validator1);
 
         // Second withdraw of same request should fail
