@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useActiveChainId } from '../useActiveChainId';
+import { useActiveChainId } from '@/hooks/useActiveChainId';
 
 jest.mock('wagmi', () => ({
   useChainId: jest.fn(),

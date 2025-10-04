@@ -3,14 +3,14 @@
  * Tests critical scenarios that could cause issues in production
  */
 
-import { init, isInitialized, isEthereumProxyActive } from '../init';
-import { setupEthereumProxy, isProxyFailed } from '../ethereumProxy';
-import { validateConfig } from '../configValidator';
-import { setupTransactionQueue } from '../transactionQueue';
-import { AAWalletConfig } from '../../types';
+import { init, isInitialized, isEthereumProxyActive } from '@/lib/arbius-wallet/core/init';
+import { setupEthereumProxy, isProxyFailed } from '@/lib/arbius-wallet/core/ethereumProxy';
+import { validateConfig } from '@/lib/arbius-wallet/core/configValidator';
+import { setupTransactionQueue } from '@/lib/arbius-wallet/core/transactionQueue';
+import { AAWalletConfig } from '@/lib/arbius-wallet/types';
 
-jest.mock('../configValidator');
-jest.mock('../transactionQueue');
+jest.mock('@/lib/arbius-wallet/core/configValidator');
+jest.mock('@/lib/arbius-wallet/core/transactionQueue');
 
 describe('Edge Cases', () => {
   const mockConfig: AAWalletConfig = {
@@ -69,11 +69,6 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 3: Proxy setup after failed init', () => {
     it('should not allow proxy setup if not initialized', () => {
-      const mockIsInitialized = jest.fn().mockReturnValue(false);
-      jest.mock('../init', () => ({
-        isInitialized: mockIsInitialized,
-      }));
-
       // Proxy setup should fail if wallet not initialized
       // This is tested in ethereumProxy.test.ts but documenting here
       expect(true).toBe(true);

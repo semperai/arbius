@@ -4,12 +4,12 @@ import {
   initDeterministicWallet,
   getCachedWalletAddress,
   getCachedWallet,
-} from '../viemWalletUtils';
-import * as safeStorage from '../safeStorage';
+} from '@/lib/arbius-wallet/utils/viemWalletUtils';
+import * as safeStorage from '@/lib/arbius-wallet/utils/safeStorage';
 
 jest.mock('viem');
 jest.mock('viem/accounts');
-jest.mock('../safeStorage');
+jest.mock('@/lib/arbius-wallet/utils/safeStorage');
 
 const mockKeccak256 = keccak256 as jest.MockedFunction<typeof keccak256>;
 const mockToBytes = toBytes as jest.MockedFunction<typeof toBytes>;

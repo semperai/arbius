@@ -7,7 +7,7 @@ import {
   safeLocalStorageSet,
   safeLocalStorageRemove,
   isLocalStorageAvailable,
-} from '../safeStorage';
+} from '@/lib/arbius-wallet/utils/safeStorage';
 
 describe('safeStorage', () => {
   beforeEach(() => {

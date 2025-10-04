@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useTokenBalance } from '../useTokenBalance';
+import { useTokenBalance } from '@/hooks/useTokenBalance';
 import { formatUnits } from 'viem';
 
 jest.mock('wagmi', () => ({

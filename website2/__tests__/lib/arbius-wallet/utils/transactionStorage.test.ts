@@ -10,8 +10,8 @@ import {
   deleteTransactionsForAddress,
   getTransactionCount,
   isIndexedDBAvailable,
-} from '../transactionStorage';
-import { TransactionStatus } from '../../types';
+} from '@/lib/arbius-wallet/utils/transactionStorage';
+import { TransactionStatus } from '@/lib/arbius-wallet/types';
 
 // Mock IndexedDB
 const mockDB: any = {

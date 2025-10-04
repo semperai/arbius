@@ -2,13 +2,13 @@
  * Tests for transaction queue persistence with IndexedDB
  */
 
-import { setupTransactionQueue, sendTransaction, setCurrentAddress } from '../transactionQueue';
-import { TransactionStatus } from '../../types';
-import * as transactionStorage from '../../utils/transactionStorage';
+import { setupTransactionQueue, sendTransaction, setCurrentAddress } from '@/lib/arbius-wallet/core/transactionQueue';
+import { TransactionStatus } from '@/lib/arbius-wallet/types';
+import * as transactionStorage from '@/lib/arbius-wallet/utils/transactionStorage';
 
 // Mock dependencies
-jest.mock('../../utils/transactionStorage');
-jest.mock('../../utils/broadcastChannel');
+jest.mock('@/lib/arbius-wallet/utils/transactionStorage');
+jest.mock('@/lib/arbius-wallet/utils/broadcastChannel');
 jest.mock('sonner');
 
 describe('Transaction Queue Persistence', () => {

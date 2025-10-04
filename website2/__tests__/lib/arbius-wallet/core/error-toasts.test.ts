@@ -2,16 +2,16 @@
  * Tests for error toast notifications
  */
 
-import { init } from '../init';
-import { setupEthereumProxy } from '../ethereumProxy';
+import { init } from '@/lib/arbius-wallet/core/init';
+import { setupEthereumProxy } from '@/lib/arbius-wallet/core/ethereumProxy';
 import { toast } from 'sonner';
-import { AAWalletConfig } from '../../types';
+import { AAWalletConfig } from '@/lib/arbius-wallet/types';
 
 // Mock dependencies
 jest.mock('sonner');
-jest.mock('../configValidator');
-jest.mock('../transactionQueue');
-jest.mock('../../utils/nonceCleanup');
+jest.mock('@/lib/arbius-wallet/core/configValidator');
+jest.mock('@/lib/arbius-wallet/core/transactionQueue');
+jest.mock('@/lib/arbius-wallet/utils/nonceCleanup');
 
 describe('Error Toast Notifications', () => {
   const mockConfig: AAWalletConfig = {
@@ -47,7 +47,7 @@ describe('Error Toast Notifications', () => {
     });
 
     it('should show toast when initialization fails', () => {
-      const validateConfig = require('../configValidator').validateConfig;
+      const validateConfig = require('@/lib/arbius-wallet/core/configValidator').validateConfig;
       (validateConfig as jest.Mock).mockImplementation(() => {
         throw new Error('Invalid configuration');
       });
@@ -77,7 +77,7 @@ describe('Error Toast Notifications', () => {
       });
 
       // Need to mock validateConfig to not throw
-      const validateConfig = require('../configValidator').validateConfig;
+      const validateConfig = require('@/lib/arbius-wallet/core/configValidator').validateConfig;
       (validateConfig as jest.Mock).mockImplementation(() => {});
 
       const result = init(mockConfig);
@@ -158,7 +158,7 @@ describe('Error Toast Notifications', () => {
     });
 
     it('should extract error messages properly', () => {
-      const validateConfig = require('../configValidator').validateConfig;
+      const validateConfig = require('@/lib/arbius-wallet/core/configValidator').validateConfig;
       (validateConfig as jest.Mock).mockImplementation(() => {
         throw new Error('Test error message');
       });
@@ -171,7 +171,7 @@ describe('Error Toast Notifications', () => {
     });
 
     it('should handle unknown errors', () => {
-      const validateConfig = require('../configValidator').validateConfig;
+      const validateConfig = require('@/lib/arbius-wallet/core/configValidator').validateConfig;
       (validateConfig as jest.Mock).mockImplementation(() => {
         throw 'String error'; // Non-Error object
       });
@@ -185,7 +185,7 @@ describe('Error Toast Notifications', () => {
   describe('Error recovery', () => {
     it('should allow retry after initialization failure', () => {
       // Mock validateConfig to not throw
-      const validateConfig = require('../configValidator').validateConfig;
+      const validateConfig = require('@/lib/arbius-wallet/core/configValidator').validateConfig;
       (validateConfig as jest.Mock).mockImplementation(() => {});
 
       // First attempt fails (no ethereum)

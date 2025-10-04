@@ -2,12 +2,12 @@
  * Tests for toast notification functionality
  */
 
-import { sendTransaction } from '../transactionQueue';
+import { sendTransaction } from '@/lib/arbius-wallet/core/transactionQueue';
 import { toast } from 'sonner';
 
 // Mock dependencies
-jest.mock('../../utils/safeStorage');
-jest.mock('../../utils/broadcastChannel');
+jest.mock('@/lib/arbius-wallet/utils/safeStorage');
+jest.mock('@/lib/arbius-wallet/utils/broadcastChannel');
 jest.mock('sonner');
 
 describe('Toast Notifications', () => {

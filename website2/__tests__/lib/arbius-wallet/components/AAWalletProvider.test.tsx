@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { AAWalletProvider, AAWalletContext } from '../AAWalletProvider';
-import * as initModule from '../../core/init';
-import { AAWalletConfig } from '../../types';
+import { AAWalletProvider, AAWalletContext } from '@/lib/arbius-wallet/components/AAWalletProvider';
+import * as initModule from '@/lib/arbius-wallet/core/init';
+import { AAWalletConfig } from '@/lib/arbius-wallet/types';
 
-jest.mock('../../core/init');
+jest.mock('@/lib/arbius-wallet/core/init');
 
 describe('AAWalletProvider', () => {
   const mockConfig: AAWalletConfig = {

@@ -1,13 +1,13 @@
-import { init, isInitialized, getConfig, isEthereumProxyActive } from '../init';
-import { setupEthereumProxy } from '../ethereumProxy';
-import { setupTransactionQueue } from '../transactionQueue';
-import { validateConfig } from '../configValidator';
-import { AAWalletConfig } from '../../types';
+import { init, isInitialized, getConfig, isEthereumProxyActive } from '@/lib/arbius-wallet/core/init';
+import { setupEthereumProxy } from '@/lib/arbius-wallet/core/ethereumProxy';
+import { setupTransactionQueue } from '@/lib/arbius-wallet/core/transactionQueue';
+import { validateConfig } from '@/lib/arbius-wallet/core/configValidator';
+import { AAWalletConfig } from '@/lib/arbius-wallet/types';
 
 // Mock dependencies
-jest.mock('../ethereumProxy');
-jest.mock('../transactionQueue');
-jest.mock('../configValidator');
+jest.mock('@/lib/arbius-wallet/core/ethereumProxy');
+jest.mock('@/lib/arbius-wallet/core/transactionQueue');
+jest.mock('@/lib/arbius-wallet/core/configValidator');
 
 describe('init', () => {
   const mockConfig: AAWalletConfig = {

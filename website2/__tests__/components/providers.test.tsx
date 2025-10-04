@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Providers, AAWalletStatusContext } from '../providers';
+import { Providers, AAWalletStatusContext } from '@/components/providers';
 import { init, isEthereumProxyActive } from '@/lib/arbius-wallet';
 
 // Mock dependencies

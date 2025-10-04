@@ -7,7 +7,7 @@ import {
   startPeriodicNonceCleanup,
   stopPeriodicNonceCleanup,
   getNonceStats,
-} from '../nonceCleanup';
+} from '@/lib/arbius-wallet/utils/nonceCleanup';
 
 describe('nonceCleanup', () => {
   beforeEach(() => {

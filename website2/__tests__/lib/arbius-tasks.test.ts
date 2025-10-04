@@ -5,7 +5,7 @@ import {
   fetchTaskFromIPFS,
   getTaskSolutionCid,
   pollTaskCompletion,
-} from '../arbius-tasks';
+} from '@/lib/arbius-tasks';
 import type { PublicClient } from 'viem';
 
 // Mock data

@@ -1,7 +1,7 @@
-import { setupEthereumProxy, isProxyFailed } from '../ethereumProxy';
-import * as initModule from '../init';
+import { setupEthereumProxy, isProxyFailed } from '@/lib/arbius-wallet/core/ethereumProxy';
+import * as initModule from '@/lib/arbius-wallet/core/init';
 
-jest.mock('../init');
+jest.mock('@/lib/arbius-wallet/core/init');
 
 describe('ethereumProxy', () => {
   let mockEthereum: any;

@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useAAWallet } from '../useAAWallet';
-import * as viemWalletUtils from '../../utils/viemWalletUtils';
-import { AAWalletContext } from '../../components/AAWalletProvider';
+import { useAAWallet } from '@/lib/arbius-wallet/hooks/useAAWallet';
+import * as viemWalletUtils from '@/lib/arbius-wallet/utils/viemWalletUtils';
+import { AAWalletContext } from '@/lib/arbius-wallet/components/AAWalletProvider';
 import { type PrivateKeyAccount } from 'viem';
 import React from 'react';
 
@@ -10,7 +10,7 @@ jest.mock('wagmi', () => ({
   useWalletClient: jest.fn(),
   usePublicClient: jest.fn(),
 }));
-jest.mock('../../utils/viemWalletUtils');
+jest.mock('@/lib/arbius-wallet/utils/viemWalletUtils');
 
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 

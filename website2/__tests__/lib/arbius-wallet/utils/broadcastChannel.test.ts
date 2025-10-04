@@ -1,5 +1,5 @@
-import { broadcastTxUpdate, broadcastWalletState } from '../broadcastChannel';
-import { Transaction, WalletState } from '../../types';
+import { broadcastTxUpdate, broadcastWalletState } from '@/lib/arbius-wallet/utils/broadcastChannel';
+import { Transaction, WalletState } from '@/lib/arbius-wallet/types';
 
 describe('broadcastChannel', () => {
   let mockBroadcastChannel: {

@@ -1,7 +1,7 @@
-import { setupTransactionQueue } from '../transactionQueue';
+import { setupTransactionQueue } from '@/lib/arbius-wallet/core/transactionQueue';
 
 // Mock broadcastChannel to avoid errors
-jest.mock('../../utils/broadcastChannel', () => ({
+jest.mock('@/lib/arbius-wallet/utils/broadcastChannel', () => ({
   broadcastTxUpdate: jest.fn(),
   setupBroadcastChannelListener: jest.fn(),
 }));
