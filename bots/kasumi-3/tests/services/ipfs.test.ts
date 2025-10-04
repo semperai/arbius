@@ -147,6 +147,11 @@ describe('ipfs', () => {
       };
 
       it('should pin files using http_client successfully', async () => {
+        // Reset modules to ensure clean client state
+        jest.resetModules();
+        const { pinFilesToIPFS } = require('../../src/ipfs');
+        const { create } = require('ipfs-http-client');
+
         const mockAddAll = jest.fn().mockImplementation(async function* () {
           yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
           yield { path: 'file2.png', cid: { toString: () => 'QmFile2' } };
@@ -158,7 +163,7 @@ describe('ipfs', () => {
           addAll: mockAddAll,
         };
 
-        mockCreate.mockReturnValue(mockClient as any);
+        (create as jest.Mock).mockReturnValue(mockClient as any);
         mockFs.readFileSync.mockReturnValue(Buffer.from('test content'));
 
         const result = await pinFilesToIPFS(
@@ -168,7 +173,7 @@ describe('ipfs', () => {
         );
 
         expect(result).toBe('QmDirectory123');
-        expect(mockCreate).toHaveBeenCalledWith({
+        expect(create).toHaveBeenCalledWith({
           url: 'http://localhost:5001',
         });
         expect(mockAddAll).toHaveBeenCalledWith(
@@ -181,6 +186,11 @@ describe('ipfs', () => {
       });
 
       it('should throw error if no directory CID is found', async () => {
+        // Reset modules to ensure clean client state
+        jest.resetModules();
+        const { pinFilesToIPFS } = require('../../src/ipfs');
+        const { create } = require('ipfs-http-client');
+
         const mockAddAll = jest.fn().mockImplementation(async function* () {
           yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
           // No empty path entry
@@ -191,7 +201,7 @@ describe('ipfs', () => {
           addAll: mockAddAll,
         };
 
-        mockCreate.mockReturnValue(mockClient as any);
+        (create as jest.Mock).mockReturnValue(mockClient as any);
         mockFs.readFileSync.mockReturnValue(Buffer.from('test content'));
 
         await expect(
