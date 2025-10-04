@@ -8,6 +8,31 @@ import "contracts/ve/VeNFTRender.sol";
 import "contracts/BaseTokenV1.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
+// Mock VeStaking for testing
+contract MockVeStaking {
+    mapping(uint256 => uint256) public balances;
+
+    function balanceOf(uint256 tokenId) external view returns (uint256) {
+        return balances[tokenId];
+    }
+
+    function _stake(uint256 tokenId, uint256 amount) external {
+        balances[tokenId] += amount;
+    }
+
+    function _withdraw(uint256 tokenId) external {
+        balances[tokenId] = 0;
+    }
+
+    function _updateBalance(uint256 tokenId, uint256 newAmount) external {
+        balances[tokenId] = newAmount;
+    }
+
+    function getReward(uint256) external pure {
+        // Do nothing
+    }
+}
+
 contract MasterContesterRegistryTest is Test {
     MasterContesterRegistry public registry;
     VotingEscrow public votingEscrow;
@@ -40,11 +65,14 @@ contract MasterContesterRegistryTest is Test {
         // Deploy VeNFTRender
         veNFTRender = new VeNFTRender();
 
-        // Deploy VotingEscrow (with address(0) for veStaking initially)
+        // Deploy MockVeStaking
+        MockVeStaking mockVeStaking = new MockVeStaking();
+
+        // Deploy VotingEscrow with MockVeStaking
         votingEscrow = new VotingEscrow(
             address(baseToken),
             address(veNFTRender),
-            address(0)
+            address(mockVeStaking)
         );
 
         // Deploy MasterContesterRegistry

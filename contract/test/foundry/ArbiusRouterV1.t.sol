@@ -23,6 +23,9 @@ contract ArbiusRouterV1Test is Test {
     // Mock Uniswap router
     address public mockUniswapRouter;
 
+    // Allow contract to receive ETH
+    receive() external payable {}
+
     function setUp() public {
         deployer = address(this);
         user = makeAddr("user");
