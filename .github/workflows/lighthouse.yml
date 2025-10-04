@@ -49,6 +49,6 @@ jobs:
         with:
           urls: |
             ${{ matrix.site.url }}
-          uploadArtifacts: true
+          uploadArtifacts: false
           temporaryPublicStorage: true
           configPath: ./${{ matrix.site.name }}/lighthouserc.js
