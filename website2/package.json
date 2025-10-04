@@ -27,8 +27,8 @@
     "react": "19.1.0",
     "react-awesome-reveal": "^4.3.1",
     "react-dom": "19.1.0",
-    "react-hot-toast": "^2.6.0",
     "react-qr-code": "^2.0.18",
+    "sonner": "^2.0.7",
     "viem": "^2.25.0",
     "wagmi": "^2.14.16"
   },

@@ -7,7 +7,7 @@ import { WALLET_CONNECT, WALLET_DISCONNECT, WALLET_SWITCH_CHAIN, TRANSACTION_ADD
 import { broadcastWalletState } from '../utils/broadcastChannel';
 import { safeLocalStorageRemove } from '../utils/safeStorage';
 import { setupTransactionQueue, setCurrentAddress } from '../core/transactionQueue';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export const AAWalletContext = createContext<AAWalletContextValue>({
   isConnected: false,
@@ -52,14 +52,14 @@ export const AAWalletProvider: React.FC<AAWalletProviderProps> = ({ children }) 
         safeLocalStorageRemove('arbiuswallet_derivedWalletCache');
         setCurrentAddress(null);
         dispatch({ type: WALLET_DISCONNECT });
-        toast.info('Wallet disconnected');
+        toast('Wallet disconnected');
       } else {
         // Check if wallet address changed (user switched wallets)
         const isWalletSwitch = state.address && accounts[0] !== state.address;
         if (isWalletSwitch) {
           // Clear old wallet's cache when switching
           safeLocalStorageRemove('arbiuswallet_derivedWalletCache');
-          toast.info(`Switched to wallet ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
+          toast(`Switched to wallet ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
         } else if (!state.address) {
           // First time connecting
           toast.success(`Wallet connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);

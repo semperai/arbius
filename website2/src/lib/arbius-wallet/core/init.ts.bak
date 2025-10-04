@@ -3,7 +3,7 @@ import { setupEthereumProxy } from './ethereumProxy';
 import { setupTransactionQueue } from './transactionQueue';
 import { validateConfig } from './configValidator';
 import { startPeriodicNonceCleanup } from '../utils/nonceCleanup';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 
 // Global state to store the configuration
 let globalConfig: AAWalletConfig | null = null;

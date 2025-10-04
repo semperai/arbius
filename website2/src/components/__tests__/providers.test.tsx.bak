@@ -25,7 +25,7 @@ jest.mock('@rainbow-me/rainbowkit', () => ({
 jest.mock('next-themes', () => ({
   ThemeProvider: ({ children }: any) => <div>{children}</div>,
 }));
-jest.mock('sonner', () => ({
+jest.mock('react-hot-toast', () => ({
   Toaster: () => <div>Toaster</div>,
 }));
 

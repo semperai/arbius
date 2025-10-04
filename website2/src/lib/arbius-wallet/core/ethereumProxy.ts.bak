@@ -2,7 +2,7 @@ import { ProxyEthereum } from '../types';
 import { getConfig, isInitialized } from './init';
 import { sendTransaction } from './transactionQueue';
 import { safeLocalStorageSet, safeLocalStorageGet } from '../utils/safeStorage';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 
 // Store the original ethereum object
 let originalEthereum: any = null;

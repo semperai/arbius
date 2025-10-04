@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import { AAWalletProvider, init, isEthereumProxyActive } from '@/lib/arbius-wallet'
 import { arbitrum } from 'viem/chains'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from 'sonner'
 import '@rainbow-me/rainbowkit/styles.css'
 
 // Create a context to share AA wallet initialization status
@@ -47,28 +47,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
             >
               <Toaster
                 position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: '#fff',
-                    color: '#333',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                  },
-                  success: {
-                    iconTheme: {
-                      primary: '#10b981',
-                      secondary: '#fff',
-                    },
-                  },
-                  error: {
-                    iconTheme: {
-                      primary: '#ef4444',
-                      secondary: '#fff',
-                    },
-                  },
-                }}
+                richColors
+                closeButton
               />
               {isWalletInitialized ? (
                 <AAWalletProvider>{children}</AAWalletProvider>

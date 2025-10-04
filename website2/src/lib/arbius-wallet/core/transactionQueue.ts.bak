@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Transaction, TransactionStatus } from '../types';
 // import { getConfig } from './init'; // unused
 import { broadcastTxUpdate } from '../utils/broadcastChannel';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import {
   saveTransaction,
   loadPendingTransactions,

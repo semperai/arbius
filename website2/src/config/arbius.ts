@@ -33,25 +33,17 @@ export const MODELS = {
     description: 'Text-to-image generation model',
   },
   qwen_qwq_32b: {
-    id: '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`, // TODO: Add actual model ID
+    id: '0x98617a8cd4a11db63100ad44bea4e5e296aecfd78b2ef06aee3e364c7307f212' as `0x${string}`,
     name: 'Qwen QwQ 32B',
     description: 'Large language model for reasoning',
   },
   wai_v120: {
-    id: '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`, // TODO: Add actual model ID
+    id: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef' as `0x${string}`,
     name: 'WAI V1.20',
     description: 'Waifu generation model',
   },
-  damo: {
-    id: '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`, // TODO: Add actual model ID
-    name: 'DAMO',
-    description: 'Text-to-video generation',
-  },
-  robust_video_matting: {
-    id: '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`, // TODO: Add actual model ID
-    name: 'Robust Video Matting',
-    description: 'Video background removal',
-  },
+  // Removed undeployed models - damo and robust_video_matting
+  // These can be added back when they are registered on-chain
 } as const
 
 export const IPFS_GATEWAY = 'https://ipfs.arbius.org'

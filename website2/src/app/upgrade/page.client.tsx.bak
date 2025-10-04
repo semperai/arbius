@@ -12,7 +12,7 @@ import type { Abi, Address } from 'viem'
 import { config } from '@/lib/contracts'
 import Image from 'next/image'
 import upgradeHeroImage from '@/app/assets/images/upgrade-hero.jpg'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 import { BalanceCardSkeleton, ActionCardSkeleton } from '@/components/ui/Skeleton'
 
 // OneToOneConvert ABI (simplified for swap function)

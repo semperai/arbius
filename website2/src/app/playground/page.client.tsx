@@ -11,8 +11,13 @@ import { ARBIUS_CONFIG, MODELS, IPFS_GATEWAY } from '@/config/arbius'
 import { PLAYGROUND_MODELS, MODEL_FEES, BASE_MINER_FEE, MODEL_MINER_FEES, type ModelCategory } from '@/config/playground'
 import { Send, Loader2, Image as ImageIcon, FileText, AlertCircle } from 'lucide-react'
 import Image from 'next/image'
+import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/Skeleton'
 import arbiusLogoRound from '@/app/assets/images/arbius_logo_round.png'
 import baseTokenAbi from '@/abis/baseTokenV1.json'
+import engineAbi from '@/abis/V2_EngineV6.json'
+import { watchTaskSubmitted, pollTaskCompletion } from '@/lib/arbius-tasks'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 type TaskStatus = 'pending' | 'submitted' | 'completed' | 'failed'
 
@@ -30,7 +35,50 @@ interface Task {
   timestamp: number
 }
 
-export default function PlaygroundPageClient() {
+// Helper to parse task result based on model category
+function parseTaskResult(result: any, category: ModelCategory): Array<{ type: string; url: string }> {
+  const outputs: Array<{ type: string; url: string }> = []
+
+  if (category === 'image') {
+    // Image models return image URLs
+    if (result.output) {
+      outputs.push({
+        type: 'image',
+        url: Array.isArray(result.output) ? result.output[0] : result.output,
+      })
+    } else if (result.image) {
+      outputs.push({
+        type: 'image',
+        url: result.image,
+      })
+    }
+  } else if (category === 'text') {
+    // Text models return text
+    if (result.output) {
+      outputs.push({
+        type: 'text',
+        url: Array.isArray(result.output) ? result.output.join('\n') : result.output,
+      })
+    } else if (result.text) {
+      outputs.push({
+        type: 'text',
+        url: result.text,
+      })
+    }
+  } else if (category === 'video') {
+    // Video models return video URLs
+    if (result.output) {
+      outputs.push({
+        type: 'video',
+        url: Array.isArray(result.output) ? result.output[0] : result.output,
+      })
+    }
+  }
+
+  return outputs
+}
+
+function PlaygroundPageClient() {
   const { isConnected } = useAccount()
   const chainId = useChainId()
   const { switchChain } = useSwitchChain()
@@ -47,12 +95,12 @@ export default function PlaygroundPageClient() {
   const chatEndRef = useRef<HTMLDivElement>(null)
 
   // Check AA wallet balance
-  const { data: ethBalance, refetch: refetchEthBalance } = useBalance({
+  const { data: ethBalance, refetch: refetchEthBalance, isLoading: isLoadingEthBalance } = useBalance({
     address: smartAccountAddress as `0x${string}` | undefined,
     chainId,
   })
 
-  const { data: aiusBalance, refetch: refetchAiusBalance } = useBalance({
+  const { data: aiusBalance, refetch: refetchAiusBalance, isLoading: isLoadingAiusBalance } = useBalance({
     address: smartAccountAddress as `0x${string}` | undefined,
     token: ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.baseTokenAddress as `0x${string}` | undefined,
     chainId,
@@ -93,8 +141,10 @@ export default function PlaygroundPageClient() {
     }
   }, [tasks])
 
-  // Load tasks from localStorage
+  // Load tasks from localStorage (SSR-safe)
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const savedTasks = localStorage.getItem('arbius_playground_tasks')
     if (savedTasks) {
       try {
@@ -105,8 +155,10 @@ export default function PlaygroundPageClient() {
     }
   }, [])
 
-  // Save tasks to localStorage
+  // Save tasks to localStorage (SSR-safe)
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     if (tasks.length > 0) {
       localStorage.setItem('arbius_playground_tasks', JSON.stringify(tasks))
     }
@@ -228,6 +280,7 @@ export default function PlaygroundPageClient() {
       const engineAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.engineAddress
 
       if (!engineAddress || engineAddress === '0x0000000000000000000000000000000000000000') {
+        toast.error('Arbius Engine not deployed on this network')
         throw new Error('Arbius Engine not deployed on this network')
       }
 
@@ -236,6 +289,8 @@ export default function PlaygroundPageClient() {
 
       // Encode input based on model type
       const input = encodePacked(['string'], [prompt.trim()])
+
+      toast.loading('Submitting task to network...', { id: taskId })
 
       // Sign and submit transaction using AA wallet
       const tx = await derivedAccount.signTransaction({
@@ -264,33 +319,79 @@ export default function PlaygroundPageClient() {
         )
       )
 
-      // TODO: Watch for TaskSubmitted event and update with actual taskId
-      // TODO: Poll IPFS for results
+      toast.success('Task submitted! Waiting for miner to process...', { id: taskId })
 
-      // Simulate completion for demo
-      setTimeout(() => {
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.id === taskId
-              ? {
-                  ...t,
-                  status: 'completed',
-                  result: {
-                    cid: 'QmExample...',
-                    outputs: [
-                      {
-                        type: 'text',
-                        url: `${IPFS_GATEWAY}/ipfs/QmExample...`,
-                      },
-                    ],
-                  },
-                }
-              : t
+      // Watch for TaskSubmitted event and get actual task ID
+      if (publicClient) {
+        try {
+          const taskEvent = await watchTaskSubmitted(
+            publicClient,
+            tx as string,
+            engineAddress,
+            30000 // 30 second timeout
           )
-        )
-      }, 3000)
-    } catch (err) {
+
+          if (taskEvent) {
+            // Update with actual on-chain task ID
+            setTasks((prev) =>
+              prev.map((t) =>
+                t.id === taskId
+                  ? { ...t, taskId: taskEvent.taskId }
+                  : t
+              )
+            )
+
+            // Start polling for task completion
+            const result = await pollTaskCompletion(
+              publicClient,
+              taskEvent.taskId,
+              engineAddress,
+              engineAbi.abi,
+              taskEvent.blockNumber,
+              40, // 40 attempts = 2 minutes
+              3000 // 3 second intervals
+            )
+
+            if (result) {
+              // Parse result and update task
+              const outputs = parseTaskResult(result, selectedCategory)
+              setTasks((prev) =>
+                prev.map((t) =>
+                  t.id === taskId
+                    ? {
+                        ...t,
+                        status: 'completed',
+                        result: {
+                          cid: result.cid || 'unknown',
+                          outputs,
+                        },
+                      }
+                    : t
+                )
+              )
+              toast.success('Task completed! Result ready.', { id: taskId })
+            } else {
+              // Timeout - task still processing
+              setTasks((prev) =>
+                prev.map((t) =>
+                  t.id === taskId
+                    ? { ...t, status: 'submitted' }
+                    : t
+                )
+              )
+              toast('Task is still processing... This may take a while.', { id: taskId })
+            }
+          }
+        } catch (eventError) {
+          console.error('Error watching for task event:', eventError)
+          toast.error(`Error tracking task: ${(eventError as Error).message}`, { id: taskId })
+          // Keep task in submitted state
+        }
+      }
+    } catch (err: any) {
       console.error('Task submission error:', err)
+      const errorMessage = err?.message || 'Failed to submit task'
+      toast.error(`Task failed: ${errorMessage}`, { id: taskId })
       setTasks((prev) =>
         prev.map((t) =>
           t.id === taskId ? { ...t, status: 'failed' } : t
@@ -555,12 +656,18 @@ export default function PlaygroundPageClient() {
                     Estimated cost per task:
                   </span>
                   <div className="text-right">
-                    <span className={`font-mono font-semibold ${balanceWarning ? 'text-orange-900' : 'text-gray-900'}`}>
-                      {formatEther(totalCost)} AIUS + ~{formatEther(estimatedGasCost || parseEther('0.0001'))} ETH
-                    </span>
-                    <div className={`mt-1 text-xs ${balanceWarning ? 'text-orange-600' : 'text-gray-500'}`}>
-                      ({modelFee} model fee + {minerFee} miner fee)
-                    </div>
+                    {isLoadingAiusBalance || isLoadingEthBalance ? (
+                      <Skeleton className="h-6 w-40 ml-auto" />
+                    ) : (
+                      <>
+                        <span className={`font-mono font-semibold ${balanceWarning ? 'text-orange-900' : 'text-gray-900'}`}>
+                          {formatEther(totalCost)} AIUS + ~{formatEther(estimatedGasCost || parseEther('0.0001'))} ETH
+                        </span>
+                        <div className={`mt-1 text-xs ${balanceWarning ? 'text-orange-600' : 'text-gray-500'}`}>
+                          ({modelFee} model fee + {minerFee} miner fee)
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -577,5 +684,14 @@ export default function PlaygroundPageClient() {
         </p>
       </div>
     </div>
+  )
+}
+
+// Wrap default export with error boundary
+export default function PlaygroundWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <PlaygroundPageClient />
+    </ErrorBoundary>
   )
 }

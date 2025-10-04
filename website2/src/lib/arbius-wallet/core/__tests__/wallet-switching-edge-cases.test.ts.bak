@@ -251,7 +251,7 @@ describe('Wallet Switching Edge Cases', () => {
     it('should add toast notifications for wallet events', () => {
       // RECOMMENDED: Use toast notifications instead of console logs
       //
-      // import toast from 'sonner';
+      // import toast from 'react-hot-toast';
       //
       // const handleAccountsChanged = (accounts: string[]) => {
       //   if (accounts.length === 0) {

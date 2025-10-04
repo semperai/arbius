@@ -4,11 +4,19 @@
 
 import { init } from '../init';
 import { setupEthereumProxy } from '../ethereumProxy';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 import { AAWalletConfig } from '../../types';
 
 // Mock dependencies
-jest.mock('sonner');
+jest.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: {
+    error: jest.fn(),
+    success: jest.fn(),
+    info: jest.fn(),
+    loading: jest.fn(),
+  },
+}));
 jest.mock('../configValidator');
 jest.mock('../transactionQueue');
 jest.mock('../../utils/nonceCleanup');

@@ -3,12 +3,12 @@
  */
 
 import { sendTransaction } from '../transactionQueue';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 
 // Mock dependencies
 jest.mock('../../utils/safeStorage');
 jest.mock('../../utils/broadcastChannel');
-jest.mock('sonner');
+jest.mock('react-hot-toast');
 
 describe('Toast Notifications', () => {
   beforeEach(() => {

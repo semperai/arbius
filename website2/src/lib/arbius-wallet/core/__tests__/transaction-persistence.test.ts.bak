@@ -9,7 +9,14 @@ import * as transactionStorage from '../../utils/transactionStorage';
 // Mock dependencies
 jest.mock('../../utils/transactionStorage');
 jest.mock('../../utils/broadcastChannel');
-jest.mock('sonner');
+jest.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: {
+    loading: jest.fn(() => 'toast-id'),
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 describe('Transaction Queue Persistence', () => {
   const mockAddress = '0x1234567890123456789012345678901234567890';

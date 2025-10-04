@@ -65,8 +65,8 @@ export async function initDeterministicWallet(
     createdAt: new Date().toISOString()
   };
 
-  const cached = safeLocalStorageSet(DERIVED_WALLET_STORAGE_KEY, JSON.stringify(cacheData));
-  if (!cached) {
+  const cacheSuccess = safeLocalStorageSet(DERIVED_WALLET_STORAGE_KEY, JSON.stringify(cacheData));
+  if (!cacheSuccess) {
     console.warn('Failed to cache derived wallet. Wallet will need to be re-derived on page reload.');
   }
 

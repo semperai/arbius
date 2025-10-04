@@ -1,7 +1,7 @@
 export const PLAYGROUND_MODELS = {
-  text: ['qwen_qwq_32b', 'm8b_uncensored'],
+  text: ['qwen_qwq_32b'],
   image: ['wai_v120'],
-  video: [],
+  video: [], // No video models deployed yet
 } as const
 
 export type ModelCategory = keyof typeof PLAYGROUND_MODELS
@@ -9,7 +9,6 @@ export type ModelCategory = keyof typeof PLAYGROUND_MODELS
 // Model fees in AIUS tokens (paid to model creator)
 export const MODEL_FEES: Record<string, string> = {
   qwen_qwq_32b: '0.007',
-  m8b_uncensored: '0.00003',
   wai_v120: '0.0035',
 }
 
