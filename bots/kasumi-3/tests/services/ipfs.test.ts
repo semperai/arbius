@@ -159,7 +159,7 @@ describe('ipfs', () => {
         };
 
         mockCreate.mockReturnValue(mockClient as any);
-        mockFs.readFileSync = jest.fn().mockReturnValue(Buffer.from('test content'));
+        mockFs.readFileSync.mockReturnValue(Buffer.from('test content'));
 
         const result = await pinFilesToIPFS(
           httpClientConfig,
@@ -192,7 +192,7 @@ describe('ipfs', () => {
         };
 
         mockCreate.mockReturnValue(mockClient as any);
-        mockFs.readFileSync = jest.fn().mockReturnValue(Buffer.from('test content'));
+        mockFs.readFileSync.mockReturnValue(Buffer.from('test content'));
 
         await expect(
           pinFilesToIPFS(httpClientConfig, '0xtask123', ['file1.png'])
@@ -317,6 +317,11 @@ describe('ipfs', () => {
       };
 
       it('should pin single file using http_client successfully', async () => {
+        // Reset modules to ensure clean client state
+        jest.resetModules();
+        const { pinFileToIPFS, initializeIpfsClient } = require('../../src/ipfs');
+        const { create } = require('ipfs-http-client');
+
         const mockAdd = jest.fn().mockResolvedValue({
           cid: { toString: () => 'QmSingleFile123' },
         });
@@ -326,7 +331,7 @@ describe('ipfs', () => {
           addAll: jest.fn(),
         };
 
-        mockCreate.mockReturnValue(mockClient as any);
+        (create as jest.Mock).mockReturnValue(mockClient);
 
         const content = Buffer.from('test content');
         const result = await pinFileToIPFS(
