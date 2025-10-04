@@ -16,13 +16,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/jod'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: ${{ matrix.package }}/package-lock.json
+
+      - name: Install Foundry
+        if: matrix.package == 'contract'
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
 
       - name: Install dependencies
         run: cd ${{ matrix.package }} && npm ci
@@ -38,7 +46,7 @@ jobs:
           flag-name: ${{ matrix.package }}
           parallel: true
           base-path: ${{ matrix.package }}
-          path-to-lcov: ${{ matrix.package }}/coverage/lcov.info
+          path-to-lcov: ${{ matrix.package }}/lcov.info
         continue-on-error: true
 
   finish:
