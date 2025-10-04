@@ -238,4 +238,44 @@ contract ArbiusRouterV1Test is Test {
         vm.prank(user);
         swapReceiver.transferOwnership(user);
     }
+
+    /*//////////////////////////////////////////////////////////////
+                        SIGNATURE VALIDATION TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function test_ValidateSignatures_InsufficientSignatures() public {
+        arbiusRouter.setMinValidators(2);
+
+        Signature[] memory sigs = new Signature[](1);
+        sigs[0] = Signature({
+            signer: validator1,
+            signature: bytes("")
+        });
+
+        vm.expectRevert(InsufficientSignatures.selector);
+        arbiusRouter.validateSignatures(keccak256("test"), sigs);
+    }
+
+    function test_ValidateSignatures_InvalidValidator() public {
+        arbiusRouter.setMinValidators(1);
+
+        Signature[] memory sigs = new Signature[](1);
+        sigs[0] = Signature({
+            signer: validator1,
+            signature: bytes("")
+        });
+
+        vm.expectRevert(InvalidValidator.selector);
+        arbiusRouter.validateSignatures(keccak256("test"), sigs);
+    }
+
+    function test_ReceiveETH() public {
+        uint256 balanceBefore = address(arbiusRouter).balance;
+        vm.deal(address(this), 1 ether);
+
+        (bool success, ) = address(arbiusRouter).call{value: 1 ether}("");
+        assertTrue(success);
+
+        assertEq(address(arbiusRouter).balance, balanceBefore + 1 ether);
+    }
 }
