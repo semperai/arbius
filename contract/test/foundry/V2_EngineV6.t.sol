@@ -42,6 +42,10 @@ contract V2_EngineV6Test is Test {
         validator4 = makeAddr("validator4");
         treasury = makeAddr("treasury");
 
+        // Warp to a time > maxContestationValidatorStakeSince (86400)
+        // This ensures validators added later have valid `since` timestamps
+        vm.warp(100000);
+
         // Deploy BaseToken
         BaseTokenV1 baseTokenImpl = new BaseTokenV1();
         bytes memory baseTokenInitData = abi.encodeWithSelector(
@@ -1102,6 +1106,10 @@ contract V2_EngineV6Test is Test {
         vm.prank(validator3);
         engine.submitContestation(taskid);
 
+        // Check if validator2 can vote
+        uint256 canVote = engine.validatorCanVote(validator2, taskid);
+        assertEq(canVote, 0, "Validator2 should be able to vote");
+
         // Validator2 votes on contestation
         vm.prank(validator2);
         engine.voteOnContestation(taskid, true);
@@ -1147,9 +1155,9 @@ contract V2_EngineV6Test is Test {
         vm.prank(validator2);
         engine.voteOnContestation(taskid, true);
 
-        // Try to vote again
+        // Try to vote again (should fail with NotAllowed since already voted)
         vm.prank(validator2);
-        vm.expectRevert(abi.encodeWithSignature("AlreadyVoted()"));
+        vm.expectRevert(abi.encodeWithSignature("NotAllowed()"));
         engine.voteOnContestation(taskid, true);
     }
 
@@ -1236,7 +1244,11 @@ contract V2_EngineV6Test is Test {
         engine.voteOnContestation(taskid, false);
 
         // Advance past voting period
-        vm.warp(block.timestamp + 360 + 1);
+        // minContestationVotePeriodTime = 360 + (numVotes * contestationVoteExtensionTime)
+        // numVotes = 4 (validator4 auto-yes, validator1 auto-no, validator2, validator3)
+        // = 360 + (4 * 10) = 400 seconds, so wait > 400
+        vm.warp(block.timestamp + 450);
+        vm.roll(block.number + 1);
 
         // Finish voting
         vm.prank(validator1);

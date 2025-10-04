@@ -65,6 +65,10 @@ contract V2_EngineV6_AccountingTest is Test {
         model1 = makeAddr("model1");
         treasury = makeAddr("treasury");
 
+        // Warp to a time > maxContestationValidatorStakeSince (86400)
+        // This ensures validators added later have valid `since` timestamps
+        vm.warp(100000);
+
         // Deploy BaseToken
         BaseTokenV1 baseTokenImpl = new BaseTokenV1();
         bytes memory baseTokenInitData = abi.encodeWithSelector(

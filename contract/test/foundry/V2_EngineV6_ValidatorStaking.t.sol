@@ -61,6 +61,10 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
         model1 = makeAddr("model1");
         treasury = makeAddr("treasury");
 
+        // Warp to a time > maxContestationValidatorStakeSince (86400)
+        // This ensures validators added later have valid `since` timestamps
+        vm.warp(100000);
+
         // Deploy BaseToken
         BaseTokenV1 baseTokenImpl = new BaseTokenV1();
         bytes memory baseTokenInitData = abi.encodeWithSelector(
@@ -164,10 +168,13 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
     function test_SolutionRewardsStakedDirectly() public {
         bytes32 modelId = _deployBootstrapModel();
 
-        // Set solution mineable rate for rewards
+        // Set solution mineable rate (note: mining rewards will be 0 due to emission schedule)
         engine.setSolutionMineableRate(modelId, 1 ether);
 
-        bytes32 taskId = _deployBootstrapTask(modelId, 0);
+        // Use task fee so validator actually gets rewards
+        uint256 taskFee = 0.1 ether;
+        baseToken.transfer(user1, taskFee);
+        bytes32 taskId = _deployBootstrapTask(modelId, taskFee);
 
         _submitSolution(taskId, validator1);
 
@@ -184,6 +191,7 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
         uint256 balanceAfter = baseToken.balanceOf(validator1);
 
         // Verify rewards went to stake, not balance
+        // Should increase by solution stake + task fee rewards
         assertGt(stakedAfter, stakedBefore, "Stake should increase");
         assertEq(balanceAfter, balanceBefore, "Balance should not change");
     }
@@ -195,7 +203,10 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
         uint256 mineableRate = 1 ether;
         engine.setSolutionMineableRate(modelId, mineableRate);
 
-        bytes32 taskId = _deployBootstrapTask(modelId, 0);
+        // Add task fee for actual rewards
+        uint256 taskFee = 0.5 ether;
+        baseToken.transfer(user1, taskFee);
+        bytes32 taskId = _deployBootstrapTask(modelId, taskFee);
 
         _submitSolution(taskId, validator1);
 
@@ -209,9 +220,10 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
 
         (uint256 stakedAfter, , ) = engine.validators(validator1);
 
-        // Stake should increase by at least some reward amount
-        // (exact amount depends on treasury percentage and other factors)
+        // Stake should increase (solution stake returned + task fee rewards)
         assertGt(stakedAfter, stakedBefore);
+        // Should increase by more than just solution stake
+        assertGt(stakedAfter - stakedBefore, engine.solutionsStakeAmount(), "Should have task fee rewards");
     }
 
     function test_MultipleSolutionRewardsCumulative() public {
@@ -220,9 +232,11 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
 
         (uint256 stakeInitial, , ) = engine.validators(validator1);
 
-        // Submit and claim multiple solutions
+        // Submit and claim multiple solutions with task fees
+        uint256 taskFee = 0.2 ether;
         for (uint i = 0; i < 3; i++) {
-            bytes32 taskId = _deployBootstrapTask(modelId, 0);
+            baseToken.transfer(user1, taskFee);
+            bytes32 taskId = _deployBootstrapTask(modelId, taskFee);
             _submitSolution(taskId, validator1);
 
             vm.warp(block.timestamp + 3600 + 1);
@@ -232,8 +246,327 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
 
         (uint256 stakeFinal, , ) = engine.validators(validator1);
 
-        // Stake should have increased from multiple rewards
-        assertGt(stakeFinal, stakeInitial);
+        // Stake should have increased from multiple task fee rewards
+        // Should be significantly more than initial (3x task fees)
+        assertGt(stakeFinal, stakeInitial + (taskFee * 3) / 2, "Should accumulate rewards from 3 tasks");
+    }
+
+    // ============================================
+    // Debug Tests for Mining Rewards
+    // ============================================
+
+    function test_DebugMiningRewardCalculation() public {
+        console2.log("=== Mining Reward Debug ===");
+
+        // Check engine balance
+        uint256 engineBalance = baseToken.balanceOf(address(engine));
+        console2.log("Engine balance:", engineBalance);
+
+        // Check constants
+        console2.log("STARTING_ENGINE_TOKEN_AMOUNT: 600000 ether");
+
+        // Check getPsuedoTotalSupply
+        uint256 pseudoSupply = engine.getPsuedoTotalSupply();
+        console2.log("getPsuedoTotalSupply():", pseudoSupply);
+
+        // Check totalHeld
+        uint256 totalHeld = engine.totalHeld();
+        console2.log("totalHeld:", totalHeld);
+
+        // Check veRewards
+        uint256 veRewards = engine.veRewards();
+        console2.log("veRewards:", veRewards);
+
+        // Check startBlockTime
+        uint256 startBlockTime = engine.startBlockTime();
+        console2.log("startBlockTime:", startBlockTime);
+        console2.log("block.timestamp:", block.timestamp);
+        console2.log("time elapsed:", block.timestamp - startBlockTime);
+
+        // Check getReward
+        uint256 currentReward = engine.getReward();
+        console2.log("getReward():", currentReward);
+
+        // Register model and check reward
+        bytes32 modelId = _deployBootstrapModel();
+        engine.setSolutionMineableRate(modelId, 1 ether);
+
+        // Submit and check reward calculation at claim time
+        bytes32 taskId = _deployBootstrapTask(modelId, 0);
+        _submitSolution(taskId, validator1);
+
+        vm.warp(block.timestamp + 3600 + 1);
+
+        console2.log("=== At claim time ===");
+        console2.log("block.timestamp:", block.timestamp);
+        console2.log("time elapsed:", block.timestamp - startBlockTime);
+        console2.log("getReward():", engine.getReward());
+        console2.log("getPsuedoTotalSupply():", engine.getPsuedoTotalSupply());
+
+        // Check if voter is set
+        address voter = engine.voter();
+        console2.log("voter address:", voter);
+
+        vm.prank(validator1);
+        engine.claimSolution(taskId);
+
+        console2.log("=== After claim ===");
+        console2.log("veRewards:", engine.veRewards());
+    }
+
+    function test_DebugRewardWithDifferentTimestamp() public {
+        console2.log("=== Testing reward at different timestamps ===");
+
+        // Try without the initial warp
+        vm.warp(1); // Reset to timestamp 1
+
+        // Redeploy everything at timestamp 1
+        BaseTokenV1 baseTokenImpl2 = new BaseTokenV1();
+        bytes memory baseTokenInitData2 = abi.encodeWithSelector(
+            BaseTokenV1.initialize.selector,
+            deployer,
+            address(0)
+        );
+        ERC1967Proxy baseTokenProxy2 = new ERC1967Proxy(address(baseTokenImpl2), baseTokenInitData2);
+        BaseTokenV1 baseToken2 = BaseTokenV1(address(baseTokenProxy2));
+
+        V2_EngineV6TestHelper engineImpl2 = new V2_EngineV6TestHelper();
+        bytes memory engineInitData2 = abi.encodeWithSelector(
+            V2_EngineV6TestHelper.initializeForTesting.selector,
+            address(baseToken2),
+            treasury
+        );
+        ERC1967Proxy engineProxy2 = new ERC1967Proxy(address(engineImpl2), engineInitData2);
+        V2_EngineV6TestHelper engine2 = V2_EngineV6TestHelper(address(engineProxy2));
+
+        baseToken2.bridgeMint(address(engine2), 597000 ether);
+
+        console2.log("startBlockTime at deploy:", engine2.startBlockTime());
+        console2.log("block.timestamp:", block.timestamp);
+        console2.log("getReward() at timestamp 1:", engine2.getReward());
+
+        vm.warp(100);
+        console2.log("getReward() at timestamp 100:", engine2.getReward());
+
+        vm.warp(1000);
+        console2.log("getReward() at timestamp 1000:", engine2.getReward());
+
+        vm.warp(10000);
+        console2.log("getReward() at timestamp 10000:", engine2.getReward());
+    }
+
+    function test_DebugRewardWithLessEngineBalance() public {
+        console2.log("=== Testing with less engine balance ===");
+
+        vm.warp(1);
+
+        BaseTokenV1 baseTokenImpl2 = new BaseTokenV1();
+        bytes memory baseTokenInitData2 = abi.encodeWithSelector(
+            BaseTokenV1.initialize.selector,
+            deployer,
+            address(0)
+        );
+        ERC1967Proxy baseTokenProxy2 = new ERC1967Proxy(address(baseTokenImpl2), baseTokenInitData2);
+        BaseTokenV1 baseToken2 = BaseTokenV1(address(baseTokenProxy2));
+
+        V2_EngineV6TestHelper engineImpl2 = new V2_EngineV6TestHelper();
+        bytes memory engineInitData2 = abi.encodeWithSelector(
+            V2_EngineV6TestHelper.initializeForTesting.selector,
+            address(baseToken2),
+            treasury
+        );
+        ERC1967Proxy engineProxy2 = new ERC1967Proxy(address(engineImpl2), engineInitData2);
+        V2_EngineV6TestHelper engine2 = V2_EngineV6TestHelper(address(engineProxy2));
+
+        // Try with much less balance (simulate more tokens mined)
+        baseToken2.bridgeMint(address(engine2), 300000 ether);
+
+        console2.log("Engine balance: 300000 ether");
+        console2.log("getPsuedoTotalSupply():", engine2.getPsuedoTotalSupply());
+        console2.log("getReward() at timestamp 1:", engine2.getReward());
+
+        vm.warp(100);
+        console2.log("getReward() at timestamp 100:", engine2.getReward());
+    }
+
+    function test_DebugDiffMulFunction() public {
+        console2.log("=== Testing diffMul directly ===");
+
+        uint256 t = 7562; // time elapsed from main debug test
+        uint256 ts = 3000 ether; // pseudo supply from main debug test
+
+        console2.log("t (time elapsed):", t);
+        console2.log("ts (pseudo supply):", ts);
+
+        try engine.diffMul(t, ts) returns (uint256 result) {
+            console2.log("diffMul(t, ts):", result);
+        } catch Error(string memory reason) {
+            console2.log("diffMul reverted:", reason);
+        } catch {
+            console2.log("diffMul reverted with no reason");
+        }
+
+        // Also try reward() directly
+        try engine.reward(t, ts) returns (uint256 result) {
+            console2.log("reward(t, ts):", result);
+        } catch Error(string memory reason) {
+            console2.log("reward reverted:", reason);
+        } catch {
+            console2.log("reward reverted with no reason");
+        }
+
+        // Try with different values
+        console2.log("\n=== Trying larger time values ===");
+        uint256 t2 = 86400; // 1 day
+        console2.log("t2:", t2);
+        try engine.diffMul(t2, ts) returns (uint256 result) {
+            console2.log("diffMul(t2, ts):", result);
+        } catch {
+            console2.log("diffMul(t2, ts) reverted");
+        }
+
+        try engine.reward(t2, ts) returns (uint256 result) {
+            console2.log("reward(t2, ts):", result);
+        } catch {
+            console2.log("reward(t2, ts) reverted");
+        }
+
+        // Check target TS for our time value
+        console2.log("\n=== Checking targetTs ===");
+        uint256 targetTsValue = engine.targetTs(t);
+        console2.log("targetTs(7562):", targetTsValue);
+        console2.log("targetTs(7562) in ether:", targetTsValue / 1e18);
+
+        uint256 targetTs2 = engine.targetTs(t2);
+        console2.log("targetTs(86400):", targetTs2);
+        console2.log("targetTs(86400) in ether:", targetTs2 / 1e18);
+
+        // For diffMul to work, we need:
+        // e = targetTs(t)
+        // d = ts / e
+        // c = 1 + ((d - 1) * 100) - 1 = (d - 1) * 100
+        // c must be < 20e18
+        // So (ts/e - 1) * 100 < 20
+        // ts/e - 1 < 0.2
+        // ts/e < 1.2
+        // ts < 1.2 * e
+
+        console2.log("\n=== Checking diffMul conditions ===");
+        console2.log("ts:", ts);
+        console2.log("targetTs(t):", targetTsValue);
+        if (targetTsValue > 0) {
+            console2.log("ts / targetTs:", (ts * 1e18) / targetTsValue);
+            console2.log("Need ts/e < 1.2 for rewards, actual ts/e:", (ts * 100) / targetTsValue);
+        }
+
+        // Find what time would give us targetTs = 3000 ether
+        console2.log("\n=== Finding correct time for ts=3000 ether ===");
+        uint256[] memory testTimes = new uint256[](6);
+        testTimes[0] = 365 days;
+        testTimes[1] = 180 days;
+        testTimes[2] = 90 days;
+        testTimes[3] = 30 days;
+        testTimes[4] = 7 days;
+        testTimes[5] = 1 days;
+
+        for (uint i = 0; i < testTimes.length; i++) {
+            uint256 targetAtTime = engine.targetTs(testTimes[i]);
+            console2.log("Time (days):", testTimes[i] / 86400);
+            console2.log("  targetTs (ether):", targetAtTime / 1e18);
+        }
+    }
+
+    function test_MiningRewardsWorkWithCorrectBalance() public {
+        console2.log("=== Testing mining rewards with correct engine balance ===");
+
+        vm.warp(100000);
+
+        // Deploy fresh contracts with LESS balance (599k instead of 597k)
+        // This gives pseudoSupply of 1000 ether instead of 3000 ether
+        BaseTokenV1 baseTokenImpl2 = new BaseTokenV1();
+        bytes memory baseTokenInitData2 = abi.encodeWithSelector(
+            BaseTokenV1.initialize.selector,
+            deployer,
+            address(0)
+        );
+        ERC1967Proxy baseTokenProxy2 = new ERC1967Proxy(address(baseTokenImpl2), baseTokenInitData2);
+        BaseTokenV1 baseToken2 = BaseTokenV1(address(baseTokenProxy2));
+
+        V2_EngineV6TestHelper engineImpl2 = new V2_EngineV6TestHelper();
+        bytes memory engineInitData2 = abi.encodeWithSelector(
+            V2_EngineV6TestHelper.initializeForTesting.selector,
+            address(baseToken2),
+            treasury
+        );
+        ERC1967Proxy engineProxy2 = new ERC1967Proxy(address(engineImpl2), engineInitData2);
+        V2_EngineV6TestHelper engine2 = V2_EngineV6TestHelper(address(engineProxy2));
+
+        MockVeStaking mockVeStaking2 = new MockVeStaking();
+        engine2.setVeStaking(address(mockVeStaking2));
+
+        // Mint 599k instead of 597k (pseudoSupply will be 1000 ether)
+        baseToken2.bridgeMint(address(engine2), 599000 ether);
+        baseToken2.bridgeMint(deployer, 2000 ether);
+        baseToken2.transferOwnership(address(engine2));
+
+        console2.log("Engine balance:", baseToken2.balanceOf(address(engine2)) / 1e18, "ether");
+        console2.log("getPsuedoTotalSupply:", engine2.getPsuedoTotalSupply() / 1e18, "ether");
+
+        // Setup validator
+        baseToken2.transfer(validator1, 10 ether);
+        vm.prank(validator1);
+        baseToken2.approve(address(engine2), type(uint256).max);
+        vm.prank(validator1);
+        engine2.validatorDeposit(validator1, 10 ether);
+
+        vm.warp(block.timestamp + 3600 + 360 + 1);
+
+        // Register model with mineable rate
+        vm.prank(deployer);
+        bytes32 modelId = engine2.registerModel(model1, 0, TESTBUF);
+        engine2.setSolutionMineableRate(modelId, 1 ether);
+
+        // Submit task
+        baseToken2.transfer(user1, 1 ether);
+        vm.prank(user1);
+        baseToken2.approve(address(engine2), type(uint256).max);
+        vm.prank(user1);
+        vm.recordLogs();
+        engine2.submitTask(0, user1, modelId, 0, TESTBUF);
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 taskId;
+        for (uint i = 0; i < entries.length; i++) {
+            if (entries[i].topics[0] == keccak256("TaskSubmitted(bytes32,bytes32,uint256,address)")) {
+                taskId = entries[i].topics[1];
+                break;
+            }
+        }
+
+        // Submit solution
+        bytes32 commitment = engine2.generateCommitment(validator1, taskId, TESTCID);
+        vm.prank(validator1);
+        engine2.signalCommitment(commitment);
+        vm.roll(block.number + 1);
+        vm.prank(validator1);
+        engine2.submitSolution(taskId, TESTCID);
+
+        (uint256 stakedBefore, , ) = engine2.validators(validator1);
+        console2.log("Stake before claim:", stakedBefore);
+
+        // Wait and check reward
+        vm.warp(block.timestamp + 7 days); // Wait longer for emission schedule
+        console2.log("getReward() after 7 days:", engine2.getReward());
+        console2.log("targetTs after 7 days:", engine2.targetTs(block.timestamp - 100000) / 1e18, "ether");
+
+        vm.prank(validator1);
+        engine2.claimSolution(taskId);
+
+        (uint256 stakedAfter, , ) = engine2.validators(validator1);
+        console2.log("Stake after claim:", stakedAfter);
+        console2.log("Stake increase:", stakedAfter - stakedBefore);
+
+        // Should have rewards now!
+        assertGt(stakedAfter, stakedBefore + engine2.solutionsStakeAmount(), "Should have mining rewards");
     }
 
     // ============================================
@@ -376,7 +709,13 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
         masterContesterRegistry.emergencyAddMasterContester(masterContester1);
 
         bytes32 modelId = _deployBootstrapModel();
-        bytes32 taskId = _deployBootstrapTask(modelId, 0);
+
+        // Use task fee so defender gets rewards when auto-claimed
+        uint256 taskFee = 0.1 ether;
+        baseToken.transfer(user1, taskFee);
+        bytes32 taskId = _deployBootstrapTask(modelId, taskFee);
+
+        (uint256 v1StakeBefore, , ) = engine.validators(validator1);
 
         _submitSolution(taskId, validator1);
 
@@ -391,8 +730,6 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
         vm.prank(validator3);
         engine.voteOnContestation(taskId, false);
 
-        (uint256 v1StakeBefore, , ) = engine.validators(validator1);
-
         // Finish voting (nays win)
         vm.warp(block.timestamp + 4000);
         vm.roll(block.number + 1);
@@ -402,8 +739,8 @@ contract V2_EngineV6_ValidatorStakingTest is Test {
 
         (uint256 v1StakeAfter, , ) = engine.validators(validator1);
 
-        // Defender (validator1) gets solution auto-claimed but no contestation rewards
-        // Stake should increase from solution claim
-        assertGt(v1StakeAfter, v1StakeBefore);
+        // Defender (validator1) gets solution auto-claimed with task fee rewards
+        // but no contestation slash rewards (those go to nay voters who defended correctly)
+        assertGt(v1StakeAfter, v1StakeBefore, "Defender gets task fees from auto-claim");
     }
 }
