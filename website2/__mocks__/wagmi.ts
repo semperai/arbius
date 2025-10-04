@@ -1,0 +1,12 @@
+export const useAccount = jest.fn();
+export const useWalletClient = jest.fn();
+export const usePublicClient = jest.fn();
+export const useChainId = jest.fn();
+export const useBalance = jest.fn();
+export const useReadContract = jest.fn();
+export const useWriteContract = jest.fn();
+export const useWaitForTransactionReceipt = jest.fn();
+export const useSwitchChain = jest.fn();
+export const useConnect = jest.fn();
+export const useDisconnect = jest.fn();
+export const useConfig = jest.fn();
