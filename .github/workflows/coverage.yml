@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [contract, explorer, website2, bots/kasumi-3]
+        package: [contract, explorer, website2, bots/kasumi-3, bots/ipfs-oracle]
 
     steps:
       - name: Checkout code
@@ -38,13 +38,24 @@ jobs:
         run: cd ${{ matrix.package }} && npm run test:coverage
         continue-on-error: true
 
+      - name: Determine lcov path
+        id: lcov-path
+        run: |
+          if [ -f "${{ matrix.package }}/lcov.info" ]; then
+            echo "path=${{ matrix.package }}/lcov.info" >> $GITHUB_OUTPUT
+          elif [ -f "${{ matrix.package }}/coverage/lcov.info" ]; then
+            echo "path=${{ matrix.package }}/coverage/lcov.info" >> $GITHUB_OUTPUT
+          else
+            echo "path=${{ matrix.package }}/lcov.info" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: ${{ matrix.package }}
           parallel: true
-          file: ${{ matrix.package }}/lcov.info
+          file: ${{ steps.lcov-path.outputs.path }}
         continue-on-error: true
 
   finish:
