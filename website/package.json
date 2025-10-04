@@ -11,7 +11,7 @@
     "format:fix": "prettier --write --ignore-path .gitignore ."
   },
   "engines": {
-    "node": "^18.20.3"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@apollo/client": "^3.9.7",
