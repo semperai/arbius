@@ -12,7 +12,7 @@ via_ir = true
 
 ignored_error_codes = [ "unused-param", "unused-var", "license", "code-size", "init-code-size", "unused-param", "unused-return" ]
 
-no_match_coverage = "contracts/(V2_Engine.*|EngineV1|GovernorV1|TimelockV1)\\.sol"
+no_match_coverage = "(contracts/(V2_Engine.*|EngineV1|GovernorV1|TimelockV1)|test/.*)\\.sol"
 
 [invariant]
 # fail_on_revert = true
