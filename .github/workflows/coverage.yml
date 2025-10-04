@@ -35,7 +35,6 @@ jobs:
 
       - name: Run coverage
         run: cd ${{ matrix.package }} && npm run test:coverage
-        continue-on-error: true
 
       - name: Determine lcov path
         id: lcov-path
