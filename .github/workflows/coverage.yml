@@ -44,12 +44,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: ${{ matrix.package }}
           parallel: true
-          base-path: ${{ matrix.package }}
-          path-to-lcov: ${{ matrix.package }}/lcov.info
+          file: ${{ matrix.package }}/lcov.info
         continue-on-error: true
 
   finish:
     needs: coverage
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
@@ -57,4 +57,3 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-          carryforward: "contract,explorer,website2,bots/kasumi-3"
