@@ -13,4 +13,5 @@ export default {
     '**/__tests__/**/*.js',
   ],
   setupFiles: ['<rootDir>/tests/setup.js'],
+  forceExit: true,
 };
