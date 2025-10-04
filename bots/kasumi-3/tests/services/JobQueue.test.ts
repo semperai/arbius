@@ -193,7 +193,7 @@ describe('JobQueue', () => {
         await new Promise(resolve => setTimeout(resolve, 200));
       });
 
-      const limitedQueue = new JobQueue(2, slowCallback as any);
+      const limitedQueue = new JobQueue(2, slowCallback as any, 1000);
 
       // Add 4 jobs
       await limitedQueue.addJob({
@@ -220,6 +220,9 @@ describe('JobQueue', () => {
       // Should have at most 2 processing
       const processing = limitedQueue.getProcessingJobs();
       expect(processing.length).toBeLessThanOrEqual(2);
+
+      // Clean up
+      limitedQueue.shutdown();
     });
   });
 });

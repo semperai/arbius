@@ -3,6 +3,15 @@ import { JobQueue } from '../../src/services/JobQueue';
 import { TaskJob } from '../../src/types';
 
 describe('JobQueue Enhancements', () => {
+  let jobQueue: JobQueue | undefined;
+
+  afterEach(() => {
+    if (jobQueue) {
+      jobQueue.shutdown();
+      jobQueue = undefined;
+    }
+  });
+
   describe('Constructor Validation', () => {
     it('should throw error when maxConcurrent is 0', () => {
       expect(() => {
@@ -28,24 +37,30 @@ describe('JobQueue Enhancements', () => {
   });
 
   describe('Event Emission', () => {
-    let jobQueue: JobQueue;
+    let eventJobQueue: JobQueue;
     let jobCompletedListener: jest.Mock;
     let jobFailedListener: jest.Mock;
     let jobStatusChangeListener: jest.Mock;
 
     beforeEach(() => {
-      jobQueue = new JobQueue(3);
+      eventJobQueue = new JobQueue(3);
       jobCompletedListener = jest.fn();
       jobFailedListener = jest.fn();
       jobStatusChangeListener = jest.fn();
 
-      jobQueue.on('jobCompleted', jobCompletedListener);
-      jobQueue.on('jobFailed', jobFailedListener);
-      jobQueue.on('jobStatusChange', jobStatusChangeListener);
+      eventJobQueue.on('jobCompleted', jobCompletedListener);
+      eventJobQueue.on('jobFailed', jobFailedListener);
+      eventJobQueue.on('jobStatusChange', jobStatusChangeListener);
+    });
+
+    afterEach(() => {
+      if (eventJobQueue) {
+        eventJobQueue.shutdown();
+      }
     });
 
     it('should emit jobCompleted event when job completes', async () => {
-      const job = await jobQueue.addJob({
+      const job = await eventJobQueue.addJob({
         taskid: '0x123',
         modelConfig: {
           id: 'model1',
@@ -59,7 +74,7 @@ describe('JobQueue Enhancements', () => {
         input: { prompt: 'test' },
       });
 
-      jobQueue.updateJobStatus(job.id, 'completed', { cid: 'QmTest' });
+      eventJobQueue.updateJobStatus(job.id, 'completed', { cid: 'QmTest' });
 
       expect(jobCompletedListener).toHaveBeenCalledTimes(1);
       expect(jobCompletedListener).toHaveBeenCalledWith(
@@ -73,7 +88,7 @@ describe('JobQueue Enhancements', () => {
     });
 
     it('should emit jobFailed event when job fails', async () => {
-      const job = await jobQueue.addJob({
+      const job = await eventJobQueue.addJob({
         taskid: '0x124',
         modelConfig: {
           id: 'model1',
@@ -87,7 +102,7 @@ describe('JobQueue Enhancements', () => {
         input: { prompt: 'test' },
       });
 
-      jobQueue.updateJobStatus(job.id, 'failed', { error: 'Test error' });
+      eventJobQueue.updateJobStatus(job.id, 'failed', { error: 'Test error' });
 
       expect(jobFailedListener).toHaveBeenCalledTimes(1);
       expect(jobFailedListener).toHaveBeenCalledWith(
@@ -101,7 +116,7 @@ describe('JobQueue Enhancements', () => {
     });
 
     it('should not emit events for non-terminal status updates', async () => {
-      const job = await jobQueue.addJob({
+      const job = await eventJobQueue.addJob({
         taskid: '0x125',
         modelConfig: {
           id: 'model1',
@@ -115,7 +130,7 @@ describe('JobQueue Enhancements', () => {
         input: { prompt: 'test' },
       });
 
-      jobQueue.updateJobStatus(job.id, 'processing');
+      eventJobQueue.updateJobStatus(job.id, 'processing');
 
       // Events should not be emitted for processing status
       expect(jobCompletedListener).not.toHaveBeenCalled();
@@ -124,8 +139,8 @@ describe('JobQueue Enhancements', () => {
     });
 
     it('should clean up event listeners on shutdown', () => {
-      const removeAllListenersSpy = jest.spyOn(jobQueue, 'removeAllListeners');
-      jobQueue.shutdown();
+      const removeAllListenersSpy = jest.spyOn(eventJobQueue, 'removeAllListeners');
+      eventJobQueue.shutdown();
 
       // Verify shutdown was called (cleanup interval cleared)
       expect(removeAllListenersSpy).toBeDefined();
@@ -135,7 +150,7 @@ describe('JobQueue Enhancements', () => {
   describe('Shutdown', () => {
     it('should clear all timeouts on shutdown', () => {
       const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
-      const jobQueue = new JobQueue(3, undefined, 1000);
+      jobQueue = new JobQueue(3, undefined, 1000);
 
       jobQueue.shutdown();
 
