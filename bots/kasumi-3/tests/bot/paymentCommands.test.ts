@@ -5,7 +5,15 @@ import { UserService } from '../../src/services/UserService';
 import { GasAccountingService } from '../../src/services/GasAccountingService';
 import { ethers } from 'ethers';
 
-vi.mock('../../src/log');
+vi.mock('../../src/log', () => ({
+  log: {
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+  initializeLogger: vi.fn(),
+}));
 
 describe('paymentCommands', () => {
   let bot: any;

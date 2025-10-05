@@ -1,6 +1,5 @@
 import { vi } from 'vitest';
 import { GasAccountingService } from '../../src/services/GasAccountingService';
-import { ethers } from 'ethers';
 
 // Mock ethers provider
 const mockProvider = {
@@ -14,6 +13,20 @@ const mockPairContract = {
   token0: vi.fn(),
 };
 
+// Mock the ethers module
+vi.mock('ethers', () => ({
+  ethers: {
+    Contract: vi.fn(() => mockPairContract),
+    JsonRpcProvider: vi.fn(),
+    formatUnits: vi.fn((value: bigint, decimals: number = 18) => {
+      return (Number(value) / Math.pow(10, decimals)).toString();
+    }),
+    formatEther: vi.fn((value: bigint) => {
+      return (Number(value) / 1e18).toString();
+    }),
+  },
+}));
+
 describe('GasAccountingService', () => {
   let gasAccounting: GasAccountingService;
   const ETH_MAINNET_RPC = 'https://eth.llamarpc.com';
@@ -21,13 +34,6 @@ describe('GasAccountingService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     gasAccounting = new GasAccountingService(ETH_MAINNET_RPC);
-
-    // Mock Contract constructor
-    vi.spyOn(ethers, 'Contract').mockImplementation(() => mockPairContract as any);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   describe('getAiusPerEth', () => {

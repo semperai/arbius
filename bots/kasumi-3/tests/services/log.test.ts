@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 // Unmock the log module since setup.ts mocks it globally
 vi.unmock('../../src/log');
 
-const mockAppendFileSync = vi.fn();
+const mockAppendFileSync = vi.hoisted(() => vi.fn());
 
 vi.mock('fs', async () => {
   const actualFs = await vi.importActual<typeof import('fs')>('fs');

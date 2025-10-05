@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { TaskProcessor } from '../../src/services/TaskProcessor';
 import { BlockchainService } from '../../src/services/BlockchainService';
 import { JobQueue } from '../../src/services/JobQueue';
@@ -7,7 +8,15 @@ import { ModelHandlerFactory } from '../../src/services/ModelHandler';
 import { ethers } from 'ethers';
 
 // Mock dependencies
-vi.mock('../../src/log');
+vi.mock('../../src/log', () => ({
+  log: {
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+  initializeLogger: vi.fn(),
+}));
 vi.mock('../../src/services/ModelHandler');
 vi.mock('../../src/ipfs');
 

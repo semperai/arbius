@@ -11,7 +11,15 @@ import * as fs from 'fs';
 import * as ipfs from '../../src/ipfs';
 import * as utils from '../../src/utils';
 
-vi.mock('../../src/log');
+vi.mock('../../src/log', () => ({
+  log: {
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+  initializeLogger: vi.fn(),
+}));
 vi.mock('axios');
 vi.mock('fs');
 vi.mock('../../src/ipfs');

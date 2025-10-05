@@ -1,11 +1,13 @@
+import { vi } from 'vitest';
 import { RateLimiter } from '../../src/services/RateLimiter';
+import { log } from '../../src/log';
 
 // Mock the log module
 vi.mock('../../src/log', () => ({
   log: {
-    warn: () => {},
-    info: () => {},
-    debug: () => {},
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 
@@ -43,7 +45,6 @@ describe('RateLimiter', () => {
     });
 
     it('should log warning when rate limit is exceeded', () => {
-      const { log } = require('../../src/log');
       const userId = 123;
 
       vi.clearAllMocks();
@@ -173,7 +174,6 @@ describe('RateLimiter', () => {
     });
 
     it('should log info when resetting user rate limit', () => {
-      const { log } = require('../../src/log');
       const userId = 123;
 
       vi.clearAllMocks();
@@ -230,8 +230,6 @@ describe('RateLimiter', () => {
     });
 
     it('should run cleanup interval automatically', async () => {
-      const { log } = require('../../src/log');
-
       // Create a rate limiter with very short cleanup interval for testing
       const testLimiter = new RateLimiter({ maxRequests: 3, windowMs: 100 });
 
@@ -259,8 +257,6 @@ describe('RateLimiter', () => {
     });
 
     it('should not log when no entries are cleaned up', () => {
-      const { log } = require('../../src/log');
-
       vi.clearAllMocks();
 
       // Manually trigger cleanup when no entries are expired

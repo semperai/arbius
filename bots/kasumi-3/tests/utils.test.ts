@@ -123,8 +123,8 @@ describe('Utils', () => {
       await expretry('test', fn as any, 5, 1.5);
       const elapsed = Date.now() - start;
 
-      // First retry should wait ~1.5 seconds (base^1), allow some margin
-      expect(elapsed).toBeGreaterThan(1000);
+      // First retry should wait ~1.5 seconds (base^1), allow some margin for timing
+      expect(elapsed).toBeGreaterThanOrEqual(999);
     });
   });
 

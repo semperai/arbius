@@ -2,6 +2,9 @@ import { vi } from 'vitest';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ModelRegistry } from '../../src/services/ModelRegistry';
 import { ModelConfig } from '../../src/types';
+import * as fs from 'fs';
+
+vi.mock('fs');
 
 describe('ModelRegistry', () => {
   let registry: ModelRegistry;
@@ -215,8 +218,6 @@ describe('ModelRegistry', () => {
   });
 
   describe('loadModelFromTemplate', () => {
-    const fs = require('fs');
-
     beforeEach(() => {
       vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
         meta: { title: 'Loaded Model', description: 'Test', git: '', docker: '', version: 1 },
@@ -276,8 +277,6 @@ describe('ModelRegistry', () => {
   });
 
   describe('loadModelsFromConfig', () => {
-    const fs = require('fs');
-
     beforeEach(() => {
       vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
         meta: { title: 'Test Model', description: '', git: '', docker: '', version: 1 },

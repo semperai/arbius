@@ -14,12 +14,12 @@ vi.mock('uuid', () => ({
 // Mock logger module
 vi.mock('../src/log', () => ({
   log: {
-    info: () => {},
-    debug: () => {},
-    warn: () => {},
-    error: () => {},
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
-  initializeLogger: () => Promise.resolve(undefined),
+  initializeLogger: vi.fn(() => Promise.resolve(undefined)),
 }));
 
 // Mock console methods to reduce noise in tests
