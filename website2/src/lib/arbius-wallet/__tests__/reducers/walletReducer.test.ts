@@ -2,7 +2,7 @@
  * Tests for wallet reducer
  */
 
-import { walletReducer, initialState } from '@/lib/arbius-wallet/reducers/walletReducer';
+import { walletReducer, initialState } from '../../reducers/walletReducer';
 import {
   WALLET_CONNECT,
   WALLET_DISCONNECT,
@@ -12,8 +12,8 @@ import {
   TRANSACTION_ADD,
   TRANSACTION_UPDATE,
   WalletAction
-} from '@/lib/arbius-wallet/reducers/walletActions';
-import { WalletState, Transaction, TransactionStatus } from '@/lib/arbius-wallet/types';
+} from '../../reducers/walletActions';
+import { WalletState, Transaction, TransactionStatus } from '../../types';
 
 describe('walletReducer', () => {
   describe('Initial State', () => {

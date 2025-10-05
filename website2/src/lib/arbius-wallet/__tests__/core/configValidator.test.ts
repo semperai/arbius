@@ -1,5 +1,5 @@
-import { validateConfig } from '@/lib/arbius-wallet/core/configValidator';
-import { AAWalletConfig } from '@/lib/arbius-wallet/types';
+import { validateConfig } from '../../core/configValidator';
+import { AAWalletConfig } from '../../types';
 
 describe('configValidator', () => {
   const validConfig: AAWalletConfig = {

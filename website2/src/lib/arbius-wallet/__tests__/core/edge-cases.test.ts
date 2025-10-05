@@ -3,14 +3,14 @@
  * Tests critical scenarios that could cause issues in production
  */
 
-import { init, isInitialized, isEthereumProxyActive } from '@/lib/arbius-wallet/core/init';
-import { setupEthereumProxy, isProxyFailed } from '@/lib/arbius-wallet/core/ethereumProxy';
-import { validateConfig } from '@/lib/arbius-wallet/core/configValidator';
-import { setupTransactionQueue } from '@/lib/arbius-wallet/core/transactionQueue';
-import { AAWalletConfig } from '@/lib/arbius-wallet/types';
+import { init, isInitialized, isEthereumProxyActive } from '../../core/init';
+import { setupEthereumProxy, isProxyFailed } from '../../core/ethereumProxy';
+import { validateConfig } from '../../core/configValidator';
+import { setupTransactionQueue } from '../../core/transactionQueue';
+import { AAWalletConfig } from '../../types';
 
-jest.mock('@/lib/arbius-wallet/core/configValidator');
-jest.mock('@/lib/arbius-wallet/core/transactionQueue');
+jest.mock('../../core/configValidator');
+jest.mock('../../core/transactionQueue');
 
 describe('Edge Cases', () => {
   const mockConfig: AAWalletConfig = {

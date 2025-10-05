@@ -15,15 +15,15 @@ jest.mock('wagmi', () => ({
   usePublicClient: jest.fn(),
 }));
 
-import { AAWalletDisplay } from '@/lib/arbius-wallet/components/AAWalletDisplay';
-import { useAAWallet } from '@/lib/arbius-wallet/hooks/useAAWallet';
+import { AAWalletDisplay } from '../../components/AAWalletDisplay';
+import { useAAWallet } from '../../hooks/useAAWallet';
 
 // Mock the useAAWallet hook
-jest.mock('@/lib/arbius-wallet/hooks/useAAWallet');
+jest.mock('../../hooks/useAAWallet');
 const mockUseAAWallet = useAAWallet as jest.MockedFunction<typeof useAAWallet>;
 
 // Mock the AAWalletModal component
-jest.mock('@/lib/arbius-wallet/components/AAWalletModal', () => ({
+jest.mock('../../components/AAWalletModal', () => ({
   AAWalletModal: ({ isOpen, onClose, smartAccountAddress }: any) =>
     isOpen ? (
       <div data-testid="wallet-modal">

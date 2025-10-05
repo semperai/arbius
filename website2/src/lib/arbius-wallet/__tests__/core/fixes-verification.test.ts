@@ -2,17 +2,17 @@
  * Tests to verify all critical fixes are working
  */
 
-import { init, isEthereumProxyActive } from '@/lib/arbius-wallet/core/init';
-import { setupEthereumProxy } from '@/lib/arbius-wallet/core/ethereumProxy';
-import { validateConfig } from '@/lib/arbius-wallet/core/configValidator';
-import { setupTransactionQueue } from '@/lib/arbius-wallet/core/transactionQueue';
-import { AAWalletConfig } from '@/lib/arbius-wallet/types';
-import { cleanupExpiredNonces, getNonceStats } from '@/lib/arbius-wallet/utils/nonceCleanup';
-import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove, isLocalStorageAvailable } from '@/lib/arbius-wallet/utils/safeStorage';
+import { init, isEthereumProxyActive } from '../../core/init';
+import { setupEthereumProxy } from '../../core/ethereumProxy';
+import { validateConfig } from '../../core/configValidator';
+import { setupTransactionQueue } from '../../core/transactionQueue';
+import { AAWalletConfig } from '../../types';
+import { cleanupExpiredNonces, getNonceStats } from '../../utils/nonceCleanup';
+import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove, isLocalStorageAvailable } from '../../utils/safeStorage';
 
-jest.mock('@/lib/arbius-wallet/core/configValidator');
-jest.mock('@/lib/arbius-wallet/core/transactionQueue');
-jest.mock('@/lib/arbius-wallet/utils/nonceCleanup');
+jest.mock('../../core/configValidator');
+jest.mock('../../core/transactionQueue');
+jest.mock('../../utils/nonceCleanup');
 
 describe('Critical Fixes Verification', () => {
   const mockConfig: AAWalletConfig = {
@@ -186,7 +186,7 @@ describe('Critical Fixes Verification', () => {
     it('should call nonce cleanup during init', () => {
       (validateConfig as jest.Mock).mockImplementation(() => {});
       (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
-      const mockStartCleanup = require('@/lib/arbius-wallet/utils/nonceCleanup').startPeriodicNonceCleanup;
+      const mockStartCleanup = require('../../utils/nonceCleanup').startPeriodicNonceCleanup;
 
       init(mockConfig);
 
@@ -231,7 +231,7 @@ describe('Critical Fixes Verification', () => {
       // This test will fail if someone accidentally hardcodes chain ID
       // Check that getCurrentChainId is imported and used
 
-      const ethereumProxySource = require('@/lib/arbius-wallet/core/ethereumProxy');
+      const ethereumProxySource = require('../../core/ethereumProxy');
       expect(ethereumProxySource).toBeDefined();
     });
 
@@ -249,7 +249,7 @@ describe('Critical Fixes Verification', () => {
 
       init(mockConfig);
 
-      const mockStartCleanup = require('@/lib/arbius-wallet/utils/nonceCleanup').startPeriodicNonceCleanup;
+      const mockStartCleanup = require('../../utils/nonceCleanup').startPeriodicNonceCleanup;
       expect(mockStartCleanup).toHaveBeenCalled();
     });
   });
