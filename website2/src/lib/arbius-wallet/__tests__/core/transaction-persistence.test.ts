@@ -17,6 +17,7 @@ describe('Transaction Queue Persistence', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
     mockTransactions = [];
 
     // Mock IndexedDB functions
@@ -52,6 +53,12 @@ describe('Transaction Queue Persistence', () => {
       writable: true,
       configurable: true,
     });
+  });
+
+  afterEach(() => {
+    // Clear all timers to prevent "Transaction removed from queue" errors
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   describe('loadPersistedTransactions', () => {
@@ -149,7 +156,7 @@ describe('Transaction Queue Persistence', () => {
       sendTransaction(txParams);
 
       // Wait a bit for async persistence
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await vi.advanceTimersByTimeAsync(10);
 
       // Should have persisted the transaction
       expect(transactionStorage.saveTransaction).toHaveBeenCalled();
@@ -173,7 +180,7 @@ describe('Transaction Queue Persistence', () => {
       };
 
       sendTransaction(tx1Params);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await vi.advanceTimersByTimeAsync(10);
 
       // Setup for second address
       setCurrentAddress(address2);
@@ -186,7 +193,7 @@ describe('Transaction Queue Persistence', () => {
       };
 
       sendTransaction(tx2Params);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await vi.advanceTimersByTimeAsync(10);
 
       // Should have saved to different addresses
       const saveCalls = (transactionStorage.saveTransaction as vi.Mock).mock.calls;
@@ -302,7 +309,7 @@ describe('Transaction Queue Persistence', () => {
       // Send transaction - this will call saveTransaction
       sendTransaction(txParams);
 
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await vi.advanceTimersByTimeAsync(10);
 
       // Should have persisted when adding to queue
       expect(transactionStorage.saveTransaction).toHaveBeenCalled();
