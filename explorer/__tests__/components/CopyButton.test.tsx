@@ -64,26 +64,25 @@ describe('CopyButton', () => {
   });
 
   it('should change icon after copying', async () => {
-    vi.useFakeTimers();
     render(<CopyButton text="test text" />);
     const button = screen.getByRole('button');
 
     fireEvent.click(button);
 
+    // Initially should show "Copied!"
     await waitFor(() => {
       expect(button).toHaveAttribute('aria-label', 'Copied!');
     });
 
-    jest.advanceTimersByTime(2000);
-
+    // After 2 seconds, should revert to "Copy"
     await waitFor(() => {
       expect(button).toHaveAttribute('aria-label', 'Copy');
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle copy failure', async () => {
     mockClipboard.writeText.mockRejectedValueOnce(new Error('Copy failed'));
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(<CopyButton text="test text" />);
     const button = screen.getByRole('button');
