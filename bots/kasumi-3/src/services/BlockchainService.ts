@@ -193,9 +193,17 @@ export class BlockchainService implements IBlockchainService {
     if (validatorStaked < validatorMinimum) {
       log.info('Validator needs to stake more tokens');
       const balance = await this.getBalance();
+      const shortfall = validatorMinimum - validatorStaked;
 
-      if (balance < validatorMinimum) {
-        throw new Error(`Insufficient balance to stake. Need ${ethers.formatEther(validatorMinimum)} AIUS`);
+      // Add 10% buffer to account for potential validator minimum increases
+      const bufferMultiplier = 1.1;
+      const requiredBalance = shortfall * BigInt(Math.floor(bufferMultiplier * 100)) / 100n;
+
+      if (balance < requiredBalance) {
+        throw new Error(
+          `Insufficient balance to stake. Need ${ethers.formatEther(requiredBalance)} AIUS ` +
+          `(shortfall: ${ethers.formatEther(shortfall)} + 10% buffer), have ${ethers.formatEther(balance)} AIUS`
+        );
       }
 
       const tx = await this.executeTransaction(async (nonce) =>
