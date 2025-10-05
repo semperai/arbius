@@ -91,40 +91,28 @@ class Kasumi3Bot {
       const models = this.modelRegistry.getModelNames();
       const modelCommands = models.map(name => `  /${name} <prompt> - Generate using ${name}`).join('\n');
 
+      const prompts = [
+        'a beautiful sunset over mountains',
+        'anime girl with blue hair',
+        'a cat playing piano'
+      ];
+      const examples = models.map((name, i) => `  /${name} ${prompts[i % prompts.length]}`).join('\n');
+
       ctx.reply(
         `Available commands:\n\n` +
         modelCommands + `\n\n` +
         `  /submit <model> <prompt> - Submit task without waiting\n` +
         `  /process <taskid> - Process an existing task\n` +
-        `  /status - Show bot health and diagnostics\n` +
-        `  /kasumi - Show Kasumi-3's wallet status\n` +
+        `  /kasumi - Show bot health and diagnostics\n` +
         `  /queue - Show job queue status\n\n` +
         `Examples:\n` +
-        `  /qwen a beautiful sunset over mountains\n` +
-        `  /wai anime girl with blue hair\n` +
-        `  /submit qwen a cat playing piano\n` +
+        examples + `\n` +
         `  /process 0x1234...abcd`
       );
     });
 
     this.bot.command('kasumi', async ctx => {
-      try {
-        const staked = ethers.formatEther(await this.blockchain.getValidatorStake());
-        const arbiusBalance = ethers.formatEther(await this.blockchain.getBalance());
-        const etherBalance = ethers.formatEther(await this.blockchain.getEthBalance());
-        const address = this.blockchain.getWalletAddress();
-
-        ctx.reply(
-          `Kasumi-3's address: ${address}\n\n` +
-          `Balances:\n` +
-          `${arbiusBalance} AIUS\n` +
-          `${etherBalance} ETH\n` +
-          `${staked} AIUS Staked`
-        );
-      } catch (err) {
-        log.error(`Error in /kasumi command: ${err}`);
-        ctx.reply('❌ Failed to fetch wallet status');
-      }
+      await this.handleStatus(ctx);
     });
 
     this.bot.command('queue', async ctx => {
@@ -137,72 +125,6 @@ class Kasumi3Bot {
         `Completed: ${stats.completed}\n` +
         `Failed: ${stats.failed}`
       );
-    });
-
-    this.bot.command('status', async ctx => {
-      try {
-        // Get blockchain info
-        const address = this.blockchain.getWalletAddress();
-        const arbiusBalance = await this.blockchain.getBalance();
-        const ethBalance = await this.blockchain.getEthBalance();
-        const validatorStaked = await this.blockchain.getValidatorStake();
-        const validatorMinimum = await this.blockchain.getValidatorMinimum();
-
-        // Get queue stats
-        const queueStats = this.jobQueue.getQueueStats();
-
-        // Get rate limiter stats
-        const rateLimiterStats = this.rateLimiter.getStats();
-
-        // Calculate uptime
-        const uptimeSeconds = now() - this.startupTime;
-        const uptimeMinutes = Math.floor(uptimeSeconds / 60);
-        const uptimeHours = Math.floor(uptimeMinutes / 60);
-
-        // Check health indicators
-        const hasEnoughGas = ethBalance > ethers.parseEther('0.01'); // 0.01 ETH minimum
-        const hasEnoughAius = arbiusBalance > ethers.parseEther('1'); // 1 AIUS minimum
-        const isStakedEnough = validatorStaked >= validatorMinimum;
-        const queueHealthy = queueStats.processing < 10; // Less than 10 processing
-
-        const healthStatus = hasEnoughGas && hasEnoughAius && isStakedEnough && queueHealthy
-          ? '✅ Healthy'
-          : '⚠️ Needs Attention';
-
-        const warnings = [];
-        if (!hasEnoughGas) warnings.push('⚠️ Low ETH (need gas for transactions)');
-        if (!hasEnoughAius) warnings.push('⚠️ Low AIUS balance');
-        if (!isStakedEnough) warnings.push('⚠️ Not staked enough for validation');
-        if (!queueHealthy) warnings.push('⚠️ High queue processing load');
-
-        const warningsText = warnings.length > 0 ? '\n\n' + warnings.join('\n') : '';
-
-        ctx.reply(
-          `🔍 Kasumi-3 Status\n\n` +
-          `${healthStatus}\n\n` +
-          `**Wallet**\n` +
-          `Address: \`${address.slice(0, 10)}...${address.slice(-8)}\`\n` +
-          `AIUS: ${ethers.formatEther(arbiusBalance)} ${hasEnoughAius ? '✅' : '⚠️'}\n` +
-          `ETH: ${ethers.formatEther(ethBalance)} ${hasEnoughGas ? '✅' : '⚠️'}\n` +
-          `Staked: ${ethers.formatEther(validatorStaked)} / ${ethers.formatEther(validatorMinimum)} ${isStakedEnough ? '✅' : '⚠️'}\n\n` +
-          `**Job Queue**\n` +
-          `Total: ${queueStats.total}\n` +
-          `Pending: ${queueStats.pending}\n` +
-          `Processing: ${queueStats.processing} ${queueHealthy ? '✅' : '⚠️'}\n` +
-          `Completed: ${queueStats.completed}\n` +
-          `Failed: ${queueStats.failed}\n\n` +
-          `**System**\n` +
-          `Uptime: ${uptimeHours}h ${uptimeMinutes % 60}m\n` +
-          `Active Users: ${rateLimiterStats.activeUsers}\n` +
-          `Models: ${this.modelRegistry.getAllModels().length}\n` +
-          `Rate Limit: ${rateLimiterStats.config.maxRequests} req/${rateLimiterStats.config.windowMs / 1000}s` +
-          warningsText,
-          { parse_mode: 'Markdown' }
-        );
-      } catch (err: any) {
-        log.error(`Error in /status command: ${err.message}`);
-        ctx.reply('❌ Failed to fetch status');
-      }
     });
 
     this.bot.command('submit', async ctx => {
@@ -298,6 +220,72 @@ class Kasumi3Bot {
     } catch (err: any) {
       log.error(`Error in model command: ${err.message}`);
       ctx.reply(`❌ Failed to process request: ${err.message}`);
+    }
+  }
+
+  private async handleStatus(ctx: any): Promise<void> {
+    try {
+      // Get blockchain info
+      const address = this.blockchain.getWalletAddress();
+      const arbiusBalance = await this.blockchain.getBalance();
+      const ethBalance = await this.blockchain.getEthBalance();
+      const validatorStaked = await this.blockchain.getValidatorStake();
+      const validatorMinimum = await this.blockchain.getValidatorMinimum();
+
+      // Get queue stats
+      const queueStats = this.jobQueue.getQueueStats();
+
+      // Get rate limiter stats
+      const rateLimiterStats = this.rateLimiter.getStats();
+
+      // Calculate uptime
+      const uptimeSeconds = now() - this.startupTime;
+      const uptimeMinutes = Math.floor(uptimeSeconds / 60);
+      const uptimeHours = Math.floor(uptimeMinutes / 60);
+
+      // Check health indicators
+      const hasEnoughGas = ethBalance > ethers.parseEther('0.01'); // 0.01 ETH minimum
+      const hasEnoughAius = arbiusBalance > ethers.parseEther('1'); // 1 AIUS minimum
+      const isStakedEnough = validatorStaked >= validatorMinimum;
+      const queueHealthy = queueStats.processing < 10; // Less than 10 processing
+
+      const healthStatus = hasEnoughGas && hasEnoughAius && isStakedEnough && queueHealthy
+        ? '✅ Healthy'
+        : '⚠️ Needs Attention';
+
+      const warnings = [];
+      if (!hasEnoughGas) warnings.push('⚠️ Low ETH (need gas for transactions)');
+      if (!hasEnoughAius) warnings.push('⚠️ Low AIUS balance');
+      if (!isStakedEnough) warnings.push('⚠️ Not staked enough for validation');
+      if (!queueHealthy) warnings.push('⚠️ High queue processing load');
+
+      const warningsText = warnings.length > 0 ? '\n\n' + warnings.join('\n') : '';
+
+      ctx.reply(
+        `🔍 Kasumi-3 Status\n\n` +
+        `${healthStatus}\n\n` +
+        `**Wallet**\n` +
+        `Address: \`${address.slice(0, 10)}...${address.slice(-8)}\`\n` +
+        `AIUS: ${ethers.formatEther(arbiusBalance)} ${hasEnoughAius ? '✅' : '⚠️'}\n` +
+        `ETH: ${ethers.formatEther(ethBalance)} ${hasEnoughGas ? '✅' : '⚠️'}\n` +
+        `Staked: ${ethers.formatEther(validatorStaked)} / ${ethers.formatEther(validatorMinimum)} ${isStakedEnough ? '✅' : '⚠️'}\n\n` +
+        `**Job Queue**\n` +
+        `Total: ${queueStats.total}\n` +
+        `Pending: ${queueStats.pending}\n` +
+        `Processing: ${queueStats.processing} ${queueHealthy ? '✅' : '⚠️'}\n` +
+        `Completed: ${queueStats.completed}\n` +
+        `Failed: ${queueStats.failed}\n\n` +
+        `**System**\n` +
+        `Uptime: ${uptimeHours}h ${uptimeMinutes % 60}m\n` +
+        `Active Users: ${rateLimiterStats.activeUsers}\n` +
+        `Models: ${this.modelRegistry.getAllModels().length}\n` +
+        `Rate Limit: ${rateLimiterStats.config.maxRequests} req/${rateLimiterStats.config.windowMs / 1000}s` +
+        warningsText,
+        { parse_mode: 'Markdown' }
+      );
+    } catch (err: any) {
+      log.error(`Error in /status command: ${err.message}`);
+      ctx.reply('❌ Failed to fetch status');
     }
   }
 
