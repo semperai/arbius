@@ -62,7 +62,7 @@ describe('Button', () => {
   });
 
   it('should handle onClick events', () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(<Button onClick={handleClick}>Click Me</Button>);
     const button = screen.getByRole('button');
     fireEvent.click(button);
@@ -82,7 +82,7 @@ describe('Button', () => {
   });
 
   it('should not trigger onClick when disabled', () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(<Button disabled onClick={handleClick}>Disabled</Button>);
     const button = screen.getByRole('button');
     fireEvent.click(button);

@@ -3,16 +3,16 @@ import { CopyButton, CopyText } from '@/components/CopyButton';
 import { toast } from 'sonner';
 
 // Mock sonner
-jest.mock('sonner', () => ({
+vi.mock('sonner', () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn()
+    success: vi.fn(),
+    error: vi.fn()
   }
 }));
 
 // Mock clipboard API
 const mockClipboard = {
-  writeText: jest.fn()
+  writeText: vi.fn()
 };
 
 Object.assign(navigator, {
@@ -21,12 +21,12 @@ Object.assign(navigator, {
 
 describe('CopyButton', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockClipboard.writeText.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should render copy button', () => {
@@ -64,7 +64,7 @@ describe('CopyButton', () => {
   });
 
   it('should change icon after copying', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     render(<CopyButton text="test text" />);
     const button = screen.getByRole('button');
 
@@ -118,7 +118,7 @@ describe('CopyButton', () => {
 
 describe('CopyText', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockClipboard.writeText.mockResolvedValue(undefined);
   });
 
