@@ -1,7 +1,7 @@
 import { setupEthereumProxy, isProxyFailed } from '../../core/ethereumProxy';
 import * as initModule from '../../core/init';
 
-jest.mock('../../core/init');
+vi.mock('../../core/init');
 
 describe('ethereumProxy', () => {
   let mockEthereum: any;
@@ -9,9 +9,9 @@ describe('ethereumProxy', () => {
   beforeEach(() => {
     // Setup mock ethereum object
     mockEthereum = {
-      request: jest.fn(),
-      on: jest.fn(),
-      removeListener: jest.fn(),
+      request: vi.fn(),
+      on: vi.fn(),
+      removeListener: vi.fn(),
     };
 
     // Setup minimal window mock
@@ -22,13 +22,13 @@ describe('ethereumProxy', () => {
         hostname: 'arbius.xyz',
       },
       localStorage: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
       },
     };
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -37,7 +37,7 @@ describe('ethereumProxy', () => {
 
   describe('setup Prerequisites', () => {
     it('should return false if wallet is not initialized', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(false);
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(false);
 
       const result = setupEthereumProxy();
 
@@ -45,7 +45,7 @@ describe('ethereumProxy', () => {
     });
 
     it('should return false if window.ethereum does not exist', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(true);
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(true);
       (global as any).window.ethereum = undefined;
 
       const result = setupEthereumProxy();
@@ -54,8 +54,8 @@ describe('ethereumProxy', () => {
     });
 
     it('should log error when initialization check fails', () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(false);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(false);
 
       setupEthereumProxy();
 
@@ -65,8 +65,8 @@ describe('ethereumProxy', () => {
     });
 
     it('should log warning when ethereum is not found', () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(true);
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation();
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(true);
       (global as any).window.ethereum = undefined;
 
       setupEthereumProxy();
@@ -83,7 +83,7 @@ describe('ethereumProxy', () => {
     });
 
     it('should handle missing window.ethereum gracefully', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(true);
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(true);
       (global as any).window.ethereum = undefined;
 
       const result = setupEthereumProxy();
@@ -94,7 +94,7 @@ describe('ethereumProxy', () => {
     });
 
     it('should return false when prerequisites are not met', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(false);
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(false);
 
       const result = setupEthereumProxy();
 
@@ -104,7 +104,7 @@ describe('ethereumProxy', () => {
 
   describe('Initialization validation', () => {
     it('should check if wallet is initialized before setup', () => {
-      const isInitializedSpy = jest.spyOn(initModule, 'isInitialized').mockReturnValue(false);
+      const isInitializedSpy = vi.spyOn(initModule, 'isInitialized').mockReturnValue(false);
 
       setupEthereumProxy();
 
@@ -112,8 +112,8 @@ describe('ethereumProxy', () => {
     });
 
     it('should not attempt proxy setup when not initialized', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(false);
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(false);
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation();
 
       setupEthereumProxy();
 
@@ -126,11 +126,11 @@ describe('ethereumProxy', () => {
 
   describe('Error handling', () => {
     it('should handle errors during proxy setup gracefully', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(true);
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(true);
 
       // Mock Object.defineProperty to throw
       const originalDefineProperty = Object.defineProperty;
-      Object.defineProperty = jest.fn(() => {
+      Object.defineProperty = vi.fn(() => {
         throw new Error('Cannot define property');
       });
 
@@ -143,11 +143,11 @@ describe('ethereumProxy', () => {
     });
 
     it('should log error message when proxy setup fails', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(true);
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(true);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       const originalDefineProperty = Object.defineProperty;
-      Object.defineProperty = jest.fn(() => {
+      Object.defineProperty = vi.fn(() => {
         throw new Error('Test error');
       });
 
@@ -160,11 +160,11 @@ describe('ethereumProxy', () => {
     });
 
     it('should log fallback warning when proxy setup fails', () => {
-      jest.spyOn(initModule, 'isInitialized').mockReturnValue(true);
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      vi.spyOn(initModule, 'isInitialized').mockReturnValue(true);
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation();
 
       const originalDefineProperty = Object.defineProperty;
-      Object.defineProperty = jest.fn(() => {
+      Object.defineProperty = vi.fn(() => {
         throw new Error('Test error');
       });
 

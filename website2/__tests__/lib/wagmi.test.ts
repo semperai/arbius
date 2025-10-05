@@ -5,20 +5,20 @@
 import { config, mainnet, arbitrum, arbitrumNova } from '@/lib/wagmi';
 
 // Mock wagmi
-jest.mock('wagmi', () => ({
-  http: jest.fn(() => 'mock-http-transport'),
-  createConfig: jest.fn((cfg) => cfg),
+vi.mock('wagmi', () => ({
+  http: vi.fn(() => 'mock-http-transport'),
+  createConfig: vi.fn((cfg) => cfg),
 }));
 
-jest.mock('wagmi/chains', () => ({
+vi.mock('wagmi/chains', () => ({
   mainnet: { id: 1, name: 'Ethereum' },
   arbitrum: { id: 42161, name: 'Arbitrum One' },
   arbitrumNova: { id: 42170, name: 'Arbitrum Nova' },
 }));
 
-jest.mock('wagmi/connectors', () => ({
-  injected: jest.fn(() => ({ id: 'injected', name: 'Injected' })),
-  walletConnect: jest.fn((opts) => ({ id: 'walletConnect', name: 'WalletConnect', projectId: opts.projectId })),
+vi.mock('wagmi/connectors', () => ({
+  injected: vi.fn(() => ({ id: 'injected', name: 'Injected' })),
+  walletConnect: vi.fn((opts) => ({ id: 'walletConnect', name: 'WalletConnect', projectId: opts.projectId })),
 }));
 
 describe('wagmi configuration', () => {

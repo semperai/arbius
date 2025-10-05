@@ -9,21 +9,21 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 (global as any).React = React;
 
 // Mock wagmi before importing components
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(),
-  useWalletClient: jest.fn(),
-  usePublicClient: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(),
+  useWalletClient: vi.fn(),
+  usePublicClient: vi.fn(),
 }));
 
 import { AAWalletDisplay } from '../../components/AAWalletDisplay';
 import { useAAWallet } from '../../hooks/useAAWallet';
 
 // Mock the useAAWallet hook
-jest.mock('../../hooks/useAAWallet');
-const mockUseAAWallet = useAAWallet as jest.MockedFunction<typeof useAAWallet>;
+vi.mock('../../hooks/useAAWallet');
+const mockUseAAWallet = useAAWallet as vi.MockedFunction<typeof useAAWallet>;
 
 // Mock the AAWalletModal component
-jest.mock('../../components/AAWalletModal', () => ({
+vi.mock('../../components/AAWalletModal', () => ({
   AAWalletModal: ({ isOpen, onClose, smartAccountAddress }: any) =>
     isOpen ? (
       <div data-testid="wallet-modal">
@@ -34,7 +34,7 @@ jest.mock('../../components/AAWalletModal', () => ({
 }));
 
 // Mock next/image
-jest.mock('next/image', () => ({
+vi.mock('next/image', () => ({
   __esModule: true,
   default: ({ src, alt, ...props }: any) => (
     // eslint-disable-next-line @next/next/no-img-element
@@ -43,7 +43,7 @@ jest.mock('next/image', () => ({
 }));
 
 // Mock lucide-react
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   ChevronDown: ({ className }: { className?: string }) => (
     <svg data-testid="chevron-down" className={className}>
       <path d="M6 9l6 6 6-6" />
@@ -53,7 +53,7 @@ jest.mock('lucide-react', () => ({
 
 describe('AAWalletDisplay', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render initializing state', () => {
@@ -63,12 +63,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: true,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -83,12 +83,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     const { container } = render(<AAWalletDisplay />);
@@ -103,12 +103,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -124,12 +124,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -145,12 +145,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay arbiusLogoSrc="/logo.png" />);
@@ -167,12 +167,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -187,12 +187,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -207,12 +207,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -230,12 +230,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -262,12 +262,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     const { container } = render(<AAWalletDisplay />);
@@ -283,12 +283,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: true,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     const { container } = render(<AAWalletDisplay />);
@@ -307,12 +307,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);
@@ -333,12 +333,12 @@ describe('AAWalletDisplay', () => {
       chainId: 42161,
       isInitializing: false,
       error: null,
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      switchChain: jest.fn(),
-      sendTransaction: jest.fn(),
-      signMessage: jest.fn(),
-      signTypedData: jest.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      switchChain: vi.fn(),
+      sendTransaction: vi.fn(),
+      signMessage: vi.fn(),
+      signTypedData: vi.fn(),
     });
 
     render(<AAWalletDisplay />);

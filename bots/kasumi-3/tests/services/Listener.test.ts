@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('Kasumi3Listener', () => {
   let mockBlockchain: any;
@@ -8,24 +8,24 @@ describe('Kasumi3Listener', () => {
 
   beforeEach(() => {
     mockContract = {
-      on: jest.fn(),
+      on: vi.fn(),
       filters: {
-        TaskSubmitted: jest.fn().mockReturnValue('task-filter'),
+        TaskSubmitted: vi.fn().mockReturnValue('task-filter'),
       },
       interface: {
-        parseTransaction: jest.fn(),
+        parseTransaction: vi.fn(),
       },
     };
 
     mockBlockchain = {
-      getArbiusContract: jest.fn().mockReturnValue(mockContract),
-      getProvider: jest.fn().mockReturnValue({
-        getTransaction: jest.fn(),
+      getArbiusContract: vi.fn().mockReturnValue(mockContract),
+      getProvider: vi.fn().mockReturnValue({
+        getTransaction: vi.fn(),
       }),
     };
 
     mockModelRegistry = {
-      getAllModels: jest.fn().mockReturnValue([
+      getAllModels: vi.fn().mockReturnValue([
         {
           id: '0xmodel1',
           name: 'qwen',
@@ -36,12 +36,12 @@ describe('Kasumi3Listener', () => {
           },
         },
       ]),
-      getModelById: jest.fn(),
+      getModelById: vi.fn(),
     };
 
     mockJobQueue = {
-      getJobByTaskId: jest.fn(),
-      addJob: jest.fn(),
+      getJobByTaskId: vi.fn(),
+      addJob: vi.fn(),
     } as any;
 
     mockJobQueue.addJob.mockResolvedValue({
@@ -53,7 +53,7 @@ describe('Kasumi3Listener', () => {
 
   describe('Event Listener Initialization', () => {
     it('should start listening for TaskSubmitted events', () => {
-      mockContract.on('TaskSubmitted', jest.fn());
+      mockContract.on('TaskSubmitted', vi.fn());
 
       expect(mockContract.on).toHaveBeenCalledWith('TaskSubmitted', expect.any(Function));
     });

@@ -16,20 +16,20 @@ import { Transaction, TransactionStatus } from '../../types';
 // Mock IndexedDB
 class MockIDBDatabase {
   objectStoreNames = {
-    contains: jest.fn((name: string) => false),
+    contains: vi.fn((name: string) => false),
   };
-  transaction = jest.fn();
-  createObjectStore = jest.fn((name: string, options: any) => ({
-    createIndex: jest.fn(),
+  transaction = vi.fn();
+  createObjectStore = vi.fn((name: string, options: any) => ({
+    createIndex: vi.fn(),
   }));
-  close = jest.fn();
+  close = vi.fn();
 }
 
 class MockIDBObjectStore {
   data = new Map<string, any>();
   indexData = new Map<string, any[]>();
 
-  put = jest.fn((record: any) => {
+  put = vi.fn((record: any) => {
     this.data.set(record.id, record);
     const address = record.address;
     if (!this.indexData.has(address)) {
@@ -45,16 +45,16 @@ class MockIDBObjectStore {
     return this.createMockRequest(undefined);
   });
 
-  get = jest.fn((id: string) => {
+  get = vi.fn((id: string) => {
     return this.createMockRequest(this.data.get(id));
   });
 
-  delete = jest.fn((id: string) => {
+  delete = vi.fn((id: string) => {
     this.data.delete(id);
     return this.createMockRequest(undefined);
   });
 
-  index = jest.fn((name: string) => {
+  index = vi.fn((name: string) => {
     if (name === 'address') {
       return {
         getAll: (address: string) => {
@@ -80,14 +80,14 @@ class MockIDBObjectStore {
     return null;
   });
 
-  createIndex = jest.fn();
+  createIndex = vi.fn();
 
   private createMockRequest(result: any) {
     return {
       result,
       onsuccess: null as any,
       onerror: null as any,
-      addEventListener: jest.fn((event: string, handler: any) => {
+      addEventListener: vi.fn((event: string, handler: any) => {
         if (event === 'success') {
           setTimeout(() => handler({ target: { result } }), 0);
         }
@@ -102,7 +102,7 @@ class MockIDBObjectStore {
     return {
       onsuccess: null as any,
       onerror: null as any,
-      addEventListener: jest.fn((event: string, handler: any) => {
+      addEventListener: vi.fn((event: string, handler: any) => {
         if (event === 'success') {
           setTimeout(() => {
             const records = address ? (this.indexData.get(address) || []) : [];
@@ -135,7 +135,7 @@ class MockIDBObjectStore {
 }
 
 class MockIDBTransaction {
-  objectStore = jest.fn(() => new MockIDBObjectStore());
+  objectStore = vi.fn(() => new MockIDBObjectStore());
   oncomplete = null;
   onerror = null;
   onabort = null;
@@ -152,12 +152,12 @@ describe('transactionStorage', () => {
 
     // Mock IDBKeyRange
     (global as any).IDBKeyRange = {
-      bound: jest.fn((lower, upper) => ({ lower, upper })),
-      only: jest.fn((value) => ({ value })),
+      bound: vi.fn((lower, upper) => ({ lower, upper })),
+      only: vi.fn((value) => ({ value })),
     };
 
     mockDB.transaction.mockReturnValue({
-      objectStore: jest.fn(() => mockStore),
+      objectStore: vi.fn(() => mockStore),
     });
 
     const mockRequest: any = {
@@ -168,7 +168,7 @@ describe('transactionStorage', () => {
     };
 
     (global as any).indexedDB = {
-      open: jest.fn(() => mockRequest),
+      open: vi.fn(() => mockRequest),
     };
 
     (global as any).window = {
@@ -187,7 +187,7 @@ describe('transactionStorage', () => {
     delete (global as any).indexedDB;
     delete (global as any).window;
     delete (global as any).IDBKeyRange;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('isIndexedDBAvailable', () => {
@@ -336,7 +336,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        getAll: jest.fn(() => getAllRequest),
+        getAll: vi.fn(() => getAllRequest),
       });
 
       const loadPromise = loadPendingTransactions('0xabc');
@@ -361,7 +361,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        getAll: jest.fn(() => getAllRequest),
+        getAll: vi.fn(() => getAllRequest),
       });
 
       const loadPromise = loadPendingTransactions('0xabc');
@@ -498,16 +498,16 @@ describe('transactionStorage', () => {
 
       const cursor1 = {
         value: { id: 'tx-1', address: '0xabc' },
-        continue: jest.fn(),
+        continue: vi.fn(),
       };
 
       const cursor2 = {
         value: { id: 'tx-2', address: '0xabc' },
-        continue: jest.fn(),
+        continue: vi.fn(),
       };
 
       mockStore.index.mockReturnValue({
-        openCursor: jest.fn(() => cursorRequest),
+        openCursor: vi.fn(() => cursorRequest),
       });
 
       const deletePromise = deleteTransactionsForAddress('0xabc');
@@ -543,7 +543,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        openCursor: jest.fn(() => cursorRequest),
+        openCursor: vi.fn(() => cursorRequest),
       });
 
       const deletePromise = deleteTransactionsForAddress('0xabc');
@@ -568,7 +568,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        count: jest.fn(() => countRequest),
+        count: vi.fn(() => countRequest),
       });
 
       const countPromise = getTransactionCount('0xabc');
@@ -591,7 +591,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        count: jest.fn(() => countRequest),
+        count: vi.fn(() => countRequest),
       });
 
       const countPromise = getTransactionCount('0xabc');
@@ -640,7 +640,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        openCursor: jest.fn((range: any, direction: string) => {
+        openCursor: vi.fn((range: any, direction: string) => {
           setTimeout(() => {
             if (cursorRequest.onsuccess) {
               const records = mockStore.indexData.get('0xabc') || [];
@@ -649,7 +649,7 @@ describe('transactionStorage', () => {
               let index = 0;
               const cursor = {
                 value: sorted[index],
-                continue: jest.fn(() => {
+                continue: vi.fn(() => {
                   index++;
                   if (index < sorted.length) {
                     cursorRequest.onsuccess({
@@ -701,7 +701,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        openCursor: jest.fn((range: any, direction: string) => {
+        openCursor: vi.fn((range: any, direction: string) => {
           setTimeout(() => {
             if (cursorRequest.onsuccess) {
               const records = mockStore.indexData.get('0xabc') || [];
@@ -710,7 +710,7 @@ describe('transactionStorage', () => {
               let index = 0;
               const cursor = {
                 value: sorted[index],
-                continue: jest.fn(() => {
+                continue: vi.fn(() => {
                   index++;
                   if (index < sorted.length && index < 2) { // Limit to 2
                     cursorRequest.onsuccess({
@@ -748,7 +748,7 @@ describe('transactionStorage', () => {
       };
 
       mockStore.index.mockReturnValue({
-        openCursor: jest.fn(() => cursorRequest),
+        openCursor: vi.fn(() => cursorRequest),
       });
 
       const historyPromise = loadTransactionHistory('0xabc', 10);
@@ -792,7 +792,7 @@ describe('transactionStorage', () => {
       };
 
       (global as any).indexedDB = {
-        open: jest.fn(() => mockRequest),
+        open: vi.fn(() => mockRequest),
       };
 
       const transaction: Transaction = {
@@ -818,20 +818,20 @@ describe('transactionStorage', () => {
     });
 
     it('should trigger onupgradeneeded for new database', async () => {
-      const mockCreateObjectStore = jest.fn((name: string, options: any) => ({
-        createIndex: jest.fn(),
+      const mockCreateObjectStore = vi.fn((name: string, options: any) => ({
+        createIndex: vi.fn(),
       }));
 
       const customMockStore = new MockIDBObjectStore();
       const customMockDB: any = {
         objectStoreNames: {
-          contains: jest.fn(() => false), // Store doesn't exist yet
+          contains: vi.fn(() => false), // Store doesn't exist yet
         },
-        transaction: jest.fn(() => ({
-          objectStore: jest.fn(() => customMockStore),
+        transaction: vi.fn(() => ({
+          objectStore: vi.fn(() => customMockStore),
         })),
         createObjectStore: mockCreateObjectStore,
-        close: jest.fn(),
+        close: vi.fn(),
       };
 
       const mockRequest: any = {
@@ -842,7 +842,7 @@ describe('transactionStorage', () => {
       };
 
       (global as any).indexedDB = {
-        open: jest.fn(() => mockRequest),
+        open: vi.fn(() => mockRequest),
       };
 
       const transaction: Transaction = {
@@ -897,11 +897,11 @@ describe('transactionStorage', () => {
 
   describe('Error handling edge cases', () => {
     it('should handle catch block in saveTransaction', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       // Force an error by making indexedDB.open throw
       (global as any).indexedDB = {
-        open: jest.fn(() => {
+        open: vi.fn(() => {
           throw new Error('Unexpected error');
         }),
       };
@@ -928,10 +928,10 @@ describe('transactionStorage', () => {
     });
 
     it('should handle catch block in loadPendingTransactions', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       (global as any).indexedDB = {
-        open: jest.fn(() => {
+        open: vi.fn(() => {
           throw new Error('Unexpected error');
         }),
       };
@@ -948,10 +948,10 @@ describe('transactionStorage', () => {
     });
 
     it('should handle catch block in updateTransaction', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       (global as any).indexedDB = {
-        open: jest.fn(() => {
+        open: vi.fn(() => {
           throw new Error('Unexpected error');
         }),
       };
@@ -970,10 +970,10 @@ describe('transactionStorage', () => {
     });
 
     it('should handle catch block in deleteTransactionsForAddress', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       (global as any).indexedDB = {
-        open: jest.fn(() => {
+        open: vi.fn(() => {
           throw new Error('Unexpected error');
         }),
       };
@@ -990,10 +990,10 @@ describe('transactionStorage', () => {
     });
 
     it('should handle catch block in getTransactionCount', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       (global as any).indexedDB = {
-        open: jest.fn(() => {
+        open: vi.fn(() => {
           throw new Error('Unexpected error');
         }),
       };
@@ -1010,10 +1010,10 @@ describe('transactionStorage', () => {
     });
 
     it('should handle catch block in loadTransactionHistory', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       (global as any).indexedDB = {
-        open: jest.fn(() => {
+        open: vi.fn(() => {
           throw new Error('Unexpected error');
         }),
       };
@@ -1030,7 +1030,7 @@ describe('transactionStorage', () => {
     });
 
     it('should handle getRequest onerror in updateTransaction', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       const getRequest = {
         onsuccess: null as any,

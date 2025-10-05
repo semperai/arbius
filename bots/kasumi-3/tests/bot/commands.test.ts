@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('Bot Command Handlers', () => {
   let mockCtx: any;
@@ -8,8 +8,8 @@ describe('Bot Command Handlers', () => {
 
   beforeEach(() => {
     mockCtx = {
-      reply: jest.fn(),
-      replyWithPhoto: jest.fn(),
+      reply: vi.fn(),
+      replyWithPhoto: vi.fn(),
       from: { id: 789 },
       chat: { id: 456 },
       message: { text: '' },
@@ -19,11 +19,11 @@ describe('Bot Command Handlers', () => {
     mockCtx.replyWithPhoto.mockResolvedValue({ message_id: 123, chat: { id: 456 } });
 
     mockBlockchain = {
-      getWalletAddress: jest.fn(),
-      getBalance: jest.fn(),
-      getEthBalance: jest.fn(),
-      getValidatorStake: jest.fn(),
-      findTransactionByTaskId: jest.fn(),
+      getWalletAddress: vi.fn(),
+      getBalance: vi.fn(),
+      getEthBalance: vi.fn(),
+      getValidatorStake: vi.fn(),
+      findTransactionByTaskId: vi.fn(),
     } as any;
 
     mockBlockchain.getWalletAddress.mockReturnValue('0x1234567890123456789012345678901234567890');
@@ -32,9 +32,9 @@ describe('Bot Command Handlers', () => {
     mockBlockchain.getValidatorStake.mockResolvedValue(BigInt('500000000000000000')); // 0.5 AIUS
 
     mockModelRegistry = {
-      getModelByName: jest.fn(),
-      getModelById: jest.fn(),
-      getAllModels: jest.fn().mockReturnValue([
+      getModelByName: vi.fn(),
+      getModelById: vi.fn(),
+      getAllModels: vi.fn().mockReturnValue([
         {
           id: 'model1',
           name: 'qwen',
@@ -45,21 +45,21 @@ describe('Bot Command Handlers', () => {
           },
         },
       ]),
-      getModelNames: jest.fn().mockReturnValue(['qwen', 'wai']),
+      getModelNames: vi.fn().mockReturnValue(['qwen', 'wai']),
     };
 
     mockJobQueue = {
-      getQueueStats: jest.fn().mockReturnValue({
+      getQueueStats: vi.fn().mockReturnValue({
         total: 5,
         pending: 2,
         processing: 1,
         completed: 2,
         failed: 0,
       }),
-      getJobByTaskId: jest.fn(),
-      getJob: jest.fn(),
-      on: jest.fn(),
-      off: jest.fn(),
+      getJobByTaskId: vi.fn(),
+      getJob: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
     };
   });
 
@@ -415,9 +415,9 @@ describe('Bot Command Handlers', () => {
 
   describe('/status Command', () => {
     beforeEach(() => {
-      mockBlockchain.getValidatorMinimum = jest.fn();
+      mockBlockchain.getValidatorMinimum = vi.fn();
       mockBlockchain.getValidatorMinimum.mockResolvedValue(BigInt('500000000000000000'));
-      mockJobQueue.getQueueStats = jest.fn().mockReturnValue({
+      mockJobQueue.getQueueStats = vi.fn().mockReturnValue({
         total: 5,
         pending: 1,
         processing: 2,

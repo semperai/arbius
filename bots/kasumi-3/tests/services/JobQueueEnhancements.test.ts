@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { JobQueue } from '../../src/services/JobQueue';
 import { TaskJob } from '../../src/types';
 
@@ -38,15 +38,15 @@ describe('JobQueue Enhancements', () => {
 
   describe('Event Emission', () => {
     let eventJobQueue: JobQueue;
-    let jobCompletedListener: jest.Mock;
-    let jobFailedListener: jest.Mock;
-    let jobStatusChangeListener: jest.Mock;
+    let jobCompletedListener: vi.Mock;
+    let jobFailedListener: vi.Mock;
+    let jobStatusChangeListener: vi.Mock;
 
     beforeEach(() => {
       eventJobQueue = new JobQueue(3);
-      jobCompletedListener = jest.fn();
-      jobFailedListener = jest.fn();
-      jobStatusChangeListener = jest.fn();
+      jobCompletedListener = vi.fn();
+      jobFailedListener = vi.fn();
+      jobStatusChangeListener = vi.fn();
 
       eventJobQueue.on('jobCompleted', jobCompletedListener);
       eventJobQueue.on('jobFailed', jobFailedListener);
@@ -139,7 +139,7 @@ describe('JobQueue Enhancements', () => {
     });
 
     it('should clean up event listeners on shutdown', () => {
-      const removeAllListenersSpy = jest.spyOn(eventJobQueue, 'removeAllListeners');
+      const removeAllListenersSpy = vi.spyOn(eventJobQueue, 'removeAllListeners');
       eventJobQueue.shutdown();
 
       // Verify shutdown was called (cleanup interval cleared)
@@ -149,7 +149,7 @@ describe('JobQueue Enhancements', () => {
 
   describe('Shutdown', () => {
     it('should clear all timeouts on shutdown', () => {
-      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+      const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
       jobQueue = new JobQueue(3, undefined, 1000);
 
       jobQueue.shutdown();

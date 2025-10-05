@@ -9,8 +9,8 @@ import { validateConfig } from '../../core/configValidator';
 import { setupTransactionQueue } from '../../core/transactionQueue';
 import { AAWalletConfig } from '../../types';
 
-jest.mock('../../core/configValidator');
-jest.mock('../../core/transactionQueue');
+vi.mock('../../core/configValidator');
+vi.mock('../../core/transactionQueue');
 
 describe('Edge Cases', () => {
   const mockConfig: AAWalletConfig = {
@@ -20,13 +20,13 @@ describe('Edge Cases', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('EDGE CASE 1: Double initialization (multiple init calls)', () => {
     it('should handle being called multiple times', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const result1 = init(mockConfig);
       const result2 = init(mockConfig);
@@ -38,8 +38,8 @@ describe('Edge Cases', () => {
     });
 
     it('should maintain consistent state after multiple inits', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
       const firstInitState = isInitialized();
@@ -53,8 +53,8 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 2: Init with different configs', () => {
     it('should handle config changes between init calls', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const config1 = { ...mockConfig, defaultChainId: 42161 };
       const config2 = { ...mockConfig, defaultChainId: 1 };
@@ -77,15 +77,15 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 4: Config validation throws after successful init', () => {
     it('should handle validation error on re-init', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       // First init succeeds
       const result1 = init(mockConfig);
       expect(result1).toBeDefined();
 
       // Second init with validation error
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Validation failed');
       });
 
@@ -96,8 +96,8 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 5: Concurrent initialization', () => {
     it('should handle rapid successive init calls', async () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       // Simulate multiple components calling init simultaneously
       const results = await Promise.all([
@@ -114,7 +114,7 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 6: Initialization state after error', () => {
     it('should maintain clean state after initialization error', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -127,15 +127,15 @@ describe('Edge Cases', () => {
 
     it('should allow successful init after failed init', () => {
       // First init fails
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Test error');
       });
       const result1 = init(mockConfig);
       expect(result1).toBe(false);
 
       // Second init succeeds
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const result2 = init(mockConfig);
       // Should be able to initialize successfully after failure
@@ -145,8 +145,8 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 7: Transaction queue setup called multiple times', () => {
     it('should handle setupTransactionQueue being called repeatedly', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
       init(mockConfig);
@@ -162,8 +162,8 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 8: Fallback after partial initialization', () => {
     it('should handle case where validation passes but proxy setup fails', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       // Simulate proxy setup failure in a way that doesn't break state
       const result = init(mockConfig);
@@ -176,8 +176,8 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 9: Config with edge values', () => {
     it('should handle config with maximum supported chains', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const manyChains = Array.from({ length: 100 }, (_, i) => i + 1);
       const edgeConfig: AAWalletConfig = {
@@ -191,8 +191,8 @@ describe('Edge Cases', () => {
     });
 
     it('should handle config with very large token list', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const manyTokens = Array.from({ length: 1000 }, (_, i) => ({
         address: `0x${i.toString(16).padStart(40, '0')}`,
@@ -213,8 +213,8 @@ describe('Edge Cases', () => {
 
   describe('EDGE CASE 10: Initialization during page unload', () => {
     it('should handle init being called during page unload', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       // Simulate cleanup scenario
       const result = init(mockConfig);

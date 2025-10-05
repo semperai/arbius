@@ -8,22 +8,22 @@ import * as transactionQueue from '../../core/transactionQueue';
 import * as safeStorage from '../../utils/safeStorage';
 import { toast } from 'sonner';
 
-jest.mock('../../core/init');
-jest.mock('../../core/transactionQueue');
-jest.mock('../../utils/safeStorage');
-jest.mock('sonner');
+vi.mock('../../core/init');
+vi.mock('../../core/transactionQueue');
+vi.mock('../../utils/safeStorage');
+vi.mock('sonner');
 
 describe('ethereumProxy - Coverage', () => {
   let mockEthereum: any;
-  let mockOriginalRequest: jest.Mock;
+  let mockOriginalRequest: vi.Mock;
 
   beforeEach(() => {
-    mockOriginalRequest = jest.fn();
+    mockOriginalRequest = vi.fn();
 
     mockEthereum = {
       request: mockOriginalRequest,
-      on: jest.fn(),
-      removeListener: jest.fn(),
+      on: vi.fn(),
+      removeListener: vi.fn(),
     };
 
     (global as any).window = {
@@ -33,22 +33,22 @@ describe('ethereumProxy - Coverage', () => {
         hostname: 'arbius.xyz',
       },
       localStorage: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
       },
       crypto: {
-        randomUUID: jest.fn(() => 'test-uuid-123'),
+        randomUUID: vi.fn(() => 'test-uuid-123'),
       },
     };
 
-    jest.spyOn(initModule, 'isInitialized').mockReturnValue(true);
-    jest.spyOn(initModule, 'getConfig').mockReturnValue({
+    vi.spyOn(initModule, 'isInitialized').mockReturnValue(true);
+    vi.spyOn(initModule, 'getConfig').mockReturnValue({
       defaultChainId: 42161,
       supportedChainIds: [42161],
     } as any);
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -68,7 +68,7 @@ describe('ethereumProxy - Coverage', () => {
     });
 
     it('should intercept eth_sendTransaction', async () => {
-      const mockSendTransaction = jest.spyOn(transactionQueue, 'sendTransaction').mockResolvedValue('0xtxhash');
+      const mockSendTransaction = vi.spyOn(transactionQueue, 'sendTransaction').mockResolvedValue('0xtxhash');
       mockOriginalRequest.mockResolvedValue('0x2a'); // Chain ID 42
 
       const ethereum = (global as any).window.ethereum;
@@ -144,8 +144,8 @@ describe('ethereumProxy - Coverage', () => {
       delete (global as any).window;
       mockEthereum = {
         request: mockOriginalRequest,
-        on: jest.fn(),
-        removeListener: jest.fn(),
+        on: vi.fn(),
+        removeListener: vi.fn(),
       };
 
       (global as any).window = {
@@ -155,12 +155,12 @@ describe('ethereumProxy - Coverage', () => {
           hostname: 'evil.com',
         },
         localStorage: {
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
+          getItem: vi.fn(),
+          setItem: vi.fn(),
+          removeItem: vi.fn(),
         },
         crypto: {
-          randomUUID: jest.fn(() => 'test-uuid-123'),
+          randomUUID: vi.fn(() => 'test-uuid-123'),
         },
       };
 
@@ -177,7 +177,7 @@ describe('ethereumProxy - Coverage', () => {
     });
 
     it('should enhance non-EIP4361 messages', async () => {
-      jest.spyOn(safeStorage, 'safeLocalStorageSet').mockReturnValue(true);
+      vi.spyOn(safeStorage, 'safeLocalStorageSet').mockReturnValue(true);
       mockOriginalRequest
         .mockResolvedValueOnce('0x2a') // Chain ID for getCurrentChainId
         .mockResolvedValueOnce('0xsignature'); // Signature response
@@ -209,8 +209,8 @@ describe('ethereumProxy - Coverage', () => {
     });
 
     it('should warn when nonce storage fails', async () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      jest.spyOn(safeStorage, 'safeLocalStorageSet').mockReturnValue(false);
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation();
+      vi.spyOn(safeStorage, 'safeLocalStorageSet').mockReturnValue(false);
       mockOriginalRequest
         .mockResolvedValueOnce('0x2a')
         .mockResolvedValueOnce('0xsignature');
@@ -228,7 +228,7 @@ describe('ethereumProxy - Coverage', () => {
       const nonce = 'test-nonce-456';
       const expiresAt = new Date(Date.now() + 10000).toISOString();
 
-      jest.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue(
+      vi.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue(
         JSON.stringify({ expiresAt })
       );
       mockOriginalRequest.mockResolvedValue('0xsignature');
@@ -260,7 +260,7 @@ Issued At: ${new Date().toISOString()}`;
       const nonce = 'expired-nonce';
       const expiresAt = new Date(Date.now() - 10000).toISOString(); // Expired
 
-      jest.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue(
+      vi.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue(
         JSON.stringify({ expiresAt })
       );
 
@@ -286,8 +286,8 @@ Issued At: ${new Date().toISOString()}`;
     });
 
     it('should handle corrupted nonce data gracefully', async () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      jest.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue('invalid json');
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation();
+      vi.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue('invalid json');
       mockOriginalRequest.mockResolvedValue('0xsignature');
 
       const eip4361Message = `arbius.xyz wants you to sign in with your Ethereum account:
@@ -315,8 +315,8 @@ Issued At: ${new Date().toISOString()}`;
       delete (global as any).window;
       mockEthereum = {
         request: mockOriginalRequest,
-        on: jest.fn(),
-        removeListener: jest.fn(),
+        on: vi.fn(),
+        removeListener: vi.fn(),
       };
 
       (global as any).window = {
@@ -326,12 +326,12 @@ Issued At: ${new Date().toISOString()}`;
           hostname: 'evil.com',
         },
         localStorage: {
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
+          getItem: vi.fn(),
+          setItem: vi.fn(),
+          removeItem: vi.fn(),
         },
         crypto: {
-          randomUUID: jest.fn(() => 'test-uuid-123'),
+          randomUUID: vi.fn(() => 'test-uuid-123'),
         },
       };
 
@@ -352,7 +352,7 @@ Issued At: ${new Date().toISOString()}`;
         .mockResolvedValueOnce('0x2a')
         .mockRejectedValueOnce(new Error('User rejected the request'));
 
-      jest.spyOn(safeStorage, 'safeLocalStorageSet').mockReturnValue(true);
+      vi.spyOn(safeStorage, 'safeLocalStorageSet').mockReturnValue(true);
 
       await expect(
         (global as any).window.ethereum.request({
@@ -362,7 +362,7 @@ Issued At: ${new Date().toISOString()}`;
       ).rejects.toThrow('User rejected');
 
       // Toast should not be called for user rejections
-      const toastCalls = (toast.error as jest.Mock).mock.calls;
+      const toastCalls = (toast.error as vi.Mock).mock.calls;
       const hasUserRejectedToast = toastCalls.some(call =>
         call[0].includes('User rejected')
       );
@@ -388,9 +388,9 @@ Issued At: ${new Date().toISOString()}`;
     });
 
     it('should fall back to config chain ID on error', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
       mockOriginalRequest.mockRejectedValue(new Error('Chain ID error'));
-      jest.spyOn(transactionQueue, 'sendTransaction').mockResolvedValue('0xtx');
+      vi.spyOn(transactionQueue, 'sendTransaction').mockResolvedValue('0xtx');
 
       await (global as any).window.ethereum.request({
         method: 'eth_sendTransaction',
@@ -406,10 +406,10 @@ Issued At: ${new Date().toISOString()}`;
     });
 
     it('should default to mainnet if config is unavailable', async () => {
-      jest.spyOn(initModule, 'getConfig').mockReturnValue(null);
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      vi.spyOn(initModule, 'getConfig').mockReturnValue(null);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
       mockOriginalRequest.mockRejectedValue(new Error('error'));
-      jest.spyOn(transactionQueue, 'sendTransaction').mockResolvedValue('0xtx');
+      vi.spyOn(transactionQueue, 'sendTransaction').mockResolvedValue('0xtx');
 
       await (global as any).window.ethereum.request({
         method: 'eth_sendTransaction',
@@ -433,7 +433,7 @@ Issued At: ${new Date().toISOString()}`;
       const nonce = 'test-nonce';
       const expiresAt = new Date(Date.now() - 1000).toISOString();
 
-      jest.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue(
+      vi.spyOn(safeStorage, 'safeLocalStorageGet').mockReturnValue(
         JSON.stringify({ expiresAt })
       );
 

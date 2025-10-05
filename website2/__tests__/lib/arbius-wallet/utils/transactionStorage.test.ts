@@ -16,20 +16,20 @@ import { TransactionStatus } from '@/lib/arbius-wallet/types';
 // Mock IndexedDB
 const mockDB: any = {
   objectStoreNames: {
-    contains: jest.fn(() => false),
+    contains: vi.fn(() => false),
   },
-  createObjectStore: jest.fn(() => ({
-    createIndex: jest.fn(),
+  createObjectStore: vi.fn(() => ({
+    createIndex: vi.fn(),
   })),
-  transaction: jest.fn(() => ({
-    objectStore: jest.fn(() => ({
-      put: jest.fn(() => ({ onsuccess: null, onerror: null })),
-      get: jest.fn(() => ({ onsuccess: null, onerror: null })),
-      delete: jest.fn(() => ({ onsuccess: null, onerror: null })),
-      index: jest.fn(() => ({
-        getAll: jest.fn(() => ({ onsuccess: null, onerror: null })),
-        openCursor: jest.fn(() => ({ onsuccess: null, onerror: null })),
-        count: jest.fn(() => ({ onsuccess: null, onerror: null })),
+  transaction: vi.fn(() => ({
+    objectStore: vi.fn(() => ({
+      put: vi.fn(() => ({ onsuccess: null, onerror: null })),
+      get: vi.fn(() => ({ onsuccess: null, onerror: null })),
+      delete: vi.fn(() => ({ onsuccess: null, onerror: null })),
+      index: vi.fn(() => ({
+        getAll: vi.fn(() => ({ onsuccess: null, onerror: null })),
+        openCursor: vi.fn(() => ({ onsuccess: null, onerror: null })),
+        count: vi.fn(() => ({ onsuccess: null, onerror: null })),
       })),
     })),
   })),
@@ -37,13 +37,13 @@ const mockDB: any = {
 
 describe('Transaction Storage (IndexedDB)', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Mock window.indexedDB
     Object.defineProperty(global, 'window', {
       value: {
         indexedDB: {
-          open: jest.fn(() => ({
+          open: vi.fn(() => ({
             onsuccess: null,
             onerror: null,
             onupgradeneeded: null,

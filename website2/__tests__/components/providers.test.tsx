@@ -4,40 +4,40 @@ import { Providers, AAWalletStatusContext } from '@/components/providers';
 import { init, isEthereumProxyActive } from '@/lib/arbius-wallet';
 
 // Mock dependencies
-jest.mock('@/lib/arbius-wallet', () => ({
+vi.mock('@/lib/arbius-wallet', () => ({
   AAWalletProvider: ({ children }: any) => <div data-testid="aa-wallet-provider">{children}</div>,
-  init: jest.fn(),
-  isEthereumProxyActive: jest.fn(),
+  init: vi.fn(),
+  isEthereumProxyActive: vi.fn(),
 }));
-jest.mock('@/lib/wagmi', () => ({
+vi.mock('@/lib/wagmi', () => ({
   config: {},
 }));
-jest.mock('@tanstack/react-query', () => ({
-  QueryClient: jest.fn().mockImplementation(() => ({})),
+vi.mock('@tanstack/react-query', () => ({
+  QueryClient: vi.fn().mockImplementation(() => ({})),
   QueryClientProvider: ({ children }: any) => <div>{children}</div>,
 }));
-jest.mock('wagmi', () => ({
+vi.mock('wagmi', () => ({
   WagmiProvider: ({ children }: any) => <div>{children}</div>,
 }));
-jest.mock('@rainbow-me/rainbowkit', () => ({
+vi.mock('@rainbow-me/rainbowkit', () => ({
   RainbowKitProvider: ({ children }: any) => <div>{children}</div>,
 }));
-jest.mock('next-themes', () => ({
+vi.mock('next-themes', () => ({
   ThemeProvider: ({ children }: any) => <div>{children}</div>,
 }));
-jest.mock('sonner', () => ({
+vi.mock('sonner', () => ({
   Toaster: () => <div>Toaster</div>,
 }));
 
 describe('Providers', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('AAWallet initialization', () => {
     it('should initialize AAWallet on mount', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(true);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(true);
 
       render(
         <Providers>
@@ -58,8 +58,8 @@ describe('Providers', () => {
     });
 
     it('should set isProxyActive to true when initialization succeeds', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(true);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(true);
 
       const TestComponent = () => {
         const contextValue = React.useContext(AAWalletStatusContext);
@@ -78,8 +78,8 @@ describe('Providers', () => {
     });
 
     it('should set isProxyActive to false when initialization fails', async () => {
-      (init as jest.Mock).mockReturnValue(false);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(false);
+      (init as vi.Mock).mockReturnValue(false);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(false);
 
       const TestComponent = () => {
         const contextValue = React.useContext(AAWalletStatusContext);
@@ -98,8 +98,8 @@ describe('Providers', () => {
     });
 
     it('should set isProxyActive to false when proxy setup fails', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(false);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(false);
 
       const TestComponent = () => {
         const contextValue = React.useContext(AAWalletStatusContext);
@@ -120,8 +120,8 @@ describe('Providers', () => {
 
   describe('Rendering behavior', () => {
     it('should render children after wallet initialization', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(true);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(true);
 
       render(
         <Providers>
@@ -135,8 +135,8 @@ describe('Providers', () => {
     });
 
     it('should wrap children with AAWalletProvider when initialized', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(true);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(true);
 
       render(
         <Providers>
@@ -150,8 +150,8 @@ describe('Providers', () => {
     });
 
     it('should wrap children with AAWalletProvider after initialization', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(true);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(true);
 
       render(
         <Providers>
@@ -167,8 +167,8 @@ describe('Providers', () => {
 
   describe('Fallback to RainbowKit', () => {
     it('should provide isProxyActive=false when falling back to RainbowKit', async () => {
-      (init as jest.Mock).mockReturnValue(false);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(false);
+      (init as vi.Mock).mockReturnValue(false);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(false);
 
       const TestComponent = () => {
         const contextValue = React.useContext(AAWalletStatusContext);
@@ -188,8 +188,8 @@ describe('Providers', () => {
     });
 
     it('should still render RainbowKitProvider even when AAWallet fails', async () => {
-      (init as jest.Mock).mockReturnValue(false);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(false);
+      (init as vi.Mock).mockReturnValue(false);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(false);
 
       render(
         <Providers>
@@ -204,8 +204,8 @@ describe('Providers', () => {
     });
 
     it('should handle case where init succeeds but proxy is inactive', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(false);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(false);
 
       const TestComponent = () => {
         const contextValue = React.useContext(AAWalletStatusContext);
@@ -228,8 +228,8 @@ describe('Providers', () => {
 
   describe('Provider hierarchy', () => {
     it('should maintain correct provider nesting', async () => {
-      (init as jest.Mock).mockReturnValue(true);
-      (isEthereumProxyActive as jest.Mock).mockReturnValue(true);
+      (init as vi.Mock).mockReturnValue(true);
+      (isEthereumProxyActive as vi.Mock).mockReturnValue(true);
 
       const { container } = render(
         <Providers>

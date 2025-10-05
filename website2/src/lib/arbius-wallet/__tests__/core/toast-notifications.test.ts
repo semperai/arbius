@@ -6,19 +6,19 @@ import { sendTransaction } from '../../core/transactionQueue';
 import { toast } from 'sonner';
 
 // Mock dependencies
-jest.mock('../../utils/safeStorage');
-jest.mock('../../utils/broadcastChannel');
-jest.mock('sonner');
+vi.mock('../../utils/safeStorage');
+vi.mock('../../utils/broadcastChannel');
+vi.mock('sonner');
 
 describe('Toast Notifications', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Mock window.ethereum
     Object.defineProperty(global, 'window', {
       value: {
         ethereum: {
-          request: jest.fn(),
+          request: vi.fn(),
         },
       },
       writable: true,
@@ -26,14 +26,14 @@ describe('Toast Notifications', () => {
     });
 
     // Mock toast functions
-    (toast.loading as jest.Mock).mockReturnValue('toast-id-123');
-    (toast.success as jest.Mock).mockImplementation(() => {});
-    (toast.error as jest.Mock).mockImplementation(() => {});
+    (toast.loading as vi.Mock).mockReturnValue('toast-id-123');
+    (toast.success as vi.Mock).mockImplementation(() => {});
+    (toast.error as vi.Mock).mockImplementation(() => {});
   });
 
   describe('Transaction submission toast', () => {
     it('should show loading toast when transaction is submitted', async () => {
-      const mockRequest = jest.fn().mockImplementation(() => new Promise(() => {})); // Never resolves
+      const mockRequest = vi.fn().mockImplementation(() => new Promise(() => {})); // Never resolves
       (window.ethereum as any).request = mockRequest;
 
       const txParams = {
@@ -50,7 +50,7 @@ describe('Toast Notifications', () => {
     });
 
     it('should use consistent toast ID for updates', async () => {
-      const mockRequest = jest.fn().mockResolvedValue('0xhash123');
+      const mockRequest = vi.fn().mockResolvedValue('0xhash123');
       (window.ethereum as any).request = mockRequest;
 
       const txParams = {
@@ -63,7 +63,7 @@ describe('Toast Notifications', () => {
 
       // Loading toast should return an ID
       expect(toast.loading).toHaveBeenCalledWith('Submitting transaction...');
-      const loadingCall = (toast.loading as jest.Mock).mock.results[0].value;
+      const loadingCall = (toast.loading as vi.Mock).mock.results[0].value;
       expect(loadingCall).toBe('toast-id-123');
 
       // Wait for transaction to complete

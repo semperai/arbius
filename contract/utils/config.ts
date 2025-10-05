@@ -13,6 +13,7 @@ interface IConfig {
     provider_url: string;
     private_key: string;
   };
+  /*
   goerli: {
     provider_url: string;
     private_key: string;
@@ -25,14 +26,17 @@ interface IConfig {
     provider_url: string;
     private_key: string;
   };
+  */
   arbsepolia: {
     provider_url: string;
     private_key: string;
   };
+  /*
   nova: {
     provider_url: string;
     private_key: string;
   };
+  */
 }
 
 export const getEnv = (key: string, defaultValue?: any) => {

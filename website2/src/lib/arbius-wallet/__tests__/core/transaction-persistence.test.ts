@@ -7,33 +7,33 @@ import { TransactionStatus } from '../../types';
 import * as transactionStorage from '../../utils/transactionStorage';
 
 // Mock dependencies
-jest.mock('../../utils/transactionStorage');
-jest.mock('../../utils/broadcastChannel');
-jest.mock('sonner');
+vi.mock('../../utils/transactionStorage');
+vi.mock('../../utils/broadcastChannel');
+vi.mock('sonner');
 
 describe('Transaction Queue Persistence', () => {
   const mockAddress = '0x1234567890123456789012345678901234567890';
   let mockTransactions: any[] = [];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockTransactions = [];
 
     // Mock IndexedDB functions
-    (transactionStorage.isIndexedDBAvailable as jest.Mock).mockReturnValue(true);
+    (transactionStorage.isIndexedDBAvailable as vi.Mock).mockReturnValue(true);
 
-    (transactionStorage.saveTransaction as jest.Mock).mockImplementation(async (tx, addr) => {
+    (transactionStorage.saveTransaction as vi.Mock).mockImplementation(async (tx, addr) => {
       mockTransactions.push({ ...tx, address: addr });
       return true;
     });
 
-    (transactionStorage.loadPendingTransactions as jest.Mock).mockImplementation(async (addr) => {
+    (transactionStorage.loadPendingTransactions as vi.Mock).mockImplementation(async (addr) => {
       return mockTransactions
         .filter(tx => tx.address === addr && tx.status === TransactionStatus.PENDING)
         .map(({ address, ...tx }) => tx);
     });
 
-    (transactionStorage.updateTransaction as jest.Mock).mockImplementation(async (id, addr, updates) => {
+    (transactionStorage.updateTransaction as vi.Mock).mockImplementation(async (id, addr, updates) => {
       const tx = mockTransactions.find(t => t.id === id && t.address === addr);
       if (tx) {
         Object.assign(tx, updates);
@@ -46,7 +46,7 @@ describe('Transaction Queue Persistence', () => {
     Object.defineProperty(global, 'window', {
       value: {
         ethereum: {
-          request: jest.fn(),
+          request: vi.fn(),
         },
       },
       writable: true,
@@ -121,7 +121,7 @@ describe('Transaction Queue Persistence', () => {
     });
 
     it('should handle IndexedDB errors gracefully', async () => {
-      (transactionStorage.loadPendingTransactions as jest.Mock).mockRejectedValue(
+      (transactionStorage.loadPendingTransactions as vi.Mock).mockRejectedValue(
         new Error('IndexedDB error')
       );
 
@@ -129,7 +129,7 @@ describe('Transaction Queue Persistence', () => {
     });
 
     it('should handle IndexedDB not available', async () => {
-      (transactionStorage.isIndexedDBAvailable as jest.Mock).mockReturnValue(false);
+      (transactionStorage.isIndexedDBAvailable as vi.Mock).mockReturnValue(false);
 
       await expect(setupTransactionQueue(mockAddress)).resolves.not.toThrow();
     });
@@ -153,7 +153,7 @@ describe('Transaction Queue Persistence', () => {
 
       // Should have persisted the transaction
       expect(transactionStorage.saveTransaction).toHaveBeenCalled();
-      const saveCall = (transactionStorage.saveTransaction as jest.Mock).mock.calls[0];
+      const saveCall = (transactionStorage.saveTransaction as vi.Mock).mock.calls[0];
       expect(saveCall[0].method).toBe('eth_sendTransaction');
       expect(saveCall[1]).toBe(mockAddress);
     });
@@ -189,13 +189,13 @@ describe('Transaction Queue Persistence', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Should have saved to different addresses
-      const saveCalls = (transactionStorage.saveTransaction as jest.Mock).mock.calls;
+      const saveCalls = (transactionStorage.saveTransaction as vi.Mock).mock.calls;
       expect(saveCalls[0][1]).toBe(address1);
       expect(saveCalls[1][1]).toBe(address2);
     });
 
     it('should handle IndexedDB write failures gracefully', async () => {
-      (transactionStorage.saveTransaction as jest.Mock).mockResolvedValue(false);
+      (transactionStorage.saveTransaction as vi.Mock).mockResolvedValue(false);
 
       await setupTransactionQueue(mockAddress);
 

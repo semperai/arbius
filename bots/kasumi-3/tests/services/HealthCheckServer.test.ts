@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { HealthCheckServer } from '../../src/services/HealthCheckServer';
 import { ethers } from 'ethers';
 import * as http from 'http';
@@ -12,10 +12,10 @@ describe('HealthCheckServer', () => {
 
   beforeEach(() => {
     mockBlockchain = {
-      getEthBalance: jest.fn(),
-      getBalance: jest.fn(),
-      getValidatorStake: jest.fn(),
-      getValidatorMinimum: jest.fn(),
+      getEthBalance: vi.fn(),
+      getBalance: vi.fn(),
+      getValidatorStake: vi.fn(),
+      getValidatorMinimum: vi.fn(),
     } as any;
 
     mockBlockchain.getEthBalance.mockResolvedValue(ethers.parseEther('0.5'));
@@ -24,7 +24,7 @@ describe('HealthCheckServer', () => {
     mockBlockchain.getValidatorMinimum.mockResolvedValue(ethers.parseEther('50'));
 
     mockJobQueue = {
-      getQueueStats: jest.fn(),
+      getQueueStats: vi.fn(),
     } as any;
 
     mockJobQueue.getQueueStats.mockReturnValue({

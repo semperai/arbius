@@ -1,11 +1,11 @@
 import { RateLimiter } from '../../src/services/RateLimiter';
 
 // Mock the log module
-jest.mock('../../src/log', () => ({
+vi.mock('../../src/log', () => ({
   log: {
-    warn: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
+    warn: () => {},
+    info: () => {},
+    debug: () => {},
   },
 }));
 
@@ -46,7 +46,7 @@ describe('RateLimiter', () => {
       const { log } = require('../../src/log');
       const userId = 123;
 
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // Use up the 3 allowed requests
       rateLimiter.checkLimit(userId);
@@ -176,7 +176,7 @@ describe('RateLimiter', () => {
       const { log } = require('../../src/log');
       const userId = 123;
 
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // Use up the limit
       rateLimiter.checkLimit(userId);
@@ -261,7 +261,7 @@ describe('RateLimiter', () => {
     it('should not log when no entries are cleaned up', () => {
       const { log } = require('../../src/log');
 
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // Manually trigger cleanup when no entries are expired
       (rateLimiter as any).cleanup();

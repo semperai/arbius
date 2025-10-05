@@ -1,15 +1,16 @@
+import { vi } from 'vitest';
 import { Telegraf } from 'telegraf';
 import { registerPaymentCommands } from '../../src/bot/paymentCommands';
 import { UserService } from '../../src/services/UserService';
 import { GasAccountingService } from '../../src/services/GasAccountingService';
 import { ethers } from 'ethers';
 
-jest.mock('../../src/log');
+vi.mock('../../src/log');
 
 describe('paymentCommands', () => {
   let bot: any;
-  let userService: jest.Mocked<UserService>;
-  let gasAccounting: jest.Mocked<GasAccountingService>;
+  let userService: vi.Mocked<UserService>;
+  let gasAccounting: vi.Mocked<GasAccountingService>;
   let commandHandlers: Map<string, Function>;
   const botWalletAddress = '0x0Ac10F130e534Eeb18DaD519aD193d229790Bd4b';
   const adminIds = [111111111];
@@ -19,26 +20,26 @@ describe('paymentCommands', () => {
 
     // Mock Telegraf bot
     bot = {
-      command: jest.fn((cmd: string, handler: Function) => {
+      command: vi.fn((cmd: string, handler: Function) => {
         commandHandlers.set(cmd, handler);
       }),
     };
 
     // Mock UserService
     userService = {
-      linkWallet: jest.fn(),
-      getUser: jest.fn(),
-      getBalance: jest.fn(),
-      getStats: jest.fn(),
-      getTransactionHistory: jest.fn(),
-      adminCredit: jest.fn(),
-      getUserByWallet: jest.fn(),
+      linkWallet: vi.fn(),
+      getUser: vi.fn(),
+      getBalance: vi.fn(),
+      getStats: vi.fn(),
+      getTransactionHistory: vi.fn(),
+      adminCredit: vi.fn(),
+      getUserByWallet: vi.fn(),
     } as any;
 
     // Mock GasAccountingService
     gasAccounting = {
-      getCachedPrice: jest.fn(),
-      getAiusPerEth: jest.fn(),
+      getCachedPrice: vi.fn(),
+      getAiusPerEth: vi.fn(),
     } as any;
   });
 
@@ -50,9 +51,9 @@ describe('paymentCommands', () => {
         username: username || 'testuser',
       },
       message: text ? { text } : undefined,
-      reply: jest.fn(),
+      reply: vi.fn(),
       telegram: {
-        sendMessage: jest.fn(),
+        sendMessage: vi.fn(),
       },
     };
   };
@@ -618,7 +619,7 @@ describe('paymentCommands', () => {
   describe('Registration without admin IDs', () => {
     it('should not register admin commands when no admin IDs provided', () => {
       const botNoAdmin = {
-        command: jest.fn(),
+        command: vi.fn(),
       };
 
       registerPaymentCommands(botNoAdmin as any, userService, gasAccounting, botWalletAddress, []);

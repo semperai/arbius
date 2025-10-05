@@ -1,16 +1,17 @@
+import { vi } from 'vitest';
 import { GasAccountingService } from '../../src/services/GasAccountingService';
 import { ethers } from 'ethers';
 
 // Mock ethers provider
 const mockProvider = {
-  getFeeData: jest.fn(),
-  getTransactionReceipt: jest.fn(),
+  getFeeData: vi.fn(),
+  getTransactionReceipt: vi.fn(),
 };
 
 // Mock Uniswap pair contract
 const mockPairContract = {
-  getReserves: jest.fn(),
-  token0: jest.fn(),
+  getReserves: vi.fn(),
+  token0: vi.fn(),
 };
 
 describe('GasAccountingService', () => {
@@ -18,15 +19,15 @@ describe('GasAccountingService', () => {
   const ETH_MAINNET_RPC = 'https://eth.llamarpc.com';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     gasAccounting = new GasAccountingService(ETH_MAINNET_RPC);
 
     // Mock Contract constructor
-    jest.spyOn(ethers, 'Contract').mockImplementation(() => mockPairContract as any);
+    vi.spyOn(ethers, 'Contract').mockImplementation(() => mockPairContract as any);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('getAiusPerEth', () => {
@@ -94,7 +95,7 @@ describe('GasAccountingService', () => {
       await gasAccounting.getAiusPerEth();
 
       // Wait for cache to expire (> 1 minute)
-      jest.spyOn(Date, 'now')
+      vi.spyOn(Date, 'now')
         .mockReturnValueOnce(Date.now() + 61 * 1000) // Expired fresh cache
         .mockReturnValue(Date.now() + 61 * 1000);
 

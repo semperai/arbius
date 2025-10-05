@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { ModelRegistry } from '../../src/services/ModelRegistry';
 import { JobQueue } from '../../src/services/JobQueue';
 import { TaskProcessor } from '../../src/services/TaskProcessor';
@@ -8,37 +8,37 @@ import { ModelConfig, MiningConfig } from '../../src/types';
 // @ts-ignore - Mock service for testing
 const createMockBlockchainService = (): any => ({
   // @ts-ignore
-  getWalletAddress: jest.fn().mockReturnValue('0x1234567890123456789012345678901234567890'),
+  getWalletAddress: vi.fn().mockReturnValue('0x1234567890123456789012345678901234567890'),
   // @ts-ignore
-  getBalance: jest.fn().mockResolvedValue(1000000000000000000n),
+  getBalance: vi.fn().mockResolvedValue(1000000000000000000n),
   // @ts-ignore
-  getValidatorStake: jest.fn().mockResolvedValue(500000000000000000n),
+  getValidatorStake: vi.fn().mockResolvedValue(500000000000000000n),
   // @ts-ignore
-  submitTask: jest.fn().mockResolvedValue('0xmocktaskid123'),
+  submitTask: vi.fn().mockResolvedValue('0xmocktaskid123'),
   // @ts-ignore
-  submitSolution: jest.fn().mockResolvedValue(undefined),
+  submitSolution: vi.fn().mockResolvedValue(undefined),
   // @ts-ignore
-  signalCommitment: jest.fn().mockResolvedValue(undefined),
+  signalCommitment: vi.fn().mockResolvedValue(undefined),
   // @ts-ignore
-  getSolution: jest.fn().mockResolvedValue({
+  getSolution: vi.fn().mockResolvedValue({
     validator: '0x0000000000000000000000000000000000000000',
     cid: '',
   }),
   // @ts-ignore
-  findTransactionByTaskId: jest.fn().mockResolvedValue({
+  findTransactionByTaskId: vi.fn().mockResolvedValue({
     txHash: '0xtxhash',
     prompt: 'test prompt',
   }),
-  getArbiusContract: jest.fn(),
-  getProvider: jest.fn(),
+  getArbiusContract: vi.fn(),
+  getProvider: vi.fn(),
   // @ts-ignore
-  ensureApproval: jest.fn().mockResolvedValue(undefined),
+  ensureApproval: vi.fn().mockResolvedValue(undefined),
   // @ts-ignore
-  ensureValidatorStake: jest.fn().mockResolvedValue(undefined),
+  ensureValidatorStake: vi.fn().mockResolvedValue(undefined),
   // @ts-ignore
-  getValidatorMinimum: jest.fn().mockResolvedValue(100000000000000000n),
+  getValidatorMinimum: vi.fn().mockResolvedValue(100000000000000000n),
   // @ts-ignore
-  getEthBalance: jest.fn().mockResolvedValue(1000000000000000000n),
+  getEthBalance: vi.fn().mockResolvedValue(1000000000000000000n),
 });
 
 // Mock mining config
@@ -154,7 +154,7 @@ describe('Integration: End-to-End Workflow', () => {
   describe('Job Queue Workflow', () => {
     it('should queue and process jobs sequentially', async () => {
       const processedJobs: string[] = [];
-      const mockProcessor = jest.fn().mockImplementation(async (job: any) => {
+      const mockProcessor = vi.fn().mockImplementation(async (job: any) => {
         processedJobs.push(job.taskid);
         await new Promise(resolve => setTimeout(resolve, 50));
       });
@@ -184,7 +184,7 @@ describe('Integration: End-to-End Workflow', () => {
 
     it('should handle concurrent processing', async () => {
       const concurrentTracker: string[] = [];
-      const mockProcessor = jest.fn().mockImplementation(async (job: any) => {
+      const mockProcessor = vi.fn().mockImplementation(async (job: any) => {
         concurrentTracker.push(`start:${job.taskid}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         concurrentTracker.push(`end:${job.taskid}`);

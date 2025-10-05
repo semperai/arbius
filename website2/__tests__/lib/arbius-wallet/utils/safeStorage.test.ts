@@ -14,12 +14,12 @@ describe('safeStorage', () => {
     // Reset localStorage mock
     Object.defineProperty(global, 'localStorage', {
       value: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
         length: 0,
-        key: jest.fn(),
+        key: vi.fn(),
       },
       writable: true,
       configurable: true,
@@ -28,7 +28,7 @@ describe('safeStorage', () => {
 
   describe('safeLocalStorageGet', () => {
     it('should return value when localStorage works', () => {
-      const mockGetItem = jest.fn(() => 'test-value');
+      const mockGetItem = vi.fn(() => 'test-value');
       Object.defineProperty(global, 'localStorage', {
         value: { getItem: mockGetItem },
         writable: true,
@@ -39,7 +39,7 @@ describe('safeStorage', () => {
     });
 
     it('should return null when localStorage throws', () => {
-      const mockGetItem = jest.fn(() => {
+      const mockGetItem = vi.fn(() => {
         throw new Error('QuotaExceededError');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -74,7 +74,7 @@ describe('safeStorage', () => {
 
   describe('safeLocalStorageSet', () => {
     it('should return true when localStorage works', () => {
-      const mockSetItem = jest.fn();
+      const mockSetItem = vi.fn();
       Object.defineProperty(global, 'localStorage', {
         value: { setItem: mockSetItem },
         writable: true,
@@ -86,7 +86,7 @@ describe('safeStorage', () => {
     });
 
     it('should return false when localStorage throws', () => {
-      const mockSetItem = jest.fn(() => {
+      const mockSetItem = vi.fn(() => {
         throw new Error('QuotaExceededError');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -111,7 +111,7 @@ describe('safeStorage', () => {
 
   describe('safeLocalStorageRemove', () => {
     it('should return true when localStorage works', () => {
-      const mockRemoveItem = jest.fn();
+      const mockRemoveItem = vi.fn();
       Object.defineProperty(global, 'localStorage', {
         value: { removeItem: mockRemoveItem },
         writable: true,
@@ -123,7 +123,7 @@ describe('safeStorage', () => {
     });
 
     it('should return false when localStorage throws', () => {
-      const mockRemoveItem = jest.fn(() => {
+      const mockRemoveItem = vi.fn(() => {
         throw new Error('Storage error');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -138,8 +138,8 @@ describe('safeStorage', () => {
 
   describe('isLocalStorageAvailable', () => {
     it('should return true when localStorage works', () => {
-      const mockSetItem = jest.fn();
-      const mockRemoveItem = jest.fn();
+      const mockSetItem = vi.fn();
+      const mockRemoveItem = vi.fn();
       Object.defineProperty(global, 'localStorage', {
         value: { setItem: mockSetItem, removeItem: mockRemoveItem },
         writable: true,
@@ -150,7 +150,7 @@ describe('safeStorage', () => {
     });
 
     it('should return false when localStorage throws', () => {
-      const mockSetItem = jest.fn(() => {
+      const mockSetItem = vi.fn(() => {
         throw new Error('QuotaExceededError');
       });
       Object.defineProperty(global, 'localStorage', {

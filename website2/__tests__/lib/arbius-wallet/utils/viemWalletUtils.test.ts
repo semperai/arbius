@@ -7,16 +7,16 @@ import {
 } from '@/lib/arbius-wallet/utils/viemWalletUtils';
 import * as safeStorage from '@/lib/arbius-wallet/utils/safeStorage';
 
-jest.mock('viem');
-jest.mock('viem/accounts');
-jest.mock('@/lib/arbius-wallet/utils/safeStorage');
+vi.mock('viem');
+vi.mock('viem/accounts');
+vi.mock('@/lib/arbius-wallet/utils/safeStorage');
 
-const mockKeccak256 = keccak256 as jest.MockedFunction<typeof keccak256>;
-const mockToBytes = toBytes as jest.MockedFunction<typeof toBytes>;
-const mockPrivateKeyToAccount = privateKeyToAccount as jest.MockedFunction<typeof privateKeyToAccount>;
-const mockSafeLocalStorageGet = safeStorage.safeLocalStorageGet as jest.MockedFunction<typeof safeStorage.safeLocalStorageGet>;
-const mockSafeLocalStorageSet = safeStorage.safeLocalStorageSet as jest.MockedFunction<typeof safeStorage.safeLocalStorageSet>;
-const mockSafeLocalStorageRemove = safeStorage.safeLocalStorageRemove as jest.MockedFunction<typeof safeStorage.safeLocalStorageRemove>;
+const mockKeccak256 = keccak256 as vi.MockedFunction<typeof keccak256>;
+const mockToBytes = toBytes as vi.MockedFunction<typeof toBytes>;
+const mockPrivateKeyToAccount = privateKeyToAccount as vi.MockedFunction<typeof privateKeyToAccount>;
+const mockSafeLocalStorageGet = safeStorage.safeLocalStorageGet as vi.MockedFunction<typeof safeStorage.safeLocalStorageGet>;
+const mockSafeLocalStorageSet = safeStorage.safeLocalStorageSet as vi.MockedFunction<typeof safeStorage.safeLocalStorageSet>;
+const mockSafeLocalStorageRemove = safeStorage.safeLocalStorageRemove as vi.MockedFunction<typeof safeStorage.safeLocalStorageRemove>;
 
 describe('viemWalletUtils', () => {
   const mockOwnerAddress = '0x1234567890123456789012345678901234567890';
@@ -28,15 +28,15 @@ describe('viemWalletUtils', () => {
 
   const mockAccount = {
     address: mockDerivedAddress as `0x${string}`,
-    signMessage: jest.fn(),
-    signTransaction: jest.fn(),
-    signTypedData: jest.fn(),
+    signMessage: vi.fn(),
+    signTransaction: vi.fn(),
+    signTypedData: vi.fn(),
     source: 'privateKey',
     type: 'local',
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Mock window.location
     delete (global as any).window;
     (global as any).window = { location: { hostname: 'arbius.ai' } };
@@ -53,7 +53,7 @@ describe('viemWalletUtils', () => {
 
   describe('initDeterministicWallet', () => {
     it('should throw error when ownerAddress is missing', async () => {
-      const signMessage = jest.fn();
+      const signMessage = vi.fn();
 
       await expect(
         initDeterministicWallet('', signMessage)
@@ -67,7 +67,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should return cached wallet if available for same address', async () => {
-      const signMessage = jest.fn();
+      const signMessage = vi.fn();
       const cachedData = {
         ownerAddress: mockOwnerAddress.toLowerCase(),
         derivedPrivateKey: mockPrivateKey,
@@ -86,7 +86,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should create new wallet if no cache exists', async () => {
-      const signMessage = jest.fn().mockResolvedValue(mockSignature);
+      const signMessage = vi.fn().mockResolvedValue(mockSignature);
       mockSafeLocalStorageGet.mockReturnValue(null);
 
       const result = await initDeterministicWallet(mockOwnerAddress, signMessage);
@@ -101,7 +101,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should cache the new wallet', async () => {
-      const signMessage = jest.fn().mockResolvedValue(mockSignature);
+      const signMessage = vi.fn().mockResolvedValue(mockSignature);
       mockSafeLocalStorageGet.mockReturnValue(null);
 
       await initDeterministicWallet(mockOwnerAddress, signMessage);
@@ -113,8 +113,8 @@ describe('viemWalletUtils', () => {
     });
 
     it('should warn if caching fails', async () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      const signMessage = jest.fn().mockResolvedValue(mockSignature);
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation();
+      const signMessage = vi.fn().mockResolvedValue(mockSignature);
       mockSafeLocalStorageGet.mockReturnValue(null);
       mockSafeLocalStorageSet.mockReturnValue(false);
 
@@ -128,7 +128,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should use custom title in message', async () => {
-      const signMessage = jest.fn().mockResolvedValue(mockSignature);
+      const signMessage = vi.fn().mockResolvedValue(mockSignature);
       mockSafeLocalStorageGet.mockReturnValue(null);
       const customTitle = 'CustomApp';
 
@@ -140,8 +140,8 @@ describe('viemWalletUtils', () => {
     });
 
     it('should handle corrupted cache by clearing it', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      const signMessage = jest.fn().mockResolvedValue(mockSignature);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
+      const signMessage = vi.fn().mockResolvedValue(mockSignature);
       mockSafeLocalStorageGet.mockReturnValue('corrupted-json');
 
       const result = await initDeterministicWallet(mockOwnerAddress, signMessage);
@@ -157,7 +157,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should create new wallet if cached address does not match', async () => {
-      const signMessage = jest.fn().mockResolvedValue(mockSignature);
+      const signMessage = vi.fn().mockResolvedValue(mockSignature);
       const differentAddress = '0x9999999999999999999999999999999999999999';
       const cachedData = {
         ownerAddress: differentAddress.toLowerCase(),
@@ -176,7 +176,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should normalize owner address to lowercase', async () => {
-      const signMessage = jest.fn().mockResolvedValue(mockSignature);
+      const signMessage = vi.fn().mockResolvedValue(mockSignature);
       const upperCaseAddress = mockOwnerAddress.toUpperCase();
       mockSafeLocalStorageGet.mockReturnValue(null);
 
@@ -231,7 +231,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should handle corrupted cache gracefully', () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
       mockSafeLocalStorageGet.mockReturnValue('corrupted-json');
 
       const result = getCachedWalletAddress(mockOwnerAddress);
@@ -306,7 +306,7 @@ describe('viemWalletUtils', () => {
     });
 
     it('should handle corrupted cache gracefully', () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
       mockSafeLocalStorageGet.mockReturnValue('corrupted-json');
 
       const result = getCachedWallet(mockDerivedAddress);

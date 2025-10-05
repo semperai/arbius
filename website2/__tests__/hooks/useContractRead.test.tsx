@@ -2,11 +2,11 @@ import { renderHook } from '@testing-library/react';
 import { useContractReadHook } from '@/hooks/useContractRead';
 import { useReadContract } from 'wagmi';
 
-jest.mock('wagmi', () => ({
-  useReadContract: jest.fn(),
+vi.mock('wagmi', () => ({
+  useReadContract: vi.fn(),
 }));
 
-const mockUseReadContract = useReadContract as jest.MockedFunction<typeof useReadContract>;
+const mockUseReadContract = useReadContract as vi.MockedFunction<typeof useReadContract>;
 
 describe('useContractReadHook', () => {
   const mockAbi = [
@@ -23,7 +23,7 @@ describe('useContractReadHook', () => {
   const mockArgs = ['0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'] as const;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should call useReadContract with correct parameters', () => {

@@ -7,16 +7,16 @@ import { ModelHandlerFactory } from '../../src/services/ModelHandler';
 import { ethers } from 'ethers';
 
 // Mock dependencies
-jest.mock('../../src/log');
-jest.mock('../../src/services/ModelHandler');
-jest.mock('../../src/ipfs');
+vi.mock('../../src/log');
+vi.mock('../../src/services/ModelHandler');
+vi.mock('../../src/ipfs');
 
 describe('TaskProcessor', () => {
   let taskProcessor: TaskProcessor;
-  let mockBlockchain: jest.Mocked<BlockchainService>;
-  let mockJobQueue: jest.Mocked<JobQueue>;
-  let mockUserService: jest.Mocked<UserService>;
-  let mockGasAccounting: jest.Mocked<GasAccountingService>;
+  let mockBlockchain: vi.Mocked<BlockchainService>;
+  let mockJobQueue: vi.Mocked<JobQueue>;
+  let mockUserService: vi.Mocked<UserService>;
+  let mockGasAccounting: vi.Mocked<GasAccountingService>;
   let mockModelHandler: any;
 
   const mockMiningConfig: any = {
@@ -53,41 +53,41 @@ describe('TaskProcessor', () => {
   beforeEach(() => {
     // Mock BlockchainService
     mockBlockchain = {
-      getSolution: jest.fn(),
-      submitSolution: jest.fn(),
-      submitTask: jest.fn(),
-      getArbiusContract: jest.fn(),
-      getProvider: jest.fn(),
-      findTransactionByTaskId: jest.fn(),
+      getSolution: vi.fn(),
+      submitSolution: vi.fn(),
+      submitTask: vi.fn(),
+      getArbiusContract: vi.fn(),
+      getProvider: vi.fn(),
+      findTransactionByTaskId: vi.fn(),
     } as any;
 
     // Mock JobQueue
     mockJobQueue = {
-      addJob: jest.fn(),
-      updateJobStatus: jest.fn(),
+      addJob: vi.fn(),
+      updateJobStatus: vi.fn(),
     } as any;
 
     // Mock UserService
     mockUserService = {
-      reserveBalance: jest.fn(),
-      cancelReservation: jest.fn(),
-      finalizeReservation: jest.fn(),
-      getAvailableBalance: jest.fn(),
-      refundTask: jest.fn(),
+      reserveBalance: vi.fn(),
+      cancelReservation: vi.fn(),
+      finalizeReservation: vi.fn(),
+      getAvailableBalance: vi.fn(),
+      refundTask: vi.fn(),
     } as any;
 
     // Mock GasAccountingService
     mockGasAccounting = {
-      estimateGasCostInAius: jest.fn(),
-      calculateGasCostInAius: jest.fn(),
+      estimateGasCostInAius: vi.fn(),
+      calculateGasCostInAius: vi.fn(),
     } as any;
 
     // Mock ModelHandler
     mockModelHandler = {
-      getCid: jest.fn(),
+      getCid: vi.fn(),
     };
 
-    (ModelHandlerFactory.createHandler as jest.Mock) = jest.fn().mockReturnValue(mockModelHandler);
+    (ModelHandlerFactory.createHandler as vi.Mock) = vi.fn().mockReturnValue(mockModelHandler);
 
     taskProcessor = new TaskProcessor(
       mockBlockchain,
@@ -278,7 +278,7 @@ describe('TaskProcessor', () => {
       );
 
       const mockContract = {
-        models: jest.fn(),
+        models: vi.fn(),
       };
       mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
       mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
@@ -292,7 +292,7 @@ describe('TaskProcessor', () => {
         modelId: '0xmodel1',
       });
       mockBlockchain.getProvider.mockReturnValue({
-        getTransactionReceipt: jest.fn().mockResolvedValue({
+        getTransactionReceipt: vi.fn().mockResolvedValue({
           gasUsed: 150000n,
           gasPrice: 50000000000n,
         }),
@@ -338,7 +338,7 @@ describe('TaskProcessor', () => {
       );
 
       const mockContract = {
-        models: jest.fn(),
+        models: vi.fn(),
       };
       mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
       mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
@@ -369,7 +369,7 @@ describe('TaskProcessor', () => {
       );
 
       const mockContract = {
-        models: jest.fn(),
+        models: vi.fn(),
       };
       mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
       mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);

@@ -1,38 +1,34 @@
 // Test setup file
 // Configure test environment
 import * as dotenv from 'dotenv';
+import { vi } from 'vitest';
 
 // Load test environment variables
 dotenv.config({ path: '.env.test' });
 
-// Set test timeout
-jest.setTimeout(30000);
-
-// Unmock ethers for address validation
-jest.unmock('ethers');
-
 // Mock uuid module
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'test-uuid-' + Math.random().toString(36).substring(7)),
+vi.mock('uuid', () => ({
+  v4: () => 'test-uuid-' + Math.random().toString(36).substring(7),
 }));
 
 // Mock logger module
-jest.mock('../src/log', () => ({
+vi.mock('../src/log', () => ({
   log: {
-    info: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    info: () => {},
+    debug: () => {},
+    warn: () => {},
+    error: () => {},
   },
-  initializeLogger: jest.fn().mockResolvedValue(undefined),
+  initializeLogger: () => Promise.resolve(undefined),
 }));
 
 // Mock console methods to reduce noise in tests
+const noop = () => {};
 global.console = {
   ...console,
-  log: jest.fn(),
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
+  log: noop,
+  debug: noop,
+  info: noop,
+  warn: noop,
+  error: noop,
 };

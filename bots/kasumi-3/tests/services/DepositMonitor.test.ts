@@ -1,13 +1,14 @@
+import { vi } from 'vitest';
 import { DepositMonitor } from '../../src/services/DepositMonitor';
 import { UserService } from '../../src/services/UserService';
 
 // Mock the logger
-jest.mock('../../src/log', () => ({
+vi.mock('../../src/log', () => ({
   log: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+    debug: () => {},
   },
 }));
 
@@ -20,18 +21,18 @@ describe('DepositMonitor', () => {
   const TOKEN_ADDRESS = '0x2222222222222222222222222222222222222222';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockProvider = {
-      getBlockNumber: jest.fn().mockResolvedValue(1000),
+      getBlockNumber: vi.fn().mockResolvedValue(1000),
     };
 
     mockUserService = {
-      getUserByWallet: jest.fn(),
-      creditBalance: jest.fn(),
-      storeUnclaimedDeposit: jest.fn(),
+      getUserByWallet: vi.fn(),
+      creditBalance: vi.fn(),
+      storeUnclaimedDeposit: vi.fn(),
       db: {
-        depositExists: jest.fn().mockReturnValue(false),
+        depositExists: vi.fn().mockReturnValue(false),
       },
     };
   });
@@ -149,7 +150,7 @@ describe('DepositMonitor', () => {
 
   describe('polling behavior', () => {
     it('should skip polling when no new blocks', async () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       monitor = new DepositMonitor(
         mockProvider,
@@ -164,17 +165,17 @@ describe('DepositMonitor', () => {
       await monitor.start();
 
       // Advance timers
-      await jest.advanceTimersByTimeAsync(1000);
+      await vi.advanceTimersByTimeAsync(1000);
 
       // Should have been called once for start, and once for poll
       expect(mockProvider.getBlockNumber).toHaveBeenCalled();
 
       monitor.stop();
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('should handle polling errors gracefully', async () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       monitor = new DepositMonitor(
         mockProvider,
@@ -195,13 +196,13 @@ describe('DepositMonitor', () => {
       await monitor.start();
 
       // Advance timers to trigger error
-      await jest.advanceTimersByTimeAsync(1000);
+      await vi.advanceTimersByTimeAsync(1000);
 
       // Should continue running despite error
-      await jest.advanceTimersByTimeAsync(1000);
+      await vi.advanceTimersByTimeAsync(1000);
 
       monitor.stop();
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 });

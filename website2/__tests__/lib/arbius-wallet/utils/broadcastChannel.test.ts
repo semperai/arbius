@@ -3,17 +3,17 @@ import { Transaction, WalletState } from '@/lib/arbius-wallet/types';
 
 describe('broadcastChannel', () => {
   let mockBroadcastChannel: {
-    postMessage: jest.Mock;
+    postMessage: vi.Mock;
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockBroadcastChannel = {
-      postMessage: jest.fn(),
+      postMessage: vi.fn(),
     };
 
     // Mock BroadcastChannel
-    (global as any).BroadcastChannel = jest.fn().mockImplementation(() => mockBroadcastChannel);
+    (global as any).BroadcastChannel = vi.fn().mockImplementation(() => mockBroadcastChannel);
   });
 
   afterEach(() => {

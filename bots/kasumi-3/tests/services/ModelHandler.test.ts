@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   BaseModelHandler,
   ReplicateModelHandler,
@@ -10,13 +11,13 @@ import * as fs from 'fs';
 import * as ipfs from '../../src/ipfs';
 import * as utils from '../../src/utils';
 
-jest.mock('../../src/log');
-jest.mock('axios');
-jest.mock('fs');
-jest.mock('../../src/ipfs');
+vi.mock('../../src/log');
+vi.mock('axios');
+vi.mock('fs');
+vi.mock('../../src/ipfs');
 
-const mockAxios = axios as jest.Mocked<typeof axios>;
-const mockFs = fs as jest.Mocked<typeof fs>;
+const mockAxios = axios as vi.Mocked<typeof axios>;
+const mockFs = fs as vi.Mocked<typeof fs>;
 
 describe('ModelHandler', () => {
   const mockMiningConfig: MiningConfig = {
@@ -72,21 +73,21 @@ describe('ModelHandler', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Mock utils functions
-    jest.spyOn(utils, 'hydrateInput').mockReturnValue({
+    vi.spyOn(utils, 'hydrateInput').mockReturnValue({
       err: false,
       errmsg: '',
       input: { prompt: 'test prompt' },
     });
-    jest.spyOn(utils, 'taskid2Seed').mockReturnValue(12345);
-    jest.spyOn(utils, 'expretry').mockImplementation(async (name: string, fn: () => any) => {
+    vi.spyOn(utils, 'taskid2Seed').mockReturnValue(12345);
+    vi.spyOn(utils, 'expretry').mockImplementation(async (name: string, fn: () => any) => {
       return await fn();
     });
 
     // Mock IPFS
-    jest.spyOn(ipfs, 'pinFilesToIPFS').mockResolvedValue('QmTest123');
+    vi.spyOn(ipfs, 'pinFilesToIPFS').mockResolvedValue('QmTest123');
 
     // Mock fs
     mockFs.writeFileSync.mockImplementation(() => {});
@@ -232,7 +233,7 @@ describe('ModelHandler', () => {
     });
 
     it('should throw error on input validation failure', async () => {
-      jest.spyOn(utils, 'hydrateInput').mockReturnValueOnce({
+      vi.spyOn(utils, 'hydrateInput').mockReturnValueOnce({
         err: true,
         errmsg: 'Missing required field: prompt',
         input: {},
@@ -275,7 +276,7 @@ describe('ModelHandler', () => {
         data: Buffer.from('image data'),
       } as any);
 
-      jest.spyOn(ipfs, 'pinFilesToIPFS').mockResolvedValueOnce(null as any);
+      vi.spyOn(ipfs, 'pinFilesToIPFS').mockResolvedValueOnce(null as any);
 
       await expect(handler.getCid('0xtask123', { prompt: 'test' })).rejects.toThrow(
         'Failed to pin files to IPFS'
@@ -283,7 +284,7 @@ describe('ModelHandler', () => {
     });
 
     it('should throw error if getFiles fails', async () => {
-      jest.spyOn(utils, 'expretry').mockImplementationOnce(async () => null);
+      vi.spyOn(utils, 'expretry').mockImplementationOnce(async () => null);
 
       await expect(handler.getCid('0xtask123', { prompt: 'test' })).rejects.toThrow(
         'Failed to get files from model'

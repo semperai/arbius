@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, afterEach } from '@jest/globals';
+import { describe, expect, test, beforeEach, afterEach } from 'vitest';
 import { initializeLogger } from '../src/index.js';
 import * as fs from 'fs';
 import * as path from 'path';

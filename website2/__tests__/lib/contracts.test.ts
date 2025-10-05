@@ -8,24 +8,24 @@ import { usePublicClient, useWalletClient } from 'wagmi';
 import { getContract } from 'viem';
 
 // Mock wagmi hooks
-jest.mock('wagmi', () => ({
-  usePublicClient: jest.fn(),
-  useWalletClient: jest.fn(),
+vi.mock('wagmi', () => ({
+  usePublicClient: vi.fn(),
+  useWalletClient: vi.fn(),
 }));
 
 // Mock viem
-jest.mock('viem', () => ({
-  getContract: jest.fn(),
+vi.mock('viem', () => ({
+  getContract: vi.fn(),
   arbitrum: { id: 42161 },
 }));
 
 // Mock viem/chains
-jest.mock('viem/chains', () => ({
+vi.mock('viem/chains', () => ({
   arbitrum: { id: 42161 },
 }));
 
 // Mock arbius config
-jest.mock('@/config/arbius', () => ({
+vi.mock('@/config/arbius', () => ({
   ARBIUS_CONFIG: {
     42161: {
       baseTokenAddress: '0xMockBaseToken' as any,
@@ -37,9 +37,9 @@ jest.mock('@/config/arbius', () => ({
   },
 }));
 
-const mockUsePublicClient = usePublicClient as jest.MockedFunction<typeof usePublicClient>;
-const mockUseWalletClient = useWalletClient as jest.MockedFunction<typeof useWalletClient>;
-const mockGetContract = getContract as jest.MockedFunction<typeof getContract>;
+const mockUsePublicClient = usePublicClient as vi.MockedFunction<typeof usePublicClient>;
+const mockUseWalletClient = useWalletClient as vi.MockedFunction<typeof useWalletClient>;
+const mockGetContract = getContract as vi.MockedFunction<typeof getContract>;
 
 describe('contracts', () => {
   describe('contracts export', () => {
@@ -103,7 +103,7 @@ describe('contracts', () => {
     const mockContractInstance = { address: mockAddress, abi: mockAbi };
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should return null when publicClient is not available', () => {

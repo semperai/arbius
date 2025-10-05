@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { ethers } from 'ethers';
 
 /**

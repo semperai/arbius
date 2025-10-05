@@ -2,23 +2,23 @@ import { renderHook } from '@testing-library/react';
 import { useContractWriteHook } from '@/hooks/useContractWrite';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 
-jest.mock('wagmi', () => ({
-  useWriteContract: jest.fn(),
-  useWaitForTransactionReceipt: jest.fn(),
+vi.mock('wagmi', () => ({
+  useWriteContract: vi.fn(),
+  useWaitForTransactionReceipt: vi.fn(),
 }));
 
-const mockUseWriteContract = useWriteContract as jest.MockedFunction<typeof useWriteContract>;
-const mockUseWaitForTransactionReceipt = useWaitForTransactionReceipt as jest.MockedFunction<
+const mockUseWriteContract = useWriteContract as vi.MockedFunction<typeof useWriteContract>;
+const mockUseWaitForTransactionReceipt = useWaitForTransactionReceipt as vi.MockedFunction<
   typeof useWaitForTransactionReceipt
 >;
 
 describe('useContractWriteHook', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return write function and default states', () => {
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     mockUseWriteContract.mockReturnValue({
       data: undefined,
@@ -44,7 +44,7 @@ describe('useContractWriteHook', () => {
 
   it('should return hash when transaction is submitted', () => {
     const mockHash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     mockUseWriteContract.mockReturnValue({
       data: mockHash,
@@ -64,7 +64,7 @@ describe('useContractWriteHook', () => {
   });
 
   it('should show pending state during write', () => {
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     mockUseWriteContract.mockReturnValue({
       data: undefined,
@@ -85,7 +85,7 @@ describe('useContractWriteHook', () => {
 
   it('should show confirming state while waiting for receipt', () => {
     const mockHash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     mockUseWriteContract.mockReturnValue({
       data: mockHash,
@@ -107,7 +107,7 @@ describe('useContractWriteHook', () => {
 
   it('should show success state when transaction is confirmed', () => {
     const mockHash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     mockUseWriteContract.mockReturnValue({
       data: mockHash,
@@ -129,7 +129,7 @@ describe('useContractWriteHook', () => {
 
   it('should return error when write fails', () => {
     const mockError = new Error('Transaction failed');
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     mockUseWriteContract.mockReturnValue({
       data: undefined,
@@ -150,7 +150,7 @@ describe('useContractWriteHook', () => {
 
   it('should pass hash to useWaitForTransactionReceipt', () => {
     const mockHash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     mockUseWriteContract.mockReturnValue({
       data: mockHash,
@@ -173,7 +173,7 @@ describe('useContractWriteHook', () => {
 
   it('should handle transition from pending to confirming to success', () => {
     const mockHash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
-    const mockWriteContract = jest.fn();
+    const mockWriteContract = vi.fn();
 
     // Initial state - pending
     mockUseWriteContract.mockReturnValue({

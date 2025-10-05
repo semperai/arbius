@@ -59,7 +59,7 @@ describe('localStorage Edge Cases', () => {
       const originalSetItem = Storage.prototype.setItem;
 
       // Mock setItem to throw
-      Storage.prototype.setItem = jest.fn(() => {
+      Storage.prototype.setItem = vi.fn(() => {
         throw new DOMException('QuotaExceededError');
       });
 
@@ -81,11 +81,11 @@ describe('localStorage Edge Cases', () => {
 
       const mockStorage: Storage = {
         length: 0,
-        clear: jest.fn(),
-        getItem: jest.fn(() => null), // Always null!
-        key: jest.fn(() => null),
-        removeItem: jest.fn(),
-        setItem: jest.fn(), // Succeeds but doesn't persist
+        clear: vi.fn(),
+        getItem: vi.fn(() => null), // Always null!
+        key: vi.fn(() => null),
+        removeItem: vi.fn(),
+        setItem: vi.fn(), // Succeeds but doesn't persist
       };
 
       // This means:
@@ -108,13 +108,13 @@ describe('localStorage Edge Cases', () => {
 
       // Simulate cache being set
       const cache = { test: 'data' };
-      Storage.prototype.setItem = jest.fn();
-      Storage.prototype.getItem = jest.fn(() => JSON.stringify(cache));
+      Storage.prototype.setItem = vi.fn();
+      Storage.prototype.getItem = vi.fn(() => JSON.stringify(cache));
 
       // ... app runs, stores reference ...
 
       // Then localStorage cleared
-      Storage.prototype.getItem = jest.fn(() => null);
+      Storage.prototype.getItem = vi.fn(() => null);
 
       // Next getItem returns null but app might expect data
       expect(Storage.prototype.getItem('test')).toBeNull();
@@ -130,7 +130,7 @@ describe('localStorage Edge Cases', () => {
       const originalGetItem = Storage.prototype.getItem;
 
       // Simulate corrupted data
-      Storage.prototype.getItem = jest.fn(() => '{invalid json');
+      Storage.prototype.getItem = vi.fn(() => '{invalid json');
 
       // Code should handle JSON.parse throwing
       expect(() => {

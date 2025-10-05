@@ -3,16 +3,16 @@ import { useTokenStats } from '@/hooks/useTokenStats';
 
 describe('useTokenStats', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    global.fetch = jest.fn();
+    vi.clearAllMocks();
+    global.fetch = vi.fn();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should return initial loading state', () => {
-    (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    (global.fetch as vi.Mock).mockImplementation(() => new Promise(() => {}));
 
     const { result } = renderHook(() => useTokenStats());
 
@@ -36,7 +36,7 @@ describe('useTokenStats', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockData,
     });
@@ -57,7 +57,7 @@ describe('useTokenStats', () => {
   });
 
   it('should call CoinGecko API with correct parameters', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ market_data: {} }),
     });
@@ -77,9 +77,9 @@ describe('useTokenStats', () => {
   });
 
   it('should handle API errors', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: false,
       status: 500,
     });
@@ -98,10 +98,10 @@ describe('useTokenStats', () => {
   });
 
   it('should handle network errors', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
     const networkError = new Error('Network error');
 
-    (global.fetch as jest.Mock).mockRejectedValue(networkError);
+    (global.fetch as vi.Mock).mockRejectedValue(networkError);
 
     const { result } = renderHook(() => useTokenStats());
 
@@ -116,9 +116,9 @@ describe('useTokenStats', () => {
   });
 
   it('should handle non-Error exceptions', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
-    (global.fetch as jest.Mock).mockRejectedValue('String error');
+    (global.fetch as vi.Mock).mockRejectedValue('String error');
 
     const { result } = renderHook(() => useTokenStats());
 
@@ -132,7 +132,7 @@ describe('useTokenStats', () => {
   });
 
   it('should handle missing market data gracefully', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({}), // No market_data field
     });
@@ -160,7 +160,7 @@ describe('useTokenStats', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockData,
     });
@@ -179,7 +179,7 @@ describe('useTokenStats', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockData,
     });
@@ -198,7 +198,7 @@ describe('useTokenStats', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockData,
     });
@@ -211,7 +211,7 @@ describe('useTokenStats', () => {
   });
 
   it('should refresh data every 60 seconds', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const mockData = {
       market_data: {
@@ -222,7 +222,7 @@ describe('useTokenStats', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockData,
     });
@@ -244,13 +244,13 @@ describe('useTokenStats', () => {
       expect(global.fetch).toHaveBeenCalledTimes(3);
     });
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should cleanup interval on unmount', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ market_data: {} }),
     });
@@ -267,7 +267,7 @@ describe('useTokenStats', () => {
     // Should not call fetch again after unmount
     expect(global.fetch).toHaveBeenCalledTimes(1);
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should handle partial market data', async () => {
@@ -278,7 +278,7 @@ describe('useTokenStats', () => {
       },
     };
 
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as vi.Mock).mockResolvedValue({
       ok: true,
       json: async () => mockData,
     });

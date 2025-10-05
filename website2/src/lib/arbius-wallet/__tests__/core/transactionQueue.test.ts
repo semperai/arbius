@@ -1,9 +1,9 @@
 import { setupTransactionQueue } from '../../core/transactionQueue';
 
 // Mock broadcastChannel to avoid errors
-jest.mock('../../utils/broadcastChannel', () => ({
-  broadcastTxUpdate: jest.fn(),
-  setupBroadcastChannelListener: jest.fn(),
+vi.mock('../../utils/broadcastChannel', () => ({
+  broadcastTxUpdate: vi.fn(),
+  setupBroadcastChannelListener: vi.fn(),
 }));
 
 describe('transactionQueue', () => {

@@ -8,10 +8,10 @@ import { toast } from 'sonner';
 import { AAWalletConfig } from '../../types';
 
 // Mock dependencies
-jest.mock('sonner');
-jest.mock('../../core/configValidator');
-jest.mock('../../core/transactionQueue');
-jest.mock('../../utils/nonceCleanup');
+vi.mock('sonner');
+vi.mock('../../core/configValidator');
+vi.mock('../../core/transactionQueue');
+vi.mock('../../utils/nonceCleanup');
 
 describe('Error Toast Notifications', () => {
   const mockConfig: AAWalletConfig = {
@@ -21,12 +21,12 @@ describe('Error Toast Notifications', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Mock toast functions
-    (toast.error as jest.Mock).mockImplementation(() => {});
-    (toast.success as jest.Mock).mockImplementation(() => {});
-    (toast.info as jest.Mock).mockImplementation(() => {});
+    (toast.error as vi.Mock).mockImplementation(() => {});
+    (toast.success as vi.Mock).mockImplementation(() => {});
+    (toast.info as vi.Mock).mockImplementation(() => {});
   });
 
   describe('Initialization errors', () => {
@@ -48,7 +48,7 @@ describe('Error Toast Notifications', () => {
 
     it('should show toast when initialization fails', () => {
       const validateConfig = require('../../core/configValidator').validateConfig;
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Invalid configuration');
       });
 
@@ -63,9 +63,9 @@ describe('Error Toast Notifications', () => {
     it('should show success toast when initialization succeeds', () => {
       // Mock ethereum and ensure it's initialized first
       const mockEthereum = {
-        request: jest.fn(),
-        on: jest.fn(),
-        removeListener: jest.fn(),
+        request: vi.fn(),
+        on: vi.fn(),
+        removeListener: vi.fn(),
       };
 
       Object.defineProperty(global, 'window', {
@@ -78,7 +78,7 @@ describe('Error Toast Notifications', () => {
 
       // Need to mock validateConfig to not throw
       const validateConfig = require('../../core/configValidator').validateConfig;
-      (validateConfig as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
 
       const result = init(mockConfig);
 
@@ -94,7 +94,7 @@ describe('Error Toast Notifications', () => {
       Object.defineProperty(global, 'window', {
         value: {
           ethereum: {
-            request: jest.fn(),
+            request: vi.fn(),
           },
         },
         writable: true,
@@ -159,7 +159,7 @@ describe('Error Toast Notifications', () => {
 
     it('should extract error messages properly', () => {
       const validateConfig = require('../../core/configValidator').validateConfig;
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Test error message');
       });
 
@@ -172,7 +172,7 @@ describe('Error Toast Notifications', () => {
 
     it('should handle unknown errors', () => {
       const validateConfig = require('../../core/configValidator').validateConfig;
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw 'String error'; // Non-Error object
       });
 
@@ -186,7 +186,7 @@ describe('Error Toast Notifications', () => {
     it('should allow retry after initialization failure', () => {
       // Mock validateConfig to not throw
       const validateConfig = require('../../core/configValidator').validateConfig;
-      (validateConfig as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
 
       // First attempt fails (no ethereum)
       Object.defineProperty(global, 'window', {
@@ -202,9 +202,9 @@ describe('Error Toast Notifications', () => {
       Object.defineProperty(global, 'window', {
         value: {
           ethereum: {
-            request: jest.fn(),
-            on: jest.fn(),
-            removeListener: jest.fn(),
+            request: vi.fn(),
+            on: vi.fn(),
+            removeListener: vi.fn(),
           },
         },
         writable: true,

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   taskid2Seed,
   generateCommitment,
@@ -11,18 +11,18 @@ import {
 import { ethers } from 'ethers';
 
 // Mock logger
-jest.mock('../src/log', () => ({
+vi.mock('../src/log', () => ({
   log: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 
 describe('Utils', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   describe('taskid2Seed', () => {
     it('should convert taskid to seed within safe range', () => {
@@ -86,7 +86,7 @@ describe('Utils', () => {
 
   describe('expretry', () => {
     it('should return result on first success', async () => {
-      const fn = jest.fn<() => Promise<string>>().mockResolvedValue('success');
+      const fn = vi.fn<() => Promise<string>>().mockResolvedValue('success');
       const result = await expretry('test', fn as any);
 
       expect(result).toBe('success');
@@ -94,7 +94,7 @@ describe('Utils', () => {
     });
 
     it('should retry on failure and eventually succeed', async () => {
-      const fn = jest.fn<() => Promise<string>>()
+      const fn = vi.fn<() => Promise<string>>()
         .mockRejectedValueOnce(new Error('fail 1'))
         .mockRejectedValueOnce(new Error('fail 2'))
         .mockResolvedValueOnce('success');
@@ -106,7 +106,7 @@ describe('Utils', () => {
     });
 
     it('should return null after all retries fail', async () => {
-      const fn = jest.fn<() => Promise<string>>().mockRejectedValue(new Error('fail'));
+      const fn = vi.fn<() => Promise<string>>().mockRejectedValue(new Error('fail'));
 
       const result = await expretry('test', fn as any, 3, 1.1);
 
@@ -115,7 +115,7 @@ describe('Utils', () => {
     });
 
     it('should use exponential backoff', async () => {
-      const fn = jest.fn<() => Promise<string>>()
+      const fn = vi.fn<() => Promise<string>>()
         .mockRejectedValueOnce(new Error('fail'))
         .mockResolvedValueOnce('success');
 

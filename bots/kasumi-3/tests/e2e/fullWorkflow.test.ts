@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ethers } from 'ethers';
 
 /**
@@ -18,14 +18,14 @@ describe('E2E: Full Task Workflow', () => {
   beforeEach(() => {
     // Mock blockchain service
     mockBlockchain = {
-      getWalletAddress: jest.fn(),
-      getBalance: jest.fn(),
-      getEthBalance: jest.fn(),
-      getValidatorStake: jest.fn(),
-      getValidatorMinimum: jest.fn(),
-      submitTask: jest.fn(),
-      submitSolution: jest.fn(),
-      findTransactionByTaskId: jest.fn(),
+      getWalletAddress: vi.fn(),
+      getBalance: vi.fn(),
+      getEthBalance: vi.fn(),
+      getValidatorStake: vi.fn(),
+      getValidatorMinimum: vi.fn(),
+      submitTask: vi.fn(),
+      submitSolution: vi.fn(),
+      findTransactionByTaskId: vi.fn(),
     } as any;
 
     mockBlockchain.getWalletAddress.mockReturnValue('0x1234567890123456789012345678901234567890');
@@ -48,14 +48,14 @@ describe('E2E: Full Task Workflow', () => {
     };
 
     mockModelRegistry = {
-      getModelByName: jest.fn().mockReturnValue(modelConfig),
-      getModelById: jest.fn().mockReturnValue(modelConfig),
-      getAllModels: jest.fn().mockReturnValue([modelConfig]),
+      getModelByName: vi.fn().mockReturnValue(modelConfig),
+      getModelById: vi.fn().mockReturnValue(modelConfig),
+      getAllModels: vi.fn().mockReturnValue([modelConfig]),
     } as any;
 
     // Mock model handler
     mockModelHandler = {
-      processTask: jest.fn(),
+      processTask: vi.fn(),
     } as any;
 
     mockModelHandler.processTask.mockResolvedValue({
@@ -64,12 +64,12 @@ describe('E2E: Full Task Workflow', () => {
 
     // Mock job queue
     mockJobQueue = {
-      addJob: jest.fn(),
-      updateJobStatus: jest.fn(),
-      getJobByTaskId: jest.fn(),
-      getQueueStats: jest.fn(),
-      on: jest.fn(),
-      off: jest.fn(),
+      addJob: vi.fn(),
+      updateJobStatus: vi.fn(),
+      getJobByTaskId: vi.fn(),
+      getQueueStats: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
     } as any;
 
     mockJobQueue.addJob.mockImplementation((job: any) => {
@@ -90,7 +90,7 @@ describe('E2E: Full Task Workflow', () => {
 
     // Mock task processor
     mockTaskProcessor = {
-      submitAndProcess: jest.fn().mockImplementation(async (modelConfig: any, input: any, telegramId: any) => {
+      submitAndProcess: vi.fn().mockImplementation(async (modelConfig: any, input: any, telegramId: any) => {
         const taskId = await mockBlockchain.submitTask(modelConfig.id, ethers.parseEther('1'), input);
         const job = await mockJobQueue.addJob({
           taskid: taskId,

@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
@@ -41,17 +41,17 @@
     "@tailwindcss/postcss": "^4.1.14",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
-    "@types/jest": "^30.0.0",
     "@types/node": "^20.19.19",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.37.0",
     "eslint-config-next": "15.2.4",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^27.0.0",
     "tailwindcss": "^4",
-    "ts-jest": "^29.4.4",
     "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
     "wait-on": "^8.0.5"
   }
 }

@@ -1,10 +1,11 @@
+import { vi } from 'vitest';
 // Unmock the log module since setup.ts mocks it globally
-jest.unmock('../../src/log');
+vi.unmock('../../src/log');
 
-const mockAppendFileSync = jest.fn();
+const mockAppendFileSync = vi.fn();
 
-jest.mock('fs', () => {
-  const actualFs = jest.requireActual<typeof import('fs')>('fs');
+vi.mock('fs', async () => {
+  const actualFs = await vi.importActual<typeof import('fs')>('fs');
   return {
     ...actualFs,
     appendFileSync: mockAppendFileSync,
@@ -15,7 +16,7 @@ import { initializeLogger, log } from '../../src/log';
 
 describe('log', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should initialize logger with null path and default minLevel', () => {
@@ -40,7 +41,7 @@ describe('log', () => {
 
   it('should create log entries with all properties', () => {
     initializeLogger('/tmp/test2.log', 0);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Test logging with multiple arguments (tests the loop in transport)
     log.info('arg0', 'arg1', 'arg2');
@@ -53,7 +54,7 @@ describe('log', () => {
 
   it('should handle missing path metadata in log entry', () => {
     initializeLogger('/tmp/test3.log', 0);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     log.warn('warning message');
 
@@ -74,7 +75,7 @@ describe('log', () => {
   it('should test all branches in transport function', () => {
     const testPath = '/tmp/branch-test.log';
     initializeLogger(testPath, 0);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Test with arguments at different indices (0-9)
     log.info('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
@@ -90,7 +91,7 @@ describe('log', () => {
 
   it('should call transport when logging with file path set', () => {
     initializeLogger('/tmp/test4.log', 0);
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     log.error('error occurred');
     log.debug('debug info');

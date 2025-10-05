@@ -16,14 +16,14 @@ describe('nonceCleanup', () => {
 
     Object.defineProperty(global, 'localStorage', {
       value: {
-        getItem: jest.fn((key: string) => storage[key] || null),
-        setItem: jest.fn((key: string, value: string) => {
+        getItem: vi.fn((key: string) => storage[key] || null),
+        setItem: vi.fn((key: string, value: string) => {
           storage[key] = value;
         }),
-        removeItem: jest.fn((key: string) => {
+        removeItem: vi.fn((key: string) => {
           delete storage[key];
         }),
-        clear: jest.fn(() => {
+        clear: vi.fn(() => {
           for (const key in storage) {
             delete storage[key];
           }
@@ -31,7 +31,7 @@ describe('nonceCleanup', () => {
         get length() {
           return Object.keys(storage).length;
         },
-        key: jest.fn((index: number) => Object.keys(storage)[index] || null),
+        key: vi.fn((index: number) => Object.keys(storage)[index] || null),
       },
       writable: true,
       configurable: true,
@@ -104,7 +104,7 @@ describe('nonceCleanup', () => {
       Object.defineProperty(global, 'localStorage', {
         value: {
           ...global.localStorage,
-          key: jest.fn(() => {
+          key: vi.fn(() => {
             throw new Error('Storage error');
           }),
         },

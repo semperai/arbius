@@ -2,17 +2,17 @@ import { renderHook } from '@testing-library/react';
 import { useTokenBalance } from '@/hooks/useTokenBalance';
 import { formatUnits } from 'viem';
 
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(),
-  useReadContract: jest.fn(),
-  useChainId: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(),
+  useReadContract: vi.fn(),
+  useChainId: vi.fn(),
 }));
 
-jest.mock('viem', () => ({
-  formatUnits: jest.fn(),
+vi.mock('viem', () => ({
+  formatUnits: vi.fn(),
 }));
 
-jest.mock('@/config/arbius', () => ({
+vi.mock('@/config/arbius', () => ({
   ARBIUS_CONFIG: {
     42161: {
       baseTokenAddress: '0x123456789' as `0x${string}`,
@@ -25,16 +25,16 @@ jest.mock('@/config/arbius', () => ({
 
 import { useAccount, useReadContract, useChainId } from 'wagmi';
 
-const mockUseAccount = useAccount as jest.MockedFunction<typeof useAccount>;
-const mockUseReadContract = useReadContract as jest.MockedFunction<typeof useReadContract>;
-const mockUseChainId = useChainId as jest.MockedFunction<typeof useChainId>;
-const mockFormatUnits = formatUnits as jest.MockedFunction<typeof formatUnits>;
+const mockUseAccount = useAccount as vi.MockedFunction<typeof useAccount>;
+const mockUseReadContract = useReadContract as vi.MockedFunction<typeof useReadContract>;
+const mockUseChainId = useChainId as vi.MockedFunction<typeof useChainId>;
+const mockFormatUnits = formatUnits as vi.MockedFunction<typeof formatUnits>;
 
 describe('useTokenBalance', () => {
   const mockAddress = '0x1234567890123456789012345678901234567890' as `0x${string}`;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockFormatUnits.mockImplementation((value: bigint) => (Number(value) / 1e18).toString());
   });
 
@@ -45,7 +45,7 @@ describe('useTokenBalance', () => {
       data: undefined,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     const { result } = renderHook(() => useTokenBalance());
@@ -63,7 +63,7 @@ describe('useTokenBalance', () => {
       data: mockBalance,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     const { result } = renderHook(() => useTokenBalance());
@@ -79,7 +79,7 @@ describe('useTokenBalance', () => {
       data: undefined,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     renderHook(() => useTokenBalance());
@@ -100,7 +100,7 @@ describe('useTokenBalance', () => {
       data: undefined,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     renderHook(() => useTokenBalance());
@@ -120,7 +120,7 @@ describe('useTokenBalance', () => {
       data: undefined,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     renderHook(() => useTokenBalance());
@@ -139,7 +139,7 @@ describe('useTokenBalance', () => {
       data: undefined,
       isLoading: true,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     const { result } = renderHook(() => useTokenBalance());
@@ -155,7 +155,7 @@ describe('useTokenBalance', () => {
       data: undefined,
       isLoading: false,
       error: mockError,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     const { result } = renderHook(() => useTokenBalance());
@@ -164,7 +164,7 @@ describe('useTokenBalance', () => {
   });
 
   it('should provide refetch function', () => {
-    const mockRefetch = jest.fn();
+    const mockRefetch = vi.fn();
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseChainId.mockReturnValue(42161);
     mockUseReadContract.mockReturnValue({
@@ -186,7 +186,7 @@ describe('useTokenBalance', () => {
       data: undefined,
       isLoading: false,
       error: null,
-      refetch: jest.fn(),
+      refetch: vi.fn(),
     } as any);
 
     renderHook(() => useTokenBalance());

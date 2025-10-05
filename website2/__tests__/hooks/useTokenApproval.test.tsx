@@ -4,17 +4,17 @@ import { useAccount, useReadContract, useChainId } from 'wagmi';
 import { useContractWriteHook } from '@/hooks/useContractWrite';
 import { parseUnits } from 'viem';
 
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(),
-  useReadContract: jest.fn(),
-  useChainId: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(),
+  useReadContract: vi.fn(),
+  useChainId: vi.fn(),
 }));
 
-jest.mock('@/hooks/useContractWrite', () => ({
-  useContractWriteHook: jest.fn(),
+vi.mock('@/hooks/useContractWrite', () => ({
+  useContractWriteHook: vi.fn(),
 }));
 
-jest.mock('@/config/arbius', () => ({
+vi.mock('@/config/arbius', () => ({
   ARBIUS_CONFIG: {
     42161: {
       baseTokenAddress: '0x1234567890123456789012345678901234567890',
@@ -25,19 +25,19 @@ jest.mock('@/config/arbius', () => ({
   },
 }));
 
-const mockUseAccount = useAccount as jest.MockedFunction<typeof useAccount>;
-const mockUseReadContract = useReadContract as jest.MockedFunction<typeof useReadContract>;
-const mockUseChainId = useChainId as jest.MockedFunction<typeof useChainId>;
-const mockUseContractWriteHook = useContractWriteHook as jest.MockedFunction<typeof useContractWriteHook>;
+const mockUseAccount = useAccount as vi.MockedFunction<typeof useAccount>;
+const mockUseReadContract = useReadContract as vi.MockedFunction<typeof useReadContract>;
+const mockUseChainId = useChainId as vi.MockedFunction<typeof useChainId>;
+const mockUseContractWriteHook = useContractWriteHook as vi.MockedFunction<typeof useContractWriteHook>;
 
 describe('useTokenApproval', () => {
   const mockSpenderAddress = '0x9876543210987654321098765432109876543210' as const;
   const mockUserAddress = '0x1111111111111111111111111111111111111111' as const;
-  const mockWriteContract = jest.fn();
-  const mockRefetch = jest.fn();
+  const mockWriteContract = vi.fn();
+  const mockRefetch = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAccount.mockReturnValue({
       address: mockUserAddress,

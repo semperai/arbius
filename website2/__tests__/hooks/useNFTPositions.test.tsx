@@ -2,14 +2,14 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { useNFTPositions } from '@/hooks/useNFTPositions';
 import { useAccount, useReadContract, useChainId, usePublicClient } from 'wagmi';
 
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(),
-  useReadContract: jest.fn(),
-  useChainId: jest.fn(),
-  usePublicClient: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(),
+  useReadContract: vi.fn(),
+  useChainId: vi.fn(),
+  usePublicClient: vi.fn(),
 }));
 
-jest.mock('@/config/arbius', () => ({
+vi.mock('@/config/arbius', () => ({
   ARBIUS_CONFIG: {
     42161: {
       veAIUSAddress: '0x1234567890123456789012345678901234567890',
@@ -17,18 +17,18 @@ jest.mock('@/config/arbius', () => ({
   },
 }));
 
-const mockUseAccount = useAccount as jest.MockedFunction<typeof useAccount>;
-const mockUseReadContract = useReadContract as jest.MockedFunction<typeof useReadContract>;
-const mockUseChainId = useChainId as jest.MockedFunction<typeof useChainId>;
-const mockUsePublicClient = usePublicClient as jest.MockedFunction<typeof usePublicClient>;
+const mockUseAccount = useAccount as vi.MockedFunction<typeof useAccount>;
+const mockUseReadContract = useReadContract as vi.MockedFunction<typeof useReadContract>;
+const mockUseChainId = useChainId as vi.MockedFunction<typeof useChainId>;
+const mockUsePublicClient = usePublicClient as vi.MockedFunction<typeof usePublicClient>;
 
 describe('useNFTPositions', () => {
   const mockUserAddress = '0x1111111111111111111111111111111111111111';
-  const mockRefetch = jest.fn();
-  const mockMulticall = jest.fn();
+  const mockRefetch = vi.fn();
+  const mockMulticall = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAccount.mockReturnValue({
       address: mockUserAddress,

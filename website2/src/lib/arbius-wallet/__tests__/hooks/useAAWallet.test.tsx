@@ -5,18 +5,18 @@ import { AAWalletContext } from '../../components/AAWalletProvider';
 import { type PrivateKeyAccount } from 'viem';
 import React from 'react';
 
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(),
-  useWalletClient: jest.fn(),
-  usePublicClient: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(),
+  useWalletClient: vi.fn(),
+  usePublicClient: vi.fn(),
 }));
-jest.mock('../../utils/viemWalletUtils');
+vi.mock('../../utils/viemWalletUtils');
 
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 
-const mockUseAccount = useAccount as jest.MockedFunction<typeof useAccount>;
-const mockUseWalletClient = useWalletClient as jest.MockedFunction<typeof useWalletClient>;
-const mockUsePublicClient = usePublicClient as jest.MockedFunction<typeof usePublicClient>;
+const mockUseAccount = useAccount as vi.MockedFunction<typeof useAccount>;
+const mockUseWalletClient = useWalletClient as vi.MockedFunction<typeof useWalletClient>;
+const mockUsePublicClient = usePublicClient as vi.MockedFunction<typeof usePublicClient>;
 
 describe('useAAWallet', () => {
   const mockAddress = '0x1234567890123456789012345678901234567890' as `0x${string}`;
@@ -24,18 +24,18 @@ describe('useAAWallet', () => {
   const mockSignature = '0xsignature' as `0x${string}`;
 
   const mockWalletClient = {
-    signMessage: jest.fn().mockResolvedValue(mockSignature),
+    signMessage: vi.fn().mockResolvedValue(mockSignature),
   };
 
   const mockPublicClient = {
-    estimateGas: jest.fn().mockResolvedValue(BigInt(21000)),
+    estimateGas: vi.fn().mockResolvedValue(BigInt(21000)),
   };
 
   const mockDerivedAccount: PrivateKeyAccount = {
     address: mockSmartAccountAddress,
-    signMessage: jest.fn().mockResolvedValue(mockSignature),
-    signTransaction: jest.fn(),
-    signTypedData: jest.fn(),
+    signMessage: vi.fn().mockResolvedValue(mockSignature),
+    signTransaction: vi.fn(),
+    signTypedData: vi.fn(),
     source: 'privateKey',
     type: 'local',
   } as any;
@@ -44,8 +44,8 @@ describe('useAAWallet', () => {
     isConnected: false,
     address: null,
     chainId: null,
-    connect: jest.fn(),
-    disconnect: jest.fn(),
+    connect: vi.fn(),
+    disconnect: vi.fn(),
   };
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -55,7 +55,7 @@ describe('useAAWallet', () => {
   );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseAccount.mockReturnValue({ address: undefined } as any);
     mockUseWalletClient.mockReturnValue({ data: undefined } as any);
     mockUsePublicClient.mockReturnValue(undefined as any);
@@ -71,8 +71,8 @@ describe('useAAWallet', () => {
   });
 
   it('should initialize wallet when connected', async () => {
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(null);
-    jest.spyOn(viemWalletUtils, 'initDeterministicWallet').mockResolvedValue(mockDerivedAccount);
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(null);
+    vi.spyOn(viemWalletUtils, 'initDeterministicWallet').mockResolvedValue(mockDerivedAccount);
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);
@@ -92,9 +92,9 @@ describe('useAAWallet', () => {
   });
 
   it('should use cached wallet if available', async () => {
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
-    jest.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
-    const initSpy = jest.spyOn(viemWalletUtils, 'initDeterministicWallet');
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
+    vi.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
+    const initSpy = vi.spyOn(viemWalletUtils, 'initDeterministicWallet');
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);
@@ -111,8 +111,8 @@ describe('useAAWallet', () => {
 
   it('should handle initialization errors', async () => {
     const errorMessage = 'Failed to initialize';
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(null);
-    jest.spyOn(viemWalletUtils, 'initDeterministicWallet').mockRejectedValue(new Error(errorMessage));
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(null);
+    vi.spyOn(viemWalletUtils, 'initDeterministicWallet').mockRejectedValue(new Error(errorMessage));
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);
@@ -126,8 +126,8 @@ describe('useAAWallet', () => {
   });
 
   it('should sign message with AA wallet', async () => {
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
-    jest.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
+    vi.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);
@@ -153,14 +153,14 @@ describe('useAAWallet', () => {
   });
 
   it('should handle signing errors gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
     const mockFailingAccount = {
       ...mockDerivedAccount,
-      signMessage: jest.fn().mockRejectedValue(new Error('Signing failed')),
+      signMessage: vi.fn().mockRejectedValue(new Error('Signing failed')),
     };
 
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
-    jest.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockFailingAccount);
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
+    vi.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockFailingAccount);
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);
@@ -180,8 +180,8 @@ describe('useAAWallet', () => {
   });
 
   it('should estimate gas successfully', async () => {
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
-    jest.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
+    vi.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);
@@ -220,13 +220,13 @@ describe('useAAWallet', () => {
   });
 
   it('should handle gas estimation errors gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
     const mockFailingPublicClient = {
-      estimateGas: jest.fn().mockRejectedValue(new Error('Gas estimation failed')),
+      estimateGas: vi.fn().mockRejectedValue(new Error('Gas estimation failed')),
     };
 
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
-    jest.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(mockSmartAccountAddress);
+    vi.spyOn(viemWalletUtils, 'getCachedWallet').mockReturnValue(mockDerivedAccount);
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);
@@ -250,8 +250,8 @@ describe('useAAWallet', () => {
   });
 
   it('should not reinitialize for the same address', async () => {
-    jest.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(null);
-    const initSpy = jest.spyOn(viemWalletUtils, 'initDeterministicWallet').mockResolvedValue(mockDerivedAccount);
+    vi.spyOn(viemWalletUtils, 'getCachedWalletAddress').mockReturnValue(null);
+    const initSpy = vi.spyOn(viemWalletUtils, 'initDeterministicWallet').mockResolvedValue(mockDerivedAccount);
 
     mockUseAccount.mockReturnValue({ address: mockAddress } as any);
     mockUseWalletClient.mockReturnValue({ data: mockWalletClient } as any);

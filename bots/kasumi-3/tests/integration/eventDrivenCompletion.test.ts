@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { JobQueue } from '../../src/services/JobQueue';
 import { TaskJob } from '../../src/types';
 
@@ -103,7 +103,7 @@ describe('Event-Driven Job Completion Integration', () => {
   });
 
   it('should clean up listeners to prevent memory leaks', async () => {
-    const listener = jest.fn();
+    const listener = vi.fn();
 
     jobQueue.on('jobCompleted', listener);
 

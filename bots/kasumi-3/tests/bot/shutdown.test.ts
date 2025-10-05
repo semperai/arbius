@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('Bot Shutdown', () => {
   let mockJobQueue: any;
@@ -7,17 +7,17 @@ describe('Bot Shutdown', () => {
 
   beforeEach(() => {
     mockJobQueue = {
-      shutdown: jest.fn(),
-      getQueueStats: jest.fn(() => ({ total: 0, pending: 0, processing: 0, completed: 0, failed: 0 })),
-      clearOldJobs: jest.fn(),
-      on: jest.fn(),
-      off: jest.fn(),
-      emit: jest.fn(),
+      shutdown: vi.fn(),
+      getQueueStats: vi.fn(() => ({ total: 0, pending: 0, processing: 0, completed: 0, failed: 0 })),
+      clearOldJobs: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
+      emit: vi.fn(),
     };
 
     mockRateLimiter = {
-      shutdown: jest.fn(),
-      checkLimit: jest.fn(() => true),
+      shutdown: vi.fn(),
+      checkLimit: vi.fn(() => true),
     };
   });
 
@@ -40,7 +40,7 @@ describe('Bot Shutdown', () => {
   });
 
   it('should clear cleanup interval on shutdown', async () => {
-    const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+    const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
     const interval = setInterval(() => {}, 1000);
 
     clearInterval(interval);

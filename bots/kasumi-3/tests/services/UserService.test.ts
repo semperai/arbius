@@ -1,5 +1,5 @@
 // Need real ethers for address validation
-jest.unmock('ethers');
+vi.unmock('ethers');
 
 import { UserService } from '../../src/services/UserService';
 import { DatabaseService } from '../../src/services/DatabaseService';
@@ -8,12 +8,12 @@ import * as path from 'path';
 import * as os from 'os';
 
 // Suppress log output in tests
-jest.mock('../../src/log', () => ({
+vi.mock('../../src/log', () => ({
   log: {
-    info: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    info: () => {},
+    debug: () => {},
+    warn: () => {},
+    error: () => {},
   },
 }));
 

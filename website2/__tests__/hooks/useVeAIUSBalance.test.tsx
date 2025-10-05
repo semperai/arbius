@@ -3,13 +3,13 @@ import { useVeAIUSBalance } from '@/hooks/useVeAIUSBalance';
 import { useAccount, useReadContract, useChainId } from 'wagmi';
 import { formatUnits } from 'viem';
 
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(),
-  useReadContract: jest.fn(),
-  useChainId: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(),
+  useReadContract: vi.fn(),
+  useChainId: vi.fn(),
 }));
 
-jest.mock('@/config/arbius', () => ({
+vi.mock('@/config/arbius', () => ({
   ARBIUS_CONFIG: {
     42161: {
       veAIUSAddress: '0x1234567890123456789012345678901234567890',
@@ -20,16 +20,16 @@ jest.mock('@/config/arbius', () => ({
   },
 }));
 
-const mockUseAccount = useAccount as jest.MockedFunction<typeof useAccount>;
-const mockUseReadContract = useReadContract as jest.MockedFunction<typeof useReadContract>;
-const mockUseChainId = useChainId as jest.MockedFunction<typeof useChainId>;
+const mockUseAccount = useAccount as vi.MockedFunction<typeof useAccount>;
+const mockUseReadContract = useReadContract as vi.MockedFunction<typeof useReadContract>;
+const mockUseChainId = useChainId as vi.MockedFunction<typeof useChainId>;
 
 describe('useVeAIUSBalance', () => {
   const mockUserAddress = '0x1111111111111111111111111111111111111111';
-  const mockRefetch = jest.fn();
+  const mockRefetch = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockUseAccount.mockReturnValue({
       address: mockUserAddress,

@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   watchTaskSubmitted,
   watchSolutionSubmitted,
@@ -17,16 +17,16 @@ const mockSender = '0x2222222222222222222222222222222222222222';
 const mockValidator = '0x3333333333333333333333333333333333333333';
 
 describe('arbius-tasks', () => {
-  let mockPublicClient: jest.Mocked<PublicClient>;
+  let mockPublicClient: vi.Mocked<PublicClient>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockPublicClient = {
-      getTransactionReceipt: jest.fn(),
-      getLogs: jest.fn(),
-      getBlockNumber: jest.fn(),
-      readContract: jest.fn(),
+      getTransactionReceipt: vi.fn(),
+      getLogs: vi.fn(),
+      getBlockNumber: vi.fn(),
+      readContract: vi.fn(),
     } as any;
   });
 
@@ -34,7 +34,7 @@ describe('arbius-tasks', () => {
     it('should extract TaskSubmitted event from transaction receipt', async () => {
       // Mock viem's decodeEventLog globally for this test
       const originalViem = jest.requireActual('viem');
-      jest.spyOn(originalViem, 'decodeEventLog').mockReturnValueOnce({
+      vi.spyOn(originalViem, 'decodeEventLog').mockReturnValueOnce({
         eventName: 'TaskSubmitted',
         args: {
           id: mockTaskId,
@@ -180,13 +180,13 @@ describe('arbius-tasks', () => {
 
   describe('fetchTaskFromIPFS', () => {
     beforeEach(() => {
-      global.fetch = jest.fn();
+      global.fetch = vi.fn();
     });
 
     it('should fetch and parse JSON from IPFS', async () => {
       const mockResult = { output: 'test result', cid: 'QmTest' };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as vi.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResult,
       });
@@ -195,7 +195,7 @@ describe('arbius-tasks', () => {
 
       expect(result).toEqual(mockResult);
       expect(global.fetch).toHaveBeenCalled();
-      const fetchCall = (global.fetch as jest.Mock).mock.calls[0];
+      const fetchCall = (global.fetch as vi.Mock).mock.calls[0];
       expect(fetchCall[0]).toContain('/ipfs/QmTest123');
     });
 
@@ -204,7 +204,7 @@ describe('arbius-tasks', () => {
 
       // With parallel requests, all 4 gateways are called simultaneously
       // First 3 fail, 4th succeeds
-      (global.fetch as jest.Mock)
+      (global.fetch as vi.Mock)
         .mockRejectedValueOnce(new Error('Gateway 1 failed'))
         .mockRejectedValueOnce(new Error('Gateway 2 failed'))
         .mockRejectedValueOnce(new Error('Gateway 3 failed'))
@@ -220,7 +220,7 @@ describe('arbius-tasks', () => {
     });
 
     it('should throw when all gateways fail', async () => {
-      (global.fetch as jest.Mock)
+      (global.fetch as vi.Mock)
         .mockRejectedValueOnce(new Error('Gateway 1 failed'))
         .mockRejectedValueOnce(new Error('Gateway 2 failed'))
         .mockRejectedValueOnce(new Error('Gateway 3 failed'))
@@ -232,7 +232,7 @@ describe('arbius-tasks', () => {
 
     it('should handle network errors', async () => {
       // All gateways fail with network error
-      (global.fetch as jest.Mock).mockRejectedValue(
+      (global.fetch as vi.Mock).mockRejectedValue(
         new Error('Network error')
       );
 
@@ -313,7 +313,7 @@ describe('arbius-tasks', () => {
     ];
 
     beforeEach(() => {
-      global.fetch = jest.fn();
+      global.fetch = vi.fn();
     });
 
     it('should poll and return result when solution is found', async () => {
@@ -321,7 +321,7 @@ describe('arbius-tasks', () => {
       const mockResult = { output: 'AI response', cid: 'QmResult' };
 
       mockPublicClient.readContract.mockResolvedValueOnce({ cid: mockCid } as any);
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      (global.fetch as vi.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockResult,
       });

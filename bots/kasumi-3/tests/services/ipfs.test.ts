@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   fetchFromIPFS,
   initializeIpfsClient,
@@ -8,17 +9,17 @@ import axios from 'axios';
 import * as fs from 'fs';
 import { create } from 'ipfs-http-client';
 
-jest.mock('axios');
-jest.mock('fs');
-jest.mock('ipfs-http-client');
+vi.mock('axios');
+vi.mock('fs');
+vi.mock('ipfs-http-client');
 
-const mockAxios = axios as jest.Mocked<typeof axios>;
-const mockFs = fs as jest.Mocked<typeof fs>;
-const mockCreate = create as jest.Mock;
+const mockAxios = axios as vi.Mocked<typeof axios>;
+const mockFs = fs as vi.Mocked<typeof fs>;
+const mockCreate = create as vi.Mock;
 
 describe('ipfs', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('fetchFromIPFS', () => {
@@ -94,7 +95,7 @@ describe('ipfs', () => {
 
   describe('initializeIpfsClient', () => {
     it('should initialize IPFS client', () => {
-      const mockClient = { add: jest.fn(), addAll: jest.fn() };
+      const mockClient = { add: vi.fn(), addAll: vi.fn() };
       mockCreate.mockReturnValue(mockClient as any);
 
       const config = {
@@ -113,7 +114,7 @@ describe('ipfs', () => {
     });
 
     it('should not reinitialize if client already exists', () => {
-      const mockClient = { add: jest.fn(), addAll: jest.fn() };
+      const mockClient = { add: vi.fn(), addAll: vi.fn() };
       mockCreate.mockReturnValue(mockClient as any);
 
       const config = {
@@ -148,22 +149,22 @@ describe('ipfs', () => {
 
       it('should pin files using http_client successfully', async () => {
         // Reset modules to ensure clean client state
-        jest.resetModules();
+        vi.resetModules();
         const { pinFilesToIPFS } = require('../../src/ipfs');
         const { create } = require('ipfs-http-client');
 
-        const mockAddAll = jest.fn().mockImplementation(async function* () {
+        const mockAddAll = vi.fn().mockImplementation(async function* () {
           yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
           yield { path: 'file2.png', cid: { toString: () => 'QmFile2' } };
           yield { path: '', cid: { toString: () => 'QmDirectory123' } };
         });
 
         const mockClient = {
-          add: jest.fn(),
+          add: vi.fn(),
           addAll: mockAddAll,
         };
 
-        (create as jest.Mock).mockReturnValue(mockClient as any);
+        (create as vi.Mock).mockReturnValue(mockClient as any);
         mockFs.readFileSync.mockReturnValue(Buffer.from('test content'));
 
         const result = await pinFilesToIPFS(
@@ -187,21 +188,21 @@ describe('ipfs', () => {
 
       it('should throw error if no directory CID is found', async () => {
         // Reset modules to ensure clean client state
-        jest.resetModules();
+        vi.resetModules();
         const { pinFilesToIPFS } = require('../../src/ipfs');
         const { create } = require('ipfs-http-client');
 
-        const mockAddAll = jest.fn().mockImplementation(async function* () {
+        const mockAddAll = vi.fn().mockImplementation(async function* () {
           yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
           // No empty path entry
         });
 
         const mockClient = {
-          add: jest.fn(),
+          add: vi.fn(),
           addAll: mockAddAll,
         };
 
-        (create as jest.Mock).mockReturnValue(mockClient as any);
+        (create as vi.Mock).mockReturnValue(mockClient as any);
         mockFs.readFileSync.mockReturnValue(Buffer.from('test content'));
 
         await expect(
@@ -211,7 +212,7 @@ describe('ipfs', () => {
 
       it('should throw error if client not initialized', async () => {
         // Reset the module to clear the client
-        jest.resetModules();
+        vi.resetModules();
         const { pinFilesToIPFS } = require('../../src/ipfs');
 
         const brokenConfig = {
@@ -249,14 +250,14 @@ describe('ipfs', () => {
         const mockStream = new Readable();
         mockStream.push('test data');
         mockStream.push(null);
-        mockStream.on = jest.fn().mockImplementation((event: string, handler: Function) => {
+        mockStream.on = vi.fn().mockImplementation((event: string, handler: Function) => {
           if (event === 'end') {
             setTimeout(() => handler(), 0);
           }
           return mockStream;
         });
 
-        jest.spyOn(fs, 'createReadStream').mockReturnValue(mockStream as any);
+        vi.spyOn(fs, 'createReadStream').mockReturnValue(mockStream as any);
 
         mockAxios.post.mockResolvedValueOnce({
           data: { IpfsHash: 'QmPinataHash123' },
@@ -285,14 +286,14 @@ describe('ipfs', () => {
         const mockStream = new Readable();
         mockStream.push('test data');
         mockStream.push(null);
-        mockStream.on = jest.fn().mockImplementation((event: string, handler: Function) => {
+        mockStream.on = vi.fn().mockImplementation((event: string, handler: Function) => {
           if (event === 'end') {
             setTimeout(() => handler(), 0);
           }
           return mockStream;
         });
 
-        jest.spyOn(fs, 'createReadStream').mockReturnValue(mockStream as any);
+        vi.spyOn(fs, 'createReadStream').mockReturnValue(mockStream as any);
         mockAxios.post.mockRejectedValueOnce(new Error('Pinata error'));
 
         await expect(
@@ -328,20 +329,20 @@ describe('ipfs', () => {
 
       it('should pin single file using http_client successfully', async () => {
         // Reset modules to ensure clean client state
-        jest.resetModules();
+        vi.resetModules();
         const { pinFileToIPFS, initializeIpfsClient } = require('../../src/ipfs');
         const { create } = require('ipfs-http-client');
 
-        const mockAdd = jest.fn().mockResolvedValue({
+        const mockAdd = vi.fn().mockResolvedValue({
           cid: { toString: () => 'QmSingleFile123' },
         });
 
         const mockClient = {
           add: mockAdd,
-          addAll: jest.fn(),
+          addAll: vi.fn(),
         };
 
-        (create as jest.Mock).mockReturnValue(mockClient);
+        (create as vi.Mock).mockReturnValue(mockClient);
 
         const content = Buffer.from('test content');
         const result = await pinFileToIPFS(
@@ -362,7 +363,7 @@ describe('ipfs', () => {
 
       it('should throw error if client not initialized', async () => {
         // Reset the module to clear the client
-        jest.resetModules();
+        vi.resetModules();
         const { pinFileToIPFS } = require('../../src/ipfs');
 
         const brokenConfig = {

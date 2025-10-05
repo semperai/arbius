@@ -1,13 +1,13 @@
 import { renderHook } from '@testing-library/react';
 import { useActiveChainId } from '@/hooks/useActiveChainId';
 
-jest.mock('wagmi', () => ({
-  useChainId: jest.fn(),
+vi.mock('wagmi', () => ({
+  useChainId: vi.fn(),
 }));
 
 import { useChainId } from 'wagmi';
 
-const mockUseChainId = useChainId as jest.MockedFunction<typeof useChainId>;
+const mockUseChainId = useChainId as vi.MockedFunction<typeof useChainId>;
 
 describe('useActiveChainId', () => {
   it('should return connected chain ID when wallet is connected', () => {

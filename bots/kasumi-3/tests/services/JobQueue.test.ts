@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { JobQueue } from '../../src/services/JobQueue';
 import { TaskJob } from '../../src/types';
 
 describe('JobQueue', () => {
   let queue: JobQueue;
-  let mockCallback: jest.Mock;
+  let mockCallback: vi.Mock;
 
   beforeEach(() => {
     // @ts-ignore
-    mockCallback = jest.fn().mockResolvedValue(undefined);
+    mockCallback = vi.fn().mockResolvedValue(undefined);
     queue = new JobQueue(2, mockCallback as any);
   });
 
@@ -189,7 +189,7 @@ describe('JobQueue', () => {
 
   describe('concurrent processing', () => {
     it('should respect max concurrent limit', async () => {
-      const slowCallback = jest.fn().mockImplementation(async () => {
+      const slowCallback = vi.fn().mockImplementation(async () => {
         await new Promise(resolve => setTimeout(resolve, 200));
       });
 

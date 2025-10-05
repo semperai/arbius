@@ -1,4 +1,4 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect, vi } from 'vitest';
 
 describe('BlockchainService Model Extraction', () => {
   it('should extract modelId from transaction data', () => {

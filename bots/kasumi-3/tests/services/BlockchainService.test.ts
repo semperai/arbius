@@ -1,19 +1,20 @@
+import { vi } from 'vitest';
 import { BlockchainService } from '../../src/services/BlockchainService';
 
 // Mock the logger
-jest.mock('../../src/log', () => ({
+vi.mock('../../src/log', () => ({
   log: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+    debug: () => {},
   },
 }));
 
 // Mock utils
-jest.mock('../../src/utils', () => ({
-  generateCommitment: jest.fn().mockReturnValue('0xcommitment'),
-  expretry: jest.fn((tag: string, fn: () => Promise<any>) => fn()),
+vi.mock('../../src/utils', () => ({
+  generateCommitment: () => '0xcommitment',
+  expretry: (tag: string, fn: () => Promise<any>) => fn(),
 }));
 
 describe('BlockchainService', () => {
@@ -26,7 +27,7 @@ describe('BlockchainService', () => {
   const TEST_TOKEN_ADDRESS = '0x3333333333333333333333333333333333333333';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('constructor', () => {

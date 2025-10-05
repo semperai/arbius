@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { initializePaymentSystem, PaymentSystemConfig } from '../../src/initPaymentSystem';
 import { DatabaseService } from '../../src/services/DatabaseService';
 import { UserService } from '../../src/services/UserService';
@@ -8,19 +9,19 @@ import { registerPaymentCommands } from '../../src/bot/paymentCommands';
 import { Telegraf } from 'telegraf';
 
 // Mock dependencies
-jest.mock('../../src/services/DatabaseService');
-jest.mock('../../src/services/UserService');
-jest.mock('../../src/services/GasAccountingService');
-jest.mock('../../src/services/DepositMonitor');
-jest.mock('../../src/bot/paymentCommands');
+vi.mock('../../src/services/DatabaseService');
+vi.mock('../../src/services/UserService');
+vi.mock('../../src/services/GasAccountingService');
+vi.mock('../../src/services/DepositMonitor');
+vi.mock('../../src/bot/paymentCommands');
 
 // Mock logger
-jest.mock('../../src/log', () => ({
+vi.mock('../../src/log', () => ({
   log: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+    debug: () => {},
   },
 }));
 
@@ -30,15 +31,15 @@ describe('initializePaymentSystem', () => {
   let config: PaymentSystemConfig;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockBot = {
-      command: jest.fn(),
+      command: vi.fn(),
     } as any;
 
     mockBlockchain = {
-      getProvider: jest.fn().mockReturnValue({
-        getBlockNumber: jest.fn(),
+      getProvider: vi.fn().mockReturnValue({
+        getBlockNumber: vi.fn(),
       }),
     } as any;
 

@@ -1,11 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('Configuration from Environment Variables', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
     // Reset process.env before each test
-    jest.resetModules();
+    vi.resetModules();
     process.env = { ...originalEnv };
   });
 

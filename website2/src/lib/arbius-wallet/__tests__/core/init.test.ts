@@ -5,9 +5,9 @@ import { validateConfig } from '../../core/configValidator';
 import { AAWalletConfig } from '../../types';
 
 // Mock dependencies
-jest.mock('../../core/ethereumProxy');
-jest.mock('../../core/transactionQueue');
-jest.mock('../../core/configValidator');
+vi.mock('../../core/ethereumProxy');
+vi.mock('../../core/transactionQueue');
+vi.mock('../../core/configValidator');
 
 describe('init', () => {
   const mockConfig: AAWalletConfig = {
@@ -20,14 +20,14 @@ describe('init', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('init()', () => {
     it('should initialize successfully when ethereum proxy setup succeeds', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(true);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(true);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const result = init(mockConfig);
 
@@ -38,9 +38,9 @@ describe('init', () => {
     });
 
     it('should return false when ethereum proxy setup fails', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(false);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(false);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const result = init(mockConfig);
 
@@ -50,7 +50,7 @@ describe('init', () => {
     });
 
     it('should handle config validation errors and return false', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Invalid config');
       });
 
@@ -63,8 +63,8 @@ describe('init', () => {
     });
 
     it('should handle unexpected errors during initialization', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockImplementation(() => {
         throw new Error('Unexpected error');
       });
 
@@ -74,10 +74,10 @@ describe('init', () => {
     });
 
     it('should log initialization status', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(true);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(true);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
 
@@ -88,10 +88,10 @@ describe('init', () => {
     });
 
     it('should log failure when proxy setup fails', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(false);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation();
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(false);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
 
@@ -103,7 +103,7 @@ describe('init', () => {
 
   describe('isInitialized()', () => {
     it('should return false after failed initialization', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Invalid config');
       });
 
@@ -113,9 +113,9 @@ describe('init', () => {
     });
 
     it('should return true after successful initialization', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(true);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(true);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
 
@@ -125,7 +125,7 @@ describe('init', () => {
 
   describe('getConfig()', () => {
     it('should return null after failed initialization', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Invalid config');
       });
 
@@ -135,9 +135,9 @@ describe('init', () => {
     });
 
     it('should return config after successful initialization', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(true);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(true);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
 
@@ -147,7 +147,7 @@ describe('init', () => {
 
   describe('isEthereumProxyActive()', () => {
     it('should return false when initialization fails', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {
+      (validateConfig as vi.Mock).mockImplementation(() => {
         throw new Error('Invalid config');
       });
 
@@ -157,9 +157,9 @@ describe('init', () => {
     });
 
     it('should return true when proxy setup succeeds', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(true);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(true);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
 
@@ -167,9 +167,9 @@ describe('init', () => {
     });
 
     it('should return false when proxy setup fails', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(false);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(false);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
 
@@ -179,9 +179,9 @@ describe('init', () => {
 
   describe('Fallback behavior', () => {
     it('should return false when proxy fails (signals fallback to RainbowKit)', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupEthereumProxy as jest.Mock).mockReturnValue(false);
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupEthereumProxy as vi.Mock).mockReturnValue(false);
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const result = init(mockConfig);
 

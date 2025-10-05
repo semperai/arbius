@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ModelRegistry } from '../../src/services/ModelRegistry';
 import { ModelConfig } from '../../src/types';
 
@@ -217,7 +218,7 @@ describe('ModelRegistry', () => {
     const fs = require('fs');
 
     beforeEach(() => {
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
         meta: { title: 'Loaded Model', description: 'Test', git: '', docker: '', version: 1 },
         input: [{ variable: 'prompt', type: 'string', required: true }],
         output: [],
@@ -225,7 +226,7 @@ describe('ModelRegistry', () => {
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('should load model from template file', () => {
@@ -256,7 +257,7 @@ describe('ModelRegistry', () => {
     });
 
     it('should throw error if template file is invalid JSON', () => {
-      jest.spyOn(fs, 'readFileSync').mockReturnValue('invalid json');
+      vi.spyOn(fs, 'readFileSync').mockReturnValue('invalid json');
 
       expect(() => {
         registry.loadModelFromTemplate('0xbad', 'bad-model', '/path/to/bad.json');
@@ -264,7 +265,7 @@ describe('ModelRegistry', () => {
     });
 
     it('should throw error if template file cannot be read', () => {
-      jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+      vi.spyOn(fs, 'readFileSync').mockImplementation(() => {
         throw new Error('ENOENT: no such file');
       });
 
@@ -278,7 +279,7 @@ describe('ModelRegistry', () => {
     const fs = require('fs');
 
     beforeEach(() => {
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify({
         meta: { title: 'Test Model', description: '', git: '', docker: '', version: 1 },
         input: [],
         output: [],
@@ -286,7 +287,7 @@ describe('ModelRegistry', () => {
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('should load multiple models from config', () => {
@@ -304,7 +305,7 @@ describe('ModelRegistry', () => {
 
     it('should continue loading even if one model fails', () => {
       let callCount = 0;
-      jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+      vi.spyOn(fs, 'readFileSync').mockImplementation(() => {
         callCount++;
         if (callCount === 2) {
           throw new Error('File not found');

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ConfigLoader, loadModelsConfig } from '../../src/config';
 import * as fs from 'fs';
 import * as path from 'path';

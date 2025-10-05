@@ -10,9 +10,9 @@ import { AAWalletConfig } from '../../types';
 import { cleanupExpiredNonces, getNonceStats } from '../../utils/nonceCleanup';
 import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove, isLocalStorageAvailable } from '../../utils/safeStorage';
 
-jest.mock('../../core/configValidator');
-jest.mock('../../core/transactionQueue');
-jest.mock('../../utils/nonceCleanup');
+vi.mock('../../core/configValidator');
+vi.mock('../../core/transactionQueue');
+vi.mock('../../utils/nonceCleanup');
 
 describe('Critical Fixes Verification', () => {
   const mockConfig: AAWalletConfig = {
@@ -22,16 +22,16 @@ describe('Critical Fixes Verification', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Mock localStorage
     Object.defineProperty(global, 'localStorage', {
       value: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
         length: 0,
-        key: jest.fn(),
+        key: vi.fn(),
       },
       writable: true,
     });
@@ -49,7 +49,7 @@ describe('Critical Fixes Verification', () => {
 
     it('should handle localStorage errors when clearing cache', () => {
       // Mock localStorage to throw
-      const mockRemoveItem = jest.fn(() => {
+      const mockRemoveItem = vi.fn(() => {
         throw new Error('Storage error');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -90,7 +90,7 @@ describe('Critical Fixes Verification', () => {
       // Create a proper window mock
       const mockEthereum = {
         isAA: true,
-        request: jest.fn(),
+        request: vi.fn(),
       };
 
       Object.defineProperty(global, 'window', {
@@ -120,7 +120,7 @@ describe('Critical Fixes Verification', () => {
 
   describe('FIX 4: Safe localStorage wrapper', () => {
     it('should handle localStorage.getItem errors gracefully', () => {
-      const mockGetItem = jest.fn(() => {
+      const mockGetItem = vi.fn(() => {
         throw new Error('QuotaExceededError');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -133,7 +133,7 @@ describe('Critical Fixes Verification', () => {
     });
 
     it('should handle localStorage.setItem errors gracefully', () => {
-      const mockSetItem = jest.fn(() => {
+      const mockSetItem = vi.fn(() => {
         throw new Error('QuotaExceededError');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -146,7 +146,7 @@ describe('Critical Fixes Verification', () => {
     });
 
     it('should handle localStorage.removeItem errors gracefully', () => {
-      const mockRemoveItem = jest.fn(() => {
+      const mockRemoveItem = vi.fn(() => {
         throw new Error('Storage error');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -184,8 +184,8 @@ describe('Critical Fixes Verification', () => {
     });
 
     it('should call nonce cleanup during init', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
       const mockStartCleanup = require('../../utils/nonceCleanup').startPeriodicNonceCleanup;
 
       init(mockConfig);
@@ -197,8 +197,8 @@ describe('Critical Fixes Verification', () => {
 
   describe('Integration: All fixes working together', () => {
     it('should initialize with all fixes active', () => {
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       const result = init(mockConfig);
 
@@ -209,7 +209,7 @@ describe('Critical Fixes Verification', () => {
 
     it('should handle storage errors during initialization', () => {
       // Mock storage to fail
-      const mockSetItem = jest.fn(() => {
+      const mockSetItem = vi.fn(() => {
         throw new Error('Storage error');
       });
       Object.defineProperty(global, 'localStorage', {
@@ -217,8 +217,8 @@ describe('Critical Fixes Verification', () => {
         writable: true,
       });
 
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       // Should not crash, should handle gracefully
       const result = init(mockConfig);
@@ -244,8 +244,8 @@ describe('Critical Fixes Verification', () => {
 
     it('should ensure nonce cleanup is called on init', () => {
       // Prevents regression where cleanup is removed
-      (validateConfig as jest.Mock).mockImplementation(() => {});
-      (setupTransactionQueue as jest.Mock).mockImplementation(() => {});
+      (validateConfig as vi.Mock).mockImplementation(() => {});
+      (setupTransactionQueue as vi.Mock).mockImplementation(() => {});
 
       init(mockConfig);
 

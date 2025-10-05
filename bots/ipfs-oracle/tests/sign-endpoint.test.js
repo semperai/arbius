@@ -1,11 +1,11 @@
-import { describe, expect, test, jest, beforeAll } from '@jest/globals';
+import { describe, expect, test, vi, beforeAll } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/index.js';
 
 // Mock the @helia/verified-fetch module
-jest.unstable_mockModule('@helia/verified-fetch', () => ({
-  createVerifiedFetch: jest.fn(() => {
-    return jest.fn((url, options) => {
+vi.mock('@helia/verified-fetch', () => ({
+  createVerifiedFetch: vi.fn(() => {
+    return vi.fn((url, options) => {
       // Simulate successful fetch
       if (url.includes('ipfs://')) {
         return Promise.resolve({
