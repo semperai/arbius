@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import { useAccount, useChainId, useBalance, usePublicClient, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { AAWalletDisplay, useAAWallet } from '@/lib/arbius-wallet'
+import { AAWalletDisplay, useAAWallet, trackRawTransaction, updateTrackedTransaction, TransactionStatus } from '@/lib/arbius-wallet'
 import { AAWalletStatusContext } from '@/components/providers'
-import { parseEther, encodePacked, keccak256, formatEther } from 'viem'
+import { parseEther, encodePacked, keccak256, formatEther, encodeFunctionData } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { ARBIUS_CONFIG, MODELS, IPFS_GATEWAY } from '@/config/arbius'
 import { PLAYGROUND_MODELS, MODEL_FEES, BASE_MINER_FEE, MODEL_MINER_FEES, type ModelCategory } from '@/config/playground'
@@ -79,11 +79,48 @@ function parseTaskResult(result: any, category: ModelCategory): Array<{ type: st
 }
 
 function PlaygroundPageClient() {
-  const { isConnected } = useAccount()
+  const { isConnected, address: connectedAddress } = useAccount()
   const chainId = useChainId()
   const { switchChain } = useSwitchChain()
   const { smartAccountAddress, derivedAccount, estimateGas, error: aaWalletError } = useAAWallet()
   const publicClient = usePublicClient()
+  const { isProxyActive } = useContext(AAWalletStatusContext)
+
+  // Debug: Check if proxy is active
+  useEffect(() => {
+    console.log('AA Wallet Proxy Active:', isProxyActive)
+    console.log('window.ethereum.isAA:', (window as any).ethereum?.isAA)
+  }, [isProxyActive])
+
+  // Debug: Check connected wallet allowance
+  useEffect(() => {
+    const checkConnectedWalletAllowance = async () => {
+      if (!connectedAddress || !publicClient || !chainId) return
+
+      const baseTokenAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.baseTokenAddress
+      const engineAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.engineAddress
+
+      if (!baseTokenAddress || !engineAddress) return
+
+      try {
+        const connectedAllowance = await publicClient.readContract({
+          address: baseTokenAddress as `0x${string}`,
+          abi: baseTokenAbi.abi,
+          functionName: 'allowance',
+          args: [connectedAddress as `0x${string}`, engineAddress as `0x${string}`],
+        }) as bigint
+
+        console.log('🔐 Connected Wallet Allowance:', {
+          connectedAddress,
+          allowance: formatEther(connectedAllowance),
+        })
+      } catch (err) {
+        console.error('Failed to check connected wallet allowance:', err)
+      }
+    }
+
+    checkConnectedWalletAllowance()
+  }, [connectedAddress, publicClient, chainId])
 
   const [selectedCategory, setSelectedCategory] = useState<ModelCategory>('text')
   const [selectedModel, setSelectedModel] = useState<string>('qwen_qwq_32b')
@@ -92,6 +129,9 @@ function PlaygroundPageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [balanceWarning, setBalanceWarning] = useState<string | null>(null)
   const [estimatedGasCost, setEstimatedGasCost] = useState<bigint | null>(null)
+  const [allowance, setAllowance] = useState<bigint | null>(null)
+  const [needsApproval, setNeedsApproval] = useState(false)
+  const [isApproving, setIsApproving] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
   // Check AA wallet balance
@@ -224,6 +264,53 @@ function PlaygroundPageClient() {
     estimateTaskGas()
   }, [selectedModel, smartAccountAddress, estimateGas, chainId, totalCost, publicClient])
 
+  // Check allowance for AA wallet
+  useEffect(() => {
+    const checkAllowance = async () => {
+      if (!smartAccountAddress || !publicClient || !chainId) {
+        setAllowance(null)
+        setNeedsApproval(false)
+        return
+      }
+
+      const baseTokenAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.baseTokenAddress
+      const engineAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.engineAddress
+
+      if (!baseTokenAddress || !engineAddress || engineAddress === '0x0000000000000000000000000000000000000000') {
+        setAllowance(null)
+        setNeedsApproval(false)
+        return
+      }
+
+      try {
+        const currentAllowance = await publicClient.readContract({
+          address: baseTokenAddress as `0x${string}`,
+          abi: baseTokenAbi.abi,
+          functionName: 'allowance',
+          args: [smartAccountAddress as `0x${string}`, engineAddress as `0x${string}`],
+        }) as bigint
+
+        console.log('🔐 Allowance Check:', {
+          aaWalletAddress: smartAccountAddress,
+          baseToken: baseTokenAddress,
+          engineAddress: engineAddress,
+          currentAllowance: formatEther(currentAllowance),
+          totalCostNeeded: formatEther(totalCost),
+          needsApproval: currentAllowance < totalCost,
+        })
+
+        setAllowance(currentAllowance)
+        setNeedsApproval(currentAllowance < totalCost)
+      } catch (err) {
+        console.error('Failed to check allowance:', err)
+        setAllowance(null)
+        setNeedsApproval(false)
+      }
+    }
+
+    checkAllowance()
+  }, [smartAccountAddress, publicClient, chainId, totalCost])
+
   // Check network and balances before submission
   useEffect(() => {
     // Check if on correct network first
@@ -250,6 +337,123 @@ function PlaygroundPageClient() {
     }
   }, [smartAccountAddress, ethBalance, aiusBalance, totalCost, estimatedGasCost, isConnected, chainId])
 
+  const handleApprove = async () => {
+    if (!derivedAccount || !smartAccountAddress || !chainId || !publicClient) {
+      return
+    }
+
+    // Check if AA wallet has ETH for gas
+    if (!ethBalance || ethBalance.value < parseEther('0.0001')) {
+      toast.error(`AA wallet needs ETH for gas. Send ETH to ${smartAccountAddress}`)
+      return
+    }
+
+    const baseTokenAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.baseTokenAddress
+    const engineAddress = ARBIUS_CONFIG[chainId as keyof typeof ARBIUS_CONFIG]?.engineAddress
+
+    if (!baseTokenAddress || !engineAddress) {
+      toast.error('Token or engine address not configured')
+      return
+    }
+
+    setIsApproving(true)
+    const approvalToastId = 'approval-toast'
+
+    try {
+      toast.loading('Approving AIUS spending...', { id: approvalToastId })
+
+      // Approve max uint256 to avoid future approvals
+      const maxApproval = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
+
+      // Get current gas price and nonce for legacy transaction
+      const gasPrice = await publicClient.getGasPrice()
+      const nonce = await publicClient.getTransactionCount({
+        address: smartAccountAddress as `0x${string}`,
+      })
+
+      console.log('📝 Approval transaction details:', {
+        from: derivedAccount.address,
+        to: baseTokenAddress,
+        smartAccountAddress,
+        areTheSame: derivedAccount.address === smartAccountAddress,
+        spender: engineAddress,
+        amount: 'max uint256',
+        nonce,
+        gasPrice: gasPrice.toString(),
+        ethBalance: ethBalance?.formatted,
+        aiusBalance: aiusBalance?.formatted,
+      })
+
+      // Encode the approve function call using ABI
+      const approveData = encodeFunctionData({
+        abi: baseTokenAbi.abi,
+        functionName: 'approve',
+        args: [engineAddress, maxApproval],
+      })
+
+      console.log('📝 Encoded approval data:', approveData)
+
+      const signedTx = await derivedAccount.signTransaction({
+        to: baseTokenAddress,
+        data: approveData,
+        value: BigInt(0),
+        chainId,
+        nonce,
+        gasPrice,
+        gas: BigInt(200000), // Gas limit for approval
+      })
+
+      console.log('✍️ Transaction signed:', signedTx)
+      console.log('📡 About to broadcast via window.ethereum.request...')
+
+      // Broadcast the signed transaction through window.ethereum (to use AA wallet proxy)
+      const approveTx = await (window as any).ethereum.request({
+        method: 'eth_sendRawTransaction',
+        params: [signedTx],
+      })
+
+      console.log('✅ Transaction broadcast, hash:', approveTx)
+
+      // Track the transaction in AA wallet
+      const txId = trackRawTransaction(approveTx, chainId, 'approve')
+
+      toast.loading('Waiting for approval confirmation...', { id: approvalToastId })
+
+      // Wait for transaction to be mined
+      try {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: approveTx,
+        })
+
+        // Update transaction status
+        updateTrackedTransaction(txId, TransactionStatus.SUCCESS, receipt)
+
+        toast.success('Approval confirmed!', { id: approvalToastId })
+
+        // Recheck allowance after confirmation
+        const currentAllowance = await publicClient.readContract({
+          address: baseTokenAddress as `0x${string}`,
+          abi: baseTokenAbi.abi,
+          functionName: 'allowance',
+          args: [smartAccountAddress as `0x${string}`, engineAddress as `0x${string}`],
+        }) as bigint
+
+        setAllowance(currentAllowance)
+        setNeedsApproval(currentAllowance < totalCost)
+      } catch (waitErr) {
+        console.error('Failed to wait for transaction or recheck allowance:', waitErr)
+        updateTrackedTransaction(txId, TransactionStatus.ERROR)
+        toast.error('Approval submitted but confirmation failed. Please refresh.', { id: approvalToastId })
+      }
+    } catch (err: any) {
+      console.error('Approval error:', err)
+      const errorMessage = err?.message || 'Failed to approve'
+      toast.error(`Approval failed: ${errorMessage}`, { id: approvalToastId })
+    } finally {
+      setIsApproving(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -258,6 +462,11 @@ function PlaygroundPageClient() {
     }
 
     if (balanceWarning) {
+      return
+    }
+
+    if (needsApproval) {
+      toast.error('Please approve AIUS spending first')
       return
     }
 
@@ -292,29 +501,50 @@ function PlaygroundPageClient() {
 
       toast.loading('Submitting task to network...', { id: taskId })
 
-      // Sign and submit transaction using AA wallet
-      const tx = await derivedAccount.signTransaction({
+      // Get current gas price and nonce for legacy transaction
+      const gasPrice = await publicClient.getGasPrice()
+      const nonce = await publicClient.getTransactionCount({
+        address: smartAccountAddress as `0x${string}`,
+      })
+
+      // Encode submitTask function call using ABI
+      const submitTaskData = encodeFunctionData({
+        abi: engineAbi.abi,
+        functionName: 'submitTask',
+        args: [
+          1, // version
+          smartAccountAddress,
+          modelId,
+          totalCost,
+          input,
+        ],
+      })
+
+      // Sign transaction using AA wallet
+      const signedTx = await derivedAccount.signTransaction({
         to: engineAddress,
-        data: encodePacked(
-          ['bytes4', 'uint8', 'address', 'bytes32', 'uint256', 'bytes'],
-          [
-            '0x' + keccak256(encodePacked(['string'], ['submitTask(uint8,address,bytes32,uint256,bytes)'])).slice(2, 10) as `0x${string}`,
-            1, // version
-            smartAccountAddress as `0x${string}`,
-            modelId,
-            totalCost,
-            input,
-          ]
-        ),
+        data: submitTaskData,
         value: BigInt(0),
         chainId,
+        nonce,
+        gasPrice,
+        gas: BigInt(500000), // Estimate for submitTask
       })
+
+      // Broadcast the signed transaction through window.ethereum (to use AA wallet proxy)
+      const tx = await (window as any).ethereum.request({
+        method: 'eth_sendRawTransaction',
+        params: [signedTx],
+      })
+
+      // Track the transaction in AA wallet
+      const walletTxId = trackRawTransaction(tx, chainId, 'submitTask')
 
       // Update task with tx hash
       setTasks((prev) =>
         prev.map((t) =>
           t.id === taskId
-            ? { ...t, status: 'submitted', txHash: tx as string }
+            ? { ...t, status: 'submitted', txHash: tx }
             : t
         )
       )
@@ -369,6 +599,8 @@ function PlaygroundPageClient() {
                     : t
                 )
               )
+              // Update AA wallet transaction status
+              updateTrackedTransaction(walletTxId, TransactionStatus.SUCCESS)
               toast.success('Task completed! Result ready.', { id: taskId })
             } else {
               // Timeout - task still processing
@@ -384,6 +616,7 @@ function PlaygroundPageClient() {
           }
         } catch (eventError) {
           console.error('Error watching for task event:', eventError)
+          updateTrackedTransaction(walletTxId, TransactionStatus.ERROR)
           toast.error(`Error tracking task: ${(eventError as Error).message}`, { id: taskId })
           // Keep task in submitted state
         }
@@ -584,26 +817,47 @@ function PlaygroundPageClient() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter your prompt..."
-              disabled={isSubmitting || !!balanceWarning || !!aaWalletError}
+              disabled={isSubmitting || isApproving || !!balanceWarning || !!aaWalletError}
               className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-gray-900 bg-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring-primary/20 disabled:bg-gray-100 disabled:text-gray-500"
             />
-            <button
-              type="submit"
-              disabled={!prompt.trim() || isSubmitting || !!balanceWarning || !!aaWalletError}
-              className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Sending...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="h-5 w-5" />
-                  <span>Send</span>
-                </>
-              )}
-            </button>
+            {needsApproval ? (
+              <button
+                type="button"
+                onClick={handleApprove}
+                disabled={isApproving || !!balanceWarning || !!aaWalletError}
+                className="flex items-center gap-2 rounded-lg bg-orange-600 px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              >
+                {isApproving ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Approving...</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="h-5 w-5" />
+                    <span>Approve AIUS</span>
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={!prompt.trim() || isSubmitting || !!balanceWarning || !!aaWalletError}
+                className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-white hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-5 w-5" />
+                    <span>Send</span>
+                  </>
+                )}
+              </button>
+            )}
           </form>
         </>
       )}

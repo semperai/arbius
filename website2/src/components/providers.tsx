@@ -46,7 +46,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               disableTransitionOnChange
             >
               <Toaster
-                position="top-right"
+                position="bottom-left"
                 richColors
                 closeButton
               />

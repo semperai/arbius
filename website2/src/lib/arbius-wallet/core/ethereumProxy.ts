@@ -115,13 +115,26 @@ function createEthereumProxy(target: any): ProxyEthereum {
       // If the property is a function, we might need to intercept it
       if (typeof originalProp === 'function') {
         return function(this: any, ...args: any[]) {
+          // Log all request calls
+          if (prop === 'request') {
+            console.log('🔍 Proxy intercepted request:', args[0]?.method);
+          }
+
           // Intercept eth_sendTransaction requests
           if (prop === 'request' && args[0]?.method === 'eth_sendTransaction') {
+            console.log('✅ Intercepting eth_sendTransaction');
             return handleSendTransaction(args[0]);
           }
-          
+
+          // Intercept eth_sendRawTransaction requests (for AA wallet signed transactions)
+          if (prop === 'request' && args[0]?.method === 'eth_sendRawTransaction') {
+            console.log('✅ Intercepting eth_sendRawTransaction');
+            return handleSendRawTransaction(args[0]);
+          }
+
           // Intercept personal_sign requests
           if (prop === 'request' && args[0]?.method === 'personal_sign') {
+            console.log('✅ Intercepting personal_sign');
             return handlePersonalSign(args[0]).catch((error) => {
               // Toast for user-facing errors (if not already shown)
               const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -131,8 +144,9 @@ function createEthereumProxy(target: any): ProxyEthereum {
               throw error;
             });
           }
-          
+
           // Pass through all other requests
+          console.log('⏭️  Passing through request:', args[0]?.method);
           return originalProp.apply(this, args);
         };
       }
@@ -150,19 +164,73 @@ function createEthereumProxy(target: any): ProxyEthereum {
  */
 async function handleSendTransaction(request: { method: string; params: any[] }): Promise<string> {
   console.log('Intercepted eth_sendTransaction:', request);
-  
+
   // Get the current chain ID
   const chainId = await getCurrentChainId();
-  
+
   // Create a transaction object
   const transaction = {
     method: request.method,
     params: request.params,
     chainId,
   };
-  
+
   // Send the transaction through our transaction queue
   return sendTransaction(transaction);
+}
+
+/**
+ * Handle eth_sendRawTransaction requests
+ * @param request The original request
+ * @returns Promise resolving to the transaction hash
+ */
+async function handleSendRawTransaction(request: { method: string; params: any[] }): Promise<string> {
+  console.log('✅ AA Wallet intercepted eth_sendRawTransaction');
+  console.log('Request:', request);
+
+  try {
+    // Get the RPC URL from the original provider
+    const chainId = await getCurrentChainId();
+
+    // Use public RPC endpoint to broadcast without MetaMask popup
+    let rpcUrl: string;
+    if (chainId === 42161) {
+      rpcUrl = 'https://arb1.arbitrum.io/rpc';
+    } else if (chainId === 1) {
+      rpcUrl = 'https://eth.llamarpc.com';
+    } else {
+      // Fallback to MetaMask for unsupported chains
+      console.warn('Unsupported chain for direct RPC, falling back to MetaMask');
+      return await originalEthereum.request(request);
+    }
+
+    // Send directly to RPC endpoint
+    const response = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: request.method,
+        params: request.params,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.error('❌ RPC error:', data.error);
+      throw new Error(data.error.message || 'RPC request failed');
+    }
+
+    console.log('✅ Transaction broadcast successfully via RPC:', data.result);
+    return data.result;
+  } catch (error) {
+    console.error('❌ Failed to broadcast raw transaction:', error);
+    throw error;
+  }
 }
 
 /**

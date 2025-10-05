@@ -10,3 +10,4 @@ export * from './types';
 
 // Core
 export { init, isInitialized, getConfig, isEthereumProxyActive } from './core/init';
+export { trackRawTransaction, updateTrackedTransaction } from './core/transactionQueue';

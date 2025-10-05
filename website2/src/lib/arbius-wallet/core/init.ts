@@ -38,10 +38,6 @@ export function init(config: AAWalletConfig): boolean {
     console.log('AA Wallet initialized with config:', config);
     console.log('Ethereum proxy setup:', ethereumProxySuccess ? 'successful' : 'failed');
 
-    if (ethereumProxySuccess) {
-      toast.success('Wallet initialized successfully');
-    }
-
     return ethereumProxySuccess;
   } catch (error) {
     console.error('Failed to initialize AA Wallet:', error);

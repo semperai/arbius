@@ -60,10 +60,8 @@ export const AAWalletProvider: React.FC<AAWalletProviderProps> = ({ children }) 
           // Clear old wallet's cache when switching
           safeLocalStorageRemove('arbiuswallet_derivedWalletCache');
           toast(`Switched to wallet ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
-        } else if (!state.address) {
-          // First time connecting
-          toast.success(`Wallet connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
         }
+        // Don't show toast for initial connection
 
         const newState: WalletState = {
           address: accounts[0] as Address,

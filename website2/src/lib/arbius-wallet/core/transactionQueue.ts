@@ -105,6 +105,68 @@ export async function setupTransactionQueue(address?: string): Promise<void> {
 }
 
 /**
+ * Track a raw transaction that was already broadcast
+ * @param hash Transaction hash
+ * @param chainId Chain ID
+ * @param method Method name for display
+ * @returns Transaction ID
+ */
+export function trackRawTransaction(hash: string, chainId: number, method: string = 'eth_sendRawTransaction'): string {
+  const txId = uuidv4();
+
+  const transaction: Transaction = {
+    id: txId,
+    hash,
+    status: TransactionStatus.PENDING,
+    method,
+    params: [],
+    chainId,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  // Add to queue for tracking
+  transactionQueue.push(transaction);
+
+  // Persist to IndexedDB
+  persistTransaction(transaction);
+
+  // Broadcast the transaction
+  broadcastTxUpdate(transaction);
+
+  return txId;
+}
+
+/**
+ * Update a tracked transaction status
+ * @param txId Transaction ID
+ * @param status New status
+ * @param receipt Optional receipt
+ */
+export function updateTrackedTransaction(txId: string, status: TransactionStatus, receipt?: any): void {
+  const tx = transactionQueue.find(t => t.id === txId);
+  if (!tx) return;
+
+  tx.status = status;
+  tx.updatedAt = Date.now();
+  if (receipt) {
+    tx.receipt = receipt;
+  }
+
+  // Persist the update
+  if (currentAddress) {
+    updateTransaction(tx.id, currentAddress, {
+      status: tx.status,
+      updatedAt: tx.updatedAt,
+      receipt: tx.receipt
+    });
+  }
+
+  // Broadcast the update
+  broadcastTxUpdate(tx);
+}
+
+/**
  * Send a transaction through the queue
  * @param txParams Transaction parameters
  * @returns Promise resolving to the transaction hash
