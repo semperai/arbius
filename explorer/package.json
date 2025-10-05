@@ -27,7 +27,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "ethers": "^6.15.0",
-    "lucide-react": "^0.487.0",
+    "lucide-react": "^0.544.0",
     "next": "^15.5.4",
     "next-themes": "^0.4.6",
     "react": "^19.2.0",
@@ -42,17 +42,17 @@
     "@tailwindcss/postcss": "^4.1.14",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
-    "@types/node": "^20.19.19",
+    "@types/node": "^24.6.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "@vitest/ui": "^3.2.4",
     "eslint": "^9.37.0",
-    "eslint-config-next": "15.2.4",
+    "eslint-config-next": "^15.5.4",
     "jsdom": "^27.0.0",
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4",
-    "wait-on": "^8.0.5"
+    "wait-on": "^9.0.1"
   }
 }

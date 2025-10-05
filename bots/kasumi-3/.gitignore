@@ -4,3 +4,4 @@ build
 log.txt
 MiningConfig.json
 coverage/
+data/

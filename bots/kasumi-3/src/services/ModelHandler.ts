@@ -1,4 +1,5 @@
 import { IModelHandler, ModelConfig, MiningConfig } from '../types';
+import { TIMEOUTS } from '../constants';
 import { log } from '../log';
 import { hydrateInput, taskid2Seed, expretry } from '../utils';
 import { pinFilesToIPFS } from '../ipfs';
@@ -98,7 +99,7 @@ export class ReplicateModelHandler extends BaseModelHandler {
             'Content-Type': 'application/json',
             Prefer: 'wait',
           },
-          timeout: 10 * 60 * 1000, // 10 minutes
+          timeout: TIMEOUTS.REPLICATE_API,
         }
       );
     } catch (e: any) {
@@ -148,7 +149,7 @@ export class ReplicateModelHandler extends BaseModelHandler {
 
     const response = await axios.get(url, {
       responseType: 'arraybuffer',
-      timeout: 10 * 60 * 1000,
+      timeout: TIMEOUTS.REPLICATE_API,
     });
 
     if (response.status !== 200) {

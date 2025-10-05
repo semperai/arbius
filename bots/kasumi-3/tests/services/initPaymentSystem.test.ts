@@ -96,7 +96,9 @@ describe('initializePaymentSystem', () => {
       mockProvider,
       config.tokenAddress,
       config.botWalletAddress,
-      expect.any(Object) // UserService instance
+      expect.any(Object), // UserService instance
+      12000, // poll interval from constants
+      mockBot // bot for notifications
     );
   });
 

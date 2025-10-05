@@ -5,6 +5,7 @@ import { GasAccountingService } from './services/GasAccountingService';
 import { DepositMonitor } from './services/DepositMonitor';
 import { BlockchainService } from './services/BlockchainService';
 import { registerPaymentCommands } from './bot/paymentCommands';
+import { DEPOSIT_MONITOR } from './constants';
 import { log } from './log';
 import path from 'path';
 
@@ -59,12 +60,14 @@ export function initializePaymentSystem(
   const gasAccounting = new GasAccountingService(config.ethMainnetRpc);
   log.info('✅ GasAccountingService initialized');
 
-  // Initialize deposit monitor
+  // Initialize deposit monitor with bot for notifications
   const depositMonitor = new DepositMonitor(
     blockchain.getProvider(),
     config.tokenAddress,
     config.botWalletAddress,
-    userService
+    userService,
+    DEPOSIT_MONITOR.POLL_INTERVAL_MS,
+    bot
   );
   log.info('✅ DepositMonitor initialized');
 

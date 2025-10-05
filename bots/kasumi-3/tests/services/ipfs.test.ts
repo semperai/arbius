@@ -149,7 +149,7 @@ describe('ipfs', () => {
       };
 
       it.skip('should pin files using http_client successfully', async () => {
-        // This test is skipped because ipfsClient state persists across tests in ESM
+        // Skipped: ipfsClient global state makes this test unreliable
         const mockAddAll = vi.fn().mockImplementation(async function* () {
           yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
           yield { path: 'file2.png', cid: { toString: () => 'QmFile2' } };
@@ -188,7 +188,7 @@ describe('ipfs', () => {
       });
 
       it.skip('should throw error if no directory CID is found', async () => {
-        // This test is skipped because ipfsClient state persists across tests in ESM
+        // Skipped: ipfsClient global state makes this test unreliable
         const mockAddAll = vi.fn().mockImplementation(async function* () {
           yield { path: 'file1.png', cid: { toString: () => 'QmFile1' } };
           // No empty path entry
@@ -308,7 +308,7 @@ describe('ipfs', () => {
       };
 
       it.skip('should pin single file using http_client successfully', async () => {
-        // This test is skipped because ipfsClient state persists across tests in ESM
+        // Skipped: ipfsClient global state makes this test unreliable
         const mockAdd = vi.fn().mockResolvedValue({
           cid: { toString: () => 'QmSingleFile123' },
         });

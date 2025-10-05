@@ -68,6 +68,7 @@ describe('TaskProcessor', () => {
       getArbiusContract: vi.fn(),
       getProvider: vi.fn(),
       findTransactionByTaskId: vi.fn(),
+      waitForTask: vi.fn(),
     } as any;
 
     // Mock JobQueue
@@ -83,6 +84,7 @@ describe('TaskProcessor', () => {
       finalizeReservation: vi.fn(),
       getAvailableBalance: vi.fn(),
       refundTask: vi.fn(),
+      adminCredit: vi.fn(),
     } as any;
 
     // Mock GasAccountingService
@@ -224,6 +226,146 @@ describe('TaskProcessor', () => {
       await expect(processorWithUser.processTask(mockJob)).rejects.toThrow('Task failed');
 
       expect(mockUserService.refundTask).toHaveBeenCalledWith('0xtask123');
+    });
+
+    it('should award random reward when user wins', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      const jobWithChat = {
+        ...mockJob,
+        chatId: 123,
+        telegramId: 456,
+      };
+
+      // Mock winning condition (Math.random returns 0, which equals 0 after floor)
+      vi.spyOn(Math, 'random').mockReturnValue(0);
+
+      process.env.REWARD_CHANCE = '20';
+      process.env.REWARD_AMOUNT = '1';
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+      mockUserService.adminCredit.mockReturnValue(true);
+
+      await processorWithUser.processTask(jobWithChat);
+
+      expect(mockUserService.adminCredit).toHaveBeenCalledWith(
+        456,
+        ethers.parseEther('1'),
+        'Lucky reward for task 0xtask123'
+      );
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'completed',
+        { cid: '0xnewcid', wonReward: true }
+      );
+    });
+
+    it('should not award reward when user does not win', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      const jobWithChat = {
+        ...mockJob,
+        chatId: 123,
+        telegramId: 456,
+      };
+
+      // Mock losing condition (Math.random returns value that doesn't equal 0 after floor)
+      vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+      process.env.REWARD_CHANCE = '20';
+      process.env.REWARD_AMOUNT = '1';
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+
+      await processorWithUser.processTask(jobWithChat);
+
+      expect(mockUserService.adminCredit).not.toHaveBeenCalled();
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'completed',
+        { cid: '0xnewcid' }
+      );
+    });
+
+    it('should not award reward when job has no chatId', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      // Mock winning condition
+      vi.spyOn(Math, 'random').mockReturnValue(0);
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+
+      await processorWithUser.processTask(mockJob);
+
+      expect(mockUserService.adminCredit).not.toHaveBeenCalled();
+    });
+
+    it('should handle different reward chances correctly', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      const jobWithChat = {
+        ...mockJob,
+        chatId: 123,
+        telegramId: 456,
+      };
+
+      // Test with 1 in 10 chance
+      process.env.REWARD_CHANCE = '10';
+      process.env.REWARD_AMOUNT = '5';
+
+      // Mock winning condition for 1 in 10
+      vi.spyOn(Math, 'random').mockReturnValue(0);
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+      mockUserService.adminCredit.mockReturnValue(true);
+
+      await processorWithUser.processTask(jobWithChat);
+
+      expect(mockUserService.adminCredit).toHaveBeenCalledWith(
+        456,
+        ethers.parseEther('5'),
+        'Lucky reward for task 0xtask123'
+      );
     });
   });
 
@@ -436,6 +578,173 @@ describe('TaskProcessor', () => {
       await expect(
         taskProcessor.processExistingTask('0xnonexistent', mockModelConfig)
       ).rejects.toThrow('Could not find transaction data');
+    });
+  });
+
+  describe('Payment Finalization Edge Cases', () => {
+    it('should handle missing transaction data during payment finalization', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.getProvider.mockReturnValue({} as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue(null); // No transaction found
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockUserService.cancelReservation.mockReturnValue(undefined);
+
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Should have cancelled the reservation due to missing transaction
+      expect(mockUserService.cancelReservation).toHaveBeenCalledWith('res_123');
+    });
+
+    it('should handle missing receipt during payment finalization', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'test',
+        modelId: '0xmodel1',
+      });
+      // Provider returns null receipt
+      mockBlockchain.getProvider.mockReturnValue({
+        getTransactionReceipt: vi.fn().mockResolvedValue(null),
+      } as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockUserService.cancelReservation.mockReturnValue(undefined);
+
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Should have cancelled the reservation due to missing receipt
+      expect(mockUserService.cancelReservation).toHaveBeenCalledWith('res_123');
+    });
+
+    it('should handle errors during payment finalization', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'test',
+        modelId: '0xmodel1',
+      });
+      mockBlockchain.getProvider.mockReturnValue({
+        getTransactionReceipt: vi.fn().mockRejectedValue(new Error('RPC error')),
+      } as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+
+      // Should not throw, but should log error
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Reservation should NOT be cancelled on error - it will expire automatically
+      expect(mockUserService.cancelReservation).not.toHaveBeenCalled();
+    });
+
+    it('should handle finalize reservation failure', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'test',
+        modelId: '0xmodel1',
+      });
+      mockBlockchain.getProvider.mockReturnValue({
+        getTransactionReceipt: vi.fn().mockResolvedValue({
+          gasUsed: 150000n,
+          gasPrice: 50000000000n,
+        }),
+      } as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockGasAccounting.calculateGasCostInAius.mockResolvedValue({
+        gasCostAius: BigInt('8000000000000000'),
+        gasCostWei: BigInt('400000000000000'),
+        gasUsed: 150000n,
+        gasPrice: 50000000000n,
+        aiusPerEth: BigInt('100000000000000000000'),
+      });
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockUserService.finalizeReservation.mockReturnValue(false); // Finalization fails
+
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Should have attempted to finalize but it failed
+      expect(mockUserService.finalizeReservation).toHaveBeenCalled();
     });
   });
 });

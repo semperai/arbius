@@ -4,6 +4,7 @@ import { ModelHandlerFactory } from './ModelHandler';
 import { JobQueue } from './JobQueue';
 import { UserService } from './UserService';
 import { GasAccountingService } from './GasAccountingService';
+import { REWARDS, GAS_ESTIMATION } from '../constants';
 import { log } from '../log';
 import { pinFileToIPFS } from '../ipfs';
 import { expretry } from '../utils';
@@ -41,6 +42,7 @@ export class TaskProcessor {
 
     try {
       // Check if already solved
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Checking blockchain...' });
       const existingSolution = await this.blockchain.getSolution(job.taskid);
       if (existingSolution.validator !== ethers.ZeroAddress) {
         if (existingSolution.cid) {
@@ -55,6 +57,7 @@ export class TaskProcessor {
 
       // Generate output and get CID
       log.debug(`Generating output for task ${job.taskid}`);
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Generating output...' });
       const cid = await handler.getCid(job.taskid, job.input);
 
       if (!cid) {
@@ -64,6 +67,7 @@ export class TaskProcessor {
       log.info(`Generated CID ${cid} for task ${job.taskid}`);
 
       // Check again if someone else solved it while we were processing
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Verifying solution...' });
       const solutionCheck = await this.blockchain.getSolution(job.taskid);
       if (solutionCheck.validator !== ethers.ZeroAddress) {
         if (solutionCheck.cid !== cid) {
@@ -82,9 +86,11 @@ export class TaskProcessor {
 
       // Submit solution to blockchain
       log.debug(`Submitting solution for task ${job.taskid}`);
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Submitting commitment...' });
       await this.blockchain.submitSolution(job.taskid, cid);
 
       // Pin input to IPFS for reference
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Uploading to IPFS...' });
       const inputStr = JSON.stringify(job.input);
       expretry('pinInputToIPFS', async () =>
         await pinFileToIPFS(
@@ -100,6 +106,29 @@ export class TaskProcessor {
 
       log.info(`Successfully processed task ${job.taskid}`);
       this.jobQueue.updateJobStatus(job.id, 'completed', { cid });
+
+      // Random reward system: 1 in X chance to win reward
+      if (this.userService && job.chatId) {
+        const rewardChance = parseInt(process.env.REWARD_CHANCE || String(REWARDS.CHANCE_DEFAULT));
+        const rewardAmount = ethers.parseEther(process.env.REWARD_AMOUNT || REWARDS.AMOUNT_DEFAULT);
+
+        const randomNum = Math.floor(Math.random() * rewardChance);
+        if (randomNum === 0) {
+          // Winner!
+          const telegramId = (job as any).telegramId;
+          if (telegramId) {
+            const success = this.userService.adminCredit(
+              telegramId,
+              rewardAmount,
+              `Lucky reward for task ${job.taskid}`
+            );
+            if (success) {
+              log.info(`🎉 User ${telegramId} won ${ethers.formatEther(rewardAmount)} AIUS reward!`);
+              this.jobQueue.updateJobStatus(job.id, 'completed', { cid, wonReward: true });
+            }
+          }
+        }
+      }
     } catch (error: any) {
       log.error(`Failed to process task ${job.taskid}: ${error.message}`);
       this.jobQueue.updateJobStatus(job.id, 'failed', { error: error.message });
@@ -118,6 +147,8 @@ export class TaskProcessor {
 
   /**
    * Refund a task (can be called manually for admin refunds)
+   * @param taskid - The task ID to refund
+   * @returns true if refund was successful, false otherwise
    */
   refundTask(taskid: string): boolean {
     if (!this.userService) {
@@ -131,6 +162,11 @@ export class TaskProcessor {
   /**
    * Submit a new task to the blockchain and add to queue
    * If userService is configured, charges the user's balance
+   * @param modelConfig - The model configuration to use
+   * @param input - Input parameters for the model
+   * @param additionalFee - Additional fee to pay (default: 0)
+   * @param metadata - Optional metadata (chatId, messageId, telegramId)
+   * @returns Object containing taskid, job, and estimated cost
    */
   async submitAndQueueTask(
     modelConfig: ModelConfig,
@@ -153,9 +189,8 @@ export class TaskProcessor {
       const modelFee = model.fee + additionalFee;
 
       // Estimate gas cost for submitTask transaction
-      const gasEstimate = 200_000n; // Approximate gas for submitTask
       estimatedGasCost = await this.gasAccounting.estimateGasCostInAius(
-        gasEstimate,
+        GAS_ESTIMATION.SUBMIT_TASK_ESTIMATE,
         this.blockchain.getProvider()
       );
 
@@ -167,8 +202,8 @@ export class TaskProcessor {
       }
 
       // Reserve balance BEFORE submitting to blockchain
-      // Reservation expires in 5 minutes (enough time for blockchain tx)
-      reservationId = this.userService.reserveBalance(telegramId, estimatedTotal, 300000);
+      // Reservation expires after configured timeout (enough time for blockchain tx)
+      reservationId = this.userService.reserveBalance(telegramId, estimatedTotal, GAS_ESTIMATION.RESERVATION_TIMEOUT_MS);
 
       if (!reservationId) {
         const availableBalance = this.userService.getAvailableBalance(telegramId);
@@ -265,6 +300,7 @@ export class TaskProcessor {
       input,
       chatId: metadata?.chatId,
       messageId: metadata?.messageId,
+      telegramId: metadata?.telegramId,
     });
 
     return { taskid, job, estimatedCost: estimatedTotal };
@@ -272,6 +308,10 @@ export class TaskProcessor {
 
   /**
    * Process an existing task by taskid
+   * @param taskid - The task ID to process
+   * @param modelConfig - The model configuration to use
+   * @param metadata - Optional metadata (chatId, messageId)
+   * @returns The created job
    */
   async processExistingTask(
     taskid: string,

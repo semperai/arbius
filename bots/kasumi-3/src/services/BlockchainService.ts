@@ -2,6 +2,7 @@ import { Contract, Wallet, ethers } from 'ethers';
 import { IBlockchainService } from '../types';
 import { log } from '../log';
 import { expretry, generateCommitment } from '../utils';
+import { BLOCKCHAIN } from '../constants';
 import ArbiusAbi from '../abis/arbius.json';
 import ArbiusRouterAbi from '../abis/arbiusRouter.json';
 import ERC20Abi from '../abis/erc20.json';
@@ -14,7 +15,11 @@ export class BlockchainService implements IBlockchainService {
   private token: Contract;
   private rpcUrls: string[];
   private nonceCache: { nonce: number; timestamp: number } | null = null;
-  private readonly NONCE_CACHE_TTL = 5000; // 5 seconds
+  private readonly NONCE_CACHE_TTL = BLOCKCHAIN.NONCE_CACHE_TTL;
+  private readonly GAS_BUFFER_PERCENT = parseInt(process.env.GAS_BUFFER_PERCENT || String(BLOCKCHAIN.GAS_BUFFER_PERCENT_DEFAULT));
+
+  // Fallback gas limits (used when estimation fails)
+  private readonly FALLBACK_GAS_LIMITS = BLOCKCHAIN.FALLBACK_GAS_LIMITS;
 
   constructor(
     rpcUrl: string,
@@ -54,6 +59,10 @@ export class BlockchainService implements IBlockchainService {
     this.token = new Contract(tokenAddress, ERC20Abi, this.wallet);
   }
 
+  /**
+   * Get the wallet address used by this blockchain service
+   * @returns The Ethereum address of the wallet
+   */
   getWalletAddress(): string {
     return this.wallet.address;
   }
@@ -100,11 +109,31 @@ export class BlockchainService implements IBlockchainService {
   }
 
   /**
+   * Estimate gas with safety buffer and fallback
+   */
+  private async estimateGasWithBuffer(
+    estimateFunction: () => Promise<bigint>,
+    fallbackGas: bigint,
+    operationName: string
+  ): Promise<bigint> {
+    try {
+      const estimatedGas = await estimateFunction();
+      // Add buffer percentage (e.g., 20% extra)
+      const gasWithBuffer = estimatedGas * BigInt(100 + this.GAS_BUFFER_PERCENT) / 100n;
+      log.debug(`${operationName}: Estimated ${estimatedGas} gas, using ${gasWithBuffer} with ${this.GAS_BUFFER_PERCENT}% buffer`);
+      return gasWithBuffer;
+    } catch (error: any) {
+      log.warn(`Gas estimation failed for ${operationName}, using fallback: ${fallbackGas}. Error: ${error.message}`);
+      return fallbackGas;
+    }
+  }
+
+  /**
    * Execute transaction with nonce error handling
    */
   private async executeTransaction(
     txFunction: (nonce: number) => Promise<ethers.ContractTransactionResponse>,
-    maxRetries: number = 3
+    maxRetries: number = BLOCKCHAIN.NONCE_RETRY_MAX
   ): Promise<ethers.ContractTransactionResponse> {
     let lastError: Error | null = null;
 
@@ -145,6 +174,10 @@ export class BlockchainService implements IBlockchainService {
     throw new Error(`Transaction failed after ${maxRetries} attempts: ${lastError?.message}`);
   }
 
+  /**
+   * Get the AIUS token balance of the wallet
+   * @returns Balance in wei (smallest unit of AIUS)
+   */
   async getBalance(): Promise<bigint> {
     return await expretry('getBalance', async () =>
       await this.token.balanceOf(this.wallet.address)
@@ -193,9 +226,17 @@ export class BlockchainService implements IBlockchainService {
     if (validatorStaked < validatorMinimum) {
       log.info('Validator needs to stake more tokens');
       const balance = await this.getBalance();
+      const shortfall = validatorMinimum - validatorStaked;
 
-      if (balance < validatorMinimum) {
-        throw new Error(`Insufficient balance to stake. Need ${ethers.formatEther(validatorMinimum)} AIUS`);
+      // Add buffer to account for potential validator minimum increases
+      const bufferMultiplier = 1 + (BLOCKCHAIN.STAKE_BUFFER_PERCENT / 100);
+      const requiredBalance = shortfall * BigInt(Math.floor(bufferMultiplier * 100)) / 100n;
+
+      if (balance < requiredBalance) {
+        throw new Error(
+          `Insufficient balance to stake. Need ${ethers.formatEther(requiredBalance)} AIUS ` +
+          `(shortfall: ${ethers.formatEther(shortfall)} + ${BLOCKCHAIN.STAKE_BUFFER_PERCENT}% buffer), have ${ethers.formatEther(balance)} AIUS`
+        );
       }
 
       const tx = await this.executeTransaction(async (nonce) =>
@@ -206,12 +247,34 @@ export class BlockchainService implements IBlockchainService {
     }
   }
 
+  /**
+   * Submit a task to the Arbius network
+   * @param modelId - The model ID (bytes32 hash)
+   * @param input - JSON string of task input parameters
+   * @param fee - Additional fee to pay in addition to model fee (in wei)
+   * @returns The task ID of the submitted task
+   */
   async submitTask(modelId: string, input: string, fee: bigint): Promise<string> {
     const bytes = ethers.hexlify(ethers.toUtf8Bytes(input));
     const modelFee = (await this.arbius.models(modelId)).fee;
     const totalFee = modelFee + fee;
 
     log.debug(`Submitting task for model ${modelId} with fee ${ethers.formatEther(totalFee)}`);
+
+    // Estimate gas for submitTask
+    const gasLimit = await this.estimateGasWithBuffer(
+      async () => await this.arbiusRouter.submitTask.estimateGas(
+        0, // version
+        this.wallet.address, // owner
+        modelId,
+        totalFee,
+        bytes,
+        0, // ipfs incentive
+        200_000 // gas limit parameter
+      ),
+      this.FALLBACK_GAS_LIMITS.submitTask,
+      'submitTask'
+    );
 
     const tx = await this.executeTransaction(async (nonce) =>
       await this.arbiusRouter.submitTask(
@@ -221,8 +284,8 @@ export class BlockchainService implements IBlockchainService {
         totalFee,
         bytes,
         0, // ipfs incentive
-        200_000, // gas limit
-        { nonce }
+        200_000, // gas limit parameter (for the task execution, not tx gas)
+        { nonce, gasLimit }
       )
     );
 
@@ -255,9 +318,16 @@ export class BlockchainService implements IBlockchainService {
 
   async signalCommitment(commitment: string): Promise<void> {
     try {
+      // Estimate gas for signalCommitment
+      const gasLimit = await this.estimateGasWithBuffer(
+        async () => await this.arbius.signalCommitment.estimateGas(commitment),
+        this.FALLBACK_GAS_LIMITS.signalCommitment,
+        'signalCommitment'
+      );
+
       const tx = await this.executeTransaction(async (nonce) =>
         await this.arbius.signalCommitment(commitment, {
-          gasLimit: 450_000,
+          gasLimit,
           nonce
         })
       );
@@ -269,6 +339,11 @@ export class BlockchainService implements IBlockchainService {
     }
   }
 
+  /**
+   * Submit a solution for a task (includes commitment signaling)
+   * @param taskid - The task ID to submit solution for
+   * @param cid - The IPFS CID of the solution (hex format with 0x prefix)
+   */
   async submitSolution(taskid: string, cid: string): Promise<void> {
     const commitment = generateCommitment(this.wallet.address, taskid, cid);
     log.debug(`Generated commitment: ${commitment}`);
@@ -281,13 +356,20 @@ export class BlockchainService implements IBlockchainService {
     }
 
     // Sleep to avoid nonce issues
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, BLOCKCHAIN.COMMITMENT_DELAY_MS));
 
     // Submit solution
     try {
+      // Estimate gas for submitSolution
+      const gasLimit = await this.estimateGasWithBuffer(
+        async () => await this.arbius.submitSolution.estimateGas(taskid, cid),
+        this.FALLBACK_GAS_LIMITS.submitSolution,
+        'submitSolution'
+      );
+
       const tx = await this.executeTransaction(async (nonce) =>
         await this.arbius.submitSolution(taskid, cid, {
-          gasLimit: 500_000,
+          gasLimit,
           nonce
         })
       );
@@ -321,7 +403,7 @@ export class BlockchainService implements IBlockchainService {
     try {
       const filter = this.arbius.filters.TaskSubmitted(taskid);
       const currentBlock = await this.provider.getBlockNumber();
-      const fromBlock = Math.max(0, currentBlock - 10000);
+      const fromBlock = Math.max(0, currentBlock - BLOCKCHAIN.BLOCK_LOOKBACK);
 
       log.debug(`Searching for taskid ${taskid} from block ${fromBlock} to ${currentBlock}`);
 
@@ -367,10 +449,18 @@ export class BlockchainService implements IBlockchainService {
     }
   }
 
+  /**
+   * Get the Arbius contract instance for direct interaction
+   * @returns The ethers Contract instance for Arbius
+   */
   getArbiusContract(): Contract {
     return this.arbius;
   }
 
+  /**
+   * Get the ethers provider instance
+   * @returns The FallbackProvider used for blockchain queries
+   */
   getProvider(): ethers.FallbackProvider {
     return this.provider;
   }

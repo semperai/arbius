@@ -19,17 +19,19 @@ describe('AAWalletProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock window.ethereum
-    (global as any).window = {
-      ethereum: {
-        on: vi.fn(),
-        removeListener: vi.fn(),
-        request: vi.fn(),
-      },
+    (global as any).window = (global as any).window || {};
+    (global as any).window.ethereum = {
+      on: vi.fn(),
+      removeListener: vi.fn(),
+      request: vi.fn(),
     };
   });
 
   afterEach(() => {
-    delete (global as any).window;
+    // Only delete ethereum, not the entire window object
+    if ((global as any).window) {
+      delete (global as any).window.ethereum;
+    }
   });
 
   describe('Initialization check', () => {
