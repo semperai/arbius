@@ -2,12 +2,12 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import * as fs from 'fs';
 import { Logger } from "tslog";
-import { Wallet, ethers } from 'ethers';
+import { Wallet, ethers, JsonRpcProvider } from 'ethers';
 import { base58 } from '@scure/base';
 import { createVerifiedFetch } from '@helia/verified-fetch'
 import express from 'express';
 
-const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+const provider = new JsonRpcProvider(process.env.RPC_URL);
 const signer = new Wallet(process.env.PRIVATE_KEY, provider);
 const port = process.env.PORT || 3000;
 const timeout = parseInt(process.env.TIMEOUT || '5000');
@@ -45,14 +45,14 @@ export function cidify(cid) {
   if (! cid) {
     return '';
   }
-  return base58.encode(ethers.utils.arrayify(cid));
+  return base58.encode(ethers.getBytes(cid));
 }
 
 
 export const app = express();
 app.use(express.json());
 
-async function main() {
+export async function main() {
   await initializeLogger('log.txt', 0);
   log.info(`ipfs-oracle is starting with address ${signer.address}`);
 
@@ -79,11 +79,11 @@ app.post('/sign', async (req, res) => {
     const data = await response.text();
 
     const cidBytes = base58.decode(cid);
-    const hash = ethers.utils.keccak256(cidBytes);
-    const digest = ethers.utils.arrayify(hash);
-    const skey = new ethers.utils.SigningKey(signer.privateKey);
-    const components = skey.signDigest(digest);
-    const signature = ethers.utils.joinSignature(components);
+    const hash = ethers.keccak256(cidBytes);
+    const digest = ethers.getBytes(hash);
+    const skey = new ethers.SigningKey(signer.privateKey);
+    const components = skey.sign(digest);
+    const signature = ethers.Signature.from(components).serialized;
 
     res.status(200).send({
       signer: signer.address,
@@ -99,6 +99,10 @@ app.post('/sign', async (req, res) => {
 
 
 // Only start server if not in test environment
-if (process.env.NODE_ENV !== 'test') {
-  main();
+export function autoStart() {
+  if (process.env.NODE_ENV !== 'test') {
+    main();
+  }
 }
+
+autoStart();
