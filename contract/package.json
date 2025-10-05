@@ -21,7 +21,7 @@
     "forge-test-v": "forge test --fork-url http://localhost:8545 --fork-block-number 18 -vvv"
   },
   "devDependencies": {
-    "@arbitrum/nitro-contracts": "^1.3.0",
+    "@arbitrum/nitro-contracts": "^3.1.1",
     "@arbitrum/sdk": "^3.7.3",
     "@commitlint/cli": "^16.3.0",
     "@commitlint/config-conventional": "^16.2.4",
