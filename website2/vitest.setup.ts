@@ -3,7 +3,7 @@ import { TextEncoder, TextDecoder } from 'util';
 
 // Polyfills for jsdom
 if (typeof global.TextEncoder === 'undefined') {
-  global.TextEncoder = TextEncoder;
+  global.TextEncoder = TextEncoder as any;
 }
 if (typeof global.TextDecoder === 'undefined') {
   global.TextDecoder = TextDecoder as any;
