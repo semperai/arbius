@@ -114,6 +114,9 @@ export interface TaskJob {
   cid?: string;
   chatId?: number;
   messageId?: number;
+  telegramId?: number;
+  progress?: string;
+  wonReward?: boolean;
 }
 
 // Hydration result

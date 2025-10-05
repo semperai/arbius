@@ -15,6 +15,16 @@ export class BlockchainService implements IBlockchainService {
   private rpcUrls: string[];
   private nonceCache: { nonce: number; timestamp: number } | null = null;
   private readonly NONCE_CACHE_TTL = 5000; // 5 seconds
+  private readonly GAS_BUFFER_PERCENT = parseInt(process.env.GAS_BUFFER_PERCENT || '20'); // 20% buffer default
+
+  // Fallback gas limits (used when estimation fails)
+  private readonly FALLBACK_GAS_LIMITS = {
+    submitTask: 200_000n,
+    signalCommitment: 450_000n,
+    submitSolution: 500_000n,
+    approve: 100_000n,
+    validatorDeposit: 150_000n,
+  };
 
   constructor(
     rpcUrl: string,
@@ -97,6 +107,26 @@ export class BlockchainService implements IBlockchainService {
 
     log.debug(`Nonce retrieved: ${maxNonce} (from ${nonces.length} RPCs: ${nonces.join(', ')})`);
     return maxNonce;
+  }
+
+  /**
+   * Estimate gas with safety buffer and fallback
+   */
+  private async estimateGasWithBuffer(
+    estimateFunction: () => Promise<bigint>,
+    fallbackGas: bigint,
+    operationName: string
+  ): Promise<bigint> {
+    try {
+      const estimatedGas = await estimateFunction();
+      // Add buffer percentage (e.g., 20% extra)
+      const gasWithBuffer = estimatedGas * BigInt(100 + this.GAS_BUFFER_PERCENT) / 100n;
+      log.debug(`${operationName}: Estimated ${estimatedGas} gas, using ${gasWithBuffer} with ${this.GAS_BUFFER_PERCENT}% buffer`);
+      return gasWithBuffer;
+    } catch (error: any) {
+      log.warn(`Gas estimation failed for ${operationName}, using fallback: ${fallbackGas}. Error: ${error.message}`);
+      return fallbackGas;
+    }
   }
 
   /**
@@ -221,6 +251,21 @@ export class BlockchainService implements IBlockchainService {
 
     log.debug(`Submitting task for model ${modelId} with fee ${ethers.formatEther(totalFee)}`);
 
+    // Estimate gas for submitTask
+    const gasLimit = await this.estimateGasWithBuffer(
+      async () => await this.arbiusRouter.submitTask.estimateGas(
+        0, // version
+        this.wallet.address, // owner
+        modelId,
+        totalFee,
+        bytes,
+        0, // ipfs incentive
+        200_000 // gas limit parameter
+      ),
+      this.FALLBACK_GAS_LIMITS.submitTask,
+      'submitTask'
+    );
+
     const tx = await this.executeTransaction(async (nonce) =>
       await this.arbiusRouter.submitTask(
         0, // version
@@ -229,8 +274,8 @@ export class BlockchainService implements IBlockchainService {
         totalFee,
         bytes,
         0, // ipfs incentive
-        200_000, // gas limit
-        { nonce }
+        200_000, // gas limit parameter (for the task execution, not tx gas)
+        { nonce, gasLimit }
       )
     );
 
@@ -263,9 +308,16 @@ export class BlockchainService implements IBlockchainService {
 
   async signalCommitment(commitment: string): Promise<void> {
     try {
+      // Estimate gas for signalCommitment
+      const gasLimit = await this.estimateGasWithBuffer(
+        async () => await this.arbius.signalCommitment.estimateGas(commitment),
+        this.FALLBACK_GAS_LIMITS.signalCommitment,
+        'signalCommitment'
+      );
+
       const tx = await this.executeTransaction(async (nonce) =>
         await this.arbius.signalCommitment(commitment, {
-          gasLimit: 450_000,
+          gasLimit,
           nonce
         })
       );
@@ -293,9 +345,16 @@ export class BlockchainService implements IBlockchainService {
 
     // Submit solution
     try {
+      // Estimate gas for submitSolution
+      const gasLimit = await this.estimateGasWithBuffer(
+        async () => await this.arbius.submitSolution.estimateGas(taskid, cid),
+        this.FALLBACK_GAS_LIMITS.submitSolution,
+        'submitSolution'
+      );
+
       const tx = await this.executeTransaction(async (nonce) =>
         await this.arbius.submitSolution(taskid, cid, {
-          gasLimit: 500_000,
+          gasLimit,
           nonce
         })
       );

@@ -41,6 +41,7 @@ export class TaskProcessor {
 
     try {
       // Check if already solved
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Checking blockchain...' });
       const existingSolution = await this.blockchain.getSolution(job.taskid);
       if (existingSolution.validator !== ethers.ZeroAddress) {
         if (existingSolution.cid) {
@@ -55,6 +56,7 @@ export class TaskProcessor {
 
       // Generate output and get CID
       log.debug(`Generating output for task ${job.taskid}`);
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Generating output...' });
       const cid = await handler.getCid(job.taskid, job.input);
 
       if (!cid) {
@@ -64,6 +66,7 @@ export class TaskProcessor {
       log.info(`Generated CID ${cid} for task ${job.taskid}`);
 
       // Check again if someone else solved it while we were processing
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Verifying solution...' });
       const solutionCheck = await this.blockchain.getSolution(job.taskid);
       if (solutionCheck.validator !== ethers.ZeroAddress) {
         if (solutionCheck.cid !== cid) {
@@ -82,9 +85,11 @@ export class TaskProcessor {
 
       // Submit solution to blockchain
       log.debug(`Submitting solution for task ${job.taskid}`);
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Submitting commitment...' });
       await this.blockchain.submitSolution(job.taskid, cid);
 
       // Pin input to IPFS for reference
+      this.jobQueue.updateJobStatus(job.id, 'processing', { progress: 'Uploading to IPFS...' });
       const inputStr = JSON.stringify(job.input);
       expretry('pinInputToIPFS', async () =>
         await pinFileToIPFS(
@@ -100,6 +105,29 @@ export class TaskProcessor {
 
       log.info(`Successfully processed task ${job.taskid}`);
       this.jobQueue.updateJobStatus(job.id, 'completed', { cid });
+
+      // Random reward system: 1 in X chance to win reward
+      if (this.userService && job.chatId) {
+        const rewardChance = parseInt(process.env.REWARD_CHANCE || '20'); // Default 1 in 20
+        const rewardAmount = ethers.parseEther(process.env.REWARD_AMOUNT || '1'); // Default 1 AIUS
+
+        const randomNum = Math.floor(Math.random() * rewardChance);
+        if (randomNum === 0) {
+          // Winner!
+          const telegramId = (job as any).telegramId;
+          if (telegramId) {
+            const success = this.userService.adminCredit(
+              telegramId,
+              rewardAmount,
+              `Lucky reward for task ${job.taskid}`
+            );
+            if (success) {
+              log.info(`🎉 User ${telegramId} won ${ethers.formatEther(rewardAmount)} AIUS reward!`);
+              this.jobQueue.updateJobStatus(job.id, 'completed', { cid, wonReward: true });
+            }
+          }
+        }
+      }
     } catch (error: any) {
       log.error(`Failed to process task ${job.taskid}: ${error.message}`);
       this.jobQueue.updateJobStatus(job.id, 'failed', { error: error.message });
@@ -265,6 +293,7 @@ export class TaskProcessor {
       input,
       chatId: metadata?.chatId,
       messageId: metadata?.messageId,
+      telegramId: metadata?.telegramId,
     });
 
     return { taskid, job, estimatedCost: estimatedTotal };

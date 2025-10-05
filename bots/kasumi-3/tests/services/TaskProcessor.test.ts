@@ -83,6 +83,7 @@ describe('TaskProcessor', () => {
       finalizeReservation: vi.fn(),
       getAvailableBalance: vi.fn(),
       refundTask: vi.fn(),
+      adminCredit: vi.fn(),
     } as any;
 
     // Mock GasAccountingService
@@ -224,6 +225,146 @@ describe('TaskProcessor', () => {
       await expect(processorWithUser.processTask(mockJob)).rejects.toThrow('Task failed');
 
       expect(mockUserService.refundTask).toHaveBeenCalledWith('0xtask123');
+    });
+
+    it('should award random reward when user wins', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      const jobWithChat = {
+        ...mockJob,
+        chatId: 123,
+        telegramId: 456,
+      };
+
+      // Mock winning condition (Math.random returns 0, which equals 0 after floor)
+      vi.spyOn(Math, 'random').mockReturnValue(0);
+
+      process.env.REWARD_CHANCE = '20';
+      process.env.REWARD_AMOUNT = '1';
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+      mockUserService.adminCredit.mockReturnValue(true);
+
+      await processorWithUser.processTask(jobWithChat);
+
+      expect(mockUserService.adminCredit).toHaveBeenCalledWith(
+        456,
+        ethers.parseEther('1'),
+        'Lucky reward for task 0xtask123'
+      );
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'completed',
+        { cid: '0xnewcid', wonReward: true }
+      );
+    });
+
+    it('should not award reward when user does not win', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      const jobWithChat = {
+        ...mockJob,
+        chatId: 123,
+        telegramId: 456,
+      };
+
+      // Mock losing condition (Math.random returns value that doesn't equal 0 after floor)
+      vi.spyOn(Math, 'random').mockReturnValue(0.5);
+
+      process.env.REWARD_CHANCE = '20';
+      process.env.REWARD_AMOUNT = '1';
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+
+      await processorWithUser.processTask(jobWithChat);
+
+      expect(mockUserService.adminCredit).not.toHaveBeenCalled();
+      expect(mockJobQueue.updateJobStatus).toHaveBeenCalledWith(
+        'job-123',
+        'completed',
+        { cid: '0xnewcid' }
+      );
+    });
+
+    it('should not award reward when job has no chatId', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      // Mock winning condition
+      vi.spyOn(Math, 'random').mockReturnValue(0);
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+
+      await processorWithUser.processTask(mockJob);
+
+      expect(mockUserService.adminCredit).not.toHaveBeenCalled();
+    });
+
+    it('should handle different reward chances correctly', async () => {
+      const processorWithUser = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService
+      );
+
+      const jobWithChat = {
+        ...mockJob,
+        chatId: 123,
+        telegramId: 456,
+      };
+
+      // Test with 1 in 10 chance
+      process.env.REWARD_CHANCE = '10';
+      process.env.REWARD_AMOUNT = '5';
+
+      // Mock winning condition for 1 in 10
+      vi.spyOn(Math, 'random').mockReturnValue(0);
+
+      mockBlockchain.getSolution
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any)
+        .mockResolvedValueOnce({ validator: ethers.ZeroAddress, cid: '' } as any);
+
+      mockModelHandler.getCid.mockResolvedValue('0xnewcid');
+      mockBlockchain.submitSolution.mockResolvedValue(undefined);
+      mockUserService.adminCredit.mockReturnValue(true);
+
+      await processorWithUser.processTask(jobWithChat);
+
+      expect(mockUserService.adminCredit).toHaveBeenCalledWith(
+        456,
+        ethers.parseEther('5'),
+        'Lucky reward for task 0xtask123'
+      );
     });
   });
 

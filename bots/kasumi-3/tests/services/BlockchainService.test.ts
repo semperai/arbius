@@ -105,4 +105,79 @@ describe('BlockchainService', () => {
       expect(provider).toBeDefined();
     });
   });
+
+  describe('dynamic gas estimation', () => {
+    beforeEach(() => {
+      blockchain = new BlockchainService(
+        TEST_RPC,
+        TEST_PRIVATE_KEY,
+        TEST_ARBIUS_ADDRESS,
+        TEST_ROUTER_ADDRESS,
+        TEST_TOKEN_ADDRESS
+      );
+    });
+
+    it('should use dynamic gas estimation with buffer', async () => {
+      const mockEstimateGas = vi.fn().mockResolvedValue(100_000n);
+      const mockContract = {
+        submitSolution: {
+          estimateGas: mockEstimateGas,
+        },
+      };
+
+      // Access private method via any cast for testing
+      const estimateGasWithBuffer = (blockchain as any).estimateGasWithBuffer.bind(blockchain);
+
+      const gasLimit = await estimateGasWithBuffer(
+        async () => await mockEstimateGas(),
+        200_000n,
+        'test'
+      );
+
+      // Default buffer is 20%, so 100_000 * 1.2 = 120_000
+      expect(gasLimit).toBe(120_000n);
+      expect(mockEstimateGas).toHaveBeenCalled();
+    });
+
+    it('should use fallback gas when estimation fails', async () => {
+      const mockEstimateGas = vi.fn().mockRejectedValue(new Error('Estimation failed'));
+
+      const estimateGasWithBuffer = (blockchain as any).estimateGasWithBuffer.bind(blockchain);
+
+      const gasLimit = await estimateGasWithBuffer(
+        async () => await mockEstimateGas(),
+        200_000n,
+        'test'
+      );
+
+      expect(gasLimit).toBe(200_000n);
+      expect(mockEstimateGas).toHaveBeenCalled();
+    });
+
+    it('should respect custom GAS_BUFFER_PERCENT env var', async () => {
+      process.env.GAS_BUFFER_PERCENT = '50';
+
+      const blockchainWithCustomBuffer = new BlockchainService(
+        TEST_RPC,
+        TEST_PRIVATE_KEY,
+        TEST_ARBIUS_ADDRESS,
+        TEST_ROUTER_ADDRESS,
+        TEST_TOKEN_ADDRESS
+      );
+
+      const mockEstimateGas = vi.fn().mockResolvedValue(100_000n);
+      const estimateGasWithBuffer = (blockchainWithCustomBuffer as any).estimateGasWithBuffer.bind(blockchainWithCustomBuffer);
+
+      const gasLimit = await estimateGasWithBuffer(
+        async () => await mockEstimateGas(),
+        200_000n,
+        'test'
+      );
+
+      // 50% buffer: 100_000 * 1.5 = 150_000
+      expect(gasLimit).toBe(150_000n);
+
+      delete process.env.GAS_BUFFER_PERCENT;
+    });
+  });
 });

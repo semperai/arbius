@@ -17,6 +17,8 @@ import { TaskProcessor } from './services/TaskProcessor';
 import { RateLimiter } from './services/RateLimiter';
 import { HealthCheckServer } from './services/HealthCheckServer';
 import { TaskJob } from './types';
+import { initializePaymentSystem } from './initPaymentSystem';
+import * as path from 'path';
 
 /**
  * Kasumi-3 Bot - Multi-model Telegram bot for Arbius network
@@ -32,22 +34,25 @@ class Kasumi3Bot {
   private rateLimiter: RateLimiter;
   private cleanupInterval: NodeJS.Timeout | null = null;
   private healthCheckServer: HealthCheckServer | null = null;
+  private userService?: any;
 
   constructor(
-    botToken: string,
+    bot: Telegraf,
     blockchain: BlockchainService,
     modelRegistry: ModelRegistry,
     jobQueue: JobQueue,
     taskProcessor: TaskProcessor,
     miningConfig: any,
+    userService?: any,
     rateLimitConfig?: { maxRequests: number; windowMs: number }
   ) {
-    this.bot = new Telegraf(botToken);
+    this.bot = bot;
     this.blockchain = blockchain;
     this.modelRegistry = modelRegistry;
     this.jobQueue = jobQueue;
     this.taskProcessor = taskProcessor;
     this.miningConfig = miningConfig;
+    this.userService = userService;
     this.startupTime = now();
     this.rateLimiter = new RateLimiter(
       rateLimitConfig || {
@@ -172,6 +177,29 @@ class Kasumi3Bot {
     if (!prompt) {
       ctx.reply(`Please provide a prompt. Usage: /${modelConfig.name} <your prompt>`);
       return;
+    }
+
+    // Check if user has linked wallet and sufficient balance
+    if (this.userService && ctx.from?.id) {
+      const user = this.userService.getUser(ctx.from.id);
+      if (!user) {
+        return ctx.reply(
+          '❌ Please link your wallet first using:\n/link <wallet_address>\n\n' +
+          'Then deposit AIUS tokens with /deposit'
+        );
+      }
+
+      const balance = this.userService.getBalance(ctx.from.id);
+      // Estimate cost: model fee + gas (~0.5 AIUS)
+      const estimatedCost = ethers.parseEther('0.5');
+      if (balance < estimatedCost) {
+        return ctx.reply(
+          `❌ Insufficient balance\n\n` +
+          `Balance: ${ethers.formatEther(balance)} AIUS\n` +
+          `Estimated cost: ~${ethers.formatEther(estimatedCost)} AIUS\n\n` +
+          `Use /deposit to add funds`
+        );
+      }
     }
 
     log.info(`Generating with model ${modelConfig.name}: ${prompt}`);
@@ -397,6 +425,7 @@ class Kasumi3Bot {
 
   private async waitForJobCompletion(job: TaskJob, ctx: any, responseCtx?: any): Promise<void> {
     const maxWaitTime = parseInt(process.env.JOB_WAIT_TIMEOUT_MS || '900000'); // 15 minutes default
+    let lastProgress = '';
 
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
@@ -408,13 +437,29 @@ class Kasumi3Bot {
       const onStatusChange = async (updatedJob: TaskJob) => {
         if (updatedJob.id !== job.id) return;
 
+        // Update progress if changed
+        if (updatedJob.progress && updatedJob.progress !== lastProgress && responseCtx) {
+          lastProgress = updatedJob.progress;
+          try {
+            await this.bot.telegram.editMessageCaption(
+              responseCtx.chat.id,
+              responseCtx.message_id,
+              undefined,
+              `⏳ ${updatedJob.progress}`
+            );
+          } catch (e) {
+            log.debug(`Failed to update progress: ${e}`);
+          }
+        }
+
         if (updatedJob.status === 'completed' && updatedJob.cid) {
           cleanup();
           await this.sendCompletedResult(ctx, responseCtx, updatedJob);
           resolve();
         } else if (updatedJob.status === 'failed') {
           cleanup();
-          ctx.reply(`❌ Task failed: ${updatedJob.error || 'Unknown error'}`);
+          const errorMsg = updatedJob.error || 'Unknown error';
+          ctx.reply(`❌ Task failed: ${errorMsg}\n\n💰 Your balance has been refunded`);
           resolve();
         }
       };
@@ -434,7 +479,8 @@ class Kasumi3Bot {
           this.sendCompletedResult(ctx, responseCtx, currentJob).then(resolve);
         } else if (currentJob.status === 'failed') {
           cleanup();
-          ctx.reply(`❌ Task failed: ${currentJob.error || 'Unknown error'}`);
+          const errorMsg = currentJob.error || 'Unknown error';
+          ctx.reply(`❌ Task failed: ${errorMsg}\n\n💰 Your balance has been refunded`);
           resolve();
         }
       }
@@ -475,6 +521,20 @@ class Kasumi3Bot {
       } else {
         // Unknown type - send as document
         await ctx.replyWithDocument(Input.fromURL(fileUrl), { caption });
+      }
+
+      // Send winner notification as separate message with image
+      if (job.wonReward) {
+        const winnerImageUrl = process.env.WINNER_IMAGE_URL || 'https://arbius.ai/mining-icon.png';
+        const rewardAmount = process.env.REWARD_AMOUNT || '1';
+        try {
+          await ctx.replyWithPhoto(Input.fromURL(winnerImageUrl), {
+            caption: `WINNER! You won ${rewardAmount} AIUS!`
+          });
+        } catch (e) {
+          log.debug(`Failed to send winner image: ${e}`);
+          ctx.reply(`WINNER! You won ${rewardAmount} AIUS!`);
+        }
       }
     } catch (err: any) {
       log.error(`Failed to send result via Telegram: ${err.message}`);
@@ -590,7 +650,28 @@ async function main() {
   const maxConcurrent = parseInt(process.env.JOB_MAX_CONCURRENT || '3');
   const jobTimeoutMs = parseInt(process.env.JOB_TIMEOUT_MS || '900000');
 
-  const taskProcessor = new TaskProcessor(blockchain, miningConfig, null as any);
+  // Initialize bot first (needed for payment system)
+  const bot = new Telegraf(ConfigLoader.getEnvVar('BOT_TOKEN'));
+
+  // Initialize payment system
+  const paymentSystem = initializePaymentSystem({
+    dbPath: path.join(__dirname, '../data/kasumi3.db'),
+    ethMainnetRpc: process.env.ETH_MAINNET_RPC || 'https://eth.llamarpc.com',
+    botWalletAddress: blockchain.getWalletAddress(),
+    tokenAddress: ConfigLoader.getEnvVar('TOKEN_ADDRESS'),
+    adminTelegramIds: process.env.ADMIN_TELEGRAM_IDS?.split(',').map(Number) || [],
+  }, bot, blockchain);
+
+  // Start deposit monitoring
+  await paymentSystem.depositMonitor.start();
+
+  const taskProcessor = new TaskProcessor(
+    blockchain,
+    miningConfig,
+    null as any,
+    paymentSystem.userService,
+    paymentSystem.gasAccounting
+  );
   const jobQueue = new JobQueue(maxConcurrent, async (job: TaskJob) => {
     try {
       await taskProcessor.processTask(job);
@@ -602,17 +683,18 @@ async function main() {
   // Set the job queue in task processor
   (taskProcessor as any).jobQueue = jobQueue;
 
-  // Initialize bot
-  const bot = new Kasumi3Bot(
-    ConfigLoader.getEnvVar('BOT_TOKEN'),
+  // Initialize bot wrapper with payment system
+  const kasumiBot = new Kasumi3Bot(
+    bot,
     blockchain,
     modelRegistry,
     jobQueue,
     taskProcessor,
-    miningConfig
+    miningConfig,
+    paymentSystem.userService
   );
 
-  await bot.launch();
+  await kasumiBot.launch();
   log.info('Kasumi-3 is ready!');
 }
 
