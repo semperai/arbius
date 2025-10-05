@@ -68,6 +68,7 @@ describe('TaskProcessor', () => {
       getArbiusContract: vi.fn(),
       getProvider: vi.fn(),
       findTransactionByTaskId: vi.fn(),
+      waitForTask: vi.fn(),
     } as any;
 
     // Mock JobQueue
@@ -577,6 +578,173 @@ describe('TaskProcessor', () => {
       await expect(
         taskProcessor.processExistingTask('0xnonexistent', mockModelConfig)
       ).rejects.toThrow('Could not find transaction data');
+    });
+  });
+
+  describe('Payment Finalization Edge Cases', () => {
+    it('should handle missing transaction data during payment finalization', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.getProvider.mockReturnValue({} as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue(null); // No transaction found
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockUserService.cancelReservation.mockReturnValue(undefined);
+
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Should have cancelled the reservation due to missing transaction
+      expect(mockUserService.cancelReservation).toHaveBeenCalledWith('res_123');
+    });
+
+    it('should handle missing receipt during payment finalization', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'test',
+        modelId: '0xmodel1',
+      });
+      // Provider returns null receipt
+      mockBlockchain.getProvider.mockReturnValue({
+        getTransactionReceipt: vi.fn().mockResolvedValue(null),
+      } as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockUserService.cancelReservation.mockReturnValue(undefined);
+
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Should have cancelled the reservation due to missing receipt
+      expect(mockUserService.cancelReservation).toHaveBeenCalledWith('res_123');
+    });
+
+    it('should handle errors during payment finalization', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'test',
+        modelId: '0xmodel1',
+      });
+      mockBlockchain.getProvider.mockReturnValue({
+        getTransactionReceipt: vi.fn().mockRejectedValue(new Error('RPC error')),
+      } as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+
+      // Should not throw, but should log error
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Reservation should NOT be cancelled on error - it will expire automatically
+      expect(mockUserService.cancelReservation).not.toHaveBeenCalled();
+    });
+
+    it('should handle finalize reservation failure', async () => {
+      const processorWithPayment = new TaskProcessor(
+        mockBlockchain,
+        mockMiningConfig,
+        mockJobQueue,
+        mockUserService,
+        mockGasAccounting
+      );
+
+      const mockContract = {
+        models: vi.fn(),
+        submitTask: vi.fn(),
+      };
+      mockContract.models.mockResolvedValue({ fee: BigInt('1000000000000000000') });
+      mockContract.submitTask.mockResolvedValue({ hash: '0xtxhash' });
+      mockBlockchain.getArbiusContract.mockReturnValue(mockContract as any);
+      mockBlockchain.findTransactionByTaskId.mockResolvedValue({
+        txHash: '0xtxhash',
+        prompt: 'test',
+        modelId: '0xmodel1',
+      });
+      mockBlockchain.getProvider.mockReturnValue({
+        getTransactionReceipt: vi.fn().mockResolvedValue({
+          gasUsed: 150000n,
+          gasPrice: 50000000000n,
+        }),
+      } as any);
+      mockBlockchain.waitForTask.mockResolvedValue('0xtask123');
+      mockGasAccounting.estimateGasCostInAius.mockResolvedValue(BigInt('10000000000000000'));
+      mockGasAccounting.calculateGasCostInAius.mockResolvedValue({
+        gasCostAius: BigInt('8000000000000000'),
+        gasCostWei: BigInt('400000000000000'),
+        gasUsed: 150000n,
+        gasPrice: 50000000000n,
+        aiusPerEth: BigInt('100000000000000000000'),
+      });
+      mockUserService.reserveBalance.mockReturnValue('res_123');
+      mockUserService.finalizeReservation.mockReturnValue(false); // Finalization fails
+
+      await processorWithPayment.submitAndQueueTask(
+        mockModelConfig,
+        { prompt: 'test' },
+        0n,
+        { telegramId: 123 }
+      );
+
+      // Should have attempted to finalize but it failed
+      expect(mockUserService.finalizeReservation).toHaveBeenCalled();
     });
   });
 });
