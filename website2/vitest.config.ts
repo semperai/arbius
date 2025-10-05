@@ -25,10 +25,18 @@ export default defineConfig({
         'sentry.*.config.ts',
       ],
     },
+    css: {
+      include: /.+/,
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+    },
+  },
+  css: {
+    postcss: {
+      plugins: [],
     },
   },
 });

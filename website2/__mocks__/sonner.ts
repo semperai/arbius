@@ -1,15 +1,17 @@
-const mockToast = jest.fn();
+import { vi } from 'vitest';
+
+const mockToast = vi.fn();
 
 export const toast = Object.assign(mockToast, {
-  success: jest.fn(),
-  error: jest.fn(),
-  loading: jest.fn(() => 'toast-id'),
-  info: jest.fn(),
-  warning: jest.fn(),
-  promise: jest.fn(),
-  custom: jest.fn(),
-  message: jest.fn(),
-  dismiss: jest.fn(),
+  success: vi.fn(),
+  error: vi.fn(),
+  loading: vi.fn(() => 'toast-id'),
+  info: vi.fn(),
+  warning: vi.fn(),
+  promise: vi.fn(),
+  custom: vi.fn(),
+  message: vi.fn(),
+  dismiss: vi.fn(),
 });
 
 export const Toaster = () => null;

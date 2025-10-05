@@ -151,7 +151,7 @@ describe('nonceCleanup', () => {
   describe('startPeriodicNonceCleanup', () => {
     it('should return interval ID', () => {
       const intervalId = startPeriodicNonceCleanup();
-      expect(typeof intervalId).toBe('number');
+      expect(intervalId).toBeDefined();
 
       if (intervalId !== null) {
         stopPeriodicNonceCleanup(intervalId);

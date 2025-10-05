@@ -8,6 +8,17 @@ import {
 } from '@/lib/arbius-tasks';
 import type { PublicClient } from 'viem';
 
+// Mock viem's decodeEventLog
+vi.mock('viem', async () => {
+  const actual = await vi.importActual('viem');
+  return {
+    ...actual,
+    decodeEventLog: vi.fn(),
+  };
+});
+
+import { decodeEventLog } from 'viem';
+
 // Mock data
 const mockTaskId = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
 const mockModelId = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
@@ -32,9 +43,8 @@ describe('arbius-tasks', () => {
 
   describe('watchTaskSubmitted', () => {
     it('should extract TaskSubmitted event from transaction receipt', async () => {
-      // Mock viem's decodeEventLog globally for this test
-      const originalViem = jest.requireActual('viem');
-      vi.spyOn(originalViem, 'decodeEventLog').mockReturnValueOnce({
+      // Mock viem's decodeEventLog
+      (decodeEventLog as vi.Mock).mockReturnValueOnce({
         eventName: 'TaskSubmitted',
         args: {
           id: mockTaskId,
