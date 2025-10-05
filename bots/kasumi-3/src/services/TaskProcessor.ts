@@ -4,6 +4,7 @@ import { ModelHandlerFactory } from './ModelHandler';
 import { JobQueue } from './JobQueue';
 import { UserService } from './UserService';
 import { GasAccountingService } from './GasAccountingService';
+import { REWARDS, GAS_ESTIMATION } from '../constants';
 import { log } from '../log';
 import { pinFileToIPFS } from '../ipfs';
 import { expretry } from '../utils';
@@ -108,8 +109,8 @@ export class TaskProcessor {
 
       // Random reward system: 1 in X chance to win reward
       if (this.userService && job.chatId) {
-        const rewardChance = parseInt(process.env.REWARD_CHANCE || '20'); // Default 1 in 20
-        const rewardAmount = ethers.parseEther(process.env.REWARD_AMOUNT || '1'); // Default 1 AIUS
+        const rewardChance = parseInt(process.env.REWARD_CHANCE || String(REWARDS.CHANCE_DEFAULT));
+        const rewardAmount = ethers.parseEther(process.env.REWARD_AMOUNT || REWARDS.AMOUNT_DEFAULT);
 
         const randomNum = Math.floor(Math.random() * rewardChance);
         if (randomNum === 0) {
@@ -146,6 +147,8 @@ export class TaskProcessor {
 
   /**
    * Refund a task (can be called manually for admin refunds)
+   * @param taskid - The task ID to refund
+   * @returns true if refund was successful, false otherwise
    */
   refundTask(taskid: string): boolean {
     if (!this.userService) {
@@ -159,6 +162,11 @@ export class TaskProcessor {
   /**
    * Submit a new task to the blockchain and add to queue
    * If userService is configured, charges the user's balance
+   * @param modelConfig - The model configuration to use
+   * @param input - Input parameters for the model
+   * @param additionalFee - Additional fee to pay (default: 0)
+   * @param metadata - Optional metadata (chatId, messageId, telegramId)
+   * @returns Object containing taskid, job, and estimated cost
    */
   async submitAndQueueTask(
     modelConfig: ModelConfig,
@@ -181,9 +189,8 @@ export class TaskProcessor {
       const modelFee = model.fee + additionalFee;
 
       // Estimate gas cost for submitTask transaction
-      const gasEstimate = 200_000n; // Approximate gas for submitTask
       estimatedGasCost = await this.gasAccounting.estimateGasCostInAius(
-        gasEstimate,
+        GAS_ESTIMATION.SUBMIT_TASK_ESTIMATE,
         this.blockchain.getProvider()
       );
 
@@ -195,8 +202,8 @@ export class TaskProcessor {
       }
 
       // Reserve balance BEFORE submitting to blockchain
-      // Reservation expires in 5 minutes (enough time for blockchain tx)
-      reservationId = this.userService.reserveBalance(telegramId, estimatedTotal, 300000);
+      // Reservation expires after configured timeout (enough time for blockchain tx)
+      reservationId = this.userService.reserveBalance(telegramId, estimatedTotal, GAS_ESTIMATION.RESERVATION_TIMEOUT_MS);
 
       if (!reservationId) {
         const availableBalance = this.userService.getAvailableBalance(telegramId);
@@ -301,6 +308,10 @@ export class TaskProcessor {
 
   /**
    * Process an existing task by taskid
+   * @param taskid - The task ID to process
+   * @param modelConfig - The model configuration to use
+   * @param metadata - Optional metadata (chatId, messageId)
+   * @returns The created job
    */
   async processExistingTask(
     taskid: string,

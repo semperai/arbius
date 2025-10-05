@@ -1,8 +1,10 @@
 import { Contract, ethers } from 'ethers';
 import { DatabaseService } from './DatabaseService';
 import { UserService } from './UserService';
+import { DEPOSIT_MONITOR } from '../constants';
 import { log } from '../log';
 import ERC20Abi from '../abis/erc20.json';
+import { Telegraf } from 'telegraf';
 
 /**
  * Monitors AIUS token transfers to bot wallet and credits user balances
@@ -15,19 +17,22 @@ export class DepositMonitor {
   private isRunning: boolean = false;
   private pollInterval: number;
   private lastProcessedBlock: number = 0;
+  private bot?: Telegraf;
 
   constructor(
     provider: ethers.FallbackProvider,
     tokenAddress: string,
     botWalletAddress: string,
     userService: UserService,
-    pollInterval: number = 12000 // 12 seconds (Arbitrum block time)
+    pollInterval: number = DEPOSIT_MONITOR.POLL_INTERVAL_MS,
+    bot?: Telegraf
   ) {
     this.provider = provider;
     this.tokenContract = new Contract(tokenAddress, ERC20Abi, provider);
     this.botWalletAddress = botWalletAddress;
     this.userService = userService;
     this.pollInterval = pollInterval;
+    this.bot = bot;
   }
 
   /**
@@ -170,7 +175,23 @@ export class DepositMonitor {
           `(@${user.telegram_username || 'unknown'})`
         );
 
-        // TODO: Send Telegram notification to user
+        // Send Telegram notification to user
+        if (this.bot) {
+          try {
+            await this.bot.telegram.sendMessage(
+              user.telegram_id,
+              `✅ Deposit Confirmed!\n\n` +
+              `Amount: ${ethers.formatEther(amount)} AIUS\n` +
+              `From: \`${from.slice(0, 10)}...${from.slice(-8)}\`\n` +
+              `Transaction: \`${txHash}\`\n\n` +
+              `Your new balance: ${ethers.formatEther(this.userService.getBalance(user.telegram_id))} AIUS`,
+              { parse_mode: 'Markdown' }
+            );
+            log.debug(`Sent deposit notification to user ${user.telegram_id}`);
+          } catch (notifyError: any) {
+            log.warn(`Failed to send deposit notification to user ${user.telegram_id}: ${notifyError.message}`);
+          }
+        }
       } else {
         log.error(`Failed to credit deposit for user ${user.telegram_id}`);
       }
