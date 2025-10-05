@@ -1,5 +1,6 @@
 import { keccak256, toBytes, type Hex } from 'viem';
 import { privateKeyToAccount, type PrivateKeyAccount } from 'viem/accounts';
+import { safeLocalStorageGet, safeLocalStorageSet, safeLocalStorageRemove } from './safeStorage';
 
 // Storage keys
 const DERIVED_WALLET_STORAGE_KEY = 'arbiuswallet_derivedWalletCache';
@@ -32,7 +33,7 @@ export async function initDeterministicWallet(
   }
 
   const lowerOwnerAddress = ownerAddress.toLowerCase();
-  const cached = localStorage.getItem(DERIVED_WALLET_STORAGE_KEY);
+  const cached = safeLocalStorageGet(DERIVED_WALLET_STORAGE_KEY);
 
   if (cached) {
     try {
@@ -43,7 +44,7 @@ export async function initDeterministicWallet(
       }
     } catch (err) {
       console.error('Failed to parse cached wallet, clearing cache:', err instanceof Error ? err.message : 'Unknown error');
-      localStorage.removeItem(DERIVED_WALLET_STORAGE_KEY);
+      safeLocalStorageRemove(DERIVED_WALLET_STORAGE_KEY);
     }
   }
 
@@ -64,13 +65,16 @@ export async function initDeterministicWallet(
     createdAt: new Date().toISOString()
   };
 
-  localStorage.setItem(DERIVED_WALLET_STORAGE_KEY, JSON.stringify(cacheData));
+  const cacheSuccess = safeLocalStorageSet(DERIVED_WALLET_STORAGE_KEY, JSON.stringify(cacheData));
+  if (!cacheSuccess) {
+    console.warn('Failed to cache derived wallet. Wallet will need to be re-derived on page reload.');
+  }
 
   return account;
 }
 
 export function getCachedWalletAddress(ownerAddress: string): string | null {
-  const cached = localStorage.getItem(DERIVED_WALLET_STORAGE_KEY);
+  const cached = safeLocalStorageGet(DERIVED_WALLET_STORAGE_KEY);
   if (!cached) return null;
 
   try {
@@ -87,7 +91,7 @@ export function getCachedWalletAddress(ownerAddress: string): string | null {
 }
 
 export function getCachedWallet(address: string): PrivateKeyAccount | null {
-  const cached = localStorage.getItem(DERIVED_WALLET_STORAGE_KEY);
+  const cached = safeLocalStorageGet(DERIVED_WALLET_STORAGE_KEY);
   if (!cached) return null;
 
   try {

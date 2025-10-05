@@ -1,5 +1,11 @@
 # Arbius
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Solidity](https://img.shields.io/badge/Solidity-0.8.19-blue)](https://soliditylang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-4.9+-blue)](https://www.typescriptlang.org/)
+[![Coverage Status](https://coveralls.io/repos/github/semperai/arbius/badge.svg?branch=master)](https://coveralls.io/github/semperai/arbius?branch=master)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/semperai/arbius?utm_source=oss&utm_medium=github&utm_campaign=semperai%2Farbius&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 Peer-to-peer decentralized machine learning - https://arbius.ai
 
 Read paper - https://arbius.ai/paper.pdf
@@ -22,8 +28,6 @@ Arbius is a monorepo:
 
 - **/paper** source for building pdf
 
-- **/subsquids** indexers using https://subsquid.io
-
 ## Documentation
 
 View the full documentation at https://docs.arbius.ai/
@@ -31,3 +35,7 @@ View the full documentation at https://docs.arbius.ai/
 ## License
 
 MIT
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=semperai/arbius&type=Date)](https://star-history.com/#semperai/arbius&Date)

@@ -1,6 +1,11 @@
+'use client';
+
 import React from 'react';
-import Lottie from 'lottie-react';
+import dynamic from 'next/dynamic';
 import loaderJson from './loader.json';
+
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+
 function Loader({ loadingText, height, width}) {
   return (
     <div className='flex h-full w-full items-center justify-center rounded-xl bg-[#fff] p-4'>

@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createPublicClient, http, formatEther, parseEther } from 'viem'
 import { mainnet, arbitrum, arbitrumNova } from 'viem/chains'
-import config from '@/config.json'
 import baseTokenAbi from '@/abis/baseTokenV1.json'
+
+// Legacy config for circulating supply calculation
+const config = {
+  v2_baseTokenAddress: '0x8AFE4055Ebc86Bd2AFB3940c0095C9aca511d852',
+  v2_engineAddress: '0x3BF6050327Fa280Ee1B5F3e8Fd5EA2EfE8A6472a',
+  v4_baseTokenAddress: '0x4a24b101728e07a52053c13fb4db2bcf490cabc3',
+  v4_engineAddress: '0x9b51Ef044d3486A1fB0A2D55A6e0CeeAdd323E66',
+  l1OneToOneAddress: '0x5080a6A0F0b0E21A895841456e5Ed77d26332262',
+  l2OneToOneAddress: '0x5080a6A0F0b0E21A895841456e5Ed77d26332262',
+}
 
 export const runtime = 'edge'
 export const revalidate = 300 // Cache for 5 minutes

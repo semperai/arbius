@@ -10,11 +10,11 @@ import express from 'express';
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
 const signer = new Wallet(process.env.PRIVATE_KEY, provider);
 const port = process.env.PORT || 3000;
-const timeout = process.env.TIMEOUT || 5000;
+const timeout = parseInt(process.env.TIMEOUT || '5000');
 
 let log;
 
-function initializeLogger(log_path, minLevel = 0) {
+export function initializeLogger(log_path, minLevel = 0) {
   log = new Logger({
     minLevel,
   });
@@ -37,9 +37,11 @@ function initializeLogger(log_path, minLevel = 0) {
       fs.appendFileSync(log_path, l);
     });
   }
+
+  return log;
 }
 
-function cidify(cid) {
+export function cidify(cid) {
   if (! cid) {
     return '';
   }
@@ -47,7 +49,7 @@ function cidify(cid) {
 }
 
 
-const app = express();
+export const app = express();
 app.use(express.json());
 
 async function main() {
@@ -96,4 +98,7 @@ app.post('/sign', async (req, res) => {
 });
 
 
-main();
+// Only start server if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  main();
+}

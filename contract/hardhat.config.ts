@@ -36,6 +36,7 @@ const config: HardhatUserConfig = {
       url: envconfig.arbitrum.provider_url,
       accounts: [`0x${envconfig.arbitrum.private_key}`],
     },
+    /*
     arbsepolia: {
       url: envconfig.arbsepolia.provider_url,
       accounts: [`0x${envconfig.arbsepolia.private_key}`],

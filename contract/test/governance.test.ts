@@ -160,15 +160,17 @@ describe("Governance Unit Tests", () => {
         descriptionHash,
       );
 
-      // wait 1 day
-      await network.provider.send("hardhat_mine", ["0x19af"]); // 6575
+      // wait 1 day (voting delay - in blocks, not seconds)
+      // Mine 86400 blocks
+      await network.provider.send("hardhat_mine", ["0x" + (86400).toString(16)]);
 
       // 0 = Against, 1 = For, 2 = Abstain,
       await (await governor.connect(user1).castVote(proposalId, 1)).wait();
       console.log('Vote cast');
 
-      // wait 1 week
-      await network.provider.send("hardhat_mine", ["0xb3cb"]); // 46027
+      // wait 3 days (voting period - in blocks)
+      // Mine 86400 * 3 blocks
+      await network.provider.send("hardhat_mine", ["0x" + (86400 * 3).toString(16)]);
 
       // for timelock
       await (await governor.connect(user1)['queue(address[],uint256[],bytes[],bytes32)'](
@@ -241,15 +243,15 @@ describe("Governance Unit Tests", () => {
         descriptionHash,
       );
 
-      // wait 1 day
-      await network.provider.send("hardhat_mine", ["0x19af"]); // 6575
+      // wait 1 day (voting delay - in blocks)
+      await network.provider.send("hardhat_mine", ["0x" + (86400).toString(16)]);
 
       // 0 = Against, 1 = For, 2 = Abstain,
       await (await governor.connect(user1).castVote(proposalId, 1)).wait();
       console.log('Vote cast');
 
-      // wait 1 week
-      await network.provider.send("hardhat_mine", ["0xb3cb"]); // 46027
+      // wait 3 days (voting period - in blocks)
+      await network.provider.send("hardhat_mine", ["0x" + (86400 * 3).toString(16)]);
 
       // for timelock
       await (await governor.connect(user1)['queue(address[],uint256[],bytes[],bytes32)'](
@@ -313,8 +315,8 @@ describe("Governance Unit Tests", () => {
         descriptionHash,
       );
 
-      // wait 1 day
-      await network.provider.send("hardhat_mine", ["0x19af"]); // 6575
+      // wait 1 day (voting delay - in blocks)
+      await network.provider.send("hardhat_mine", ["0x" + (86400).toString(16)]);
 
       // 0 = Against, 1 = For, 2 = Abstain,
       await (await governor.connect(user1).castVote(proposalId, 1)).wait();
@@ -324,8 +326,8 @@ describe("Governance Unit Tests", () => {
       await (await governor.connect(user2).castVote(proposalId, 0)).wait();
       console.log('Vote cast');
 
-      // wait 1 week
-      await network.provider.send("hardhat_mine", ["0xb3cb"]); // 46027
+      // wait 3 days (voting period - in blocks)
+      await network.provider.send("hardhat_mine", ["0x" + (86400 * 3).toString(16)]);
 
       await expect(
         governor
@@ -418,15 +420,15 @@ describe("Governance Unit Tests", () => {
         descriptionHash,
       );
 
-      // wait 1 day
-      await network.provider.send("hardhat_mine", ["0x19af"]); // 6575
+      // wait 1 day (voting delay - in blocks)
+      await network.provider.send("hardhat_mine", ["0x" + (86400).toString(16)]);
 
       // 0 = Against, 1 = For, 2 = Abstain,
       await (await governor.connect(user1).castVote(proposalId, 1)).wait();
       console.log('Vote cast');
 
-      // do not wait 1 week
-      // await network.provider.send("hardhat_mine", ["0xb3cb"]); // 46027
+      // do not wait for voting period to end
+      // This should fail because voting period is not complete
 
       // for timelock
       await expect(

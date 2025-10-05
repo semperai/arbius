@@ -219,7 +219,6 @@ export const navigation = [
       { title: 'Team', href: 'https://arbius.ai/team', target:'_blank' },
       { title: 'Security', href: '/security', target:'_self' },
       { title: 'Contracts', href: '/ca', target:'_self' },
-      { title: 'Subsquids', href: '/subsquids', target:'_self' },
       { title: 'Whitepaper', href: 'https://arbius.ai/paper.pdf', target:'_blank' },
       { title: 'Brand Guidelines', href: '/Arbius-Brand-Guidelines.pdf', target:'_self' },
       { title: 'Logo', href: '/arbius-logo.zip', target:'_self' },

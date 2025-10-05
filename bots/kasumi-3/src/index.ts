@@ -1,589 +1,636 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import * as fs from 'fs';
-import { ILogObj, Logger } from 'tslog';
-import { Telegraf, Telegram, Input } from 'telegraf';
+
+import { Telegraf, Input } from 'telegraf';
 import { message } from 'telegraf/filters';
-import { Contract, Wallet, ethers } from 'ethers';
-import ArbiusAbi from './abis/arbius.json';
-import ArbiusRouterAbi from './abis/arbiusRouter.json';
-import ERC20Abi from './abis/erc20.json';
-import { base58, base64 } from '@scure/base';
+import { ethers } from 'ethers';
 import axios from 'axios';
+
 import { initializeLogger, log } from './log';
-import {
-  hydrateInput,
-  taskid2Seed,
-  expretry,
-  generateCommitment,
-  cidify,
-  now,
-} from './utils';
-import { initializeIpfsClient, pinFileToIPFS, pinFilesToIPFS } from './ipfs';
-import QwenTemplate from "./templates/qwen_sepolia.json"
+import { initializeIpfsClient } from './ipfs';
+import { now, cidify, expretry } from './utils';
+import { ConfigLoader, loadModelsConfig } from './config';
+import { ModelRegistry } from './services/ModelRegistry';
+import { BlockchainService } from './services/BlockchainService';
+import { JobQueue } from './services/JobQueue';
+import { TaskProcessor } from './services/TaskProcessor';
+import { RateLimiter } from './services/RateLimiter';
+import { HealthCheckServer } from './services/HealthCheckServer';
+import { TaskJob } from './types';
 
-let c: any; // MiningConfig;
+/**
+ * Kasumi-3 Bot - Multi-model Telegram bot for Arbius network
+ */
+class Kasumi3Bot {
+  private bot: Telegraf;
+  private blockchain: BlockchainService;
+  private modelRegistry: ModelRegistry;
+  private jobQueue: JobQueue;
+  private taskProcessor: TaskProcessor;
+  private miningConfig: any;
+  private startupTime: number;
+  private rateLimiter: RateLimiter;
+  private cleanupInterval: NodeJS.Timeout | null = null;
+  private healthCheckServer: HealthCheckServer | null = null;
 
-const modelId = process.env.MODEL_ID!;
+  constructor(
+    botToken: string,
+    blockchain: BlockchainService,
+    modelRegistry: ModelRegistry,
+    jobQueue: JobQueue,
+    taskProcessor: TaskProcessor,
+    miningConfig: any,
+    rateLimitConfig?: { maxRequests: number; windowMs: number }
+  ) {
+    this.bot = new Telegraf(botToken);
+    this.blockchain = blockchain;
+    this.modelRegistry = modelRegistry;
+    this.jobQueue = jobQueue;
+    this.taskProcessor = taskProcessor;
+    this.miningConfig = miningConfig;
+    this.startupTime = now();
+    this.rateLimiter = new RateLimiter(
+      rateLimitConfig || {
+        maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '5'),
+        windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000')
+      }
+    );
 
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL!);
-const wallet = new Wallet(process.env.PRIVATE_KEY!, provider);
-const arbius = new Contract(process.env.ARBIUS_ADDRESS!, ArbiusAbi, wallet);
-const arbiusRouter = new Contract(process.env.ARBIUS_ROUTER_ADDRESS!, ArbiusRouterAbi, wallet);
-const token = new Contract(process.env.TOKEN_ADDRESS!, ERC20Abi, wallet);
+    this.setupHandlers();
+  }
 
-const bot = new Telegraf(process.env.BOT_TOKEN!)
-
-
-const QwenModel = {
-  id:       modelId,
-  template: QwenTemplate,
-  getfiles: async (m: any, taskid: string, input: any) => {
-    const url = "https://api.replicate.com/v1/models/qwen/qwen-image/predictions";
-    input.disable_safety_checker = true;
-
-    let res = null;
-    try {
-      res = await axios.post(url, { input }, {
-        headers: {
-          'Authorization': `Bearer ${process.env.REPLICATE_API_TOKEN!}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'wait',
-        },
-        timeout: 10 * 60 * 1000,
-      });
-    } catch (e) {
-      log.error('error occurred during post');
-      console.error(e);
-    }
-
-    if (! res) {
-      throw new Error('unable to getfiles');
-    }
-
-
-    if (res.data.output.length != 1) {
-      throw new Error('unable to getfiles -- data.output length not 1');
-    }
-
-    const imgurl = res.data.output[0];
-    let datares = null;
-    try {
-      datares = await axios.get(imgurl, {
-        responseType: 'arraybuffer',
-        timeout: 10 * 60 * 1000,
-      });
-    } catch (e) {
-      console.error(e);
-    }
-
-    if (! datares) {
-      throw new Error('unable to get image data');
-    }
-
-    if (datares.status != 200) {
-      throw new Error(`unable to get image data -- status ${datares.status}`);
-    }
-
-    if (! datares.data) {
-      throw new Error('unable to get image data -- no data');
-    }
-
-    const buf = Buffer.from(datares.data, 'utf-8');
-
-    const path = 'out-1.webp';
-    fs.writeFileSync(`${__dirname}/../cache/${path}`, buf);
-
-    return [path];
-  },
-  getcid: async (
-    c: any,
-    model: any,
-    taskid: string,
-    input: any
-  ) => {
-    const paths = await expretry('getfiles', async () => await model.getfiles(model, taskid, input));
-    if (! paths) {
-      throw new Error('cannot get paths');
-    }
-    // TODO calculate cid and pin async
-    const cid58 = await expretry('getcid pinfiles', async () => await pinFilesToIPFS(c, taskid, paths));
-    log.debug(`Pinned files to ipfs: ${cid58}`);
-    if (! cid58) {
-      throw new Error('cannot pin files to retrieve cid');
-    }
-    const cid = '0x'+Buffer.from(base58.decode(cid58)).toString('hex');
-    return cid;
-  },
-};
-
-async function findTransactionByTaskId(taskid: string): Promise<{ txHash: string, prompt: string } | null> {
-  try {
-    // Create filter for TaskSubmitted event with specific taskid
-    const filter = arbius.filters.TaskSubmitted(taskid);
-
-    // Get current block and search last 10,000 blocks
-    const currentBlock = await provider.getBlockNumber();
-    const fromBlock = Math.max(0, currentBlock - 10000);
-
-    log.debug(`Searching for taskid ${taskid} from block ${fromBlock} to ${currentBlock}`);
-
-    // Query logs
-    const logs = await arbius.queryFilter(filter, fromBlock, currentBlock);
-
-    if (logs.length === 0) {
-      log.warn(`No TaskSubmitted event found for taskid: ${taskid}`);
-      return null;
-    }
-
-    // Get the transaction hash from the log
-    const txHash = logs[0].transactionHash;
-    log.debug(`Found transaction hash: ${txHash}`);
-
-    // Fetch the full transaction
-    const tx = await provider.getTransaction(txHash);
-    if (!tx || !tx.data) {
-      log.error(`Could not fetch transaction data for hash: ${txHash}`);
-      return null;
-    }
-
-    // Decode the transaction data using the router's interface
-    try {
-      const decodedData = arbiusRouter.interface.parseTransaction({ data: tx.data });
-
-      if (decodedData?.name !== 'submitTask') {
-        log.error(`Transaction is not a submitTask call: ${decodedData?.name}`);
-        return null;
+  private setupHandlers(): void {
+    // Rate limiting middleware
+    this.bot.use(async (ctx, next) => {
+      const userId = ctx.from?.id;
+      if (!userId) {
+        return next();
       }
 
-      // Extract the input_ parameter (5th argument, index 4)
-      const inputBytes = decodedData.args[4]; // This is the bytes calldata input_
-
-      // Convert from hex to string
-      const inputString = ethers.toUtf8String(inputBytes);
-
-      // Parse the JSON to get the prompt
-      const inputJson = JSON.parse(inputString);
-      const prompt = inputJson.prompt;
-
-      log.debug(`Successfully extracted prompt: ${prompt}`);
-
-      return { txHash, prompt };
-    } catch (decodeError) {
-      log.error(`Failed to decode transaction data: ${decodeError}`);
-      return null;
-    }
-  } catch (error) {
-    log.error(`Error finding transaction by taskid: ${error}`);
-    return null;
-  }
-}
-
-
-async function verifyTask({
-  taskid,
-  taskInputData,
-}: {
-  taskid: string;
-  taskInputData: any;
-}): Promise<string | null> {
-  const hydrated = hydrateInput(taskInputData, QwenModel.template);
-  if (hydrated.err) {
-    log.warn(`Task (${taskid}) hydration error ${hydrated.errmsg}`);
-    return null;
-  }
-
-  hydrated.input.seed = taskid2Seed(taskid);
-
-  const cid = await QwenModel.getcid(
-    c,
-    QwenModel,
-    taskid,
-    hydrated.input
-  );
-  if (!cid) {
-    log.error(`Task (${taskid}) CID could not be generated`);
-    return null;
-  }
-  log.info(`CID ${cid} generated`);
-
-  {
-    const solution = await expretry('solutions', async () => arbius.solutions(taskid));
-    if (solution.validator != ethers.ZeroAddress) {
-      if (solution.cid != cid) {
-        log.error(`Task ${taskid} already solved with different CID`);
-        return null;
-      } else {
-        log.info(`Task ${taskid} already solved`);
-        return cid;
-      }
-    }
-    log.debug(`Task ${taskid} not solved yet, attempting...`);
-  }
-
-  const commitment = generateCommitment(wallet.address, taskid, cid);
-  log.debug(`Commitment ${commitment} generated`);
-  try {
-    const tx = await arbius.signalCommitment(commitment, {
-      gasLimit: 450_000,
-    });
-    log.info(`signalCommitment txHash: ${tx.hash}`);
-  } catch (e) {
-    log.warn(`signalCommitment failed: ${e}`);
-    return cid;
-  }
-
-  // sleep to avoid issue with nonce
-  await new Promise((r) => setTimeout(r, 1 * 1000));
-
-  try {
-    const tx = await arbius.submitSolution(taskid, cid, {
-      gasLimit: 500_000,
-    });
-    const receipt = await tx.wait();
-    log.info(`submitSolution txHash: ${receipt.hash}`);
-  } catch (e) {
-    log.warn(`submitSolution failed: ${e}`);
-    return cid;
-  }
-
-  return cid;
-}
-
-async function submitQwenTask(prompt: string) {
-  const input = JSON.stringify({prompt});
-  const bytes = ethers.hexlify(ethers.toUtf8Bytes(input));
-
-  const modelFee = (await arbius.models(modelId)).fee;
-  log.debug('Model Fee:', ethers.formatEther(modelFee));
-
-  // TODO add task fee
-  const fee = modelFee;
-
-  const tx = await arbiusRouter.submitTask(
-    0,
-    wallet.address,
-    modelId,
-    fee,
-    bytes,
-    0, // ipfs incentive
-    200_000, // gas limit
-  );
-  const receipt = await tx.wait();
-  log.info(`submitTask txHash: ${tx.hash}`);
-
-  let taskid = null;
-  for (const ev of receipt.logs) {
-    try {
-      const d = arbius.interface.parseLog(ev);
-      if (d && d.name == 'TaskSubmitted') {
-        taskid = d.args[0];
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
-  console.log(`taskid: ${taskid}`);
-
-  expretry('submitQwenTask pinfile', async () => await pinFileToIPFS(
-    c,
-    Buffer.from(input, 'utf-8'),
-    `task-${taskid}.json`,
-  )).then((cid) => {
-    log.debug(`Task input ${taskid} pinned with ${cid}`);
-  });
-
-  return taskid;
-}
-
-
-async function bootupChecks() {
-  log.info(`Wallet address: ${wallet.address}`);
-  const balance = await token.balanceOf(wallet.address);
-  log.info(`Arbius balance: ${ethers.formatEther(balance)}`);
-
-  const validatorMinimum = await arbius.getValidatorMinimum();
-  log.info('Validator Minimum Stake:', ethers.formatEther(validatorMinimum));
-
-  const validatorStaked = await arbius.validators(wallet.address);
-  log.info('Validator Staked:', ethers.formatEther(validatorStaked.staked));
-
-  const allowance = await token.allowance(wallet.address, process.env.ARBIUS_ADDRESS!);
-  log.info('Allowance:', ethers.formatEther(allowance));
-  if (allowance < balance) {
-    log.info('Approving Arbius to spend tokens');
-    const tx = await token.approve(process.env.ARBIUS_ADDRESS!, ethers.MaxUint256);
-    const receipt = await tx.wait();
-    log.info('tx:', tx.hash);
-  }
-
-  if (validatorStaked.staked < validatorMinimum) {
-    log.info('Validator has not staked enough');
-
-    const tx = await arbius.validatorDeposit(wallet.address, balance);
-    const receipt = await tx.wait();
-    log.info('tx:', tx.hash);
-  }
-}
-
-let startupTime = now();
-let lastMessageTime = 0;
-async function main(configPath: string) {
-  await initializeLogger('log.txt', 0);
-  log.info('kasumi-3 is starting');
-
-  try {
-    const mconf = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    c = mconf;
-  } catch (e) {
-    console.error(`unable to parse ${configPath}`);
-    process.exit(1);
-  }
-  await initializeIpfsClient(c);
-
-  await bootupChecks();
-
-
-
-  bot.start((ctx) => {
-    ctx.reply(`Hello! I am Kasumi-3, a playful AI assistant. I can perform inference using Arbius. Type /help for more information.`);
-  });
-
-  bot.help((ctx) => {
-    ctx.reply(`Available commands:
-
-  /generate <prompt> - Submit a task and wait for the generated image
-  /submit <prompt> - Just submit a task and get the taskID
-  /process <taskid> - Process an existing task by its taskID
-  /kasumi - Show Kasumi-3's wallet status
-
-  Examples:
-  - /generate a beautiful sunset over mountains
-  - /submit a cat playing piano
-  - /process 0x1234...abcd`);
-  });
-
-  bot.on(message('text'), async (ctx) => {
-    if (now() - startupTime < 3) {
-      log.debug('Ignoring message because bot is still starting up');
-      return;
-    }
-
-    log.debug(ctx.message);
-
-    const text = ctx.message.text.trim();
-
-    log.debug(`User: ${text}`);
-
-
-    if (text.startsWith('/kasumi')) {
-      const staked = ethers.formatEther(
-        (await expretry('kasumi staked', async () => await arbius.validators(wallet.address))).staked
-      );
-
-      const arbiusBalance = ethers.formatEther(
-        await expretry('kasumi arbius balance', async () => await token.balanceOf(wallet.address))
-      );
-      const etherBalance = ethers.formatEther((await expretry('kasumi ether balance', async () => await provider.getBalance(wallet.address))) || 0);
-
-      const response = `Kasumi-3's address: ${wallet.address}\n\nKasumi-3 has a balance of:\n\n${arbiusBalance} AIUS\n${etherBalance} ETH\n${staked} AIUS Staked`;
-
-      ctx.reply(response);
-      return;
-    } else if (text.startsWith('/generate')) {
-      const prompt = ctx.message.text.split(' ').slice(1).join(' ');
-      if (prompt === '') {
-        ctx.reply('Please provide a prompt');
+      if (!this.rateLimiter.checkLimit(userId)) {
+        const resetTime = this.rateLimiter.getResetTime(userId);
+        log.debug(`User ${userId} rate limited, ${resetTime}s until reset`);
+        await ctx.reply(
+          `⏱️ Rate limit exceeded. Please wait ${resetTime} seconds before trying again.\n\n` +
+          `Limit: 5 requests per minute`
+        );
         return;
       }
 
-      let responseCtx;
+      return next();
+    });
+    this.bot.start(ctx => {
+      ctx.reply(
+        `Hello! I am Kasumi-3, an AI inference bot powered by Arbius.\n\n` +
+        `Available models:\n${this.getModelList()}\n\n` +
+        `Type /help for more information.`
+      );
+    });
+
+    this.bot.help(ctx => {
+      const models = this.modelRegistry.getModelNames();
+      const modelCommands = models.map(name => `  /${name} <prompt> - Generate using ${name}`).join('\n');
+
+      ctx.reply(
+        `Available commands:\n\n` +
+        modelCommands + `\n\n` +
+        `  /submit <model> <prompt> - Submit task without waiting\n` +
+        `  /process <taskid> - Process an existing task\n` +
+        `  /status - Show bot health and diagnostics\n` +
+        `  /kasumi - Show Kasumi-3's wallet status\n` +
+        `  /queue - Show job queue status\n\n` +
+        `Examples:\n` +
+        `  /qwen a beautiful sunset over mountains\n` +
+        `  /wai anime girl with blue hair\n` +
+        `  /submit qwen a cat playing piano\n` +
+        `  /process 0x1234...abcd`
+      );
+    });
+
+    this.bot.command('kasumi', async ctx => {
       try {
-        responseCtx = await ctx.replyWithPhoto(Input.fromURL('https://arbius.ai/mining-icon.png'), {
-          caption: `Beep boop beep!`,
-        });
-      } catch (e) {
-        log.error(`failed to reply with photo: ${e}`);
+        const staked = ethers.formatEther(await this.blockchain.getValidatorStake());
+        const arbiusBalance = ethers.formatEther(await this.blockchain.getBalance());
+        const etherBalance = ethers.formatEther(await this.blockchain.getEthBalance());
+        const address = this.blockchain.getWalletAddress();
+
+        ctx.reply(
+          `Kasumi-3's address: ${address}\n\n` +
+          `Balances:\n` +
+          `${arbiusBalance} AIUS\n` +
+          `${etherBalance} ETH\n` +
+          `${staked} AIUS Staked`
+        );
+      } catch (err) {
+        log.error(`Error in /kasumi command: ${err}`);
+        ctx.reply('❌ Failed to fetch wallet status');
+      }
+    });
+
+    this.bot.command('queue', async ctx => {
+      const stats = this.jobQueue.getQueueStats();
+      ctx.reply(
+        `📊 Queue Status:\n\n` +
+        `Total jobs: ${stats.total}\n` +
+        `Pending: ${stats.pending}\n` +
+        `Processing: ${stats.processing}\n` +
+        `Completed: ${stats.completed}\n` +
+        `Failed: ${stats.failed}`
+      );
+    });
+
+    this.bot.command('status', async ctx => {
+      try {
+        // Get blockchain info
+        const address = this.blockchain.getWalletAddress();
+        const arbiusBalance = await this.blockchain.getBalance();
+        const ethBalance = await this.blockchain.getEthBalance();
+        const validatorStaked = await this.blockchain.getValidatorStake();
+        const validatorMinimum = await this.blockchain.getValidatorMinimum();
+
+        // Get queue stats
+        const queueStats = this.jobQueue.getQueueStats();
+
+        // Get rate limiter stats
+        const rateLimiterStats = this.rateLimiter.getStats();
+
+        // Calculate uptime
+        const uptimeSeconds = now() - this.startupTime;
+        const uptimeMinutes = Math.floor(uptimeSeconds / 60);
+        const uptimeHours = Math.floor(uptimeMinutes / 60);
+
+        // Check health indicators
+        const hasEnoughGas = ethBalance > ethers.parseEther('0.01'); // 0.01 ETH minimum
+        const hasEnoughAius = arbiusBalance > ethers.parseEther('1'); // 1 AIUS minimum
+        const isStakedEnough = validatorStaked >= validatorMinimum;
+        const queueHealthy = queueStats.processing < 10; // Less than 10 processing
+
+        const healthStatus = hasEnoughGas && hasEnoughAius && isStakedEnough && queueHealthy
+          ? '✅ Healthy'
+          : '⚠️ Needs Attention';
+
+        const warnings = [];
+        if (!hasEnoughGas) warnings.push('⚠️ Low ETH (need gas for transactions)');
+        if (!hasEnoughAius) warnings.push('⚠️ Low AIUS balance');
+        if (!isStakedEnough) warnings.push('⚠️ Not staked enough for validation');
+        if (!queueHealthy) warnings.push('⚠️ High queue processing load');
+
+        const warningsText = warnings.length > 0 ? '\n\n' + warnings.join('\n') : '';
+
+        ctx.reply(
+          `🔍 Kasumi-3 Status\n\n` +
+          `${healthStatus}\n\n` +
+          `**Wallet**\n` +
+          `Address: \`${address.slice(0, 10)}...${address.slice(-8)}\`\n` +
+          `AIUS: ${ethers.formatEther(arbiusBalance)} ${hasEnoughAius ? '✅' : '⚠️'}\n` +
+          `ETH: ${ethers.formatEther(ethBalance)} ${hasEnoughGas ? '✅' : '⚠️'}\n` +
+          `Staked: ${ethers.formatEther(validatorStaked)} / ${ethers.formatEther(validatorMinimum)} ${isStakedEnough ? '✅' : '⚠️'}\n\n` +
+          `**Job Queue**\n` +
+          `Total: ${queueStats.total}\n` +
+          `Pending: ${queueStats.pending}\n` +
+          `Processing: ${queueStats.processing} ${queueHealthy ? '✅' : '⚠️'}\n` +
+          `Completed: ${queueStats.completed}\n` +
+          `Failed: ${queueStats.failed}\n\n` +
+          `**System**\n` +
+          `Uptime: ${uptimeHours}h ${uptimeMinutes % 60}m\n` +
+          `Active Users: ${rateLimiterStats.activeUsers}\n` +
+          `Models: ${this.modelRegistry.getAllModels().length}\n` +
+          `Rate Limit: ${rateLimiterStats.config.maxRequests} req/${rateLimiterStats.config.windowMs / 1000}s` +
+          warningsText,
+          { parse_mode: 'Markdown' }
+        );
+      } catch (err: any) {
+        log.error(`Error in /status command: ${err.message}`);
+        ctx.reply('❌ Failed to fetch status');
+      }
+    });
+
+    this.bot.command('submit', async ctx => {
+      await this.handleSubmit(ctx);
+    });
+
+    this.bot.command('process', async ctx => {
+      await this.handleProcess(ctx);
+    });
+
+    // Handle text messages for dynamic model commands
+    this.bot.on(message('text'), async ctx => {
+      if (now() - this.startupTime < 3) {
+        log.debug('Ignoring message - bot still starting up');
         return;
       }
 
-      const taskid = await submitQwenTask(prompt);
-      log.debug(`taskid: ${taskid}`);
+      const text = ctx.message.text.trim();
+      log.debug(`User message: ${text}`);
+
+      // Check if it's a model command
+      if (text.startsWith('/')) {
+        const parts = text.split(' ');
+        const commandName = parts[0].substring(1).toLowerCase();
+        const prompt = parts.slice(1).join(' ');
+
+        // Check if this is a model command
+        const modelConfig = this.modelRegistry.getModelByName(commandName);
+        if (modelConfig) {
+          await this.handleModelCommand(ctx, modelConfig, prompt);
+          return;
+        }
+      }
+    });
+  }
+
+  private getModelList(): string {
+    return this.modelRegistry
+      .getAllModels()
+      .map(m => `  /${m.name} - ${m.template.meta.title}`)
+      .join('\n');
+  }
+
+  private async handleModelCommand(ctx: any, modelConfig: any, prompt: string): Promise<void> {
+    if (!prompt) {
+      ctx.reply(`Please provide a prompt. Usage: /${modelConfig.name} <your prompt>`);
+      return;
+    }
+
+    log.info(`Generating with model ${modelConfig.name}: ${prompt}`);
+
+    let responseCtx;
+    try {
+      responseCtx = await ctx.replyWithPhoto(Input.fromURL('https://arbius.ai/mining-icon.png'), {
+        caption: `🔄 Processing with ${modelConfig.template.meta.title}...`,
+      });
+    } catch (e) {
+      log.debug(`Failed to send initial photo, using text fallback: ${e}`);
+      responseCtx = await ctx.reply(`🔄 Processing with ${modelConfig.template.meta.title}...`);
+    }
+
+    try {
+      // Submit task and add to queue
+      const { taskid, job } = await this.taskProcessor.submitAndQueueTask(
+        modelConfig,
+        { prompt },
+        0n,
+        {
+          chatId: ctx.chat.id,
+          messageId: responseCtx?.message_id,
+          telegramId: ctx.from?.id
+        }
+      );
 
       const taskUrl = `https://arbius.ai/task/${taskid}`;
-      if (taskid) {
+
+      // Update message with task URL
+      if (responseCtx) {
         try {
-          bot.telegram.editMessageCaption(
+          await this.bot.telegram.editMessageCaption(
             responseCtx.chat.id,
             responseCtx.message_id,
             undefined,
-            taskUrl,
+            `⏳ Task submitted: ${taskUrl}`
           );
         } catch (e) {
-          log.error(`failed to edit message caption: ${e}`);
-          return;
+          log.warn(`Failed to update message caption: ${e}`);
         }
       }
 
-      let cid: string | null = null;
-      try {
-        cid = await verifyTask({
-          taskid,
-          taskInputData: {
-            prompt,
-          },
-        });
-      } catch (e) {
-        log.error(`failed to verify task: ${e}`);
-        return;
-      }
-
-      if (cid) {
-        const imageUrl = `https://ipfs.arbius.org/ipfs/${cidify(cid!)}/out-1.webp`;
-        log.info(`Image URL: ${imageUrl}`);
-
-        try {
-          const resp = await axios.get(imageUrl, { timeout: 30 * 1000 });
-        } catch (e) {
-          log.error(`failed to get image from ipfs: ${e}`);
-          return;
-        }
-
-        try {
-          responseCtx = await ctx.replyWithPhoto(Input.fromURL(imageUrl), {
-            caption: imageUrl,
-          });
-        } catch (e) {
-          log.error(`failed to respond: ${e}`);
-          return;
-        }
-      }
+      // Wait for job to complete
+      await this.waitForJobCompletion(job, ctx, responseCtx);
+    } catch (err: any) {
+      log.error(`Error in model command: ${err.message}`);
+      ctx.reply(`❌ Failed to process request: ${err.message}`);
     }
-  else if (text.startsWith('/submit')) {
-    const prompt = ctx.message.text.split(' ').slice(1).join(' ');
-    if (prompt === '') {
-      ctx.reply('Please provide a prompt. Usage: /submit <your prompt>');
+  }
+
+  private async handleSubmit(ctx: any): Promise<void> {
+    const parts = ctx.message.text.split(' ');
+    if (parts.length < 3) {
+      ctx.reply('Usage: /submit <model> <prompt>');
       return;
     }
 
-    // Send initial processing message
-    ctx.reply('⏳ Submitting task to Arbius...');
+    const modelName = parts[1].toLowerCase();
+    const prompt = parts.slice(2).join(' ');
 
-    const taskid = await submitQwenTask(prompt);
-
-    if (taskid) {
-      const taskUrl = `https://arbius.ai/task/${taskid}`;
-      const message = `✅ Task submitted successfully!\n\nTaskID: \`${taskid}\`\nPrompt: "${prompt}"\n\nView on Arbius: ${taskUrl}\n\nYou can process this task later using:\n/process ${taskid}`;
-
-      ctx.reply(message, {
-        parse_mode: 'Markdown',
-      });
-
-      console.log(`Task submitted - TaskID: ${taskid}, Prompt: "${prompt}"`);
-    } else {
-      ctx.reply('❌ Failed to submit task. Please check the logs for details.');
+    const modelConfig = this.modelRegistry.getModelByName(modelName);
+    if (!modelConfig) {
+      ctx.reply(`❌ Unknown model: ${modelName}\n\nAvailable models:\n${this.getModelList()}`);
+      return;
     }
 
-    return;
+    try {
+      ctx.reply('⏳ Submitting task...');
+
+      const { taskid } = await this.taskProcessor.submitAndQueueTask(
+        modelConfig,
+        { prompt },
+        0n
+      );
+
+      const taskUrl = `https://arbius.ai/task/${taskid}`;
+      ctx.reply(
+        `✅ Task submitted!\n\n` +
+        `TaskID: \`${taskid}\`\n` +
+        `Model: ${modelConfig.template.meta.title}\n` +
+        `Prompt: "${prompt}"\n\n` +
+        `View on Arbius: ${taskUrl}\n\n` +
+        `Process later with:\n/process ${taskid}`,
+        { parse_mode: 'Markdown' }
+      );
+    } catch (err: any) {
+      log.error(`Error in /submit: ${err.message}`);
+      ctx.reply(`❌ Failed to submit task: ${err.message}`);
+    }
   }
-    else if (text.startsWith('/process')) {
-      const taskid = text.split(' ').slice(1)[0];
-      if (!taskid) {
-        ctx.reply('Please provide a taskid');
+
+  private async handleProcess(ctx: any): Promise<void> {
+    const parts = ctx.message.text.split(' ');
+    if (parts.length < 2) {
+      ctx.reply('Usage: /process <taskid>');
+      return;
+    }
+
+    const taskid = parts[1];
+
+    try {
+      // Check if already in queue
+      let job = this.jobQueue.getJobByTaskId(taskid);
+      if (job) {
+        ctx.reply(`⏳ Task ${taskid} is already in the queue (status: ${job.status})`);
         return;
       }
 
       let responseCtx;
       try {
         responseCtx = await ctx.replyWithPhoto(Input.fromURL('https://arbius.ai/mining-icon.png'), {
-          caption: `Processing task: ${taskid}`,
+          caption: `🔍 Looking up task ${taskid}...`,
         });
       } catch (e) {
-        log.error(`failed to reply with photo: ${e}`);
-        return;
+        ctx.reply(`🔍 Looking up task ${taskid}...`);
       }
 
-      // Fetch transaction and decode prompt
-      const txData = await findTransactionByTaskId(taskid);
-
+      // Fetch transaction to get model and input
+      const txData = await this.blockchain.findTransactionByTaskId(taskid);
       if (!txData) {
-        log.error(`Could not find transaction data for taskid: ${taskid}`);
         ctx.reply(`❌ Could not find task ${taskid}. It may be too old or not yet confirmed.`);
         return;
       }
 
-      const { txHash, prompt } = txData;
-      log.info(`Found task ${taskid} in tx ${txHash} with prompt: ${prompt}`);
-
-      // Update the message to show we found the task
-      try {
-        bot.telegram.editMessageCaption(
-          responseCtx.chat.id,
-          responseCtx.message_id,
-          undefined,
-          `Found task ${taskid}\nPrompt: "${prompt}"\nProcessing...`,
-        );
-      } catch (e) {
-        log.error(`failed to edit message caption: ${e}`);
-      }
-
-      let cid: string | null = null;
-      try {
-        cid = await verifyTask({
-          taskid,
-          taskInputData: {
-            prompt,
-          },
-        });
-      } catch (e) {
-        log.error(`failed to verify task: ${e}`);
-        ctx.reply(`❌ Failed to verify task ${taskid}`);
+      // Find the model by ID extracted from transaction
+      const modelConfig = this.modelRegistry.getModelById(txData.modelId);
+      if (!modelConfig) {
+        ctx.reply(`❌ Unknown model ID: ${txData.modelId}. This model is not registered.`);
         return;
       }
 
-      if (cid) {
-        const imageUrl = `https://ipfs.arbius.org/ipfs/${cidify(cid!)}/out-1.webp`;
-        log.info(`Image URL: ${imageUrl}`);
-
+      if (responseCtx) {
         try {
-          const resp = await axios.get(imageUrl, { timeout: 30 * 1000 });
+          await this.bot.telegram.editMessageCaption(
+            responseCtx.chat.id,
+            responseCtx.message_id,
+            undefined,
+            `⏳ Found task! Processing...`
+          );
         } catch (e) {
-          log.error(`failed to get image from ipfs: ${e}`);
-          ctx.reply(`❌ Generated image but could not retrieve from IPFS`);
-          return;
+          log.warn(`Failed to update message caption: ${e}`);
         }
-
-        try {
-          responseCtx = await ctx.replyWithPhoto(Input.fromURL(imageUrl), {
-            caption: `✅ Task ${taskid} processed\nPrompt: "${prompt}"\nImage: ${imageUrl}`,
-          });
-        } catch (e) {
-          log.error(`failed to respond: ${e}`);
-          return;
-        }
-      } else {
-        ctx.reply(`❌ Could not generate CID for task ${taskid}`);
       }
-    }
-    else {
-      // do not respond if not generating
-      return;
-    }
-  });
 
-  bot.launch(() => {
-    startupTime = now();
-    log.info("Telegram bot launched");
-  });
+      job = await this.taskProcessor.processExistingTask(taskid, modelConfig, {
+        chatId: ctx.chat.id,
+        messageId: responseCtx?.message_id,
+      });
 
-  // Enable graceful stop
-  process.once('SIGINT', () => bot.stop('SIGINT'))
-  process.once('SIGTERM', () => bot.stop('SIGTERM'));
+      await this.waitForJobCompletion(job, ctx, responseCtx);
+    } catch (err: any) {
+      log.error(`Error in /process: ${err.message}`);
+      ctx.reply(`❌ Failed to process task: ${err.message}`);
+    }
+  }
+
+  private async waitForJobCompletion(job: TaskJob, ctx: any, responseCtx?: any): Promise<void> {
+    const maxWaitTime = parseInt(process.env.JOB_WAIT_TIMEOUT_MS || '900000'); // 15 minutes default
+
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        cleanup();
+        ctx.reply(`⏰ Task is taking longer than expected. Check back later with /queue`);
+        resolve();
+      }, maxWaitTime);
+
+      const onStatusChange = async (updatedJob: TaskJob) => {
+        if (updatedJob.id !== job.id) return;
+
+        if (updatedJob.status === 'completed' && updatedJob.cid) {
+          cleanup();
+          await this.sendCompletedResult(ctx, responseCtx, updatedJob);
+          resolve();
+        } else if (updatedJob.status === 'failed') {
+          cleanup();
+          ctx.reply(`❌ Task failed: ${updatedJob.error || 'Unknown error'}`);
+          resolve();
+        }
+      };
+
+      const cleanup = () => {
+        clearTimeout(timeout);
+        this.jobQueue.off('jobStatusChange', onStatusChange);
+      };
+
+      this.jobQueue.on('jobStatusChange', onStatusChange);
+
+      // Check if job is already completed (race condition)
+      const currentJob = this.jobQueue.getJob(job.id);
+      if (currentJob) {
+        if (currentJob.status === 'completed' && currentJob.cid) {
+          cleanup();
+          this.sendCompletedResult(ctx, responseCtx, currentJob).then(resolve);
+        } else if (currentJob.status === 'failed') {
+          cleanup();
+          ctx.reply(`❌ Task failed: ${currentJob.error || 'Unknown error'}`);
+          resolve();
+        }
+      }
+    });
+  }
+
+  private async sendCompletedResult(ctx: any, responseCtx: any, job: TaskJob): Promise<void> {
+    const outputType = job.modelConfig.template.output[0].type;
+    const outputFilename = job.modelConfig.template.output[0].filename;
+    const fileUrl = `https://ipfs.arbius.org/ipfs/${cidify(job.cid!)}/${outputFilename}`;
+
+    log.info(`Task completed: ${fileUrl}`);
+
+    try {
+      // Verify the file is accessible with retry logic
+      const verifyFile = async () => {
+        const response = await axios.get(fileUrl, { timeout: 60 * 1000 });
+        return response;
+      };
+
+      const fileResponse = await expretry('verifyIPFSFile', verifyFile, 3, 2);
+
+      if (!fileResponse) {
+        throw new Error('Failed to verify file accessibility after retries');
+      }
+
+      const caption = `✅ Task ${job.taskid} completed\nView: ${fileUrl}`;
+
+      if (outputType === 'image') {
+        await ctx.replyWithPhoto(Input.fromURL(fileUrl), { caption });
+      } else if (outputType === 'video') {
+        await ctx.replyWithVideo(Input.fromURL(fileUrl), { caption });
+      } else if (outputType === 'audio') {
+        await ctx.replyWithAudio(Input.fromURL(fileUrl), { caption });
+      } else if (outputType === 'text') {
+        const text = fileResponse.data;
+        ctx.reply(`✅ Task ${job.taskid} completed\n\n${text.substring(0, 4000)}`);
+      } else {
+        // Unknown type - send as document
+        await ctx.replyWithDocument(Input.fromURL(fileUrl), { caption });
+      }
+    } catch (err: any) {
+      log.error(`Failed to send result via Telegram: ${err.message}`);
+      // Fallback to link if Telegram upload fails
+      ctx.reply(`✅ Task completed but couldn't upload to Telegram.\n\nDownload: ${fileUrl}`);
+    }
+  }
+
+  async launch(): Promise<void> {
+    await this.bot.launch();
+    this.startupTime = now();
+    log.info('Telegram bot launched successfully');
+
+    // Start health check server if port is configured
+    const healthCheckPort = parseInt(process.env.HEALTH_CHECK_PORT || '0');
+    if (healthCheckPort > 0) {
+      this.healthCheckServer = new HealthCheckServer(
+        healthCheckPort,
+        this.blockchain,
+        this.jobQueue,
+        this.startupTime
+      );
+      await this.healthCheckServer.start();
+    }
+
+    // Graceful shutdown
+    const shutdown = async (signal: string) => {
+      log.info(`Received ${signal}, shutting down gracefully...`);
+      await this.shutdown();
+      this.bot.stop(signal);
+    };
+
+    process.once('SIGINT', () => shutdown('SIGINT'));
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
+
+    // Periodic cleanup of old jobs
+    this.cleanupInterval = setInterval(() => {
+      this.jobQueue.clearOldJobs(24 * 60 * 60 * 1000); // 24 hours
+    }, 60 * 60 * 1000); // every hour
+  }
+
+  async shutdown(): Promise<void> {
+    log.info('Shutting down bot services...');
+
+    // Shutdown health check server
+    if (this.healthCheckServer) {
+      await this.healthCheckServer.shutdown();
+      this.healthCheckServer = null;
+    }
+
+    // Clear cleanup interval
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
+
+    // Shutdown job queue
+    this.jobQueue.shutdown();
+
+    // Shutdown rate limiter
+    this.rateLimiter.shutdown();
+
+    log.info('Bot services shut down successfully');
+  }
 }
 
-if (process.argv.length < 3) {
-  console.error('usage: yarn start:dev MiningConfig.json');
-  process.exit(1);
+async function main() {
+  const configPath = process.argv[2] || 'MiningConfig.json';
+  const modelsConfigPath = process.argv[3] || 'ModelsConfig.json';
+
+  await initializeLogger('log.txt', 0);
+  log.info('Kasumi-3 is starting...');
+
+  // Load configuration
+  const configLoader = new ConfigLoader(configPath);
+  const miningConfig = configLoader.getMiningConfig();
+  const modelsConfig = loadModelsConfig(modelsConfigPath);
+
+  // Initialize IPFS
+  await initializeIpfsClient(miningConfig);
+
+  // Initialize blockchain service
+  const blockchain = new BlockchainService(
+    ConfigLoader.getEnvVar('RPC_URL'),
+    ConfigLoader.getEnvVar('PRIVATE_KEY'),
+    ConfigLoader.getEnvVar('ARBIUS_ADDRESS'),
+    ConfigLoader.getEnvVar('ARBIUS_ROUTER_ADDRESS'),
+    ConfigLoader.getEnvVar('TOKEN_ADDRESS')
+  );
+
+  // Perform startup checks
+  log.info(`Wallet address: ${blockchain.getWalletAddress()}`);
+  const balance = await blockchain.getBalance();
+  log.info(`Balance: ${ethers.formatEther(balance)} AIUS`);
+
+  const validatorMinimum = await blockchain.getValidatorMinimum();
+  log.info(`Validator minimum: ${ethers.formatEther(validatorMinimum)} AIUS`);
+
+  const validatorStaked = await blockchain.getValidatorStake();
+  log.info(`Validator staked: ${ethers.formatEther(validatorStaked)} AIUS`);
+
+  // Ensure approvals and staking
+  await blockchain.ensureApproval();
+  await blockchain.ensureValidatorStake();
+
+  // Initialize model registry
+  const modelRegistry = new ModelRegistry();
+  modelRegistry.loadModelsFromConfig(modelsConfig.models);
+
+  log.info(`Registered ${modelRegistry.getAllModels().length} models`);
+
+  // Initialize job queue with processor callback
+  const maxConcurrent = parseInt(process.env.JOB_MAX_CONCURRENT || '3');
+  const jobTimeoutMs = parseInt(process.env.JOB_TIMEOUT_MS || '900000');
+
+  const taskProcessor = new TaskProcessor(blockchain, miningConfig, null as any);
+  const jobQueue = new JobQueue(maxConcurrent, async (job: TaskJob) => {
+    try {
+      await taskProcessor.processTask(job);
+    } catch (err: any) {
+      log.error(`Failed to process job ${job.id}: ${err.message}`);
+    }
+  }, jobTimeoutMs);
+
+  // Set the job queue in task processor
+  (taskProcessor as any).jobQueue = jobQueue;
+
+  // Initialize bot
+  const bot = new Kasumi3Bot(
+    ConfigLoader.getEnvVar('BOT_TOKEN'),
+    blockchain,
+    modelRegistry,
+    jobQueue,
+    taskProcessor,
+    miningConfig
+  );
+
+  await bot.launch();
+  log.info('Kasumi-3 is ready!');
 }
 
-main(process.argv[2]);
+if (require.main === module) {
+  main().catch(err => {
+    console.error('Fatal error:', err);
+    process.exit(1);
+  });
+}

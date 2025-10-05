@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAccount, useChainId, useReadContract } from 'wagmi'
 import { useContractWriteHook } from '@/hooks/useContractWrite'
 import { formatUnits, parseUnits } from 'viem'
+import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/Skeleton'
 import baseTokenAbi from '@/abis/baseTokenV1.json'
 import votingEscrowAbi from '@/abis/votingEscrow.json'
 import { ARBIUS_CONFIG } from '@/config/arbius'
@@ -27,7 +29,7 @@ export function StakeSection() {
   const baseTokenAddress = config?.baseTokenAddress
 
   // Read AIUS balance
-  const { data: balance, refetch: refetchBalance } = useReadContract({
+  const { data: balance, refetch: refetchBalance, isLoading: isLoadingBalance } = useReadContract({
     address: baseTokenAddress,
     abi: baseTokenAbi.abi,
     functionName: 'balanceOf',
@@ -36,7 +38,7 @@ export function StakeSection() {
   })
 
   // Read allowance
-  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+  const { data: allowance, refetch: refetchAllowance, isLoading: isLoadingAllowance } = useReadContract({
     address: baseTokenAddress,
     abi: baseTokenAbi.abi,
     functionName: 'allowance',
@@ -166,8 +168,11 @@ export function StakeSection() {
         functionName: 'approve',
         args: [veAIUSAddress, amountBigInt],
       })
-    } catch (error) {
-      setValidationError('Approval failed. Please try again.')
+      toast.success('Approval transaction submitted')
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Approval failed. Please try again.'
+      setValidationError(errorMessage)
+      toast.error(`Approval failed: ${errorMessage}`)
       setIsApproving(false)
     }
   }, [amount, veAIUSAddress, baseTokenAddress, writeContract, validateAll])
@@ -201,8 +206,11 @@ export function StakeSection() {
         functionName: 'create_lock',
         args: [amountBigInt, BigInt(unlockTime)],
       })
-    } catch (error) {
-      setValidationError('Lock transaction failed. Please try again.')
+      toast.success('Lock transaction submitted')
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Lock transaction failed. Please try again.'
+      setValidationError(errorMessage)
+      toast.error(`Lock failed: ${errorMessage}`)
       setIsStaking(false)
     }
   }, [amount, address, veAIUSAddress, totalLockSeconds, writeContract, validateAll])
@@ -212,6 +220,7 @@ export function StakeSection() {
       if (isApproving) {
         setIsApproving(false)
         refetchAllowance()
+        toast.success('Approval confirmed!')
       }
       if (isStaking) {
         setIsStaking(false)
@@ -219,9 +228,17 @@ export function StakeSection() {
         setMonths(12)
         setWeeks(0)
         refetchBalance()
+        toast.success('Lock confirmed! You now have veAIUS voting power.')
       }
     }
   }, [isSuccess, isApproving, isStaking, refetchAllowance, refetchBalance])
+
+  useEffect(() => {
+    if (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
+      toast.error(errorMessage)
+    }
+  }, [error])
 
   const unlockDate = new Date(Date.now() + totalLockSeconds * 1000)
 
@@ -250,9 +267,13 @@ export function StakeSection() {
           <div className="grid gap-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 p-4 sm:grid-cols-2">
             <div>
               <p className="text-xs text-gray-600">Available AIUS</p>
-              <p className="text-xl font-bold text-gray-900">
-                {parseFloat(balanceFormatted).toFixed(4)}
-              </p>
+              {isLoadingBalance ? (
+                <Skeleton className="h-7 w-24" />
+              ) : (
+                <p className="text-xl font-bold text-gray-900">
+                  {parseFloat(balanceFormatted).toFixed(4)}
+                </p>
+              )}
             </div>
             <div>
               <p className="text-xs text-gray-600">Estimated APR</p>
