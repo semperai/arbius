@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@helia/verified-fetch": "^2.6.19",
-    "@scure/base": "^1.2.6",
+    "@scure/base": "^2.0.0",
     "@vitest/coverage-v8": "^3.2.4",
     "dotenv": "^17.2.3",
     "ethers": "^5.8.0",
