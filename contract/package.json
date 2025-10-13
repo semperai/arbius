@@ -50,7 +50,7 @@
     "ganache-cli": "^6.12.2",
     "hardhat": "^2.26.3",
     "hardhat-contract-sizer": "^2.10.1",
-    "hardhat-gas-reporter": "^1.0.10",
+    "hardhat-gas-reporter": "^2.3.0",
     "husky": "^9.1.7",
     "mocha": "^9.2.2",
     "prettier": "^2.8.8",
