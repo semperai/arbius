@@ -39,3 +39,6 @@ MIT
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=semperai/arbius&type=Date)](https://star-history.com/#semperai/arbius&Date)
+
+
+<!-- Security scan triggered at 2026-08-31 16:48:43 -->
