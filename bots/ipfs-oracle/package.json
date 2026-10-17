@@ -20,7 +20,7 @@
     "tslog": "^4.10.2"
   },
   "devDependencies": {
-    "@vitest/ui": "^3.2.4",
+    "@vitest/ui": "^4.0.6",
     "supertest": "^7.1.4",
     "vitest": "^3.2.4"
   }
