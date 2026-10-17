@@ -27,7 +27,7 @@
     "better-sqlite3": "^12.4.1",
     "dotenv": "^17.2.3",
     "ethers": "^6.15.0",
-    "ipfs-http-client": "^56.0.3",
+    "ipfs-http-client": "^60.0.1",
     "telegraf": "^4.16.3",
     "tslog": "^4.10.2",
     "typescript": "^5.9.3",
